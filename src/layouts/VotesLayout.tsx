@@ -11,20 +11,15 @@ export function VotesLayout() {
   const votes: any = useAllVotesQuery();
       
 
-  if (!votes) {
-    return (
-      <StyledContainer>
-        <Typography>Loading...</Typography>
-      </StyledContainer>
-    );
-  }
   return (
-    <StyledContainer title={title}>
-      <StyledList gap={15}>
-        {Object.keys(votes).map(function (key, index) {
-          return <Vote vote={votes[key]} key={key} address={key} />;
-        })}
-      </StyledList>
+    <StyledContainer title={title} loading={!votes} loaderAmount={3}>
+      {votes && (
+        <StyledList gap={15}>
+          {Object.keys(votes).map(function (key, index) {
+            return <Vote vote={votes[key]} key={key} address={key} />;
+          })}
+        </StyledList>
+      )}
     </StyledContainer>
   );
 }

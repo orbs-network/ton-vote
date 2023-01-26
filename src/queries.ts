@@ -14,13 +14,10 @@ import {
   getVotingPower,
 } from "contracts-api/main";
 import _ from "lodash";
+import { useEffect } from "react";
 import { useClient, useClient4 } from "store/client-store";
-import {
-  useWalletAddress,
-  useConnection,
-  useWalletStore,
-} from "store/wallet-store";
-import { Address, beginCell, toNano } from "ton";
+import { useConnection } from "store/wallet-store";
+import { beginCell, toNano } from "ton";
 import { votingContract } from "./contracts-api/main";
 
 enum QueryKeys {
@@ -31,6 +28,17 @@ enum QueryKeys {
   GET_ALL_VOTES = "GET_ALL_VOTES",
 }
 
+export const useTransactionsTest = () => {
+  useEffect(() => {
+    async () => {
+      const res = await getTransactions();
+      console.log(res);
+    };
+  }, []);
+};
+
+const handleData = async () => {};
+
 export const useTransactionsQuery = () => {
   const { client } = useClient();
   const { client4 } = useClient4();
@@ -39,19 +47,18 @@ export const useTransactionsQuery = () => {
   return useInfiniteQuery(
     [QueryKeys.TRANSACTIONS],
     async ({ pageParam = undefined }) => {
-      return getTransactions(client, pageParam);
-    },
-    {
-      staleTime: Infinity,
-      getNextPageParam: (lastPage) => lastPage?.paging,
-      onSuccess: async (res) => {
-        const pages = (
-          queryClient.getQueryData([QueryKeys.TRANSACTIONS]) as any
-        ).pages;
+      const result = await getTransactions(client, pageParam);
 
-        const onlyTxs = pages.map((it: any) => it.allTxns);
+      if (result.allTxns.length) {
+        const currentTransactionsData = queryClient.getQueryData([
+          QueryKeys.TRANSACTIONS,
+        ]) as any;
 
-        const transactions = [...new Set(onlyTxs.flat())];
+        const prevPages = currentTransactionsData
+          ? currentTransactionsData.pages
+          : [];
+        const onlyTxs = [...prevPages, result].map((it: any) => it.allTxns);
+        const transactions = _.flatten(onlyTxs);
         const proposalInfo = await queryClient.ensureQueryData({
           queryKey: [QueryKeys.PROPOSAL_INFO],
           queryFn: () => getProposalInfo(client),
@@ -79,7 +86,12 @@ export const useTransactionsQuery = () => {
         queryClient.setQueryData([QueryKeys.GET_ALL_VOTES], allVotes);
         queryClient.setQueryData([QueryKeys.CURRENT_RESULTS], currentResults);
         queryClient.setQueryData([QueryKeys.VOTING_POWER], votingPower);
-      },
+      }
+      return result;
+    },
+    {
+      staleTime: Infinity,
+      getNextPageParam: (lastPage) => lastPage?.paging,
     }
   );
 };
@@ -157,9 +169,19 @@ export const useSendTransaction = () => {
   const { refetch } = useTransactionsRefetchQuery();
 
   return useMutation(async ({ value }: { value: "yes" | "no" | "abstain" }) => {
+    // const waiter = await waitForSeqno(
+    //   client!.openWalletFromAddress({
+    //     source: Address.parse(walletAddress!!),
+    //   })
+    // );
+
+    // const onSuccess = async () => {
+    //   await waiter();
+    //   // handle success
+    // }
     const cell = beginCell();
 
-    console.log(value, "SHAHAR*(*(")
+    console.log(value, "SHAHAR*(*(");
 
     switch (value) {
       case "yes":
@@ -172,7 +194,7 @@ export const useSendTransaction = () => {
         cell.storeUint(97, 8);
         break;
       default:
-        throw new Error("unknown option")
+        throw new Error("unknown option");
     }
 
     const c = cell.endCell();

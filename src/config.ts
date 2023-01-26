@@ -7,6 +7,7 @@ import { Provider, WalletProvider } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
+export const BASE_ERROR_MESSAGE = "Oops, something went wrong";
 
 export const walletAdapters: WalletProvider[] = [
   {
@@ -14,12 +15,14 @@ export const walletAdapters: WalletProvider[] = [
     icon: TonKeeperLogo,
     title: "Tonkeeper",
     description: "A Non-custodial cryptocurrency wallet",
+    reminder: "Please approve transaction on you mobile",
   },
   {
     type: Provider.TONHUB,
     icon: TonhubLogo,
     title: "Tonhub",
     description: "A mobile wallet in your pocket",
+    reminder: "Please approve transaction on you mobile",
   },
   {
     type: Provider.EXTENSION,

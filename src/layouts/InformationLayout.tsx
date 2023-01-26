@@ -8,34 +8,33 @@ import { fromUnixToString } from "utils";
 
 const title = "Information";
 export const InformationLayout = () => {
-  const {data: proposalInformation, isLoading}  = useProposalInfoQuery()
+  const {data: proposalInformation}  = useProposalInfoQuery()
 
-  if (isLoading || !proposalInformation) {
+  
     return (
-      <StyledInformation title={title}>
-        <Typography>loading</Typography>
-      </StyledInformation>
-    );
-  }
- 
-    return (
-      <StyledInformation title={title}>
-        <StyledFlexColumn gap={12}>
-          <InformationRow label="Start date">
-            <Typography>
-              {fromUnixToString(proposalInformation.startDate)}
-            </Typography>
-          </InformationRow>
-          <InformationRow label="End date">
-            <Typography>
-              {fromUnixToString(proposalInformation.endDate)}
-            </Typography>
-          </InformationRow>
+      <StyledInformation
+        title={title}
+        loaderAmount={3}
+        loading={!proposalInformation}
+      >
+        {proposalInformation && (
+          <StyledFlexColumn gap={12}>
+            <InformationRow label="Start date">
+              <Typography>
+                {fromUnixToString(proposalInformation.startDate)}
+              </Typography>
+            </InformationRow>
+            <InformationRow label="End date">
+              <Typography>
+                {fromUnixToString(proposalInformation.endDate)}
+              </Typography>
+            </InformationRow>
 
-          <InformationRow label="Snapshot">
-            <Link href="/">{proposalInformation.snapshot}</Link>
-          </InformationRow>
-        </StyledFlexColumn>
+            <InformationRow label="Snapshot">
+              <Link href="/">{proposalInformation.snapshot}</Link>
+            </InformationRow>
+          </StyledFlexColumn>
+        )}
       </StyledInformation>
     );
 };

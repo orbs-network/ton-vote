@@ -64,13 +64,15 @@ const StyledModal = styled(Modal)({
   outline:'unset',
   border:'unset'
 });
-const StyledClose = styled(IconButton)({
+const StyledClose = styled('button')({
+  
   position: "absolute",
   right: 10,
   top: 10,
   padding: 10,
-  borderRadius: "50%",
-  background: "rgba(0,0,0, 0.1)",
+  background: "transparent",
+  border:'unset',
+  cursor:'pointer',
   svg: {
     stroke: "black",
 

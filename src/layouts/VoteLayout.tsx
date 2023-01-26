@@ -1,7 +1,7 @@
 import { Fade, Theme } from "@mui/material";
 import { styled, Typography, useTheme } from "@mui/material";
-import { Container, Button } from "components";
-import { useState } from "react";
+import { Container, Button, TxOverlay, TxReminderPopup } from "components";
+import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useSendTransaction } from "queries";
@@ -22,10 +22,13 @@ const voteOptions = [
 
 export function VoteLayout() {
   const [selected, setSelected] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-  const { mutate, isLoading, error } = useSendTransaction();
+  const { mutate, isLoading } = useSendTransaction();
 
-  console.log({ error });
+  useEffect(() => {
+    setShowModal(isLoading);
+  }, [isLoading]);
 
   const onSelect = (value: string) => {
     setSelected(value);
@@ -58,6 +61,7 @@ export function VoteLayout() {
       >
         Vote
       </StyledVoteButton>
+      <TxReminderPopup open={showModal} close={() => setShowModal(false)} />
     </StyledContainer>
   );
 }

@@ -69,7 +69,6 @@ export function getAllVotes(transactions, proposalInfo) {
         if (c.remaining < 8) {
           continue;
         }
-        console.log(2, c.toCell().toString())
         const voteNum = c.readUint(8).toNumber();
         vote = String.fromCharCode(voteNum);
       } else { continue; }
@@ -84,6 +83,8 @@ export function getAllVotes(transactions, proposalInfo) {
       continue;
 
     vote = vote.toLowerCase();
+
+    console.log(vote, new Date(transactions[i].time * 1000))
 
     if (["y", "yes"].includes(vote)) {
       allVotes[transactions[i].inMessage.source] = "Yes";
