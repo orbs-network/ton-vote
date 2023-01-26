@@ -12,9 +12,9 @@ export const ResultsLayout = () => {
   return (
     <StyledResults title={title} loaderAmount={3} loading={!currectResults}>
       {currectResults && <StyledFlexColumn>
-        <ResultRow name="Yes" percent={currectResults?.yes} />
-        <ResultRow name="No" percent={currectResults?.no} />
-        <ResultRow name="Abstain" percent={currectResults?.abstain} />
+        <ResultRow name="Yes" percent={currectResults?.yes || 0} />
+        <ResultRow name="No" percent={currectResults?.no || 0} />
+        <ResultRow name="Abstain" percent={currectResults?.abstain || 0} />
       </StyledFlexColumn>}
     </StyledResults>
   );

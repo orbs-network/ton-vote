@@ -5,7 +5,7 @@ import _ from "lodash";
 
 
 export const votingContract = Address.parse(
-  "Ef_bG7kFwT4lLusRCfMN_n2mY4X4Gsa-IT9tpcNKproRukpH"
+  "Ef-V3WPoPFeecWLT5vL41YIFrBFczkk-4sd3dhbJmO7McyEw"
 );
 
 export async function getClientV2() {
