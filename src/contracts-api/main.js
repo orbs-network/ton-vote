@@ -61,9 +61,10 @@ export function getAllVotes(transactions, proposalInfo) {
     const txnBody = transactions[i].inMessage.body
 
     let vote = txnBody.text;
-
     if (!vote) {
-      vote = txnBody.data?.data;
+      
+      vote = txnBody.data;
+      
       if (vote) {
         const c = Cell.fromBoc(Buffer.from(vote))[0].beginParse()
         if (c.remaining < 8) {
@@ -84,8 +85,6 @@ export function getAllVotes(transactions, proposalInfo) {
 
     vote = vote.toLowerCase();
 
-    console.log(vote, new Date(transactions[i].time * 1000))
-
     if (["y", "yes"].includes(vote)) {
       allVotes[transactions[i].inMessage.source] = "Yes";
     } else if (["n", "no"].includes(vote)) {
@@ -94,6 +93,7 @@ export function getAllVotes(transactions, proposalInfo) {
       allVotes[transactions[i].inMessage.source] = "Abstain";
     }
   }
+
 
   return allVotes;
 }
@@ -185,7 +185,6 @@ export async function getEndDate(client) {
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
-  // console.log(transactions, votingPower, proposalInfo);
   let votes = getAllVotes(transactions, proposalInfo);
   return calcProposalResult(votes, votingPower);
 }

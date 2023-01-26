@@ -32,7 +32,6 @@ export const useTransactionsTest = () => {
   useEffect(() => {
     async () => {
       const res = await getTransactions();
-      console.log(res);
     };
   }, []);
 };
@@ -84,6 +83,7 @@ export const useTransactionsQuery = () => {
     },
     {
       staleTime: Infinity,
+      onError: console.error
     }
   );
 };
@@ -172,8 +172,6 @@ export const useSendTransaction = () => {
     //   // handle success
     // }
     const cell = beginCell();
-
-    console.log(value, "SHAHAR*(*(");
 
     switch (value) {
       case "yes":
