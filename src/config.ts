@@ -9,20 +9,23 @@ export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
 export const BASE_ERROR_MESSAGE = "Oops, something went wrong";
 
+export const APPROVE_TX = 'Please check wallet for panding transaction'
+export const TX_APPROVED_AND_PENDING = "Transaction pending";
+
 export const walletAdapters: WalletProvider[] = [
   {
     type: Provider.TONKEEPER,
     icon: TonKeeperLogo,
     title: "Tonkeeper",
     description: "A Non-custodial cryptocurrency wallet",
-    reminder: "Please approve transaction on you mobile",
+    reminder: true,
   },
   {
     type: Provider.TONHUB,
     icon: TonhubLogo,
     title: "Tonhub",
     description: "A mobile wallet in your pocket",
-    reminder: "Please approve transaction on you mobile",
+    reminder: true,
   },
   {
     type: Provider.EXTENSION,

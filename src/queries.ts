@@ -14,10 +14,11 @@ import {
   getVotingPower,
 } from "contracts-api/main";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useClient, useClient4 } from "store/client-store";
-import { useConnection } from "store/wallet-store";
-import { beginCell, toNano } from "ton";
+import { useConnection, useWalletAddress } from "store/wallet-store";
+import { Address, beginCell, toNano } from "ton";
+import { waitForSeqno } from "utils";
 import { votingContract } from "./contracts-api/main";
 
 enum QueryKeys {
@@ -27,15 +28,6 @@ enum QueryKeys {
   CURRENT_RESULTS = "CURRENT_RESULTS",
   GET_ALL_VOTES = "GET_ALL_VOTES",
 }
-
-export const useTransactionsTest = () => {
-  useEffect(() => {
-    async () => {
-      const res = await getTransactions();
-    };
-  }, []);
-};
-
 
 export const useTransactionsQuery = () => {
   const { client } = useClient();
@@ -47,11 +39,7 @@ export const useTransactionsQuery = () => {
     async ({ pageParam = undefined }) => {
       const result = await getTransactions(client, pageParam);
 
-      console.log('run');
-      
-
       if (result.allTxns.length) {
-      
         const onlyTxs = result.allTxns;
         const transactions = _.flatten(onlyTxs);
         const proposalInfo = await queryClient.ensureQueryData({
@@ -78,7 +66,14 @@ export const useTransactionsQuery = () => {
 
         const allVotes = getAllVotes(transactions, proposalInfo);
 
-        queryClient.setQueryData([QueryKeys.GET_ALL_VOTES], allVotes);
+        const allVotesArr = _.map(allVotes || {}, (v, key) => {
+          return {
+            address: key,
+            vote: v,
+          };
+        });
+
+        queryClient.setQueryData([QueryKeys.GET_ALL_VOTES], allVotesArr);
         queryClient.setQueryData([QueryKeys.CURRENT_RESULTS], currentResults);
         queryClient.setQueryData([QueryKeys.VOTING_POWER], votingPower);
       }
@@ -86,24 +81,8 @@ export const useTransactionsQuery = () => {
     },
     {
       staleTime: Infinity,
-      onError: console.error
-    }
-  );
-};
-
-// refetch new transaction on app load and every x seconds
-export const useTransactionsRefetchQuery = () => {
-  const { isLoading, refetch } = useTransactionsQuery();
-  const { client } = useClient();
-
-  return useQuery(
-    ["useTransactionsRefetchQuery"],
-    () => {
-      return refetch();
-    },
-    {
-      enabled: !isLoading && !!client,
       refetchInterval: 30_000,
+      onError: console.error,
     }
   );
 };
@@ -149,56 +128,56 @@ export const useCurrentResultsQuery = () => {
 export const useAllVotesQuery = () => {
   const queryClient = useQueryClient();
 
-  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as
-    | ReturnType<typeof getAllVotes>
-    | undefined;
+  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as any[] | undefined;
 };
-
-//   to: Address;
-//     value: BN;
-//     stateInit?: StateInit;
-//     message?: Cell;
 
 export const useSendTransaction = () => {
   const connection = useConnection();
-  const { refetch } = useTransactionsRefetchQuery();
+  const address = useWalletAddress();
+  const { refetch } = useTransactionsQuery();
+  const { client } = useClient();
+  const [txApproved, setTxApproved] = useState(false);
 
-  return useMutation(async ({ value }: { value: "yes" | "no" | "abstain" }) => {
-    // const waiter = await waitForSeqno(
-    //   client!.openWalletFromAddress({
-    //     source: Address.parse(walletAddress!!),
-    //   })
-    // );
+  const query = useMutation(
+    async ({ value }: { value: "yes" | "no" | "abstain" }) => {
+      const cell = beginCell();
 
-    // const onSuccess = async () => {
-    //   await waiter();
-    //   // handle success
-    // }
-    const cell = beginCell();
+      switch (value) {
+        case "yes":
+          cell.storeUint(121, 8);
+          break;
+        case "no":
+          cell.storeUint(110, 8);
+          break;
+        case "abstain":
+          cell.storeUint(97, 8);
+          break;
+        default:
+          throw new Error("unknown option");
+      }
 
-    switch (value) {
-      case "yes":
-        cell.storeUint(121, 8);
-        break;
-      case "no":
-        cell.storeUint(110, 8);
-        break;
-      case "abstain":
-        cell.storeUint(97, 8);
-        break;
-      default:
-        throw new Error("unknown option");
-    }
+      const c = cell.endCell();
 
-    const c = cell.endCell();
+      const waiter = await waitForSeqno(
+        client!.openWalletFromAddress({
+          source: Address.parse(address!),
+        })
+      );
 
-    return connection.requestTransaction(
-      {
+      await connection.requestTransaction({
         to: votingContract,
         value: toNano("0.01"),
         message: c,
-      },
-      refetch
-    );
-  });
+      });
+      setTxApproved(true);
+      await waiter();
+      await refetch();
+      setTxApproved(false);
+    }
+  );
+
+  return {
+    ...query,
+    txApproved,
+  };
 };

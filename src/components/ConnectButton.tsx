@@ -2,11 +2,15 @@ import React, { useState } from 'react'
 import { Button } from './Button';
 import { WalletSelect } from './WalletSelect';
 
-function ConnectButton() {
-    const [open, setOpen] = useState(false)
+
+
+function ConnectButton({ text, className = "" }: { text?: string; className?: string }) {
+  const [open, setOpen] = useState(false);
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Connect wallet</Button>
+      <Button className={className} onClick={() => setOpen(true)}>
+        {text || "Connect wallet"}
+      </Button>
       <WalletSelect open={open} close={() => setOpen(false)} />
     </>
   );

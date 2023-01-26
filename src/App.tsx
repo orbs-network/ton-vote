@@ -12,9 +12,9 @@ import {
 import {
   useClientV2Query,
   useClientV4Query,
-  useTransactionsRefetchQuery,
+  useTransactionsQuery,
 } from "queries";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { useClient, useClient4 } from "store/client-store";
 import { useEagerlyConnect } from "store/wallet-store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
@@ -48,8 +48,8 @@ const Mobile = () => {
 };
 
 const useOnAppReady = () => {
-  useTransactionsRefetchQuery();
   const restoreConnection = useEagerlyConnect();
+  useTransactionsQuery();
  
   useEffect(() => {
     restoreConnection();

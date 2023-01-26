@@ -6,17 +6,36 @@ import { makeElipsisAddress } from "utils";
 import { useWalletAddress } from "store/wallet-store";
 import { TONSCAN_ADDRESS_URL } from "config";
 
-const title = "Votes";
+const sortVotes = (votes: any[], walletAddress: string) => {
+  const index = votes!.findIndex((it) => it.address === walletAddress);
+  if (index < 0) return votes;
+
+  const selectedItem = votes?.splice(index, 1)[0];
+  votes?.unshift(selectedItem);
+  return votes;
+};
+
 export function VotesLayout() {
-  const votes: any = useAllVotesQuery();
-      
+  const votes = useAllVotesQuery();
+  const walletAddress = useWalletAddress();
+
+  const sorted =
+    !votes || !votes.length || !walletAddress
+      ? votes
+      : sortVotes(votes, walletAddress);
 
   return (
-    <StyledContainer title={title} loading={!votes} loaderAmount={3}>
+    <StyledContainer title="Votes" loading={!votes} loaderAmount={3}>
       {votes && (
         <StyledList gap={15}>
-          {Object.keys(votes).map(function (key, index) {
-            return <Vote vote={votes[key]} key={key} address={key} />;
+          {sorted?.map((vote) => {
+            return (
+              <Vote
+                vote={vote.vote}
+                key={vote.address}
+                address={vote.address}
+              />
+            );
           })}
         </StyledList>
       )}

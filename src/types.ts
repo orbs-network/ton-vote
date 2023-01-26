@@ -10,5 +10,5 @@ export interface WalletProvider {
   title: string;
   description: string;
   mobileDisabled?: boolean;
-  reminder?: string;
+  reminder?: boolean;
 }

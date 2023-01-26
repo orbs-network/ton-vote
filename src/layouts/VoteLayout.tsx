@@ -5,6 +5,12 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useSendTransaction } from "queries";
+import { useSelectedProvider, useWalletAddress } from "store/wallet-store";
+import {
+  APPROVE_TX,
+  TX_APPROVED_AND_PENDING,
+} from "config";
+import ConnectButton from "components/ConnectButton";
 const voteOptions = [
   {
     name: "Yes",
@@ -23,8 +29,8 @@ const voteOptions = [
 export function VoteLayout() {
   const [selected, setSelected] = useState("");
   const [showModal, setShowModal] = useState(false);
-
-  const { mutate, isLoading } = useSendTransaction();
+  const { mutate, isLoading, txApproved } = useSendTransaction();
+  const walletAddress = useWalletAddress()
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -54,18 +60,34 @@ export function VoteLayout() {
           );
         })}
       </StyledFlexColumn>
-      <StyledVoteButton
-        onClick={() => mutate({ value: selected as any })}
+      
+     {walletAddress ?  <StyledVoteButton
+        onClick={() =>
+          mutate({
+            value: selected as any,
+          })
+        }
         isLoading={isLoading}
         disabled={!selected || isLoading}
       >
         Vote
-      </StyledVoteButton>
-      <TxReminderPopup open={showModal} close={() => setShowModal(false)} />
+      </StyledVoteButton> : 
+      <StyledConnectButton text="Vote" />
+      }
+      <TxReminderPopup
+        text={txApproved ? TX_APPROVED_AND_PENDING : APPROVE_TX}
+        open={showModal}
+        close={() => setShowModal(false)}
+      />
     </StyledContainer>
   );
 }
 const StyledVoteButton = styled(Button)({
+  marginTop: 20,
+  width: "100%",
+});
+
+const StyledConnectButton = styled(ConnectButton)({
   marginTop: 20,
   width: "100%",
 });

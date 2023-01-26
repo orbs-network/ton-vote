@@ -7,17 +7,18 @@ import { Popup } from "./Popup";
 export function TxReminderPopup({
   open,
   close,
+  text,
 }: {
   open: boolean;
   close: () => void;
+  text: string;
 }) {
-  const selectedProvider = useSelectedProvider();
 
-  if (!selectedProvider?.reminder) return null;
+  if (!text) return null;
   return (
     <Popup open={open} close={close}>
       <StyledContainer>
-        <Typography>{selectedProvider.reminder}</Typography>
+        <Typography>{text}</Typography>
         <CircularProgress />
       </StyledContainer>
     </Popup>
@@ -25,5 +26,12 @@ export function TxReminderPopup({
 }
 
 const StyledContainer = styled(StyledFlexColumn)({
-  gap: 30
+  gap: 30,
+  width:'calc(100vw - 50px)',
+  maxWidth: 300,
+  textAlign:'center',
+  "p":{
+    fontSize: 18,
+    fontWeight: 500
+  }
 });
