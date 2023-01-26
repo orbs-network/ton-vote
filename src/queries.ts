@@ -15,9 +15,13 @@ import {
 } from "contracts-api/main";
 import _ from "lodash";
 import { useClient, useClient4 } from "store/client-store";
-import { useWalletAddress, useConnection, useWalletStore } from "store/wallet-store";
-import { Address, toNano } from "ton";
-import {votingContract} from './contracts-api/main'
+import {
+  useWalletAddress,
+  useConnection,
+  useWalletStore,
+} from "store/wallet-store";
+import { Address, beginCell, toNano } from "ton";
+import { votingContract } from "./contracts-api/main";
 
 enum QueryKeys {
   TRANSACTIONS = "TRANSACTIONS",
@@ -32,28 +36,26 @@ export const useTransactionsQuery = () => {
   const { client4 } = useClient4();
   const queryClient = useQueryClient();
 
-  return  useInfiniteQuery(
+  return useInfiniteQuery(
     [QueryKeys.TRANSACTIONS],
     async ({ pageParam = undefined }) => {
-      return  getTransactions(client, pageParam);
+      return getTransactions(client, pageParam);
     },
     {
       staleTime: Infinity,
       getNextPageParam: (lastPage) => lastPage?.paging,
       onSuccess: async (res) => {
-        
         const pages = (
           queryClient.getQueryData([QueryKeys.TRANSACTIONS]) as any
         ).pages;
 
         const onlyTxs = pages.map((it: any) => it.allTxns);
-        
+
         const transactions = [...new Set(onlyTxs.flat())];
         const proposalInfo = await queryClient.ensureQueryData({
           queryKey: [QueryKeys.PROPOSAL_INFO],
           queryFn: () => getProposalInfo(client),
         });
-
 
         const prevVotingPower = queryClient.getQueryData([
           QueryKeys.VOTING_POWER,
@@ -71,14 +73,12 @@ export const useTransactionsQuery = () => {
           votingPower,
           proposalInfo
         );
-    
-          
+
         const allVotes = getAllVotes(transactions, proposalInfo);
 
         queryClient.setQueryData([QueryKeys.GET_ALL_VOTES], allVotes);
         queryClient.setQueryData([QueryKeys.CURRENT_RESULTS], currentResults);
         queryClient.setQueryData([QueryKeys.VOTING_POWER], votingPower);
-
       },
     }
   );
@@ -134,17 +134,18 @@ export const useProposalInfoQuery = () => {
 
 export const useCurrentResultsQuery = () => {
   const queryClient = useQueryClient();
-  return queryClient.getQueryData([
-    QueryKeys.CURRENT_RESULTS,
-  ]) as ReturnType<typeof getCurrentResults> | undefined;
+  return queryClient.getQueryData([QueryKeys.CURRENT_RESULTS]) as
+    | ReturnType<typeof getCurrentResults>
+    | undefined;
 };
 
 export const useAllVotesQuery = () => {
   const queryClient = useQueryClient();
 
-  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as ReturnType<typeof getAllVotes> | undefined;
+  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as
+    | ReturnType<typeof getAllVotes>
+    | undefined;
 };
-
 
 //   to: Address;
 //     value: BN;
@@ -153,13 +154,36 @@ export const useAllVotesQuery = () => {
 
 export const useSendTransaction = () => {
   const connection = useConnection();
-  const {refetch} = useTransactionsRefetchQuery()
+  const { refetch } = useTransactionsRefetchQuery();
 
-  return useMutation(async ({value}: {value: string}) => {
-    // return connection.requestTransaction({
-    //   to:  votingContract,
-    //   value: toNano('0.01'),
-    //   message: 'yes'
-    // }, refetch);
+  return useMutation(async ({ value }: { value: "yes" | "no" | "abstain" }) => {
+    const cell = beginCell();
+
+    console.log(value, "SHAHAR*(*(")
+
+    switch (value) {
+      case "yes":
+        cell.storeUint(121, 8);
+        break;
+      case "no":
+        cell.storeUint(110, 8);
+        break;
+      case "abstain":
+        cell.storeUint(97, 8);
+        break;
+      default:
+        throw new Error("unknown option")
+    }
+
+    const c = cell.endCell();
+
+    return connection.requestTransaction(
+      {
+        to: votingContract,
+        value: toNano("0.01"),
+        message: c,
+      },
+      refetch
+    );
   });
 };

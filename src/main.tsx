@@ -23,18 +23,16 @@ const persister = createSyncStoragePersister({
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <PersistQueryClientProvider
-      persistOptions={{ persister }}
-      client={queryClient}
-    >
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <GlobalStyles styles={globalStyles} />
-        <App />
-      </ThemeProvider>
+  <PersistQueryClientProvider
+    persistOptions={{ persister }}
+    client={queryClient}
+  >
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <GlobalStyles styles={globalStyles} />
+      <App />
+    </ThemeProvider>
 
-      <ReactQueryDevtools />
-    </PersistQueryClientProvider>
-  </React.StrictMode>
+    <ReactQueryDevtools />
+  </PersistQueryClientProvider>
 );

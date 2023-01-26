@@ -23,10 +23,9 @@ const voteOptions = [
 export function VoteLayout() {
   const [selected, setSelected] = useState("");
 
-  const {mutate, isLoading, error} = useSendTransaction();
+  const { mutate, isLoading, error } = useSendTransaction();
 
   console.log({ error });
-  
 
   const onSelect = (value: string) => {
     setSelected(value);
@@ -53,7 +52,7 @@ export function VoteLayout() {
         })}
       </StyledFlexColumn>
       <StyledVoteButton
-        onClick={() => mutate({value: 'yes'})}
+        onClick={() => mutate({ value: selected as any })}
         isLoading={isLoading}
         disabled={!selected || isLoading}
       >
@@ -64,7 +63,7 @@ export function VoteLayout() {
 }
 const StyledVoteButton = styled(Button)({
   marginTop: 20,
-  width:'100%'
+  width: "100%",
 });
 
 const StyledOption = styled(StyledFlexRow)<{
@@ -81,7 +80,7 @@ const StyledOption = styled(StyledFlexRow)<{
     left: 20,
     top: "50%",
     transform: "translate(0, -50%)",
-    width:'fit-content'
+    width: "fit-content",
   },
   border: selected
     ? `1.5px solid ${theme.palette.primary.main}`
@@ -93,6 +92,5 @@ const StyledOption = styled(StyledFlexRow)<{
     fontSize: 16,
   },
 }));
-
 
 const StyledContainer = styled(Container)({});

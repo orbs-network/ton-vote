@@ -19,7 +19,7 @@
     "@tanstack/react-query": "^4.23.0",
     "@tanstack/react-query-devtools": "^4.23.0",
     "@tanstack/react-query-persist-client": "^4.23.0",
-    "@ton-defi.org/ton-connection": "^0.8.1",
+    "@ton-defi.org/ton-connection": "0.8.1",
     "bignumber.js": "^9.1.1",
     "buffer": "^6.0.3",
     "dotenv": "^16.0.0",
@@ -32,7 +32,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.7.1",
     "react-window": "^1.8.8",
-    "ton": "^11.1.0",
+    "ton": "^12.0.0",
     "vite-plugin-require": "^1.1.10",
     "vite-tsconfig-paths": "^4.0.5",
     "zustand": "^4.3.2"
