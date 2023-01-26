@@ -83,6 +83,7 @@ export const useTransactionsQuery = () => {
       staleTime: Infinity,
       refetchInterval: 30_000,
       onError: console.error,
+
     }
   );
 };
@@ -137,6 +138,7 @@ export const useSendTransaction = () => {
   const { refetch } = useTransactionsQuery();
   const { client } = useClient();
   const [txApproved, setTxApproved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
@@ -156,28 +158,39 @@ export const useSendTransaction = () => {
           throw new Error("unknown option");
       }
 
-      const c = cell.endCell();
+      const onSuccess = async () => {
+            setTxApproved(true);
+            await waiter();
+            await refetch();
+            setTxApproved(false);
+            setIsLoading(false);
+      }
 
+      const c = cell.endCell();
+      setIsLoading(true);
+
+      
       const waiter = await waitForSeqno(
         client!.openWalletFromAddress({
           source: Address.parse(address!),
         })
       );
 
-      await connection.requestTransaction({
-        to: votingContract,
-        value: toNano("0.01"),
-        message: c,
-      });
-      setTxApproved(true);
-      await waiter();
-      await refetch();
-      setTxApproved(false);
+      await connection.requestTransaction(
+        {
+          to: votingContract,
+          value: toNano("0.01"),
+          message: c,
+        },
+        onSuccess
+      );
+  
     }
   );
 
   return {
     ...query,
     txApproved,
+    isLoading,
   };
 };

@@ -31,7 +31,7 @@ export const InformationLayout = () => {
             </InformationRow>
 
             <InformationRow label="Snapshot">
-              <Link href="/">{proposalInformation.snapshot}</Link>
+              <Typography>{proposalInformation.snapshot}</Typography>
             </InformationRow>
           </StyledFlexColumn>
         )}
