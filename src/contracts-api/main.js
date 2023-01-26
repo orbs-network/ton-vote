@@ -1,5 +1,5 @@
 import { getHttpEndpoint, getHttpV4Endpoint } from "@orbs-network/ton-access";
-import { Address, TonClient, TonClient4 } from "ton";
+import { Address, beginCell, Cell, TonClient, TonClient4 } from "ton";
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 
@@ -34,7 +34,7 @@ export async function getTransactions(
       lt: paging.fromLt,
       to_lt: toLt ?? undefined,
       hash: paging.hash,
-      limit: 100,
+      limit: 100
     });
 
     console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
@@ -58,7 +58,23 @@ export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
 
   for (let i = transactions.length - 1; i >= 0; i--) {
-    let vote = transactions[i].inMessage.body.text;
+    const txnBody = transactions[i].inMessage.body
+
+    let vote = txnBody.text;
+    if (!vote) {
+      
+      vote = txnBody.data;
+      
+      if (vote) {
+        const c = Cell.fromBoc(Buffer.from(vote))[0].beginParse()
+        if (c.remaining < 8) {
+          continue;
+        }
+        const voteNum = c.readUint(8).toNumber();
+        vote = String.fromCharCode(voteNum);
+      } else { continue; }
+    }
+
     if (!vote) continue;
 
     if (
@@ -77,6 +93,7 @@ export function getAllVotes(transactions, proposalInfo) {
       allVotes[transactions[i].inMessage.source] = "Abstain";
     }
   }
+
 
   return allVotes;
 }
@@ -168,7 +185,6 @@ export async function getEndDate(client) {
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
-    // console.log(transactions, votingPower, proposalInfo);
   let votes = getAllVotes(transactions, proposalInfo);
   return calcProposalResult(votes, votingPower);
 }

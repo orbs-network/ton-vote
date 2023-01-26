@@ -6,7 +6,6 @@ import {
   TonWalletProvider,
   ChromeExtensionWalletProvider,
 } from "@ton-defi.org/ton-connection";
-import { TonClient, TonClient4 } from "ton";
 import { Provider, WalletProvider } from "types";
 import { useMutation } from "@tanstack/react-query";
 import { walletAdapters } from "config";
@@ -25,10 +24,6 @@ interface AccountStore {
   reset: () => void;
   showQR: boolean;
   setShowQR: (value: boolean) => void;
-  client?: TonClient;
-  setClient: (client: TonClient) => void;
-  client4?: TonClient4;
-  setClient4: (client4: TonClient4) => void;
 }
 
 const defultAcccountState = {
@@ -38,8 +33,6 @@ const defultAcccountState = {
   adapterName: undefined,
   showQR: false,
   selectedProvider: undefined,
-  client: undefined,
-  client4: undefined,
 };
 
 export const useWalletStore = create<AccountStore>((set, get) => ({
@@ -57,36 +50,17 @@ export const useWalletStore = create<AccountStore>((set, get) => ({
     set({ showQR });
   },
   setSelectedProvider: (selectedProvider) => set({ selectedProvider }),
-  setClient4: (client4) => set({ client4 }),
-  setClient: (client) => set({ client }),
 }));
 
-
-export const useClient = () => {
-    const client= useWalletStore(store => store.client) 
-    const setClient = useWalletStore((store) => store.setClient); 
-
-    return {
-      client,
-      setClient,
-    };
+export const useConnection = () => {
+  return useWalletStore(store => store.connection)
 }
-
-export const useClient4 = () => {
-  const client4 = useWalletStore((store) => store.client4);
-  const setClient4 = useWalletStore((store) => store.setClient4);
-
-  return {
-    client4,
-    setClient4,
-  };
-};
 
 export const useSession = () => {
   return useWalletStore((store) => store.sessionLink);
 };
 
-export const useAccountAddress = () => {
+export const useWalletAddress = () => {
   return useWalletStore((store) => store.address);
 };
 
@@ -179,15 +153,3 @@ export const useEagerlyConnect = () => {
   };
 };
 
-//   to: Address;
-//     value: BN;
-//     stateInit?: StateInit;
-//     message?: Cell;
-
-export const useSendTransaction = () => {
-  const { connection, address } = useWalletStore();
-
-  return useMutation(async () => {
-    // return connection.requestTransaction();
-  });
-};
