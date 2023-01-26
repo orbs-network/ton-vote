@@ -2195,10 +2195,10 @@ ton-x@^2.0.0-beta9:
     ton "9.8.0"
     ton-crypto "^3.0.0"
 
-ton@12, ton@^12.1.5:
-  version "12.3.3"
-  resolved "https://registry.npmjs.org/ton/-/ton-12.3.3.tgz"
-  integrity sha512-5vwy7bwuUgOY7Injqi5Ei+Opsr9AjcS4qHzzdiUdt51O2W9oz4LE/GREXuv7Uvxsxev4cWXx0sic0ohfR8Yu4g==
+ton@9.8.0:
+  version "9.8.0"
+  resolved "https://registry.npmjs.org/ton/-/ton-9.8.0.tgz"
+  integrity sha512-aH/7ODiEulPRZracSfQ4KeaV6iDmzjn14+YMsZ9x0sNlzhtP4blMIFXPJFp4BOc4INb5vTrfA0u+JtOoXlBO0A==
   dependencies:
     axios "^0.25.0"
     bn.js "5.2.0"
@@ -2212,10 +2212,10 @@ ton@12, ton@^12.1.5:
     ton-crypto "2.1.0"
     tweetnacl "1.0.3"
 
-ton@9.8.0:
-  version "9.8.0"
-  resolved "https://registry.npmjs.org/ton/-/ton-9.8.0.tgz"
-  integrity sha512-aH/7ODiEulPRZracSfQ4KeaV6iDmzjn14+YMsZ9x0sNlzhtP4blMIFXPJFp4BOc4INb5vTrfA0u+JtOoXlBO0A==
+ton@^12.0.0, ton@^12.1.5:
+  version "12.3.3"
+  resolved "https://registry.npmjs.org/ton/-/ton-12.3.3.tgz"
+  integrity sha512-5vwy7bwuUgOY7Injqi5Ei+Opsr9AjcS4qHzzdiUdt51O2W9oz4LE/GREXuv7Uvxsxev4cWXx0sic0ohfR8Yu4g==
   dependencies:
     axios "^0.25.0"
     bn.js "5.2.0"

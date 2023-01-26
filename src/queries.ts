@@ -47,6 +47,9 @@ export const useTransactionsQuery = () => {
     async ({ pageParam = undefined }) => {
       const result = await getTransactions(client, pageParam);
 
+      console.log('run');
+      
+
       if (result.allTxns.length) {
       
         const onlyTxs = result.allTxns;

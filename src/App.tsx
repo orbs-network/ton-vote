@@ -12,9 +12,7 @@ import {
 import {
   useClientV2Query,
   useClientV4Query,
-  useTransactionsQuery,
   useTransactionsRefetchQuery,
-  useTransactionsTest,
 } from "queries";
 import { useEffect } from "react";
 import { useClient, useClient4 } from "store/client-store";
@@ -53,7 +51,6 @@ const useOnAppReady = () => {
   useTransactionsRefetchQuery();
   const restoreConnection = useEagerlyConnect();
  
-  // useTransactionsTest()
   useEffect(() => {
     restoreConnection();
   }, []);
