@@ -16,6 +16,7 @@ import {
 } from "contracts-api/main";
 import _ from "lodash";
 import { useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
 import { useClient, useClient4 } from "store/client-store";
 import { useConnection, useWalletAddress } from "store/wallet-store";
 import { Address, beginCell, toNano } from "ton";
@@ -84,7 +85,6 @@ export const useTransactionsQuery = () => {
       staleTime: Infinity,
       refetchInterval: 30_000,
       onError: console.error,
-
     }
   );
 };
@@ -130,7 +130,9 @@ export const useCurrentResultsQuery = () => {
 export const useAllVotesQuery = () => {
   const queryClient = useQueryClient();
 
-  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as any[] | undefined;
+  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as
+    | any[]
+    | undefined;
 };
 
 export const useSendTransaction = () => {
@@ -139,7 +141,7 @@ export const useSendTransaction = () => {
   const { refetch } = useTransactionsQuery();
   const { client } = useClient();
   const [txApproved, setTxApproved] = useState(false);
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
@@ -160,32 +162,39 @@ export const useSendTransaction = () => {
       }
 
       const onSuccess = async () => {
-            setTxApproved(true);
-            await waiter();
-            await refetch();
-            setTxApproved(false);
-            setIsLoading(false);
-      }
+        setTxApproved(true);
+        await waiter();
+        await refetch();
+        setTxApproved(false);
+        setIsLoading(false);
+      };
 
       const c = cell.endCell();
       setIsLoading(true);
 
-      
       const waiter = await waitForSeqno(
         client!.openWalletFromAddress({
           source: Address.parse(address!),
         })
       );
 
-      await connection.requestTransaction(
-        {
+      if (isMobile) {
+        await connection.requestTransaction({
           to: votingContract,
           value: toNano(TX_FEE),
           message: c,
-        },
-        onSuccess
-      );
-  
+        });
+        await onSuccess();
+      } else {
+        await connection.requestTransaction(
+          {
+            to: votingContract,
+            value: toNano(TX_FEE),
+            message: c,
+          },
+          onSuccess
+        );
+      }
     }
   );
 
