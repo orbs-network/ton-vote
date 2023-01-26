@@ -21,8 +21,8 @@ export function Footer() {
 
 
 const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
-    height: 80,
-    marginTop:'auto',
+    marginTop:100,
+    height: 100,
   a: {
     textDecoration: "unset",
     color: theme.palette.primary.main,

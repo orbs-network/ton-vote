@@ -2,14 +2,14 @@ import { ClickAwayListener, Fade, styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { Button, Container } from "components";
 import ConnectButton from "components/ConnectButton";
-import { useAccountAddress, useResetConnection } from "store/wallet-store";
+import { useWalletAddress, useResetConnection } from "store/wallet-store";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { IoExitOutline } from "react-icons/io5";
 import { useState } from "react";
-import LogoImg from 'assets/logo.svg'
+import LogoImg from "assets/logo.svg";
 export function Navbar() {
-  const address = useAccountAddress();
+  const address = useWalletAddress();
   return (
     <StyledContainer>
       <StyledGrid>
@@ -26,7 +26,7 @@ export function Navbar() {
 }
 
 const Connected = () => {
-  const address = useAccountAddress();
+  const address = useWalletAddress();
   const reset = useResetConnection();
   const [showDisconnect, setShowDisconnect] = useState(false);
 
@@ -36,18 +36,16 @@ const Connected = () => {
         {makeElipsisAddress(address!, 8)}
       </Button>
 
-     
-        {showDisconnect && (
-          <StyledConnectedMenu>
-            <ClickAwayListener onClickAway={() => setShowDisconnect(false)}>
-              <StyledDisconnect onClick={reset}>
-                <IoExitOutline />
-                <Typography>Log out</Typography>
-              </StyledDisconnect>
-            </ClickAwayListener>
-          </StyledConnectedMenu>
-        )}
-    
+      {showDisconnect && (
+        <StyledConnectedMenu>
+          <ClickAwayListener onClickAway={() => setShowDisconnect(false)}>
+            <StyledDisconnect onClick={reset}>
+              <IoExitOutline />
+              <Typography>Log out</Typography>
+            </StyledDisconnect>
+          </ClickAwayListener>
+        </StyledConnectedMenu>
+      )}
     </StyledConnected>
   );
 };
@@ -62,7 +60,7 @@ const StyledConnectedMenu = styled(Container)({
 
 const StyledDisconnect = styled(StyledFlexRow)({
   cursor: "pointer",
-  padding: '10px'
+  padding: "10px",
 });
 const StyledConnected = styled(Box)({
   position: "relative",
@@ -85,7 +83,7 @@ const StyledLogo = styled("button")(({ theme }) => ({
     position: "relative",
     color: theme.palette.text.secondary,
     fontSize: 17,
-    top: -3
+    top: -3,
   },
   img: {
     height: 33,

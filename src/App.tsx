@@ -16,7 +16,8 @@ import {
   useTransactionsRefetchQuery,
 } from "queries";
 import { useEffect } from "react";
-import { useClient, useClient4, useEagerlyConnect } from "store/wallet-store";
+import { useClient, useClient4 } from "store/client-store";
+import { useEagerlyConnect } from "store/wallet-store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
 const Destop = () => {
@@ -95,7 +96,7 @@ const StyledWrapper = styled(StyledFlexRow)({
 
 const StyledApp = styled(Box)({
   paddingTop: 100,
-  paddingBottom: 100,
+  paddingBottom: 0,
 });
 
 const StyledLeft = styled(StyledFlexColumn)({

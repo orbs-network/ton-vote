@@ -4,6 +4,7 @@ import { Container, Button } from "components";
 import { useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
+import { useSendTransaction } from "queries";
 const voteOptions = [
   {
     name: "Yes",
@@ -21,6 +22,11 @@ const voteOptions = [
 
 export function VoteLayout() {
   const [selected, setSelected] = useState("");
+
+  const {mutate, isLoading, error} = useSendTransaction();
+
+  console.log({ error });
+  
 
   const onSelect = (value: string) => {
     setSelected(value);
@@ -46,7 +52,11 @@ export function VoteLayout() {
           );
         })}
       </StyledFlexColumn>
-      <StyledVoteButton isLoading={false} disabled={!selected}>
+      <StyledVoteButton
+        onClick={() => mutate({value: 'yes'})}
+        isLoading={isLoading}
+        disabled={!selected || isLoading}
+      >
         Vote
       </StyledVoteButton>
     </StyledContainer>

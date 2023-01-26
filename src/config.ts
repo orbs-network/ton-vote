@@ -4,6 +4,9 @@ import ExtensionLogo from "assets/chrome.svg";
 
 import { Provider, WalletProvider } from "types";
 
+export const TONSCAN = "https://tonscan.org";
+export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
+
 
 export const walletAdapters: WalletProvider[] = [
   {

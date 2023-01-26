@@ -1,5 +1,6 @@
 import {
   useInfiniteQuery,
+  useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -13,7 +14,10 @@ import {
   getVotingPower,
 } from "contracts-api/main";
 import _ from "lodash";
-import { useClient, useClient4 } from "store/wallet-store";
+import { useClient, useClient4 } from "store/client-store";
+import { useWalletAddress, useConnection, useWalletStore } from "store/wallet-store";
+import { Address, toNano } from "ton";
+import {votingContract} from './contracts-api/main'
 
 enum QueryKeys {
   TRANSACTIONS = "TRANSACTIONS",
@@ -28,7 +32,7 @@ export const useTransactionsQuery = () => {
   const { client4 } = useClient4();
   const queryClient = useQueryClient();
 
-  const query = useInfiniteQuery(
+  return  useInfiniteQuery(
     [QueryKeys.TRANSACTIONS],
     async ({ pageParam = undefined }) => {
       return  getTransactions(client, pageParam);
@@ -43,11 +47,13 @@ export const useTransactionsQuery = () => {
         ).pages;
 
         const onlyTxs = pages.map((it: any) => it.allTxns);
+        
         const transactions = [...new Set(onlyTxs.flat())];
         const proposalInfo = await queryClient.ensureQueryData({
           queryKey: [QueryKeys.PROPOSAL_INFO],
           queryFn: () => getProposalInfo(client),
         });
+
 
         const prevVotingPower = queryClient.getQueryData([
           QueryKeys.VOTING_POWER,
@@ -60,7 +66,7 @@ export const useTransactionsQuery = () => {
           prevVotingPower as any
         );
 
-        let currentResults = getCurrentResults(
+        const currentResults = getCurrentResults(
           transactions,
           votingPower,
           proposalInfo
@@ -73,21 +79,9 @@ export const useTransactionsQuery = () => {
         queryClient.setQueryData([QueryKeys.CURRENT_RESULTS], currentResults);
         queryClient.setQueryData([QueryKeys.VOTING_POWER], votingPower);
 
-        queryClient.setQueryData([QueryKeys.TRANSACTIONS], (prev: any) => {
-          return {
-            ...prev,
-            transactions,
-          };
-        });
       },
     }
   );
-
-  return {
-    ...query,
-    data: (queryClient.getQueryData([QueryKeys.TRANSACTIONS]) as any)
-      ?.transactions,
-  };
 };
 
 // refetch new transaction on app load and every x seconds
@@ -149,4 +143,23 @@ export const useAllVotesQuery = () => {
   const queryClient = useQueryClient();
 
   return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as ReturnType<typeof getAllVotes> | undefined;
+};
+
+
+//   to: Address;
+//     value: BN;
+//     stateInit?: StateInit;
+//     message?: Cell;
+
+export const useSendTransaction = () => {
+  const connection = useConnection();
+  const {refetch} = useTransactionsRefetchQuery()
+
+  return useMutation(async ({value}: {value: string}) => {
+    // return connection.requestTransaction({
+    //   to:  votingContract,
+    //   value: toNano('0.01'),
+    //   message: 'yes'
+    // }, refetch);
+  });
 };

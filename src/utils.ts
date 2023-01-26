@@ -9,6 +9,6 @@ export const makeElipsisAddress = (
 
 
 
-export const fromUnixToString = (time: number, format = 'DD/MM/YYYY') => {
+export const fromUnixToString = (time: number, format = "MMM DD, YYYY h:mm a") => {
   return moment.unix(time).format(format);
-}
+};
