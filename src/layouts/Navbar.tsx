@@ -30,10 +30,11 @@ const Connected = () => {
   const reset = useResetConnection();
   const [showDisconnect, setShowDisconnect] = useState(false);
 
+
   return (
     <StyledConnected>
       <Button className="connected-btn" onClick={() => setShowDisconnect(true)}>
-        {makeElipsisAddress(address!, 8)}
+        {makeElipsisAddress(address!, 6)}
       </Button>
 
       {showDisconnect && (
@@ -66,7 +67,7 @@ const StyledConnected = styled(Box)({
   position: "relative",
   ".connected-btn": {
     "*": {
-      fontSize: 14,
+      fontSize:  14,
     },
   },
 });
@@ -77,6 +78,8 @@ const StyledLogo = styled("button")(({ theme }) => ({
   cursor: "pointer",
   display: "flex",
   alignItems: "flex-end",
+  margin: 0,
+  padding: 0,
   gap: 7,
   p: {
     fontWeight: 700,

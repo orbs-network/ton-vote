@@ -108,7 +108,7 @@ const WalletsView = ({ close }: { close: () => void }) => {
               onClick={() => connect(wallet)}
             >
               <img src={wallet.icon} />
-              <Typography>{wallet.title}</Typography>
+              <Typography className="wallet-name">{wallet.title}</Typography>
             </StyledWallet>
           );
         })}
@@ -130,11 +130,15 @@ const StyledQrBox = styled(Box)({
 });
 
 const StyledWallet = styled(StyledFlexRow)({
+  gap:15,
   img: {
-    width: 30,
-    height: 30,
+    width: 35,
+    height: 35,
   },
   cursor: "pointer",
+  ".wallet-name":{
+    fontSize: 17
+  }
 
 });
 

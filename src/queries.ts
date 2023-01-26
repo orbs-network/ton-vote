@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { TX_FEE } from "config";
 import {
   getAllVotes,
   getClientV2,
@@ -179,7 +180,7 @@ export const useSendTransaction = () => {
       await connection.requestTransaction(
         {
           to: votingContract,
-          value: toNano("0.01"),
+          value: toNano(TX_FEE),
           message: c,
         },
         onSuccess
