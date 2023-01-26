@@ -1,7 +1,7 @@
 import { Fade, Theme } from "@mui/material";
 import { styled, Typography, useTheme } from "@mui/material";
-import { Container, Button } from "components";
-import { useState } from "react";
+import { Container, Button, TxOverlay, TxReminderPopup } from "components";
+import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useSendTransaction } from "queries";
@@ -22,11 +22,13 @@ const voteOptions = [
 
 export function VoteLayout() {
   const [selected, setSelected] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-  const {mutate, isLoading, error} = useSendTransaction();
+  const { mutate, isLoading } = useSendTransaction();
 
-  console.log({ error });
-  
+  useEffect(() => {
+    setShowModal(isLoading);
+  }, [isLoading]);
 
   const onSelect = (value: string) => {
     setSelected(value);
@@ -53,18 +55,19 @@ export function VoteLayout() {
         })}
       </StyledFlexColumn>
       <StyledVoteButton
-        onClick={() => mutate({value: 'yes'})}
+        onClick={() => mutate({ value: "yes" })}
         isLoading={isLoading}
         disabled={!selected || isLoading}
       >
         Vote
       </StyledVoteButton>
+      <TxReminderPopup open={showModal} close={() => setShowModal(false)} />
     </StyledContainer>
   );
 }
 const StyledVoteButton = styled(Button)({
   marginTop: 20,
-  width:'100%'
+  width: "100%",
 });
 
 const StyledOption = styled(StyledFlexRow)<{
@@ -81,7 +84,7 @@ const StyledOption = styled(StyledFlexRow)<{
     left: 20,
     top: "50%",
     transform: "translate(0, -50%)",
-    width:'fit-content'
+    width: "fit-content",
   },
   border: selected
     ? `1.5px solid ${theme.palette.primary.main}`
@@ -93,6 +96,5 @@ const StyledOption = styled(StyledFlexRow)<{
     fontSize: 16,
   },
 }));
-
 
 const StyledContainer = styled(Container)({});

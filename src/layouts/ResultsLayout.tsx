@@ -9,20 +9,13 @@ export const ResultsLayout = () => {
   const currectResults = useCurrentResultsQuery();
 
 
-  if (!currectResults) {
-    return (
-      <StyledResults title={title}>
-        <Typography>Loading</Typography>
-      </StyledResults>
-    );
-  }
   return (
-    <StyledResults title={title}>
-      <StyledFlexColumn>
+    <StyledResults title={title} loaderAmount={3} loading={!currectResults}>
+      {currectResults && <StyledFlexColumn>
         <ResultRow name="Yes" percent={currectResults?.yes} />
         <ResultRow name="No" percent={currectResults?.no} />
         <ResultRow name="Abstain" percent={currectResults?.abstain} />
-      </StyledFlexColumn>
+      </StyledFlexColumn>}
     </StyledResults>
   );
 };

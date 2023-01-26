@@ -14,10 +14,16 @@ import {
   getVotingPower,
 } from "contracts-api/main";
 import _ from "lodash";
+import { useEffect, useState } from "react";
 import { useClient, useClient4 } from "store/client-store";
-import { useWalletAddress, useConnection, useWalletStore } from "store/wallet-store";
-import { Address, toNano } from "ton";
-import {votingContract} from './contracts-api/main'
+import {
+  useWalletAddress,
+  useConnection,
+  useWalletStore,
+} from "store/wallet-store";
+import { Address, toNano, Wallet } from "ton";
+import { waitForSeqno } from "utils";
+import { votingContract } from "./contracts-api/main";
 
 enum QueryKeys {
   TRANSACTIONS = "TRANSACTIONS",
@@ -27,33 +33,41 @@ enum QueryKeys {
   GET_ALL_VOTES = "GET_ALL_VOTES",
 }
 
+export const useTransactionsTest = () => {
+  useEffect(() => {
+    async () => {
+      const res = await getTransactions();
+      console.log(res);
+    };
+  }, []);
+};
+
+const handleData = async () => {};
+
 export const useTransactionsQuery = () => {
   const { client } = useClient();
   const { client4 } = useClient4();
   const queryClient = useQueryClient();
 
-  return  useInfiniteQuery(
+  return useInfiniteQuery(
     [QueryKeys.TRANSACTIONS],
     async ({ pageParam = undefined }) => {
-      return  getTransactions(client, pageParam);
-    },
-    {
-      staleTime: Infinity,
-      getNextPageParam: (lastPage) => lastPage?.paging,
-      onSuccess: async (res) => {
-        
-        const pages = (
-          queryClient.getQueryData([QueryKeys.TRANSACTIONS]) as any
-        ).pages;
+      const result = await getTransactions(client, pageParam);
 
-        const onlyTxs = pages.map((it: any) => it.allTxns);
-        
-        const transactions = [...new Set(onlyTxs.flat())];
+      if (result.allTxns.length) {
+        const currentTransactionsData = queryClient.getQueryData([
+          QueryKeys.TRANSACTIONS,
+        ]) as any;
+
+        const prevPages = currentTransactionsData
+          ? currentTransactionsData.pages
+          : [];
+        const onlyTxs = [...prevPages, result].map((it: any) => it.allTxns);
+        const transactions = _.flatten(onlyTxs);
         const proposalInfo = await queryClient.ensureQueryData({
           queryKey: [QueryKeys.PROPOSAL_INFO],
           queryFn: () => getProposalInfo(client),
         });
-
 
         const prevVotingPower = queryClient.getQueryData([
           QueryKeys.VOTING_POWER,
@@ -71,15 +85,18 @@ export const useTransactionsQuery = () => {
           votingPower,
           proposalInfo
         );
-    
-          
+
         const allVotes = getAllVotes(transactions, proposalInfo);
 
         queryClient.setQueryData([QueryKeys.GET_ALL_VOTES], allVotes);
         queryClient.setQueryData([QueryKeys.CURRENT_RESULTS], currentResults);
         queryClient.setQueryData([QueryKeys.VOTING_POWER], votingPower);
-
-      },
+      }
+      return result;
+    },
+    {
+      staleTime: Infinity,
+      getNextPageParam: (lastPage) => lastPage?.paging,
     }
   );
 };
@@ -134,28 +151,38 @@ export const useProposalInfoQuery = () => {
 
 export const useCurrentResultsQuery = () => {
   const queryClient = useQueryClient();
-  return queryClient.getQueryData([
-    QueryKeys.CURRENT_RESULTS,
-  ]) as ReturnType<typeof getCurrentResults> | undefined;
+  return queryClient.getQueryData([QueryKeys.CURRENT_RESULTS]) as
+    | ReturnType<typeof getCurrentResults>
+    | undefined;
 };
 
 export const useAllVotesQuery = () => {
   const queryClient = useQueryClient();
 
-  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as ReturnType<typeof getAllVotes> | undefined;
+  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as
+    | ReturnType<typeof getAllVotes>
+    | undefined;
 };
 
 
-//   to: Address;
-//     value: BN;
-//     stateInit?: StateInit;
-//     message?: Cell;
-
 export const useSendTransaction = () => {
   const connection = useConnection();
-  const {refetch} = useTransactionsRefetchQuery()
+  const walletAddress = useWalletAddress();
+  const { refetch } = useTransactionsRefetchQuery();
+  const { client } = useClient();
 
-  return useMutation(async ({value}: {value: string}) => {
+  return useMutation(async ({ value }: { value: string }) => {
+    const waiter = await waitForSeqno(
+      client!.openWalletFromAddress({
+        source: Address.parse(walletAddress!!),
+      })
+    );
+
+    const onSuccess = async () => {
+      await waiter();
+      // handle success
+    }
+
     // return connection.requestTransaction({
     //   to:  votingContract,
     //   value: toNano('0.01'),

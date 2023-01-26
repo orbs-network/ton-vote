@@ -9,5 +9,6 @@ export interface WalletProvider {
   icon: string;
   title: string;
   description: string;
-  mobileDisabled?: boolean
+  mobileDisabled?: boolean;
+  reminder?: string;
 }
