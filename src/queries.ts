@@ -18,8 +18,9 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useClient, useClient4 } from "store/client-store";
-import { useConnection, useWalletAddress } from "store/wallet-store";
+import { useConnection, useSelectedProvider, useWalletAddress } from "store/wallet-store";
 import { Address, beginCell, toNano } from "ton";
+import { Provider } from "types";
 import { waitForSeqno } from "utils";
 import { votingContract } from "./contracts-api/main";
 
@@ -142,6 +143,7 @@ export const useSendTransaction = () => {
   const { client } = useClient();
   const [txApproved, setTxApproved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const selectedProvider = useSelectedProvider()
 
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
@@ -178,7 +180,7 @@ export const useSendTransaction = () => {
         })
       );
 
-      if (isMobile) {
+      if (isMobile || selectedProvider?.type === Provider.EXTENSION) {
         await connection.requestTransaction({
           to: votingContract,
           value: toNano(TX_FEE),
