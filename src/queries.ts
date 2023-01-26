@@ -42,27 +42,20 @@ export const useTransactionsTest = () => {
   }, []);
 };
 
-const handleData = async () => {};
 
 export const useTransactionsQuery = () => {
   const { client } = useClient();
   const { client4 } = useClient4();
   const queryClient = useQueryClient();
 
-  return useInfiniteQuery(
+  return useQuery(
     [QueryKeys.TRANSACTIONS],
     async ({ pageParam = undefined }) => {
       const result = await getTransactions(client, pageParam);
 
       if (result.allTxns.length) {
-        const currentTransactionsData = queryClient.getQueryData([
-          QueryKeys.TRANSACTIONS,
-        ]) as any;
-
-        const prevPages = currentTransactionsData
-          ? currentTransactionsData.pages
-          : [];
-        const onlyTxs = [...prevPages, result].map((it: any) => it.allTxns);
+      
+        const onlyTxs = result.allTxns;
         const transactions = _.flatten(onlyTxs);
         const proposalInfo = await queryClient.ensureQueryData({
           queryKey: [QueryKeys.PROPOSAL_INFO],
@@ -96,20 +89,19 @@ export const useTransactionsQuery = () => {
     },
     {
       staleTime: Infinity,
-      getNextPageParam: (lastPage) => lastPage?.paging,
     }
   );
 };
 
 // refetch new transaction on app load and every x seconds
 export const useTransactionsRefetchQuery = () => {
-  const { isLoading, fetchNextPage } = useTransactionsQuery();
+  const { isLoading, refetch } = useTransactionsQuery();
   const { client } = useClient();
 
   return useQuery(
     ["useTransactionsRefetchQuery"],
     () => {
-      return fetchNextPage();
+      return refetch();
     },
     {
       enabled: !isLoading && !!client,

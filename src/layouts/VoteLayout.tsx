@@ -1,6 +1,6 @@
 import { Fade, Theme } from "@mui/material";
 import { styled, Typography, useTheme } from "@mui/material";
-import { Container, Button, TxOverlay, TxReminderPopup } from "components";
+import { Container, Button, TxReminderPopup } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
