@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useClient, useClient4 } from "store/client-store";
 import { useConnection, useSelectedProvider, useWalletAddress } from "store/wallet-store";
-import { Address, beginCell, toNano } from "ton";
+import { Address, beginCell, Cell, CommentMessage, toNano } from "ton";
 import { Provider } from "types";
 import { waitForSeqno } from "utils";
 import { votingContract } from "./contracts-api/main";
@@ -147,21 +147,8 @@ export const useSendTransaction = () => {
 
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
-      const cell = beginCell();
-
-      switch (value) {
-        case "yes":
-          cell.storeUint(121, 8);
-          break;
-        case "no":
-          cell.storeUint(110, 8);
-          break;
-        case "abstain":
-          cell.storeUint(97, 8);
-          break;
-        default:
-          throw new Error("unknown option");
-      }
+      const cell = new Cell();
+      new CommentMessage(value).writeTo(cell);
 
       const onSuccess = async () => {
         setTxApproved(true);
@@ -171,7 +158,6 @@ export const useSendTransaction = () => {
         setIsLoading(false);
       };
 
-      const c = cell.endCell();
       setIsLoading(true);
 
       const waiter = await waitForSeqno(
@@ -184,7 +170,7 @@ export const useSendTransaction = () => {
         await connection.requestTransaction({
           to: votingContract,
           value: toNano(TX_FEE),
-          message: c,
+          message: cell,
         });
         await onSuccess();
       } else {
@@ -192,7 +178,7 @@ export const useSendTransaction = () => {
           {
             to: votingContract,
             value: toNano(TX_FEE),
-            message: c,
+            message: cell,
           },
           onSuccess
         );
