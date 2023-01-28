@@ -9,7 +9,8 @@ export const votingContract = Address.parse(
 );
 
 export async function getClientV2() {
-  const endpoint = "https://ton.access.orbs.network/3847c20C2854E83765d585B86498eFcC7Fec6a46/1/mainnet/toncenter-api-v2/jsonRPC" // await getHttpEndpoint();
+  // const endpoint = "https://ton.access.orbs.network/3847c20C2854E83765d585B86498eFcC7Fec6a46/1/mainnet/toncenter-api-v2/jsonRPC" // await getHttpEndpoint();
+  const endpoint = await getHttpEndpoint();
   return new TonClient({ endpoint });
 }
 
@@ -61,20 +62,6 @@ export function getAllVotes(transactions, proposalInfo) {
     const txnBody = transactions[i].inMessage.body
 
     let vote = txnBody.text;
-    if (!vote) {
-      
-      vote = txnBody.data;
-      
-      if (vote) {
-        const c = Cell.fromBoc(Buffer.from(vote))[0].beginParse()
-        if (c.remaining < 8) {
-          continue;
-        }
-        const voteNum = c.readUint(8).toNumber();
-        vote = String.fromCharCode(voteNum);
-      } else { continue; }
-    }
-
     if (!vote) continue;
 
     if (
