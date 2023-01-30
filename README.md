@@ -14,7 +14,7 @@ The full system is still WIP and not ready for a production release, so we decid
 
 * Results are calculated in regards to a historic snapshot of holdings that is pre-defined in the proposal. This helps prevent users from manipulating the vote by purchasing/borrowing tokens for the sake of the vote only.
 
-* Counting of the votes occurs client-side. We can't tally the votes on-chain since a contract cannot read historic account state. By counting the votes client-side we still reach a pretty good degree of trustlessness. Every one can be convinced on their own machine that the result is correct.
+* Counting of the votes occurs client-side. We can't tally the votes on-chain since a contract cannot read historic account state. By counting the votes client-side we still reach a pretty good degree of trustlessness. Everyone can be convinced on their own machine that the result is correct.
 
 * This "system" supports a single proposal. Users can vote multiple times, the most recent vote takes.
 
