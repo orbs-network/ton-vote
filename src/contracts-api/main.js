@@ -42,9 +42,9 @@ export async function getTransactions(
 
     console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
 
-    allTxns = [...allTxns, ...txns];
-
     if (txns.length === 0) break;
+
+    allTxns = [...allTxns, ...txns];
 
     paging.fromLt = txns[txns.length - 1].id.lt;
     paging.hash = txns[txns.length - 1].id.hash;

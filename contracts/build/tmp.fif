@@ -1,0 +1,51 @@
+"Asm.fif" include
+// automatically generated from `contracts/imports/stdlib.fc` `contracts/proposal.fc` 
+PROGRAM{
+  DECLPROC load_data
+  DECLPROC recv_internal
+  87544 DECLMETHOD proposal_start_time
+  127940 DECLMETHOD proposal_end_time
+  80441 DECLMETHOD proposal_snapshot_block
+  load_data PROCINLINE:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    64 LDU	//  proposal_start_time ds
+    64 LDU	//  proposal_start_time proposal_end_time ds
+    64 LDU	//  proposal_start_time proposal_end_time proposal_snapshot_block ds
+    ENDS
+  }>
+  recv_internal PROC:<{
+    //  msg_value in_msg_full in_msg_body
+    3 BLKDROP	// 
+    load_data INLINECALLDICT	//  _15 _16 _17
+    DROP	//  proposal_start_time proposal_end_time
+    12 PUSHPOW2	//  proposal_start_time proposal_end_time _7=4096
+    NOW	//  proposal_start_time proposal_end_time _7=4096 _8
+    s0 s3 XCHG2	//  _7=4096 proposal_end_time _8 proposal_start_time
+    GREATER	//  _7=4096 proposal_end_time _9
+    s1 s2 XCHG	//  proposal_end_time _7=4096 _9
+    THROWANYIFNOT
+    4097 PUSHINT	//  proposal_end_time _11=4097
+    NOW
+    ROT	//  _11=4097 _12 proposal_end_time
+    LESS	//  _11=4097 _13
+    THROWANYIFNOT
+  }>
+  proposal_start_time PROC:<{
+    // 
+    load_data INLINECALLDICT	//  _4 _5 _6
+    2DROP	//  proposal_start_time
+  }>
+  proposal_end_time PROC:<{
+    // 
+    load_data INLINECALLDICT	//  _4 _5 _6
+    DROP
+    NIP	//  proposal_end_time
+  }>
+  proposal_snapshot_block PROC:<{
+    // 
+    load_data INLINECALLDICT	//  _4 _5 _6
+    2 1 BLKDROP2	//  proposal_snapshot_block
+  }>
+}END>c
