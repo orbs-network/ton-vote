@@ -1,149 +1,105 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { TX_FEE } from "config";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TRANSACTIONS_DATA_REFECTH_INTERVAL, TX_FEE } from "config";
 import {
   getAllVotes,
-  getClientV2,
-  getClientV4,
   getCurrentResults,
   getProposalInfo,
   getTransactions,
   getVotingPower,
 } from "contracts-api/main";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useClient, useClient4 } from "store/client-store";
-import { useConnection, useSelectedProvider, useWalletAddress } from "store/wallet-store";
-import { Address, beginCell, Cell, CommentMessage, toNano } from "ton";
+import { useClients, useSetEndpointPopup } from "store/client-store";
+import {
+  useConnection,
+  useSelectedProvider,
+  useWalletAddress,
+} from "store/wallet-store";
+import { Address, Cell, CommentMessage, toNano } from "ton";
 import { Provider } from "types";
 import { waitForSeqno } from "utils";
 import { votingContract } from "./contracts-api/main";
 
+
+
 enum QueryKeys {
-  TRANSACTIONS = "TRANSACTIONS",
-  VOTING_POWER = "VOTING_POWER",
+  DATA = "DATA",
   PROPOSAL_INFO = "PROPOSAL_INFO",
-  CURRENT_RESULTS = "CURRENT_RESULTS",
-  GET_ALL_VOTES = "GET_ALL_VOTES",
 }
 
-export const useTransactionsQuery = () => {
-  const { client } = useClient();
-  const { client4 } = useClient4();
+export const useDataQuery = () => {
+  const { clientV2, clientV4 } = useClients();
   const queryClient = useQueryClient();
+  const { toggleError } = useSetEndpointPopup();
 
   return useQuery(
-    [QueryKeys.TRANSACTIONS],
+    [QueryKeys.DATA],
     async ({ pageParam = undefined }) => {
-      const result = await getTransactions(client, pageParam);
+      const result = await getTransactions(clientV2, pageParam);
 
-      if (result.allTxns.length) {
-        const onlyTxs = result.allTxns;
-        const transactions = _.flatten(onlyTxs);
-        const proposalInfo = await queryClient.ensureQueryData({
-          queryKey: [QueryKeys.PROPOSAL_INFO],
-          queryFn: () => getProposalInfo(client),
-        });
+      const transactions = _.flatten(result.allTxns);
+      const proposalInfo = await queryClient.ensureQueryData({
+        queryKey: [QueryKeys.PROPOSAL_INFO],
+        queryFn: () => getProposalInfo(clientV2),
+      });
 
-        const prevVotingPower = queryClient.getQueryData([
-          QueryKeys.VOTING_POWER,
-        ]);
+      const votingPower = await getVotingPower(
+        clientV4,
+        proposalInfo,
+        transactions,
+        (queryClient.getQueryData([QueryKeys.DATA]) as any)?.votingPower
+      );
 
-        const votingPower = await getVotingPower(
-          client4,
-          proposalInfo,
-          transactions,
-          prevVotingPower as any
-        );
+      const currentResults = getCurrentResults(
+        transactions,
+        votingPower,
+        proposalInfo
+      );
 
-        const currentResults = getCurrentResults(
-          transactions,
-          votingPower,
-          proposalInfo
-        );
-
-        const allVotes = getAllVotes(transactions, proposalInfo);
-
-        const allVotesArr = _.map(allVotes || {}, (v, key) => {
+      const votes = _.map(
+        getAllVotes(transactions, proposalInfo) || {},
+        (v, key) => {
           return {
             address: key,
             vote: v,
           };
-        });
-
-        queryClient.setQueryData([QueryKeys.GET_ALL_VOTES], allVotesArr);
-        queryClient.setQueryData([QueryKeys.CURRENT_RESULTS], currentResults);
-        queryClient.setQueryData([QueryKeys.VOTING_POWER], votingPower);
-      }
-      return result;
+        }
+      );
+      return {
+        votes,
+        currentResults,
+        votingPower,
+      };
     },
     {
+      refetchInterval: TRANSACTIONS_DATA_REFECTH_INTERVAL,
+      enabled: !!clientV2 && !!clientV4,
       staleTime: Infinity,
-      refetchInterval: 30_000,
-      onError: console.error,
+      onError: () => {
+        toggleError(true);
+      },
     }
   );
 };
 
-export const useClientV2Query = () => {
-  const { setClient } = useClient();
-  useQuery(["useClientV2Query"], async () => {
-    setClient(await getClientV2());
-    return "";
-  });
-};
-
-export const useClientV4Query = () => {
-  const { setClient4 } = useClient4();
-
-  useQuery(["useClientV4Query"], async () => {
-    setClient4(await getClientV4());
-    return "";
-  });
-};
-
-export const useVotingPowerQuery = () => {
-  const queryClient = useQueryClient();
-  return queryClient.getQueryData([QueryKeys.VOTING_POWER]);
-};
 
 export const useProposalInfoQuery = () => {
-  const { client } = useClient();
-  return useQuery(["useProposalInfoQuery"], () => getProposalInfo(client), {
-    enabled: !!client,
+  const { clientV2 } = useClients();
+  return useQuery([QueryKeys.PROPOSAL_INFO], () => getProposalInfo(clientV2), {
+    enabled: !!clientV2,
     staleTime: Infinity,
-    cacheTime: Infinity,
   });
-};
-
-export const useCurrentResultsQuery = () => {
-  const queryClient = useQueryClient();
-  return queryClient.getQueryData([QueryKeys.CURRENT_RESULTS]) as
-    | ReturnType<typeof getCurrentResults>
-    | undefined;
-};
-
-export const useAllVotesQuery = () => {
-  const queryClient = useQueryClient();
-
-  return queryClient.getQueryData([QueryKeys.GET_ALL_VOTES]) as
-    | any[]
-    | undefined;
 };
 
 export const useSendTransaction = () => {
   const connection = useConnection();
   const address = useWalletAddress();
-  const { refetch } = useTransactionsQuery();
-  const { client } = useClient();
+  const { refetch } = useDataQuery();
+  const { clientV2 } = useClients();
   const [txApproved, setTxApproved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const selectedProvider = useSelectedProvider()
+  const selectedProvider = useSelectedProvider();
 
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
@@ -161,7 +117,7 @@ export const useSendTransaction = () => {
       setIsLoading(true);
 
       const waiter = await waitForSeqno(
-        client!.openWalletFromAddress({
+        clientV2!.openWalletFromAddress({
           source: Address.parse(address!),
         })
       );
@@ -183,6 +139,12 @@ export const useSendTransaction = () => {
           onSuccess
         );
       }
+    },
+    {
+      onError: () => {
+        setIsLoading(false);
+        setTxApproved(false);
+      },
     }
   );
 

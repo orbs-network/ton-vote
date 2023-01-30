@@ -1923,6 +1923,11 @@ randombytes@^2.1.0:
   dependencies:
     safe-buffer "^5.1.0"
 
+react-animate-height@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/react-animate-height/-/react-animate-height-3.1.0.tgz#f7def40acfe857f936621fe9d7bad601467d0e31"
+  integrity sha512-+0pW2OzB8PzVn10dpTB9q5jFI+GwQTnCDLbzyqPBUzKXJfpBrlWW954uud/59Mreo+laRN/fPzvckuA+WTptXA==
+
 react-device-detect@^2.2.2:
   version "2.2.2"
   resolved "https://registry.npmjs.org/react-device-detect/-/react-device-detect-2.2.2.tgz"

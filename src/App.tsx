@@ -1,5 +1,6 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { Box } from "@mui/system";
+import { EndpointPopup } from "components";
 import {
   MainLayout,
   VoteLayout,
@@ -9,13 +10,8 @@ import {
   VotesLayout,
   Footer,
 } from "layouts";
-import {
-  useClientV2Query,
-  useClientV4Query,
-  useTransactionsQuery,
-} from "queries";
-import { useEffect, useTransition } from "react";
-import { useClient, useClient4 } from "store/client-store";
+import { useEffect } from "react";
+import { useGetClientsOnLoad } from "store/client-store";
 import { useEagerlyConnect } from "store/wallet-store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
@@ -49,10 +45,12 @@ const Mobile = () => {
 
 const useOnAppReady = () => {
   const restoreConnection = useEagerlyConnect();
-  useTransactionsQuery();
- 
+  
+  const getClients = useGetClientsOnLoad();
+
   useEffect(() => {
     restoreConnection();
+    getClients();
   }, []);
 };
 
@@ -62,28 +60,14 @@ function App() {
   return (
     <StyledApp>
       <Navbar />
-
       <StyledGrid>{match ? <Mobile /> : <Destop />}</StyledGrid>
       <Footer />
+      <EndpointPopup />
     </StyledApp>
   );
 }
 
-const AppWrapper = () => {
-   useClientV2Query();
-   useClientV4Query();
-
-   const {client} = useClient()
-   const {client4} = useClient4()
-
-   if(!client4 || !client) {
-    return null
-   }
-   return <App />
-}
-
-
-export default AppWrapper;
+export default App;
 
 const StyledWrapper = styled(StyledFlexRow)({
   alignItems: "flex-start",

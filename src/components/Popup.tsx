@@ -4,6 +4,7 @@ import { ReactElement } from "react";
 import { styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton, Typography } from "@mui/material";
+import { CloseButton } from "./CloseButton";
 interface Props {
   children: ReactElement;
   close?: () => void;
@@ -22,11 +23,7 @@ export const Popup = ({
   return (
     <StyledModal open={open} onClose={close} className={className}>
       <StyledChildren className="children">
-        {close && (
-          <StyledClose onClick={close}>
-            <GrClose style={{ width: 15, height: 15 }} />
-          </StyledClose>
-        )}
+        {close && <CloseButton close={close} />}
         {title && (
           <Typography variant="h3" className="popup-title">
             {title}
@@ -64,21 +61,4 @@ const StyledModal = styled(Modal)({
   outline:'unset',
   border:'unset'
 });
-const StyledClose = styled('button')({
-  
-  position: "absolute",
-  right: 10,
-  top: 10,
-  padding: 10,
-  background: "transparent",
-  border:'unset',
-  cursor:'pointer',
-  svg: {
-    stroke: "black",
 
-    "*": {
-      color: "inherit",
-      stroke: "inherit",
-    },
-  },
-});

@@ -9,7 +9,7 @@ export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
 export const BASE_ERROR_MESSAGE = "Oops, something went wrong";
 
-export const APPROVE_TX = 'Please check wallet for pending transaction'
+export const APPROVE_TX = "Please check wallet for pending transaction";
 export const TX_APPROVED_AND_PENDING = "Transaction pending";
 export const TX_FEE = "0.015";
 
@@ -36,3 +36,51 @@ export const walletAdapters: WalletProvider[] = [
     mobileDisabled: true,
   },
 ];
+
+export const voteOptions = [
+  {
+    name: "Yes",
+    value: "yes",
+  },
+  {
+    name: "No",
+    value: "no",
+  },
+  {
+    name: "Abstain",
+    value: "abstain",
+  },
+];
+
+
+
+export const DEFAULT_ENDPOINTS = {
+  // v2: "https://toncenter.com/api/v2/jsonRPC",
+  v2: "https://scalable-api.tonwhales.com/jsonRPC",
+  v4: "https://mainnet-v4.tonhubapi.com",
+};
+
+
+export const ENDPOINT_INPUTS = {
+  clientV2: {
+    name: "clientV2Endpoint",
+    label: "V2 Endpoint",
+    defaut: DEFAULT_ENDPOINTS.v2,
+  },
+  apiKey: {
+    name: "apiKey",
+    label: "V2 api key",
+    // default: "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2",
+    default:''
+  },
+
+  clientV4: {
+    name: "clientV4Endpoint",
+    label: "V4 Endpoint",
+    defaut: DEFAULT_ENDPOINTS.v4,
+  },
+};
+
+export const TRANSACTIONS_DATA_REFECTH_INTERVAL = 30_000
+
+export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";

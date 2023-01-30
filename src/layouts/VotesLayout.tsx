@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { useAllVotesQuery } from "queries";
+import { useDataQuery } from "queries";
 import { Container, Link } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { makeElipsisAddress } from "utils";
@@ -16,7 +16,7 @@ const sortVotes = (votes: any[], walletAddress: string) => {
 };
 
 export function VotesLayout() {
-  const votes = useAllVotesQuery();
+  const votes = useDataQuery().data?.votes;
   const walletAddress = useWalletAddress();
 
   const sorted =

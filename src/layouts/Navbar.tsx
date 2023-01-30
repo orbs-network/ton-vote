@@ -1,15 +1,17 @@
-import { ClickAwayListener, Fade, styled, Typography } from "@mui/material";
+import { IconButton, Menu, MenuItem, styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, Container } from "components";
-import ConnectButton from "components/ConnectButton";
+import { Button, ConnectButton, EndpointPopup } from "components";
 import { useWalletAddress, useResetConnection } from "store/wallet-store";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
-import { IoExitOutline } from "react-icons/io5";
 import { useState } from "react";
 import LogoImg from "assets/logo.svg";
+import { FiSettings } from "react-icons/fi";
+import { IoLogOutOutline } from "react-icons/io5";
+import { RiRouteFill } from "react-icons/ri";
+import { useSetEndpointPopup } from "store/client-store";
+
 export function Navbar() {
-  const address = useWalletAddress();
   return (
     <StyledContainer>
       <StyledGrid>
@@ -18,57 +20,29 @@ export function Navbar() {
             <img src={LogoImg} />
             <Typography>VOTE</Typography>
           </StyledLogo>
-          {!address ? <ConnectButton /> : <Connected />}
+          <StyledFlexRow style={{ width: "fit-content" }}>
+            <Settings />
+            <ConnectSection />
+          </StyledFlexRow>
         </StyledFlexRow>
       </StyledGrid>
     </StyledContainer>
   );
 }
 
-const Connected = () => {
+const ConnectSection = () => {
   const address = useWalletAddress();
-  const reset = useResetConnection();
-  const [showDisconnect, setShowDisconnect] = useState(false);
 
+  if (!address) {
+    return <ConnectButton />;
+  }
 
-  return (
-    <StyledConnected>
-      <Button className="connected-btn" onClick={() => setShowDisconnect(true)}>
-        {makeElipsisAddress(address!, 6)}
-      </Button>
-
-      {showDisconnect && (
-        <StyledConnectedMenu>
-          <ClickAwayListener onClickAway={() => setShowDisconnect(false)}>
-            <StyledDisconnect onClick={reset}>
-              <IoExitOutline />
-              <Typography>Log out</Typography>
-            </StyledDisconnect>
-          </ClickAwayListener>
-        </StyledConnectedMenu>
-      )}
-    </StyledConnected>
-  );
+  return <StyledConnected>{makeElipsisAddress(address!, 6)}</StyledConnected>;
 };
 
-const StyledConnectedMenu = styled(Container)({
-  position: "absolute",
-  top: "calc(100% + 10px)",
-  left: 0,
-  width: "100%",
-  padding: "0px",
-});
-
-const StyledDisconnect = styled(StyledFlexRow)({
-  cursor: "pointer",
-  padding: "10px",
-});
-const StyledConnected = styled(Box)({
-  position: "relative",
-  ".connected-btn": {
-    "*": {
-      fontSize:  14,
-    },
+const StyledConnected = styled(Button)({
+  "*": {
+    fontSize: 14,
   },
 });
 
@@ -103,3 +77,79 @@ const StyledContainer = styled(StyledFlexRow)({
   top: 0,
   zIndex: 10,
 });
+
+/// setings component
+
+const Settings = () => {
+  const address = useWalletAddress();
+ const { toggle } = useSetEndpointPopup();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const reset = useResetConnection();
+
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setAnchorEl(event.currentTarget);
+
+  const handleClose = () => setAnchorEl(null);
+
+  const logout = () => {
+    reset();
+    handleClose();
+  };
+
+  const showPopup = () => {
+    toggle(true);
+    handleClose();
+  };
+
+  return (
+    <StyledSettings>
+      <IconButton onClick={handleClick}>
+        <FiSettings />
+      </IconButton>
+      <StyledMenu
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          "aria-labelledby": "basic-button",
+        }}
+      >
+        <MenuItem onClick={showPopup}>
+          <StyledMenuItemContent>
+            <RiRouteFill />
+            <Typography>Endpoint</Typography>
+          </StyledMenuItemContent>
+        </MenuItem>
+        {address && (
+          <MenuItem onClick={logout}>
+            <StyledMenuItemContent>
+              <IoLogOutOutline />
+              <Typography>Logout</Typography>
+            </StyledMenuItemContent>
+          </MenuItem>
+        )}
+      </StyledMenu>
+    </StyledSettings>
+  );
+};
+
+const StyledMenu = styled(Menu)({
+  ".MuiPaper-root": {
+    borderRadius: 10,
+  },
+});
+
+const StyledMenuItemContent = styled(StyledFlexRow)({
+  justifyContent: "flex-start",
+});
+
+const StyledSettings = styled(Box)({});
