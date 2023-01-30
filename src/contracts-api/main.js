@@ -9,7 +9,6 @@ export const votingContract = Address.parse(
 );
 
 export async function getClientV2() {
-  // const endpoint = "https://ton.access.orbs.network/3847c20C2854E83765d585B86498eFcC7Fec6a46/1/mainnet/toncenter-api-v2/jsonRPC" // await getHttpEndpoint();
   const endpoint = await getHttpEndpoint();
   return new TonClient({ endpoint });
 }
@@ -40,9 +39,9 @@ export async function getTransactions(
 
     console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
 
-    allTxns = [...allTxns, ...txns];
-
     if (txns.length === 0) break;
+
+    allTxns = [...allTxns, ...txns];
 
     paging.fromLt = txns[txns.length - 1].id.lt;
     paging.hash = txns[txns.length - 1].id.hash;
