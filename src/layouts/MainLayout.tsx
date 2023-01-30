@@ -3,6 +3,7 @@ import { Container } from "components";
 import { Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
+import AnimateHeight from "react-animate-height";
 
 export function MainLayout() {
   const [showMore, setShowMore] = useState(false);
@@ -15,13 +16,13 @@ export function MainLayout() {
           1500s, when an unknown printer took a galley of type and scrambled it
           to make a type specimen book.
         </Typography>
-        {showMore ? (
+
+        <AnimateHeight height={showMore ? "auto" : 0} duration={200}>
           <ShowMorePart />
-        ) : (
-          <StyledShowMore onClick={() => setShowMore(true)}>
-            <Typography>Show more</Typography>
-          </StyledShowMore>
-        )}
+        </AnimateHeight>
+        <StyledShowMore onClick={() => setShowMore(!showMore)}>
+          <Typography>{showMore ? "Show less" : "Show more"}</Typography>
+        </StyledShowMore>
       </StyledFlexColumn>
     </StyledContainer>
   );
@@ -48,7 +49,6 @@ const StyledShowMore = styled("div")({
     fontSize: 16,
     fontWeight: 600,
   },
-  
 });
 
 const StyledContainer = styled(Container)({});

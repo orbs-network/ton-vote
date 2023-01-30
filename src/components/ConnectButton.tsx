@@ -4,7 +4,7 @@ import { WalletSelect } from './WalletSelect';
 
 
 
-function ConnectButton({ text, className = "" }: { text?: string; className?: string }) {
+export function ConnectButton({ text, className = "" }: { text?: string; className?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -16,4 +16,3 @@ function ConnectButton({ text, className = "" }: { text?: string; className?: st
   );
 }
 
-export default ConnectButton

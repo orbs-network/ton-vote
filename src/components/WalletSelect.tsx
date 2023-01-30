@@ -11,9 +11,9 @@ import {
 } from "store/wallet-store";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode } from "react";
-import { GrClose } from "react-icons/gr";
 import { walletAdapters } from "config";
 import { isMobile } from "react-device-detect";
+import { CloseButton } from "./CloseButton";
 
 interface Props {
   open: boolean;
@@ -118,7 +118,7 @@ const WalletsView = ({ close }: { close: () => void }) => {
 };
 
 const StyledWalletsList = styled(StyledFlexColumn)({
-  gap: 20,
+  gap: 0,
 });
 
 const StyledQrBox = styled(Box)({
@@ -127,19 +127,25 @@ const StyledQrBox = styled(Box)({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  padding: '0px 20px'
 });
 
 const StyledWallet = styled(StyledFlexRow)({
-  gap:15,
+  gap: 15,
+  padding: '0px 20px',
+  transition:'0.2s all',
+  minHeight: 55,
   img: {
     width: 35,
     height: 35,
   },
   cursor: "pointer",
-  ".wallet-name":{
-    fontSize: 17
-  }
-
+  ".wallet-name": {
+    fontSize: 17,
+  },
+  "&:hover": {
+    background: "rgba(0, 136, 204, 0.08)",
+  },
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
@@ -162,36 +168,30 @@ const ContentWrapper = ({
   return (
     <Fade in={show}>
       <StyledStyledContentWrapper className={className}>
-        <StyledFlexRow
+        <StyledHeader
           justifyContent="space-between"
-          style={{ marginBottom: 20 }}
         >
           <Typography className="title" variant="h4">
             {title}
           </Typography>
-          <StyledClose onClick={close}>
-            <GrClose style={{ width: 18, height: 18 }} />
-          </StyledClose>
-        </StyledFlexRow>
+          <StyledCloseButton close={close} />
+        </StyledHeader>
         {children}
       </StyledStyledContentWrapper>
     </Fade>
   );
 };
 
-const StyledClose = styled("button")({
-  background: "transparent",
-  border: "unset",
-  margin: 0,
-  padding: 0,
-  cursor: "pointer",
-});
+const StyledHeader = styled(StyledFlexRow)({
+  marginBottom: 20,
+  padding:'0px 20px'
+})
 
 const StyledStyledContentWrapper = styled(StyledFlexColumn)({
   gap: 0,
   background: "white",
   borderRadius: 10,
-  padding: "14px 20px 20px 20px",
+  padding: "14px 0px 20px 0px",
   position: "relative",
   width: "calc(100vw - 50px)",
   justifyContent: "flex-start",
@@ -215,4 +215,11 @@ const StyledQr = styled(ContentWrapper)({
 
 const StyledWalletsSelect = styled(ContentWrapper)({
   maxWidth: 350,
+});
+
+
+const StyledCloseButton = styled(CloseButton)({
+  position: 'relative',
+  top:-5,
+  right: -5
 });

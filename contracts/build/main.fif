@@ -1,0 +1,145 @@
+"Asm.fif" include
+// automatically generated from `contracts/main.fc` incl:`contracts/imports/stdlib.fc` incl:`contracts/imports/constants.fc` incl:`contracts/imports/utils.fc` 
+PROGRAM{
+  DECLPROC send_grams
+  DECLPROC load_data
+  DECLPROC save_data
+  DECLPROC op_withdraw
+  DECLPROC recv_internal
+  DECLPROC equal_slices
+  DECLPROC ~load_coins
+  109816 DECLMETHOD meaning_of_life
+  98265 DECLMETHOD owner_address
+  104984 DECLMETHOD counter
+  104128 DECLMETHOD balance
+  send_grams PROC:<{
+    //  address amount
+    0 PUSHINT	//  address amount _3=0
+    24 PUSHINT	//  address amount _3=0 _4=24
+    NEWC	//  address amount _3=0 _4=24 _5
+    6 STU	//  address amount _3=0 _7
+    s0 s3 XCHG2	//  _3=0 amount _7 address
+    STSLICER	//  _3=0 amount _8
+    SWAP	//  _3=0 _8 amount
+    STGRAMS	//  _3=0 _9
+    107 STU	//  _11
+    ENDC	//  msg
+    3 PUSHINT	//  msg _13=3
+    SENDRAWMSG
+  }>
+  load_data PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    LDMSGADDR	//  _3 ds
+    64 LDU	//  _3 _11 _10
+    DROP	//  _3 _5
+  }>
+  save_data PROC:<{
+    //  owner_address counter
+    NEWC
+    ROT	//  counter _2 owner_address
+    STSLICER	//  counter _3
+    64 STU	//  _5
+    ENDC	//  _6
+    c4 POP
+  }>
+  op_withdraw PROC:<{
+    //  withdraw_amount owner_address
+    BALANCE	//  withdraw_amount owner_address _4
+    UNPAIR	//  withdraw_amount owner_address _14 _15
+    DROP	//  withdraw_amount owner_address balance
+    s0 s2 PUSH2	//  withdraw_amount owner_address balance balance withdraw_amount
+    GEQ	//  withdraw_amount owner_address balance _7
+    103 THROWIFNOT
+    10000000 PUSHINT	//  withdraw_amount owner_address balance _10=10000000
+    SUB	//  withdraw_amount owner_address _11
+    s1 s2 XCHG	//  owner_address withdraw_amount _11
+    MIN	//  owner_address return_value
+    send_grams CALLDICT
+  }>
+  recv_internal PROC:<{
+    //  msg_value in_msg in_msg_body
+    s2 POP	//  in_msg_body in_msg
+    CTOS	//  in_msg_body cs
+    4 LDU	//  in_msg_body flags cs
+    LDMSGADDR	//  in_msg_body flags _55 _54
+    DROP	//  in_msg_body flags sender_address
+    SWAP
+    1 PUSHINT	//  in_msg_body sender_address flags _12=1
+    AND	//  in_msg_body sender_address _13
+    IFJMP:<{	//  in_msg_body sender_address
+      2DROP	// 
+    }>	//  in_msg_body sender_address
+    load_data INLINECALLDICT	//  in_msg_body sender_address owner_address counter
+    s0 s3 XCHG	//  counter sender_address owner_address in_msg_body
+    32 LDU	//  counter sender_address owner_address op in_msg_body
+    64 LDU	//  counter sender_address owner_address op _61 _60
+    NIP	//  counter sender_address owner_address op in_msg_body
+    OVER
+    927538991 PUSHINT	//  counter sender_address owner_address op in_msg_body op _25=927538991
+    EQUAL	//  counter sender_address owner_address op in_msg_body _26
+    IFJMP:<{	//  counter sender_address owner_address op in_msg_body
+      s2 s3 XCHG
+      3 BLKDROP	//  counter owner_address
+      SWAP	//  owner_address counter
+      INC	//  owner_address _28
+      save_data INLINECALLDICT
+    }>	//  counter sender_address owner_address op in_msg_body
+    OVER
+    1205158801 PUSHINT	//  counter sender_address owner_address op in_msg_body op _30=1205158801
+    EQUAL	//  counter sender_address owner_address op in_msg_body _31
+    IFJMP:<{	//  counter sender_address owner_address op in_msg_body
+      5 BLKDROP	// 
+    }>	//  counter sender_address owner_address op in_msg_body
+    OVER
+    1099131264 PUSHINT	//  counter sender_address owner_address op in_msg_body op _32=1099131264
+    EQUAL	//  counter sender_address owner_address op in_msg_body _33
+    IFJMP:<{	//  counter sender_address owner_address op in_msg_body
+      NIP
+      s3 POP	//  in_msg_body sender_address owner_address
+      TUCK	//  in_msg_body owner_address sender_address owner_address
+      equal_slices CALLDICT	//  in_msg_body owner_address _35
+      102 THROWIFNOT
+      SWAP	//  owner_address in_msg_body
+      ~load_coins CALLDICT	//  owner_address _62 _63
+      NIP	//  owner_address withdraw_amount
+      SWAP	//  withdraw_amount owner_address
+      op_withdraw CALLDICT
+    }>	//  counter sender_address owner_address op in_msg_body
+    SWAP
+    765692591 PUSHINT	//  counter sender_address owner_address in_msg_body op _41=765692591
+    EQUAL	//  counter sender_address owner_address in_msg_body _42
+    IFJMP:<{	//  counter sender_address owner_address in_msg_body
+      -ROT	//  counter in_msg_body sender_address owner_address
+      equal_slices CALLDICT	//  counter in_msg_body _44
+      102 THROWIFNOT
+      LDMSGADDR	//  counter _65 _64
+      DROP	//  counter new_owner_address
+      SWAP	//  new_owner_address counter
+      save_data INLINECALLDICT
+    }>	//  counter sender_address owner_address in_msg_body
+    4 BLKDROP	// 
+    101 THROW
+  }>
+  meaning_of_life PROC:<{
+    // 
+    42 PUSHINT	//  _0=42
+  }>
+  owner_address PROC:<{
+    // 
+    load_data INLINECALLDICT	//  _3 _4
+    DROP	//  owner_address
+  }>
+  counter PROC:<{
+    // 
+    load_data INLINECALLDICT	//  _3 _4
+    NIP	//  counter
+  }>
+  balance PROC:<{
+    // 
+    BALANCE	//  _2
+    UNPAIR	//  _4 _5
+    DROP	//  balance
+  }>
+}END>c
