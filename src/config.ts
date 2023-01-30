@@ -64,19 +64,19 @@ export const DEFAULT_ENDPOINTS = {
 export const ENDPOINT_INPUTS = {
   clientV2: {
     name: "clientV2Endpoint",
-    label: "V2 Endpoint",
+    label: "HTTP v2 endpoint",
     defaut: DEFAULT_ENDPOINTS.v2,
   },
   apiKey: {
     name: "apiKey",
-    label: "V2 api key",
+    label: "HTTP v2 API key",
     // default: "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2",
     default:''
   },
 
   clientV4: {
     name: "clientV4Endpoint",
-    label: "V4 Endpoint",
+    label: "HTTP v4 endpoint",
     defaut: DEFAULT_ENDPOINTS.v4,
   },
 };
