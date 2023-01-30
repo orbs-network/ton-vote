@@ -78,7 +78,7 @@ export function EndpointPopup() {
   return (
     <Popup open={show} close={onClose}>
       <StyledContent>
-        <StyledTitle variant="h4">RPC Endpoint settings</StyledTitle>
+        <StyledTitle variant="h4">RPC endpoint settings</StyledTitle>
         {endpointError && (
           <StyledError>
             <Typography>Endpoint Error: Insert different endpoints</Typography>
@@ -90,14 +90,14 @@ export function EndpointPopup() {
               checked={!customEndopointsSelected}
               onChange={() => select(false)}
             />
-            <Typography>Orbs Endpoint</Typography>
+            <Typography><a href="https://orbs.com/ton-access" target="_blank">TON-Access</a> endpoint by Orbs</Typography>
           </StyledRadio>
           <StyledRadio>
             <Radio
               checked={customEndopointsSelected}
               onChange={() => select(true)}
             />
-            <Typography>Custom Endpoint</Typography>
+            <Typography>Custom endpoint</Typography>
           </StyledRadio>
         </StyledFlexColumn>
 
