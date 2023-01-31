@@ -10,6 +10,7 @@ import {
   VotesLayout,
   Footer,
 } from "layouts";
+import { useGetTransactions } from "queries";
 import { useEffect } from "react";
 import { useGetClientsOnLoad } from "store/client-store";
 import { useEagerlyConnect } from "store/wallet-store";
@@ -43,19 +44,15 @@ const Mobile = () => {
   );
 };
 
-const useOnAppReady = () => {
+function App() {
   const restoreConnection = useEagerlyConnect();
-  
   const getClients = useGetClientsOnLoad();
+  useGetTransactions();
 
   useEffect(() => {
     restoreConnection();
     getClients();
   }, []);
-};
-
-function App() {
-  useOnAppReady();
   const match = useMediaQuery("(max-width:800px)");
   return (
     <StyledApp>

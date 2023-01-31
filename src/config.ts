@@ -55,8 +55,8 @@ export const voteOptions = [
 
 
 export const DEFAULT_ENDPOINTS = {
-  // v2: "https://toncenter.com/api/v2/jsonRPC",
-  v2: "https://scalable-api.tonwhales.com/jsonRPC",
+  v2: "https://toncenter.com/api/v2/jsonRPC",
+  // v2: "https://scalable-api.tonwhales.com/jsonRPC",
   v4: "https://mainnet-v4.tonhubapi.com",
 };
 
@@ -70,8 +70,8 @@ export const ENDPOINT_INPUTS = {
   apiKey: {
     name: "apiKey",
     label: "HTTP v2 API key",
-    // default: "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2",
-    default:''
+    default: "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2",
+    // default:''
   },
 
   clientV4: {

@@ -23,7 +23,7 @@ export function EndpointPopup() {
   const [values, setValues] = useState({
     [clientV2.name]: customEndpointsStore.clientV2Endpoint || clientV2.defaut,
     [apiKey.name]: customEndpointsStore.apiKey || apiKey.default,
-    [clientV4.name]: customEndpointsStore.apiKey || clientV4.defaut,
+    [clientV4.name]: customEndpointsStore.clientV4Endpoint || clientV4.defaut,
   });
 
   const { mutateAsync, isLoading } = useUpdateEndpoints();
@@ -57,17 +57,19 @@ export function EndpointPopup() {
   const onSave = async () => {
     if (!customEndopointsSelected) {
       await mutateAsync(undefined);
-    } else {
-      if (!validate(values)) {
-        return;
-      }
-      await mutateAsync({
-        clientV2Endpoint: values[clientV2.name],
-        clientV4Endpoint: values[clientV4.name],
-        apiKey: values[apiKey.name],
-      });
+      onClose();
+      return;
     }
-   onClose();
+
+    if (!validate(values)) {
+      return;
+    }
+    await mutateAsync({
+      clientV2Endpoint: values[clientV2.name],
+      clientV4Endpoint: values[clientV4.name],
+      apiKey: values[apiKey.name],
+    });
+      onClose();
   };
 
   const onClose = () => {
@@ -78,7 +80,7 @@ export function EndpointPopup() {
   return (
     <Popup open={show} close={onClose}>
       <StyledContent>
-        <StyledTitle variant="h4">RPC endpoint settings</StyledTitle>
+        <StyledTitle variant="h4">RPC Endpoint settings</StyledTitle>
         {endpointError && (
           <StyledError>
             <Typography>Endpoint Error: Insert different endpoints</Typography>
@@ -90,14 +92,14 @@ export function EndpointPopup() {
               checked={!customEndopointsSelected}
               onChange={() => select(false)}
             />
-            <Typography><a href="https://orbs.com/ton-access" target="_blank">TON-Access</a> endpoint by Orbs</Typography>
+            <Typography>Orbs Endpoint</Typography>
           </StyledRadio>
           <StyledRadio>
             <Radio
               checked={customEndopointsSelected}
               onChange={() => select(true)}
             />
-            <Typography>Custom endpoint</Typography>
+            <Typography>Custom Endpoint</Typography>
           </StyledRadio>
         </StyledFlexColumn>
 
@@ -136,8 +138,8 @@ export function EndpointPopup() {
 const StyledError = styled(Box)({
   p: {
     color: "red",
-    fontSize:14,
-    fontWeight: 500
+    fontSize: 14,
+    fontWeight: 500,
   },
 });
 

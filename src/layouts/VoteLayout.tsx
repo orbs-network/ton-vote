@@ -4,16 +4,32 @@ import { Container, Button, TxReminderPopup, ConnectButton } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useSendTransaction } from "queries";
+import { useDataQuery, useSendTransaction } from "queries";
 import { useWalletAddress } from "store/wallet-store";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
 
-export function VoteLayout() {
+export const useSelection = () => {
   const [selected, setSelected] = useState("");
+  const walletAddress = useWalletAddress();
+  const votes = useDataQuery().data?.votes;
+
+  const votesLength = votes?.length;
+
+  useEffect(() => {
+    if (votesLength && walletAddress && !selected) {   
+      const vote = voteOptions.find((it) => it.name === votes[0].vote); 
+      setSelected(vote?.value || '');
+    }
+  }, [votesLength, walletAddress]);
+
+  return { selected, setSelected };
+};
+
+export function VoteLayout() {
+  const { selected, setSelected } = useSelection();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();
   const walletAddress = useWalletAddress();
-  
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -22,6 +38,7 @@ export function VoteLayout() {
   const onSelect = (value: string) => {
     setSelected(value);
   };
+  
 
   return (
     <StyledContainer title="Vote">

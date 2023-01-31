@@ -5,8 +5,8 @@ import { useDataQuery } from "queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
 export const ResultsLayout = () => {
-  const currectResults = useDataQuery().data?.currentResults;
-
+  const currectResults = useDataQuery().data?.currentResults
+  
 
   return (
     <StyledResults title="Results" loaderAmount={3} loading={!currectResults}>

@@ -10,90 +10,61 @@ import { Provider, WalletProvider } from "types";
 import { useMutation } from "@tanstack/react-query";
 import { walletAdapters } from "config";
 import { isMobile } from "react-device-detect";
+import { useSortVotesAfterConnect } from "queries";
+import { useState } from "react";
 
 const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
 interface AccountStore {
   address?: string;
-  sessionLink?: string;
   setAddress: (value: string) => void;
-  setSessionLink: (value: string) => void;
   setTonConnectionProvider: (provider: TonWalletProvider) => void;
-  connection: TonConnection;
-  selectedProvider?: WalletProvider;
-  setSelectedProvider: (provider: WalletProvider) => void;
+  connection?: TonConnection;
   reset: () => void;
-  showQR: boolean;
-  setShowQR: (value: boolean) => void;
 }
 
 const defultAcccountState = {
   address: undefined,
-  sessionLink: undefined,
-  connection: new TonConnection(),
-  adapterName: undefined,
-  showQR: false,
-  selectedProvider: undefined,
+  connection: undefined,
 };
 
 export const useWalletStore = create<AccountStore>((set, get) => ({
   reset: () => set(defultAcccountState),
   ...defultAcccountState,
   setAddress: (address) => set({ address }),
-  setSessionLink: (sessionLink) => set({ sessionLink }),
   setTonConnectionProvider: (provider) => {
-    const connection = get().connection;
-    connection.setProvider(provider);
-    set({ connection });
+    const _connection = new TonConnection()
+    _connection.setProvider(provider);
+    set({ connection: _connection });
   },
-  setShowQR: (showQR) => {
-    if (isMobile) return;
-    set({ showQR });
-  },
-  setSelectedProvider: (selectedProvider) => set({ selectedProvider }),
 }));
 
 export const useConnection = () => {
   return useWalletStore(store => store.connection)
 }
 
-export const useSession = () => {
-  return useWalletStore((store) => store.sessionLink);
-};
-
 export const useWalletAddress = () => {
   return useWalletStore((store) => store.address);
 };
 
-export const useSelectedProvider = () => {
-  return useWalletStore((store) => store.selectedProvider);
-};
-
-export const useConnectQR = () => {
-  const setShowQR = useWalletStore((store) => store.setShowQR);
-  const showQR = useWalletStore((store) => store.showQR);
-
-  return {
-    toggleQR: (value: boolean) => setShowQR(value),
-    showQR,
-  };
-};
-
 export const useConnect = () => {
+const sortVotes = useSortVotesAfterConnect();
+const [session, setSession] = useState('')
+const [showQR, setShowQR] = useState(false)
+  const [selectedProvider, setSelectedProvider] = useState<
+    WalletProvider | undefined
+  >(undefined);
   const {
-    setSessionLink,
     setTonConnectionProvider,
     setAddress,
-    setShowQR,
-    setSelectedProvider,
   } = useWalletStore();
-  return useMutation(async (wallet: WalletProvider) => {
+  const query =  useMutation(async (wallet: WalletProvider) => {
     let tonWalletProvider: TonWalletProvider | undefined;
 
     const onSessionLinkReady = (link: string) => {
       if (isMobile) {
         (window as any).location = link;
       } else {
-        setSessionLink(link);
+        setSession(link);
       }
     };
 
@@ -119,14 +90,23 @@ export const useConnect = () => {
     if (!tonWalletProvider) {
       return;
     }
-
-    setTonConnectionProvider(tonWalletProvider);
     setSelectedProvider(wallet);
+    setTonConnectionProvider(tonWalletProvider);
     const _wallet = await tonWalletProvider.connect();
     setAddress(_wallet.address);
-
+    sortVotes(_wallet.address);
     localStorage.setItem(LOCAL_STORAGE_PROVIDER, wallet.type);
   });
+
+  return {
+    ...query,
+    session,
+    showQR,
+    setShowQR,
+    clearSession: () => setSession(""),
+    selectedProvider,
+  };
+
 };
 
 export const useResetConnection = () => {
@@ -134,7 +114,7 @@ export const useResetConnection = () => {
   const connection = useWalletStore((store) => store.connection);
   return () => {
     reset();
-    connection.disconnect();
+    if (connection) connection.disconnect();
     localStorage.removeItem(LOCAL_STORAGE_PROVIDER);
   };
 };
@@ -153,3 +133,8 @@ export const useEagerlyConnect = () => {
   };
 };
 
+
+
+export const getAdapterName = () => {
+  return localStorage.getItem(LOCAL_STORAGE_PROVIDER);
+}

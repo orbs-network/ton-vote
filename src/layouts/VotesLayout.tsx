@@ -1,34 +1,23 @@
 import { styled, Typography } from "@mui/material";
-import { useDataQuery } from "queries";
-import { Container, Link } from "components";
+import { useDataQuery, useNextPage } from "queries";
+import { Button, Container, Link } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useWalletAddress } from "store/wallet-store";
 import { TONSCAN_ADDRESS_URL } from "config";
+import AnimateHeight from "react-animate-height";
 
-const sortVotes = (votes: any[], walletAddress: string) => {
-  const index = votes!.findIndex((it) => it.address === walletAddress);
-  if (index < 0) return votes;
 
-  const selectedItem = votes?.splice(index, 1)[0];
-  votes?.unshift(selectedItem);
-  return votes;
-};
 
 export function VotesLayout() {
-  const votes = useDataQuery().data?.votes;
-  const walletAddress = useWalletAddress();
-
-  const sorted =
-    !votes || !votes.length || !walletAddress
-      ? votes
-      : sortVotes(votes, walletAddress);
-
+  const votes = useDataQuery().data?.votes
+  
+  const isLoading = !votes || !votes?.length;
   return (
-    <StyledContainer title="Votes" loading={!votes} loaderAmount={3}>
+    <StyledContainer title="Votes" loading={isLoading} loaderAmount={3}>
       {votes && (
         <StyledList gap={15}>
-          {sorted?.map((vote) => {
+          {votes?.map((vote) => {
             return (
               <Vote
                 vote={vote.vote}
@@ -37,6 +26,7 @@ export function VotesLayout() {
               />
             );
           })}
+          <LoadMoreButton />
         </StyledList>
       )}
     </StyledContainer>
@@ -55,6 +45,29 @@ const Vote = ({ address, vote }: { address: string; vote: string }) => {
     </StyledVote>
   );
 };
+
+
+
+const LoadMoreButton = () => {
+  const { loadMore, isLoading, hide } = useNextPage();
+
+    return (
+      <AnimateHeight height={hide ? 0 : "auto"} duration={200}>
+        <StyledLoaderMore>
+          <Button isLoading={isLoading} onClick={loadMore}>
+            See More
+          </Button>
+        </StyledLoaderMore>
+      </AnimateHeight>
+    );
+}
+
+const StyledLoaderMore = styled(StyledFlexRow)({
+  marginTop: 20,
+  button:{
+    width: 160
+  }
+})
 
 const StyledVote = styled(StyledFlexRow)({
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.16)",

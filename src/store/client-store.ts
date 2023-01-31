@@ -2,8 +2,10 @@ import { create } from "zustand";
 import { TonClient, TonClient4 } from "ton";
 import { useMutation } from "@tanstack/react-query";
 import { getClientV2, getClientV4 } from "contracts-api/main";
-import { useDataQuery } from "queries";
+import { useDataQuery, useGetTransactions } from "queries";
 import { persist } from "zustand/middleware";
+import { useWalletAddress } from "./wallet-store";
+import { useMemo } from "react";
 
 interface PersistedState {
   clientV2Endpoint?: string;
@@ -15,6 +17,9 @@ interface PersistedState {
     apiKey?: string
   ) => void;
 }
+
+
+
 
 export const usePersistedStore = create(
   persist<PersistedState>(
@@ -108,7 +113,7 @@ type UpdateEndpointsArgs = {
 export const useUpdateEndpoints = () => {
   const { onUpdate: onEndpointsUpdate } = usePersistedStore();
   const { mutateAsync: getClients } = useGetClients();
-  const { refetch } = useDataQuery();
+  const { refetch } = useGetTransactions();
 
   return useMutation(async (args?: UpdateEndpointsArgs) => {
     await getClients({

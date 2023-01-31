@@ -1,6 +1,7 @@
 import { BASE_ERROR_MESSAGE } from "config";
 import moment from "moment";
 import { Wallet } from "ton";
+import { Vote } from "types";
 export const makeElipsisAddress = (
   address: string,
   padding = 6
@@ -33,3 +34,17 @@ export async function waitForSeqno(wallet: Wallet) {
     throw new Error(BASE_ERROR_MESSAGE);
   };
 }
+
+
+export const sortVotesByConnectedWallet = (votes: Vote[], walletAddress?: string) => {
+
+  if (!walletAddress) {
+    return votes;
+  }
+    const index = votes!.findIndex((it) => it.address === walletAddress);
+  if (index < 0) return votes;
+
+  const selectedItem = votes?.splice(index, 1)[0];
+  votes?.unshift(selectedItem);
+  return votes;
+};

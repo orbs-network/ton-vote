@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Updater,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { TRANSACTIONS_DATA_REFECTH_INTERVAL, TX_FEE } from "config";
 import {
   getAllVotes,
@@ -11,53 +16,86 @@ import _ from "lodash";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useClients, useSetEndpointPopup } from "store/client-store";
+import { useTransactionsPage } from "store/data-store";
 import {
+  getAdapterName,
   useConnection,
-  useSelectedProvider,
   useWalletAddress,
 } from "store/wallet-store";
 import { Address, Cell, CommentMessage, toNano } from "ton";
-import { Provider } from "types";
-import { waitForSeqno } from "utils";
+import { Data, Provider, QueryKeys, Results, Vote, VotingPower } from "types";
+import { sortVotesByConnectedWallet, waitForSeqno } from "utils";
 import { votingContract } from "./contracts-api/main";
 
+export const useGetTransactions = () => {
+  const { clientV2, clientV4 } = useClients();
+  const { toggleError } = useSetEndpointPopup();
+  const { refetch } = useDataQuery();
 
+  const page = useTransactionsPage().page;
 
-enum QueryKeys {
-  DATA = "DATA",
-  PROPOSAL_INFO = "PROPOSAL_INFO",
-}
+  return useQuery(
+    [QueryKeys.TRANSACTIONS, page],
+    async () => {
+      const result = await getTransactions(clientV2, page);      
+
+      return {
+        transactions: _.flatten(result.allTxns),
+        nextPage: result.paging,
+      };
+    },
+    {
+      staleTime: Infinity,
+      enabled: !!clientV2 && !!clientV4,
+      onError: () => {
+        toggleError(true);
+      },
+      onSuccess: (data) => {
+        // refetch only if the returned transactions array is bigger than 0
+        if (data.transactions.length > 0) {
+          refetch();
+        }
+      },
+    }
+  );
+};
 
 export const useDataQuery = () => {
-  const { clientV2, clientV4 } = useClients();
   const queryClient = useQueryClient();
-  const { toggleError } = useSetEndpointPopup();
+  const { clientV2, clientV4 } = useClients();
+  const walletAddress = useWalletAddress()
+
+  const getCurrentData = useGetDataFromQuery();
 
   return useQuery(
     [QueryKeys.DATA],
-    async ({ pageParam = undefined }) => {
-      const result = await getTransactions(clientV2, pageParam);
+    async () => {
+      //create one array from all the transaction pages we have in cache
+      const transactionsData = queryClient.getQueriesData([QueryKeys.TRANSACTIONS]);
+      const transactionsArrays = transactionsData.map(
+        (it: any) => it[1].transactions
+      );
+      const transactions = _.flatten(transactionsArrays);
 
-      const transactions = _.flatten(result.allTxns);
       const proposalInfo = await queryClient.ensureQueryData({
         queryKey: [QueryKeys.PROPOSAL_INFO],
         queryFn: () => getProposalInfo(clientV2),
       });
 
-      const votingPower = await getVotingPower(
+      const votingPower: VotingPower = await getVotingPower(
         clientV4,
         proposalInfo,
         transactions,
-        (queryClient.getQueryData([QueryKeys.DATA]) as any)?.votingPower
+        getCurrentData()?.votingPower
       );
 
-      const currentResults = getCurrentResults(
+      const currentResults: Results = getCurrentResults(
         transactions,
         votingPower,
         proposalInfo
       );
 
-      const votes = _.map(
+      const votes: Vote[] = _.map(
         getAllVotes(transactions, proposalInfo) || {},
         (v, key) => {
           return {
@@ -65,24 +103,54 @@ export const useDataQuery = () => {
             vote: v,
           };
         }
-      );
+      );        
       return {
-        votes,
-        currentResults,
         votingPower,
+        currentResults,
+        votes: sortVotesByConnectedWallet(votes, walletAddress),
       };
     },
     {
+      staleTime: Infinity,
       refetchInterval: TRANSACTIONS_DATA_REFECTH_INTERVAL,
       enabled: !!clientV2 && !!clientV4,
-      staleTime: Infinity,
-      onError: () => {
-        toggleError(true);
-      },
     }
   );
 };
 
+const useGetDataFromQuery = (): (() => Data | undefined) => {
+  const queryClient = useQueryClient();
+  return () => queryClient.getQueryData([QueryKeys.DATA]);
+};
+
+export const useSortVotesAfterConnect = () => {
+  const getData = useGetDataFromQuery();
+  const queryClient = useQueryClient();
+  return (walletAddress: string) => {
+    const votes = getData()?.votes || [];
+    queryClient.setQueryData(
+      [QueryKeys.DATA],
+      (data: Updater<Data | undefined, Data | undefined>) => {
+        return {
+          ...data,
+          votes: sortVotesByConnectedWallet(votes, walletAddress),
+        };
+      }
+    );
+  };
+};
+
+export const useNextPage = () => {
+  const { setPage, page } = useTransactionsPage();
+  const { data, isLoading } = useGetTransactions();
+
+
+  return {
+    loadMore: () => setPage(data?.nextPage),
+    isLoading: data?.nextPage !== page && isLoading ? true : false,
+    hide:  !isLoading && !data?.transactions.length,
+  };
+};
 
 export const useProposalInfoQuery = () => {
   const { clientV2 } = useClients();
@@ -99,7 +167,6 @@ export const useSendTransaction = () => {
   const { clientV2 } = useClients();
   const [txApproved, setTxApproved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const selectedProvider = useSelectedProvider();
 
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
@@ -121,16 +188,17 @@ export const useSendTransaction = () => {
           source: Address.parse(address!),
         })
       );
-
-      if (isMobile || selectedProvider?.type === Provider.EXTENSION) {
-        await connection.requestTransaction({
+      const isExtension = getAdapterName() === Provider.EXTENSION;
+      
+      if (isMobile || isExtension) {
+        await connection?.requestTransaction({
           to: votingContract,
           value: toNano(TX_FEE),
           message: cell,
         });
         await onSuccess();
       } else {
-        await connection.requestTransaction(
+        await connection?.requestTransaction(
           {
             to: votingContract,
             value: toNano(TX_FEE),
