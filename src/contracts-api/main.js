@@ -15,8 +15,7 @@ export async function getClientV2() {
 }
 
 export async function getClientV4() {
-  const endpoint = await getHttpV4Endpoint();
-  return new TonClient4({ endpoint });
+  return new TonClient4("https://mainnet-v4.tonhubapi.com");
 }
 
 export async function getTransactions(
