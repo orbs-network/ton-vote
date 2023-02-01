@@ -55,6 +55,7 @@ export async function getTransactions(
     });
   }
 
+  maxLt = maxLt.toString();
   return { allTxns, maxLt };
 }
 
