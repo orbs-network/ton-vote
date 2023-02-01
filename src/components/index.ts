@@ -8,3 +8,4 @@ export * from "./Input";
 export * from "./EndpointPopup";
 export * from "./ConnectButton";
 export * from "./CloseButton";
+export * from "./NumberDisplay";

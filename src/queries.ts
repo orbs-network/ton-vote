@@ -22,7 +22,7 @@ import {
   useConnection,
   useWalletAddress,
 } from "store/wallet-store";
-import { Address, Cell, CommentMessage, toNano } from "ton";
+import { Address, Cell, CommentMessage, fromNano, toNano } from "ton";
 import { Data, Provider, QueryKeys, Results, Vote, VotingPower } from "types";
 import { sortVotesByConnectedWallet, waitForSeqno } from "utils";
 import { votingContract } from "./contracts-api/main";
@@ -98,12 +98,15 @@ export const useDataQuery = () => {
       const votes: Vote[] = _.map(
         getAllVotes(transactions, proposalInfo) || {},
         (v, key) => {
+          const _votingPower = votingPower[key];
           return {
             address: key,
             vote: v,
+            votingPower: _votingPower ? fromNano(_votingPower) : '0',
           };
         }
-      );        
+      );    
+            
       return {
         votingPower,
         currentResults,

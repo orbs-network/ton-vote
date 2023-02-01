@@ -34,7 +34,8 @@ export interface Data {
 
 export interface Vote {
   address: string;
-  vote: never;
+  vote: string;
+  votingPower: string;
 }
 
 export type VotingPower = { [key: string]: string };
