@@ -37,12 +37,12 @@ export const useGetTransactions = () => {
   return useQuery(
     [QueryKeys.TRANSACTIONS, page],
     async () => {
-      const result = await getTransactions(clientV2, page);      
+      const result = await getTransactions(clientV2, page);
       console.log(result);
       
       return {
         transactions: _.flatten(result.allTxns),
-        nextPage: result.paging,
+        nextPage: result.maxLt,
       };
     },
     {

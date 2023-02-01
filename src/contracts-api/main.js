@@ -23,10 +23,10 @@ export async function getClientV4(customEndpoint) {
 
 export async function getTransactions(
   client,
-  startPage = { fromLt: "0", hash: "" }
+  toLt = undefined
 ) {
-  let toLt = null;
   let maxLt = new BigNumber(toLt ?? -1);
+  let startPage = { fromLt: "0", hash: "" }
 
   let allTxns = [];
   let paging = startPage;
@@ -35,7 +35,7 @@ export async function getTransactions(
     console.log("Querying...");
     const txns = await client.getTransactions(votingContract, {
       lt: paging.fromLt,
-      to_lt: toLt ?? undefined,
+      to_lt: toLt,
       hash: paging.hash,
       limit: 100,
     });
@@ -54,7 +54,7 @@ export async function getTransactions(
     });
   }
 
-  return { allTxns, paging };
+  return { allTxns, maxLt };
 }
 
 export function getAllVotes(transactions, proposalInfo) {

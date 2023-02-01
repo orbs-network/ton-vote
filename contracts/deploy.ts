@@ -1,6 +1,6 @@
 import { waitForContractToBeDeployed, sleep, initWallet, initDeployKey } from "./src/helpers";
 import { CommonMessageInfo, TonClient, toNano, StateInit, InternalMessage} from "ton";
-import {Proposal} from "./contracts-ts/proposal";
+import {Proposal} from "proposal";
 import * as process from "process";
 require('dotenv').config();
 
