@@ -21,9 +21,10 @@ export async function getClientV4(customEndpoint) {
   return new TonClient4({ endpoint });
 }
 
+
 export async function getTransactions(
   client,
-  toLt = undefined
+  toLt = null
 ) {
   let maxLt = new BigNumber(toLt ?? -1);
   let startPage = { fromLt: "0", hash: "" }
@@ -35,7 +36,7 @@ export async function getTransactions(
     console.log("Querying...");
     const txns = await client.getTransactions(votingContract, {
       lt: paging.fromLt,
-      to_lt: toLt,
+      to_lt: toLt ?? undefined,
       hash: paging.hash,
       limit: 100,
     });
