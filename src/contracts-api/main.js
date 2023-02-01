@@ -18,37 +18,30 @@ export async function getClientV4() {
   return new TonClient4({ endpoint });
 }
 
-export async function getTransactions(
-  client,
-  startPage = { fromLt: "0", hash: "" }
-) {
+async function getTransactions(client, startPage = {fromLt: "0", hash: ""}) {
+
   let toLt = null;
-  let maxLt = new BigNumber(toLt ?? -1);
 
   let allTxns = [];
-  let paging = startPage;
+  let paging = startPage
 
   while (true) {
-    console.log("Querying...");
-    const txns = await client.getTransactions(votingContract, {
-      lt: paging.fromLt,
-      to_lt: toLt ?? undefined,
-      hash: paging.hash,
-      limit: 100
-    });
+      console.log("Querying...");
+      const txns = await client.getTransactions(votingContract, {
+          lt: paging.fromLt,
+          to_lt: toLt ?? undefined,
+          hash: paging.hash,
+          limit: 100,
+      });
 
-    console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
+      console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
 
-    if (txns.length === 0) break;
+      if (txns.length === 0) break;
 
-    allTxns = [...allTxns, ...txns];
-
-    paging.fromLt = txns[txns.length - 1].id.lt;
-    paging.hash = txns[txns.length - 1].id.hash;
-    txns.forEach((t) => {
-      t.inMessage.source = t.inMessage.source.toFriendly();
-      maxLt = BigNumber.max(new BigNumber(t.id.lt), maxLt);
-    });
+      allTxns = [...allTxns, ...txns];
+      
+      paging.fromLt = txns[txns.length - 1].id.lt;
+      paging.hash = txns[txns.length - 1].id.hash;
   }
 
   return { allTxns, paging };
