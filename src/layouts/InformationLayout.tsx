@@ -3,8 +3,9 @@ import { Container } from "components";
 import { useProposalInfoQuery } from "queries";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import moment from 'moment'
 import { fromUnixToString } from "utils";
+import { Countdown } from "components/Coundown";
+import { DEADLINE } from "config";
 
 const title = "Information";
 export const InformationLayout = () => {
@@ -31,7 +32,12 @@ export const InformationLayout = () => {
             </InformationRow>
 
             <InformationRow label="Snapshot">
-              <Typography>{proposalInformation.snapshot}</Typography>
+              <Typography>
+                {fromUnixToString(proposalInformation.snapshot)}
+              </Typography>
+            </InformationRow>
+            <InformationRow label="Vote ends in">
+              <Countdown date={DEADLINE} />
             </InformationRow>
           </StyledFlexColumn>
         )}

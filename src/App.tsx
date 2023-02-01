@@ -1,6 +1,8 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { Box } from "@mui/system";
 import { EndpointPopup } from "components";
+import { Countdown } from "components/Coundown";
+import { DEADLINE } from "config";
 import {
   MainLayout,
   VoteLayout,

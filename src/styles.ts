@@ -16,7 +16,7 @@ export const StyledFlexRow = styled(Box)(
     alignItems: alignItems,
     justifyContent,
     gap,
-    width:'100%'
+    width: "100%",
   })
 );
 export const StyledFlexColumn = styled(Box)(
@@ -43,8 +43,9 @@ export const globalStyles = {
     background: "#F8F9FB",
   },
   html: {
-     scrollBehavior: 'smooth' as const
-  }
+    scrollBehavior: "smooth" as const,
+  },
+ 
 };
 
 export const textOverflow: CSSProperties = {

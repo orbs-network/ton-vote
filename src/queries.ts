@@ -38,7 +38,8 @@ export const useGetTransactions = () => {
     [QueryKeys.TRANSACTIONS, page],
     async () => {
       const result = await getTransactions(clientV2, page);      
-
+      console.log(result);
+      
       return {
         transactions: _.flatten(result.allTxns),
         nextPage: result.paging,
@@ -60,10 +61,21 @@ export const useGetTransactions = () => {
   );
 };
 
+
+
+export const useClearTransactions = () => {
+  const queryClient = useQueryClient()
+
+  return () => {
+    queryClient.invalidateQueries([QueryKeys.TRANSACTIONS])
+  }
+}
+
 export const useDataQuery = () => {
   const queryClient = useQueryClient();
   const { clientV2, clientV4 } = useClients();
   const walletAddress = useWalletAddress()
+  const { toggleError } = useSetEndpointPopup();
 
   const getCurrentData = useGetDataFromQuery();
 
@@ -114,6 +126,9 @@ export const useDataQuery = () => {
       };
     },
     {
+      onError: () => {
+        toggleError(true);
+      },
       staleTime: Infinity,
       refetchInterval: TRANSACTIONS_DATA_REFECTH_INTERVAL,
       enabled: !!clientV2 && !!clientV4,

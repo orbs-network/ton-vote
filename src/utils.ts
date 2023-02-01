@@ -14,7 +14,8 @@ export const makeElipsisAddress = (
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export const fromUnixToString = (time: number, format = "MMM DD, YYYY h:mm a") => {
-  return moment.unix(time).format(format);
+  
+  return moment.unix(time).utc().format(format);
 };
 
 export async function waitForSeqno(wallet: Wallet) {
