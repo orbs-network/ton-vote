@@ -1,6 +1,5 @@
-import { Backdrop, CircularProgress, styled, Typography } from "@mui/material";
+import { CircularProgress, styled, Typography } from "@mui/material";
 import React from "react";
-import { useSelectedProvider } from "store/wallet-store";
 import { StyledFlexColumn } from "styles";
 import { Popup } from "./Popup";
 

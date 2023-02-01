@@ -1,36 +1,35 @@
-import { Fade, Theme } from "@mui/material";
-import { styled, Typography, useTheme } from "@mui/material";
-import { Container, Button, TxReminderPopup } from "components";
+import { Fade } from "@mui/material";
+import { styled, Typography } from "@mui/material";
+import { Container, Button, TxReminderPopup, ConnectButton } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useSendTransaction } from "queries";
-import { useSelectedProvider, useWalletAddress } from "store/wallet-store";
-import {
-  APPROVE_TX,
-  TX_APPROVED_AND_PENDING,
-} from "config";
-import ConnectButton from "components/ConnectButton";
-const voteOptions = [
-  {
-    name: "Yes",
-    value: "yes",
-  },
-  {
-    name: "No",
-    value: "no",
-  },
-  {
-    name: "Abstain",
-    value: "abstain",
-  },
-];
+import { useDataQuery, useSendTransaction } from "queries";
+import { useWalletAddress } from "store/wallet-store";
+import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
+
+export const useSelection = () => {
+  const [selected, setSelected] = useState("");
+  const walletAddress = useWalletAddress();
+  const votes = useDataQuery().data?.votes;
+
+  const votesLength = votes?.length;
+
+  useEffect(() => {
+    if (votesLength && walletAddress && !selected) {   
+      const vote = voteOptions.find((it) => it.name === votes[0].vote); 
+      setSelected(vote?.value || '');
+    }
+  }, [votesLength, walletAddress]);
+
+  return { selected, setSelected };
+};
 
 export function VoteLayout() {
-  const [selected, setSelected] = useState("");
+  const { selected, setSelected } = useSelection();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();
-  const walletAddress = useWalletAddress()
+  const walletAddress = useWalletAddress();
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -39,6 +38,7 @@ export function VoteLayout() {
   const onSelect = (value: string) => {
     setSelected(value);
   };
+  
 
   return (
     <StyledContainer title="Vote">
@@ -60,20 +60,22 @@ export function VoteLayout() {
           );
         })}
       </StyledFlexColumn>
-      
-     {walletAddress ?  <StyledVoteButton
-        onClick={() =>
-          mutate({
-            value: selected as any,
-          })
-        }
-        isLoading={isLoading}
-        disabled={!selected || isLoading}
-      >
-        Vote
-      </StyledVoteButton> : 
-      <StyledConnectButton text="Vote" />
-      }
+
+      {walletAddress ? (
+        <StyledVoteButton
+          onClick={() =>
+            mutate({
+              value: selected as any,
+            })
+          }
+          isLoading={isLoading}
+          disabled={!selected || isLoading}
+        >
+          Vote
+        </StyledVoteButton>
+      ) : (
+        <StyledConnectButton text="Vote" />
+      )}
       <TxReminderPopup
         text={txApproved ? TX_APPROVED_AND_PENDING : APPROVE_TX}
         open={showModal}

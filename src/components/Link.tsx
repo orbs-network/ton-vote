@@ -31,8 +31,5 @@ const StyledLink = styled('a')({
   alignItems: "center",
   gap: 5,
   textDecoration: "unset",
-  ...textOverflow,
-  p: {
-    ...textOverflow,
-  },
+
 });
