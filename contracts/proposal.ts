@@ -1,6 +1,6 @@
 import {Address, Cell, Contract, contractAddress, ContractSource, InternalMessage, Message, TonClient, serializeDict} from "ton";
 import {sign} from "ton-crypto";
-import {compileFuncToB64} from "../src/helpers";
+import {compileFuncToB64} from "./helpers";
 
 export type Maybe<T> = T | null | undefined;
 
@@ -10,8 +10,8 @@ export class Proposal implements Contract {
     readonly address: Address;
     readonly source: ContractSource;
     
-    constructor(initialCode: Cell, initialData: Cell, workchain = -1) {
-        this.source = {initialCode: initialCode, initialData: initialData, workchain: -1} as ContractSource;
+    constructor(initialCode: Cell, initialData: Cell, workchain = 0) {
+        this.source = {initialCode: initialCode, initialData: initialData, workchain: 0} as ContractSource;
         this.address = contractAddress({initialCode: initialCode, initialData: initialData, workchain: workchain});
     }
 

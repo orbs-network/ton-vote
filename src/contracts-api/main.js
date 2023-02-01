@@ -3,55 +3,65 @@ import { Address, beginCell, Cell, TonClient, TonClient4 } from "ton";
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 
-
 export const votingContract = Address.parse(
   "Ef-V3WPoPFeecWLT5vL41YIFrBFczkk-4sd3dhbJmO7McyEw"
 );
 
-export async function getClientV2() {
+export async function getClientV2(customEndpoint, apiKey) {
+  // const endpoint = "https://ton.access.orbs.network/3847c20C2854E83765d585B86498eFcC7Fec6a46/1/mainnet/toncenter-api-v2/jsonRPC" // await getHttpEndpoint();
+  if (customEndpoint) {
+    return new TonClient({ endpoint: customEndpoint, apiKey });
+  }
   const endpoint = await getHttpEndpoint();
   return new TonClient({ endpoint });
 }
 
-export async function getClientV4() {
-  const endpoint = await getHttpV4Endpoint();
+export async function getClientV4(customEndpoint) {
+  const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
   return new TonClient4({ endpoint });
 }
 
-async function getTransactions(client, startPage = {fromLt: "0", hash: ""}) {
-
-  let toLt = null;
+export async function getTransactions(
+  client,
+  toLt = undefined
+) {
+  let maxLt = new BigNumber(toLt ?? -1);
+  let startPage = { fromLt: "0", hash: "" }
 
   let allTxns = [];
   let paging = startPage
 
   while (true) {
-      console.log("Querying...");
-      const txns = await client.getTransactions(votingContract, {
-          lt: paging.fromLt,
-          to_lt: toLt ?? undefined,
-          hash: paging.hash,
-          limit: 100,
-      });
+    console.log("Querying...");
+    const txns = await client.getTransactions(votingContract, {
+      lt: paging.fromLt,
+      to_lt: toLt,
+      hash: paging.hash,
+      limit: 100,
+    });
 
-      console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
+    console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
 
-      if (txns.length === 0) break;
+    if (txns.length === 0) break;
 
-      allTxns = [...allTxns, ...txns];
-      
-      paging.fromLt = txns[txns.length - 1].id.lt;
-      paging.hash = txns[txns.length - 1].id.hash;
+    allTxns = [...allTxns, ...txns];
+
+    paging.fromLt = txns[txns.length - 1].id.lt;
+    paging.hash = txns[txns.length - 1].id.hash;
+    txns.forEach((t) => {
+      t.inMessage.source = t.inMessage.source.toFriendly();
+      maxLt = BigNumber.max(new BigNumber(t.id.lt), maxLt);
+    });
   }
 
-  return { allTxns, paging };
+  return { allTxns, maxLt };
 }
 
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
 
   for (let i = transactions.length - 1; i >= 0; i--) {
-    const txnBody = transactions[i].inMessage.body
+    const txnBody = transactions[i].inMessage.body;
 
     let vote = txnBody.text;
     if (!vote) continue;
@@ -72,7 +82,6 @@ export function getAllVotes(transactions, proposalInfo) {
       allVotes[transactions[i].inMessage.source] = "Abstain";
     }
   }
-
 
   return allVotes;
 }

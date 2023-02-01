@@ -22,7 +22,7 @@ function Button({
   return (
     <StyledContainer
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || !!isLoading}
       className={className}
     >
       <Fade in={isLoading}>

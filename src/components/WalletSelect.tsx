@@ -1,16 +1,9 @@
 import { Box, Fade, Skeleton, styled, Typography } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Popup } from "./Popup";
-
-import {
-  useSelectedProvider,
-  useConnect,
-  useConnectQR,
-  useResetConnection,
-  useSession,
-} from "store/wallet-store";
+import { useConnect, useResetConnection } from "store/wallet-store";
 import { QRCodeSVG } from "qrcode.react";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { GrClose } from "react-icons/gr";
 import { walletAdapters } from "config";
 import { isMobile } from "react-device-detect";
@@ -22,98 +15,103 @@ interface Props {
 
 export function WalletSelect({ open, close }: Props) {
   const resetConnection = useResetConnection();
+  const {
+    mutate: connect,
+    session,
+    showQR,
+    setShowQR,
+    clearSession,
+    selectedProvider,
+  } = useConnect();
 
   const onWalletsClose = () => {
     resetConnection();
     close();
   };
 
+  const onQRClose = () => {
+    setShowQR(false);
+    setTimeout(() => {
+      resetConnection();
+      clearSession();
+    }, 500);
+  };
+
   return (
     <StyledPopup open={open}>
       <StyledContainer>
-        <WalletsView close={onWalletsClose} />
-        <QrConnector />
+        <StyledWalletsSelect
+          close={onWalletsClose}
+          show={!showQR}
+          title="Select wallet"
+        >
+          <StyledWalletsList>
+            {walletAdapters.map((wallet) => {
+              if (wallet.mobileDisabled && isMobile) {
+                return null;
+              }
+              return (
+                <StyledWallet
+                  justifyContent="flex-start"
+                  key={wallet.type}
+                  onClick={() => connect(wallet)}
+                >
+                  <img src={wallet.icon} />
+                  <Typography className="wallet-name">
+                    {wallet.title}
+                  </Typography>
+                </StyledWallet>
+              );
+            })}
+          </StyledWalletsList>
+        </StyledWalletsSelect>
+        <StyledQr
+          show={showQR}
+          title={
+            selectedProvider ? `Connect with ${selectedProvider.title}` : ""
+          }
+          close={onQRClose}
+        >
+          <StyledQrBox>
+            <QR session={session} icon={selectedProvider?.icon} />
+          </StyledQrBox>
+        </StyledQr>
       </StyledContainer>
     </StyledPopup>
   );
 }
 
-export function QrConnector() {
-  const session = useSession();
-  const resetConnection = useResetConnection();
-  const selectedProvider = useSelectedProvider();
-  const { showQR, toggleQR } = useConnectQR();
-
-  const onClose = () => {
-    toggleQR(false);
-    setTimeout(() => {
-      resetConnection();
-    }, 400);
-  }
-
+const QR = ({ session, icon = "" }: { session?: string; icon?: string }) => {
   return (
-    <StyledQr
-      show={showQR}
-      title={selectedProvider ? `Connect with ${selectedProvider.title}` : ""}
-      close={onClose}
-    >
-      <StyledQrBox>
-        {session ? (
-          <QRCodeSVG
-            imageSettings={{
-              src: selectedProvider?.icon || "",
-              x: undefined,
-              y: undefined,
-              height: 50,
-              width: 50,
-              excavate: true,
-            }}
-            level={"M"}
-            value={session}
-            size={260}
-          />
-        ) : (
-          <Skeleton
-            style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: 10,
-              background: "rgba(0,0,0, 0.16)",
-            }}
-            variant="rectangular"
-            width={210}
-            height={60}
-          />
-        )}
-      </StyledQrBox>
-    </StyledQr>
-  );
-}
-
-const WalletsView = ({ close }: { close: () => void }) => {
-  const { mutate: connect } = useConnect();
-  const { showQR } = useConnectQR();
-
-  return (
-    <StyledWalletsSelect close={close} show={!showQR} title="Select wallet">
-      <StyledWalletsList>
-        {walletAdapters.map((wallet) => {
-          if(wallet.mobileDisabled && isMobile) {
-            return null
-          }
-          return (
-            <StyledWallet
-              justifyContent="flex-start"
-              key={wallet.type}
-              onClick={() => connect(wallet)}
-            >
-              <img src={wallet.icon} />
-              <Typography className="wallet-name">{wallet.title}</Typography>
-            </StyledWallet>
-          );
-        })}
-      </StyledWalletsList>
-    </StyledWalletsSelect>
+    <StyledQrBox>
+      {session ? (
+        <QRCodeSVG
+          imageSettings={{
+            src: icon,
+            x: undefined,
+            y: undefined,
+            height: 50,
+            width: 50,
+            excavate: true,
+          }}
+          level={"M"}
+          value={session}
+          size={260}
+        />
+      ) : (
+        <Skeleton
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 10,
+            background: "rgba(0,0,0, 0.16)",
+          }}
+          variant="rectangular"
+          width={210}
+          height={60}
+        />
+      )}
+    </StyledQrBox>
   );
 };
 
@@ -130,16 +128,15 @@ const StyledQrBox = styled(Box)({
 });
 
 const StyledWallet = styled(StyledFlexRow)({
-  gap:15,
+  gap: 15,
   img: {
     width: 35,
     height: 35,
   },
   cursor: "pointer",
-  ".wallet-name":{
-    fontSize: 17
-  }
-
+  ".wallet-name": {
+    fontSize: 17,
+  },
 });
 
 const StyledContainer = styled(StyledFlexColumn)({

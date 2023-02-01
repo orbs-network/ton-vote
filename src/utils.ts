@@ -1,6 +1,7 @@
 import { BASE_ERROR_MESSAGE } from "config";
 import moment from "moment";
 import { Wallet } from "ton";
+import { Vote } from "types";
 export const makeElipsisAddress = (
   address: string,
   padding = 6
@@ -13,7 +14,8 @@ export const makeElipsisAddress = (
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export const fromUnixToString = (time: number, format = "MMM DD, YYYY h:mm a") => {
-  return moment.unix(time).format(format);
+  
+  return moment.unix(time).utc().format(format);
 };
 
 export async function waitForSeqno(wallet: Wallet) {
@@ -33,3 +35,17 @@ export async function waitForSeqno(wallet: Wallet) {
     throw new Error(BASE_ERROR_MESSAGE);
   };
 }
+
+
+export const sortVotesByConnectedWallet = (votes: Vote[], walletAddress?: string) => {
+
+  if (!walletAddress) {
+    return votes;
+  }
+    const index = votes!.findIndex((it) => it.address === walletAddress);
+  if (index < 0) return votes;
+
+  const selectedItem = votes?.splice(index, 1)[0];
+  votes?.unshift(selectedItem);
+  return votes;
+};
