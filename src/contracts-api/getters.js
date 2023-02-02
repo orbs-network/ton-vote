@@ -35,7 +35,7 @@ export async function getFrozenAddresses(client, clientV4) {
       return sliceToVal(s.readRef(), buffer, true);
     });
     
-    return dict.get('1').toString();
+    return dict.get(`${KEY_VAL}`).toString();
   }
 
 export async function getSnapshotTime(client, clientV4) {

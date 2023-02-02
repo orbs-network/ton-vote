@@ -21,7 +21,6 @@ export async function getClientV4(customEndpoint) {
   return new TonClient4({ endpoint });
 }
 
-
 export async function getTransactions(
   client,
   toLt = null
