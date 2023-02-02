@@ -2,8 +2,15 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { TonConnection } from "@ton-defi.org/ton-connection";
 import { PAGE_SIZE } from "config";
-import { ClientsState, EndpointState, MaxLtState, PersistedState, VotesState, WalletState } from "./types";
-
+import {
+  ClientsState,
+  EndpointState,
+  MaxLtState,
+  PersistedState,
+  VotesState,
+  WalletState,
+} from "./types";
+import { Vote } from "types";
 export const usePersistedStore = create(
   persist<PersistedState>(
     (set) => ({
@@ -19,7 +26,6 @@ export const usePersistedStore = create(
 export const useClientStore = create<ClientsState>((set, get) => ({
   setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
 }));
-
 
 export const useEndpointsStore = create<EndpointState>((set, get) => ({
   showSetEndpoint: false,
@@ -46,16 +52,14 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   },
 }));
 
-
-
 export const useMaxLtStore = create<MaxLtState>((set, get) => ({
   setMaxLt: (maxLt) => set({ maxLt }),
   maxLt: null,
 }));
 
-
 export const useVotesStore = create<VotesState>((set, get) => ({
-  page: PAGE_SIZE,
-  nextPage: () => set({ page: get().page + PAGE_SIZE }),
+  addVotes: (votes, amount = PAGE_SIZE) =>
+    set({ votes: votes.slice(get().votes.length, amount) }),
   hasNextPage: true,
+  votes: [],
 }));

@@ -1,5 +1,6 @@
 import { TonConnection, TonWalletProvider } from "@ton-defi.org/ton-connection";
 import { TonClient, TonClient4 } from "ton";
+import { Vote } from "types";
 
 export interface PersistedState {
   clientV2Endpoint?: string;
@@ -39,7 +40,7 @@ export interface MaxLtState {
 
 
 export interface VotesState {
-  page: number;
-  nextPage: () => void;
+  addVotes: (votes: Vote[], amount?: number) => void;
   hasNextPage: boolean;
+  votes: Vote[];
 }

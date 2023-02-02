@@ -1,12 +1,24 @@
 import { useMutation } from "@tanstack/react-query";
-import { TonWalletProvider, ChromeExtensionWalletProvider, TonhubProvider, TonkeeperProvider } from "@ton-defi.org/ton-connection";
+import {
+  TonWalletProvider,
+  ChromeExtensionWalletProvider,
+  TonhubProvider,
+  TonkeeperProvider,
+} from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/main";
-import { useSortVotesAfterConnect } from "queries";
+import { useDataQuery, useSortVotesAfterConnect } from "queries";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
-import { WalletProvider, Provider } from "types";
-import { useClientStore, useEndpointsStore, useMaxLtStore, usePersistedStore, useVotesStore, useWalletStore } from "./store";
+import { WalletProvider, Provider, Vote } from "types";
+import {
+  useClientStore,
+  useEndpointsStore,
+  useMaxLtStore,
+  usePersistedStore,
+  useVotesStore,
+  useWalletStore,
+} from "./store";
 
 export const useSetEndpointPopup = () => {
   const store = useEndpointsStore((store) => store);
@@ -87,7 +99,6 @@ export const useUpdateEndpoints = () => {
     // clearTransactions();
   });
 };
-
 
 export const useConnection = () => {
   return useWalletStore((store) => store.connection);
@@ -180,8 +191,6 @@ export const useEagerlyConnect = () => {
   };
 };
 
-
-
 export const useTransactionsMaxLt = () => {
   const maxLt = useMaxLtStore().maxLt;
   const setMaxLt = useMaxLtStore().setMaxLt;
@@ -192,10 +201,20 @@ export const useTransactionsMaxLt = () => {
   };
 };
 
-export const useVotesPagination = () => {
-  const { page, nextPage } = useVotesStore();
+export const useVotes = () => {
+  const { addVotes, votes } = useVotesStore();
+  const data = useDataQuery().data;
   return {
-    loadMore: nextPage,
+    loadMore: () => addVotes(data?.votes || []),
     hide: false,
+    votes,
+  };
+};
+
+export const useAddNewVotes = () => {
+  const { addVotes, votes } = useVotesStore();
+
+  return (amount: number) => {
+    addVotes(votes, amount);
   };
 };

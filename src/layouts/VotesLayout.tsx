@@ -6,10 +6,10 @@ import { makeElipsisAddress } from "utils";
 import { TONSCAN_ADDRESS_URL } from "config";
 import AnimateHeight from "react-animate-height";
 import { Vote } from "types";
-import { useVotesPagination, useWalletAddress } from "store";
+import {useVotes, useWalletAddress } from "store";
 
 export function VotesLayout() {
-  const votes = useDataQuery().data?.votes;
+  const {votes} = useVotes()
 
   const isLoading = !votes || !votes?.length;
   return (
@@ -44,7 +44,7 @@ const VoteComponent = ({ data }: { data: Vote }) => {
 };
 
 const LoadMoreButton = () => {
-  const { loadMore, hide } = useVotesPagination();
+  const { loadMore, hide } = useVotes();
 
   return (
     <AnimateHeight height={hide ? 0 : "auto"} duration={200}>

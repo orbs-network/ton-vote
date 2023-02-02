@@ -10,7 +10,14 @@ import {
 import _ from "lodash";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useClients, useConnection, useSetEndpointPopup, useTransactionsMaxLt, useWalletAddress } from "store";
+import {
+  useAddNewVotes,
+  useClients,
+  useConnection,
+  useSetEndpointPopup,
+  useTransactionsMaxLt,
+  useWalletAddress,
+} from "store";
 import { Address, Cell, CommentMessage, fromNano, toNano } from "ton";
 import {
   Data,
@@ -22,7 +29,11 @@ import {
   Vote,
   VotingPower,
 } from "types";
-import { getAdapterName, sortVotesByConnectedWallet, waitForSeqno } from "utils";
+import {
+  getAdapterName,
+  sortVotesByConnectedWallet,
+  waitForSeqno,
+} from "utils";
 import { votingContract } from "./contracts-api/main";
 
 export const useGetTransactionsQuery = () => {
@@ -93,6 +104,8 @@ export const useDataQuery = () => {
   const { getList } = useTransactionsList();
   const { getData } = useData();
 
+  const addNewVotes = useAddNewVotes();
+
   return useQuery(
     [QueryKeys.DATA],
     async () => {
@@ -107,7 +120,6 @@ export const useDataQuery = () => {
       }
 
       console.log({ transactions });
-      
 
       const proposalInfo = await queryClient.ensureQueryData({
         queryKey: [QueryKeys.PROPOSAL_INFO],
@@ -138,6 +150,10 @@ export const useDataQuery = () => {
           };
         }
       );
+
+      const prevVotesLength = getData()?.votes?.length || 0;
+      const newVotesLength = votes.length;
+      // addNewVotes(newVotesLength - prevVotesLength);
 
       return {
         votingPower,
@@ -182,8 +198,6 @@ export const useSortVotesAfterConnect = () => {
     setData(newData);
   };
 };
-
-
 
 export const useProposalInfoQuery = () => {
   const { clientV2, clientV4 } = useClients();
