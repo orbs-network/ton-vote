@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { TonClient, TonClient4 } from "ton";
 import { useMutation } from "@tanstack/react-query";
-import { getClientV2, getClientV4 } from "contracts-api/main";
+import { getClientV2, getClientV4 } from "contracts-api/logic";
 import { useClearTransactions, useDataQuery, useGetTransactions, useNextPage } from "queries";
 import { persist } from "zustand/middleware";
 import { useWalletAddress } from "./wallet-store";

@@ -1,11 +1,11 @@
 import { getHttpEndpoint, getHttpV4Endpoint } from "@orbs-network/ton-access";
 import { Address, beginCell, Cell, TonClient, TonClient4 } from "ton";
+import {getFrozenAddresses, getStartTime, getEndTime, getSnapshotTime} from "./getters";
+import { votingContract } from "./address";
+
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 
-export const votingContract = Address.parse(
-  "Ef-V3WPoPFeecWLT5vL41YIFrBFczkk-4sd3dhbJmO7McyEw"
-);
 
 export async function getClientV2(customEndpoint, apiKey) {
   // const endpoint = "https://ton.access.orbs.network/3847c20C2854E83765d585B86498eFcC7Fec6a46/1/mainnet/toncenter-api-v2/jsonRPC" // await getHttpEndpoint();
@@ -154,42 +154,6 @@ export function calcProposalResult(votes, votingPower) {
     abstain: abstainPct,
     totalWeight: totalWeights.toString(),
   };
-}
-
-async function getBlockFromTime(clientV4, utime) {
-
-  let mcSnapshotBlock = null;
-
-  let res = (await clientV4.getBlockByUtime(utime)).shards;
-
-  for (let i = 0; i < res.length; i++) {
-    if (res[i].workchain == -1) return res[i].seqno;  
-  }
-
-  throw Error(`could not find materchain seqno at time ${utime}`);
-
-} 
-
-export async function getSnapshotTime(client, clientV4) {
-  const res = await client.callGetMethod(
-    votingContract,
-    "proposal_snapshot_time"
-  );
-  const snapshotTime = Number(res.stack[0][1]);
-
-  const mcSnapshotBlock = await getBlockFromTime(clientV4, snapshotTime);
-
-  return {snapshotTime, mcSnapshotBlock};
-}
-
-export async function getStartTime(client) {
-  const res = await client.callGetMethod(votingContract, "proposal_start_time");
-  return Number(res.stack[0][1]);
-}
-
-export async function getEndTime(client) {
-  const res = await client.callGetMethod(votingContract, "proposal_end_time");
-  return Number(res.stack[0][1]);
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {

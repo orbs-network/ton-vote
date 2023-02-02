@@ -1,11 +1,14 @@
 import {
   Address,
+  DictBuilder,
   WalletContract,
 } from "ton";
 import { mnemonicNew, mnemonicToWalletKey } from "ton-crypto";
-import { TonClient, WalletV3R2Source, fromNano } from "ton";
+import { TonClient, WalletV3R2Source, fromNano, beginDict, Cell, beginCell } from "ton";
 import fs from "fs";
 import {execSync} from "child_process";
+import {SNAKE_PREFIX, ONCHAIN_CONTENT_PREFIX, KEY_LEN, KEY_VAL} from "./config";
+  
 
 
 export async function waitForContractToBeDeployed(client: TonClient, deployedContract: Address) {
@@ -105,3 +108,31 @@ to set custom path to your func compiler please set  the env variable "export FU
     return stdOut.trim();
 }
 
+export function createDictFromStr(str: string): Cell {
+
+  const dict = beginDict(KEY_LEN);
+
+  let bufferToStore = Buffer.from(str);
+
+  const CELL_MAX_SIZE_BYTES = Math.floor((1023 - 8) / 8);
+
+  const rootCell = new Cell();
+  rootCell.bits.writeUint8(SNAKE_PREFIX);
+  let currentCell = rootCell;
+
+  while (bufferToStore.length > 0) {
+    currentCell.bits.writeBuffer(bufferToStore.slice(0, CELL_MAX_SIZE_BYTES));
+    
+    bufferToStore = bufferToStore.slice(CELL_MAX_SIZE_BYTES);
+    if (bufferToStore.length > 0) {
+      const newCell = new Cell();
+      currentCell.refs.push(newCell);
+      currentCell = newCell;
+    }
+  }
+
+  dict.storeRef(KEY_VAL, rootCell); 
+  
+  return beginCell().storeInt(ONCHAIN_CONTENT_PREFIX, 8).storeDict(dict.endDict()).endCell()
+
+}

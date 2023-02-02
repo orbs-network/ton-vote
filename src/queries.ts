@@ -11,7 +11,7 @@ import {
   getProposalInfo,
   getTransactions,
   getVotingPower,
-} from "contracts-api/main";
+} from "contracts-api/logic";
 import _ from "lodash";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -25,7 +25,7 @@ import {
 import { Address, Cell, CommentMessage, fromNano, toNano } from "ton";
 import { Data, Provider, QueryKeys, Results, Vote, VotingPower } from "types";
 import { sortVotesByConnectedWallet, waitForSeqno } from "utils";
-import { votingContract } from "./contracts-api/main";
+import { votingContract } from "./contracts-api/logic";
 
 export const useGetTransactions = () => {
   const { clientV2, clientV4 } = useClients();
