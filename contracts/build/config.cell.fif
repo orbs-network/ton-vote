@@ -1,7 +1,0 @@
-"Asm.fif" include
-"Asm.fif" include
-// automatically generated from `contracts/config.fc` 
-PROGRAM{
-}END>c
-
-boc>B "build/config.cell" B>file

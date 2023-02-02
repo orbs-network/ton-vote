@@ -6,7 +6,7 @@ import {
   TonkeeperProvider,
 } from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
-import { getClientV2, getClientV4 } from "contracts-api/main";
+import { getClientV2, getClientV4 } from "contracts-api/logic";
 import { useDataQuery, useResetQueries, useSortVotes } from "queries";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
