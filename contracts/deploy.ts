@@ -1,17 +1,18 @@
 import { waitForContractToBeDeployed, sleep, initWallet, initDeployKey } from "./helpers";
 import { CommonMessageInfo, TonClient, toNano, StateInit, InternalMessage} from "ton";
+import { getHttpEndpoint } from "@orbs-network/ton-access";
 import {Proposal} from "./proposal";
+import {START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH, INACTIVE_ADDRESSES} from "./config";
 import * as process from "process";
-require('dotenv').config();
-
-export const client = new TonClient({ endpoint: process.env.TON_ENDPOINT || "https://toncenter.com/api/v2/jsonRPC", apiKey: process.env.TON_API_KEY});
 
 const NOMINATOR_MIN_TON = 0.1;
 
 
 async function deploy() {
 
-	const contract = await Proposal.create(Number(process.env.START_EPOCH), Number(process.env.END_EPOCH), Number(process.env.SNAPSHOT_EPCOH), process.env.INACTIVE_ADDRESSES?.split(',') || []);
+	const client = new TonClient({endpoint: await getHttpEndpoint()});
+
+	const contract = Proposal.create(START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH, INACTIVE_ADDRESSES?.split(',') || []);
 
 	let deployWalletKey = await initDeployKey("");
 	let deployWallet = await initWallet(client, deployWalletKey.publicKey);

@@ -177,10 +177,9 @@ export async function getSnapshotTime(client, clientV4) {
   );
   const snapshotTime = Number(res.stack[0][1]);
 
-  const mcSnapshotBlock = getBlockFromTime(clientV4, snapshotTime);
+  const mcSnapshotBlock = await getBlockFromTime(clientV4, snapshotTime);
 
   return {snapshotTime, mcSnapshotBlock};
-
 }
 
 export async function getStartTime(client) {

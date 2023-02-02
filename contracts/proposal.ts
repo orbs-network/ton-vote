@@ -12,7 +12,9 @@ export class Proposal implements Contract {
         this.address = contractAddress({initialCode: initialCode, initialData: initialData, workchain: workchain});
     }
 
-    static create(start_time: number, end_time: number, snapshot_time: number, inactive_addresses: string []) {
+    static create(start_time: number, end_time: number, snapshot_time: number, inactive_addresses: string [], workchain = 0) {
+        console.log(start_time, end_time, snapshot_time);
+        
         // Build initial code and data
         let initialCode = this.getCode()[0];
         let initialData = new Cell();
@@ -22,11 +24,11 @@ export class Proposal implements Contract {
         // for (const addr of inactive_addresses) {
         //     initialData.bits.writeAddress(Address.parse(addr));
         // }
-        return new Proposal(initialCode, initialData, -1);
+        return new Proposal(initialCode, initialData, workchain);
     }
 
     static getCode(): Cell[] {
-        const vote: string = compileFuncToB64(["contracts/imports/stdlib.fc", "contracts/proposal.fc"]);
+        const vote: string = compileFuncToB64(["imports/stdlib.fc", "proposal.fc"]);
         return Cell.fromBoc(vote);
     }
 }
