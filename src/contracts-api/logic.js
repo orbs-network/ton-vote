@@ -8,7 +8,6 @@ import _ from "lodash";
 
 
 export async function getClientV2(customEndpoint, apiKey) {
-  // const endpoint = "https://ton.access.orbs.network/3847c20C2854E83765d585B86498eFcC7Fec6a46/1/mainnet/toncenter-api-v2/jsonRPC" // await getHttpEndpoint();
   if (customEndpoint) {
     return new TonClient({ endpoint: customEndpoint, apiKey });
   }
