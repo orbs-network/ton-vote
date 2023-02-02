@@ -7,6 +7,7 @@ export const votingContract = Address.parse(
   "Ef-V3WPoPFeecWLT5vL41YIFrBFczkk-4sd3dhbJmO7McyEw"
 );
 
+
 export async function getClientV2(customEndpoint, apiKey) {
   // const endpoint = "https://ton.access.orbs.network/3847c20C2854E83765d585B86498eFcC7Fec6a46/1/mainnet/toncenter-api-v2/jsonRPC" // await getHttpEndpoint();
   if (customEndpoint) {

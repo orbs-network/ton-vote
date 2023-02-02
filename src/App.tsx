@@ -10,6 +10,7 @@ import {
   VotesLayout,
   Footer,
 } from "layouts";
+import DeadlineLayout from "layouts/DeadlineLayout";
 import { useData, useGetTransactionsQuery } from "queries";
 import { useEffect } from "react";
 import { useEagerlyConnect, useGetClientsOnLoad } from "store";
@@ -24,6 +25,7 @@ const Destop = () => {
         <VotesLayout />
       </StyledLeft>
       <StyledRight>
+        <DeadlineLayout />
         <InformationLayout />
         <ResultsLayout />
       </StyledRight>
@@ -34,6 +36,7 @@ const Destop = () => {
 const Mobile = () => {
   return (
     <StyledWrapper>
+      <DeadlineLayout />
       <MainLayout />
       <VoteLayout />
       <ResultsLayout />

@@ -36,9 +36,7 @@ export const InformationLayout = () => {
                 {fromUnixToString(proposalInformation.snapshot.snapshotTime)}
               </Typography>
             </InformationRow>
-            <InformationRow label="Vote ends in">
-              <Countdown date={DEADLINE} />
-            </InformationRow>
+         
           </StyledFlexColumn>
         )}
       </StyledInformation>

@@ -89,6 +89,6 @@ export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
 
 
 
-export const PAGE_SIZE = 2
+export const PAGE_SIZE = 10
 
 export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";

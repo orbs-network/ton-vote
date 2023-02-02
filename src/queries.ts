@@ -19,7 +19,6 @@ import {
   useConnection,
   useMaxLtStore,
   useSetEndpointPopup,
-  useVotesPaginationStore,
   useVoteStore,
   useWalletAddress,
 } from "store";
@@ -161,12 +160,6 @@ export const useDataQuery = () => {
         }
       );
 
-      const prevVotesLength = getData()?.votes?.length || 0;
-      const newVotesLength = votes.length;
-
-      // if (maxLt) {
-      //   loadMore(newVotesLength - prevVotesLength);
-      // }
       return {
         votingPower,
         currentResults,
