@@ -101,10 +101,8 @@ export async function getVotingPower(
 
   
   for (const voter of newVoters) {
-    let voterAddr = Address.parse(voter);
-    let snapsotBlock = voterAddr.workChain == -1 ? proposalInfo.snapshot.mcSnapshotBlock : proposalInfo.snapshot.wcSnapshotBlock
     votingPower[voter] = (
-      await clientV4.getAccountLite(snapsotBlock, voterAddr)
+      await clientV4.getAccountLite(proposalInfo.snapshot.mcSnapshotBlock, Address.parse(voter))
     ).account.balance.coins;
   }
 
@@ -161,29 +159,14 @@ export function calcProposalResult(votes, votingPower) {
 async function getBlockFromTime(clientV4, utime) {
 
   let mcSnapshotBlock = null;
-  let wcSnapshotBlock = null;
 
-  do {
-    let res = (await clientV4.getBlockByUtime(utime)).shards;
-  
-    for (let i = 0; i < res.length; i++) {
+  let res = (await clientV4.getBlockByUtime(utime)).shards;
 
-      console.log(res[i].workchain, res[i].seqno);
+  for (let i = 0; i < res.length; i++) {
+    if (res[i].workchain == -1) return res[i].seqno;  
+  }
 
-      if (res[i].workchain == -1 && mcSnapshotBlock == null) {
-        mcSnapshotBlock = res[i].seqno;
-      }
-
-      else if (res[i].workchain == 0 && wcSnapshotBlock == null) {
-        wcSnapshotBlock = res[i].seqno;
-      }
-    }
-
-    utime++;
-
-  } while (mcSnapshotBlock == null || wcSnapshotBlock == null)
-
-  return {mcSnapshotBlock, wcSnapshotBlock};
+  throw Error(`could not find materchain seqno at time ${utime}`);
 
 } 
 
@@ -194,13 +177,9 @@ export async function getSnapshotTime(client, clientV4) {
   );
   const snapshotTime = Number(res.stack[0][1]);
 
-  res = getBlockFromTime(clientV4, snapshotTime);
+  const mcSnapshotBlock = getBlockFromTime(clientV4, snapshotTime);
 
-  return {
-    snapshotTime: snapshotTime, 
-    mcSnapshotBlock: res.mcSnapshotBlock, 
-    wcSnapshotBlock: res.wcSnapshotBlock
-  };
+  return {snapshotTime, mcSnapshotBlock};
 
 }
 
