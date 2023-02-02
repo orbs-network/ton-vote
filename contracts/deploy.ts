@@ -27,7 +27,7 @@ async function deploy() {
 	}
 
 	const seqno = await deployWallet.getSeqNo();
-	const transfer = await deployWallet.createTransfer({
+	const transfer = deployWallet.createTransfer({
 		secretKey: deployWalletKey.secretKey,
 		seqno: seqno,
 		sendMode: 1 + 2,

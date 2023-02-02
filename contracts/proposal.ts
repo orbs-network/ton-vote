@@ -24,10 +24,6 @@ export class Proposal implements Contract {
         let ref = createDictFromStr(frozen_addresses.join(', '));
         initialData.withReference(ref);
 
-        console.log('ressss');        
-        console.log(initialData.toString());
-        
-        // process.exit();
         return new Proposal(initialCode, initialData, workchain);
     }
 
