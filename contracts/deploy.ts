@@ -1,6 +1,6 @@
-import { waitForContractToBeDeployed, sleep, initWallet, initDeployKey } from "./src/helpers";
+import { waitForContractToBeDeployed, sleep, initWallet, initDeployKey } from "./helpers";
 import { CommonMessageInfo, TonClient, toNano, StateInit, InternalMessage} from "ton";
-import {Proposal} from "proposal";
+import {Proposal} from "./proposal";
 import * as process from "process";
 require('dotenv').config();
 
@@ -11,7 +11,7 @@ const NOMINATOR_MIN_TON = 0.1;
 
 async function deploy() {
 
-	const contract = await Proposal.create(Number(process.env.START_EPOCH), Number(process.env.END_EPOCH), Number(process.env.SNAPSHOT_BLOCK), process.env.INACTIVE_ADDRESSES?.split(',') || []);
+	const contract = await Proposal.create(Number(process.env.START_EPOCH), Number(process.env.END_EPOCH), Number(process.env.SNAPSHOT_EPCOH), process.env.INACTIVE_ADDRESSES?.split(',') || []);
 
 	let deployWalletKey = await initDeployKey("");
 	let deployWallet = await initWallet(client, deployWalletKey.publicKey);

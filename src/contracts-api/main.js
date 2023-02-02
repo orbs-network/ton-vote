@@ -55,8 +55,7 @@ export async function getTransactions(
     });
   }
 
-  maxLt = maxLt.toString();
-  return { allTxns, maxLt };
+  return { allTxns, maxLt: maxLt.toString() };
 }
 
 export function getAllVotes(transactions, proposalInfo) {
@@ -100,9 +99,12 @@ export async function getVotingPower(
 
   if (!newVoters) return votingPower;
 
+  
   for (const voter of newVoters) {
+    let voterAddr = Address.parse(voter);
+    let snapsotBlock = voterAddr.workChain == -1 ? proposalInfo.snapshot.mcSnapshotBlock : proposalInfo.snapshot.wcSnapshotBlock
     votingPower[voter] = (
-      await clientV4.getAccountLite(proposalInfo.snapshot, Address.parse(voter))
+      await clientV4.getAccountLite(snapsotBlock, voterAddr)
     ).account.balance.coins;
   }
 
@@ -156,20 +158,58 @@ export function calcProposalResult(votes, votingPower) {
   };
 }
 
-export async function getSnapshotBlock(client) {
+async function getBlockFromTime(clientV4, utime) {
+
+  let mcSnapshotBlock = null;
+  let wcSnapshotBlock = null;
+
+  do {
+    let res = (await clientV4.getBlockByUtime(utime)).shards;
+  
+    for (let i = 0; i < res.length; i++) {
+
+      console.log(res[i].workchain, res[i].seqno);
+
+      if (res[i].workchain == -1 && mcSnapshotBlock == null) {
+        mcSnapshotBlock = res[i].seqno;
+      }
+
+      else if (res[i].workchain == 0 && wcSnapshotBlock == null) {
+        wcSnapshotBlock = res[i].seqno;
+      }
+    }
+
+    utime++;
+
+  } while (mcSnapshotBlock == null || wcSnapshotBlock == null)
+
+  return {mcSnapshotBlock, wcSnapshotBlock};
+
+} 
+
+export async function getSnapshotTime(client, clientV4) {
   const res = await client.callGetMethod(
     votingContract,
-    "proposal_snapshot_block"
+    "proposal_snapshot_time"
   );
-  return Number(res.stack[0][1]);
+  const snapshotTime = Number(res.stack[0][1]);
+
+  res = getBlockFromTime(clientV4, snapshotTime);
+
+  return {
+    snapshotTime: snapshotTime, 
+    mcSnapshotBlock: res.mcSnapshotBlock, 
+    wcSnapshotBlock: res.wcSnapshotBlock
+  };
+
 }
 
-export async function getStartDate(client) {
+export async function getStartTime(client) {
   const res = await client.callGetMethod(votingContract, "proposal_start_time");
   return Number(res.stack[0][1]);
 }
 
-export async function getEndDate(client) {
+export async function getEndTime(client) {
   const res = await client.callGetMethod(votingContract, "proposal_end_time");
   return Number(res.stack[0][1]);
 }
@@ -179,10 +219,10 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
   return calcProposalResult(votes, votingPower);
 }
 
-export async function getProposalInfo(client) {
+export async function getProposalInfo(client, clientV4) {
   return {
-    startDate: await getStartDate(client),
-    endDate: await getEndDate(client),
-    snapshot: await getSnapshotBlock(client),
+    startDate: await getStartTime(client),
+    endDate: await getEndTime(client),
+    snapshot: await getSnapshotTime(client, clientV4),
   };
 }
