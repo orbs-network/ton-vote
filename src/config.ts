@@ -83,7 +83,7 @@ export const ENDPOINT_INPUTS = {
 
 export const DEADLINE = 1676037901000;
 
-export const TRANSACTIONS_DATA_REFECTH_INTERVAL = 30_000
+export const TRANSACTIONS_DATA_REFECTH_INTERVAL = 20_000
 
 export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
 

@@ -7,10 +7,10 @@ import {
   EndpointState,
   MaxLtState,
   PersistedState,
-  VotesState,
+  VotesPaginationState,
+  VoteState,
   WalletState,
 } from "./types";
-import { Vote } from "types";
 export const usePersistedStore = create(
   persist<PersistedState>(
     (set) => ({
@@ -55,11 +55,19 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 export const useMaxLtStore = create<MaxLtState>((set, get) => ({
   setMaxLt: (maxLt) => set({ maxLt }),
   maxLt: null,
+  reset: () => set({ maxLt: null }),
 }));
 
-export const useVotesStore = create<VotesState>((set, get) => ({
-  addVotes: (votes, amount = PAGE_SIZE) =>
-    set({ votes: votes.slice(get().votes.length, amount) }),
-  hasNextPage: true,
-  votes: [],
+export const useVotesPaginationStore = create<VotesPaginationState>((set, get) => ({
+  limit: PAGE_SIZE,
+  loadMore: (amount = PAGE_SIZE) => set({ limit: get().limit + amount }),
+  reset: () => set({ limit: PAGE_SIZE }),
+}));
+
+
+
+export const useVoteStore = create<VoteState>((set, get) => ({
+  vote: "",
+  setVote: (vote) => set({ vote }),
+  reset: () => set({ vote: '' }),
 }));

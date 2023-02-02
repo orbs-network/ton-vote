@@ -17,9 +17,8 @@ export async function getClientV2(customEndpoint, apiKey) {
 }
 
 export async function getClientV4(customEndpoint) {
-  return new TonClient4({
-    endpoint: customEndpoint || "https://mainnet-v4.tonhubapi.com",
-  });
+  const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
+  return new TonClient4({ endpoint });
 }
 
 export async function getTransactions(client, toLt) {
@@ -97,13 +96,11 @@ export async function getVotingPower(
   if (!newVoters) return votingPower;
 
   for (const voter of newVoters) {
-    let voterAddr = Address.parse(voter);
-    let snapsotBlock =
-      voterAddr.workChain == -1
-        ? proposalInfo.snapshot.mcSnapshotBlock
-        : proposalInfo.snapshot.wcSnapshotBlock;
     votingPower[voter] = (
-      await clientV4.getAccountLite(snapsotBlock, voterAddr)
+      await clientV4.getAccountLite(
+        proposalInfo.snapshot.mcSnapshotBlock,
+        Address.parse(voter)
+      )
     ).account.balance.coins;
   }
 
@@ -158,26 +155,13 @@ export function calcProposalResult(votes, votingPower) {
 }
 
 async function getBlockFromTime(clientV4, utime) {
-  let mcSnapshotBlock = null;
-  let wcSnapshotBlock = null;
+  let res = (await clientV4.getBlockByUtime(utime)).shards;
 
-  do {
-    let res = (await clientV4.getBlockByUtime(utime)).shards;
+  for (let i = 0; i < res.length; i++) {
+    if (res[i].workchain == -1) return res[i].seqno;
+  }
 
-    for (let i = 0; i < res.length; i++) {
-      console.log(res[i].workchain, res[i].seqno);
-
-      if (res[i].workchain == -1 && mcSnapshotBlock == null) {
-        mcSnapshotBlock = res[i].seqno;
-      } else if (res[i].workchain == 0 && wcSnapshotBlock == null) {
-        wcSnapshotBlock = res[i].seqno;
-      }
-    }
-
-    utime++;
-  } while (mcSnapshotBlock == null || wcSnapshotBlock == null);
-
-  return { mcSnapshotBlock, wcSnapshotBlock };
+  throw Error(`could not find materchain seqno at time ${utime}`);
 }
 
 export async function getSnapshotTime(client, clientV4) {
@@ -187,12 +171,9 @@ export async function getSnapshotTime(client, clientV4) {
   // );
   // const snapshotTime = Number(res.stack[0][1]);
   const snapshotTime = 1674683234;
-  const res = await getBlockFromTime(clientV4, snapshotTime);
-  return {
-    snapshotTime: snapshotTime,
-    mcSnapshotBlock: res.mcSnapshotBlock,
-    wcSnapshotBlock: res.wcSnapshotBlock,
-  };
+  const mcSnapshotBlock = await getBlockFromTime(clientV4, snapshotTime);
+
+  return { snapshotTime, mcSnapshotBlock };
 }
 
 export async function getStartTime(client) {
@@ -211,6 +192,7 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
 }
 
 export async function getProposalInfo(client, clientV4) {
+  //1674683234
   return {
     startDate: await getStartTime(client),
     endDate: await getEndTime(client),

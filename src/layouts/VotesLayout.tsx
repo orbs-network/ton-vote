@@ -4,30 +4,40 @@ import { Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress } from "utils";
 import { TONSCAN_ADDRESS_URL } from "config";
-import AnimateHeight from "react-animate-height";
 import { Vote } from "types";
-import {useVotes, useWalletAddress } from "store";
+import { useVotesPaginationStore, useWalletAddress } from "store";
 
 export function VotesLayout() {
-  const {votes} = useVotes()
+  const votes = useDataQuery().data?.votes;
+  const { limit, loadMore } = useVotesPaginationStore();
+  const hideLoadMore = (votes?.length || 0) <= limit;
 
-  const isLoading = !votes || !votes?.length;
   return (
-    <StyledContainer title="Votes" loading={isLoading} loaderAmount={3}>
+    <StyledContainer
+      title="Votes"
+      loading={!votes || !votes?.length}
+      loaderAmount={3}
+    >
       {votes && (
         <StyledList gap={15}>
-          {votes?.map((vote) => {
+          {votes?.map((vote, index) => {
+            if (index >= limit) return null;
             return <VoteComponent data={vote} key={vote.address} />;
           })}
         </StyledList>
       )}
-      <LoadMoreButton />
+      {!hideLoadMore && (
+        <StyledLoaderMore>
+          <Button onClick={() => loadMore()}>See More</Button>
+        </StyledLoaderMore>
+      )}
     </StyledContainer>
   );
 }
 
 const VoteComponent = ({ data }: { data: Vote }) => {
   const { address, votingPower, vote } = data;
+  
   const connectedAddress = useWalletAddress();
 
   return (
@@ -40,20 +50,6 @@ const VoteComponent = ({ data }: { data: Vote }) => {
         <NumberDisplay value={votingPower} /> TON
       </Typography>
     </StyledVote>
-  );
-};
-
-const LoadMoreButton = () => {
-  const { loadMore, hide } = useVotes();
-
-  return (
-    <AnimateHeight height={hide ? 0 : "auto"} duration={200}>
-      <StyledLoaderMore>
-        <Button  onClick={loadMore}>
-          See More
-        </Button>
-      </StyledLoaderMore>
-    </AnimateHeight>
   );
 };
 
@@ -78,40 +74,39 @@ const StyledVote = styled(StyledFlexRow)({
   ".voting-power": {
     width: 160,
     textAlign: "right",
-    display:'flex',
-    gap:5,
+    display: "flex",
+    gap: 5,
     ".number-display": {
       ...textOverflow,
-      flex:1
-    }
+      flex: 1,
+    },
   },
 
   "@media (max-width: 850px)": {
     alignItems: "flex-start",
-    flexWrap:'wrap',
+    flexWrap: "wrap",
 
     ".address": {
-     maxWidth: '60%',
+      maxWidth: "60%",
     },
-    ".vote":{
-      flex:'unset',
-      marginLeft:'auto'
+    ".vote": {
+      flex: "unset",
+      marginLeft: "auto",
     },
-    ".voting-power":{
-      width:'100%',
-      textAlign:'left',
-      justifyContent:'flex-start',
-      ".number-display ":{
-        flex:'unset',
-        maxWidth:'70%'
-      }
-    }
+    ".voting-power": {
+      width: "100%",
+      textAlign: "left",
+      justifyContent: "flex-start",
+      ".number-display ": {
+        flex: "unset",
+        maxWidth: "70%",
+      },
+    },
   },
 });
 
-const StyledList = styled(StyledFlexColumn)({
-});
+const StyledList = styled(StyledFlexColumn)({});
 
 const StyledContainer = styled(Container)({
-  paddingBottom: 30
+  paddingBottom: 30,
 });

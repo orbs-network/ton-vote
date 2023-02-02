@@ -33,7 +33,7 @@ export const InformationLayout = () => {
 
             <InformationRow label="Snapshot">
               <Typography>
-                {fromUnixToString(proposalInformation.snapshot)}
+                {fromUnixToString(proposalInformation.snapshot.snapshotTime)}
               </Typography>
             </InformationRow>
             <InformationRow label="Vote ends in">

@@ -5,28 +5,11 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useDataQuery, useSendTransaction } from "queries";
-import { useWalletAddress } from "store";
+import { useVoteStore, useWalletAddress } from "store";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
 
-export const useSelection = () => {
-  const [selected, setSelected] = useState("");
-  const walletAddress = useWalletAddress();
-  const votes = useDataQuery().data?.votes;
-
-  const votesLength = votes?.length;
-
-  useEffect(() => {
-    if (votesLength && walletAddress && !selected) {   
-      const vote = voteOptions.find((it) => it.name === votes[0].vote); 
-      setSelected(vote?.value || '');
-    }
-  }, [votesLength, walletAddress]);
-
-  return { selected, setSelected };
-};
-
 export function VoteLayout() {
-  const { selected, setSelected } = useSelection();
+  const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();
   const walletAddress = useWalletAddress();
@@ -35,22 +18,17 @@ export function VoteLayout() {
     setShowModal(isLoading);
   }, [isLoading]);
 
-  const onSelect = (value: string) => {
-    setSelected(value);
-  };
-  
-
   return (
     <StyledContainer title="Vote">
       <StyledFlexColumn>
         {voteOptions.map((option) => {
           return (
             <StyledOption
-              selected={option.value === selected}
+              selected={option.value === vote}
               key={option.value}
-              onClick={() => onSelect(option.value)}
+              onClick={() => setVote(option.value)}
             >
-              <Fade in={option.value === selected}>
+              <Fade in={option.value === vote}>
                 <StyledFlexRow className="icon">
                   <FiCheck style={{ width: 20, height: 20 }} />
                 </StyledFlexRow>
@@ -65,11 +43,11 @@ export function VoteLayout() {
         <StyledVoteButton
           onClick={() =>
             mutate({
-              value: selected as any,
+              value: vote as any,
             })
           }
           isLoading={isLoading}
-          disabled={!selected || isLoading}
+          disabled={!vote || isLoading}
         >
           Vote
         </StyledVoteButton>

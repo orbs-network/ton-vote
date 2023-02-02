@@ -7,16 +7,17 @@ import {
 } from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/main";
-import { useDataQuery, useSortVotesAfterConnect } from "queries";
+import { useDataQuery, useResetQueries, useSortVotes } from "queries";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
-import { WalletProvider, Provider, Vote } from "types";
+import { WalletProvider, Provider } from "types";
 import {
   useClientStore,
   useEndpointsStore,
   useMaxLtStore,
   usePersistedStore,
-  useVotesStore,
+  useVotesPaginationStore,
+  useVoteStore,
   useWalletStore,
 } from "./store";
 
@@ -46,8 +47,6 @@ const useGetClients = () => {
   const setClients = useClientStore((store) => store.setClients);
 
   return useMutation(async (args?: GetClientsArgs) => {
-    console.log(args);
-
     const clientV2 = await getClientV2(args?.clientV2Endpoint, args?.apiKey);
     const clientV4 = await getClientV4(args?.clientV4Endpoint);
     setClients(clientV2, clientV4);
@@ -80,8 +79,10 @@ type UpdateEndpointsArgs = {
 export const useUpdateEndpoints = () => {
   const { onUpdate: onEndpointsUpdate } = usePersistedStore();
   const { mutateAsync: getClients } = useGetClients();
-  // const { setPage } = useTransactionsPage();
-  // const clearTransactions = useClearTransactions();
+  const resetQueries = useResetQueries();
+  const resetLt = useMaxLtStore().reset;
+  const resetVotesPagination = useVotesPaginationStore().reset;
+  const resetVote = useVoteStore().reset
 
   return useMutation(async (args?: UpdateEndpointsArgs) => {
     await getClients({
@@ -95,8 +96,11 @@ export const useUpdateEndpoints = () => {
       args?.clientV4Endpoint,
       args?.apiKey
     );
-    // setPage(undefined);
-    // clearTransactions();
+    resetVote();
+    resetLt();
+    resetVotesPagination();
+    resetQueries();
+    
   });
 };
 
@@ -109,7 +113,8 @@ export const useWalletAddress = () => {
 };
 
 export const useConnect = () => {
-  const sortVotes = useSortVotesAfterConnect();
+  const votes = useDataQuery().data?.votes;
+  const sortVotes = useSortVotes();
   const [session, setSession] = useState("");
   const [showQR, setShowQR] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<
@@ -153,7 +158,7 @@ export const useConnect = () => {
     setTonConnectionProvider(tonWalletProvider);
     const _wallet = await tonWalletProvider.connect();
     setAddress(_wallet.address);
-    sortVotes(_wallet.address);
+    sortVotes(votes || [], _wallet.address);
     localStorage.setItem(LOCAL_STORAGE_PROVIDER, wallet.type);
   });
 
@@ -188,33 +193,5 @@ export const useEagerlyConnect = () => {
     if (walletAdapter) {
       connect(walletAdapter);
     }
-  };
-};
-
-export const useTransactionsMaxLt = () => {
-  const maxLt = useMaxLtStore().maxLt;
-  const setMaxLt = useMaxLtStore().setMaxLt;
-
-  return {
-    maxLt,
-    setMaxLt,
-  };
-};
-
-export const useVotes = () => {
-  const { addVotes, votes } = useVotesStore();
-  const data = useDataQuery().data;
-  return {
-    loadMore: () => addVotes(data?.votes || []),
-    hide: false,
-    votes,
-  };
-};
-
-export const useAddNewVotes = () => {
-  const { addVotes, votes } = useVotesStore();
-
-  return (amount: number) => {
-    addVotes(votes, amount);
   };
 };

@@ -36,11 +36,17 @@ export interface WalletState {
 export interface MaxLtState {
   maxLt: string | null;
   setMaxLt: (value: string | null) => void;
+  reset: () => void;
 }
 
+export interface VotesPaginationState {
+  limit: number;
+  loadMore: (value?: number) => void;
+  reset: () => void;
+}
 
-export interface VotesState {
-  addVotes: (votes: Vote[], amount?: number) => void;
-  hasNextPage: boolean;
-  votes: Vote[];
+export interface VoteState {
+  vote: string;
+  setVote: (value?: string) => void;
+  reset: () => void;
 }

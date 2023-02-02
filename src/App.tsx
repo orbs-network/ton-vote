@@ -53,6 +53,7 @@ function App() {
     getClients();
   }, []);
   const match = useMediaQuery("(max-width:800px)");
+
   return (
     <StyledApp>
       <Navbar />

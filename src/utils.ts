@@ -2,19 +2,19 @@ import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import moment from "moment";
 import { Wallet } from "ton";
 import { Vote } from "types";
-export const makeElipsisAddress = (
-  address: string,
-  padding = 6
-): string => {
+export const makeElipsisAddress = (address: string, padding = 6): string => {
   if (!address) return "";
-  return `${address.substring(0, padding)}...${address.substring(address.length - padding)}`;
+  return `${address.substring(0, padding)}...${address.substring(
+    address.length - padding
+  )}`;
 };
-
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-export const fromUnixToString = (time: number, format = "MMM DD, YYYY h:mm a") => {
-  
+export const fromUnixToString = (
+  time: number,
+  format = "MMM DD, YYYY h:mm a"
+) => {
   return moment.unix(time).utc().format(format);
 };
 
@@ -36,18 +36,19 @@ export async function waitForSeqno(wallet: Wallet) {
   };
 }
 
-
-export const sortVotesByConnectedWallet = (votes: Vote[], walletAddress?: string) => {
-
+export const sortVotesByConnectedWallet = (
+  votes: Vote[],
+  walletAddress?: string
+) => {
   if (!walletAddress) {
-    return votes;
+    return { sortedVotes: votes };
   }
-    const index = votes!.findIndex((it) => it.address === walletAddress);
-  if (index < 0) return votes;
+  const index = votes!.findIndex((it) => it.address === walletAddress);
+  if (index < 0) return { sortedVotes: votes };
 
-  const selectedItem = votes?.splice(index, 1)[0];
-  votes?.unshift(selectedItem);
-  return votes;
+  const connectedAddressVote = votes?.splice(index, 1)[0];
+  votes?.unshift(connectedAddressVote);
+  return { sortedVotes: votes, connectedAddressVote };
 };
 
 export const getAdapterName = () => {

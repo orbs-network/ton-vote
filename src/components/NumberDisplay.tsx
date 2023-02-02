@@ -13,9 +13,6 @@ export function NumberDisplay({
   className?: string;
   suffix?: string;
 }) {
-  if (value === "0") {
-    return <>0</>;
-  }
 
   return (
     <NumericFormat
