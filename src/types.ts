@@ -39,6 +39,7 @@ export interface Vote {
   address: string;
   vote: string;
   votingPower: string;
+  timestamp: number;
 }
 
 export interface Transaction {

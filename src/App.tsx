@@ -10,7 +10,7 @@ import {
   VotesLayout,
   Footer,
 } from "layouts";
-import { useGetTransactionsQuery } from "queries";
+import { useData, useGetTransactionsQuery } from "queries";
 import { useEffect } from "react";
 import { useEagerlyConnect, useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
@@ -53,6 +53,7 @@ function App() {
     getClients();
   }, []);
   const match = useMediaQuery("(max-width:800px)");
+
 
   return (
     <StyledApp>

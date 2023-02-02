@@ -51,9 +51,16 @@ export const useGetTransactionsQuery = () => {
   return useQuery(
     [QueryKeys.GET_TRANSACTIONS, maxLt],
     async () => {
-      console.log("run", maxLt);
-      
-      return getTransactions(clientV2, maxLt);
+      const result: GetTransactionsPayload = await getTransactions(
+        clientV2,
+        maxLt
+      );
+      if (result.allTxns.length > 0) {
+        addToList(result.allTxns);
+        refetch();
+      }
+
+      return result;
     },
     {
       staleTime: Infinity,
@@ -62,13 +69,7 @@ export const useGetTransactionsQuery = () => {
       onError: () => {
         toggleError(true);
       },
-      onSuccess: (data: GetTransactionsPayload) => {
-        // console.log('getTransactionsQuery', data.allTxns, data.maxLt);
-        if (data.allTxns.length > 0) {
-          addToList(data.allTxns);
-
-          refetch();
-        }
+      onSuccess: (data) => {
         setMaxLt(data.maxLt);
       },
     }
@@ -84,9 +85,9 @@ const useTransactionsList = () => {
 
   const addToList = (transactions: Transaction[]) => {
     const list = getList();
-    const newList = [...transactions, ...list];
-    queryClient.setQueryData([QueryKeys.TRANSACTIONS], newList);
-    return newList;
+    list.unshift(...transactions);
+    queryClient.setQueryData([QueryKeys.TRANSACTIONS], list);
+    return list;
   };
 
   const clearList = () => {
@@ -114,8 +115,6 @@ export const useDataQuery = () => {
   const { toggleError } = useSetEndpointPopup();
   const { getList } = useTransactionsList();
   const { getData } = useData();
-  const { loadMore } = useVotesPaginationStore();
-  const { maxLt } = useMaxLtStore();
   const sortVotes = useSortVotes();
 
   return useQuery(
@@ -130,7 +129,6 @@ export const useDataQuery = () => {
           votes: undefined,
         };
       }
-      // console.log('getDataQuery', transactions, maxLt);
       const proposalInfo = await queryClient.ensureQueryData({
         queryKey: [QueryKeys.PROPOSAL_INFO],
         queryFn: () => getProposalInfo(clientV2, clientV4),
@@ -151,13 +149,14 @@ export const useDataQuery = () => {
 
       const votes: Vote[] = _.map(
         getAllVotes(transactions, proposalInfo) || {},
-        (v, key) => {
+        (v: any, key) => {
           const _votingPower = votingPower[key];
-          
+
           return {
             address: key,
-            vote: v,
+            vote: v.vote,
             votingPower: _votingPower ? fromNano(_votingPower) : "0",
+            timestamp: v.timestamp,
           };
         }
       );
@@ -165,9 +164,9 @@ export const useDataQuery = () => {
       const prevVotesLength = getData()?.votes?.length || 0;
       const newVotesLength = votes.length;
 
-      if (maxLt) {
-        loadMore(newVotesLength - prevVotesLength);
-      }
+      // if (maxLt) {
+      //   loadMore(newVotesLength - prevVotesLength);
+      // }
       return {
         votingPower,
         currentResults,
@@ -179,6 +178,7 @@ export const useDataQuery = () => {
         toggleError(true);
       },
       staleTime: Infinity,
+      cacheTime: Infinity,
       enabled: false,
     }
   );
@@ -190,7 +190,12 @@ export const useData = () => {
     return queryClient.getQueryData([QueryKeys.DATA]);
   };
   const setData = (data: Data) => {
-    queryClient.setQueryData([QueryKeys.DATA], data);
+    return queryClient.setQueryData([QueryKeys.DATA], (old: Data | undefined = {}) => {
+      return {
+        ...old,
+        data,
+      };
+    });
   };
 
   return {
@@ -216,6 +221,7 @@ export const useSortVotes = () => {
       );
       setVote(vote?.value);
     }
+
     return sortedVotes;
   };
 };
@@ -232,14 +238,14 @@ export const useProposalInfoQuery = () => {
   );
 };
 
+
 export const useSendTransaction = () => {
   const connection = useConnection();
   const address = useWalletAddress();
-  const { refetch } = useGetTransactionsQuery();
   const { clientV2 } = useClients();
   const [txApproved, setTxApproved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const {refetch} = useGetTransactionsQuery();
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
       const cell = new Cell();

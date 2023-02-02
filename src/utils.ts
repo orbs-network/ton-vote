@@ -1,4 +1,5 @@
 import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
+import _ from "lodash";
 import moment from "moment";
 import { Wallet } from "ton";
 import { Vote } from "types";
@@ -40,15 +41,20 @@ export const sortVotesByConnectedWallet = (
   votes: Vote[],
   walletAddress?: string
 ) => {
-  if (!walletAddress) {
-    return { sortedVotes: votes };
-  }
-  const index = votes!.findIndex((it) => it.address === walletAddress);
-  if (index < 0) return { sortedVotes: votes };
 
-  const connectedAddressVote = votes?.splice(index, 1)[0];
-  votes?.unshift(connectedAddressVote);
-  return { sortedVotes: votes, connectedAddressVote };
+  const sortedVotes = _.orderBy(votes, "timestamp", ["desc", "asc"]);
+
+
+  if (!walletAddress) {
+    return { sortedVotes };
+  }
+  const index = sortedVotes!.findIndex((it) => it.address === walletAddress);
+  if (index < 0) return { sortedVotes };
+
+  const connectedAddressVote = sortedVotes?.splice(index, 1)[0];
+  sortedVotes?.unshift(connectedAddressVote);
+  
+  return { sortedVotes, connectedAddressVote };
 };
 
 export const getAdapterName = () => {

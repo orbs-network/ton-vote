@@ -71,15 +71,21 @@ export function getAllVotes(transactions, proposalInfo) {
 
     vote = vote.toLowerCase();
 
+    allVotes[transactions[i].inMessage.source] = {
+      timestamp: transactions[i].time,
+      vote: "",
+    };
+
     if (["y", "yes"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source] = "Yes";
+      allVotes[transactions[i].inMessage.source].vote = "Yes";
     } else if (["n", "no"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source] = "No";
+      allVotes[transactions[i].inMessage.source].vote = "No";
     } else if (["a", "abstain"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source] = "Abstain";
+      allVotes[transactions[i].inMessage.source].vote = "Abstain";
     }
   }
 
+  
   return allVotes;
 }
 
@@ -118,11 +124,13 @@ export function calcProposalResult(votes, votingPower) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
 
-    if (vote === "Yes") {
+      const _vote = vote.vote 
+
+    if (_vote === "Yes") {
       sumVotes.yes = new BigNumber(votingPower[voter]).plus(sumVotes.yes);
-    } else if (vote === "No") {
+    } else if (_vote === "No") {
       sumVotes.no = new BigNumber(votingPower[voter]).plus(sumVotes.no);
-    } else if (vote === "Abstain") {
+    } else if (_vote === "Abstain") {
       sumVotes.abstain = new BigNumber(votingPower[voter]).plus(
         sumVotes.abstain
       );

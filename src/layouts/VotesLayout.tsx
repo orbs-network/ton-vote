@@ -10,7 +10,7 @@ import { useVotesPaginationStore, useWalletAddress } from "store";
 export function VotesLayout() {
   const votes = useDataQuery().data?.votes;
   const { limit, loadMore } = useVotesPaginationStore();
-  const hideLoadMore = (votes?.length || 0) <= limit;
+  const hideLoadMore = (votes?.length || 0) <= limit;  
 
   return (
     <StyledContainer
@@ -35,7 +35,7 @@ export function VotesLayout() {
   );
 }
 
-const VoteComponent = ({ data }: { data: Vote }) => {
+const VoteComponent = ({ data }: { data: Vote }) => {  
   const { address, votingPower, vote } = data;
   
   const connectedAddress = useWalletAddress();
