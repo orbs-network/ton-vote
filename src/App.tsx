@@ -1,8 +1,6 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { Box } from "@mui/system";
 import { EndpointPopup } from "components";
-import { Countdown } from "components/Coundown";
-import { DEADLINE } from "config";
 import {
   MainLayout,
   VoteLayout,
@@ -12,10 +10,9 @@ import {
   VotesLayout,
   Footer,
 } from "layouts";
-import { useGetTransactions } from "queries";
+import { useGetTransactionsQuery } from "queries";
 import { useEffect } from "react";
-import { useGetClientsOnLoad } from "store/client-store";
-import { useEagerlyConnect } from "store/wallet-store";
+import { useEagerlyConnect, useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
 const Destop = () => {
@@ -49,7 +46,7 @@ const Mobile = () => {
 function App() {
   const restoreConnection = useEagerlyConnect();
   const getClients = useGetClientsOnLoad();
-  useGetTransactions();
+  useGetTransactionsQuery();
 
   useEffect(() => {
     restoreConnection();

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useDataQuery, useSendTransaction } from "queries";
-import { useWalletAddress } from "store/wallet-store";
+import { useWalletAddress } from "store";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
 
 export const useSelection = () => {

@@ -1,12 +1,12 @@
 import { styled, Typography } from "@mui/material";
-import { useDataQuery, useNextPage } from "queries";
+import { useDataQuery } from "queries";
 import { Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress } from "utils";
-import { useWalletAddress } from "store/wallet-store";
 import { TONSCAN_ADDRESS_URL } from "config";
 import AnimateHeight from "react-animate-height";
 import { Vote } from "types";
+import { useVotesPagination, useWalletAddress } from "store";
 
 export function VotesLayout() {
   const votes = useDataQuery().data?.votes;
@@ -44,12 +44,12 @@ const VoteComponent = ({ data }: { data: Vote }) => {
 };
 
 const LoadMoreButton = () => {
-  const { loadMore, isLoading, hide } = useNextPage();
+  const { loadMore, hide } = useVotesPagination();
 
   return (
     <AnimateHeight height={hide ? 0 : "auto"} duration={200}>
       <StyledLoaderMore>
-        <Button isLoading={isLoading} onClick={loadMore}>
+        <Button  onClick={loadMore}>
           See More
         </Button>
       </StyledLoaderMore>

@@ -1,3 +1,5 @@
+import { Address } from "ton";
+
 export enum Provider {
   TONKEEPER = "TONKEEPER",
   TONHUB = "TONHUB",
@@ -22,6 +24,7 @@ export interface Results {
 
 export enum QueryKeys {
   DATA = "DATA",
+  GET_TRANSACTIONS = "GET_TRANSACTIONS",
   TRANSACTIONS = "TRANSACTIONS",
   PROPOSAL_INFO = "PROPOSAL_INFO",
 }
@@ -38,4 +41,34 @@ export interface Vote {
   votingPower: string;
 }
 
+export interface Transaction {
+  id: {
+    lt: string;
+    hash: string;
+  };
+  time: number;
+  data: string;
+  storageFee: string;
+  otherFee: string;
+  fee: string;
+  inMessage: {
+    source: string;
+    destination: Address;
+    forwardFee: string;
+    ihrFee: string;
+    value: string;
+    createdLt: string;
+    body: {
+      type: string;
+      text: string;
+    };
+  };
+  outMessages: [];
+}
+
 export type VotingPower = { [key: string]: string };
+
+export type GetTransactionsPayload = {
+  allTxns: Transaction[];
+  maxLt: string;
+};

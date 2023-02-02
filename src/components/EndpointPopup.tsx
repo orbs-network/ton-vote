@@ -2,16 +2,12 @@ import { Box, Fade, Radio, styled, Typography } from "@mui/material";
 import { ENDPOINT_INPUTS, INVALID_ENDPOINT_ERROR } from "config";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
-import {
-  useCustomEndpoints,
-  useSetEndpointPopup,
-  useUpdateEndpoints,
-} from "store/client-store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
+import { useCustomEndpoints, useSetEndpointPopup, useUpdateEndpoints } from "store";
 
 const { clientV2, apiKey, clientV4 } = ENDPOINT_INPUTS;
 

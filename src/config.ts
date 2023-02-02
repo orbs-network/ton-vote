@@ -86,3 +86,9 @@ export const DEADLINE = 1676037901000;
 export const TRANSACTIONS_DATA_REFECTH_INTERVAL = 30_000
 
 export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
+
+
+
+export const PAGE_SIZE = 10
+
+export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";

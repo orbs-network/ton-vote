@@ -1,7 +1,7 @@
 import { Box, Fade, Skeleton, styled, Typography } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Popup } from "./Popup";
-import { useConnect, useResetConnection } from "store/wallet-store";
+import { useConnect, useResetConnection } from "store";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode, useState } from "react";
 import { GrClose } from "react-icons/gr";

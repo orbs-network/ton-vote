@@ -1,4 +1,4 @@
-import { BASE_ERROR_MESSAGE } from "config";
+import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import moment from "moment";
 import { Wallet } from "ton";
 import { Vote } from "types";
@@ -48,4 +48,8 @@ export const sortVotesByConnectedWallet = (votes: Vote[], walletAddress?: string
   const selectedItem = votes?.splice(index, 1)[0];
   votes?.unshift(selectedItem);
   return votes;
+};
+
+export const getAdapterName = () => {
+  return localStorage.getItem(LOCAL_STORAGE_PROVIDER);
 };

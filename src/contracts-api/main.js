@@ -17,17 +17,14 @@ export async function getClientV2(customEndpoint, apiKey) {
 }
 
 export async function getClientV4(customEndpoint) {
-  const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
-  return new TonClient4({ endpoint });
+  return new TonClient4({
+    endpoint: customEndpoint || "https://mainnet-v4.tonhubapi.com",
+  });
 }
 
-
-export async function getTransactions(
-  client,
-  toLt = null
-) {
+export async function getTransactions(client, toLt) {
   let maxLt = new BigNumber(toLt ?? -1);
-  let startPage = { fromLt: "0", hash: "" }
+  let startPage = { fromLt: "0", hash: "" };
 
   let allTxns = [];
   let paging = startPage;
@@ -99,10 +96,12 @@ export async function getVotingPower(
 
   if (!newVoters) return votingPower;
 
-  
   for (const voter of newVoters) {
     let voterAddr = Address.parse(voter);
-    let snapsotBlock = voterAddr.workChain == -1 ? proposalInfo.snapshot.mcSnapshotBlock : proposalInfo.snapshot.wcSnapshotBlock
+    let snapsotBlock =
+      voterAddr.workChain == -1
+        ? proposalInfo.snapshot.mcSnapshotBlock
+        : proposalInfo.snapshot.wcSnapshotBlock;
     votingPower[voter] = (
       await clientV4.getAccountLite(snapsotBlock, voterAddr)
     ).account.balance.coins;
@@ -159,49 +158,41 @@ export function calcProposalResult(votes, votingPower) {
 }
 
 async function getBlockFromTime(clientV4, utime) {
-
   let mcSnapshotBlock = null;
   let wcSnapshotBlock = null;
 
   do {
     let res = (await clientV4.getBlockByUtime(utime)).shards;
-  
-    for (let i = 0; i < res.length; i++) {
 
+    for (let i = 0; i < res.length; i++) {
       console.log(res[i].workchain, res[i].seqno);
 
       if (res[i].workchain == -1 && mcSnapshotBlock == null) {
         mcSnapshotBlock = res[i].seqno;
-      }
-
-      else if (res[i].workchain == 0 && wcSnapshotBlock == null) {
+      } else if (res[i].workchain == 0 && wcSnapshotBlock == null) {
         wcSnapshotBlock = res[i].seqno;
       }
     }
 
     utime++;
+  } while (mcSnapshotBlock == null || wcSnapshotBlock == null);
 
-  } while (mcSnapshotBlock == null || wcSnapshotBlock == null)
-
-  return {mcSnapshotBlock, wcSnapshotBlock};
-
-} 
+  return { mcSnapshotBlock, wcSnapshotBlock };
+}
 
 export async function getSnapshotTime(client, clientV4) {
-  const res = await client.callGetMethod(
-    votingContract,
-    "proposal_snapshot_time"
-  );
-  const snapshotTime = Number(res.stack[0][1]);
-
-  res = getBlockFromTime(clientV4, snapshotTime);
-
+  // const res = await client.callGetMethod(
+  //   votingContract,
+  //   "proposal_snapshot_time"
+  // );
+  // const snapshotTime = Number(res.stack[0][1]);
+  const snapshotTime = 1674683234;
+  const res = await getBlockFromTime(clientV4, snapshotTime);
   return {
-    snapshotTime: snapshotTime, 
-    mcSnapshotBlock: res.mcSnapshotBlock, 
-    wcSnapshotBlock: res.wcSnapshotBlock
+    snapshotTime: snapshotTime,
+    mcSnapshotBlock: res.mcSnapshotBlock,
+    wcSnapshotBlock: res.wcSnapshotBlock,
   };
-
 }
 
 export async function getStartTime(client) {

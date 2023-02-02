@@ -1,7 +1,6 @@
 import { IconButton, Menu, MenuItem, styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, ConnectButton, EndpointPopup } from "components";
-import { useWalletAddress, useResetConnection } from "store/wallet-store";
+import { Button, ConnectButton } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
@@ -9,7 +8,7 @@ import LogoImg from "assets/logo.svg";
 import { FiSettings } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RiRouteFill } from "react-icons/ri";
-import { useSetEndpointPopup } from "store/client-store";
+import { useWalletAddress, useSetEndpointPopup, useResetConnection } from "store";
 
 export function Navbar() {
   return (
