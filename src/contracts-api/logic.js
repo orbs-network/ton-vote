@@ -116,6 +116,19 @@ export async function getVotingPower(
   return votingPower;
 }
 
+export async function getSingleVotingPower(
+  clientV4,
+  mcSnapshotBlock,
+  address
+) {
+    return (
+      await clientV4.getAccountLite(
+        mcSnapshotBlock,
+        Address.parse(voter)
+      )
+    ).account.balance.coins;
+}
+
 export function calcProposalResult(votes, votingPower) {
   let sumVotes = {
     yes: new BigNumber(0),
