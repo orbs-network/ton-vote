@@ -124,7 +124,7 @@ export async function getSingleVotingPower(
     return (
       await clientV4.getAccountLite(
         mcSnapshotBlock,
-        Address.parse(voter)
+        Address.parse(address)
       )
     ).account.balance.coins;
 }
