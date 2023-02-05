@@ -11,7 +11,7 @@ export const BASE_ERROR_MESSAGE = "Oops, something went wrong";
 
 export const APPROVE_TX = "Please check wallet for pending transaction";
 export const TX_APPROVED_AND_PENDING = "Transaction pending";
-export const TX_FEE = "0.015";
+export const TX_FEE = "0.0075";
 
 export const walletAdapters: WalletProvider[] = [
   {
