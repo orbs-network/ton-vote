@@ -34,8 +34,8 @@ export interface WalletState {
 }
 
 export interface MaxLtState {
-  maxLt: string | null;
-  setMaxLt: (value: string | null) => void;
+  maxLt: string | undefined;
+  setMaxLt: (value: string | undefined) => void;
   reset: () => void;
 }
 

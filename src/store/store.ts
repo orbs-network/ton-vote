@@ -54,8 +54,8 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 
 export const useMaxLtStore = create<MaxLtState>((set, get) => ({
   setMaxLt: (maxLt) => set({ maxLt }),
-  maxLt: null,
-  reset: () => set({ maxLt: null }),
+  maxLt: undefined,
+  reset: () => set({ maxLt: undefined }),
 }));
 
 export const useVotesPaginationStore = create<VotesPaginationState>((set, get) => ({
