@@ -1,6 +1,6 @@
 {
   "name": "ton-vote",
-  "private": true,
+  "private": false,
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://ton.vote/",
@@ -36,7 +36,9 @@
     "ton": "^12.0.0",
     "vite-plugin-require": "^1.1.10",
     "vite-tsconfig-paths": "^4.0.5",
-    "zustand": "^4.3.2"
+    "zustand": "^4.3.2",
+    "cors": "^2.8.5"
+
   },
   "devDependencies": {
     "@types/lodash": "^4.14.191",

@@ -8,7 +8,7 @@ import _ from "lodash";
 
 
 
-export async function getClientV2(customEndpoint, apiKey) {
+export async function getClientV2(customEndpoint=null, apiKey=null) {
   if (customEndpoint) {
     return new TonClient({ endpoint: customEndpoint, apiKey });
   }
@@ -16,7 +16,7 @@ export async function getClientV2(customEndpoint, apiKey) {
   return new TonClient({ endpoint });
 }
 
-export async function getClientV4(customEndpoint) {
+export async function getClientV4(customEndpoint=null) {
   const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
   return new TonClient4({ endpoint });
 }
