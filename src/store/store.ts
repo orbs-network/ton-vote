@@ -4,6 +4,7 @@ import { TonConnection } from "@ton-defi.org/ton-connection";
 import { PAGE_SIZE } from "config";
 import {
   ClientsState,
+  DataUpdaterStore,
   EndpointState,
   MaxLtState,
   PersistedState,
@@ -14,17 +15,31 @@ import {
 export const usePersistedStore = create(
   persist<PersistedState>(
     (set) => ({
-      onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) =>
-        set({ clientV2Endpoint, clientV4Endpoint, apiKey }),
+      serverDisabled: false,
+      disableServer: () => set({ serverDisabled: true }),
+      onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) => {
+         set({
+           clientV2Endpoint,
+           clientV4Endpoint,
+           apiKey,
+           serverDisabled: !!clientV2Endpoint,
+         });
+      }
     }),
     {
-      name: "ton_vote_custom_endpoints", // name of the item in the storage (must be unique)
+      name: "ton_vote_persisted_store", // name of the item in the storage (must be unique)
     }
   )
 );
 
 export const useClientStore = create<ClientsState>((set, get) => ({
   setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
+}));
+
+export const useDataUpdaterStore = create<DataUpdaterStore>((set, get) => ({
+  setTimestamp: (timestamp) => set({ timestamp }),
+  stateUpdateTime: 0,
+  setStateUpdateTime: (stateUpdateTime) => set({ stateUpdateTime }),
 }));
 
 export const useEndpointsStore = create<EndpointState>((set, get) => ({
@@ -58,16 +73,16 @@ export const useMaxLtStore = create<MaxLtState>((set, get) => ({
   reset: () => set({ maxLt: undefined }),
 }));
 
-export const useVotesPaginationStore = create<VotesPaginationState>((set, get) => ({
-  limit: PAGE_SIZE,
-  loadMore: (amount = PAGE_SIZE) => set({ limit: get().limit + amount }),
-  reset: () => set({ limit: PAGE_SIZE }),
-}));
-
-
+export const useVotesPaginationStore = create<VotesPaginationState>(
+  (set, get) => ({
+    limit: PAGE_SIZE,
+    loadMore: (amount = PAGE_SIZE) => set({ limit: get().limit + amount }),
+    reset: () => set({ limit: PAGE_SIZE }),
+  })
+);
 
 export const useVoteStore = create<VoteState>((set, get) => ({
   vote: "",
   setVote: (vote) => set({ vote }),
-  reset: () => set({ vote: '' }),
+  reset: () => set({ vote: "" }),
 }));

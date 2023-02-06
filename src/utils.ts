@@ -1,4 +1,8 @@
-import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
+import {
+  BASE_ERROR_MESSAGE,
+  LOCAL_STORAGE_PROVIDER,
+  USER_VOTE_LOCAL_STORAGE,
+} from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Wallet } from "ton";
@@ -37,26 +41,29 @@ export async function waitForSeqno(wallet: Wallet) {
   };
 }
 
-export const sortVotesByConnectedWallet = (
+export const getVoteFromLocalStorage = (address: string) => {
+  const value = localStorage.getItem(localStorageVoteKey(address));
+  const voteFromLocalStorage: Vote | undefined = value
+    ? JSON.parse(value)
+    : undefined;
+  return voteFromLocalStorage;
+};
+
+export const unshiftWalletVote = (
   votes: Vote[],
-  walletAddress?: string
+  address: string,
+  vote: Vote
 ) => {
-
-  const sortedVotes = _.orderBy(votes, "timestamp", ["desc", "asc"]);
-
-
-  if (!walletAddress) {
-    return { sortedVotes };
-  }
-  const index = sortedVotes!.findIndex((it) => it.address === walletAddress);
-  if (index < 0) return { sortedVotes };
-
-  const connectedAddressVote = sortedVotes?.splice(index, 1)[0];
-  sortedVotes?.unshift(connectedAddressVote);
-  
-  return { sortedVotes, connectedAddressVote };
+  const index = votes.findIndex((it) => it.address === address);
+  votes.unshift(vote);
+  votes.splice(index, 1);
+  return votes;
 };
 
 export const getAdapterName = () => {
   return localStorage.getItem(LOCAL_STORAGE_PROVIDER);
+};
+
+export const localStorageVoteKey = (address: string) => {
+  return `${USER_VOTE_LOCAL_STORAGE}_${address}`;
 };

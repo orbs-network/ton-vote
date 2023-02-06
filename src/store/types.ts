@@ -6,6 +6,8 @@ export interface PersistedState {
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
   apiKey?: string;
+  serverDisabled: boolean;
+  disableServer: () => void;
   onUpdate: (
     clientV2Endpoint?: string,
     clientV4Endpoint?: string,
@@ -16,6 +18,13 @@ export interface ClientsState {
   clientV2?: TonClient;
   clientV4?: TonClient4;
   setClients: (clientV2: TonClient, clientV4: TonClient4) => void;
+}
+
+export interface DataUpdaterStore {
+  timestamp?: number;
+  setTimestamp: (value: number) => void;
+  stateUpdateTime: number;
+  setStateUpdateTime: (value: number) => void;
 }
 
 export interface EndpointState {

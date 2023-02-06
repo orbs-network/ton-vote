@@ -7,10 +7,10 @@ import {
 } from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
-import { useDataQuery, useResetQueries, useSortVotes } from "queries";
+import { useResetQueries } from "queries/queries";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
-import { WalletProvider, Provider } from "types";
+import { WalletProvider, Provider, EndpointsArgs } from "types";
 import {
   useClientStore,
   useEndpointsStore,
@@ -31,22 +31,16 @@ export const useSetEndpointPopup = () => {
   };
 };
 
-export const useClients = () => {
-  const clientV4 = useClientStore((store) => store.clientV4);
+export const useClient = () => {
   const clientV2 = useClientStore((store) => store.clientV2);
+  const clientV4 = useClientStore((store) => store.clientV4);
   return { clientV2, clientV4 };
 };
 
-type GetClientsArgs = {
-  clientV2Endpoint?: string;
-  clientV4Endpoint?: string;
-  apiKey?: string;
-};
-
-const useGetClients = () => {
+export const useGetClient = () => {
   const setClients = useClientStore((store) => store.setClients);
 
-  return useMutation(async (args?: GetClientsArgs) => {
+  return useMutation(async (args?: EndpointsArgs) => {
     const clientV2 = await getClientV2(args?.clientV2Endpoint, args?.apiKey);
     const clientV4 = await getClientV4(args?.clientV4Endpoint);
     setClients(clientV2, clientV4);
@@ -55,36 +49,30 @@ const useGetClients = () => {
 
 export const useGetClientsOnLoad = () => {
   const store = usePersistedStore();
-  const { mutate: getClients } = useGetClients();
+  const { mutate: getClients } = useGetClient();
 
   return () => {
-    getClients({
+    const args: EndpointsArgs = {
       clientV2Endpoint: store.clientV2Endpoint,
       clientV4Endpoint: store.clientV4Endpoint,
       apiKey: store.apiKey,
-    });
+    };
+
+
+    getClients(store.clientV2Endpoint ? args : undefined);
   };
-};
-
-export const useCustomEndpoints = () => {
-  return usePersistedStore();
-};
-
-type UpdateEndpointsArgs = {
-  clientV2Endpoint?: string;
-  clientV4Endpoint?: string;
-  apiKey?: string;
 };
 
 export const useUpdateEndpoints = () => {
   const { onUpdate: onEndpointsUpdate } = usePersistedStore();
-  const { mutateAsync: getClients } = useGetClients();
+  const { mutateAsync: getClients } = useGetClient();
   const resetQueries = useResetQueries();
   const resetLt = useMaxLtStore().reset;
   const resetVotesPagination = useVotesPaginationStore().reset;
-  const resetVote = useVoteStore().reset
+  const resetVote = useVoteStore().reset;
 
-  return useMutation(async (args?: UpdateEndpointsArgs) => {
+  return useMutation(async (args?: EndpointsArgs) => {
+    resetLt();
     await getClients({
       clientV2Endpoint: args?.clientV2Endpoint,
       clientV4Endpoint: args?.clientV4Endpoint,
@@ -97,11 +85,14 @@ export const useUpdateEndpoints = () => {
       args?.apiKey
     );
     resetVote();
-    resetLt();
+
     resetVotesPagination();
     resetQueries();
-    
   });
+};
+
+export const useCustomEndpoints = () => {
+  return usePersistedStore();
 };
 
 export const useConnection = () => {
@@ -113,8 +104,6 @@ export const useWalletAddress = () => {
 };
 
 export const useConnect = () => {
-  const votes = useDataQuery().data?.votes;
-  const sortVotes = useSortVotes();
   const [session, setSession] = useState("");
   const [showQR, setShowQR] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<
@@ -158,7 +147,7 @@ export const useConnect = () => {
     setTonConnectionProvider(tonWalletProvider);
     const _wallet = await tonWalletProvider.connect();
     setAddress(_wallet.address);
-    sortVotes(votes || [], _wallet.address);
+    // sortVotes(votes || [], _wallet.address);
     localStorage.setItem(LOCAL_STORAGE_PROVIDER, wallet.type);
   });
 

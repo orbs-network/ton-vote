@@ -1,11 +1,9 @@
-import { Box, Link, styled, Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { Container } from "components";
-import { useProposalInfoQuery } from "queries";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { fromUnixToString } from "utils";
-import { Countdown } from "components/Coundown";
-import { DEADLINE } from "config";
+import { useProposalInfoQuery } from "queries/queries";
 
 const title = "Information";
 export const InformationLayout = () => {
@@ -22,18 +20,18 @@ export const InformationLayout = () => {
           <StyledFlexColumn gap={12}>
             <InformationRow label="Start date">
               <Typography>
-                {fromUnixToString(proposalInformation.startDate)}
+                {fromUnixToString(Number(proposalInformation.startDate))}
               </Typography>
             </InformationRow>
             <InformationRow label="End date">
               <Typography>
-                {fromUnixToString(proposalInformation.endDate)}
+                {fromUnixToString(Number(proposalInformation.endDate))}
               </Typography>
             </InformationRow>
 
             <InformationRow label="Snapshot">
               <Typography>
-                {fromUnixToString(proposalInformation.snapshot.snapshotTime)}
+                {fromUnixToString(Number(proposalInformation.snapshot.snapshotTime))}
               </Typography>
             </InformationRow>
          

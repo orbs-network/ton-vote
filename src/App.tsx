@@ -11,9 +11,9 @@ import {
   Footer,
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
-import { useData, useGetTransactionsQuery } from "queries";
+import { useStateUpdateQuery } from "queries/queries";
 import { useEffect } from "react";
-import { useEagerlyConnect, useGetClientsOnLoad } from "store";
+import { useEagerlyConnect, useGetClient, useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
 const Destop = () => {
@@ -49,14 +49,13 @@ const Mobile = () => {
 function App() {
   const restoreConnection = useEagerlyConnect();
   const getClients = useGetClientsOnLoad();
-  useGetTransactionsQuery();
+  useStateUpdateQuery();
 
   useEffect(() => {
     restoreConnection();
     getClients();
   }, []);
   const match = useMediaQuery("(max-width:800px)");
-
 
   return (
     <StyledApp>

@@ -23,15 +23,15 @@ export interface Results {
 }
 
 export enum QueryKeys {
-  DATA = "DATA",
-  GET_TRANSACTIONS = "GET_TRANSACTIONS",
+  STATE = "STATE",
+  PROPOSAL_INFO = "PROPOSAL_INFO_SERVER",
   TRANSACTIONS = "TRANSACTIONS",
-  PROPOSAL_INFO = "PROPOSAL_INFO",
+SERVER_STATE_UPDATER = "SERVER_STATE_UPDATER",
+  GET_TRANSACTIONS = "GET_TRANSACTIONS",
 }
 
-export interface Data {
-  votingPower?: VotingPower;
-  currentResults?: Results;
+export interface StateData {
+  results?: Results;
   votes?: Vote[];
 }
 
@@ -69,7 +69,36 @@ export interface Transaction {
 
 export type VotingPower = { [key: string]: string };
 
+export type RawVote = { timestamp: number; vote: string };
+export type RawVotes = { [key: string]: RawVote };
+
+
+
+export interface ProposalInfo {
+  startDate: Number;
+  endDate: Number;
+  snapshot: {
+  snapshotTime: Number;
+    mcSnapshotBlock: Number;
+  };
+}
+
+
+export interface GetState {
+  votes: Vote[];
+  proposalResults: Results;
+  votingPower: VotingPower;
+}
+
+
 export type GetTransactionsPayload = {
   allTxns: Transaction[];
   maxLt: string;
+};
+
+
+export type EndpointsArgs = {
+  clientV2Endpoint?: string;
+  clientV4Endpoint?: string;
+  apiKey?: string;
 };

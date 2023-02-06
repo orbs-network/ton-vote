@@ -1,14 +1,14 @@
 import { styled, Typography } from "@mui/material";
-import { useDataQuery } from "queries";
 import { Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress } from "utils";
 import { TONSCAN_ADDRESS_URL } from "config";
 import { Vote } from "types";
 import { useVotesPaginationStore, useWalletAddress } from "store";
+import { useStateQuery } from "queries/queries";
 
 export function VotesLayout() {
-  const votes = useDataQuery().data?.votes;
+  const votes = useStateQuery().data?.votes;
   const { limit, loadMore } = useVotesPaginationStore();
   const hideLoadMore = (votes?.length || 0) <= limit;  
 
