@@ -4,7 +4,6 @@ import { TonConnection } from "@ton-defi.org/ton-connection";
 import { PAGE_SIZE } from "config";
 import {
   ClientsState,
-  ContractAddressState,
   DataUpdaterStore,
   EndpointState,
   MaxLtState,
@@ -18,12 +17,13 @@ export const usePersistedStore = create(
     (set) => ({
       serverDisabled: false,
       disableServer: () => set({ serverDisabled: true }),
+      isCustomEndpoints: false,
       onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) => {
         set({
           clientV2Endpoint,
           clientV4Endpoint,
           apiKey,
-          serverDisabled: !!clientV2Endpoint,
+          isCustomEndpoints: !!clientV2Endpoint,
         });
       },
     }),

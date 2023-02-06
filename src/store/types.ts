@@ -8,6 +8,7 @@ export interface PersistedState {
   apiKey?: string;
   serverDisabled: boolean;
   disableServer: () => void;
+  isCustomEndpoints: boolean;
   onUpdate: (
     clientV2Endpoint?: string,
     clientV4Endpoint?: string,

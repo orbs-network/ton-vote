@@ -15,7 +15,7 @@ const getLastFetchUpdate = async (): Promise<number> => {
 const getStateUpdateTime = async (): Promise<number> => {
   return (await axiosInstance.get("/stateUpdateTime")).data;
 };
-const getContractAddress = async (): Promise<number> => {
+const getContractAddress = async (): Promise<string> => {
   return (await axiosInstance.get("/contract")).data;
 };
 

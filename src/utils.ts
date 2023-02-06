@@ -1,7 +1,6 @@
 import {
   BASE_ERROR_MESSAGE,
   LOCAL_STORAGE_PROVIDER,
-  USER_VOTE_LOCAL_STORAGE,
 } from "config";
 import _ from "lodash";
 import moment from "moment";
@@ -41,13 +40,6 @@ export async function waitForSeqno(wallet: Wallet) {
   };
 }
 
-export const getVoteFromLocalStorage = (address: string) => {
-  const value = localStorage.getItem(localStorageVoteKey(address));
-  const voteFromLocalStorage: Vote | undefined = value
-    ? JSON.parse(value)
-    : undefined;
-  return voteFromLocalStorage;
-};
 
 export const unshiftWalletVote = (
   votes: Vote[],
@@ -64,6 +56,4 @@ export const getAdapterName = () => {
   return localStorage.getItem(LOCAL_STORAGE_PROVIDER);
 };
 
-export const localStorageVoteKey = (address: string) => {
-  return `${USER_VOTE_LOCAL_STORAGE}_${address}`;
-};
+
