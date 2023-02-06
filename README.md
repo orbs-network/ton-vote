@@ -1,4 +1,4 @@
-# Community DAO Vote
+# TON Community DAO Vote
 
 We're working on a no code governance platform for TON, similar to [snapshot.org](https://snapshot.org/) on EVM.
 
