@@ -1,6 +1,6 @@
 import { TonConnection, TonWalletProvider } from "@ton-defi.org/ton-connection";
 import { TonClient, TonClient4 } from "ton";
-import { Vote } from "types";
+import { Results, Transaction, Vote, VotingPower } from "types";
 
 export interface PersistedState {
   clientV2Endpoint?: string;
@@ -9,6 +9,10 @@ export interface PersistedState {
   serverDisabled: boolean;
   disableServer: () => void;
   isCustomEndpoints: boolean;
+  enableServer: () => void;
+  currentDataMaxLt?: string;
+  setMaxLt: (value: string) => void;
+  clearMaxLt: () => void;
   onUpdate: (
     clientV2Endpoint?: string,
     clientV4Endpoint?: string,
@@ -44,12 +48,6 @@ export interface WalletState {
   reset: () => void;
 }
 
-export interface MaxLtState {
-  maxLt: string | undefined;
-  setMaxLt: (value: string | undefined) => void;
-  reset: () => void;
-}
-
 export interface VotesPaginationState {
   limit: number;
   loadMore: (value?: number) => void;
@@ -59,5 +57,23 @@ export interface VotesPaginationState {
 export interface VoteState {
   vote: string;
   setVote: (value?: string) => void;
+  reset: () => void;
+}
+
+export interface DataState {
+  transactions: Transaction[];
+  votes: Vote[];
+  proposalResults?: Results;
+  votingPower?: VotingPower;
+  maxLt?: string;
+  setMaxLt: (value: string) => void;
+  setData: (
+    votes: Vote[],
+    proposalResults: Results,
+    votingPower: VotingPower
+  ) => void;
+  setVotes: (votes: Vote[]) => void;
+  clearTransactions: () => void;
+  addTransactions: (value: Transaction[]) => void;
   reset: () => void;
 }

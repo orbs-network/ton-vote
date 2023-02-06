@@ -40,6 +40,7 @@ export interface GetStateApiPayload {
   votes: RawVotes;
   votingPower: VotingPower;
   proposalResults: Results;
+  maxLt: string;
 }
 
 

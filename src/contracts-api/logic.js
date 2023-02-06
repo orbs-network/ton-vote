@@ -25,6 +25,7 @@ export async function getTransactions(
   contractAddress,
   toLt
 ) {
+  console.log({ toLt });
   let maxLt = new BigNumber(toLt ?? -1);
   let startPage = { fromLt: "0", hash: "" };
 

@@ -7,7 +7,7 @@ import {
 } from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
-import { useResetQueries } from "queries/queries";
+import { useChangeEndpointCallback } from "queries/queries";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
 import { WalletProvider, Provider, EndpointsArgs } from "types";
@@ -15,8 +15,8 @@ import {
   useClientStore,
   useDataUpdaterStore,
   useEndpointsStore,
-  useMaxLtStore,
   usePersistedStore,
+  useStateDataStore,
   useVotesPaginationStore,
   useVoteStore,
   useWalletStore,
@@ -66,13 +66,13 @@ export const useGetClientsOnLoad = () => {
 export const useUpdateEndpoints = () => {
   const { onUpdate: onEndpointsUpdate } = usePersistedStore();
   const { mutateAsync: getClients } = useGetClient();
-  const resetQueries = useResetQueries();
-  const resetLt = useMaxLtStore().reset;
+  const resetQueries = useChangeEndpointCallback();
+  const resetDataStore = useStateDataStore().reset
   const resetVotesPagination = useVotesPaginationStore().reset;
   const resetVote = useVoteStore().reset;
   const { reset: resetDataUpdater } = useDataUpdaterStore();
   return useMutation(async (args?: EndpointsArgs) => {
-    resetLt();
+    resetDataStore();
     resetDataUpdater();
     resetVote();
     resetVotesPagination();
@@ -147,7 +147,6 @@ export const useConnect = () => {
     setTonConnectionProvider(tonWalletProvider);
     const _wallet = await tonWalletProvider.connect();
     setAddress(_wallet.address);
-    // sortVotes(votes || [], _wallet.address);
     localStorage.setItem(LOCAL_STORAGE_PROVIDER, wallet.type);
   });
 
@@ -184,3 +183,5 @@ export const useEagerlyConnect = () => {
     }
   };
 };
+
+

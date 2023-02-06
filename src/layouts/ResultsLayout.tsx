@@ -1,11 +1,11 @@
 import { Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { Container, Progress } from "components";
-import { useStateQuery } from "queries/queries";
+import { useStateDataStore } from "store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
 export const ResultsLayout = () => {
-  const currectResults = useStateQuery().data?.proposalResults;
+  const currectResults = useStateDataStore(state => state.proposalResults);
   
 
   return (

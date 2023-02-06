@@ -4,11 +4,11 @@ import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress } from "utils";
 import { TONSCAN_ADDRESS_URL } from "config";
 import { Vote } from "types";
-import { useVotesPaginationStore, useWalletAddress } from "store";
-import { useStateQuery } from "queries/queries";
+import { useStateDataStore, useVotesPaginationStore, useWalletAddress } from "store";
 
 export function VotesLayout() {
-  const votes = useStateQuery().data?.votes;
+  const votes = useStateDataStore((state) => state.votes);
+  
   const { limit, loadMore } = useVotesPaginationStore();
   const hideLoadMore = (votes?.length || 0) <= limit;  
 
