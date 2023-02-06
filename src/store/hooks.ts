@@ -13,6 +13,7 @@ import { isMobile } from "react-device-detect";
 import { WalletProvider, Provider, EndpointsArgs } from "types";
 import {
   useClientStore,
+  useDataUpdaterStore,
   useEndpointsStore,
   useMaxLtStore,
   usePersistedStore,
@@ -58,7 +59,6 @@ export const useGetClientsOnLoad = () => {
       apiKey: store.apiKey,
     };
 
-
     getClients(store.clientV2Endpoint ? args : undefined);
   };
 };
@@ -70,23 +70,23 @@ export const useUpdateEndpoints = () => {
   const resetLt = useMaxLtStore().reset;
   const resetVotesPagination = useVotesPaginationStore().reset;
   const resetVote = useVoteStore().reset;
-
+  const { reset: resetDataUpdater } = useDataUpdaterStore();
   return useMutation(async (args?: EndpointsArgs) => {
     resetLt();
+    resetDataUpdater();
+    resetVote();
+    resetVotesPagination();
+    onEndpointsUpdate(
+      args?.clientV2Endpoint,
+      args?.clientV4Endpoint,
+      args?.apiKey
+    );
     await getClients({
       clientV2Endpoint: args?.clientV2Endpoint,
       clientV4Endpoint: args?.clientV4Endpoint,
       apiKey: args?.apiKey,
     });
 
-    onEndpointsUpdate(
-      args?.clientV2Endpoint,
-      args?.clientV4Endpoint,
-      args?.apiKey
-    );
-    resetVote();
-
-    resetVotesPagination();
     resetQueries();
   });
 };

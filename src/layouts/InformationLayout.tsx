@@ -5,14 +5,13 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { fromUnixToString } from "utils";
 import { useProposalInfoQuery } from "queries/queries";
 
-const title = "Information";
 export const InformationLayout = () => {
-  const {data: proposalInformation}  = useProposalInfoQuery()
+  const proposalInformation = useProposalInfoQuery().data;
 
   
     return (
       <StyledInformation
-        title={title}
+        title="Information"
         loaderAmount={3}
         loading={!proposalInformation}
       >
@@ -31,10 +30,11 @@ export const InformationLayout = () => {
 
             <InformationRow label="Snapshot">
               <Typography>
-                {fromUnixToString(Number(proposalInformation.snapshot.snapshotTime))}
+                {fromUnixToString(
+                  Number(proposalInformation.snapshot.snapshotTime)
+                )}
               </Typography>
             </InformationRow>
-         
           </StyledFlexColumn>
         )}
       </StyledInformation>

@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { votingContract, TX_FEE } from "config";
+import { votingContract, TX_FEE, voteOptions } from "config";
 import _ from "lodash";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useConnection, useWalletAddress, useClient } from "store";
-import { Cell, CommentMessage, Address, toNano } from "ton";
+import { Cell, CommentMessage, Address, toNano, fromNano } from "ton";
 import { Provider, Vote } from "types";
 import {
   waitForSeqno,
@@ -26,7 +26,13 @@ export const useSendTransaction = () => {
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
       const cell = new Cell();
       new CommentMessage(value).writeTo(cell);
+      setIsLoading(true);
 
+      const waiter = await waitForSeqno(
+        clientV2!.openWalletFromAddress({
+          source: Address.parse(address!),
+        })
+      );
       const onSuccess = async () => {
         setTxApproved(true);
         await waiter();
@@ -35,13 +41,6 @@ export const useSendTransaction = () => {
         setIsLoading(false);
       };
 
-      setIsLoading(true);
-
-      const waiter = await waitForSeqno(
-        clientV2!.openWalletFromAddress({
-          source: Address.parse(address!),
-        })
-      );
       const isExtension = getAdapterName() === Provider.EXTENSION;
 
       if (isMobile || isExtension) {
@@ -91,7 +90,6 @@ export const useGetAddressVotingPower = () => {
   });
 };
 
-
 const useAddVoteManually = () => {
   const walletAddress = useWalletAddress();
   const { mutateAsync: getVotingPower } = useGetAddressVotingPower();
@@ -99,14 +97,16 @@ const useAddVoteManually = () => {
 
   return async (value: string) => {
     const votingPower = await getVotingPower({ address: walletAddress! });
+    const name = voteOptions.find((it) => it.value === value)?.name;
+    if (!name) return;
     const vote = {
       address: walletAddress!,
-      vote: value,
+      vote: name,
       timestamp: 0,
-      votingPower: votingPower || "0",
+      votingPower: votingPower ? fromNano(votingPower) : "0",
     };
-    const localStorageKey = localStorageVoteKey(walletAddress!);
 
+    const localStorageKey = localStorageVoteKey(walletAddress!);
     localStorage.setItem(localStorageKey, JSON.stringify(vote));
 
     const data = getData();
@@ -137,6 +137,3 @@ export const useUnshiftConnectedWalletVote = () => {
     return votes;
   };
 };
-
-
-

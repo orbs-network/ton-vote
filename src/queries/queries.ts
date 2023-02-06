@@ -28,42 +28,8 @@ import {
   RawVotes,
   RawVote,
   GetState,
+  ProposalInfo,
 } from "types";
-
-export const useGetTransactionsQuery = () => {
-  const { clientV2 } = useClient();
-  const { toggleError } = useSetEndpointPopup();
-  const { refetch: refetchStateQuery } = useStateQuery();
-  const { addToList } = useTransactionsList();
-  const { maxLt, setMaxLt } = useMaxLtStore();
-
-  return useQuery(
-    [QueryKeys.GET_TRANSACTIONS, maxLt],
-    async () => {
-      const result: GetTransactionsPayload = await getTransactions(
-        clientV2,
-        maxLt
-      );
-
-      if (result.allTxns.length > 0) {
-        addToList(result.allTxns);
-        refetchStateQuery();
-      }
-
-      return result;
-    },
-    {
-      staleTime: Infinity,
-      enabled: false,
-      onError: () => {
-        toggleError(true);
-      },
-      onSuccess: (data) => {
-        setMaxLt(data.maxLt);
-      },
-    }
-  );
-};
 
 export const useStateQuery = () => {
   const queryClient = useQueryClient();
@@ -79,10 +45,23 @@ export const useStateQuery = () => {
       let rawVotes: RawVotes = {};
       let proposalResults: Results | undefined = undefined;
       let votingPower: VotingPower = {};
+
+      const getProposalInfoQueryFn = (): Promise<ProposalInfo> => {
+        if (serverDisabled) {
+          return getProposalInfo(clientV2, clientV4);
+        }
+        return api.getProposalInfo();
+      };
+
+      const proposalInfo = await queryClient.ensureQueryData({
+        queryKey: [QueryKeys.PROPOSAL_INFO],
+        queryFn: getProposalInfoQueryFn,
+      });
+
       // get from server
       if (!serverDisabled) {
-        console.log('fetching from server');
-        
+        console.log("fetching from server");
+
         const state = await api.getState();
         rawVotes = state.votes;
         proposalResults = state.proposalResults;
@@ -90,14 +69,9 @@ export const useStateQuery = () => {
       }
       // get from contract
       else {
-
-         console.log("fetching from contract");
+        console.log("fetching from contract");
         const transactions = getList();
-
-        const proposalInfo = await queryClient.ensureQueryData({
-          queryKey: [QueryKeys.PROPOSAL_INFO],
-          queryFn: () => getProposalInfo(clientV2, clientV4),
-        });
+        console.log(transactions, getData()?.votingPower);
 
         votingPower = await getVotingPower(
           clientV4,
@@ -141,23 +115,21 @@ export const useStateQuery = () => {
   );
 };
 
-export const useProposalInfoQuery = () => {
-  const { serverDisabled } = usePersistedStore();
-  const { clientV2, clientV4 } = useClient();
-
+export const useContractAddressQuery = () => {
   return useQuery(
-    [QueryKeys.PROPOSAL_INFO],
-    async () => {
-      if (!serverDisabled) {
-        return api.getProposalInfo();
-      }
-      return getProposalInfo(clientV2, clientV4);
-    },
+    [QueryKeys.CONTRACT_ADDRESS],
+    () => api.getContractAddress(),
     {
       staleTime: Infinity,
-      enabled: !!clientV2 && !!clientV4,
     }
   );
+};
+
+export const useProposalInfoQuery = () => {
+  return useQuery<ProposalInfo | undefined>([QueryKeys.PROPOSAL_INFO], {
+    staleTime: Infinity,
+    enabled: false,
+  });
 };
 
 export const useStateData = () => {
@@ -186,40 +158,67 @@ export const useStateData = () => {
   };
 };
 
-export const useStateUpdateQuery = () => {
-  const { setStateUpdateTime, stateUpdateTime} =
-    useDataUpdaterStore();
-    const { disableServer, serverDisabled } = usePersistedStore();
+export const useServerStateUpdateQuery = () => {
+  const { setStateUpdateTime, stateUpdateTime } = useDataUpdaterStore();
+  const { disableServer, serverDisabled } = usePersistedStore();
   const { refetch: getState } = useStateQuery();
   const { clientV2, clientV4 } = useClient();
-  const { refetch: runGetTransactionsQuery } = useGetTransactionsQuery();
 
   return useQuery(
     [QueryKeys.SERVER_STATE_UPDATER],
     async () => {
-      if (serverDisabled) {
-        runGetTransactionsQuery();
-        return "";
-      }
       const newStateUpdateTime = await api.getStateUpdateTime();
       const lastFetchUpdate = await api.getLastFetchUpdate();
 
       // if time between now and last fetch time is greater than 90 seconds, disable server
       if (moment().valueOf() - lastFetchUpdate > LAST_FETCH_UPDATE_LIMIT) {
         disableServer();
-        runGetTransactionsQuery();
-        return "";
+        return null;
       }
       // if new state update time is not equal to prev state update time, trigger fetch from server
       if (stateUpdateTime !== newStateUpdateTime) {
         getState();
         setStateUpdateTime(newStateUpdateTime);
       }
+      return null;
+    },
+    {
+      refetchInterval: STATE_REFETCH_INTERVAL,
+      enabled: !!clientV2 && !!clientV4 && !serverDisabled,
+    }
+  );
+};
+
+export const useContractStateUpdateQuery = () => {
+  const { serverDisabled } = usePersistedStore();
+  const { clientV2, clientV4 } = useClient();
+  const { maxLt, setMaxLt } = useMaxLtStore();
+  const { addToList } = useTransactionsList();
+  const { refetch: getState } = useStateQuery();
+  const { toggleError } = useSetEndpointPopup();
+
+  return useQuery(
+    [QueryKeys.CONTRACT_STATE_UPDATER],
+    async () => {
+      const result: GetTransactionsPayload = await getTransactions(
+        clientV2,
+        maxLt
+      );
+      console.log({ maxLt });
+
+      if (result.allTxns.length > 0) {
+        addToList(result.allTxns);
+        getState();
+        setMaxLt(result.maxLt);
+      }
       return "";
     },
     {
       refetchInterval: STATE_REFETCH_INTERVAL,
-      enabled: !!clientV2 && !!clientV4,
+      enabled: !!clientV2 && !!clientV4 && serverDisabled,
+      onError: () => {
+        toggleError(true);
+      },
     }
   );
 };
@@ -228,7 +227,9 @@ export const useResetQueries = () => {
   const queryClient = useQueryClient();
 
   return () => {
-    queryClient.resetQueries();
+    queryClient.resetQueries({ queryKey: [QueryKeys.PROPOSAL_INFO] });
+    queryClient.resetQueries({ queryKey: [QueryKeys.TRANSACTIONS] });
+    queryClient.resetQueries({ queryKey: [QueryKeys.STATE] });
   };
 };
 

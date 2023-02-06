@@ -4,6 +4,7 @@ import { TonConnection } from "@ton-defi.org/ton-connection";
 import { PAGE_SIZE } from "config";
 import {
   ClientsState,
+  ContractAddressState,
   DataUpdaterStore,
   EndpointState,
   MaxLtState,
@@ -18,13 +19,13 @@ export const usePersistedStore = create(
       serverDisabled: false,
       disableServer: () => set({ serverDisabled: true }),
       onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) => {
-         set({
-           clientV2Endpoint,
-           clientV4Endpoint,
-           apiKey,
-           serverDisabled: !!clientV2Endpoint,
-         });
-      }
+        set({
+          clientV2Endpoint,
+          clientV4Endpoint,
+          apiKey,
+          serverDisabled: !!clientV2Endpoint,
+        });
+      },
     }),
     {
       name: "ton_vote_persisted_store", // name of the item in the storage (must be unique)
@@ -37,6 +38,7 @@ export const useClientStore = create<ClientsState>((set, get) => ({
 }));
 
 export const useDataUpdaterStore = create<DataUpdaterStore>((set, get) => ({
+  reset: () => set({ timestamp: 0, stateUpdateTime: 0 }),
   setTimestamp: (timestamp) => set({ timestamp }),
   stateUpdateTime: 0,
   setStateUpdateTime: (stateUpdateTime) => set({ stateUpdateTime }),
@@ -86,3 +88,4 @@ export const useVoteStore = create<VoteState>((set, get) => ({
   setVote: (vote) => set({ vote }),
   reset: () => set({ vote: "" }),
 }));
+

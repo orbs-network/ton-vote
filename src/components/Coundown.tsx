@@ -9,19 +9,19 @@ const addZero = (num: number) => {
   return num.toString().length < 2 ? `0${num}` : `${num}`;
 };
 
-export function Countdown({ date }: { date: number }) {
-  const [time, setTime] = useState(undefined);
-
+export function Countdown({ date }: { date?: number }) {
   const renderer = (value: any) => {
     return (
       <>
         <Flipper title="Days" value={addZero(value.days)} />
         <Flipper title="Hours" value={addZero(value.hours)} />
-        <Flipper title='Minutes' value={addZero(value.minutes)} />
-        <Flipper title='Seconds' value={addZero(value.seconds)} />
+        <Flipper title="Minutes" value={addZero(value.minutes)} />
+        <Flipper title="Seconds" value={addZero(value.seconds)} />
       </>
     );
   };
+
+  if (!date) return null;
 
   return (
     <StyledCountdown>
@@ -31,7 +31,7 @@ export function Countdown({ date }: { date: number }) {
 }
 
 const Flipper = ({ value, title }: { value: string; title: string }) => {
-const theme = useTheme()
+  const theme = useTheme();
   return (
     <StyledSection>
       <Typography className="title">{title}</Typography>
@@ -41,7 +41,6 @@ const theme = useTheme()
         color={theme.palette.primary.main}
         background="white"
         play={true}
-
         perspective={100}
         numbers={value}
       />
@@ -49,13 +48,12 @@ const theme = useTheme()
   );
 };
 
-
 const StyledSection = styled(StyledFlexColumn)({
-    ".title":{
-      textTransform:'uppercase',
-      fontSize: 12
-    },
-})
+  ".title": {
+    textTransform: "uppercase",
+    fontSize: 12,
+  },
+});
 
 const StyledCountdown = styled(StyledFlexRow)(({ theme }) => ({
   fontWeight: 600,

@@ -11,7 +11,10 @@ import {
   Footer,
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
-import { useStateUpdateQuery } from "queries/queries";
+import {
+  useContractStateUpdateQuery,
+  useServerStateUpdateQuery,
+} from "queries/queries";
 import { useEffect } from "react";
 import { useEagerlyConnect, useGetClient, useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
@@ -49,7 +52,8 @@ const Mobile = () => {
 function App() {
   const restoreConnection = useEagerlyConnect();
   const getClients = useGetClientsOnLoad();
-  useStateUpdateQuery();
+  useContractStateUpdateQuery();
+  useServerStateUpdateQuery();
 
   useEffect(() => {
     restoreConnection();

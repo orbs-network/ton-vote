@@ -21,6 +21,7 @@ export interface ClientsState {
 }
 
 export interface DataUpdaterStore {
+  reset: () => void;
   timestamp?: number;
   setTimestamp: (value: number) => void;
   stateUpdateTime: number;
