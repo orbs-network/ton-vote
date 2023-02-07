@@ -1,6 +1,5 @@
 import {
   Address,
-  DictBuilder,
   WalletContract,
 } from "ton";
 import { mnemonicNew, mnemonicToWalletKey } from "ton-crypto";
