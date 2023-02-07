@@ -3,7 +3,7 @@ import _ from "lodash";
 import { ProposalInfo, RawVotes, Results, Vote } from "types";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: "https://dao-vote-server.herokuapp.com",
 });
 
 
