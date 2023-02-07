@@ -7,11 +7,11 @@ import {
 } from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
+import { useWalletVote } from "hooks";
 import { useDataFromQueryClient, useStateQuery } from "queries";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
 import { WalletProvider, Provider, EndpointsArgs, QueryKeys } from "types";
-import { unshiftWalletVote } from "utils";
 import {
   useClientStore,
   useDataUpdaterStore,
@@ -104,12 +104,13 @@ export const useWalletAddress = () => {
 
 const useOnConnectCallback = () => {
   const { getStateData, setStateData } = useDataFromQueryClient();
-
+  const handleWalletVote = useWalletVote();
   return (walletAddress: string) => {
     const data = getStateData();
+    
     if (!data) return;
 
-    data.votes = unshiftWalletVote(data.votes, walletAddress);
+    data.votes = handleWalletVote(data.votes, walletAddress);
     setStateData(data);
   };
 };

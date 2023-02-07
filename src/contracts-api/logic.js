@@ -57,9 +57,8 @@ export async function getTransactions(
   return { allTxns, maxLt: maxLt.toString() };
 }
 
-export function filterTxByTimestamp(transactions, timestamp) {
-
-  const filteredTx = _.filter(tx.allTxns, function(transaction) {
+export function filterTxByTimestamp(transactions, lastTxTime) {
+  const filteredTx = _.filter(transactions, function (transaction) {
     return transaction.time <= lastTxTime;
   });
 

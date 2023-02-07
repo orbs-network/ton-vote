@@ -62,13 +62,3 @@ export const parseVotes = (rawVotes: RawVotes, votingPower: VotingPower) => {
   return sortedVotes;
 };
 
-export const unshiftWalletVote = (votes: Vote[], walletAddress?: string) => {
-  if (!walletAddress) return votes;
-  let vote = votes.find((it) => it.address === walletAddress);
-
-  if (!vote) return votes;
-  const index = votes.findIndex((it) => it.address === walletAddress);
-  votes.unshift(vote);
-  votes.splice(index, 1);
-  return votes;
-};

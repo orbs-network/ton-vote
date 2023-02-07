@@ -11,6 +11,7 @@ import {
   Footer,
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
+import VerifyLayout from "layouts/VerifyLayout";
 import { useDataUpdaters } from "queries";
 import { useEffect } from "react";
 import { useEagerlyConnect, useGetClientsOnLoad } from "store";
@@ -28,6 +29,7 @@ const Destop = () => {
         <DeadlineLayout />
         <InformationLayout />
         <ResultsLayout />
+        <VerifyLayout />
       </StyledRight>
     </StyledWrapper>
   );

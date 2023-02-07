@@ -12,6 +12,7 @@ import {
   getTransactions,
   getVotingPower,
 } from "contracts-api/logic";
+import { useWalletVote } from "hooks";
 import _ from "lodash";
 import moment from "moment";
 import { useMemo, useState } from "react";
@@ -39,17 +40,14 @@ import {
   Provider,
   Transaction,
 } from "types";
-import {
-  getAdapterName,
-  Logger,
-  parseVotes,
-  unshiftWalletVote,
-  waitForSeqno,
-} from "utils";
+import { getAdapterName, Logger, parseVotes, waitForSeqno } from "utils";
+
 
 const useGetStateFromServer = () => {
   const queryClient = useQueryClient();
-  const walletAddress = useWalletAddress();
+  const handleWalletVote = useWalletVote();
+
+
 
   return async (): Promise<GetState> => {
     const state = await api.getState();
@@ -61,7 +59,7 @@ const useGetStateFromServer = () => {
     const sortedVotes = parseVotes(state.votes, state.votingPower);
 
     return {
-      votes: unshiftWalletVote(sortedVotes, walletAddress),
+      votes: handleWalletVote(sortedVotes),
       proposalResults: state.proposalResults,
       votingPower: state.votingPower,
     };
@@ -72,7 +70,7 @@ export const useGetStateFromContract = () => {
   const { clientV2, clientV4 } = useClient();
   const queryClient = useQueryClient();
   const contractAddress = useContractAddressQuery().data;
-  const walletAddress = useWalletAddress();
+  const handleWalletVote = useWalletVote();
 
   const { getStateData } = useDataFromQueryClient();
 
@@ -99,7 +97,7 @@ export const useGetStateFromContract = () => {
     const sortedVotes = parseVotes(rawVotes, votingPower);
 
     return {
-      votes: unshiftWalletVote(sortedVotes, walletAddress),
+      votes: handleWalletVote(sortedVotes),
       proposalResults,
       votingPower,
     };
@@ -144,7 +142,7 @@ export const useStateQuery = () => {
         if (result.allTxns.length === 0) {
           return getStateData();
         }
-        const transactions = addTransactions(result.allTxns);
+        const transactions = addTransactions(result.allTxns) || [];
 
         setPage(result.maxLt);
         return getStateFromContractFn(transactions);
