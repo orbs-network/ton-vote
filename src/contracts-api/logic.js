@@ -57,6 +57,15 @@ export async function getTransactions(
   return { allTxns, maxLt: maxLt.toString() };
 }
 
+export function filterTxByTimestamp(transactions, timestamp) {
+
+  const filteredTx = _.filter(tx.allTxns, function(transaction) {
+    return transaction.time <= lastTxTime;
+  });
+
+  return filteredTx;
+}
+
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
 

@@ -13,7 +13,6 @@ export class Proposal implements Contract {
     }
 
     static create(start_time: number, end_time: number, snapshot_time: number, frozen_addresses: string [], workchain = 0) {
-        console.log(start_time, end_time, snapshot_time);
         
         // Build initial code and data
         let initialCode = this.getCode()[0];

@@ -13,7 +13,7 @@ async function deploy() {
 	const client = new TonClient({endpoint: await getHttpEndpoint()});
 
 	const contract = Proposal.create(START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH, INACTIVE_ADDRESSES);
-
+	
 	let deployWalletKey = await initDeployKey("");
 	let deployWallet = await initWallet(client, deployWalletKey.publicKey);
 
