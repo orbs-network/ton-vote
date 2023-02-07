@@ -7,10 +7,9 @@ export interface PersistedState {
   clientV4Endpoint?: string;
   apiKey?: string;
   serverDisabled: boolean;
-  disableServer: () => void;
   isCustomEndpoints: boolean;
-  enableServer: () => void;
-  currentDataMaxLt?: string;
+  maxLt?: string;
+  disableServer: (value: boolean) => void;
   setMaxLt: (value: string) => void;
   clearMaxLt: () => void;
   onUpdate: (
@@ -60,20 +59,10 @@ export interface VoteState {
   reset: () => void;
 }
 
-export interface DataState {
-  transactions: Transaction[];
-  votes: Vote[];
-  proposalResults?: Results;
-  votingPower?: VotingPower;
-  maxLt?: string;
-  setMaxLt: (value: string) => void;
-  setData: (
-    votes: Vote[],
-    proposalResults: Results,
-    votingPower: VotingPower
-  ) => void;
-  setVotes: (votes: Vote[]) => void;
-  clearTransactions: () => void;
-  addTransactions: (value: Transaction[]) => void;
+export interface TransactionsState {
+  page?: string;
+  setPage: (value?: string) => void;
   reset: () => void;
+  transactions: Transaction[];
+  addTransactions: (transactions: Transaction[]) => Transaction[];
 }

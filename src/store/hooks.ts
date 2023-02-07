@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   TonWalletProvider,
   ChromeExtensionWalletProvider,
@@ -7,16 +7,17 @@ import {
 } from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
-import { useChangeEndpointCallback } from "queries/queries";
+import { useDataFromQueryClient, useStateQuery } from "queries";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
-import { WalletProvider, Provider, EndpointsArgs } from "types";
+import { WalletProvider, Provider, EndpointsArgs, QueryKeys } from "types";
+import { unshiftWalletVote } from "utils";
 import {
   useClientStore,
   useDataUpdaterStore,
   useEndpointsStore,
   usePersistedStore,
-  useStateDataStore,
+  useTransactionsStore,
   useVotesPaginationStore,
   useVoteStore,
   useWalletStore,
@@ -64,17 +65,17 @@ export const useGetClientsOnLoad = () => {
 };
 
 export const useUpdateEndpoints = () => {
+  const queryClient = useQueryClient();
   const { onUpdate: onEndpointsUpdate } = usePersistedStore();
   const { mutateAsync: getClients } = useGetClient();
-  const resetQueries = useChangeEndpointCallback();
-  const resetDataStore = useStateDataStore().reset
+  const resetTransactions = useTransactionsStore().reset;
   const resetVotesPagination = useVotesPaginationStore().reset;
-  const resetVote = useVoteStore().reset;
   const { reset: resetDataUpdater } = useDataUpdaterStore();
+  const { refetch } = useStateQuery();
+
   return useMutation(async (args?: EndpointsArgs) => {
-    resetDataStore();
+    resetTransactions();
     resetDataUpdater();
-    resetVote();
     resetVotesPagination();
     onEndpointsUpdate(
       args?.clientV2Endpoint,
@@ -87,12 +88,10 @@ export const useUpdateEndpoints = () => {
       apiKey: args?.apiKey,
     });
 
-    resetQueries();
+    queryClient.removeQueries({ queryKey: [QueryKeys.PROPOSAL_INFO] });
+    queryClient.removeQueries({ queryKey: [QueryKeys.STATE] });
+    refetch();
   });
-};
-
-export const useCustomEndpoints = () => {
-  return usePersistedStore();
 };
 
 export const useConnection = () => {
@@ -103,6 +102,18 @@ export const useWalletAddress = () => {
   return useWalletStore((store) => store.address);
 };
 
+const useOnConnectCallback = () => {
+  const { getStateData, setStateData } = useDataFromQueryClient();
+
+  return (walletAddress: string) => {
+    const data = getStateData();
+    if (!data) return;
+
+    data.votes = unshiftWalletVote(data.votes, walletAddress);
+    setStateData(data);
+  };
+};
+
 export const useConnect = () => {
   const [session, setSession] = useState("");
   const [showQR, setShowQR] = useState(false);
@@ -110,6 +121,7 @@ export const useConnect = () => {
     WalletProvider | undefined
   >(undefined);
   const { setTonConnectionProvider, setAddress } = useWalletStore();
+  const onConnectCallback = useOnConnectCallback();
   const query = useMutation(async (wallet: WalletProvider) => {
     let tonWalletProvider: TonWalletProvider | undefined;
 
@@ -147,6 +159,7 @@ export const useConnect = () => {
     setTonConnectionProvider(tonWalletProvider);
     const _wallet = await tonWalletProvider.connect();
     setAddress(_wallet.address);
+    onConnectCallback(_wallet.address);
     localStorage.setItem(LOCAL_STORAGE_PROVIDER, wallet.type);
   });
 
@@ -183,5 +196,3 @@ export const useEagerlyConnect = () => {
     }
   };
 };
-
-

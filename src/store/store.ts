@@ -4,10 +4,10 @@ import { TonConnection } from "@ton-defi.org/ton-connection";
 import { PAGE_SIZE } from "config";
 import {
   ClientsState,
-  DataState,
   DataUpdaterStore,
   EndpointState,
   PersistedState,
+  TransactionsState,
   VotesPaginationState,
   VoteState,
   WalletState,
@@ -15,12 +15,11 @@ import {
 export const usePersistedStore = create(
   persist<PersistedState>(
     (set) => ({
-      currentDataMaxLt: undefined,
-      setMaxLt: (currentDataMaxLt) => set({ currentDataMaxLt }),
-      clearMaxLt: () => set({ currentDataMaxLt: undefined }),
+      maxLt: undefined,
+      setMaxLt: (maxLt) => set({ maxLt }),
+      clearMaxLt: () => set({ maxLt: undefined }),
       serverDisabled: false,
-      disableServer: () => set({ serverDisabled: true }),
-      enableServer: () => set({ serverDisabled: false }),
+      disableServer: (serverDisabled) => set({ serverDisabled }),
       isCustomEndpoints: false,
       onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) => {
         set({
@@ -87,24 +86,15 @@ export const useVoteStore = create<VoteState>((set, get) => ({
   reset: () => set({ vote: "" }),
 }));
 
-const stateDataStoreDefaults = {
-  votes: [],
-  proposalResults: undefined,
-  votingPower: undefined,
-  maxLt: undefined,
+export const useTransactionsStore = create<TransactionsState>((set, get) => ({
+  page: undefined,
   transactions: [],
-};
-export const useStateDataStore = create<DataState>((set, get) => ({
-  ...stateDataStoreDefaults,
-  addTransactions: (transactions) => {
-    const list = get().transactions;
-    list.unshift(...transactions);
-    set({ transactions: list });
+  setPage: (page) => set({ page }),
+  addTransactions: (newTransactions) => {
+    const transactions = get().transactions;
+    transactions.unshift(...newTransactions);
+    set({ transactions });
+    return transactions;
   },
-  clearTransactions: () => set({ transactions: [] }),
-  setMaxLt: (maxLt: string) => set({ maxLt }),
-  setData: (votes, proposalResults, votingPower) =>
-    set({ votes, proposalResults, votingPower }),
-  setVotes: (votes) => set({ votes }),
-  reset: () => set(stateDataStoreDefaults),
+  reset: () => set({ page: undefined, transactions: [] }),
 }));

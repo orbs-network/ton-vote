@@ -3,36 +3,34 @@ import { Container } from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { fromUnixToString } from "utils";
-import { useProposalInfoQuery } from "queries/queries";
+import { useProposalInfoQuery } from "queries";
 
 export const InformationLayout = () => {
-  const proposalInformation = useProposalInfoQuery().data;
+  const { data: proposalInfo, isLoading } = useProposalInfoQuery();
 
   
     return (
       <StyledInformation
         title="Information"
         loaderAmount={3}
-        loading={!proposalInformation}
+        loading={isLoading}
       >
-        {proposalInformation && (
+        {proposalInfo && (
           <StyledFlexColumn gap={12}>
             <InformationRow label="Start date">
               <Typography>
-                {fromUnixToString(Number(proposalInformation.startDate))}
+                {fromUnixToString(Number(proposalInfo.startDate))}
               </Typography>
             </InformationRow>
             <InformationRow label="End date">
               <Typography>
-                {fromUnixToString(Number(proposalInformation.endDate))}
+                {fromUnixToString(Number(proposalInfo.endDate))}
               </Typography>
             </InformationRow>
 
             <InformationRow label="Snapshot">
               <Typography>
-                {fromUnixToString(
-                  Number(proposalInformation.snapshot.snapshotTime)
-                )}
+                {fromUnixToString(Number(proposalInfo.snapshot.snapshotTime))}
               </Typography>
             </InformationRow>
           </StyledFlexColumn>

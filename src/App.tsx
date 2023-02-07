@@ -11,7 +11,7 @@ import {
   Footer,
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
-import { useDataUpdaters } from "queries/queries";
+import { useDataUpdaters } from "queries";
 import { useEffect } from "react";
 import { useEagerlyConnect, useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
