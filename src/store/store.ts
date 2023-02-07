@@ -4,9 +4,10 @@ import { TonConnection } from "@ton-defi.org/ton-connection";
 import { PAGE_SIZE } from "config";
 import {
   ClientsState,
+  DataUpdaterStore,
   EndpointState,
-  MaxLtState,
   PersistedState,
+  TransactionsState,
   VotesPaginationState,
   VoteState,
   WalletState,
@@ -14,17 +15,36 @@ import {
 export const usePersistedStore = create(
   persist<PersistedState>(
     (set) => ({
-      onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) =>
-        set({ clientV2Endpoint, clientV4Endpoint, apiKey }),
+      maxLt: undefined,
+      setMaxLt: (maxLt) => set({ maxLt }),
+      clearMaxLt: () => set({ maxLt: undefined }),
+      serverDisabled: false,
+      disableServer: (serverDisabled) => set({ serverDisabled }),
+      isCustomEndpoints: false,
+      onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) => {
+        set({
+          clientV2Endpoint,
+          clientV4Endpoint,
+          apiKey,
+          isCustomEndpoints: !!clientV2Endpoint,
+        });
+      },
     }),
     {
-      name: "ton_vote_custom_endpoints", // name of the item in the storage (must be unique)
+      name: "ton_vote_persisted_store", // name of the item in the storage (must be unique)
     }
   )
 );
 
 export const useClientStore = create<ClientsState>((set, get) => ({
   setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
+}));
+
+export const useDataUpdaterStore = create<DataUpdaterStore>((set, get) => ({
+  reset: () => set({ timestamp: 0, stateUpdateTime: 0 }),
+  setTimestamp: (timestamp) => set({ timestamp }),
+  stateUpdateTime: 0,
+  setStateUpdateTime: (stateUpdateTime) => set({ stateUpdateTime }),
 }));
 
 export const useEndpointsStore = create<EndpointState>((set, get) => ({
@@ -52,22 +72,29 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   },
 }));
 
-export const useMaxLtStore = create<MaxLtState>((set, get) => ({
-  setMaxLt: (maxLt) => set({ maxLt }),
-  maxLt: undefined,
-  reset: () => set({ maxLt: undefined }),
-}));
-
-export const useVotesPaginationStore = create<VotesPaginationState>((set, get) => ({
-  limit: PAGE_SIZE,
-  loadMore: (amount = PAGE_SIZE) => set({ limit: get().limit + amount }),
-  reset: () => set({ limit: PAGE_SIZE }),
-}));
-
-
+export const useVotesPaginationStore = create<VotesPaginationState>(
+  (set, get) => ({
+    limit: PAGE_SIZE,
+    loadMore: (amount = PAGE_SIZE) => set({ limit: get().limit + amount }),
+    reset: () => set({ limit: PAGE_SIZE }),
+  })
+);
 
 export const useVoteStore = create<VoteState>((set, get) => ({
   vote: "",
   setVote: (vote) => set({ vote }),
-  reset: () => set({ vote: '' }),
+  reset: () => set({ vote: "" }),
+}));
+
+export const useTransactionsStore = create<TransactionsState>((set, get) => ({
+  page: undefined,
+  transactions: [],
+  setPage: (page) => set({ page }),
+  addTransactions: (newTransactions) => {
+    const transactions = get().transactions;
+    transactions.unshift(...newTransactions);
+    set({ transactions });
+    return transactions;
+  },
+  reset: () => set({ page: undefined, transactions: [] }),
 }));

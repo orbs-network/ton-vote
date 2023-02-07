@@ -4,9 +4,9 @@ import { Container, Button, TxReminderPopup, ConnectButton } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useDataQuery, useSendTransaction } from "queries";
 import { useVoteStore, useWalletAddress } from "store";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
+import { useIsVoteEnded, useSendTransaction } from "queries";
 
 export function VoteLayout() {
   const { vote, setVote } = useVoteStore();
@@ -17,6 +17,12 @@ export function VoteLayout() {
   useEffect(() => {
     setShowModal(isLoading);
   }, [isLoading]);
+
+  const onSubmit = () => {
+    mutate({
+      value: vote as any,
+    });
+  };
 
   return (
     <StyledContainer title="Vote">
@@ -38,22 +44,12 @@ export function VoteLayout() {
           );
         })}
       </StyledFlexColumn>
+      <VoteButton
+        isLoading={isLoading}
+        disabled={!vote || isLoading}
+        onSubmit={onSubmit}
+      />
 
-      {walletAddress ? (
-        <StyledVoteButton
-          onClick={() =>
-            mutate({
-              value: vote as any,
-            })
-          }
-          isLoading={isLoading}
-          disabled={!vote || isLoading}
-        >
-          Vote
-        </StyledVoteButton>
-      ) : (
-        <StyledConnectButton text="Vote" />
-      )}
       <TxReminderPopup
         text={txApproved ? TX_APPROVED_AND_PENDING : APPROVE_TX}
         open={showModal}
@@ -62,6 +58,38 @@ export function VoteLayout() {
     </StyledContainer>
   );
 }
+
+const VoteButton = ({
+  onSubmit,
+  isLoading,
+  disabled,
+}: {
+  onSubmit: () => void;
+  isLoading: boolean;
+  disabled: boolean;
+}) => {
+  const voteEnded = useIsVoteEnded();
+  const walletAddress = useWalletAddress();
+
+  if (!walletAddress) {
+    return <StyledConnectButton text="Connect wallet" />;
+  }
+
+  if (voteEnded) {
+    return <StyledVoteButton disabled={true}>Vote ended</StyledVoteButton>;
+  }
+
+  return (
+    <StyledVoteButton
+      onClick={onSubmit}
+      isLoading={isLoading}
+      disabled={disabled}
+    >
+      Vote
+    </StyledVoteButton>
+  );
+};
+
 const StyledVoteButton = styled(Button)({
   marginTop: 20,
   width: "100%",

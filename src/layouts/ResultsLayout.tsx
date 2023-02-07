@@ -1,22 +1,20 @@
 import { Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { Container, Progress } from "components";
-import { useDataQuery } from "queries";
+import { useStateQuery } from "queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
 export const ResultsLayout = () => {
-  const currectResults = useDataQuery().data?.currentResults
-  
+  const { data, isLoading } = useStateQuery();
+  const results = data?.proposalResults;
 
   return (
-    <StyledResults title="Results" loaderAmount={3} loading={!currectResults}>
-      {currectResults && (
-        <StyledFlexColumn>
-          <ResultRow name="Yes" percent={currectResults?.yes || 0} />
-          <ResultRow name="No" percent={currectResults?.no || 0} />
-          <ResultRow name="Abstain" percent={currectResults?.abstain || 0} />
-        </StyledFlexColumn>
-      )}
+    <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
+      <StyledFlexColumn>
+        <ResultRow name="Yes" percent={results?.yes || 0} />
+        <ResultRow name="No" percent={results?.no || 0} />
+        <ResultRow name="Abstain" percent={results?.abstain || 0} />
+      </StyledFlexColumn>
     </StyledResults>
   );
 };

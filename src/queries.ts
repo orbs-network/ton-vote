@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "api";
 import {
-  TRANSACTIONS_DATA_REFECTH_INTERVAL,
+  LAST_FETCH_UPDATE_LIMIT,
+  STATE_REFETCH_INTERVAL,
   TX_FEE,
-  voteOptions,
 } from "config";
 import {
   getAllVotes,
@@ -11,248 +12,290 @@ import {
   getTransactions,
   getVotingPower,
 } from "contracts-api/logic";
+import { useWalletVote } from "hooks";
 import _ from "lodash";
-import { useState } from "react";
+import moment from "moment";
+import { useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import {
-  useClients,
-  useConnection,
-  useMaxLtStore,
+  useClient,
   useSetEndpointPopup,
-  useVoteStore,
+  usePersistedStore,
   useWalletAddress,
+  useConnection,
+  useVotesPaginationStore,
+  useTransactionsStore,
+  useDataUpdaterStore,
 } from "store";
 import { Address, Cell, CommentMessage, fromNano, toNano } from "ton";
 import {
-  Data,
-  GetTransactionsPayload,
-  Provider,
   QueryKeys,
-  Results,
-  Transaction,
+  GetTransactionsPayload,
   Vote,
   VotingPower,
+  RawVotes,
+  RawVote,
+  GetState,
+  ProposalInfo,
+  Provider,
+  Transaction,
 } from "types";
-import {
-  getAdapterName,
-  sortVotesByConnectedWallet,
-  waitForSeqno,
-} from "utils";
-import { votingContract } from "contracts-api/address";
+import { getAdapterName, Logger, parseVotes, waitForSeqno } from "utils";
 
-export const useGetTransactionsQuery = () => {
-  const { clientV2, clientV4 } = useClients();
-  const { toggleError } = useSetEndpointPopup();
-  const { refetch } = useDataQuery();
-  const { addToList } = useTransactionsList();
-  const { maxLt, setMaxLt } = useMaxLtStore();
 
-  return useQuery(
-    [QueryKeys.GET_TRANSACTIONS, maxLt],
-    async () => {
-      const result: GetTransactionsPayload = await getTransactions(
-        clientV2,
-        // @ts-ignore
-        maxLt
-      );
-      if (result.allTxns.length > 0) {
-        addToList(result.allTxns);
-        refetch();
-      }
-
-      return result;
-    },
-    {
-      staleTime: Infinity,
-      enabled: !!clientV2 && !!clientV4,
-      refetchInterval: TRANSACTIONS_DATA_REFECTH_INTERVAL,
-      onError: () => {
-        toggleError(true);
-      },
-      onSuccess: (data) => {
-        setMaxLt(data.maxLt);
-      },
-    }
-  );
-};
-
-const useTransactionsList = () => {
+const useGetStateFromServer = () => {
   const queryClient = useQueryClient();
+  const handleWalletVote = useWalletVote();
 
-  const getList = (): Transaction[] => {
-    return queryClient.getQueryData([QueryKeys.TRANSACTIONS]) || [];
-  };
 
-  const addToList = (transactions: Transaction[]) => {
-    const list = getList();
-    list.unshift(...transactions);
-    queryClient.setQueryData([QueryKeys.TRANSACTIONS], list);
-    return list;
-  };
 
-  const clearList = () => {
-    queryClient.setQueryData([QueryKeys.TRANSACTIONS], []);
-  };
-  return {
-    getList,
-    addToList,
-    clearList,
-  };
-};
-
-export const useResetQueries = () => {
-  const queryClient = useQueryClient();
-
-  return () => {
-    queryClient.resetQueries();
-  };
-};
-
-export const useDataQuery = () => {
-  const queryClient = useQueryClient();
-  const { clientV2, clientV4 } = useClients();
-  const walletAddress = useWalletAddress();
-  const { toggleError } = useSetEndpointPopup();
-  const { getList } = useTransactionsList();
-  const { getData } = useData();
-  const sortVotes = useSortVotes();
-
-  return useQuery(
-    [QueryKeys.DATA],
-    async () => {
-      const transactions = getList();
-
-      if (!transactions.length) {
-        return {
-          votingPower: undefined,
-          currentResults: undefined,
-          votes: undefined,
-        };
-      }
-      const proposalInfo = await queryClient.ensureQueryData({
-        queryKey: [QueryKeys.PROPOSAL_INFO],
-        queryFn: () => getProposalInfo(clientV2, clientV4),
-      });
-
-      const votingPower: VotingPower = await getVotingPower(
-        clientV4,
-        proposalInfo,
-        transactions,
-        getData()?.votingPower
-      );
-
-      const currentResults: Results = getCurrentResults(
-        transactions,
-        votingPower,
-        proposalInfo
-      );
-
-      const votes: Vote[] = _.map(
-        getAllVotes(transactions, proposalInfo) || {},
-        (v: any, key) => {
-          const _votingPower = votingPower[key];
-
-          return {
-            address: key,
-            vote: v.vote,
-            votingPower: _votingPower ? fromNano(_votingPower) : "0",
-            timestamp: v.timestamp,
-          };
-        }
-      );
-
-      return {
-        votingPower,
-        currentResults,
-        votes: sortVotes(votes, walletAddress),
-      };
-    },
-    {
-      onError: () => {
-        toggleError(true);
-      },
-      staleTime: Infinity,
-      cacheTime: Infinity,
-      enabled: false,
-    }
-  );
-};
-
-export const useData = () => {
-  const queryClient = useQueryClient();
-  const getData = (): Data | undefined => {
-    return queryClient.getQueryData([QueryKeys.DATA]);
-  };
-  const setData = (data: Data) => {
-    return queryClient.setQueryData([QueryKeys.DATA], (old: Data | undefined = {}) => {
-      return {
-        ...old,
-        data,
-      };
+  return async (): Promise<GetState> => {
+    const state = await api.getState();
+    await queryClient.ensureQueryData({
+      queryKey: [QueryKeys.PROPOSAL_INFO],
+      queryFn: () => api.getProposalInfo(),
     });
-  };
 
-  return {
-    getData,
-    setData,
+    const sortedVotes = parseVotes(state.votes, state.votingPower);
+
+    return {
+      votes: handleWalletVote(sortedVotes),
+      proposalResults: state.proposalResults,
+      votingPower: state.votingPower,
+    };
   };
 };
 
-export const useSortVotes = () => {
-  const { vote, setVote } = useVoteStore();
+export const useGetStateFromContract = () => {
+  const { clientV2, clientV4 } = useClient();
+  const queryClient = useQueryClient();
+  const contractAddress = useContractAddressQuery().data;
+  const handleWalletVote = useWalletVote();
 
-  return (votes: Vote[], address?: string) => {
-    if (!address) {
-      return votes;
-    }
-    const { sortedVotes, connectedAddressVote } = sortVotesByConnectedWallet(
-      votes,
-      address
+  const { getStateData } = useDataFromQueryClient();
+
+  return async (transactions: Transaction[]): Promise<GetState> => {
+    const proposalInfo = await queryClient.ensureQueryData({
+      queryKey: [QueryKeys.PROPOSAL_INFO],
+      queryFn: () => getProposalInfo(clientV2, clientV4, contractAddress),
+    });
+
+    const votingPower = await getVotingPower(
+      clientV4,
+      proposalInfo,
+      transactions,
+      getStateData()?.votingPower
     );
-    if (!vote && connectedAddressVote) {
-      const vote = voteOptions.find(
-        (it) => it.name === connectedAddressVote.vote
-      );
-      setVote(vote?.value);
-    }
 
-    return sortedVotes;
+    const proposalResults = getCurrentResults(
+      transactions,
+      votingPower,
+      proposalInfo
+    );
+    const rawVotes = getAllVotes(transactions, proposalInfo) as RawVotes;
+
+    const sortedVotes = parseVotes(rawVotes, votingPower);
+
+    return {
+      votes: handleWalletVote(sortedVotes),
+      proposalResults,
+      votingPower,
+    };
   };
+};
+
+export const useStateQuery = () => {
+  const { clientV2, clientV4 } = useClient();
+  const { toggleError } = useSetEndpointPopup();
+  const getStateFromServerFn = useGetStateFromServer();
+  const getStateFromContractFn = useGetStateFromContract();
+  const contractAddress = useContractAddressQuery().data;
+  const { page, addTransactions, setPage } = useTransactionsStore();
+  const { stateUpdateTime, setStateUpdateTime } = useDataUpdaterStore();
+  const fetchFromServer = useIsFetchFromServer();
+  const { getStateData } = useDataFromQueryClient();
+  const { maxLt, clearMaxLt } = usePersistedStore();
+
+  return useQuery(
+    [QueryKeys.STATE],
+    async () => {
+      const getServerState = async () => {
+        Logger("Fetching from server");
+        const newStateUpdateTime = await api.getStateUpdateTime();
+        // if new state update time is not equal to prev state update time, trigger fetch from server
+        if (stateUpdateTime === newStateUpdateTime) {
+          return getStateData();
+        }
+
+        setStateUpdateTime(newStateUpdateTime);
+        return getStateFromServerFn();
+      };
+
+      const getContractState = async () => {
+        Logger("Fetching from contract");
+        const result: GetTransactionsPayload = await getTransactions(
+          clientV2,
+          contractAddress,
+          page
+        );
+
+        if (result.allTxns.length === 0) {
+          return getStateData();
+        }
+        const transactions = addTransactions(result.allTxns) || [];
+
+        setPage(result.maxLt);
+        return getStateFromContractFn(transactions);
+      };
+
+      if (!fetchFromServer) {
+        return getContractState();
+      }
+      if (!maxLt) {
+        return getServerState();
+      }
+      const serverState = await api.getState();
+
+      if (Number(serverState.maxLt) < Number(maxLt || "0")) {
+        Logger(
+          `server is outdated, fetching from contract server maxLt:${serverState.maxLt} currentMaxLt:${maxLt}`
+        );
+        return getContractState();
+      }
+      Logger(
+        `server is up to date, fetching from server matLt:${serverState.maxLt} currentMaxLt:${maxLt}`
+      );
+      clearMaxLt();
+
+      return getServerState();
+    },
+    {
+      onError: () => toggleError(true),
+      refetchInterval: STATE_REFETCH_INTERVAL,
+      enabled: !!clientV2 && !!clientV4 && !!contractAddress,
+      staleTime: Infinity,
+    }
+  );
+};
+
+export const useDataFromQueryClient = () => {
+  const queryClient = useQueryClient();
+  const getStateData = (): GetState | undefined => {
+    return queryClient.getQueryData([QueryKeys.STATE]);
+  };
+
+  const setStateData = (newData: GetState) => {
+    queryClient.setQueryData<GetState | undefined>(
+      [QueryKeys.STATE],
+      (oldData) => {
+        return oldData ? { ...oldData, ...newData } : newData;
+      }
+    );
+  };
+
+  return {
+    getStateData,
+    setStateData,
+  };
+};
+
+export const useContractAddressQuery = () => {
+  return useQuery(
+    [QueryKeys.CONTRACT_ADDRESS],
+    () => api.getContractAddress(),
+    {
+      staleTime: Infinity,
+    }
+  );
 };
 
 export const useProposalInfoQuery = () => {
-  const { clientV2, clientV4 } = useClients();
+  return useQuery<ProposalInfo | undefined>([QueryKeys.PROPOSAL_INFO], {
+    staleTime: Infinity,
+    enabled: false,
+  });
+};
+
+const useIsFetchFromServer = () => {
+  const { serverDisabled, isCustomEndpoints } = usePersistedStore();
+
+  if (serverDisabled || isCustomEndpoints) {
+    return false;
+  }
+
+  return true;
+};
+
+export const useServerHealthCheckQuery = () => {
+  const { disableServer, isCustomEndpoints } = usePersistedStore();
   return useQuery(
-    [QueryKeys.PROPOSAL_INFO],
-    () => getProposalInfo(clientV2, clientV4),
+    [QueryKeys.SERVER_HEALTH_CHECK],
+    async () => {
+      const lastFetchUpdate = await api.getLastFetchUpdate();
+      disableServer(
+        moment().valueOf() - lastFetchUpdate > LAST_FETCH_UPDATE_LIMIT
+      );
+
+      return null;
+    },
     {
-      enabled: !!clientV2 && !!clientV4,
-      staleTime: Infinity,
+      enabled: !isCustomEndpoints,
     }
   );
 };
 
+export const useDataUpdaters = () => {
+  useServerHealthCheckQuery();
+};
+
+const useOnVoteCallback = () => {
+  const getStateFromContract = useGetStateFromContract();
+  const { loadMore } = useVotesPaginationStore();
+  const clientV2 = useClient().clientV2;
+  const contractAddress = useContractAddressQuery().data;
+  const { setStateData, getStateData } = useDataFromQueryClient();
+  const { setMaxLt } = usePersistedStore();
+  return useMutation(
+    async () => {
+      Logger("fetching data from contract after transaction");
+      const transactions = await getTransactions(clientV2, contractAddress);
+      const state = await getStateFromContract(transactions.allTxns);
+      return {
+        maxLt: transactions.maxLt,
+        state,
+      };
+    },
+    {
+      onSuccess: ({ maxLt, state }) => {
+        const currentVotesLength = getStateData()?.votes.length || 0;
+        const newVotesLength = state.votes.length || 0;
+        loadMore(newVotesLength - currentVotesLength);
+        const newData: GetState = {
+          proposalResults: state.proposalResults,
+          votes: state.votes,
+          votingPower: state.votingPower,
+        };
+        setMaxLt(maxLt);
+        setStateData(newData);
+      },
+    }
+  );
+};
 
 export const useSendTransaction = () => {
   const connection = useConnection();
   const address = useWalletAddress();
-  const { clientV2 } = useClients();
+  const clientV2 = useClient().clientV2;
   const [txApproved, setTxApproved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const {refetch} = useGetTransactionsQuery();
+  const { mutateAsync: onVoteFinished } = useOnVoteCallback();
+
+  const contractAddress = useContractAddressQuery().data;
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
+      if (!contractAddress) return;
       const cell = new Cell();
       new CommentMessage(value).writeTo(cell);
-
-      const onSuccess = async () => {
-        setTxApproved(true);
-        await waiter();
-        await refetch();
-        setTxApproved(false);
-        setIsLoading(false);
-      };
-
       setIsLoading(true);
 
       const waiter = await waitForSeqno(
@@ -260,11 +303,18 @@ export const useSendTransaction = () => {
           source: Address.parse(address!),
         })
       );
-      const isExtension = getAdapterName() === Provider.EXTENSION;
 
-      if (isMobile || isExtension) {
+      const onSuccess = async () => {
+        setTxApproved(true);
+        await waiter();
+        await onVoteFinished();
+        setTxApproved(false);
+        setIsLoading(false);
+      };
+
+      if (isMobile || getAdapterName() === Provider.EXTENSION) {
         await connection?.requestTransaction({
-          to: votingContract,
+          to: Address.parse(contractAddress),
           value: toNano(TX_FEE),
           message: cell,
         });
@@ -272,7 +322,7 @@ export const useSendTransaction = () => {
       } else {
         await connection?.requestTransaction(
           {
-            to: votingContract,
+            to: Address.parse(contractAddress),
             value: toNano(TX_FEE),
             message: cell,
           },
@@ -293,4 +343,15 @@ export const useSendTransaction = () => {
     txApproved,
     isLoading,
   };
+};
+
+export const useIsVoteEnded = () => {
+  const endDate = useProposalInfoQuery().data?.endDate;
+
+  return useMemo(() => {
+    if (!endDate) {
+      return false;
+    }
+    return moment.unix(Number(endDate)).utc().valueOf() < moment().valueOf();
+  }, [endDate]);
 };

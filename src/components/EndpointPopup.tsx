@@ -7,19 +7,23 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
-import { useCustomEndpoints, useSetEndpointPopup, useUpdateEndpoints } from "store";
+import {
+  usePersistedStore,
+  useSetEndpointPopup,
+  useUpdateEndpoints,
+} from "store";
 
 const { clientV2, apiKey, clientV4 } = ENDPOINT_INPUTS;
 
 export function EndpointPopup() {
-  const customEndpointsStore = useCustomEndpoints();
+  const store = usePersistedStore();
   const { validate, errors, clearError } = useValidation();
   const [customEndopointsSelected, setCustomEndopointsSelected] =
     useState(false);
   const [values, setValues] = useState({
-    [clientV2.name]: customEndpointsStore.clientV2Endpoint || clientV2.defaut,
-    [apiKey.name]: customEndpointsStore.apiKey || apiKey.default,
-    [clientV4.name]: customEndpointsStore.clientV4Endpoint || clientV4.defaut,
+    [clientV2.name]: store.clientV2Endpoint || clientV2.defaut,
+    [apiKey.name]: store.apiKey || apiKey.default,
+    [clientV4.name]: store.clientV4Endpoint || clientV4.defaut,
   });
 
   const { mutateAsync, isLoading } = useUpdateEndpoints();
@@ -32,14 +36,9 @@ export function EndpointPopup() {
 
   useEffect(() => {
     setCustomEndopointsSelected(
-      !!customEndpointsStore.clientV2Endpoint ||
-        !!customEndpointsStore.clientV4Endpoint
+      !!store.clientV2Endpoint || !!store.clientV4Endpoint
     );
-  }, [
-    customEndpointsStore.clientV2Endpoint,
-    customEndpointsStore.clientV4Endpoint,
-    show,
-  ]);
+  }, [store.clientV2Endpoint, store.clientV4Endpoint, show]);
 
   const onUpdate = (name: string, value: string) => {
     setValues((prevState) => {
