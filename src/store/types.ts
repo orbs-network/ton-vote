@@ -30,6 +30,8 @@ export interface DataUpdaterStore {
   setTimestamp: (value: number) => void;
   stateUpdateTime: number;
   setStateUpdateTime: (value: number) => void;
+  setMaxLt: (value?: string) => void;
+  maxLt?: string;
 }
 
 export interface EndpointState {
@@ -45,6 +47,8 @@ export interface WalletState {
   setTonConnectionProvider: (provider: TonWalletProvider) => void;
   connection?: TonConnection;
   reset: () => void;
+  txLoading: boolean;
+  setTxLoading:(value: boolean) => void;
 }
 
 export interface VotesPaginationState {

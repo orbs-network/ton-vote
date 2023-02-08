@@ -5,7 +5,6 @@ import {
   TonhubProvider,
   TonkeeperProvider,
 } from "@ton-defi.org/ton-connection";
-import { useNotification } from "components";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
 import { useWalletVote } from "hooks";
@@ -15,10 +14,10 @@ import { isMobile } from "react-device-detect";
 import { WalletProvider, Provider, EndpointsArgs, QueryKeys } from "types";
 import {
   useClientStore,
-  useDataUpdaterStore,
+  useServerStore,
   useEndpointsStore,
   usePersistedStore,
-  useTransactionsStore,
+  useContractStore,
   useVotesPaginationStore,
   useWalletStore,
 } from "./store";
@@ -71,11 +70,10 @@ export const useUpdateEndpoints = () => {
   const queryClient = useQueryClient();
   const { onUpdate: onEndpointsUpdate } = usePersistedStore();
   const { mutateAsync: getClients } = useGetClient();
-  const resetTransactions = useTransactionsStore().reset;
+  const resetTransactions = useContractStore().reset;
   const resetVotesPagination = useVotesPaginationStore().reset;
-  const { reset: resetDataUpdater } = useDataUpdaterStore();
+  const { reset: resetDataUpdater } = useServerStore();
   const { refetch } = useStateQuery();
-  const {showNotification} = useNotification()
 
   return useMutation(async (args?: EndpointsArgs) => {
     resetTransactions();
@@ -104,6 +102,16 @@ export const useConnection = () => {
 
 export const useWalletAddress = () => {
   return useWalletStore((store) => store.address);
+};
+
+export const useTxLoading = () => {
+  const txLoading =  useWalletStore((store) => store.txLoading);
+  const setTxLoading = useWalletStore((store) => store.setTxLoading);
+
+  return {
+    txLoading,
+    setTxLoading,
+  };
 };
 
 const useOnConnectCallback = () => {

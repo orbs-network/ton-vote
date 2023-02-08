@@ -40,11 +40,12 @@ export const useClientStore = create<ClientsState>((set, get) => ({
   setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
 }));
 
-export const useDataUpdaterStore = create<DataUpdaterStore>((set, get) => ({
-  reset: () => set({ timestamp: 0, stateUpdateTime: 0 }),
+export const useServerStore = create<DataUpdaterStore>((set, get) => ({
+  reset: () => set({ timestamp: 0, stateUpdateTime: 0, maxLt: undefined }),
   setTimestamp: (timestamp) => set({ timestamp }),
   stateUpdateTime: 0,
   setStateUpdateTime: (stateUpdateTime) => set({ stateUpdateTime }),
+  setMaxLt: (maxLt) => set({ maxLt }),
 }));
 
 export const useEndpointsStore = create<EndpointState>((set, get) => ({
@@ -70,6 +71,8 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     _connection.setProvider(provider);
     set({ connection: _connection });
   },
+  txLoading: false,
+  setTxLoading: (txLoading) => set({ txLoading }),
 }));
 
 export const useVotesPaginationStore = create<VotesPaginationState>(
@@ -86,7 +89,7 @@ export const useVoteStore = create<VoteState>((set, get) => ({
   reset: () => set({ vote: "" }),
 }));
 
-export const useTransactionsStore = create<TransactionsState>((set, get) => ({
+export const useContractStore = create<TransactionsState>((set, get) => ({
   page: undefined,
   transactions: [],
   setPage: (page) => set({ page }),

@@ -27,12 +27,17 @@ const getState = async (): Promise<GetStateApiPayload> => {
   return  (await axiosInstance.get("/state")).data;
 };
 
+const getMaxLt = async (): Promise<string> => {
+  return (await axiosInstance.get("/maxLt")).data;
+};
+
 export const api = {
   getLastFetchUpdate,
   getStateUpdateTime,
   getProposalInfo,
   getState,
   getContractAddress,
+  getMaxLt,
 };
 
 

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { delay } from "@ton-defi.org/ton-connection";
 import { api } from "api";
 import { useNotification } from "components";
 import {
@@ -27,8 +28,9 @@ import {
   useWalletAddress,
   useConnection,
   useVotesPaginationStore,
-  useTransactionsStore,
-  useDataUpdaterStore,
+  useContractStore,
+  useServerStore,
+  useTxLoading,
 } from "store";
 import { Address, Cell, CommentMessage, toNano } from "ton";
 import {
@@ -37,24 +39,26 @@ import {
   RawVotes,
   GetState,
   ProposalInfo,
-  Provider,
   Transaction,
 } from "types";
-import { getAdapterName, Logger, parseVotes, waitForSeqno } from "utils";
+import { Logger, parseVotes, waitForSeqno } from "utils";
+
 
 const useGetServerState = () => {
   const queryClient = useQueryClient();
   const handleWalletVote = useWalletVote();
+  const {setMaxLt} = useServerStore();
 
   return async (): Promise<GetState> => {
     const state = await api.getState();
+    setMaxLt(state.maxLt);
+
     await queryClient.ensureQueryData({
       queryKey: [QueryKeys.PROPOSAL_INFO],
       queryFn: () => api.getProposalInfo(),
     });
 
     const sortedVotes = parseVotes(state.votes, state.votingPower);
-
     return {
       votes: handleWalletVote(sortedVotes),
       proposalResults: state.proposalResults,
@@ -107,17 +111,16 @@ export const useStateQuery = () => {
   const getServerState = useGetServerState();
   const getContractState = useGetContractState();
   const contractAddress = useContractAddressQuery().data;
-  const { page, addTransactions, setPage } = useTransactionsStore();
-  const { stateUpdateTime, setStateUpdateTime } = useDataUpdaterStore();
+  const { page, addTransactions, setPage } = useContractStore();
+  const { stateUpdateTime, setStateUpdateTime } = useServerStore();
   const fetchFromServer = useIsFetchFromServer();
   const { getStateData } = useDataFromQueryClient();
   const { maxLt, clearMaxLt } = usePersistedStore();
+  const txLoading = useTxLoading().txLoading;
 
   return useQuery(
     [QueryKeys.STATE],
     async () => {
-      console.log({ fetchFromServer });
-      
       const currentStateData = getStateData();
       const onServerState = async () => {
         Logger("Fetching from server");
@@ -142,6 +145,8 @@ export const useStateQuery = () => {
         if (result.allTxns.length === 0) {
           return currentStateData;
         }
+        console.log(result.allTxns);
+
         const transactions = addTransactions(result.allTxns) || [];
 
         setPage(result.maxLt);
@@ -154,31 +159,29 @@ export const useStateQuery = () => {
       if (!maxLt) {
         return onServerState();
       }
-      const serverState = await api.getState();
+      const serverMaxLt = await api.getMaxLt();
 
-      if (Number(serverState.maxLt) < Number(maxLt || "0")) {
+      if (Number(serverMaxLt) >= Number(maxLt || "0")) {
         Logger(
-          `server is outdated, fetching from contract server maxLt:${serverState.maxLt} currentMaxLt:${maxLt}`
+          `server is up to date, fetching from server matLt:${serverMaxLt} currentMaxLt:${maxLt}`
         );
-        return onContractState();
+        clearMaxLt();
+
+        return onServerState();
       }
       Logger(
-        `server is up to date, fetching from server matLt:${serverState.maxLt} currentMaxLt:${maxLt}`
+        `server is outdated, fetching from contract server maxLt:${serverMaxLt} currentMaxLt:${maxLt}`
       );
-      clearMaxLt();
-
-      return onServerState();
+      return onContractState();
     },
     {
       onError: () => toggleError(true),
       refetchInterval: STATE_REFETCH_INTERVAL,
-      enabled: !!clientV2 && !!clientV4 && !!contractAddress,
+      enabled: !!clientV2 && !!clientV4 && !!contractAddress && !txLoading,
       staleTime: Infinity,
     }
   );
 };
-
-
 
 export const useDataFromQueryClient = () => {
   const queryClient = useQueryClient();
@@ -218,9 +221,9 @@ export const useProposalInfoQuery = () => {
   });
 };
 
-const useIsFetchFromServer = () => {
+export const useIsFetchFromServer = () => {
   const { serverDisabled, isCustomEndpoints } = usePersistedStore();
-  
+
   if (serverDisabled || isCustomEndpoints) {
     return false;
   }
@@ -246,12 +249,8 @@ export const useServerHealthCheckQuery = () => {
   );
 };
 
-export const useDataUpdaters = () => {
-  useServerHealthCheckQuery();
-};
-
 const useOnVoteCallback = () => {
-  const getStateFromContract = useGetContractState();
+  const getContractState = useGetContractState();
   const { loadMore } = useVotesPaginationStore();
   const clientV2 = useClient().clientV2;
   const contractAddress = useContractAddressQuery().data;
@@ -261,7 +260,7 @@ const useOnVoteCallback = () => {
     async () => {
       Logger("fetching data from contract after transaction");
       const transactions = await getTransactions(clientV2, contractAddress);
-      const state = await getStateFromContract(transactions.allTxns);
+      const state = await getContractState(transactions.allTxns);
       return {
         maxLt: transactions.maxLt,
         state,
@@ -289,9 +288,9 @@ export const useSendTransaction = () => {
   const address = useWalletAddress();
   const clientV2 = useClient().clientV2;
   const [txApproved, setTxApproved] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: onVoteFinished } = useOnVoteCallback();
   const { showNotification } = useNotification();
+  const { txLoading, setTxLoading } = useTxLoading();
 
   const contractAddress = useContractAddressQuery().data;
   const query = useMutation(
@@ -299,7 +298,7 @@ export const useSendTransaction = () => {
       if (!contractAddress) return;
       const cell = new Cell();
       new CommentMessage(value).writeTo(cell);
-      setIsLoading(true);
+      setTxLoading(true);
 
       const waiter = await waitForSeqno(
         clientV2!.openWalletFromAddress({
@@ -312,14 +311,14 @@ export const useSendTransaction = () => {
         await waiter();
         await onVoteFinished();
         setTxApproved(false);
-        setIsLoading(false);
+        setTxLoading(false);
         showNotification({
           variant: "success",
           message: TX_SUBMIT_SUCCESS_TEXT,
         });
       };
 
-      if (isMobile || getAdapterName() === Provider.EXTENSION) {
+      if (isMobile) {
         await connection?.requestTransaction({
           to: Address.parse(contractAddress),
           value: toNano(TX_FEE),
@@ -339,7 +338,7 @@ export const useSendTransaction = () => {
     },
     {
       onError: () => {
-        setIsLoading(false);
+        setTxLoading(false);
         setTxApproved(false);
         showNotification({ variant: "error", message: TX_SUBMIT_ERROR_TEXT });
       },
@@ -349,6 +348,6 @@ export const useSendTransaction = () => {
   return {
     ...query,
     txApproved,
-    isLoading,
+    isLoading: txLoading,
   };
 };
