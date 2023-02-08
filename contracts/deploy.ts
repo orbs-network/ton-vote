@@ -2,7 +2,7 @@ import { waitForContractToBeDeployed, sleep, initWallet, initDeployKey } from ".
 import { CommonMessageInfo, TonClient, toNano, StateInit, InternalMessage} from "ton";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import {Proposal} from "./proposal";
-import {START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH, INACTIVE_ADDRESSES} from "./config";
+import {START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH} from "./config";
 import * as process from "process";
 
 const NOMINATOR_MIN_TON = 0.1;
@@ -12,8 +12,8 @@ async function deploy() {
 
 	const client = new TonClient({endpoint: await getHttpEndpoint()});
 
-	const contract = Proposal.create(START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH, INACTIVE_ADDRESSES);
-	
+	const contract = Proposal.create(START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH);
+
 	let deployWalletKey = await initDeployKey("");
 	let deployWallet = await initWallet(client, deployWalletKey.publicKey);
 

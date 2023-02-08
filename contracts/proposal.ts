@@ -1,5 +1,5 @@
 import {Address, Cell, Contract, contractAddress, ContractSource} from "ton";
-import {compileFuncToB64, createDictFromStr} from "./helpers";
+import {compileFuncToB64} from "./helpers";
 
 
 export class Proposal implements Contract {
@@ -12,7 +12,7 @@ export class Proposal implements Contract {
         this.address = contractAddress({initialCode: initialCode, initialData: initialData, workchain: workchain});
     }
 
-    static create(start_time: number, end_time: number, snapshot_time: number, frozen_addresses: string [], workchain = 0) {
+    static create(start_time: number, end_time: number, snapshot_time: number, workchain = 0) {
         
         // Build initial code and data
         let initialCode = this.getCode()[0];
@@ -20,8 +20,6 @@ export class Proposal implements Contract {
         initialData.bits.writeUint(start_time, 64);
         initialData.bits.writeUint(end_time, 64);
         initialData.bits.writeUint(snapshot_time, 64);
-        let ref = createDictFromStr(frozen_addresses.join(', '));
-        initialData.withReference(ref);
 
         return new Proposal(initialCode, initialData, workchain);
     }
