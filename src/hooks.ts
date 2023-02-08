@@ -5,9 +5,15 @@ import {
   getVotingPower,
 } from "contracts-api/logic";
 import moment from "moment";
-import { useProposalInfoQuery } from "queries";
+import { useDataFromQueryClient, useProposalInfoQuery } from "queries";
 import { useMemo } from "react";
-import { useClientStore, useConnectionStore, useVoteStore } from "store";
+import {
+  useClientStore,
+  useConnectionStore,
+  usePersistedStore,
+  useServerStore,
+  useVoteStore,
+} from "store";
 import { ProposalInfo, RawVotes, Transaction, Vote, VotingPower } from "types";
 import { parseVotes } from "utils";
 

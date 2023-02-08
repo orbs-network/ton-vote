@@ -5,7 +5,6 @@ import { Button, Container, Progress } from "components";
 import {
   getTransactions,
   filterTxByTimestamp,
-  getCurrentResults,
 } from "contracts-api/logic";
 import {
   useContractAddressQuery,
@@ -23,12 +22,16 @@ export const ResultsLayout = () => {
   const results = data?.proposalResults;
 
   return (
-    <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
+    <StyledResults
+      title="Results"
+      loaderAmount={3}
+      loading={isLoading}
+      headerChildren={<VerifyResults />}
+    >
       <StyledFlexColumn>
         <ResultRow name="Yes" percent={results?.yes || 0} />
         <ResultRow name="No" percent={results?.no || 0} />
         <ResultRow name="Abstain" percent={results?.abstain || 0} />
-        <VerifyResults />
       </StyledFlexColumn>
     </StyledResults>
   );
@@ -121,7 +124,7 @@ export function VerifyResults() {
 }
 
 const StyledVerifyContainer = styled(StyledFlexRow)({
-  marginTop: 30,
+  width:'fit-content'
 });
 
 const StyledVerified = styled(StyledVerifyContainer)(({ theme }) => ({
@@ -131,8 +134,14 @@ const StyledVerified = styled(StyledVerifyContainer)(({ theme }) => ({
 }));
 
 const StyledVerifyButton = styled(Button)({
-  maxWidth: 200,
-  width: "100%",
+  height: 32,
+  "*":{
+    fontSize: 15
+  },
+  ".loader":{
+    maxWidth:20,
+    maxHeight: 20
+  }
 });
 
 const StyledVerifiedButton = styled(StyledVerifyButton)({
