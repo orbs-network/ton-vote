@@ -4,16 +4,15 @@ import { Container, Button, TxReminderPopup, ConnectButton } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useVoteStore, useWalletAddress } from "store";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
 import {  useSendTransaction } from "queries";
 import { useIsVoteEnded } from "hooks";
+import { useConnectionStore, useVoteStore } from "store";
 
 export function VoteLayout() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();
-  const walletAddress = useWalletAddress();
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -70,7 +69,7 @@ const VoteButton = ({
   disabled: boolean;
 }) => {
   const voteEnded = useIsVoteEnded();
-  const walletAddress = useWalletAddress();
+  const walletAddress = useConnectionStore().address;
 
   if (!walletAddress) {
     return <StyledConnectButton text="Connect wallet" />;

@@ -19,12 +19,12 @@ export const InformationLayout = () => {
           <StyledFlexColumn gap={12}>
             <InformationRow label="Start date">
               <Typography>
-                {fromUnixToString(Number(proposalInfo.startDate))}
+                {fromUnixToString(Number(proposalInfo.startTime))}
               </Typography>
             </InformationRow>
             <InformationRow label="End date">
               <Typography>
-                {fromUnixToString(Number(proposalInfo.endDate))}
+                {fromUnixToString(Number(proposalInfo.endTime))}
               </Typography>
             </InformationRow>
 

@@ -2,11 +2,21 @@ import { Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
-import { getTransactions, filterTxByTimestamp } from "contracts-api/logic";
-import { useContractAddressQuery, useGetContractState, useIsFetchFromServer, useStateQuery } from "queries";
-import { useClient, useContractStore, useServerStore } from "store";
+import {
+  getTransactions,
+  filterTxByTimestamp,
+  getCurrentResults,
+} from "contracts-api/logic";
+import {
+  useContractAddressQuery,
+  useIsFetchFromServer,
+  useProposalInfoQuery,
+  useStateQuery,
+} from "queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import {BsFillCheckCircleFill} from 'react-icons/bs'
+import { BsFillCheckCircleFill } from "react-icons/bs";
+import { useClientStore, useContractStore, useServerStore } from "store";
+import { useGetContractState } from "hooks";
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
@@ -54,29 +64,28 @@ const StyledResults = styled(Container)({
   width: "100%",
 });
 
-
-
 const useVerify = () => {
   const currentResults = useStateQuery().data?.proposalResults;
-  const getContractState = useGetContractState();
-  const clientV2 = useClient().clientV2;
+  const proposalInfo = useProposalInfoQuery().data;
+  const clientV2 = useClientStore().clientV2;
   const contractAddress = useContractAddressQuery().data;
-  const { page: contractMaxLt } = useContractStore();
+  const contractMaxLt = useContractStore().contractMaxLt;
   const fetchFromServer = useIsFetchFromServer();
-  const { maxLt: serverMaxLt } = useServerStore();
+  const serverMaxLt = useServerStore().serverMaxLt;
+  const getContractState = useGetContractState();
 
   const query = useMutation(async () => {
     const result = await getTransactions(clientV2, contractAddress);
     const maxLt = fetchFromServer ? serverMaxLt : contractMaxLt;
 
-    const allTxns = filterTxByTimestamp(result.allTxns, maxLt);
-    const state = await getContractState(allTxns);
-    const results = state.proposalResults;
-
-    const yes = currentResults?.yes === results.yes;
-    const no = currentResults?.no === results.no;
-    const totalWeight = currentResults?.totalWeight === results.totalWeight;
-    const abstain = currentResults?.abstain === results.abstain;
+    const transactions = filterTxByTimestamp(result.allTxns, maxLt);
+    const contractState = await getContractState(proposalInfo!, transactions);
+    const proposalResults = contractState.proposalResults;
+    const yes = currentResults?.yes === proposalResults.yes;
+    const no = currentResults?.no === proposalResults.no;
+    const totalWeight =
+      currentResults?.totalWeight === proposalResults.totalWeight;
+    const abstain = currentResults?.abstain === proposalResults.abstain;
 
     return yes && no && abstain && totalWeight;
   });
@@ -111,14 +120,13 @@ export function VerifyResults() {
   );
 }
 
-
 const StyledVerifyContainer = styled(StyledFlexRow)({
-  marginTop: 30
-})
+  marginTop: 30,
+});
 
 const StyledVerified = styled(StyledVerifyContainer)(({ theme }) => ({
   svg: {
-    fill: 'white',
+    fill: "white",
   },
 }));
 
@@ -128,5 +136,8 @@ const StyledVerifyButton = styled(Button)({
 });
 
 const StyledVerifiedButton = styled(StyledVerifyButton)({
-  cursor:'unset'
+  cursor: "unset",
+  ".children": {
+    gap: 10,
+  },
 });

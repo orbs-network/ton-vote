@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { delay } from "@ton-defi.org/ton-connection";
 import { api } from "api";
 import { useNotification } from "components";
 import {
@@ -9,28 +8,21 @@ import {
   TX_SUBMIT_ERROR_TEXT,
   TX_SUBMIT_SUCCESS_TEXT,
 } from "config";
-import {
-  getAllVotes,
-  getCurrentResults,
-  getProposalInfo,
-  getTransactions,
-  getVotingPower,
-} from "contracts-api/logic";
-import { useWalletVote } from "hooks";
+import { getProposalInfo, getTransactions } from "contracts-api/logic";
+import { useGetContractState, useWalletVote } from "hooks";
 import _ from "lodash";
 import moment from "moment";
 import { useState } from "react";
 import { isMobile } from "react-device-detect";
 import {
-  useClient,
-  useSetEndpointPopup,
-  usePersistedStore,
-  useWalletAddress,
-  useConnection,
-  useVotesPaginationStore,
+  useClientStore,
+  useConnectionStore,
   useContractStore,
+  useEndpointStore,
+  usePersistedStore,
   useServerStore,
-  useTxLoading,
+  useTxStore,
+  useVotesPaginationStore,
 } from "store";
 import { Address, Cell, CommentMessage, toNano } from "ton";
 import {
@@ -43,114 +35,107 @@ import {
 } from "types";
 import { Logger, parseVotes, waitForSeqno } from "utils";
 
-
-const useGetServerState = () => {
-  const queryClient = useQueryClient();
+const useGetServerStateCallback = () => {
+  const { serverUpdateTime, setServerUpdateTime } = useServerStore();
   const handleWalletVote = useWalletVote();
-  const {setMaxLt} = useServerStore();
+  const setServerMaxLt = useServerStore().setServerMaxLt;
+  const queryClient = useQueryClient();
 
-  return async (): Promise<GetState> => {
+  return async () => {
+    Logger("Fetching from server");
+    const newStateUpdateTime = await api.getStateUpdateTime();
+    // if new state update time is not equal to prev state update time, trigger fetch from server
+    if (serverUpdateTime === newStateUpdateTime) {
+      return;
+    }
+
+    setServerUpdateTime(newStateUpdateTime);
     const state = await api.getState();
-    setMaxLt(state.maxLt);
+
+    setServerMaxLt(state.maxLt);
 
     await queryClient.ensureQueryData({
       queryKey: [QueryKeys.PROPOSAL_INFO],
       queryFn: () => api.getProposalInfo(),
     });
 
-    const sortedVotes = parseVotes(state.votes, state.votingPower);
+    const votes = parseVotes(state.votes, state.votingPower);
+
     return {
-      votes: handleWalletVote(sortedVotes),
+      votes: handleWalletVote(votes),
       proposalResults: state.proposalResults,
       votingPower: state.votingPower,
     };
   };
 };
 
-export const useGetContractState = () => {
-  const { clientV2, clientV4 } = useClient();
-  const queryClient = useQueryClient();
+const useGetContractStateCallback = () => {
+  const { contractMaxLt, setContractMaxLt, addContractTransactions } =
+    useContractStore();
+  const { clientV2, clientV4 } = useClientStore();
   const contractAddress = useContractAddressQuery().data;
+  const queryClient = useQueryClient();
+  const getContractState = useGetContractState();
+  const { getStateData } = useDataFromQueryClient();
   const handleWalletVote = useWalletVote();
 
-  const { getStateData } = useDataFromQueryClient();
+  return async () => {
+    Logger("Fetching from contract");
+    const result: GetTransactionsPayload = await getTransactions(
+      clientV2,
+      contractAddress,
+      contractMaxLt
+    );
+    // fetch from contract only if got new transactions
+    if (result.allTxns.length === 0) {
+      return;
+    }
 
-  return async (transactions: Transaction[]): Promise<GetState> => {
+    const transactions = addContractTransactions(result.allTxns) || [];
+
+    setContractMaxLt(result.maxLt);
     const proposalInfo = await queryClient.ensureQueryData({
       queryKey: [QueryKeys.PROPOSAL_INFO],
       queryFn: () => getProposalInfo(clientV2, clientV4, contractAddress),
     });
 
-    const votingPower = await getVotingPower(
-      clientV4,
+    const data = await getContractState(
       proposalInfo,
       transactions,
       getStateData()?.votingPower
     );
 
-    const proposalResults = getCurrentResults(
-      transactions,
-      votingPower,
-      proposalInfo
-    );
-    const rawVotes = getAllVotes(transactions, proposalInfo) as RawVotes;
-
-    const sortedVotes = parseVotes(rawVotes, votingPower);
-
     return {
-      votes: handleWalletVote(sortedVotes),
-      proposalResults,
-      votingPower,
+      votes: handleWalletVote(data.votes),
+      proposalResults: data.proposalResults,
+      votingPower: data.votingPower,
     };
   };
 };
 
 export const useStateQuery = () => {
-  const { clientV2, clientV4 } = useClient();
-  const { toggleError } = useSetEndpointPopup();
-  const getServerState = useGetServerState();
-  const getContractState = useGetContractState();
+  const { clientV2, clientV4 } = useClientStore();
+  const { setEndpointError } = useEndpointStore();
   const contractAddress = useContractAddressQuery().data;
-  const { page, addTransactions, setPage } = useContractStore();
-  const { stateUpdateTime, setStateUpdateTime } = useServerStore();
   const fetchFromServer = useIsFetchFromServer();
   const { getStateData } = useDataFromQueryClient();
   const { maxLt, clearMaxLt } = usePersistedStore();
-  const txLoading = useTxLoading().txLoading;
+  const txLoading = useTxStore().txLoading;
 
+  const getServerStateCallback = useGetServerStateCallback();
+  const getContractStateCallback = useGetContractStateCallback();
   return useQuery(
     [QueryKeys.STATE],
     async () => {
       const currentStateData = getStateData();
       const onServerState = async () => {
-        Logger("Fetching from server");
-        const newStateUpdateTime = await api.getStateUpdateTime();
-        // if new state update time is not equal to prev state update time, trigger fetch from server
-        if (stateUpdateTime === newStateUpdateTime) {
-          return currentStateData;
-        }
-
-        setStateUpdateTime(newStateUpdateTime);
-        return getServerState();
+        const data = await getServerStateCallback();
+        return data || currentStateData;
       };
 
       const onContractState = async () => {
-        Logger("Fetching from contract");
-        const result: GetTransactionsPayload = await getTransactions(
-          clientV2,
-          contractAddress,
-          page
-        );
-        // fetch from contract only if got new transactions
-        if (result.allTxns.length === 0) {
-          return currentStateData;
-        }
-        console.log(result.allTxns);
-
-        const transactions = addTransactions(result.allTxns) || [];
-
-        setPage(result.maxLt);
-        return getContractState(transactions);
+        const data = await getContractStateCallback();
+        return data || currentStateData;
       };
 
       if (!fetchFromServer) {
@@ -175,7 +160,9 @@ export const useStateQuery = () => {
       return onContractState();
     },
     {
-      onError: () => toggleError(true),
+      onError: () => {
+        setEndpointError(true);
+      },
       refetchInterval: STATE_REFETCH_INTERVAL,
       enabled: !!clientV2 && !!clientV4 && !!contractAddress && !txLoading,
       staleTime: Infinity,
@@ -251,8 +238,9 @@ export const useServerHealthCheckQuery = () => {
 
 const useOnVoteCallback = () => {
   const getContractState = useGetContractState();
-  const { loadMore } = useVotesPaginationStore();
-  const clientV2 = useClient().clientV2;
+  const proposalInfo = useProposalInfoQuery().data;
+  const { showMoreVotes } = useVotesPaginationStore();
+  const clientV2 = useClientStore().clientV2;
   const contractAddress = useContractAddressQuery().data;
   const { setStateData, getStateData } = useDataFromQueryClient();
   const { setMaxLt } = usePersistedStore();
@@ -260,7 +248,11 @@ const useOnVoteCallback = () => {
     async () => {
       Logger("fetching data from contract after transaction");
       const transactions = await getTransactions(clientV2, contractAddress);
-      const state = await getContractState(transactions.allTxns);
+      const state = await getContractState(
+        proposalInfo!,
+        transactions.allTxns,
+        getStateData()?.votingPower
+      );
       return {
         maxLt: transactions.maxLt,
         state,
@@ -270,7 +262,7 @@ const useOnVoteCallback = () => {
       onSuccess: ({ maxLt, state }) => {
         const currentVotesLength = getStateData()?.votes.length || 0;
         const newVotesLength = state.votes.length || 0;
-        loadMore(newVotesLength - currentVotesLength);
+        showMoreVotes(newVotesLength - currentVotesLength);
         const newData: GetState = {
           proposalResults: state.proposalResults,
           votes: state.votes,
@@ -284,13 +276,12 @@ const useOnVoteCallback = () => {
 };
 
 export const useSendTransaction = () => {
-  const connection = useConnection();
-  const address = useWalletAddress();
-  const clientV2 = useClient().clientV2;
+  const { connection, address } = useConnectionStore();
+  const clientV2 = useClientStore().clientV2;
   const [txApproved, setTxApproved] = useState(false);
   const { mutateAsync: onVoteFinished } = useOnVoteCallback();
   const { showNotification } = useNotification();
-  const { txLoading, setTxLoading } = useTxLoading();
+  const { txLoading, setTxLoading } = useTxStore();
 
   const contractAddress = useContractAddressQuery().data;
   const query = useMutation(

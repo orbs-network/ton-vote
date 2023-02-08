@@ -31,7 +31,7 @@ function Button({
         </StyledLoader>
       </Fade>
       <Fade in={!isLoading}>
-        <StyledChildren>{children}</StyledChildren>
+        <StyledChildren className="children">{children}</StyledChildren>
       </Fade>
     </StyledContainer>
   );

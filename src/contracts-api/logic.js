@@ -4,6 +4,7 @@ import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
 
 import BigNumber from "bignumber.js";
 import _ from "lodash";
+import { Logger } from "utils";
 
 
 
@@ -32,7 +33,7 @@ export async function getTransactions(
   let paging = startPage;
 
   while (true) {
-    console.log("Querying...");
+    Logger("Querying...");
     const txns = await client.getTransactions(Address.parse(contractAddress), {
       lt: paging.fromLt,
       to_lt: toLt,
@@ -40,7 +41,7 @@ export async function getTransactions(
       limit: 100,
     });  
 
-    console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
+    Logger(`Got ${txns.length}, lt ${paging.fromLt}`);
 
     if (txns.length === 0) break;
 
@@ -193,8 +194,8 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
 
 export async function getProposalInfo(client, clientV4, contractAddress) {
   return {
-    startDate: await getStartTime(client, contractAddress),
-    endDate: await getEndTime(client, contractAddress),
+    startTime: await getStartTime(client, contractAddress),
+    endTime: await getEndTime(client, contractAddress),
     snapshot: await getSnapshotTime(client, clientV4, contractAddress),
   };
 }

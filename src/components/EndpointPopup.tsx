@@ -7,11 +7,11 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
-import {
-  usePersistedStore,
-  useSetEndpointPopup,
-  useUpdateEndpoints,
-} from "store";
+import { useContractStore, useEndpointStore, useFetchClients, usePersistedStore, useServerStore } from "store";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useStateQuery } from "queries";
+import { EndpointsArgs, QueryKeys } from "types";
+
 
 const { clientV2, apiKey, clientV4 } = ENDPOINT_INPUTS;
 
@@ -26,9 +26,10 @@ export function EndpointPopup() {
     [clientV4.name]: store.clientV4Endpoint || clientV4.defaut,
   });
 
-  const { mutateAsync, isLoading } = useUpdateEndpoints();
+  const {showSetEndpoint, endpointError, setShowSetEndpoint , setEndpointError} = useEndpointStore()
 
-  const { show, toggle, endpointError, toggleError } = useSetEndpointPopup();
+  const { mutateAsync, isLoading } = useUpdateEndpoints()
+
 
   const select = (value: boolean) => {
     setCustomEndopointsSelected(value);
@@ -36,7 +37,7 @@ export function EndpointPopup() {
 
   useEffect(() => {
     setCustomEndopointsSelected(store.isCustomEndpoints);
-  }, [store.isCustomEndpoints, show]);
+  }, [store.isCustomEndpoints, showSetEndpoint]);
 
   const onUpdate = (name: string, value: string) => {
     setValues((prevState) => {
@@ -66,12 +67,12 @@ export function EndpointPopup() {
   };
 
   const onClose = () => {
-    toggleError(false);
-    toggle(false);
+    setEndpointError(false);
+    setShowSetEndpoint(false);
   };
 
   return (
-    <Popup open={show} close={onClose}>
+    <Popup open={showSetEndpoint} close={onClose}>
       <StyledContent>
         <StyledTitle variant="h4">RPC Endpoint settings</StyledTitle>
         {endpointError && (
@@ -127,6 +128,35 @@ export function EndpointPopup() {
     </Popup>
   );
 }
+
+
+export const useUpdateEndpoints = () => {
+  const queryClient = useQueryClient();
+  const { onUpdate: onEndpointsUpdate } = usePersistedStore();
+  const { mutateAsync: getClients } = useFetchClients();
+  const resetContractStore = useContractStore().reset;
+  const resetServerStore = useServerStore().reset;
+  const { refetch } = useStateQuery();
+
+  return useMutation(async (args?: EndpointsArgs) => {
+    resetContractStore();
+    resetServerStore();
+    onEndpointsUpdate(
+      args?.clientV2Endpoint,
+      args?.clientV4Endpoint,
+      args?.apiKey
+    );
+    await getClients({
+      clientV2Endpoint: args?.clientV2Endpoint,
+      clientV4Endpoint: args?.clientV4Endpoint,
+      apiKey: args?.apiKey,
+    });
+
+    queryClient.removeQueries({ queryKey: [QueryKeys.PROPOSAL_INFO] });
+    queryClient.removeQueries({ queryKey: [QueryKeys.STATE] });
+    await refetch();
+  });
+};
 
 const StyledError = styled(Box)({
   p: {

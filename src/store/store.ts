@@ -3,17 +3,18 @@ import { persist } from "zustand/middleware";
 import { TonConnection } from "@ton-defi.org/ton-connection";
 import { PAGE_SIZE } from "config";
 import {
-  ClientsState,
-  DataUpdaterStore,
-  EndpointState,
-  PersistedState,
-  TransactionsState,
-  VotesPaginationState,
-  VoteState,
-  WalletState,
+  ClientsStore,
+  ConnectionStore,
+  ContractStore,
+  EndpointStore,
+  PersistedStore,
+  ServerStore,
+  TxStore,
+  VotesPaginationStore,
+  VoteStore,
 } from "./types";
 export const usePersistedStore = create(
-  persist<PersistedState>(
+  persist<PersistedStore>(
     (set) => ({
       maxLt: undefined,
       setMaxLt: (maxLt) => set({ maxLt }),
@@ -36,68 +37,93 @@ export const usePersistedStore = create(
   )
 );
 
-export const useClientStore = create<ClientsState>((set, get) => ({
-  setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
-}));
+const storeDefaultValues = {
+  serverUpdateTime: undefined,
+  serverMaxLt: undefined,
 
-export const useServerStore = create<DataUpdaterStore>((set, get) => ({
-  reset: () => set({ timestamp: 0, stateUpdateTime: 0, maxLt: undefined }),
-  setTimestamp: (timestamp) => set({ timestamp }),
-  stateUpdateTime: 0,
-  setStateUpdateTime: (stateUpdateTime) => set({ stateUpdateTime }),
-  setMaxLt: (maxLt) => set({ maxLt }),
-}));
+  contractMaxLt: undefined,
+  transactions: [],
 
-export const useEndpointsStore = create<EndpointState>((set, get) => ({
-  showSetEndpoint: false,
-  endpointError: false,
-  setShowSetEndpoint: (showSetEndpoint) => set({ showSetEndpoint }),
-  setEndpointError: (endpointError) => {
-    set({ endpointError, showSetEndpoint: endpointError ? true : false });
-  },
-}));
+  vote: "",
 
-const defultAcccountState = {
   address: undefined,
   connection: undefined,
+  txLoading: false,
+  votesViewLimit: PAGE_SIZE,
+  showSetEndpoint: false,
+  endpointError: false,
+  clientV2: undefined,
+  clientV4: undefined,
 };
 
-export const useWalletStore = create<WalletState>((set, get) => ({
-  reset: () => set(defultAcccountState),
-  ...defultAcccountState,
+export const useConnectionStore = create<ConnectionStore>((set, get) => ({
+  address: undefined,
+  connection: undefined,
+  reset: () => set({ address: undefined, connection: undefined }),
   setAddress: (address) => set({ address }),
   setTonConnectionProvider: (provider) => {
     const _connection = new TonConnection();
     _connection.setProvider(provider);
     set({ connection: _connection });
   },
-  txLoading: false,
-  setTxLoading: (txLoading) => set({ txLoading }),
 }));
 
-export const useVotesPaginationStore = create<VotesPaginationState>(
-  (set, get) => ({
-    limit: PAGE_SIZE,
-    loadMore: (amount = PAGE_SIZE) => set({ limit: get().limit + amount }),
-    reset: () => set({ limit: PAGE_SIZE }),
-  })
-);
-
-export const useVoteStore = create<VoteState>((set, get) => ({
-  vote: "",
-  setVote: (vote) => set({ vote }),
-  reset: () => set({ vote: "" }),
+export const useServerStore = create<ServerStore>((set, get) => ({
+  serverUpdateTime: undefined,
+  serverMaxLt: undefined,
+  reset: () => set({ serverUpdateTime: undefined, serverMaxLt: undefined }),
+  setServerUpdateTime: (serverUpdateTime) => set({ serverUpdateTime }),
+  setServerMaxLt: (serverMaxLt) => set({ serverMaxLt }),
 }));
 
-export const useContractStore = create<TransactionsState>((set, get) => ({
-  page: undefined,
+export const useContractStore = create<ContractStore>((set, get) => ({
+  contractMaxLt: undefined,
   transactions: [],
-  setPage: (page) => set({ page }),
-  addTransactions: (newTransactions) => {
+  reset: () => set({ contractMaxLt: undefined, transactions: [] }),
+
+  setContractMaxLt: (contractMaxLt) => set({ contractMaxLt }),
+  addContractTransactions: (newTransactions) => {
     const transactions = get().transactions;
     transactions.unshift(...newTransactions);
     set({ transactions });
     return transactions;
   },
-  reset: () => set({ page: undefined, transactions: [] }),
+  clearContractTransactions: () => set({ transactions: [] }),
+}));
+
+export const useClientStore = create<ClientsStore>((set, get) => ({
+  clientV2: undefined,
+  clientV4: undefined,
+  setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
+}));
+
+export const useVoteStore = create<VoteStore>((set, get) => ({
+  vote: undefined,
+
+  setVote: (vote) => set({ vote }),
+}));
+
+export const useVotesPaginationStore = create<VotesPaginationStore>(
+  (set, get) => ({
+    votesViewLimit: PAGE_SIZE,
+    reset: () => set({ votesViewLimit: PAGE_SIZE }),
+    showMoreVotes: (amount = PAGE_SIZE) =>
+      set({ votesViewLimit: get().votesViewLimit + amount }),
+  })
+);
+
+export const useEndpointStore = create<EndpointStore>((set, get) => ({
+  showSetEndpoint: false,
+  endpointError: false,
+
+  setShowSetEndpoint: (showSetEndpoint) => set({ showSetEndpoint }),
+  setEndpointError: (endpointError) => {
+    set({ endpointError, showSetEndpoint: endpointError ? true : false });
+  },
+}));
+
+export const useTxStore = create<TxStore>((set, get) => ({
+  txLoading: false,
+
+  setTxLoading: (txLoading) => set({ txLoading }),
 }));

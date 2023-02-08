@@ -74,8 +74,8 @@ export type RawVotes = { [key: string]: RawVote };
 
 
 export interface ProposalInfo {
-  startDate: Number;
-  endDate: Number;
+  startTime: Number;
+  endTime: Number;
   snapshot: {
   snapshotTime: Number;
     mcSnapshotBlock: Number;

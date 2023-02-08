@@ -14,11 +14,11 @@ const handleDate = (endDate?: number | Number) => {
 function DeadlineLayout() {
   const proposalInformation = useProposalInfoQuery().data;
 
-  const endDate = proposalInformation?.endDate;
+  const endDate = proposalInformation?.endTime;
 
   return (
     <StyledContainer
-      title="Vote end in"
+      title="Vote deadline"
       loading={!proposalInformation}
       loaderAmount={1}
     >
