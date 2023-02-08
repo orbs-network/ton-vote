@@ -1,34 +1,34 @@
 import { styled, Typography } from "@mui/material";
-import { useDataQuery } from "queries";
 import { Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress } from "utils";
 import { TONSCAN_ADDRESS_URL } from "config";
 import { Vote } from "types";
-import { useVotesPaginationStore, useWalletAddress } from "store";
+import { useStateQuery } from "queries";
+import { useConnectionStore, useVotesPaginationStore } from "store";
 
 export function VotesLayout() {
-  const votes = useDataQuery().data?.votes;
-  const { limit, loadMore } = useVotesPaginationStore();
-  const hideLoadMore = (votes?.length || 0) <= limit;  
+  const {isLoading, data} = useStateQuery()
+  
+    const votes = data?.votes;
+  const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();
+  const hideLoadMore = (votes?.length || 0) <= votesViewLimit;  
 
   return (
-    <StyledContainer
-      title="Votes"
-      loading={!votes || !votes?.length}
-      loaderAmount={3}
-    >
-      {votes && (
+    <StyledContainer title="Votes" loading={isLoading} loaderAmount={3}>
+      {votes?.length ? (
         <StyledList gap={15}>
           {votes?.map((vote, index) => {
-            if (index >= limit) return null;
+            if (index >= votesViewLimit) return null;
             return <VoteComponent data={vote} key={vote.address} />;
           })}
         </StyledList>
+      ) : (
+        <StyledNoVotes>No votes yet</StyledNoVotes>
       )}
       {!hideLoadMore && (
         <StyledLoaderMore>
-          <Button onClick={() => loadMore()}>See More</Button>
+          <Button onClick={() => showMoreVotes()}>See More</Button>
         </StyledLoaderMore>
       )}
     </StyledContainer>
@@ -38,7 +38,7 @@ export function VotesLayout() {
 const VoteComponent = ({ data }: { data: Vote }) => {  
   const { address, votingPower, vote } = data;
   
-  const connectedAddress = useWalletAddress();
+  const connectedAddress = useConnectionStore().address;
 
   return (
     <StyledVote justifyContent="flex-start">
@@ -52,6 +52,13 @@ const VoteComponent = ({ data }: { data: Vote }) => {
     </StyledVote>
   );
 };
+
+
+const StyledNoVotes = styled(Typography)({
+  textAlign:'center',
+  fontSize: 17,
+  fontWeight: 600
+})
 
 const StyledLoaderMore = styled(StyledFlexRow)({
   marginTop: 30,

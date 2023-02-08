@@ -8,7 +8,7 @@ import LogoImg from "assets/logo.svg";
 import { FiSettings } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RiRouteFill } from "react-icons/ri";
-import { useWalletAddress, useSetEndpointPopup, useResetConnection } from "store";
+import { useConnectionStore, useEndpointStore, useResetConnection } from "store";
 
 export function Navbar() {
   return (
@@ -30,7 +30,7 @@ export function Navbar() {
 }
 
 const ConnectSection = () => {
-  const address = useWalletAddress();
+  const address = useConnectionStore().address;
 
   if (!address) {
     return <ConnectButton />;
@@ -80,8 +80,8 @@ const StyledContainer = styled(StyledFlexRow)({
 /// setings component
 
 const Settings = () => {
-  const address = useWalletAddress();
- const { toggle } = useSetEndpointPopup();
+  const address = useConnectionStore().address;
+ const { setShowSetEndpoint } = useEndpointStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const reset = useResetConnection();
 
@@ -97,7 +97,7 @@ const Settings = () => {
   };
 
   const showPopup = () => {
-    toggle(true);
+    setShowSetEndpoint(true);
     handleClose();
   };
 

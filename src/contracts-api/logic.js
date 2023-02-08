@@ -1,10 +1,10 @@
-import { getHttpEndpoint, getHttpV4Endpoint } from "@orbs-network/ton-access";
-import { Address, beginCell, Cell, TonClient, TonClient4 } from "ton";
-import {getFrozenAddresses, getStartTime, getEndTime, getSnapshotTime} from "./getters";
-import { votingContract } from "./address";
+import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { Address, TonClient, TonClient4 } from "ton";
+import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
 
 import BigNumber from "bignumber.js";
 import _ from "lodash";
+import { Logger } from "utils";
 
 
 
@@ -23,6 +23,7 @@ export async function getClientV4(customEndpoint) {
 
 export async function getTransactions(
   client,
+  contractAddress,
   toLt
 ) {
   let maxLt = new BigNumber(toLt ?? -1);
@@ -32,15 +33,15 @@ export async function getTransactions(
   let paging = startPage;
 
   while (true) {
-    console.log("Querying...");
-    const txns = await client.getTransactions(votingContract, {
+    Logger("Querying...");
+    const txns = await client.getTransactions(Address.parse(contractAddress), {
       lt: paging.fromLt,
       to_lt: toLt,
       hash: paging.hash,
       limit: 100,
-    });
+    });  
 
-    console.log(`Got ${txns.length}, lt ${paging.fromLt}`);
+    Logger(`Got ${txns.length}, lt ${paging.fromLt}`);
 
     if (txns.length === 0) break;
 
@@ -57,10 +58,9 @@ export async function getTransactions(
   return { allTxns, maxLt: maxLt.toString() };
 }
 
-export function filterTxByTimestamp(transactions, timestamp) {
-
-  const filteredTx = _.filter(tx.allTxns, function(transaction) {
-    return transaction.time <= lastTxTime;
+export function filterTxByTimestamp(transactions, lastLt) {
+  const filteredTx = _.filter(transactions, function (transaction) {
+    return Number(transaction.id.lt) <= Number(lastLt);
   });
 
   return filteredTx;
@@ -192,11 +192,10 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
   return calcProposalResult(votes, votingPower);
 }
 
-export async function getProposalInfo(client, clientV4) {
-
+export async function getProposalInfo(client, clientV4, contractAddress) {
   return {
-    startDate: await getStartTime(client),
-    endDate: await getEndTime(client),
-    snapshot: await getSnapshotTime(client, clientV4),
+    startTime: await getStartTime(client, contractAddress),
+    endTime: await getEndTime(client, contractAddress),
+    snapshot: await getSnapshotTime(client, clientV4, contractAddress),
   };
 }

@@ -5,8 +5,9 @@ export * from "./Progress";
 export * from "./ConnectButton";
 export * from "./TxReminderPopup";
 export * from "./Input";
-export * from "./EndpointPopup";
 export * from "./ConnectButton";
 export * from "./CloseButton";
 export * from "./NumberDisplay";
 export * from "./Coundown";
+export * from "./EndpointPopup";
+export * from './Notification'

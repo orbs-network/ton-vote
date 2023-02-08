@@ -1,8 +1,8 @@
 import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import _ from "lodash";
 import moment from "moment";
-import { Wallet } from "ton";
-import { Vote } from "types";
+import { fromNano, Wallet } from "ton";
+import { RawVote, RawVotes, Vote, VotingPower } from "types";
 export const makeElipsisAddress = (address: string, padding = 6): string => {
   if (!address) return "";
   return `${address.substring(0, padding)}...${address.substring(
@@ -37,26 +37,28 @@ export async function waitForSeqno(wallet: Wallet) {
   };
 }
 
-export const sortVotesByConnectedWallet = (
-  votes: Vote[],
-  walletAddress?: string
-) => {
-
-  const sortedVotes = _.orderBy(votes, "timestamp", ["desc", "asc"]);
-
-
-  if (!walletAddress) {
-    return { sortedVotes };
-  }
-  const index = sortedVotes!.findIndex((it) => it.address === walletAddress);
-  if (index < 0) return { sortedVotes };
-
-  const connectedAddressVote = sortedVotes?.splice(index, 1)[0];
-  sortedVotes?.unshift(connectedAddressVote);
-  
-  return { sortedVotes, connectedAddressVote };
-};
-
 export const getAdapterName = () => {
   return localStorage.getItem(LOCAL_STORAGE_PROVIDER);
 };
+
+export const Logger = (log: any) => {
+  if (import.meta.env.DEV) {
+    console.log(log);
+  }
+};
+
+export const parseVotes = (rawVotes: RawVotes, votingPower: VotingPower) => {
+  let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
+    const _votingPower = votingPower[key];
+    return {
+      address: key,
+      vote: v.vote,
+      votingPower: _votingPower ? fromNano(_votingPower) : "0",
+      timestamp: v.timestamp,
+    };
+  });
+
+  const sortedVotes = _.orderBy(votes, "timestamp", ["desc", "asc"]);
+  return sortedVotes;
+};
+

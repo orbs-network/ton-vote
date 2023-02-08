@@ -11,7 +11,7 @@ import {
   Footer,
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
-import { useData, useGetTransactionsQuery } from "queries";
+import { useServerHealthCheckQuery } from "queries";
 import { useEffect } from "react";
 import { useEagerlyConnect, useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
@@ -49,14 +49,13 @@ const Mobile = () => {
 function App() {
   const restoreConnection = useEagerlyConnect();
   const getClients = useGetClientsOnLoad();
-  useGetTransactionsQuery();
+  useServerHealthCheckQuery();
 
   useEffect(() => {
     restoreConnection();
     getClients();
   }, []);
   const match = useMediaQuery("(max-width:800px)");
-
 
   return (
     <StyledApp>

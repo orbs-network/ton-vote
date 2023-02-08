@@ -1,42 +1,38 @@
-import { Box, Link, styled, Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { Container } from "components";
-import { useProposalInfoQuery } from "queries";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { fromUnixToString } from "utils";
-import { Countdown } from "components/Coundown";
-import { DEADLINE } from "config";
+import { useProposalInfoQuery } from "queries";
 
-const title = "Information";
 export const InformationLayout = () => {
-  const {data: proposalInformation}  = useProposalInfoQuery()
+  const { data: proposalInfo, isLoading } = useProposalInfoQuery();
 
   
     return (
       <StyledInformation
-        title={title}
+        title="Information"
         loaderAmount={3}
-        loading={!proposalInformation}
+        loading={isLoading}
       >
-        {proposalInformation && (
+        {proposalInfo && (
           <StyledFlexColumn gap={12}>
             <InformationRow label="Start date">
               <Typography>
-                {fromUnixToString(proposalInformation.startDate)}
+                {fromUnixToString(Number(proposalInfo.startTime))}
               </Typography>
             </InformationRow>
             <InformationRow label="End date">
               <Typography>
-                {fromUnixToString(proposalInformation.endDate)}
+                {fromUnixToString(Number(proposalInfo.endTime))}
               </Typography>
             </InformationRow>
 
             <InformationRow label="Snapshot">
               <Typography>
-                {fromUnixToString(proposalInformation.snapshot.snapshotTime)}
+                {fromUnixToString(Number(proposalInfo.snapshot.snapshotTime))}
               </Typography>
             </InformationRow>
-         
           </StyledFlexColumn>
         )}
       </StyledInformation>
