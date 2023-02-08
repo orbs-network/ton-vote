@@ -1794,7 +1794,7 @@ node-releases@^2.0.6:
 
 notistack@^2.0.8:
   version "2.0.8"
-  resolved "https://registry.npmjs.org/notistack/-/notistack-2.0.8.tgz"
+  resolved "https://registry.yarnpkg.com/notistack/-/notistack-2.0.8.tgz#78cdf34c64e311bf1d1d71c2123396bcdea5e95b"
   integrity sha512-/IY14wkFp5qjPgKNvAdfL5Jp6q90+MjgKTPh4c81r/lW70KeuX6b9pE/4f8L4FG31cNudbN9siiFS5ql1aSLRw==
   dependencies:
     clsx "^1.1.0"

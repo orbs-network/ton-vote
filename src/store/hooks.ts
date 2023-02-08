@@ -5,6 +5,7 @@ import {
   TonhubProvider,
   TonkeeperProvider,
 } from "@ton-defi.org/ton-connection";
+import { useNotification } from "components";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
 import { useWalletVote } from "hooks";
@@ -19,7 +20,6 @@ import {
   usePersistedStore,
   useTransactionsStore,
   useVotesPaginationStore,
-  useVoteStore,
   useWalletStore,
 } from "./store";
 
@@ -64,6 +64,9 @@ export const useGetClientsOnLoad = () => {
   };
 };
 
+
+
+
 export const useUpdateEndpoints = () => {
   const queryClient = useQueryClient();
   const { onUpdate: onEndpointsUpdate } = usePersistedStore();
@@ -72,6 +75,7 @@ export const useUpdateEndpoints = () => {
   const resetVotesPagination = useVotesPaginationStore().reset;
   const { reset: resetDataUpdater } = useDataUpdaterStore();
   const { refetch } = useStateQuery();
+  const {showNotification} = useNotification()
 
   return useMutation(async (args?: EndpointsArgs) => {
     resetTransactions();
@@ -90,7 +94,7 @@ export const useUpdateEndpoints = () => {
 
     queryClient.removeQueries({ queryKey: [QueryKeys.PROPOSAL_INFO] });
     queryClient.removeQueries({ queryKey: [QueryKeys.STATE] });
-    refetch();
+    await refetch();
   });
 };
 

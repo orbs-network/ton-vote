@@ -4,7 +4,7 @@ import { Button, Container } from "components";
 import { filterTxByTimestamp, getTransactions } from "contracts-api/logic";
 import {
   useContractAddressQuery,
-  useGetStateFromContract,
+  useGetContractState,
   useStateQuery,
 } from "queries";
 import { useClient, useTransactionsStore } from "store";
@@ -12,7 +12,7 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {BsFillCheckCircleFill} from 'react-icons/bs'
 const useVerify = () => {
   const currentResults = useStateQuery().data?.proposalResults;
-  const getContractState = useGetStateFromContract();
+  const getContractState = useGetContractState();
   const clientV2 = useClient().clientV2;
   const contractAddress = useContractAddressQuery().data;
   const { transactions } = useTransactionsStore();

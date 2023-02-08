@@ -1,6 +1,7 @@
 import { styled } from "@mui/material";
 import { Box } from "@mui/system";
 import { CSSProperties } from "react";
+import { theme } from "theme";
 
 export const StyledFlexRow = styled(Box)(
   ({
@@ -45,7 +46,9 @@ export const globalStyles = {
   html: {
     scrollBehavior: "smooth" as const,
   },
- 
+  ".snackbar-success": {
+    backgroundColor: `${theme.palette.primary.main}!important`
+  }
 };
 
 export const textOverflow: CSSProperties = {

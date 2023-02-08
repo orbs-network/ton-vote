@@ -1,6 +1,6 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { Box } from "@mui/system";
-import { EndpointPopup } from "components";
+import { EndpointPopup, useNotification } from "components";
 import {
   MainLayout,
   VoteLayout,
@@ -14,7 +14,7 @@ import DeadlineLayout from "layouts/DeadlineLayout";
 import VerifyLayout from "layouts/VerifyLayout";
 import { useDataUpdaters } from "queries";
 import { useEffect } from "react";
-import { useEagerlyConnect, useGetClientsOnLoad } from "store";
+import { useEagerlyConnect, useGetClientsOnLoad, usePersistedStore } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
 const Destop = () => {
@@ -52,16 +52,18 @@ function App() {
   const restoreConnection = useEagerlyConnect();
   const getClients = useGetClientsOnLoad();
   useDataUpdaters();
-
   useEffect(() => {
     restoreConnection();
     getClients();
   }, []);
   const match = useMediaQuery("(max-width:800px)");
 
+  const {disableServer, serverDisabled}  = usePersistedStore()
+
   return (
     <StyledApp>
       <Navbar />
+      <button onClick={() => disableServer(!serverDisabled)}>Toggle</button>
       <StyledGrid>{match ? <Mobile /> : <Destop />}</StyledGrid>
       <Footer />
       <EndpointPopup />

@@ -6,7 +6,8 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useVoteStore, useWalletAddress } from "store";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import { useIsVoteEnded, useSendTransaction } from "queries";
+import {  useSendTransaction } from "queries";
+import { useIsVoteEnded } from "hooks";
 
 export function VoteLayout() {
   const { vote, setVote } = useVoteStore();

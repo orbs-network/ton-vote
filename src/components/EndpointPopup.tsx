@@ -35,10 +35,8 @@ export function EndpointPopup() {
   };
 
   useEffect(() => {
-    setCustomEndopointsSelected(
-      !!store.clientV2Endpoint || !!store.clientV4Endpoint
-    );
-  }, [store.clientV2Endpoint, store.clientV4Endpoint, show]);
+    setCustomEndopointsSelected(store.isCustomEndpoints);
+  }, [store.isCustomEndpoints, show]);
 
   const onUpdate = (name: string, value: string) => {
     setValues((prevState) => {
@@ -64,7 +62,7 @@ export function EndpointPopup() {
       clientV4Endpoint: values[clientV4.name],
       apiKey: values[apiKey.name],
     });
-      onClose();
+    onClose();
   };
 
   const onClose = () => {

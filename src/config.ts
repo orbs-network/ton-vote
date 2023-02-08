@@ -84,7 +84,7 @@ export const ENDPOINT_INPUTS = {
 
 export const DEADLINE = 1676037901000;
 
-export const STATE_REFETCH_INTERVAL = 40_000
+export const STATE_REFETCH_INTERVAL = 10_000
 
 export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
 export const USER_VOTE_LOCAL_STORAGE = 'ton_vote_user_vote'
@@ -96,3 +96,6 @@ export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
 
 export const CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
+
+export const TX_SUBMIT_ERROR_TEXT = 'Transaction failed'
+export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction finished'
