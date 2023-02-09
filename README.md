@@ -1,6 +1,8 @@
 # TON Community DAO Vote
 
-We're working on a no code governance platform for TON, similar to [snapshot.org](https://snapshot.org/) on EVM.
+## Background
+
+Our team is working on an open no code governance platform for TON, similar to [snapshot.org](https://snapshot.org/) on EVM.
 
 This system will support governance proposals and voting using native coins (TON coin), jettons or NTFs, with programmable strategies. For example, NFT voting weights can factor rarity if that's what a DAO wants to do.
 
@@ -12,11 +14,11 @@ The full system is still WIP and not ready for a production release, so we decid
 
 * Voting is done on-chain and costs gas. The future system will also allow gasless voting through off-chain signatures.
 
-* Results are calculated in regards to a historic snapshot of holdings that is pre-defined in the proposal. This helps prevent users from manipulating the vote by purchasing/borrowing tokens for the sake of the vote only.
+* Votes are weighted by TON coin balance. Results are calculated in regards to a historic snapshot of the balances that is pre-defined in the proposal. This helps prevent users from manipulating the vote by purchasing/borrowing tokens for the sake of the vote only. This also makes sure that every token can only be used by a single voter.
 
 * Counting of the votes occurs client-side. We can't tally the votes on-chain since a contract cannot read historic account state. By counting the votes client-side we still reach a pretty good degree of trustlessness. Everyone can be convinced on their own machine that the result is correct.
 
-* This "system" supports a single proposal. Users can vote multiple times, the most recent vote takes.
+* This simplified "system" supports a single proposal. Users can vote multiple times and change their mind, the most recent vote takes.
 
 ## Walkthrough of the implementation
 
