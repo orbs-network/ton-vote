@@ -2,12 +2,8 @@ import { Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
+import { getTransactions, filterTxByTimestamp } from "contracts-api/logic";
 import {
-  getTransactions,
-  filterTxByTimestamp,
-} from "contracts-api/logic";
-import {
-  useContractAddressQuery,
   useIsFetchFromServer,
   useProposalInfoQuery,
   useStateQuery,
@@ -16,6 +12,7 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { useClientStore, useContractStore, useServerStore } from "store";
 import { useGetContractState } from "hooks";
+import { useEffect } from "react";
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
@@ -67,28 +64,39 @@ const StyledResults = styled(Container)({
   width: "100%",
 });
 
+const compare = (first: any, second: any) => {
+  const firstValue = isNaN(first) ? 0 : Number(first);
+  const secondValue = isNaN(second) ? 0 : Number(second);
+
+  return firstValue === secondValue;
+};
+
 const useVerify = () => {
   const currentResults = useStateQuery().data?.proposalResults;
   const proposalInfo = useProposalInfoQuery().data;
   const clientV2 = useClientStore().clientV2;
-  const contractAddress = useContractAddressQuery().data;
   const contractMaxLt = useContractStore().contractMaxLt;
   const fetchFromServer = useIsFetchFromServer();
   const serverMaxLt = useServerStore().serverMaxLt;
   const getContractState = useGetContractState();
 
   const query = useMutation(async () => {
-    const result = await getTransactions(clientV2, contractAddress);
     const maxLt = fetchFromServer ? serverMaxLt : contractMaxLt;
+    const { allTxns } = await getTransactions(clientV2);
+    const transactions = filterTxByTimestamp(allTxns, maxLt);
 
-    const transactions = filterTxByTimestamp(result.allTxns, maxLt);
     const contractState = await getContractState(proposalInfo!, transactions);
+
     const proposalResults = contractState.proposalResults;
-    const yes = currentResults?.yes === proposalResults.yes;
-    const no = currentResults?.no === proposalResults.no;
-    const totalWeight =
-      currentResults?.totalWeight === proposalResults.totalWeight;
-    const abstain = currentResults?.abstain === proposalResults.abstain;
+
+    const yes = compare(currentResults?.yes, proposalResults.yes);
+
+    const no = compare(currentResults?.no, proposalResults.no);
+    const totalWeight = compare(
+      currentResults?.totalWeight,
+      proposalResults.totalWeight
+    );
+    const abstain = compare(currentResults?.abstain, proposalResults.abstain);
 
     return yes && no && abstain && totalWeight;
   });
@@ -100,7 +108,21 @@ const useVerify = () => {
 };
 
 export function VerifyResults() {
-  const { mutate: verify, isLoading, data: isVerified, isReady } = useVerify();
+  const {
+    mutate: verify,
+    isLoading,
+    data: isVerified,
+    isReady,
+    reset,
+  } = useVerify();
+
+  useEffect(() => {
+    if (isVerified) {
+      setTimeout(() => {
+        reset();
+      }, 5000);
+    }
+  }, [isVerified]);
 
   if (!isReady) return null;
   if (isVerified) {
@@ -124,7 +146,7 @@ export function VerifyResults() {
 }
 
 const StyledVerifyContainer = styled(StyledFlexRow)({
-  width:'fit-content'
+  width: "fit-content",
 });
 
 const StyledVerified = styled(StyledVerifyContainer)(({ theme }) => ({
@@ -135,13 +157,13 @@ const StyledVerified = styled(StyledVerifyContainer)(({ theme }) => ({
 
 const StyledVerifyButton = styled(Button)({
   height: 32,
-  "*":{
-    fontSize: 15
+  "*": {
+    fontSize: 15,
   },
-  ".loader":{
-    maxWidth:20,
-    maxHeight: 20
-  }
+  ".loader": {
+    maxWidth: 20,
+    maxHeight: 20,
+  },
 });
 
 const StyledVerifiedButton = styled(StyledVerifyButton)({

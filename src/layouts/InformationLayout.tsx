@@ -2,8 +2,16 @@ import { Box, styled, Typography } from "@mui/material";
 import { Container } from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { fromUnixToString } from "utils";
 import { useProposalInfoQuery } from "queries";
+import moment from "moment";
+
+ const fromUnixToString = (
+  time: number,
+  format = "MMM DD, YYYY HH:mm"
+) => {
+  return `${moment.unix(time).utc().format(format)} UTC`;
+};
+
 
 export const InformationLayout = () => {
   const { data: proposalInfo, isLoading } = useProposalInfoQuery();

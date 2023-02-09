@@ -15,7 +15,7 @@ export function VotesLayout() {
   const hideLoadMore = (votes?.length || 0) <= votesViewLimit;  
 
   return (
-    <StyledContainer title="Votes" loading={isLoading} loaderAmount={3}>
+    <StyledContainer title="Recent votes" loading={isLoading} loaderAmount={3}>
       {votes?.length ? (
         <StyledList gap={15}>
           {votes?.map((vote, index) => {

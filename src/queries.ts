@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "api";
 import { useNotification } from "components";
 import {
+  CONTRACT_ADDRESS,
   LAST_FETCH_UPDATE_LIMIT,
   STATE_REFETCH_INTERVAL,
   TX_FEE,
@@ -71,7 +72,6 @@ const useGetContractStateCallback = () => {
   const { contractMaxLt, setContractMaxLt, addContractTransactions } =
     useContractStore();
   const { clientV2, clientV4 } = useClientStore();
-  const contractAddress = useContractAddressQuery().data;
   const queryClient = useQueryClient();
   const getContractState = useGetContractState();
   const getStateData = useDataFromQueryClient().getStateData;
@@ -81,7 +81,6 @@ const useGetContractStateCallback = () => {
     Logger("Fetching from contract");
     const result: GetTransactionsPayload = await getTransactions(
       clientV2,
-      contractAddress,
       contractMaxLt
     );
     // fetch from contract only if got new transactions
@@ -94,7 +93,7 @@ const useGetContractStateCallback = () => {
     setContractMaxLt(result.maxLt);
     const proposalInfo = await queryClient.ensureQueryData({
       queryKey: [QueryKeys.PROPOSAL_INFO],
-      queryFn: () => getProposalInfo(clientV2, clientV4, contractAddress),
+      queryFn: () => getProposalInfo(clientV2, clientV4),
     });
 
     const data = await getContractState(
@@ -111,14 +110,26 @@ const useGetContractStateCallback = () => {
   };
 };
 
+const useCheckServerhealth = () => {
+  return async () => {
+    try {
+      const lastFetchUpdate = await api.getLastFetchUpdate();
+
+      return moment().valueOf() - lastFetchUpdate > LAST_FETCH_UPDATE_LIMIT;
+    } catch (error) {
+      return true;
+    }
+  };
+};
+
 export const useStateQuery = () => {
   const { clientV2, clientV4 } = useClientStore();
   const { setEndpointError } = useEndpointStore();
-  const contractAddress = useContractAddressQuery().data;
   const fetchFromServer = useIsFetchFromServer();
   const { getStateData } = useDataFromQueryClient();
   const { maxLt, clearMaxLt } = usePersistedStore();
   const txLoading = useTxStore().txLoading;
+  const checkServerHealth = useCheckServerhealth();
 
   const getServerStateCallback = useGetServerStateCallback();
   const getContractStateCallback = useGetContractStateCallback();
@@ -138,6 +149,13 @@ export const useStateQuery = () => {
       if (!fetchFromServer) {
         return onContractState();
       }
+
+      const isSrverError = await checkServerHealth();
+
+      if (isSrverError) {
+        return onContractState();
+      }
+
       if (!maxLt) {
         return onServerState();
       }
@@ -161,7 +179,7 @@ export const useStateQuery = () => {
         setEndpointError(true);
       },
       refetchInterval: STATE_REFETCH_INTERVAL,
-      enabled: !!clientV2 && !!clientV4 && !!contractAddress && !txLoading,
+      enabled: !!clientV2 && !!clientV4 && !txLoading,
       staleTime: Infinity,
     }
   );
@@ -188,15 +206,6 @@ export const useDataFromQueryClient = () => {
   };
 };
 
-export const useContractAddressQuery = () => {
-  return useQuery(
-    [QueryKeys.CONTRACT_ADDRESS],
-    () => api.getContractAddress(),
-    {
-      staleTime: Infinity,
-    }
-  );
-};
 
 export const useProposalInfoQuery = () => {
   return useQuery<ProposalInfo | undefined>([QueryKeys.PROPOSAL_INFO], {
@@ -215,37 +224,17 @@ export const useIsFetchFromServer = () => {
   return true;
 };
 
-export const useServerHealthCheckQuery = () => {
-  const { isCustomEndpoints, disableServer } = usePersistedStore();
-
-  return useQuery(
-    [QueryKeys.SERVER_HEALTH_CHECK],
-    async () => {
-      const lastFetchUpdate = await api.getLastFetchUpdate();
-      disableServer(
-        moment().valueOf() - lastFetchUpdate > LAST_FETCH_UPDATE_LIMIT
-      );
-
-      return null;
-    },
-    {
-      enabled: !isCustomEndpoints,
-    }
-  );
-};
-
 const useOnVoteCallback = () => {
   const getContractState = useGetContractState();
   const proposalInfo = useProposalInfoQuery().data;
   const { showMoreVotes } = useVotesPaginationStore();
   const clientV2 = useClientStore().clientV2;
-  const contractAddress = useContractAddressQuery().data;
   const { setStateData, getStateData } = useDataFromQueryClient();
   const { setMaxLt } = usePersistedStore();
   return useMutation(
     async () => {
       Logger("fetching data from contract after transaction");
-      const transactions = await getTransactions(clientV2, contractAddress);
+      const transactions = await getTransactions(clientV2);
       const state = await getContractState(
         proposalInfo!,
         transactions.allTxns,
@@ -281,10 +270,8 @@ export const useSendTransaction = () => {
   const { showNotification } = useNotification();
   const { txLoading, setTxLoading } = useTxStore();
 
-  const contractAddress = useContractAddressQuery().data;
   const query = useMutation(
     async ({ value }: { value: "yes" | "no" | "abstain" }) => {
-      if (!contractAddress) return;
       const cell = new Cell();
       new CommentMessage(value).writeTo(cell);
       setTxLoading(true);
@@ -309,7 +296,7 @@ export const useSendTransaction = () => {
 
       if (isMobile) {
         await connection?.requestTransaction({
-          to: Address.parse(contractAddress),
+          to: CONTRACT_ADDRESS,
           value: toNano(TX_FEE),
           message: cell,
         });
@@ -317,7 +304,7 @@ export const useSendTransaction = () => {
       } else {
         await connection?.requestTransaction(
           {
-            to: Address.parse(contractAddress),
+            to: CONTRACT_ADDRESS,
             value: toNano(TX_FEE),
             message: cell,
           },

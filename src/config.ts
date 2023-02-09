@@ -98,3 +98,8 @@ export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const TX_SUBMIT_ERROR_TEXT = 'Transaction failed'
 export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction finished'
+
+
+export const CONTRACT_ADDRESS = Address.parse(
+  "EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT"
+);

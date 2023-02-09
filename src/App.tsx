@@ -11,9 +11,8 @@ import {
   Footer,
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
-import { useServerHealthCheckQuery } from "queries";
 import { useEffect } from "react";
-import { useEagerlyConnect, useGetClientsOnLoad, usePersistedStore } from "store";
+import { useEagerlyConnect, useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
 const Destop = () => {
@@ -49,7 +48,6 @@ const Mobile = () => {
 function App() {
   const restoreConnection = useEagerlyConnect();
   const getClients = useGetClientsOnLoad();
-  useServerHealthCheckQuery();
 
   useEffect(() => {
     restoreConnection();

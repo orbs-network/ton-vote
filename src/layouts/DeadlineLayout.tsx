@@ -18,7 +18,7 @@ function DeadlineLayout() {
 
   return (
     <StyledContainer
-      title="Vote deadline"
+      title="Time left to vote"
       loading={!proposalInformation}
       loaderAmount={1}
     >

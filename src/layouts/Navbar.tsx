@@ -125,7 +125,7 @@ const Settings = () => {
         <MenuItem onClick={showPopup}>
           <StyledMenuItemContent>
             <RiRouteFill />
-            <Typography>Endpoint</Typography>
+            <Typography>RPC endpoint</Typography>
           </StyledMenuItemContent>
         </MenuItem>
         {address && (

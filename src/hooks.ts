@@ -57,11 +57,13 @@ export const useGetContractState = () => {
     transactions: Transaction[],
     prevVotingPower?: VotingPower
   ) => {
+    console.log(prevVotingPower);
+    
     const votingPower = await getVotingPower(
       clientV4,
       proposalInfo,
       transactions,
-      prevVotingPower
+      prevVotingPower || {}
     );
 
     const proposalResults = getCurrentResults(
