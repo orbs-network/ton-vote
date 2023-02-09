@@ -1,6 +1,7 @@
 import TonKeeperLogo from "assets/tonkeeper.png";
 import TonhubLogo from "assets/tonhub.png";
 import ExtensionLogo from "assets/chrome.svg";
+import OpenMaskLogo from "assets/openmask.svg";
 
 import { Provider, WalletProvider } from "types";
 import { Address } from "ton";
@@ -29,10 +30,18 @@ export const walletAdapters: WalletProvider[] = [
     description: "A mobile wallet in your pocket",
     reminder: true,
   },
+
+  {
+    type: Provider.OPEN_MASK,
+    icon: OpenMaskLogo,
+    title: "OpenMask",
+    description: "OpenMask Plugin for Google Chrome",
+    mobileDisabled: true,
+  },
   {
     type: Provider.EXTENSION,
     icon: ExtensionLogo,
-    title: "Google Chrome Plugin",
+    title: "TON Wallet",
     description: "TON Wallet Plugin for Google Chrome",
     mobileDisabled: true,
   },

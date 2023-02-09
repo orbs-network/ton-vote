@@ -4,6 +4,7 @@ import {
   ChromeExtensionWalletProvider,
   TonhubProvider,
   TonkeeperProvider,
+  OpenMaskWalletProvider,
 } from "@ton-defi.org/ton-connection";
 import { LOCAL_STORAGE_PROVIDER, walletAdapters } from "config";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
@@ -71,23 +72,31 @@ export const useConnect = () => {
       }
     };
 
+    const handleQr = () => {
+      if (!isMobile) {
+        setShowQR(true);
+      }
+    };
+
     // chtrome extension
     if (wallet.type === Provider.EXTENSION) {
       tonWalletProvider = new ChromeExtensionWalletProvider();
+    } else if (wallet.type === Provider.OPEN_MASK) {
+      tonWalletProvider = new OpenMaskWalletProvider();
     } else if (wallet.type === Provider.TONHUB) {
       // tonhub
       tonWalletProvider = new TonhubProvider({
         onSessionLinkReady,
         persistenceProvider: window.localStorage,
       });
-      setShowQR(true);
+      handleQr();
     } else if (wallet.type === Provider.TONKEEPER) {
       // tonkeeper
       tonWalletProvider = new TonkeeperProvider({
         manifestUrl: "https://ton.vote/tonconnect-manifest.json",
         onSessionLinkReady,
       });
-      setShowQR(true);
+      handleQr();
     }
 
     if (!tonWalletProvider) {
