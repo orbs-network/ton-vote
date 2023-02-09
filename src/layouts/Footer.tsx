@@ -1,8 +1,9 @@
 import { styled, Typography } from '@mui/material'
 import React from 'react'
-import { StyledFlexRow } from 'styles'
+import { StyledFlexColumn, StyledFlexRow } from 'styles'
 import OrbsLogo from 'assets/orbs.svg'
 import HearLogo from "assets/heart.svg";
+import { Github } from 'components';
 
 export function Footer() {
   return (
@@ -15,12 +16,13 @@ export function Footer() {
           <Typography>Orbs</Typography> <img src={OrbsLogo} />
         </a>
       </StyledWithLove>
+      <Github />
     </StyledContainer>
   );
 }
 
 
-const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
+const StyledContainer = styled(StyledFlexColumn)(({ theme }) => ({
     marginTop:100,
     height: 100,
   a: {
@@ -40,5 +42,5 @@ const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
 }));
 
 const StyledWithLove = styled(StyledFlexRow)({
-    gap: 7
+   gap:4
 })

@@ -36,21 +36,21 @@ export const getAdapterName = () => {
 };
 
 export const Logger = (log: any) => {
-  //TODO clean
-  // if (import.meta.env.DEV) {
-  //   console.log(log);
-  // }
+  if (import.meta.env.DEV) {
     console.log(log);
+  }
 };
 
 export const parseVotes = (rawVotes: RawVotes, votingPower: VotingPower) => {
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
+    
     return {
       address: key,
       vote: v.vote,
       votingPower: _votingPower ? fromNano(_votingPower) : "0",
       timestamp: v.timestamp,
+      hash: v.hash
     };
   });
 

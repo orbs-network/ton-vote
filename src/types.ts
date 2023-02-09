@@ -39,6 +39,7 @@ export interface Vote {
   vote: string;
   votingPower: string;
   timestamp: number;
+  hash: string;
 }
 
 export interface Transaction {
@@ -68,7 +69,7 @@ export interface Transaction {
 
 export type VotingPower = { [key: string]: string };
 
-export type RawVote = { timestamp: number; vote: string };
+export type RawVote = { timestamp: number; vote: string, hash: string };
 export type RawVotes = { [key: string]: RawVote };
 
 

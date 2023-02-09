@@ -11,3 +11,4 @@ export * from "./NumberDisplay";
 export * from "./Coundown";
 export * from "./EndpointPopup";
 export * from './Notification'
+export * from "./Github";

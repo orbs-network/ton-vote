@@ -103,3 +103,9 @@ export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction completed'
 export const CONTRACT_ADDRESS = Address.parse(
   "EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT"
 );
+
+
+export const VERIFY_LINK =
+  "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
+
+export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";

@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import { Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress } from "utils";
-import { TONSCAN_ADDRESS_URL } from "config";
+import { TONSCAN, TONSCAN_ADDRESS_URL } from "config";
 import { Vote } from "types";
 import { useStateQuery } from "queries";
 import { useConnectionStore, useVotesPaginationStore } from "store";
@@ -36,13 +36,13 @@ export function VotesLayout() {
 }
 
 const VoteComponent = ({ data }: { data: Vote }) => {  
-  const { address, votingPower, vote } = data;
+  const { address, votingPower, vote, hash } = data;
   
   const connectedAddress = useConnectionStore().address;
 
   return (
     <StyledVote justifyContent="flex-start">
-      <Link className="address" href={`${TONSCAN_ADDRESS_URL}/${address}`}>
+      <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
         {connectedAddress === address ? "You" : makeElipsisAddress(address, 5)}
       </Link>
       <Typography className="vote">{vote}</Typography>

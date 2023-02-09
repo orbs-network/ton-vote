@@ -82,10 +82,10 @@ export function getAllVotes(transactions, proposalInfo) {
       continue;
 
     vote = vote.toLowerCase();
-
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
       vote: "",
+      hash: transactions[i].id.hash,
     };
 
     if (["y", "yes"].includes(vote)) {

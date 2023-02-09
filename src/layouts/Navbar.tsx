@@ -1,6 +1,6 @@
-import { IconButton, Menu, MenuItem, styled, Typography } from "@mui/material";
+import { IconButton, Menu, MenuItem, styled, Typography, useMediaQuery } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, ConnectButton } from "components";
+import { Button, ConnectButton, Github } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { RiRouteFill } from "react-icons/ri";
 import { useConnectionStore, useEndpointStore, useResetConnection } from "store";
 
 export function Navbar() {
+    const mobile = useMediaQuery("(max-width:600px)");
   return (
     <StyledContainer>
       <StyledGrid>
@@ -22,6 +23,7 @@ export function Navbar() {
           <StyledFlexRow style={{ width: "fit-content" }}>
             <Settings />
             <ConnectSection />
+            {!mobile && <Github />}
           </StyledFlexRow>
         </StyledFlexRow>
       </StyledGrid>
@@ -45,6 +47,9 @@ const StyledConnected = styled(Button)({
     fontSize: 14,
   },
 });
+
+
+
 
 const StyledLogo = styled("button")(({ theme }) => ({
   background: "transparent",

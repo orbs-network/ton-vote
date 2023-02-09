@@ -10,27 +10,29 @@ import {
 } from "queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { useClientStore, useContractStore, usePersistedStore, useServerStore } from "store";
+import {
+  useClientStore,
+  useContractStore,
+  usePersistedStore,
+  useServerStore,
+} from "store";
 import { useGetContractState } from "hooks";
 import { useEffect } from "react";
 import { Logger } from "utils";
+import { VERIFY_LINK } from "config";
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
   const results = data?.proposalResults;
 
   return (
-    <StyledResults
-      title="Results"
-      loaderAmount={3}
-      loading={isLoading}
-      headerChildren={<VerifyResults />}
-    >
+    <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
       <StyledFlexColumn>
         <ResultRow name="Yes" percent={results?.yes || 0} />
         <ResultRow name="No" percent={results?.no || 0} />
         <ResultRow name="Abstain" percent={results?.abstain || 0} />
       </StyledFlexColumn>
+      <VerifyResults />
     </StyledResults>
   );
 };
@@ -121,46 +123,60 @@ export function VerifyResults() {
 
   const maxLt = usePersistedStore().maxLt;
 
-
   useEffect(() => {
     if (isVerified && maxLt) {
       reset();
     }
   }, [maxLt]);
 
-  if (!isReady) return null;
-  if (isVerified) {
-    return (
-      <StyledVerified>
+  const component = () => {
+    if (!isReady) return null;
+    if (isVerified) {
+      return (
         <StyledVerifiedButton>
           <Typography>Verified</Typography>
           <BsFillCheckCircleFill />
         </StyledVerifiedButton>
-      </StyledVerified>
-    );
-  }
+      );
+    }
 
-  return (
-    <StyledVerifyContainer>
+    return (
       <StyledVerifyButton isLoading={isLoading} onClick={verify}>
         <Typography>Verify</Typography>
       </StyledVerifyButton>
+    );
+  };
+  return (
+    <StyledVerifyContainer>
+      <StyledVerifyText>
+        Download votes from chain and verify the results in browser{" "}
+        <a href={VERIFY_LINK} target="_blank">
+          (read more)
+        </a>
+      </StyledVerifyText>
+      {component()}
     </StyledVerifyContainer>
   );
 }
 
-const StyledVerifyContainer = styled(StyledFlexRow)({
-  width: "fit-content",
-});
-
-const StyledVerified = styled(StyledVerifyContainer)(({ theme }) => ({
-  svg: {
-    fill: "white",
+const StyledVerifyContainer = styled(StyledFlexColumn)(({ theme }) => ({
+  marginTop: 30,
+  justifyContent: "center",
+  width: "100%",
+  gap: 15,
+  a: {
+    color: theme.palette.primary.main,
+    textDecoration:'unset'
   },
 }));
 
+const StyledVerifyText = styled(Typography)({
+  fontWeight: 500,
+});
+
 const StyledVerifyButton = styled(Button)({
-  height: 32,
+  height: 40,
+  minWidth: 180,
   "*": {
     fontSize: 15,
   },
