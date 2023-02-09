@@ -1,6 +1,7 @@
-;; This is a simple proposal contract aimd to store votes as transactions
-;; Future versions of the platform will support voting with offchain signatures 
-;; and storage on Ton Storage and will not require this contract
+;; This is a simple proposal contract aimd to store votes as transactions 
+;; Voting uses the commend field of an incoming message
+;; This contract is used for the TON community vote about "the freeze":
+;; https://t.me/tonblockchain/178
 
 (int, int, int) load_data() inline {
     slice ds = get_data().begin_parse();
@@ -36,6 +37,7 @@
     return proposal_snapshot_time;
 }
 
+;; addresses proposed to be frozen to make sure the list is immutable and clear to all voters
 tuple frozen_addresses() method_id {
     var list = null();
     
