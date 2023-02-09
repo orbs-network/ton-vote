@@ -16,9 +16,25 @@ The full system is still WIP and not ready for a production release, so we decid
 
 * Votes are weighted by TON coin balance. Results are calculated in regards to a historic snapshot of the balances that is pre-defined in the proposal. This helps prevent users from manipulating the vote by purchasing/borrowing tokens for the sake of the vote only. This also makes sure that every token can only be used by a single voter.
 
-* Counting of the votes occurs client-side. We can't tally the votes on-chain since a contract cannot read historic account state. By counting the votes client-side we still reach a pretty good degree of trustlessness. Everyone can be convinced on their own machine that the result is correct.
+* Counting of the votes occurs client-side. We can't tally the votes on-chain since a contract cannot read historic account state. By counting the votes client-side we still reach a pretty good degree of trustlessness. Everyone can be convinced on their own machine that the result is correct. This is a similar trade-off as done on [snapshot.org](https://snapshot.org/) which is the most popular DAO voting platform today.
 
 * This simplified "system" supports a single proposal. Users can vote multiple times and change their mind, the most recent vote takes.
+
+## How can you verify the results?
+
+We took great care to make sure the voting process and calculation is decentralized and trustless. You can verify the results by yourself and you are not required to trust anyone in the process.
+
+1. Votes are sent as on-chain transactions to a smart contract on mainnet: https://tonscan.org/address/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT
+
+2. You can open this contract in an explorer and see all transactions sent to it with their votes as comments. You can also see the contract code since it is [verified](https://verifier.ton.org/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT). The source includes parameters of the vote like its duration and which addresses are subject to the freeze.
+
+3. The browser app that displays the results is open source and served from GitHub Pages on [this repo](https://github.com/orbs-network/dao-vote). It does not require any hidden servers in order to calculate the results. You can even fork this repo and run your own version of the app to make sure 100% that this is the code running in your browser.
+
+4. When you press the "Verify" button next to the results, your browser will download all the votes sent to the contract by using TON RPC API. Your browser will query the balance of each voter in the snapshot time using TON RPC API. Your browser will then combine the results by applying the weight for each vote as the balance. This entire process happens client-side making it 100% trustless.
+
+5. To alleviate any concerns that the TON RPC API gateways might influence the results somehow, the client also allows you to provide your own RPC endpoints. You can find this option under "Settings". You are welcome to rely on any RPC endpoint you trust or run your own endpoint to be 100% trustless.
+
+6. When Ethereum, which is considered successfully decentralized by the industry, held [similar votes](https://cointelegraph.com/news/eip-999-why-a-vote-to-release-parity-locked-funds-evoked-so-much-controversy) community-wide, the process was similar. So we are in good company.
 
 ## Walkthrough of the implementation
 
@@ -30,8 +46,12 @@ The full system is still WIP and not ready for a production release, so we decid
 
 ## Live demo
 
-The vote is currently live as a demo and deployed to mainnet. The client is at https://ton.vote - you can go there and play with the system.
+The vote is currently live as a demo and deployed to mainnet. The client is at https://ton.vote - you can go there and play with the system. There are few missing features that are still WIP. They are all listed in the [issues](https://github.com/orbs-network/dao-vote/issues). Please submit additional feedback as issues.
 
-## Additional missing features
+## Why not calculate results on-chain?
 
-There are few missing features that are still WIP. They are all listed in the [issues](https://github.com/orbs-network/dao-vote/issues). Please submit additional feedback as issues.
+There are ideas in the community on how to implement an on-chain DAO. Most proposals have to do with Jettons, not with TON coin itself. These proposals also generally prevent or limit tokens from being transferred during the vote so they would not be used twice. We believe that such limitations will decrease participation in the vote and prevent some voices from being heard. Even with democratic elections that happen once every 4 years, voter turn-out is always too low. The off-chain calculation method is as secure (nobody can create widespread result fraud) and by relying on a historic balance snapshot, there is no need to limit any of the voters in any way.
+
+## License
+
+MIT
