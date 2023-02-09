@@ -52,6 +52,7 @@ const StyledSection = styled(StyledFlexColumn)({
   ".title": {
     textTransform: "uppercase",
     fontSize: 12,
+    fontWeight: 600
   },
 });
 

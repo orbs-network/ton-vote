@@ -13,7 +13,7 @@ import {
 import DeadlineLayout from "layouts/DeadlineLayout";
 import { useServerHealthCheckQuery } from "queries";
 import { useEffect } from "react";
-import { useEagerlyConnect, useGetClientsOnLoad } from "store";
+import { useEagerlyConnect, useGetClientsOnLoad, usePersistedStore } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
 const Destop = () => {

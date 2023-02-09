@@ -28,10 +28,8 @@ import { Address, Cell, CommentMessage, toNano } from "ton";
 import {
   QueryKeys,
   GetTransactionsPayload,
-  RawVotes,
   GetState,
   ProposalInfo,
-  Transaction,
 } from "types";
 import { Logger, parseVotes, waitForSeqno } from "utils";
 
@@ -76,7 +74,7 @@ const useGetContractStateCallback = () => {
   const contractAddress = useContractAddressQuery().data;
   const queryClient = useQueryClient();
   const getContractState = useGetContractState();
-  const { getStateData } = useDataFromQueryClient();
+  const getStateData = useDataFromQueryClient().getStateData;
   const handleWalletVote = useWalletVote();
 
   return async () => {
@@ -127,15 +125,14 @@ export const useStateQuery = () => {
   return useQuery(
     [QueryKeys.STATE],
     async () => {
-      const currentStateData = getStateData();
       const onServerState = async () => {
         const data = await getServerStateCallback();
-        return data || currentStateData;
+        return data || getStateData();
       };
 
       const onContractState = async () => {
         const data = await getContractStateCallback();
-        return data || currentStateData;
+        return data || getStateData();
       };
 
       if (!fetchFromServer) {
@@ -155,7 +152,7 @@ export const useStateQuery = () => {
         return onServerState();
       }
       Logger(
-        `server is outdated, fetching from contract server maxLt:${serverMaxLt} currentMaxLt:${maxLt}`
+        `server is outdated, fetching from contract, server maxLt:${serverMaxLt} currentMaxLt:${maxLt}`
       );
       return onContractState();
     },
@@ -219,7 +216,8 @@ export const useIsFetchFromServer = () => {
 };
 
 export const useServerHealthCheckQuery = () => {
-  const { disableServer, isCustomEndpoints } = usePersistedStore();
+  const { isCustomEndpoints, disableServer } = usePersistedStore();
+
   return useQuery(
     [QueryKeys.SERVER_HEALTH_CHECK],
     async () => {

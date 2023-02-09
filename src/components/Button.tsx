@@ -27,7 +27,7 @@ function Button({
     >
       <Fade in={isLoading}>
         <StyledLoader>
-          <CircularProgress style={{ width: 30, height: 30 }} />
+          <CircularProgress className="loader" style={{ width: 30, height: 30 }} />
         </StyledLoader>
       </Fade>
       <Fade in={!isLoading}>

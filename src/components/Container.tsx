@@ -1,6 +1,6 @@
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import React, { ReactNode } from "react";
-import { StyledFlexColumn } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 
 function Container({
   children,
@@ -8,16 +8,25 @@ function Container({
   title,
   loading,
   loaderAmount,
+  headerChildren,
 }: {
   children: ReactNode;
   className?: string;
   title?: string;
   loading?: boolean;
   loaderAmount?: number;
+  headerChildren?: ReactNode;
 }) {
+  const showHeader = title || headerChildren;
   return (
     <StyledContainer className={className}>
-      {title && <Title>{title}</Title>}
+      {showHeader && (
+        <StyledHeader>
+          {title && <Title>{title}</Title>}
+          {headerChildren}
+        </StyledHeader>
+      )}
+
       {loading ? <Loader loaderAmount={loaderAmount} /> : children}
     </StyledContainer>
   );
@@ -56,12 +65,15 @@ const StyledContainer = styled(Box)({
   width: "100%",
 });
 
+const StyledHeader = styled(StyledFlexRow)({
+  marginBottom: 20,
+});
+
 const Title = ({ children }: { children: string }) => {
   return <StyledTitle variant="h4">{children}</StyledTitle>;
 };
 
 const StyledTitle = styled(Typography)({
-  marginBottom: 20,
   width: "100%",
   textAlign: "left",
 });
