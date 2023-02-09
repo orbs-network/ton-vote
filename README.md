@@ -20,6 +20,23 @@ The full system is still WIP and not ready for a production release, so we decid
 
 * This simplified "system" supports a single proposal. Users can vote multiple times and change their mind, the most recent vote takes.
 
+## How can you vote?
+
+To vote, make sure that your TON coin balance was not zero on the snapshot date. Voting will require sending a transaction on mainnet and this will cost very little gas. You will have to send the transaction from the same wallet that held your TON coin balance on the snapshot date.
+
+There are many wallets on TON, we made sure that you can use any of them and that the voting process is as frictionless as possible. Here are some different alternatives for voting:
+
+1. Use the client in https://ton.vote which supports TonHub, TonKeeper and OpenMask (via TonConnect2)
+
+2. Transfer 0.01 TON manually to the contract address `EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT` and add a comment with your vote - `yes` or `no` or `abstain`
+
+3. Open the relevant ton:// deep link with a supporting wallet:
+    * yes - `ton://transfer/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT?amount=10000000&text=yes`
+    * no - `ton://transfer/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT?amount=10000000&text=no`
+    * abstain - `ton://transfer/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT?amount=10000000&text=abstain`
+  
+After voting, you can open the client in https://ton.vote to see your vote counted. It will appear in the top of the recent votes list.
+
 ## How can you verify the results?
 
 We took great care to make sure the voting process and calculation is decentralized and trustless. You can verify the results by yourself and you are not required to trust anyone in the process.
