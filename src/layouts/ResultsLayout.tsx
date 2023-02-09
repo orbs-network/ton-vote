@@ -10,7 +10,7 @@ import {
 } from "queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { useClientStore, useContractStore, useServerStore } from "store";
+import { useClientStore, useContractStore, usePersistedStore, useServerStore } from "store";
 import { useGetContractState } from "hooks";
 import { useEffect } from "react";
 import { Logger } from "utils";
@@ -118,13 +118,15 @@ export function VerifyResults() {
     isReady,
     reset,
   } = useVerify();
-    const { dataUpdatedAt } = useStateQuery();
+
+  const maxLt = usePersistedStore().maxLt;
+
 
   useEffect(() => {
-    if (isVerified) {
+    if (isVerified && maxLt) {
       reset();
     }
-  }, [dataUpdatedAt]);
+  }, [maxLt]);
 
   if (!isReady) return null;
   if (isVerified) {

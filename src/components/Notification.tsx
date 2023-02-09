@@ -46,8 +46,7 @@ export function useNotification() {
         );
       },
       variant,
-      autoHideDuration:
-        autoHideDuration == null ? null : autoHideDuration || 6000,
+      autoHideDuration: 5000,
       onClose,
     });
     return key;

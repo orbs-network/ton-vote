@@ -9,7 +9,11 @@ import {
   TX_SUBMIT_ERROR_TEXT,
   TX_SUBMIT_SUCCESS_TEXT,
 } from "config";
-import { getProposalInfo, getTransactions } from "contracts-api/logic";
+import {
+  filterTxByTimestamp,
+  getProposalInfo,
+  getTransactions,
+} from "contracts-api/logic";
 import { useGetContractState, useWalletVote } from "hooks";
 import _ from "lodash";
 import moment from "moment";
@@ -31,6 +35,7 @@ import {
   GetTransactionsPayload,
   GetState,
   ProposalInfo,
+  Transaction,
 } from "types";
 import { Logger, parseVotes, waitForSeqno } from "utils";
 
@@ -122,28 +127,61 @@ const useCheckServerhealth = () => {
   };
 };
 
+// we use this in case that user did refresh after sending tx,
+// and have minMaxLt in the persisted store, and the server is outdated
+const useGetStatewhileServerOutdated = () => {
+  const getContractState = useGetContractState();
+  const { getStateData } = useDataFromQueryClient();
+  const queryClient = useQueryClient();
+  const { clientV2, clientV4 } = useClientStore();
+  const { maxLt } = usePersistedStore();
+  const handleWalletVote = useWalletVote();
+
+  return async () => {
+    const state = getStateData();
+    if (state) return state;
+    const proposalInfo = await queryClient.ensureQueryData({
+      queryKey: [QueryKeys.PROPOSAL_INFO],
+      queryFn: () => getProposalInfo(clientV2, clientV4),
+    });
+    const transactions = (await getTransactions(clientV2)).allTxns;
+    const filtered = filterTxByTimestamp(transactions, maxLt);
+    const result = await getContractState(proposalInfo, filtered);
+    return {
+      ...result,
+      votes: handleWalletVote(result.votes),
+    };
+  };
+};
+
 export const useStateQuery = () => {
   const { clientV2, clientV4 } = useClientStore();
   const { setEndpointError } = useEndpointStore();
   const fetchFromServer = useIsFetchFromServer();
-  const { getStateData } = useDataFromQueryClient();
+  const { getStateData: getStateCurrentData } = useDataFromQueryClient();
   const { maxLt: minServerMaxLt, clearMaxLt } = usePersistedStore();
   const txLoading = useTxStore().txLoading;
   const checkServerHealth = useCheckServerhealth();
-
+  const getStatewhileServerOutdatedAndStateEmpty = useGetStatewhileServerOutdated();
   const getServerStateCallback = useGetServerStateCallback();
   const getContractStateCallback = useGetContractStateCallback();
   return useQuery(
     [QueryKeys.STATE],
     async () => {
+      const parseData = (data: GetState) => {
+        return {
+          ...data,
+        };
+      };
+
       const onServerState = async () => {
         const data = await getServerStateCallback();
-        return data || getStateData();
+        return data || getStateCurrentData();
       };
 
       const onContractState = async () => {
         const data = await getContractStateCallback();
-        return data || getStateData();
+        return data || getStateCurrentData();
       };
 
       if (!fetchFromServer) {
@@ -171,10 +209,13 @@ export const useStateQuery = () => {
 
         return onServerState();
       }
+
       Logger(
-        `server is outdated, fetching from contract, server maxLt:${serverMaxLt} currentMaxLt:${minServerMaxLt}`
+        `server is outdated, server maxLt:${serverMaxLt} currentMaxLt:${minServerMaxLt}`
       );
-      return onContractState();
+      return (
+        getStateCurrentData() || getStatewhileServerOutdatedAndStateEmpty()
+      );
     },
     {
       onError: () => {

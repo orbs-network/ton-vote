@@ -1,9 +1,10 @@
 import { Box, styled, Typography } from "@mui/material";
 import { Container } from "components";
 import { ReactNode } from "react";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { useProposalInfoQuery } from "queries";
 import moment from "moment";
+import { CONTRACT_ADDRESS } from "config";
 
  const fromUnixToString = (
   time: number,
@@ -41,6 +42,11 @@ export const InformationLayout = () => {
                 {fromUnixToString(Number(proposalInfo.snapshot.snapshotTime))}
               </Typography>
             </InformationRow>
+            <InformationRow label="Contract">
+              <Typography>
+                {CONTRACT_ADDRESS.toFriendly()}
+              </Typography>
+            </InformationRow>
           </StyledFlexColumn>
         )}
       </StyledInformation>
@@ -72,6 +78,8 @@ const StyledInformation = styled(Container)({
       fontWeight: 700,
     },
     ".row-children": {
+      ...textOverflow,
+      maxWidth: '60%',
       "*": {
         fontSize: 14,
         fontWeight: 400,

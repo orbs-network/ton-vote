@@ -97,7 +97,7 @@ export const CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const TX_SUBMIT_ERROR_TEXT = 'Transaction failed'
-export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction finished'
+export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction completed'
 
 
 export const CONTRACT_ADDRESS = Address.parse(
