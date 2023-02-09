@@ -1,8 +1,9 @@
+import { CONTRACT_ADDRESS } from "config";
 import { Address } from "ton";
 
-export async function getSnapshotTime(client, clientV4, contractAddress) {
+export async function getSnapshotTime(client, clientV4) {
   const res = await client.callGetMethod(
-    Address.parse(contractAddress),
+    CONTRACT_ADDRESS,
     "proposal_snapshot_time"
   );
   const snapshotTime = Number(res.stack[0][1]);
@@ -12,17 +13,17 @@ export async function getSnapshotTime(client, clientV4, contractAddress) {
   return { snapshotTime, mcSnapshotBlock };
 }
 
-export async function getStartTime(client, contractAddress) {
+export async function getStartTime(client) {
   const res = await client.callGetMethod(
-    Address.parse(contractAddress),
+    CONTRACT_ADDRESS,
     "proposal_start_time"
   );
   return Number(res.stack[0][1]);
 }
 
-export async function getEndTime(client, contractAddress) {
+export async function getEndTime(client) {
   const res = await client.callGetMethod(
-    Address.parse(contractAddress),
+    CONTRACT_ADDRESS,
     "proposal_end_time"
   );
   return Number(res.stack[0][1]);

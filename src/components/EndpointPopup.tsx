@@ -228,4 +228,5 @@ const StyledTitle = styled(Typography)({
 
 const StyledSaveButton = styled(Button)({
   width: "100%",
+  maxWidth: 200
 });

@@ -13,6 +13,7 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { useClientStore, useContractStore, useServerStore } from "store";
 import { useGetContractState } from "hooks";
 import { useEffect } from "react";
+import { Logger } from "utils";
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
@@ -89,6 +90,8 @@ const useVerify = () => {
 
     const proposalResults = contractState.proposalResults;
 
+    Logger({ currentResults, proposalResults });
+
     const yes = compare(currentResults?.yes, proposalResults.yes);
 
     const no = compare(currentResults?.no, proposalResults.no);
@@ -115,14 +118,13 @@ export function VerifyResults() {
     isReady,
     reset,
   } = useVerify();
+    const { dataUpdatedAt } = useStateQuery();
 
   useEffect(() => {
     if (isVerified) {
-      setTimeout(() => {
-        reset();
-      }, 5000);
+      reset();
     }
-  }, [isVerified]);
+  }, [dataUpdatedAt]);
 
   if (!isReady) return null;
   if (isVerified) {

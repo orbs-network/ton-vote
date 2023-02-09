@@ -127,7 +127,7 @@ export const useStateQuery = () => {
   const { setEndpointError } = useEndpointStore();
   const fetchFromServer = useIsFetchFromServer();
   const { getStateData } = useDataFromQueryClient();
-  const { maxLt, clearMaxLt } = usePersistedStore();
+  const { maxLt: minServerMaxLt, clearMaxLt } = usePersistedStore();
   const txLoading = useTxStore().txLoading;
   const checkServerHealth = useCheckServerhealth();
 
@@ -153,24 +153,26 @@ export const useStateQuery = () => {
       const isSrverError = await checkServerHealth();
 
       if (isSrverError) {
+        Logger("server error, fetching from contract");
+
         return onContractState();
       }
 
-      if (!maxLt) {
+      if (!minServerMaxLt) {
         return onServerState();
       }
       const serverMaxLt = await api.getMaxLt();
 
-      if (Number(serverMaxLt) >= Number(maxLt || "0")) {
+      if (Number(serverMaxLt) >= Number(minServerMaxLt || "0")) {
         Logger(
-          `server is up to date, fetching from server matLt:${serverMaxLt} currentMaxLt:${maxLt}`
+          `server is up to date, fetching from server matLt:${serverMaxLt} currentMaxLt:${minServerMaxLt}`
         );
         clearMaxLt();
 
         return onServerState();
       }
       Logger(
-        `server is outdated, fetching from contract, server maxLt:${serverMaxLt} currentMaxLt:${maxLt}`
+        `server is outdated, fetching from contract, server maxLt:${serverMaxLt} currentMaxLt:${minServerMaxLt}`
       );
       return onContractState();
     },
@@ -205,7 +207,6 @@ export const useDataFromQueryClient = () => {
     setStateData,
   };
 };
-
 
 export const useProposalInfoQuery = () => {
   return useQuery<ProposalInfo | undefined>([QueryKeys.PROPOSAL_INFO], {

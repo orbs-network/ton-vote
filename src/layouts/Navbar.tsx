@@ -40,6 +40,7 @@ const ConnectSection = () => {
 };
 
 const StyledConnected = styled(Button)({
+  pointerEvents:'none',
   "*": {
     fontSize: 14,
   },
