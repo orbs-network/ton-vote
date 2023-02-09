@@ -2,7 +2,7 @@
 ;; Future versions of the platform will support voting with offchain signatures 
 ;; and storage on Ton Storage and will not require this contract
 
-(int, int, int, cell) load_data() inline {
+(int, int, int) load_data() inline {
     slice ds = get_data().begin_parse();
 
     int proposal_start_time = ds~load_uint(64);
@@ -36,76 +36,193 @@
     return proposal_snapshot_time;
 }
 
-(cell) frozen_addresses() method_id {
-    return begin_cell()
-    .store_slice("Ef_mlXHnufWO3-vvopflR_NpIFMiidvp_xt20Qf8usMBBKzB"a).store_slice("Ef8ZvWFCk64ubdT7k9fADlAADZW2oUeE0F__hNAx5vmQ27Ls"a).store_slice("Ef9mDsqzIg2i8fdw0Bb7UGafA3Gc1qX5IYjp6AOZwGlfvim2"a).store_ref(begin_cell()
-    .store_slice("Ef_OXz_ktGTHClb8arzLt3XEjlJTw9LEYxjGvSJNff79lgM0"a).store_slice("Ef_8PSUtKy_U-JZDSNUNqN5cVsn9ORJqS93L6DRM9HbsoScU"a).store_slice("Ef_Q2bUhOn4MA6OHPFi_6bmmDyqxfNPe0xZ1NzuVg3iZnc6q"a).store_ref(begin_cell()
-    .store_slice("Ef-WNdMyg4WY477TQbcRXXRYaJTxTcsMXCFCaqNsJOx2bdOb"a).store_slice("Ef-Mp2amcFWc_WUZLp7u0px-xaFUTIvZ235bbkxeZj_0L3RN"a).store_slice("Ef_a5A7jjemg9UIxm8qKDJDO6Ex1y0qIYKHv1y6JV2pf0Pc5"a).store_ref(begin_cell()
-    .store_slice("Ef-OlzXDAMGgBWSaGbCh3eddOMKQQ1FxSmlc7UFvyg0FLkaW"a).store_slice("Ef8-sWUe-q9lIhqbQ8uEn9zq0si2dYwmVNk7uAglmIzv6HUx"a).store_slice("Ef-oPVJM6fGP9OC-PczMUdiKPNfwkUrt4eslgzXXEY0qCH1j"a).store_ref(begin_cell()
-    .store_slice("Ef-Op85HIHPW38bRG-cITThNtN7DLMPNXuOcthlLwWIQ4F6h"a).store_slice("Ef8Coo1rIKJKBUd8_Op2x9Pn6qKpzK8hiXR36pkAObslsvEQ"a).store_slice("Ef-KSYlt0KOJ6vKSo1c837N_9LicTJll2Mg7Hbix7bsvIFR4"a).store_ref(begin_cell()
-    .store_slice("Ef9m1EeCVXB32YmziDqnSZvjkzzemdc9G8pCrtPVKfsXPz-L"a).store_slice("Ef9mgPTRU2ahxnKtLws-6iB3AmBjD3BYLtAIpqJydaizsqQN"a).store_slice("Ef818UKXzeOebz6Sf0_rdq7ZSghPV-ir4hxUVfNNoAj3ueCS"a).store_ref(begin_cell()
-    .store_slice("Ef_SjWSzILCgUwq4igDDEE3v3Sf0A0zwO55aWE-LYzLGpN2P"a).store_slice("Ef8BtXO9bcTMXjg9bgivKh4lhJmZWQPP6_rb9vfjlTP5FJtM"a).store_slice("Ef89xh-uy860-mCcvS8zcAUs8bApmxLGygDLEKjUk5RL-311"a).store_ref(begin_cell()
-    .store_slice("Ef_vA6yRfmt2P4UHnxlrQUZFcBnKux8mL2eMqBgpeMFPorr4"a).store_slice("Ef8o6AM9sUZ8rOqLFY8PYeaC3gbopZR1BMkE8fcD0r5NnmCi"a).store_slice("Ef_fvrd0hBoVJUxoi7wH173Zk8NPiyVvxh5IoYSjEYZbOhsu"a).store_ref(begin_cell()
-    .store_slice("Ef9nzj6RBc4mQ6p3ng7mGJ7tp7MbzERhe7obkM9A0wnCCEcf"a).store_slice("Ef9rU-_AAnBkHB71TIC3QvUf5LcAsvj0B4IoYzAXLpEFd5CA"a).store_slice("Ef9LynHHKgBxY6-l-W_dWN-CtGT2_ji5rN3EzOI-p9zWEfq6"a).store_ref(begin_cell()
-    .store_slice("Ef9hMd78gzSiVsK0zz0AHtEja8x1UoB_NDZMjn-l86NQK_2Y"a).store_slice("Ef80FNJ5NJO4-0QwlVAWckUZXdk-PfYDexDZ1-ju9SxhF0A6"a).store_slice("Ef_fdIbThooPs4_r2DE_Z6ZsWycJdHLnsuKAJHTcbaZaipez"a).store_ref(begin_cell()
-    .store_slice("Ef_lva0qEiZhWrrZJl-IJxyCcTQmmTo71fIWyQ31HxJ8NurV"a).store_slice("Ef8sMGKypw006AeRYqimLjmY2Ufp-SHk8C0ZJBNgVBlzw_Nr"a).store_slice("Ef-xcEX5-C22DE86S7EgbhCN7wGi4rQA35aXcafjOSVVranc"a).store_ref(begin_cell()
-    .store_slice("EQCaSCHVak-jIc9ANutTAfHpZNM3YdGky7yaDzsTrg0WhFlm"a).store_slice("EQBS9U3AfD15fGmOtRMXQAxcPVBwNuItfLcDni9fkbTyyNX0"a).store_slice("EQBiMNL9qNWMAkJHuM0BFneYcuHL17kzS4pswpaEO-NGWrFG"a).store_ref(begin_cell()
-    .store_slice("EQDxkhmQvPDtgcNst75JyXre6F1d9HA5RrQkfAm-6EYbebs6"a).store_slice("EQBX1DOvSox2jnjN40ZFtUSQhSJMCyEWhBRdRERRSltibBMl"a).store_slice("EQAICCoyXV4NKR60SHw4GC0NtHSFOphGw2tRcbVF8vQeq6Ap"a).store_ref(begin_cell()
-    .store_slice("EQCjztI_OLd1UTJtSY3o_b8qZxD5sTFoeJHIA_CfQ3Friigx"a).store_slice("EQB1m2zzTLcZZzAOxAMQd2Gx0B-WBRLEXwXyU3MUpruZRJf4"a).store_slice("EQDMtDMwOotSUowpZ83NfpYJYC_XYvQIqBYcuDUJoFceei3u"a).store_ref(begin_cell()
-    .store_slice("EQA03o-0IgFruYFoHot96C_wH9pAKrVZGQBENWHVYfN8d8I6"a).store_slice("EQDszxJPOZAX0ztmlbs7eDgPlwr3trm8-nzFfAdmbKhuga26"a).store_slice("EQAaJCuCUNANwLdvqVNoiva1U9FHhGXFUDDFg1wX7oGS9otO"a).store_ref(begin_cell()
-    .store_slice("EQB4hzviVxD170gIZfsWPGFKfbOB6LCP5YhH7I7fWz7wd18g"a).store_slice("EQB3-wgGfQcbppo-XnXsvzwr7yHghQH07p6fMC_ARdIijxA_"a).store_slice("EQCXNpbVkuKxTxPbc4GWngSrrBjhRD0TQSXqxpW_g-WhCiPw"a).store_ref(begin_cell()
-    .store_slice("EQAzb9EP1RAHx8Y52ESUcW-sbRnraqDtToI7Lcwv9zpONZNC"a).store_slice("EQAjte7qkSkMDTIwX0zqg2RImbUE2hBhr27uyGsoSIKZXOT4"a).store_slice("EQBcJ0SsxJ8ViYQr0n1eKYkNfKzNCO1UQu0chdC3sC9CMh2t"a).store_ref(begin_cell()
-    .store_slice("EQBdfnPzGbbK38eUHUb1MHZCdritWDMbEj-fjPdRivdruIoW"a).store_slice("EQDCg93lUVxmlCEks5kL8jTFcqg8lElfAi8dSee8j2jFDGWg"a).store_slice("EQCutEpbKJaulevOYXQPqlmgiMgHDU6C6X7KRxpFyzPf0bTY"a).store_ref(begin_cell()
-    .store_slice("EQCBMyAieemf3vF3umY0lCaQxLhwvbTFuL8eQxPYrpeZ8O4O"a).store_slice("EQCKgo9zOKIHeEPm_BySBsDi61vJEsw36eYdSfEkAdEJxdaB"a).store_slice("EQDOgRE2sbmPZpl9lA6Y3ixSPFD8CF_rpLl6N9n6i0KhLyGZ"a).store_ref(begin_cell()
-    .store_slice("EQAJJ6_YRxH-pjeUxhne0iiMdHmz7BbJJ_A2DtdmA_bfBvN1"a).store_slice("EQAupAX6TMABnJukf_XPXNih_T1ZgABjoxtAcOPcA710IQdd"a).store_slice("EQBtSs0SU4PCQ8H4q8QqoK0LPwJLkcJywLz9WgkZXl_T61wH"a).store_ref(begin_cell()
-    .store_slice("Ef9QzuurnRKGkdBkiFcVMahY0NeDy9RISLLmLKYJnp0D9Scf"a).store_slice("Ef9ew2pT3FXS-m8wRHnef1Sph38Dv2N69_SSWDq1L7c98VDJ"a).store_slice("EQDoznX6OGodrwCkiYUet0QQhKqD5vs_XVoWkw9PWIrc4nzE"a).store_ref(begin_cell()
-    .store_slice("EQDLNQOxEXRY6JCLpxQkoHjsZIvlfBcGxmhdpxcxw7hd02cb"a).store_slice("EQAi5p9hauyrISo6oTP1lvtDRcpR-8DXVfwFoLtSXCzUK4JY"a).store_slice("EQBJUlbzK7STK6R42LcGFxLrudKxMuW5gprGABcmSDhDoZ0k"a).store_ref(begin_cell()
-    .store_slice("EQBy4Sl0V6-Os8_nbgUTL4kcw4sGcUE6r1146EhQlq4j0mzN"a).store_slice("EQCSV9JuGqTFvxhA8bZ3fs9LoO-b6B3fjom0kGwNvrVD4t2N"a).store_slice("EQA8_W4HMYysUZnzKyRAugWx0wkPljV6gtx_s-fdYGcNAP2f"a).store_ref(begin_cell()
-    .store_slice("EQC0JmTypqySHVMVJMHWspb3xrs2Lrdy4eJ-M7QxpbS4cLju"a).store_slice("EQAA7RyNJcR3Tg7z_BwXb81ePDvrLytQanO62TA66mSDEwjs"a).store_slice("EQBZ_8qAHKZNYwc1_QlTThsvMfUlqebaBwg1VMvHOLj0hm9_"a).store_ref(begin_cell()
-    .store_slice("EQDY5GgwQeuSZwBH72e0OQCPQerqAsZRPRx6CVTxOb2N-3In"a).store_slice("EQAjtRP1kV8NS2oo6N67G1wGOOWMMJdyyu31WoOKcKYl3Lgr"a).store_slice("EQAcfANH7PG2eeTdX5Vr2ZUebxCfwJyzBCE4oriUVRU3jEor"a).store_ref(begin_cell()
-    .store_slice("EQAkvVQTtPmWYY64SLI-DKS6oBbQQ0JrGOyLh93NmrYPQdOB"a).store_slice("EQBfP6HoHb_zqc5U3Lh8_pNMt0R7Iwsxu858d0dqmeARhwBI"a).store_slice("EQAMy2lPdHZUPm695Z-bh0Z1dcta4xXX7fl6dlc2SXOliK0A"a).store_ref(begin_cell()
-    .store_slice("EQCBeXqt7IiwIofZ-rYjz6gSeRLjFjLdFQf_uRrXnZauK7Cx"a).store_slice("EQDrZi36KjGcO-5Z-6AJ9Ap2vgZKf7JzcMR4EdjE5f7qlS5P"a).store_slice("EQDT34GDWiciYo62uEboS8sj3hlKUXAWYcM3Urc0NjCMg1Kx"a).store_ref(begin_cell()
-    .store_slice("Ef_tLLoLmIvaoSxKX1sXflHZO1THzS-RUVIUux-gT67ykN7H"a).store_slice("EQAtlHRZMyF-8PHRySu5Vie0C2V_RhZ5R1b5C4tvnTti6q5E"a).store_slice("EQDWtv-LafzQrb1OIpWcDKHo7Yvt2WpQitlM23-2kksMrnVs"a).store_ref(begin_cell()
-    .store_slice("EQBWfMrvKZSEOHk8v_-kserBpiJ2rezKbuEhYLfZGqiX6VCb"a).store_slice("EQAv__KLm50Zz9iN6n2BF2eGtB7Kwjfe1Agy3lkjd9FSJii5"a).store_slice("EQCe9YMxZTmVK30baJwkM4w0hc60b-Jf_eExbPaIvkUOpEjN"a).store_ref(begin_cell()
-    .store_slice("EQC6o8UN21TLvt6j7G4uiS1PB3LB8O_Md70Zmk9uicRjPt0f"a).store_slice("EQCCCJHgAcs-wQzgf_9IPKdknw_ej0Z-Q-n3BtSEKi0hIjHY"a).store_slice("EQDfuwGozZBw1u6vFInSjUQJ5ktzSzVfIE6ONATQPFvvPqL7"a).store_ref(begin_cell()
-    .store_slice("EQBC2M3Dl1iH8pB6kg7d5vdh2nM_10aFg-ReMstAEPxNKCO_"a).store_slice("EQDrBjWxN_Zme5auRFn5qKNZtof6rlkweSCGf9iz60JmGsj5"a).store_slice("EQDx2vkLURpJY4xeoY4jBNI-y55zIyZA4epmAWob90oLn8vk"a).store_ref(begin_cell()
-    .store_slice("EQBv-0zsN9j-Lxs1EvbGG0fMwbeeqbWlxTzyjV4LE-0uJfNs"a).store_slice("EQAUzE-Nef80O9dLZy91HfPiOb6EEQ8YqyWKyIU-KeaYLNUi"a).store_slice("EQD-nhrinjv0B4LTgr0dRHTHwH1MOsgGhKBXJZd7vESMZUf1"a).store_ref(begin_cell()
-    .store_slice("EQAVD3Fni9I6j8XeSIl-wAGBEhqhame6OtAY0GScKT0D9X6f"a).store_slice("EQC6ACq3VANZjqfRBy7JMHkpLwqQ9qyYJsCIGx1mYbQgxaKw"a).store_slice("EQCIJLNFIko5CvpKn9oAkrDgLocDOoD4vwmHxNx_fsG_LkwW"a).store_ref(begin_cell()
-    .store_slice("EQCe4AYIBce1pAk2qJJPSs1OzyZRlKjkfq8zuC8D7erv6DUP"a).store_slice("EQCtrtTXEAoSpoERmiqOnICe9LHxn2N89N4BH9qdHlrG-U0i"a).store_slice("EQBBlraAps0OZaB9Q8ePQn2wVAaL1G411A-dNppyWe3X3GIT"a).store_ref(begin_cell()
-    .store_slice("EQBiASqUqaVizrozLRbszkWC2kETbkhpO2qniDVDPPg2_0W8"a).store_slice("EQBu2Q1EO8gIoNA1qoGWnHUudKfmqlKEDTQE-DxN-_4sdg14"a).store_slice("EQA5bvxWd5-q2vJUVqR9AlbEIfdFysLR0PXGgVlBf8x5hWuF"a).store_ref(begin_cell()
-    .store_slice("EQBguMSHjFv5bfoOdshr3ruS9ymSZzhRKMovoNrxGxZXvmee"a).store_slice("EQAxL0oF1-zNgimPKthbDnYS4xj94rHtfNRN7_Pd1r2LNNv3"a).store_slice("EQANX1uRKGZfyPIwEaIXrR0ZOqadct5q10dvKxWIxx7SQqzW"a).store_ref(begin_cell()
-    .store_slice("EQBitdFDoU5DWSjfKq7AsO29RIwAnBzzvcVVSn5ekQoB9Liv"a).store_slice("EQBgbux7VSjqJHP7ByRK1q4QuVZbpSCesNgvz5qad3lfXX_B"a).store_slice("EQDisBd8U7M3CEOZ8gcWCdetdmJi3AI31zIT5qBwOdmUbsxY"a).store_ref(begin_cell()
-    .store_slice("EQAZpn_eynVlf7Ii2d6jP_p1URPrdF9F3S7DiudQyelkjzwE"a).store_slice("EQDE0HBgfkOiqHezLtExBGTvOs8eitthHQosBjW3BmDy1y2K"a).store_slice("EQDyT36zktBN9PVWvZ1joRxhIfEUgCPt4F2isa-enUA_d6CP"a).store_ref(begin_cell()
-    .store_slice("EQDSMUGwt25IQd3_yHjI03F71G8Kp2GMaMEv2TiWoTKbsyRH"a).store_slice("EQAgK1EcrvEuL9sCtoj3cNhVNOuf3lo5GIPE2gn1fwZZYB3j"a).store_slice("EQCDKqL5w_6MD-Z7AOButu-uR-ZJTsgNU1fu464hn9grY81U"a).store_ref(begin_cell()
-    .store_slice("EQB1aVMyFBhnlYXmQjsma0S63kvxKU7ccZKFNCFTwX7ASPv4"a).store_slice("EQBbjrXHoxDyh1ZYGBdBoQgLaScxW6pZR1hEhJC8BqF-5Kgq"a).store_slice("EQC-QeZ13QP0lszxNKt380fCWuaV94vwC_bfuqmrlg1_fJPA"a).store_ref(begin_cell()
-    .store_slice("EQAiUwpF27vXCngqNhf_TQ5E_06ah0G4zuSrnfU7CLLaht5H"a).store_slice("EQBqiVjmhe2iVGmgOSDO1FGjSiz_AMtb1w7lLEiP4XIF_SFy"a).store_slice("EQDmwvaK2d_SbaPdpOM60effPWeKsksgDVwFPEyxuftM396K"a).store_ref(begin_cell()
-    .store_slice("EQDWtPZZgF7wvIMUHZQojuD3utiuivsW7WslRJ33dgv-5yc8"a).store_slice("EQBj8QLF2QLU0KDMCVdu568zQshbptWlNX28oHhTBbmF_R3b"a).store_slice("EQAYbtDCZEGRAOXaB6WwVqFzYTd1zZgyp15BIuy9n029k1_h"a).store_ref(begin_cell()
-    .store_slice("EQAA7z0JI0JKqbN-1uENKz9JrxIO5ZRY-ehMeg9fPncx50Ck"a).store_slice("EQBVUHRoCq6coQYUwOAhGSoAmQ6Mpm7dFlDYon6HMgWV8Ftr"a).store_slice("EQCTdvDCf0bA5dOPI1-44tB2ZfNcMGiklzvg27TovgDEqM6E"a).store_ref(begin_cell()
-    .store_slice("EQBDBKE5WGKIlnoi3OOzw7vkKKIX55eWjPvgxJWwek8AyL2J"a).store_slice("EQAvCSyLCo21GrqLAifdov4WkOxuGQCjMRxgF1cXSaNzLHZe"a).store_slice("EQBsChLfhZbaR23gJaR8SevIXowe2uUtIQCzjucuA9iu3--x"a).store_ref(begin_cell()
-    .store_slice("EQDs64JSInV0A3K_MqPab7qD2MaJkNBKq5txx3RQe5Emyci8"a).store_slice("EQAc72Ghri2XD_iI8o7m00YNF-ettab7VC2p8UU460BLIU5a"a).store_slice("EQBqA1yiO0fD4aXMsk4hQBO4rWfzx2dNpj3U1sdj21Gy6F5k"a).store_ref(begin_cell()
-    .store_slice("EQDcB-mY1VO0VjsCDe5i0-nTgpiywiu4UumAzH5oc1Sik_ip"a).store_slice("EQDHBUIhEdUCUJ1996-SEj0WiraaE4J6YLJOuLKLpK8ugelH"a).store_slice("EQCF3YE-zgsCUKNDOO-IHcKgaNuDbhbT2mPDp6CEoA_lGwYC"a).store_ref(begin_cell()
-    .store_slice("EQBo7oFeffZkEzjcm2o9ydsfanc6FhbA5uddwGZcvstFmDTE"a).store_slice("EQCGcN4b1k2-TOrfAMOka3RxvlwccVDSK0cPezlHZgfLx3KC"a).store_slice("Ef8GK7QPES_6rEX1QgnJoYfclfmmxLB7JkZkgyMjOY4imfPz"a).store_ref(begin_cell()
-    .store_slice("Ef9OK0CHqoBidcEUJHx4naV3TtgmUv1oEhGpt3DFLGnncqcD"a).store_slice("Ef9wfPnv8TnJ5_g98i_EhpBH_0lwMd6UUh_y391Awus8RnIv"a).store_slice("Ef_a7FubUfI8fUPnAIZvIRKadC9GG6zpjLLE6PXVj-de5m2m"a).store_ref(begin_cell()
-    .store_slice("Ef-d07-2cMJ_FEVEVVyAMFe49aBuRnhxzFCxr7189l-C2wuT"a).store_slice("EQA0VwItUqcgloSsOo5jOBn0kmtZ38DYidNQ4SFR9jNU9uQu"a).store_slice("EQAbmML93xvUT-iBDJrOfhiRGSs3vOczEy9DJAbuCb7aU5IV"a).store_ref(begin_cell()
-    .store_slice("EQAgAUSlf9zmQ3bmHet5lb6n9h1JC0ISF5PMH7orZ8v7lZDs"a).store_slice("EQAHaf_eo9gmHLiERpH5Y5ebr_z4pX4NysAmPMcHa9SXap09"a).store_slice("EQAP7Iz5zvzg42Omrjvn2KAGCkb5H6tYBtj6p-GsbIpMKYYJ"a).store_ref(begin_cell()
-    .store_slice("EQAyJ64Df7Vfb8_jmlGnsZByGAdCsEWA_FfWXyVEU5d6CtuO"a).store_slice("EQB457L2Ru7eCQ8NhgStoHxvewVSsKCDhqyTcL47xQnWaafk"a).store_slice("EQB71qzgehIXoMRj58vAWaHnNAi6UXEU5Ce942dJqf4Ha3NS"a).store_ref(begin_cell()
-    .store_slice("EQB7sAC-hRkGgk2w3RMBlCfNkw6VTC6Da-GRmVsXKH4IWWtW"a).store_slice("EQBa2970Z1EmGf-3R-Bh7t3WmRMHFrYB-JdxZ5FioTUrfNUf"a).store_slice("EQBdCvFB4bA7PAP0VXnTs784TO_4CoWLb1QqRdyr0orLAl51"a).store_ref(begin_cell()
-    .store_slice("EQBf4xFSy-MEXcwUtq1bD_FKDWzSLJ4t5gHhYKusM1LVwa5J"a).store_slice("EQBmd_oR88TrfAGcKrMn44T3wBnbh3TWVQWr8rVq0bYTnR7N"a).store_slice("EQBnaWOnwN_mqcDEF3aRDLvLPLhV3_utuZrX3IjLdHYeC7uB"a).store_ref(begin_cell()
-    .store_slice("EQBsnM5k_sOznQr1WdE94HfCWDSeLK6cBYi5xRxAp0kXoHTe"a).store_slice("EQBSzcGQ3b7rhszsLSWkdZkAofRtRe9Ft4li0OUGko6jnvMh"a).store_slice("EQBwd90d0x26s3wOdOYCVw-z2gbR7hQJmCQ8U7z8Vp5jLGLP"a).store_ref(begin_cell()
-    .store_slice("EQBZODk_N12gpWInTpRULGk1C4s_cwkDL92tclXQyvAiz4mR"a).store_slice("EQC1Dm_DvuCGRFFqrZ0RkPCaTJDAaHKWcpP3aN3f_TGJ1ZNC"a).store_slice("EQC5QWZHVFsnNc3YPRYafUErFg_i0slwoSiyTojBd61Tagj7"a).store_ref(begin_cell()
-    .store_slice("EQC7bGLqI2XPdKGJzNlkPnOnB3Ykw0QQ9lIMZCZW5GWvptyt"a).store_slice("EQCFOgDeG2tb_xMRJ5TQDYq6BPlISm9KSxOjvGwN32mJ-0Mj"a).store_slice("EQCHHYVRvW7EqtBZjteGrvzrbs2liZiAJUyevROZZ2hV3y7c"a).store_ref(begin_cell()
-    .store_slice("EQCHOHm0KaZGLqDPUZRHdLYQO-nsHHrLaEmrfQ95hd8MU-Bh"a).store_slice("EQCPp9qFewm5kYWBnO7S4gl4_y-NPuGZc75ZhJ2T8crkK5YR"a).store_slice("EQCpThG9OfYHp77yeaUS_95mhHPVgqverIO50RONyswWAkRN"a).store_ref(begin_cell()
-    .store_slice("EQCsLpDeHB2qpRbmsCb_0xmsYVNx1NgeYrvHGT1TDrHkDgL4"a).store_slice("EQCTQ8kPwyX92r48gCIL_pLN_RcQT9ghZygnmDTYkOkuW_j5"a).store_slice("EQCTrFRSHt-tfk7WxK9ZHQmqLcgxXxTK7wGfCEbqgY2W9Mcx"a).store_ref(begin_cell()
-    .store_slice("EQCv28y49GdaLncoclv0ISdDlMUY_cxDPGNWFCPT8t4GuqUJ"a).store_slice("EQCVL-k6deDR56Z8pcb0Btg0lGfaivOGfdDCD1vvyRsyL9vS"a).store_slice("EQD6t2dXDjZxF1DqunKF-8dEWivJdliY_0FYiCXnthuqnDCa"a).store_ref(begin_cell()
-    .store_slice("EQDE98XNzXiPq7VnbJJ2M4-Ht3tX_OWR0xUTTnDC8NObLmyU"a).store_slice("EQDfeRDE1TDhwt478CDR0Q7MDwqcTUhfjqyTT59mgoAaF6f7"a).store_slice("EQDijcEyUKa-QgCbeGlggQk1uBtt2ZRHyW4Y4gB4R6MN6RLW"a).store_ref(begin_cell()
-    .store_slice("EQDOtFOt41skbjBkZF89oYXpoDECjlxIzD-ShWAOYyzuxqLA"a).store_slice("EQDuJKSFWU7AYqH6KLFfAbYvMuz346eWmJvG6_2NYE42_B4T"a).store_slice("EQDwGu4vFv1e3wn8min_iy7OPJXegOYTFQ5bZFZ5a5ZPiBpX"a).store_ref(begin_cell()
-    .store_slice("EQC4G2ph6AS_mD_-cIv4aIYm1z5jAgCW_TTDEr72ygXOP2X-"a).store_slice("EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c"a)
-
-    .end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell())
-    .end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell())
-    .end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell())
-    .end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell())
-    .end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell())
-    .end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell()).end_cell())
-    .end_cell()).end_cell();
+tuple frozen_addresses() method_id {
+    var list = null();
+    
+    list = cons("Ef_mlXHnufWO3-vvopflR_NpIFMiidvp_xt20Qf8usMBBKzB"a , list);
+    list = cons("Ef8ZvWFCk64ubdT7k9fADlAADZW2oUeE0F__hNAx5vmQ27Ls"a , list);
+    list = cons("Ef9mDsqzIg2i8fdw0Bb7UGafA3Gc1qX5IYjp6AOZwGlfvim2"a , list);
+    list = cons("Ef_OXz_ktGTHClb8arzLt3XEjlJTw9LEYxjGvSJNff79lgM0"a , list);
+    list = cons("Ef_8PSUtKy_U-JZDSNUNqN5cVsn9ORJqS93L6DRM9HbsoScU"a , list);
+    list = cons("Ef_Q2bUhOn4MA6OHPFi_6bmmDyqxfNPe0xZ1NzuVg3iZnc6q"a , list);
+    list = cons("Ef-WNdMyg4WY477TQbcRXXRYaJTxTcsMXCFCaqNsJOx2bdOb"a , list);
+    list = cons("Ef-Mp2amcFWc_WUZLp7u0px-xaFUTIvZ235bbkxeZj_0L3RN"a , list);
+    list = cons("Ef_a5A7jjemg9UIxm8qKDJDO6Ex1y0qIYKHv1y6JV2pf0Pc5"a , list);
+    list = cons("Ef-OlzXDAMGgBWSaGbCh3eddOMKQQ1FxSmlc7UFvyg0FLkaW"a , list);
+    list = cons("Ef8-sWUe-q9lIhqbQ8uEn9zq0si2dYwmVNk7uAglmIzv6HUx"a , list);
+    list = cons("Ef-oPVJM6fGP9OC-PczMUdiKPNfwkUrt4eslgzXXEY0qCH1j"a , list);
+    list = cons("Ef-Op85HIHPW38bRG-cITThNtN7DLMPNXuOcthlLwWIQ4F6h"a , list);
+    list = cons("Ef8Coo1rIKJKBUd8_Op2x9Pn6qKpzK8hiXR36pkAObslsvEQ"a , list);
+    list = cons("Ef-KSYlt0KOJ6vKSo1c837N_9LicTJll2Mg7Hbix7bsvIFR4"a , list);
+    list = cons("Ef9m1EeCVXB32YmziDqnSZvjkzzemdc9G8pCrtPVKfsXPz-L"a , list);
+    list = cons("Ef9mgPTRU2ahxnKtLws-6iB3AmBjD3BYLtAIpqJydaizsqQN"a , list);
+    list = cons("Ef818UKXzeOebz6Sf0_rdq7ZSghPV-ir4hxUVfNNoAj3ueCS"a , list);
+    list = cons("Ef_SjWSzILCgUwq4igDDEE3v3Sf0A0zwO55aWE-LYzLGpN2P"a , list);
+    list = cons("Ef8BtXO9bcTMXjg9bgivKh4lhJmZWQPP6_rb9vfjlTP5FJtM"a , list);
+    list = cons("Ef89xh-uy860-mCcvS8zcAUs8bApmxLGygDLEKjUk5RL-311"a , list);
+    list = cons("Ef_vA6yRfmt2P4UHnxlrQUZFcBnKux8mL2eMqBgpeMFPorr4"a , list);
+    list = cons("Ef8o6AM9sUZ8rOqLFY8PYeaC3gbopZR1BMkE8fcD0r5NnmCi"a , list);
+    list = cons("Ef_fvrd0hBoVJUxoi7wH173Zk8NPiyVvxh5IoYSjEYZbOhsu"a , list);
+    list = cons("Ef9nzj6RBc4mQ6p3ng7mGJ7tp7MbzERhe7obkM9A0wnCCEcf"a , list);
+    list = cons("Ef9rU-_AAnBkHB71TIC3QvUf5LcAsvj0B4IoYzAXLpEFd5CA"a , list);
+    list = cons("Ef9LynHHKgBxY6-l-W_dWN-CtGT2_ji5rN3EzOI-p9zWEfq6"a , list);
+    list = cons("Ef9hMd78gzSiVsK0zz0AHtEja8x1UoB_NDZMjn-l86NQK_2Y"a , list);
+    list = cons("Ef80FNJ5NJO4-0QwlVAWckUZXdk-PfYDexDZ1-ju9SxhF0A6"a , list);
+    list = cons("Ef_fdIbThooPs4_r2DE_Z6ZsWycJdHLnsuKAJHTcbaZaipez"a , list);
+    list = cons("Ef_lva0qEiZhWrrZJl-IJxyCcTQmmTo71fIWyQ31HxJ8NurV"a , list);
+    list = cons("Ef8sMGKypw006AeRYqimLjmY2Ufp-SHk8C0ZJBNgVBlzw_Nr"a , list);
+    list = cons("Ef-xcEX5-C22DE86S7EgbhCN7wGi4rQA35aXcafjOSVVranc"a , list);
+    list = cons("EQCaSCHVak-jIc9ANutTAfHpZNM3YdGky7yaDzsTrg0WhFlm"a , list);
+    list = cons("EQBS9U3AfD15fGmOtRMXQAxcPVBwNuItfLcDni9fkbTyyNX0"a , list);
+    list = cons("EQBiMNL9qNWMAkJHuM0BFneYcuHL17kzS4pswpaEO-NGWrFG"a , list);
+    list = cons("EQDxkhmQvPDtgcNst75JyXre6F1d9HA5RrQkfAm-6EYbebs6"a , list);
+    list = cons("EQBX1DOvSox2jnjN40ZFtUSQhSJMCyEWhBRdRERRSltibBMl"a , list);
+    list = cons("EQAICCoyXV4NKR60SHw4GC0NtHSFOphGw2tRcbVF8vQeq6Ap"a , list);
+    list = cons("EQCjztI_OLd1UTJtSY3o_b8qZxD5sTFoeJHIA_CfQ3Friigx"a , list);
+    list = cons("EQB1m2zzTLcZZzAOxAMQd2Gx0B-WBRLEXwXyU3MUpruZRJf4"a , list);
+    list = cons("EQDMtDMwOotSUowpZ83NfpYJYC_XYvQIqBYcuDUJoFceei3u"a , list);
+    list = cons("EQA03o-0IgFruYFoHot96C_wH9pAKrVZGQBENWHVYfN8d8I6"a , list);
+    list = cons("EQDszxJPOZAX0ztmlbs7eDgPlwr3trm8-nzFfAdmbKhuga26"a , list);
+    list = cons("EQAaJCuCUNANwLdvqVNoiva1U9FHhGXFUDDFg1wX7oGS9otO"a , list);
+    list = cons("EQB4hzviVxD170gIZfsWPGFKfbOB6LCP5YhH7I7fWz7wd18g"a , list);
+    list = cons("EQB3-wgGfQcbppo-XnXsvzwr7yHghQH07p6fMC_ARdIijxA_"a , list);
+    list = cons("EQCXNpbVkuKxTxPbc4GWngSrrBjhRD0TQSXqxpW_g-WhCiPw"a , list);
+    list = cons("EQAzb9EP1RAHx8Y52ESUcW-sbRnraqDtToI7Lcwv9zpONZNC"a , list);
+    list = cons("EQAjte7qkSkMDTIwX0zqg2RImbUE2hBhr27uyGsoSIKZXOT4"a , list);
+    list = cons("EQBcJ0SsxJ8ViYQr0n1eKYkNfKzNCO1UQu0chdC3sC9CMh2t"a , list);
+    list = cons("EQBdfnPzGbbK38eUHUb1MHZCdritWDMbEj-fjPdRivdruIoW"a , list);
+    list = cons("EQDCg93lUVxmlCEks5kL8jTFcqg8lElfAi8dSee8j2jFDGWg"a , list);
+    list = cons("EQCutEpbKJaulevOYXQPqlmgiMgHDU6C6X7KRxpFyzPf0bTY"a , list);
+    list = cons("EQCBMyAieemf3vF3umY0lCaQxLhwvbTFuL8eQxPYrpeZ8O4O"a , list);
+    list = cons("EQCKgo9zOKIHeEPm_BySBsDi61vJEsw36eYdSfEkAdEJxdaB"a , list);
+    list = cons("EQDOgRE2sbmPZpl9lA6Y3ixSPFD8CF_rpLl6N9n6i0KhLyGZ"a , list);
+    list = cons("EQAJJ6_YRxH-pjeUxhne0iiMdHmz7BbJJ_A2DtdmA_bfBvN1"a , list);
+    list = cons("EQAupAX6TMABnJukf_XPXNih_T1ZgABjoxtAcOPcA710IQdd"a , list);
+    list = cons("EQBtSs0SU4PCQ8H4q8QqoK0LPwJLkcJywLz9WgkZXl_T61wH"a , list);
+    list = cons("Ef9QzuurnRKGkdBkiFcVMahY0NeDy9RISLLmLKYJnp0D9Scf"a , list);
+    list = cons("Ef9ew2pT3FXS-m8wRHnef1Sph38Dv2N69_SSWDq1L7c98VDJ"a , list);
+    list = cons("EQDoznX6OGodrwCkiYUet0QQhKqD5vs_XVoWkw9PWIrc4nzE"a , list);
+    list = cons("EQDLNQOxEXRY6JCLpxQkoHjsZIvlfBcGxmhdpxcxw7hd02cb"a , list);
+    list = cons("EQAi5p9hauyrISo6oTP1lvtDRcpR-8DXVfwFoLtSXCzUK4JY"a , list);
+    list = cons("EQBJUlbzK7STK6R42LcGFxLrudKxMuW5gprGABcmSDhDoZ0k"a , list);
+    list = cons("EQBy4Sl0V6-Os8_nbgUTL4kcw4sGcUE6r1146EhQlq4j0mzN"a , list);
+    list = cons("EQCSV9JuGqTFvxhA8bZ3fs9LoO-b6B3fjom0kGwNvrVD4t2N"a , list);
+    list = cons("EQA8_W4HMYysUZnzKyRAugWx0wkPljV6gtx_s-fdYGcNAP2f"a , list);
+    list = cons("EQC0JmTypqySHVMVJMHWspb3xrs2Lrdy4eJ-M7QxpbS4cLju"a , list);
+    list = cons("EQAA7RyNJcR3Tg7z_BwXb81ePDvrLytQanO62TA66mSDEwjs"a , list);
+    list = cons("EQBZ_8qAHKZNYwc1_QlTThsvMfUlqebaBwg1VMvHOLj0hm9_"a , list);
+    list = cons("EQDY5GgwQeuSZwBH72e0OQCPQerqAsZRPRx6CVTxOb2N-3In"a , list);
+    list = cons("EQAjtRP1kV8NS2oo6N67G1wGOOWMMJdyyu31WoOKcKYl3Lgr"a , list);
+    list = cons("EQAcfANH7PG2eeTdX5Vr2ZUebxCfwJyzBCE4oriUVRU3jEor"a , list);
+    list = cons("EQAkvVQTtPmWYY64SLI-DKS6oBbQQ0JrGOyLh93NmrYPQdOB"a , list);
+    list = cons("EQBfP6HoHb_zqc5U3Lh8_pNMt0R7Iwsxu858d0dqmeARhwBI"a , list);
+    list = cons("EQAMy2lPdHZUPm695Z-bh0Z1dcta4xXX7fl6dlc2SXOliK0A"a , list);
+    list = cons("EQCBeXqt7IiwIofZ-rYjz6gSeRLjFjLdFQf_uRrXnZauK7Cx"a , list);
+    list = cons("EQDrZi36KjGcO-5Z-6AJ9Ap2vgZKf7JzcMR4EdjE5f7qlS5P"a , list);
+    list = cons("EQDT34GDWiciYo62uEboS8sj3hlKUXAWYcM3Urc0NjCMg1Kx"a , list);
+    list = cons("Ef_tLLoLmIvaoSxKX1sXflHZO1THzS-RUVIUux-gT67ykN7H"a , list);
+    list = cons("EQAtlHRZMyF-8PHRySu5Vie0C2V_RhZ5R1b5C4tvnTti6q5E"a , list);
+    list = cons("EQDWtv-LafzQrb1OIpWcDKHo7Yvt2WpQitlM23-2kksMrnVs"a , list);
+    list = cons("EQBWfMrvKZSEOHk8v_-kserBpiJ2rezKbuEhYLfZGqiX6VCb"a , list);
+    list = cons("EQAv__KLm50Zz9iN6n2BF2eGtB7Kwjfe1Agy3lkjd9FSJii5"a , list);
+    list = cons("EQCe9YMxZTmVK30baJwkM4w0hc60b-Jf_eExbPaIvkUOpEjN"a , list);
+    list = cons("EQC6o8UN21TLvt6j7G4uiS1PB3LB8O_Md70Zmk9uicRjPt0f"a , list);
+    list = cons("EQCCCJHgAcs-wQzgf_9IPKdknw_ej0Z-Q-n3BtSEKi0hIjHY"a , list);
+    list = cons("EQDfuwGozZBw1u6vFInSjUQJ5ktzSzVfIE6ONATQPFvvPqL7"a , list);
+    list = cons("EQBC2M3Dl1iH8pB6kg7d5vdh2nM_10aFg-ReMstAEPxNKCO_"a , list);
+    list = cons("EQDrBjWxN_Zme5auRFn5qKNZtof6rlkweSCGf9iz60JmGsj5"a , list);
+    list = cons("EQDx2vkLURpJY4xeoY4jBNI-y55zIyZA4epmAWob90oLn8vk"a , list);
+    list = cons("EQBv-0zsN9j-Lxs1EvbGG0fMwbeeqbWlxTzyjV4LE-0uJfNs"a , list);
+    list = cons("EQAUzE-Nef80O9dLZy91HfPiOb6EEQ8YqyWKyIU-KeaYLNUi"a , list);
+    list = cons("EQD-nhrinjv0B4LTgr0dRHTHwH1MOsgGhKBXJZd7vESMZUf1"a , list);
+    list = cons("EQAVD3Fni9I6j8XeSIl-wAGBEhqhame6OtAY0GScKT0D9X6f"a , list);
+    list = cons("EQC6ACq3VANZjqfRBy7JMHkpLwqQ9qyYJsCIGx1mYbQgxaKw"a , list);
+    list = cons("EQCIJLNFIko5CvpKn9oAkrDgLocDOoD4vwmHxNx_fsG_LkwW"a , list);
+    list = cons("EQCe4AYIBce1pAk2qJJPSs1OzyZRlKjkfq8zuC8D7erv6DUP"a , list);
+    list = cons("EQCtrtTXEAoSpoERmiqOnICe9LHxn2N89N4BH9qdHlrG-U0i"a , list);
+    list = cons("EQBBlraAps0OZaB9Q8ePQn2wVAaL1G411A-dNppyWe3X3GIT"a , list);
+    list = cons("EQBiASqUqaVizrozLRbszkWC2kETbkhpO2qniDVDPPg2_0W8"a , list);
+    list = cons("EQBu2Q1EO8gIoNA1qoGWnHUudKfmqlKEDTQE-DxN-_4sdg14"a , list);
+    list = cons("EQA5bvxWd5-q2vJUVqR9AlbEIfdFysLR0PXGgVlBf8x5hWuF"a , list);
+    list = cons("EQBguMSHjFv5bfoOdshr3ruS9ymSZzhRKMovoNrxGxZXvmee"a , list);
+    list = cons("EQAxL0oF1-zNgimPKthbDnYS4xj94rHtfNRN7_Pd1r2LNNv3"a , list);
+    list = cons("EQANX1uRKGZfyPIwEaIXrR0ZOqadct5q10dvKxWIxx7SQqzW"a , list);
+    list = cons("EQBitdFDoU5DWSjfKq7AsO29RIwAnBzzvcVVSn5ekQoB9Liv"a , list);
+    list = cons("EQBgbux7VSjqJHP7ByRK1q4QuVZbpSCesNgvz5qad3lfXX_B"a , list);
+    list = cons("EQDisBd8U7M3CEOZ8gcWCdetdmJi3AI31zIT5qBwOdmUbsxY"a , list);
+    list = cons("EQAZpn_eynVlf7Ii2d6jP_p1URPrdF9F3S7DiudQyelkjzwE"a , list);
+    list = cons("EQDE0HBgfkOiqHezLtExBGTvOs8eitthHQosBjW3BmDy1y2K"a , list);
+    list = cons("EQDyT36zktBN9PVWvZ1joRxhIfEUgCPt4F2isa-enUA_d6CP"a , list);
+    list = cons("EQDSMUGwt25IQd3_yHjI03F71G8Kp2GMaMEv2TiWoTKbsyRH"a , list);
+    list = cons("EQAgK1EcrvEuL9sCtoj3cNhVNOuf3lo5GIPE2gn1fwZZYB3j"a , list);
+    list = cons("EQCDKqL5w_6MD-Z7AOButu-uR-ZJTsgNU1fu464hn9grY81U"a , list);
+    list = cons("EQB1aVMyFBhnlYXmQjsma0S63kvxKU7ccZKFNCFTwX7ASPv4"a , list);
+    list = cons("EQBbjrXHoxDyh1ZYGBdBoQgLaScxW6pZR1hEhJC8BqF-5Kgq"a , list);
+    list = cons("EQC-QeZ13QP0lszxNKt380fCWuaV94vwC_bfuqmrlg1_fJPA"a , list);
+    list = cons("EQAiUwpF27vXCngqNhf_TQ5E_06ah0G4zuSrnfU7CLLaht5H"a , list);
+    list = cons("EQBqiVjmhe2iVGmgOSDO1FGjSiz_AMtb1w7lLEiP4XIF_SFy"a , list);
+    list = cons("EQDmwvaK2d_SbaPdpOM60effPWeKsksgDVwFPEyxuftM396K"a , list);
+    list = cons("EQDWtPZZgF7wvIMUHZQojuD3utiuivsW7WslRJ33dgv-5yc8"a , list);
+    list = cons("EQBj8QLF2QLU0KDMCVdu568zQshbptWlNX28oHhTBbmF_R3b"a , list);
+    list = cons("EQAYbtDCZEGRAOXaB6WwVqFzYTd1zZgyp15BIuy9n029k1_h"a , list);
+    list = cons("EQAA7z0JI0JKqbN-1uENKz9JrxIO5ZRY-ehMeg9fPncx50Ck"a , list);
+    list = cons("EQBVUHRoCq6coQYUwOAhGSoAmQ6Mpm7dFlDYon6HMgWV8Ftr"a , list);
+    list = cons("EQCTdvDCf0bA5dOPI1-44tB2ZfNcMGiklzvg27TovgDEqM6E"a , list);
+    list = cons("EQBDBKE5WGKIlnoi3OOzw7vkKKIX55eWjPvgxJWwek8AyL2J"a , list);
+    list = cons("EQAvCSyLCo21GrqLAifdov4WkOxuGQCjMRxgF1cXSaNzLHZe"a , list);
+    list = cons("EQBsChLfhZbaR23gJaR8SevIXowe2uUtIQCzjucuA9iu3--x"a , list);
+    list = cons("EQDs64JSInV0A3K_MqPab7qD2MaJkNBKq5txx3RQe5Emyci8"a , list);
+    list = cons("EQAc72Ghri2XD_iI8o7m00YNF-ettab7VC2p8UU460BLIU5a"a , list);
+    list = cons("EQBqA1yiO0fD4aXMsk4hQBO4rWfzx2dNpj3U1sdj21Gy6F5k"a , list);
+    list = cons("EQDcB-mY1VO0VjsCDe5i0-nTgpiywiu4UumAzH5oc1Sik_ip"a , list);
+    list = cons("EQDHBUIhEdUCUJ1996-SEj0WiraaE4J6YLJOuLKLpK8ugelH"a , list);
+    list = cons("EQCF3YE-zgsCUKNDOO-IHcKgaNuDbhbT2mPDp6CEoA_lGwYC"a , list);
+    list = cons("EQBo7oFeffZkEzjcm2o9ydsfanc6FhbA5uddwGZcvstFmDTE"a , list);
+    list = cons("EQCGcN4b1k2-TOrfAMOka3RxvlwccVDSK0cPezlHZgfLx3KC"a , list);
+    list = cons("Ef8GK7QPES_6rEX1QgnJoYfclfmmxLB7JkZkgyMjOY4imfPz"a , list);
+    list = cons("Ef9OK0CHqoBidcEUJHx4naV3TtgmUv1oEhGpt3DFLGnncqcD"a , list);
+    list = cons("Ef9wfPnv8TnJ5_g98i_EhpBH_0lwMd6UUh_y391Awus8RnIv"a , list);
+    list = cons("Ef_a7FubUfI8fUPnAIZvIRKadC9GG6zpjLLE6PXVj-de5m2m"a , list);
+    list = cons("Ef-d07-2cMJ_FEVEVVyAMFe49aBuRnhxzFCxr7189l-C2wuT"a , list);
+    list = cons("EQA0VwItUqcgloSsOo5jOBn0kmtZ38DYidNQ4SFR9jNU9uQu"a , list);
+    list = cons("EQAbmML93xvUT-iBDJrOfhiRGSs3vOczEy9DJAbuCb7aU5IV"a , list);
+    list = cons("EQAgAUSlf9zmQ3bmHet5lb6n9h1JC0ISF5PMH7orZ8v7lZDs"a , list);
+    list = cons("EQAHaf_eo9gmHLiERpH5Y5ebr_z4pX4NysAmPMcHa9SXap09"a , list);
+    list = cons("EQAP7Iz5zvzg42Omrjvn2KAGCkb5H6tYBtj6p-GsbIpMKYYJ"a , list);
+    list = cons("EQAyJ64Df7Vfb8_jmlGnsZByGAdCsEWA_FfWXyVEU5d6CtuO"a , list);
+    list = cons("EQB457L2Ru7eCQ8NhgStoHxvewVSsKCDhqyTcL47xQnWaafk"a , list);
+    list = cons("EQB71qzgehIXoMRj58vAWaHnNAi6UXEU5Ce942dJqf4Ha3NS"a , list);
+    list = cons("EQB7sAC-hRkGgk2w3RMBlCfNkw6VTC6Da-GRmVsXKH4IWWtW"a , list);
+    list = cons("EQBa2970Z1EmGf-3R-Bh7t3WmRMHFrYB-JdxZ5FioTUrfNUf"a , list);
+    list = cons("EQBdCvFB4bA7PAP0VXnTs784TO_4CoWLb1QqRdyr0orLAl51"a , list);
+    list = cons("EQBf4xFSy-MEXcwUtq1bD_FKDWzSLJ4t5gHhYKusM1LVwa5J"a , list);
+    list = cons("EQBmd_oR88TrfAGcKrMn44T3wBnbh3TWVQWr8rVq0bYTnR7N"a , list);
+    list = cons("EQBnaWOnwN_mqcDEF3aRDLvLPLhV3_utuZrX3IjLdHYeC7uB"a , list);
+    list = cons("EQBsnM5k_sOznQr1WdE94HfCWDSeLK6cBYi5xRxAp0kXoHTe"a , list);
+    list = cons("EQBSzcGQ3b7rhszsLSWkdZkAofRtRe9Ft4li0OUGko6jnvMh"a , list);
+    list = cons("EQBwd90d0x26s3wOdOYCVw-z2gbR7hQJmCQ8U7z8Vp5jLGLP"a , list);
+    list = cons("EQBZODk_N12gpWInTpRULGk1C4s_cwkDL92tclXQyvAiz4mR"a , list);
+    list = cons("EQC1Dm_DvuCGRFFqrZ0RkPCaTJDAaHKWcpP3aN3f_TGJ1ZNC"a , list);
+    list = cons("EQC5QWZHVFsnNc3YPRYafUErFg_i0slwoSiyTojBd61Tagj7"a , list);
+    list = cons("EQC7bGLqI2XPdKGJzNlkPnOnB3Ykw0QQ9lIMZCZW5GWvptyt"a , list);
+    list = cons("EQCFOgDeG2tb_xMRJ5TQDYq6BPlISm9KSxOjvGwN32mJ-0Mj"a , list);
+    list = cons("EQCHHYVRvW7EqtBZjteGrvzrbs2liZiAJUyevROZZ2hV3y7c"a , list);
+    list = cons("EQCHOHm0KaZGLqDPUZRHdLYQO-nsHHrLaEmrfQ95hd8MU-Bh"a , list);
+    list = cons("EQCPp9qFewm5kYWBnO7S4gl4_y-NPuGZc75ZhJ2T8crkK5YR"a , list);
+    list = cons("EQCpThG9OfYHp77yeaUS_95mhHPVgqverIO50RONyswWAkRN"a , list);
+    list = cons("EQCsLpDeHB2qpRbmsCb_0xmsYVNx1NgeYrvHGT1TDrHkDgL4"a , list);
+    list = cons("EQCTQ8kPwyX92r48gCIL_pLN_RcQT9ghZygnmDTYkOkuW_j5"a , list);
+    list = cons("EQCTrFRSHt-tfk7WxK9ZHQmqLcgxXxTK7wGfCEbqgY2W9Mcx"a , list);
+    list = cons("EQCv28y49GdaLncoclv0ISdDlMUY_cxDPGNWFCPT8t4GuqUJ"a , list);
+    list = cons("EQCVL-k6deDR56Z8pcb0Btg0lGfaivOGfdDCD1vvyRsyL9vS"a , list);
+    list = cons("EQD6t2dXDjZxF1DqunKF-8dEWivJdliY_0FYiCXnthuqnDCa"a , list);
+    list = cons("EQDE98XNzXiPq7VnbJJ2M4-Ht3tX_OWR0xUTTnDC8NObLmyU"a , list);
+    list = cons("EQDfeRDE1TDhwt478CDR0Q7MDwqcTUhfjqyTT59mgoAaF6f7"a , list);
+    list = cons("EQDijcEyUKa-QgCbeGlggQk1uBtt2ZRHyW4Y4gB4R6MN6RLW"a , list);
+    list = cons("EQDOtFOt41skbjBkZF89oYXpoDECjlxIzD-ShWAOYyzuxqLA"a , list);
+    list = cons("EQDuJKSFWU7AYqH6KLFfAbYvMuz346eWmJvG6_2NYE42_B4T"a , list);
+    list = cons("EQDwGu4vFv1e3wn8min_iy7OPJXegOYTFQ5bZFZ5a5ZPiBpX"a , list);
+    list = cons("EQC4G2ph6AS_mD_-cIv4aIYm1z5jAgCW_TTDEr72ygXOP2X-"a , list);
+    list = cons("EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c"a , list);
+    return list;
 }

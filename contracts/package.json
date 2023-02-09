@@ -5,14 +5,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit --skipLibCheck",
     "lint": "eslint . --ext .ts,.tsx -f codeframe",
-    "pretest": "npm run typecheck && npm run lint",
     "clean": "rimraf ./dist/",
     "prebuild": "npm run clean",
     "build": "tsc --skipLibCheck -p ./tsconfig.json",
-    "test": "ava --verbose --timeout=10m --serial --fail-fast",
-    "test:quick": "echo '-- TEST --' && ava --verbose --timeout=10m --serial",
-    "prepack": "npm run build",
-    "prettify": "npx prettier \"src/**/*.ts\" --write && npx prettier \"e2e/**/*.ts\" --write",
     "deploy": "npm run build && node ./dist/deploy.js"
   },
   "dependencies": {
