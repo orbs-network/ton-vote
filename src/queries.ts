@@ -136,6 +136,7 @@ const useGetStatewhileServerOutdated = () => {
   const { clientV2, clientV4 } = useClientStore();
   const { maxLt } = usePersistedStore();
   const handleWalletVote = useWalletVote();
+  const setServerMaxLt = useServerStore().setServerMaxLt;
 
   return async () => {
     const state = getStateData();
@@ -147,6 +148,7 @@ const useGetStatewhileServerOutdated = () => {
     const transactions = (await getTransactions(clientV2)).allTxns;
     const filtered = filterTxByTimestamp(transactions, maxLt);
     const result = await getContractState(proposalInfo, filtered);
+    setServerMaxLt(maxLt);
     return {
       ...result,
       votes: handleWalletVote(result.votes),

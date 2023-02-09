@@ -44,13 +44,11 @@ export const InformationLayout = () => {
               </Typography>
             </InformationRow>
             <InformationRow label="Contract">
-              <Typography>
-                <Link
-                  href={`${TONSCAN_ADDRESS_URL}/${CONTRACT_ADDRESS.toFriendly()}`}
-                >
-                  {makeElipsisAddress(CONTRACT_ADDRESS.toFriendly(), 8)}
-                </Link>
-              </Typography>
+              <Link
+                href={`${TONSCAN_ADDRESS_URL}/${CONTRACT_ADDRESS.toFriendly()}`}
+              >
+                {makeElipsisAddress(CONTRACT_ADDRESS.toFriendly(), 8)}
+              </Link>
             </InformationRow>
           </StyledFlexColumn>
         )}
