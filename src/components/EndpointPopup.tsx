@@ -11,6 +11,7 @@ import { useContractStore, useEndpointStore, useFetchClients, usePersistedStore,
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useStateQuery } from "queries";
 import { EndpointsArgs, QueryKeys } from "types";
+import analytics from "analytics";
 
 
 const { clientV2, apiKey, clientV4 } = ENDPOINT_INPUTS;
@@ -50,6 +51,7 @@ export function EndpointPopup() {
 
   const onSave = async () => {
     if (!customEndopointsSelected) {
+      analytics.GA.selectDefaultEndpointsClick();
       await mutateAsync(undefined);
       onClose();
       return;
@@ -58,9 +60,12 @@ export function EndpointPopup() {
     if (!validate(values)) {
       return;
     }
+    const clientV2Endpoint = values[clientV2.name];
+    const clientV4Endpoint = values[clientV4.name];
+     analytics.GA.selectCustomEndpointClick(clientV2Endpoint, clientV4Endpoint);
     await mutateAsync({
-      clientV2Endpoint: values[clientV2.name],
-      clientV4Endpoint: values[clientV4.name],
+      clientV2Endpoint,
+      clientV4Endpoint,
       apiKey: values[apiKey.name],
     });
     onClose();

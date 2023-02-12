@@ -7,6 +7,7 @@ import { ReactNode, useState } from "react";
 import { GrClose } from "react-icons/gr";
 import { walletAdapters } from "config";
 import { isMobile } from "react-device-detect";
+import analytics from "analytics";
 
 interface Props {
   open: boolean;
@@ -54,7 +55,10 @@ export function WalletSelect({ open, close }: Props) {
                 <StyledWallet
                   justifyContent="flex-start"
                   key={wallet.type}
-                  onClick={() => connect(wallet)}
+                  onClick={() => {
+                    analytics.GA.walletSelectedClick(wallet.title);
+                    connect(wallet);
+                  }}
                 >
                   <img src={wallet.icon} />
                   <Typography className="wallet-name">

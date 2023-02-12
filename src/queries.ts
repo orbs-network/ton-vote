@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import analytics from "analytics";
 import { api } from "api";
 import { useNotification } from "components";
 import {
@@ -164,7 +165,8 @@ export const useStateQuery = () => {
   const { maxLt: minServerMaxLt, clearMaxLt } = usePersistedStore();
   const txLoading = useTxStore().txLoading;
   const checkServerHealth = useCheckServerhealth();
-  const getStatewhileServerOutdatedAndStateEmpty = useGetStatewhileServerOutdated();
+  const getStatewhileServerOutdatedAndStateEmpty =
+    useGetStatewhileServerOutdated();
   const getServerStateCallback = useGetServerStateCallback();
   const getContractStateCallback = useGetContractStateCallback();
   return useQuery(
@@ -328,10 +330,12 @@ export const useSendTransaction = () => {
 
       const onSuccess = async () => {
         setTxApproved(true);
+        analytics.GA.txConfirmed();
         await waiter();
         await onVoteFinished();
         setTxApproved(false);
         setTxLoading(false);
+        analytics.GA.txCompleted();
         showNotification({
           variant: "success",
           message: TX_SUBMIT_SUCCESS_TEXT,
@@ -357,7 +361,12 @@ export const useSendTransaction = () => {
       }
     },
     {
-      onError: () => {
+      onError: (error: any) => {
+        if (error instanceof Error) {
+          analytics.GA.txFailed(error.message);
+          Logger(error.message);
+        }
+
         setTxLoading(false);
         setTxApproved(false);
         showNotification({ variant: "error", message: TX_SUBMIT_ERROR_TEXT });

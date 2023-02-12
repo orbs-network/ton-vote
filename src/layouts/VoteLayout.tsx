@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import {  useSendTransaction } from "queries";
+import { useSendTransaction } from "queries";
 import { useIsVoteEnded } from "hooks";
 import { useConnectionStore, useVoteStore } from "store";
+import analytics from "analytics";
 
 export function VoteLayout() {
   const { vote, setVote } = useVoteStore();
@@ -19,6 +20,8 @@ export function VoteLayout() {
   }, [isLoading]);
 
   const onSubmit = () => {
+    if (!vote) return;
+    analytics.GA.voteClick(vote!);
     mutate({
       value: vote as any,
     });
