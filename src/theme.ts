@@ -12,6 +12,7 @@ export const theme = createTheme({
     },
   },
   typography: {
+    
     allVariants: {
       color: "rgb(114, 138, 150)",
     },
