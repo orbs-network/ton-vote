@@ -22,9 +22,7 @@ export function VoteLayout() {
   const onSubmit = () => {
     if (!vote) return;
     analytics.GA.voteClick(vote!);
-    mutate({
-      value: vote as any,
-    });
+    mutate(vote);
   };
 
   return (

@@ -172,12 +172,7 @@ export const useStateQuery = () => {
   return useQuery(
     [QueryKeys.STATE],
     async () => {
-      const parseData = (data: GetState) => {
-        return {
-          ...data,
-        };
-      };
-
+   
       const onServerState = async () => {
         const data = await getServerStateCallback();
         return data || getStateCurrentData();
@@ -317,9 +312,9 @@ export const useSendTransaction = () => {
   const { txLoading, setTxLoading } = useTxStore();
 
   const query = useMutation(
-    async ({ value }: { value: "yes" | "no" | "abstain" }) => {
+    async (vote: string) => {
       const cell = new Cell();
-      new CommentMessage(value).writeTo(cell);
+      new CommentMessage(vote).writeTo(cell);
       setTxLoading(true);
 
       const waiter = await waitForSeqno(
@@ -330,12 +325,12 @@ export const useSendTransaction = () => {
 
       const onSuccess = async () => {
         setTxApproved(true);
-        analytics.GA.txConfirmed();
+        analytics.GA.txConfirmed(vote);
         await waiter();
         await onVoteFinished();
         setTxApproved(false);
         setTxLoading(false);
-        analytics.GA.txCompleted();
+        analytics.GA.txCompleted(vote);
         showNotification({
           variant: "success",
           message: TX_SUBMIT_SUCCESS_TEXT,
@@ -361,9 +356,9 @@ export const useSendTransaction = () => {
       }
     },
     {
-      onError: (error: any) => {
+      onError: (error: any, vote) => {
         if (error instanceof Error) {
-          analytics.GA.txFailed(error.message);
+          analytics.GA.txFailed(vote, error.message);
           Logger(error.message);
         }
 

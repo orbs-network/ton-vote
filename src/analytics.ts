@@ -25,9 +25,6 @@ const walletSelectedClick = (wallet: string) => {
   sendEvent("Wallet select", `selected wallet: ${wallet}`);
 };
 
-const voteClick = (value: string) => {
-  sendEvent("Vote", `Voting ${value}`);
-};
 
 const endpointSettingsClick = () => {
   sendEvent("Endpoint settings", `endpoint settings click`);
@@ -44,16 +41,22 @@ const selectDefaultEndpointsClick = () => {
   sendEvent("Select endpoint", `selected enspoints, default clients`);
 };
 
-const txConfirmed = () => {
-  sendEvent("Transaction", `transaction confirmed`);
+
+const voteClick = (value: string) => {
+  sendEvent("Vote", `Vote ${value}`);
 };
 
-const txCompleted = () => {
-  sendEvent("Transaction", `transaction completed`);
+
+const txConfirmed = (vote: string) => {
+  sendEvent("Transaction", `transaction confirmed, vote ${vote}`);
 };
 
-const txFailed = (error: string) => {
-  sendEvent("Transaction", `transaction failed, error: ${error}`);
+const txCompleted = (vote: string) => {
+  sendEvent("Transaction", `transaction completed, vote ${vote}`);
+};
+
+const txFailed = (vote: string, error: string) => {
+  sendEvent("Transaction", `transaction failed, vote ${vote}, error: ${error}`);
 };
 
 export default {
