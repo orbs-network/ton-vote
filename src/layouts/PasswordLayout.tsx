@@ -19,6 +19,7 @@ function PasswordLayout({ onAuthorized }: { onAuthorized: () => void }) {
   const submit = () => {
     if (password !== PASSWORD) {
       showNotification({ variant: "error", message: "Invalid password" });
+      return 
     }
     onAuthorized();
     localStorage.setItem(AUTHORIZATION_LOCAL_STORAGE, "1");
