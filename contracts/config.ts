@@ -5,7 +5,7 @@ export const KEY_VAL = 0x1;
 
 export const START_EPOCH = 1676376000;
 export const END_EPOCH = 1676980800;
-export const SNAPSHOT_EPOCH = 1676203200;
+export const SNAPSHOT_EPOCH = 1676160000;
 export const INACTIVE_ADDRESSES = [
     "Ef_mlXHnufWO3-vvopflR_NpIFMiidvp_xt20Qf8usMBBKzB",
     "Ef8ZvWFCk64ubdT7k9fADlAADZW2oUeE0F__hNAx5vmQ27Ls",
