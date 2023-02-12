@@ -9,6 +9,7 @@ import { FiSettings } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RiRouteFill } from "react-icons/ri";
 import { useConnectionStore, useEndpointStore, useResetConnection } from "store";
+import analytics from "analytics";
 
 export function Navbar() {
     const mobile = useMediaQuery("(max-width:600px)");
@@ -103,6 +104,7 @@ const Settings = () => {
   };
 
   const showPopup = () => {
+    analytics.GA.endpointSettingsClick()
     setShowSetEndpoint(true);
     handleClose();
   };

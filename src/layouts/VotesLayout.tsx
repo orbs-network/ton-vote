@@ -14,6 +14,7 @@ export function VotesLayout() {
   const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();
   const hideLoadMore = (votes?.length || 0) <= votesViewLimit;  
 
+
   return (
     <StyledContainer title="Recent votes" loading={isLoading} loaderAmount={3}>
       {votes?.length ? (

@@ -20,6 +20,7 @@ import { useGetContractState } from "hooks";
 import { useEffect } from "react";
 import { Logger } from "utils";
 import { VERIFY_LINK } from "config";
+import analytics from "analytics";
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
@@ -84,6 +85,7 @@ const useVerify = () => {
   const getContractState = useGetContractState();
 
   const query = useMutation(async () => {
+    analytics.GA.verifyButtonClick()
     const maxLt = fetchFromServer ? serverMaxLt : contractMaxLt;
     const { allTxns } = await getTransactions(clientV2);
     const transactions = filterTxByTimestamp(allTxns, maxLt);

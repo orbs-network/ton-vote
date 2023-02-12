@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import {  useSendTransaction } from "queries";
+import { useSendTransaction } from "queries";
 import { useIsVoteEnded } from "hooks";
 import { useConnectionStore, useVoteStore } from "store";
 
@@ -19,9 +19,8 @@ export function VoteLayout() {
   }, [isLoading]);
 
   const onSubmit = () => {
-    mutate({
-      value: vote as any,
-    });
+    if (!vote) return;
+    mutate(vote);
   };
 
   return (

@@ -118,3 +118,4 @@ export const VERIFY_LINK =
   "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
 
 export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";
+export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
