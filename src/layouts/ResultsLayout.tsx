@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
@@ -151,10 +151,10 @@ export function VerifyResults() {
   return (
     <StyledVerifyContainer>
       <StyledVerifyText>
-        Download votes from chain and verify the results in browser{" "}
-        <a href={VERIFY_LINK} target="_blank">
-          (read more)
-        </a>
+        Download votes from chain and verify the results in browser.{" "}
+        <Link href={VERIFY_LINK} target="_blank">
+          Read more.
+        </Link>
       </StyledVerifyText>
       {component()}
     </StyledVerifyContainer>
@@ -166,10 +166,7 @@ const StyledVerifyContainer = styled(StyledFlexColumn)(({ theme }) => ({
   justifyContent: "center",
   width: "100%",
   gap: 15,
-  a: {
-    color: theme.palette.primary.main,
-    textDecoration:'unset'
-  },
+
 }));
 
 const StyledVerifyText = styled(Typography)({

@@ -119,3 +119,6 @@ export const VERIFY_LINK =
 
 export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";
 export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
+
+
+export const PASSWORD = "ton-vote-14-02";

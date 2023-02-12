@@ -8,15 +8,17 @@ interface Props {
   label: string;
   error?: string;
   onFocus?: () => void;
+  type?: 'text' | 'password';
 }
 
-function Input({ value, onChange, label, error, onFocus }: Props) {
+function Input({ value, onChange, label, error, onFocus, type = 'text' }: Props) {
   return (
     <StyledContainer>
       <StyledInput
         onFocus={onFocus}
         variant="outlined"
         value={value}
+        type={type}
         error={!!error}
         label={label}
         onChange={(e) => onChange(e.target.value)}
