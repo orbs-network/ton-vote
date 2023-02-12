@@ -313,6 +313,7 @@ export const useSendTransaction = () => {
 
   const query = useMutation(
     async (vote: string) => {
+      analytics.GA.txSubmitted(vote);
       const cell = new Cell();
       new CommentMessage(vote).writeTo(cell);
       setTxLoading(true);

@@ -8,7 +8,6 @@ import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
 import { useSendTransaction } from "queries";
 import { useIsVoteEnded } from "hooks";
 import { useConnectionStore, useVoteStore } from "store";
-import analytics from "analytics";
 
 export function VoteLayout() {
   const { vote, setVote } = useVoteStore();
@@ -21,7 +20,6 @@ export function VoteLayout() {
 
   const onSubmit = () => {
     if (!vote) return;
-    analytics.GA.voteClick(vote!);
     mutate(vote);
   };
 
