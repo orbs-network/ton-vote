@@ -102,7 +102,7 @@ export const PAGE_SIZE = 10
 export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
 
 
-export const CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
+export const CLIENT_V4_ENDPOINT = "htyarn dtps://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const TX_SUBMIT_ERROR_TEXT = 'Transaction failed'
@@ -110,7 +110,7 @@ export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction completed'
 
 
 export const CONTRACT_ADDRESS = Address.parse(
-  "EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT"
+  "EQB_ldKKqkDQcnI-9Mp7mB4D3i2r3ytWEnoGRlMDtMXTm4yy"
 );
 
 

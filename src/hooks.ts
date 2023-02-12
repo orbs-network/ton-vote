@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { voteOptions } from "config";
 import {
   getAllVotes,
@@ -41,13 +42,21 @@ export const useWalletVote = () => {
 
 export const useIsVoteEnded = () => {
   const endTime = useProposalInfoQuery().data?.endTime;
-
-  return useMemo(() => {
-    if (!endTime) {
-      return false;
+  
+  const query =  useQuery(
+    ["useIsVoteEnded"],
+    () => {
+      return (
+        moment.unix(Number(endTime)).utc().valueOf() <= moment.utc().valueOf()
+      );
+    },
+    {
+      enabled: endTime != null,
+      refetchInterval: 3_000,
     }
-    return moment.unix(Number(endTime)).utc().valueOf() < moment().valueOf();
-  }, [endTime]);
+  );
+
+  return query.data;
 };
 
 export const useGetContractState = () => {
@@ -57,7 +66,6 @@ export const useGetContractState = () => {
     transactions: Transaction[],
     prevVotingPower?: VotingPower
   ) => {
-    
     const votingPower = await getVotingPower(
       clientV4,
       proposalInfo,
