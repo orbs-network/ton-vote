@@ -3,9 +3,9 @@ export const SNAKE_PREFIX = 0x00;
 export const KEY_LEN = 0x1;
 export const KEY_VAL = 0x1;
 
-export const START_EPOCH = 1675339000;
-export const END_EPOCH = 1775728000;
-export const SNAPSHOT_EPOCH = 1675338000;
+export const START_EPOCH = 1676332800;
+export const END_EPOCH = 1676937600;
+export const SNAPSHOT_EPOCH = 1676160000;
 export const INACTIVE_ADDRESSES = [
     "Ef_mlXHnufWO3-vvopflR_NpIFMiidvp_xt20Qf8usMBBKzB",
     "Ef8ZvWFCk64ubdT7k9fADlAADZW2oUeE0F__hNAx5vmQ27Ls",
