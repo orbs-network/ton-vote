@@ -40,7 +40,6 @@
 ;; addresses proposed to be frozen to make sure the list is immutable and clear to all voters
 tuple frozen_addresses() method_id {
     var list = null();
-    
     list = cons("Ef_mlXHnufWO3-vvopflR_NpIFMiidvp_xt20Qf8usMBBKzB"a , list);
     list = cons("Ef8ZvWFCk64ubdT7k9fADlAADZW2oUeE0F__hNAx5vmQ27Ls"a , list);
     list = cons("Ef9mDsqzIg2i8fdw0Bb7UGafA3Gc1qX5IYjp6AOZwGlfvim2"a , list);
@@ -167,14 +166,12 @@ tuple frozen_addresses() method_id {
     list = cons("EQDWtPZZgF7wvIMUHZQojuD3utiuivsW7WslRJ33dgv-5yc8"a , list);
     list = cons("EQBj8QLF2QLU0KDMCVdu568zQshbptWlNX28oHhTBbmF_R3b"a , list);
     list = cons("EQAYbtDCZEGRAOXaB6WwVqFzYTd1zZgyp15BIuy9n029k1_h"a , list);
-    list = cons("EQAA7z0JI0JKqbN-1uENKz9JrxIO5ZRY-ehMeg9fPncx50Ck"a , list);
     list = cons("EQBVUHRoCq6coQYUwOAhGSoAmQ6Mpm7dFlDYon6HMgWV8Ftr"a , list);
     list = cons("EQCTdvDCf0bA5dOPI1-44tB2ZfNcMGiklzvg27TovgDEqM6E"a , list);
     list = cons("EQBDBKE5WGKIlnoi3OOzw7vkKKIX55eWjPvgxJWwek8AyL2J"a , list);
     list = cons("EQAvCSyLCo21GrqLAifdov4WkOxuGQCjMRxgF1cXSaNzLHZe"a , list);
     list = cons("EQBsChLfhZbaR23gJaR8SevIXowe2uUtIQCzjucuA9iu3--x"a , list);
     list = cons("EQDs64JSInV0A3K_MqPab7qD2MaJkNBKq5txx3RQe5Emyci8"a , list);
-    list = cons("EQAc72Ghri2XD_iI8o7m00YNF-ettab7VC2p8UU460BLIU5a"a , list);
     list = cons("EQBqA1yiO0fD4aXMsk4hQBO4rWfzx2dNpj3U1sdj21Gy6F5k"a , list);
     list = cons("EQDcB-mY1VO0VjsCDe5i0-nTgpiywiu4UumAzH5oc1Sik_ip"a , list);
     list = cons("EQDHBUIhEdUCUJ1996-SEj0WiraaE4J6YLJOuLKLpK8ugelH"a , list);
@@ -222,7 +219,6 @@ tuple frozen_addresses() method_id {
     list = cons("EQDfeRDE1TDhwt478CDR0Q7MDwqcTUhfjqyTT59mgoAaF6f7"a , list);
     list = cons("EQDijcEyUKa-QgCbeGlggQk1uBtt2ZRHyW4Y4gB4R6MN6RLW"a , list);
     list = cons("EQDOtFOt41skbjBkZF89oYXpoDECjlxIzD-ShWAOYyzuxqLA"a , list);
-    list = cons("EQDuJKSFWU7AYqH6KLFfAbYvMuz346eWmJvG6_2NYE42_B4T"a , list);
     list = cons("EQDwGu4vFv1e3wn8min_iy7OPJXegOYTFQ5bZFZ5a5ZPiBpX"a , list);
     list = cons("EQC4G2ph6AS_mD_-cIv4aIYm1z5jAgCW_TTDEr72ygXOP2X-"a , list);
     list = cons("EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c"a , list);
