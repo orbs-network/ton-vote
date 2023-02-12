@@ -5,7 +5,7 @@ import {Proposal} from "./proposal";
 import {START_EPOCH, END_EPOCH, SNAPSHOT_EPOCH} from "./config";
 import * as process from "process";
 
-const NOMINATOR_MIN_TON = 0.1;
+const MIN_TON = 0.1;
 
 
 async function deploy() {
@@ -22,8 +22,8 @@ async function deploy() {
 		return contract;
 	}
 	const balance = await client.getBalance(deployWallet.address);
-	if ( balance.lte(toNano(NOMINATOR_MIN_TON)) ) {
-		throw `insufficient funds to deploy single nominator contract wallet have only ${balance}`;
+	if ( balance.lte(toNano(MIN_TON)) ) {
+		throw `insufficient funds to deploy single contract wallet have only ${balance}`;
 	}
 
 	const seqno = await deployWallet.getSeqNo();
@@ -33,7 +33,7 @@ async function deploy() {
 		sendMode: 1 + 2,
 		order: new InternalMessage({
 			to: contract.address,
-			value: toNano(NOMINATOR_MIN_TON),
+			value: toNano(MIN_TON),
 			bounce: false,
 			body: new CommonMessageInfo({
 				stateInit: new StateInit({data: contract.source.initialData, code: contract.source.initialCode}),
@@ -45,7 +45,7 @@ async function deploy() {
 	await client.sendExternalMessage(deployWallet, transfer);
 	let isDeployed = await waitForContractToBeDeployed(client, contract.address);
 	if(!isDeployed) {
-		throw `single nominator failed to deploy`
+		throw `sfailed to deploy contract`
 	}
 	console.log(`- Deploy transaction sent successfully to -> ${contract.address.toFriendly()} [seqno:${seqno}]`);
 	await sleep(10000);
