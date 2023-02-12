@@ -44,7 +44,17 @@ const ShowMorePart = () => {
         from the Proof-of-Work smart-contracts — have never been activated and
         do not have a single outgoing transfer in their history. The full list
         of inactive mining wallets can be found{" "}
-        <Link href="https://tontech.io/stats/early-miners" target='_blank'>here.</Link>
+        <Link href="https://tontech.io/stats/early-miners" target="_blank">
+          here.
+        </Link>
+        <br />
+        The list of addresses is also specified in the{" "}
+        <Link
+          href="https://verifier.ton.org/EQB_ldKKqkDQcnI-9Mp7mB4D3i2r3ytWEnoGRlMDtMXTm4yy"
+          target="_blank"
+        >
+          proposal contract.
+        </Link>
       </Typography>
       <Typography>
         Toncoin is a gas required to access decentralized services on the TON
@@ -75,9 +85,12 @@ const ShowMorePart = () => {
 };
 
 const StyledShowMoreText = styled(StyledFlexColumn)({
-  gap:20,
-
-})
+  gap: 20,
+  alignItems:'flex-start',
+  p: {
+    textAlign: "left",
+  },
+});
 
 const StyledShowMore = styled("div")(({ theme }) => ({
   cursor: "pointer",
