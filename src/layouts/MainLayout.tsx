@@ -45,10 +45,9 @@ const ShowMorePart = () => {
         do not have a single outgoing transfer in their history. The full list
         of inactive mining wallets can be found{" "}
         <Link href="https://tontech.io/stats/early-miners" target="_blank">
-          here.
+          here. 
         </Link>
-        <br />
-        The list of addresses is also specified in the{" "}
+        {" "}The list of addresses is also specified in the{" "}
         <Link
           href="https://verifier.ton.org/EQB_ldKKqkDQcnI-9Mp7mB4D3i2r3ytWEnoGRlMDtMXTm4yy"
           target="_blank"
