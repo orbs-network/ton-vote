@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Container } from "components";
-import { Link, Typography } from "@mui/material";
+import { Chip, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
+import { useVoteTimeline } from "hooks";
 
 export function MainLayout() {
   const [showMore, setShowMore] = useState(false);
   return (
-    <StyledContainer title="Proposal of TON tokenomics optimization">
+    <StyledContainer
+      title="Proposal of TON tokenomics optimization"
+      headerChildren={<VoteEndedChip />}
+    >
       <StyledFlexColumn alignItems="flex-start">
         <Typography>
           Support the proposal of tokenomics to achieve a community consensus
@@ -17,7 +21,7 @@ export function MainLayout() {
           outgoing transfer in their history.
         </Typography>
 
-        <AnimateHeight height={showMore ? "auto" : 0} duration={200}>
+        <AnimateHeight height={showMore ? "auto" : 0} duration={400}>
           <ShowMorePart />
         </AnimateHeight>
         <StyledShowMore onClick={() => setShowMore(!showMore)}>
@@ -27,6 +31,26 @@ export function MainLayout() {
     </StyledContainer>
   );
 }
+
+const VoteEndedChip = () => {
+  const { voteStarted, voteInProgress } = useVoteTimeline();
+  const label = useMemo(() => {
+    if (!voteStarted) {
+      return "Not Started";
+    }
+    if (voteInProgress) {
+      return "Active";
+    }
+    return "Ended";
+  }, [voteStarted, voteInProgress]);
+
+  return <StyledVoteEnded label={label} variant="filled" color="primary" />;
+};
+
+const StyledVoteEnded = styled(Chip)({
+  fontWeight: 700,
+  fontSize: 12,
+});
 
 const ShowMorePart = () => {
   return (
@@ -45,9 +69,9 @@ const ShowMorePart = () => {
         do not have a single outgoing transfer in their history. The full list
         of inactive mining wallets can be found{" "}
         <Link href="https://tontech.io/stats/early-miners" target="_blank">
-          here. 
-        </Link>
-        {" "}The list of addresses is also specified in the{" "}
+          here.
+        </Link>{" "}
+        The list of addresses is also specified in the{" "}
         <Link
           href="https://verifier.ton.org/EQB_ldKKqkDQcnI-9Mp7mB4D3i2r3ytWEnoGRlMDtMXTm4yy"
           target="_blank"
@@ -86,7 +110,7 @@ const ShowMorePart = () => {
 
 const StyledShowMoreText = styled(StyledFlexColumn)({
   gap: 20,
-  alignItems:'flex-start',
+  alignItems: "flex-start",
   p: {
     textAlign: "left",
   },

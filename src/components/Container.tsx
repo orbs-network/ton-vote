@@ -53,7 +53,7 @@ const StyledLoader = styled(Skeleton)({
 
 const StyledLoaderContainer = styled(StyledFlexColumn)({
   gap: 10,
-  alignItems:'flex-start'
+  alignItems:'flex-start',
 });
 
 const StyledContainer = styled(Box)({
@@ -67,6 +67,7 @@ const StyledContainer = styled(Box)({
 
 const StyledHeader = styled(StyledFlexRow)({
   marginBottom: 20,
+  alignItems:'flex-start'
 });
 
 const Title = ({ children }: { children: string }) => {
