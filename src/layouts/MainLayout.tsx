@@ -17,7 +17,7 @@ export function MainLayout() {
         <Typography>
           Support the proposal of tokenomics to achieve a community consensus
           about circulating supply and freeze for 48 months inactive mining
-          wallets, that have never been activated and do not have a single
+          wallets that have never been activated and do not have a single
           outgoing transfer in their history.
         </Typography>
 
@@ -56,7 +56,7 @@ const ShowMorePart = () => {
   return (
     <StyledShowMoreText>
       <Typography>
-        On December 17, in response to repeated requests for greater certainty,
+        On December 17, 2022, in response to repeated requests for greater certainty,
         clarity and transparency over the tokenomics of the TON network, the
         community has called for all early miners to activate their inactive
         mining wallets by the end of 2022.
@@ -92,7 +92,7 @@ const ShowMorePart = () => {
         validators should listen to the voice of the community.
       </Typography>
       <Typography>
-        Therefore, we are suggesting a reatail vote for the proposal of
+        Therefore, we are suggesting a retail community vote for the proposal of
         tokenomics optimization, one that enables these inactive mining wallets
         to remain inactive for a certain period of time.
       </Typography>
