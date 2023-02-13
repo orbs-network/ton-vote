@@ -67,18 +67,18 @@ const ShowMorePart = () => {
         mining wallets — the genesis wallets that have mined Toncoin directly
         from the Proof-of-Work smart-contracts — have never been activated and
         do not have a single outgoing transfer in their history. The full list
-        of inactive mining wallets can be found{" "}
+        of inactive mining wallet addresses can be found{" "}
         <Link href="https://tontech.io/stats/early-miners" target="_blank">
           here.
         </Link>{" "}
-        The list of addresses is also specified in the{" "}
+        The list is also specified in the{" "}
         <Link
           href="https://verifier.ton.org/EQB_ldKKqkDQcnI-9Mp7mB4D3i2r3ytWEnoGRlMDtMXTm4yy"
           target="_blank"
         >
         proposal contract.
         </Link>
-        {" "}Any address that become active prior validator action shell not be frozen.
+        {" "}Any address that becomes active prior to validator action shall not be suspended.
       </Typography>
       <Typography>
         Toncoin is a gas required to access decentralized services on the TON
