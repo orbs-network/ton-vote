@@ -76,8 +76,8 @@ export function getAllVotes(transactions, proposalInfo) {
     if (!vote) continue;
 
     if (
-      transactions[i].time < proposalInfo.startDate ||
-      transactions[i].time > proposalInfo.endDate
+      transactions[i].time < proposalInfo.startTime ||
+      transactions[i].time > proposalInfo.endTime
     )
       continue;
 
@@ -85,7 +85,7 @@ export function getAllVotes(transactions, proposalInfo) {
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
       vote: "",
-      hash: transactions[i].id.hash,
+      hash: transactions[i].id.hash
     };
 
     if (["y", "yes"].includes(vote)) {
