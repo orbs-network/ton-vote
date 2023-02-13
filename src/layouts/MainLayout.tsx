@@ -52,8 +52,9 @@ const ShowMorePart = () => {
           href="https://verifier.ton.org/EQB_ldKKqkDQcnI-9Mp7mB4D3i2r3ytWEnoGRlMDtMXTm4yy"
           target="_blank"
         >
-          proposal contract.
+        proposal contract.
         </Link>
+        {" "}Any address that become active prior validator action shell not be frozen.
       </Typography>
       <Typography>
         Toncoin is a gas required to access decentralized services on the TON
