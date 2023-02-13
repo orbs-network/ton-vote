@@ -67,7 +67,7 @@ const ShowMorePart = () => {
         validators should listen to the voice of the community.
       </Typography>
       <Typography>
-        Therefore, we are suggesting a validator vote for the proposal of
+        Therefore, we are suggesting a reatail vote for the proposal of
         tokenomics optimization, one that enables these inactive mining wallets
         to remain inactive for a certain period of time.
       </Typography>
