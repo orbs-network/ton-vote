@@ -16,7 +16,7 @@ import {
   usePersistedStore,
   useServerStore,
 } from "store";
-import { useGetContractState } from "hooks";
+import { useGetContractState, useVoteTimeline } from "hooks";
 import { useEffect } from "react";
 import { Logger } from "utils";
 import { VERIFY_LINK } from "config";
@@ -122,14 +122,16 @@ export function VerifyResults() {
     isReady,
     reset,
   } = useVerify();
+  const voteStarted = useVoteTimeline()?.voteStarted
 
   const maxLt = usePersistedStore().maxLt;
-
   useEffect(() => {
     if (isVerified && maxLt) {
       reset();
     }
   }, [maxLt]);
+
+  if (!voteStarted) return null;
 
   const component = () => {
     if (!isReady) return null;

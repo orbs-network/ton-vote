@@ -6,13 +6,14 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
 import { useSendTransaction } from "queries";
-import { useIsVoteEnded } from "hooks";
+import { useVoteTimeline } from "hooks";
 import { useConnectionStore, useVoteStore } from "store";
 
 export function VoteLayout() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();
+  const voteInProgress = useVoteTimeline()?.voteInProgress;
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -23,6 +24,7 @@ export function VoteLayout() {
     mutate(vote);
   };
 
+  if (!voteInProgress) return null;
   return (
     <StyledContainer title="Vote">
       <StyledFlexColumn>
@@ -67,15 +69,10 @@ const VoteButton = ({
   isLoading: boolean;
   disabled: boolean;
 }) => {
-  const voteEnded = useIsVoteEnded();
   const walletAddress = useConnectionStore().address;
 
   if (!walletAddress) {
     return <StyledConnectButton text="Connect wallet" />;
-  }
-
-  if (voteEnded) {
-    return <StyledVoteButton disabled={true}>Vote ended</StyledVoteButton>;
   }
 
   return (

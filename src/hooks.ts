@@ -40,23 +40,41 @@ export const useWalletVote = () => {
   };
 };
 
-export const useIsVoteEnded = () => {
-  const endTime = useProposalInfoQuery().data?.endTime;
-  
-  const query =  useQuery(
-    ["useIsVoteEnded"],
+const numToMillis = (value: Number) => {
+  return moment.unix(Number(value)).utc().valueOf();
+};
+
+export const useVoteTimeline = () => {
+  const info = useProposalInfoQuery().data;
+
+  const query = useQuery(
+    ["useVoteTimeline"],
     () => {
-      return (
-        moment.unix(Number(endTime)).utc().valueOf() <= moment.utc().valueOf()
-      );
+      if (!info) return null;
+      const startTime = info.startTime;
+      const endTime = info.endTime;
+      const now = moment.utc().valueOf();
+      const voteStarted = numToMillis(startTime) <= now;
+      const voteEnded = numToMillis(endTime) <= now;
+      return {
+        voteStarted,
+        voteEnded,
+        voteInProgress: voteStarted && !voteEnded,
+      };
     },
     {
-      enabled: endTime != null,
-      refetchInterval: 3_000,
+      enabled: !!info,
+      refetchInterval: 1_000,
     }
   );
 
-  return query.data;
+  return (
+    query.data || {
+      voteStarted: false,
+      voteEnded: false,
+      voteInProgress: false,
+    }
+  );
 };
 
 export const useGetContractState = () => {

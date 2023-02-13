@@ -25,7 +25,7 @@ export function Countdown({ date }: { date?: number }) {
 
   return (
     <StyledCountdown>
-      <Counter date={date} renderer={renderer} />
+      <Counter overtime={true} date={date} renderer={renderer} />
     </StyledCountdown>
   );
 }
