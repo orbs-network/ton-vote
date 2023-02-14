@@ -49,17 +49,12 @@ const Mobile = () => {
 function App() {
   const restoreConnection = useEagerlyConnect();
   const getClients = useGetClientsOnLoad();
-  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
     restoreConnection();
     getClients();
   }, []);
   const match = useMediaQuery("(max-width:800px)");
-
-  if (!authorized) {
-    return <PasswordLayout onAuthorized={() => setAuthorized(true)} />;
-  }
 
   return (
     <StyledApp>
