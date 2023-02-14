@@ -110,7 +110,7 @@ export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction completed'
 
 
 export const CONTRACT_ADDRESS = Address.parse(
-  "EQB_ldKKqkDQcnI-9Mp7mB4D3i2r3ytWEnoGRlMDtMXTm4yy"
+  "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS"
 );
 
 
