@@ -11,7 +11,7 @@ export function MainLayout() {
   const [showMore, setShowMore] = useState(false);
   return (
     <StyledContainer
-      title="roposal of TON Tokenomics Optimization"
+      title="Proposal of TON Tokenomics Optimization"
       headerChildren={<VoteEndedChip />}
     >
       <StyledFlexColumn alignItems="flex-start">
