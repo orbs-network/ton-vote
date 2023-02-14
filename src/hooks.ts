@@ -45,7 +45,7 @@ const numToMillis = (value: Number) => {
 };
 
 export const useVoteTimeline = () => {
-  const info = useProposalInfoQuery().data;
+  const {data: info, isLoading} = useProposalInfoQuery();
 
   const query = useQuery(
     ["useVoteTimeline"],
@@ -60,6 +60,7 @@ export const useVoteTimeline = () => {
         voteStarted,
         voteEnded,
         voteInProgress: voteStarted && !voteEnded,
+        isLoading,
       };
     },
     {
@@ -73,6 +74,7 @@ export const useVoteTimeline = () => {
       voteStarted: false,
       voteEnded: false,
       voteInProgress: false,
+      isLoading,
     }
   );
 };

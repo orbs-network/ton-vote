@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Container } from "components";
-import { Chip, Link, Typography } from "@mui/material";
+import { Chip, Fade, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
@@ -34,7 +34,7 @@ export function MainLayout() {
 }
 
 const VoteEndedChip = () => {
-  const { voteStarted, voteInProgress } = useVoteTimeline();
+  const { voteStarted, voteInProgress, isLoading } = useVoteTimeline();
   const label = useMemo(() => {
     if (!voteStarted) {
       return "Not Started";
@@ -45,7 +45,11 @@ const VoteEndedChip = () => {
     return "Ended";
   }, [voteStarted, voteInProgress]);
 
-  return <StyledVoteEnded label={label} variant="filled" color="primary" />;
+    return (
+      <Fade in={!isLoading}>
+        <StyledVoteEnded label={label} variant="filled" color="primary" />
+      </Fade>
+    );
 };
 
 const StyledVoteEnded = styled(Chip)({
