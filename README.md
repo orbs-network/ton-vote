@@ -28,12 +28,12 @@ There are many wallets on TON, we made sure that you can use any of them and tha
 
 1. Use the client in https://ton.vote which supports TonHub, TonKeeper and OpenMask (via TonConnect2)
 
-2. Transfer 0.01 TON manually to the contract address `EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT` and add a comment with your vote - `yes` or `no` or `abstain`
+2. Transfer 0.01 TON manually to the contract address `EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS` and add a comment with your vote - `yes` or `no` or `abstain`
 
 3. Open the relevant ton:// deep link with a supporting wallet:
-    * yes - `ton://transfer/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT?amount=10000000&text=yes`
-    * no - `ton://transfer/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT?amount=10000000&text=no`
-    * abstain - `ton://transfer/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT?amount=10000000&text=abstain`
+    * yes - `ton://transfer/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS?amount=10000000&text=yes`
+    * no - `ton://transfer/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS?amount=10000000&text=no`
+    * abstain - `ton://transfer/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS?amount=10000000&text=abstain`
   
 After voting, you can open the client in https://ton.vote to see your vote counted. It will appear in the top of the recent votes list.
 
@@ -41,9 +41,9 @@ After voting, you can open the client in https://ton.vote to see your vote count
 
 We took great care to make sure the voting process and calculation is decentralized and trustless. You can verify the results by yourself and you are not required to trust anyone in the process.
 
-1. Votes are sent as on-chain transactions to a smart contract on mainnet: https://tonscan.org/address/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT
+1. Votes are sent as on-chain transactions to a smart contract on mainnet: https://tonscan.org/address/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS
 
-2. You can open this contract in an explorer and see all transactions sent to it with their votes as comments. You can also see the contract code since it is [verified](https://verifier.ton.org/EQANFJgI3ahDXtSXEGkWYNR7Lqr6dBrVtrCTem5_DuQtTcDT). The source includes parameters of the vote like its duration and which addresses are subject to the freeze.
+2. You can open this contract in an explorer and see all transactions sent to it with their votes as comments. You can also see the contract code since it is [verified](https://verifier.ton.org/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS). The source includes parameters of the vote like its duration and which addresses are subject to the freeze.
 
 3. The browser app that displays the results is open source and served from GitHub Pages on [this repo](https://github.com/orbs-network/dao-vote). It does not require any hidden servers in order to calculate the results. You can even fork this repo and run your own version of the app to make sure 100% that this is the code running in your browser.
 
