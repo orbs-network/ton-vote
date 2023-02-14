@@ -37,6 +37,9 @@ There are many wallets on TON, we made sure that you can use any of them and tha
   
 After voting, you can open the client in https://ton.vote to see your vote counted. It will appear in the top of the recent votes list.
 
+Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/dao-vote/blob/e14d9e301297d4c47f221742bb030bf800d3150f/src/contracts-api/whales.js). 
+If you are an owner of an address from this list and want to know how to vote, you can contact us via Telegram: https://t.me/TONVoteSupportGroup.
+
 ## How can you verify the results?
 
 We took great care to make sure the voting process and calculation is decentralized and trustless. You can verify the results by yourself and you are not required to trust anyone in the process.
