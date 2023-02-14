@@ -6,7 +6,7 @@ import BigNumber from "bignumber.js";
 import _ from "lodash";
 import { Logger } from "utils";
 import { CONTRACT_ADDRESS } from "config";
-
+import { WHALES_ADDRESSES } from "./whales";
 
 
 export async function getClientV2(customEndpoint, apiKey) {
@@ -77,7 +77,7 @@ export function getAllVotes(transactions, proposalInfo) {
 
     if (
       transactions[i].time < proposalInfo.startTime ||
-      transactions[i].time > proposalInfo.endTime
+      transactions[i].time > proposalInfo.endTime || WHALES_ADDRESSES.includes(transactions[i].inMessage.source)
     )
       continue;
 
