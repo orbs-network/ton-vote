@@ -18,9 +18,16 @@ import {
 } from "store";
 import { useGetContractState, useVoteTimeline } from "hooks";
 import { useEffect } from "react";
-import { Logger } from "utils";
+import { Logger, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import analytics from "analytics";
+import { fromNano } from "ton";
+
+const calculateTonAmount = (percent?: number, total?: string) => {
+  if (!percent || !total) return ;
+  const result =  Number(fromNano(total)) * percent / 100;
+  return nFormatter(result, 0);
+};
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
@@ -29,9 +36,21 @@ export const ResultsLayout = () => {
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
       <StyledFlexColumn>
-        <ResultRow name="Yes" percent={results?.yes || 0} />
-        <ResultRow name="No" percent={results?.no || 0} />
-        <ResultRow name="Abstain" percent={results?.abstain || 0} />
+        <ResultRow
+          name="Yes"
+          percent={results?.yes || 0}
+          tonAmount={calculateTonAmount(results?.yes, results?.totalWeight)}
+        />
+        <ResultRow
+          name="No"
+          percent={results?.no || 0}
+          tonAmount={calculateTonAmount(results?.no, results?.totalWeight)}
+        />
+        <ResultRow
+          name="Abstain"
+          percent={results?.abstain || 0}
+          tonAmount={calculateTonAmount(results?.abstain, results?.totalWeight)}
+        />
       </StyledFlexColumn>
       <VerifyResults />
     </StyledResults>
@@ -41,20 +60,29 @@ export const ResultsLayout = () => {
 const ResultRow = ({
   name,
   percent = 0,
+  tonAmount = '0',
 }: {
   name: string;
   percent?: number;
+  tonAmount?: string;
 }) => {
   return (
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <Typography>{name}</Typography>
-        <Typography>{percent}%</Typography>
+        <StyledResultRowRight justifyContent="flex-end">
+          <Typography>{`${tonAmount} TON`}</Typography>
+          <Typography>{percent}%</Typography>
+        </StyledResultRowRight>
       </StyledFlexRow>
       <Progress progress={percent} />
     </StyledResultRow>
   );
 };
+
+const StyledResultRowRight = styled(StyledFlexRow)({
+  flex: 1,
+});
 
 const StyledResultRow = styled(StyledFlexColumn)({
   gap: 5,
@@ -85,7 +113,7 @@ const useVerify = () => {
   const getContractState = useGetContractState();
 
   const query = useMutation(async () => {
-    analytics.GA.verifyButtonClick()
+    analytics.GA.verifyButtonClick();
     const maxLt = fetchFromServer ? serverMaxLt : contractMaxLt;
     const { allTxns } = await getTransactions(clientV2);
     const transactions = filterTxByTimestamp(allTxns, maxLt);
@@ -122,7 +150,7 @@ export function VerifyResults() {
     isReady,
     reset,
   } = useVerify();
-  const voteStarted = useVoteTimeline()?.voteStarted
+  const voteStarted = useVoteTimeline()?.voteStarted;
 
   const maxLt = usePersistedStore().maxLt;
   useEffect(() => {
@@ -168,7 +196,6 @@ const StyledVerifyContainer = styled(StyledFlexColumn)(({ theme }) => ({
   justifyContent: "center",
   width: "100%",
   gap: 15,
-
 }));
 
 const StyledVerifyText = styled(Typography)({

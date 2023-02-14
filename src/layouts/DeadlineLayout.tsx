@@ -20,7 +20,7 @@ function DeadlineLayout() {
   const date = voteStarted ? data?.endTime : data?.startTime;
   return (
     <StyledContainer
-      title={!voteStarted ? "Vote starts in" : "Time left to vote"}
+      title={!data ? '' : !voteStarted ? "Vote starts in" : "Time left to vote"}
       loading={!data}
       loaderAmount={1}
     >
