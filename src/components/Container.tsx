@@ -21,7 +21,7 @@ function Container({
   return (
     <StyledContainer className={className}>
       {showHeader && (
-        <StyledHeader>
+        <StyledHeader className="container-header">
           {title && <Title>{title}</Title>}
           {headerChildren}
         </StyledHeader>

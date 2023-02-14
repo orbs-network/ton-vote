@@ -97,7 +97,7 @@ export const STATE_REFETCH_INTERVAL = 30_000
 export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
 export const USER_VOTE_LOCAL_STORAGE = 'ton_vote_user_vote'
 
-export const PAGE_SIZE = 10
+export const PAGE_SIZE = 20
 
 export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
 

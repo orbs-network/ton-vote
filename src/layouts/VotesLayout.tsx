@@ -1,22 +1,55 @@
-import { styled, Typography } from "@mui/material";
+import { Chip, styled, Typography } from "@mui/material";
 import { Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
-import { makeElipsisAddress } from "utils";
+import { makeElipsisAddress, nFormatter } from "utils";
 import { TONSCAN, TONSCAN_ADDRESS_URL } from "config";
 import { Vote } from "types";
 import { useStateQuery } from "queries";
 import { useConnectionStore, useVotesPaginationStore } from "store";
+import { fromNano } from "ton";
+import { useMemo } from "react";
 
-export function VotesLayout() {
-  const {isLoading, data} = useStateQuery()
-  
-    const votes = data?.votes;
-  const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();
-  const hideLoadMore = (votes?.length || 0) <= votesViewLimit;  
+const calculateTonAmount = (percent?: number, total?: string) => {
+  if (!percent || !total) return;
+  const result = (Number(fromNano(total)) * percent) / 100;
+  return nFormatter(result, 0);
+};
 
+const ContainerHeader = () => {
+  const data = useStateQuery().data;
+  const totalTonAmount = data?.proposalResults.totalWeight || '0';
+
+  const tonAmount = useMemo(() => {
+    return nFormatter(Number(fromNano(totalTonAmount)));
+  }, [totalTonAmount]);
 
   return (
-    <StyledContainer title="Recent votes" loading={isLoading} loaderAmount={3}>
+    <StyledContainerHeader>
+      <StyledChip label={<NumberDisplay value={data?.votes.length} />} />
+      <Typography style={{fontWeight: 600}}>{tonAmount} TON</Typography>
+    </StyledContainerHeader>
+  );
+};
+
+const StyledContainerHeader = styled(StyledFlexRow)({
+  flex:1,
+  justifyContent:'space-between'
+});
+
+export function VotesLayout() {
+  const { isLoading, data } = useStateQuery();
+
+  const votes = data?.votes;
+  const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();
+  const hideLoadMore = (votes?.length || 0) <= votesViewLimit;
+
+  return (
+    <StyledContainer
+      title="Recent votes"
+      loading={isLoading}
+      loaderAmount={3}
+      headerChildren={<ContainerHeader />}
+    >
       {votes?.length ? (
         <StyledList gap={15}>
           {votes?.map((vote, index) => {
@@ -36,9 +69,9 @@ export function VotesLayout() {
   );
 }
 
-const VoteComponent = ({ data }: { data: Vote }) => {  
+const VoteComponent = ({ data }: { data: Vote }) => {
   const { address, votingPower, vote, hash } = data;
-  
+
   const connectedAddress = useConnectionStore().address;
 
   return (
@@ -54,12 +87,11 @@ const VoteComponent = ({ data }: { data: Vote }) => {
   );
 };
 
-
 const StyledNoVotes = styled(Typography)({
-  textAlign:'center',
+  textAlign: "center",
   fontSize: 17,
-  fontWeight: 600
-})
+  fontWeight: 600,
+});
 
 const StyledLoaderMore = styled(StyledFlexRow)({
   marginTop: 30,
@@ -117,4 +149,19 @@ const StyledList = styled(StyledFlexColumn)({});
 
 const StyledContainer = styled(Container)({
   paddingBottom: 30,
+  ".container-header": {
+    alignItems: "center",
+    gap: 13,
+    h4: {
+      width: "fit-content",
+    },
+  },
+});
+
+const StyledChip = styled(Chip)({
+  height: 28,
+  "*": {
+    fontWeight: 600,
+    fontSize: 13,
+  },
 });
