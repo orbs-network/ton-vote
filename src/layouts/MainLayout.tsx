@@ -62,9 +62,8 @@ const ShowMorePart = () => {
         mining wallets by the end of 2022.
       </Typography>
       <Typography>
-        Out of the 204 inactive mining wallets identified by the community, 182
-        wallets holding 1,081,426,228 Toncoin remain inactive today. These
-        mining wallets — the genesis wallets that have mined Toncoin directly
+        Out of the 204 inactive mining wallets identified by the community, many wallets are still 
+        inactive today. These mining wallets — the genesis wallets that have mined Toncoin directly
         from the Proof-of-Work smart-contracts — have never been activated and
         do not have a single outgoing transfer in their history. The full list
         of inactive mining wallet addresses can be found{" "}
