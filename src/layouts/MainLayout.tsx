@@ -18,7 +18,7 @@ export function MainLayout() {
         <Typography>
           Tokenomics proposal to achieve community consensus on circulating
           supply of TON. Proposal for a 48 month temporary freeze of inactive
-          mining wallets which have never been activated, and do not have any
+          mining wallets, which have never been activated and do not have any
           outgoing transfer in their history.
         </Typography>
 
@@ -69,13 +69,15 @@ const ShowMorePart = () => {
       <Typography>
         Out of the 204 inactive mining wallets identified by the community, 182
         wallets remain inactive as of February 14, 2023. 182 wallets constitute
-        less than 0.0001% of the network. These mining wallets — the genesis
-        wallets which have mined Toncoin directly from the Proof-of-Work
-        smart-contracts — have never been activated and do not have a single
-        outgoing transfer in their history. The full list of inactive mining
-        wallet addresses can be found{" "}
-        <Link href="https://tontech.io/stats/early-miners" target='_blank'>here</Link>, which is
-        also specified in the{" "}
+        less than 0.009% of the total number of wallets on the network. These
+        mining wallets — the genesis wallets which have mined Toncoin directly
+        from the Proof-of-Work smart-contracts — have never been activated and
+        do not have a single outgoing transfer in their history. The full list
+        of inactive mining wallet addresses can be found{" "}
+        <Link href="https://tontech.io/stats/early-miners" target="_blank">
+          here
+        </Link>
+        , which is also specified in the{" "}
         <Link
           href={`https://verifier.ton.org/${CONTRACT_ADDRESS}`}
           target="_blank"
@@ -114,10 +116,9 @@ const ShowMorePart = () => {
       <Typography>Make your voice heard.</Typography>
       <Typography>
         <small>
-          Disclaimer: the voting results on ton.vote will not have any direct
-          impact on the network voting itself. However, the community believes
-          that the network validators will seriously consider the voice of the
-          community.
+          Disclaimer: the voting results on ton.vote will not have a direct
+          impact on the network voting. However, the community believes that the
+          network validators will consider the voice of the community seriously.
         </small>
       </Typography>
     </StyledShowMoreText>
