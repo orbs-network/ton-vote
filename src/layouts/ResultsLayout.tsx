@@ -17,39 +17,60 @@ import {
   useServerStore,
 } from "store";
 import { useGetContractState, useVoteTimeline } from "hooks";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Logger, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import analytics from "analytics";
 import { fromNano } from "ton";
+import _ from "lodash";
+
+const useVotesCount = () => {
+  const votes = useStateQuery().data?.votes;
+  const updated = useStateQuery().dataUpdatedAt;
+
+  return useMemo(() => {
+    const grouped = _.groupBy(votes, "vote");
+
+    return {
+      yes: nFormatter(_.size(grouped.Yes)),
+      no: nFormatter(_.size(grouped.No)),
+      abstain: nFormatter(_.size(grouped.Abstain)),
+    };
+  }, [updated]);
+};
 
 const calculateTonAmount = (percent?: number, total?: string) => {
-  if (!percent || !total) return ;
-  const result =  Number(fromNano(total)) * percent / 100;
+  if (!percent || !total) return;
+  const result = (Number(fromNano(total)) * percent) / 100;
   return nFormatter(result, 2);
 };
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
   const results = data?.proposalResults;
-
+  
+  const votesCount = useVotesCount();
+  
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
-      <StyledFlexColumn>
+      <StyledFlexColumn gap={15}>
         <ResultRow
           name="Yes"
           percent={results?.yes || 0}
           tonAmount={calculateTonAmount(results?.yes, results?.totalWeight)}
+          votes={votesCount.yes}
         />
         <ResultRow
           name="No"
           percent={results?.no || 0}
           tonAmount={calculateTonAmount(results?.no, results?.totalWeight)}
+          votes={votesCount.no}
         />
         <ResultRow
           name="Abstain"
           percent={results?.abstain || 0}
           tonAmount={calculateTonAmount(results?.abstain, results?.totalWeight)}
+          votes={votesCount.abstain}
         />
       </StyledFlexColumn>
       <VerifyResults />
@@ -60,26 +81,41 @@ export const ResultsLayout = () => {
 const ResultRow = ({
   name,
   percent = 0,
-  tonAmount = '0',
+  tonAmount = "0",
+  votes,
 }: {
   name: string;
   percent?: number;
   tonAmount?: string;
+  votes: string;
 }) => {
   return (
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
-        <Typography>{name}</Typography>
-       
+        <StyledFlexRow style={{ width: "fit-content" }}>
+          <Typography>{name}</Typography>
+          <StyledChip label={`${votes} votes`} />
+        </StyledFlexRow>
+
         <StyledResultRowRight justifyContent="flex-end">
-          <Typography>{`${tonAmount} TON`}</Typography>
-          <Typography>{percent}%</Typography>
+          <Typography fontSize={13}>{tonAmount} TON</Typography>
+
+          <Typography className="percent">{percent}%</Typography>
         </StyledResultRowRight>
       </StyledFlexRow>
       <Progress progress={percent} />
     </StyledResultRow>
   );
 };
+
+const StyledChip = styled(Chip)({
+  fontSize: 11,
+  height: 25,
+  ".MuiChip-label": {
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+});
 
 const StyledResultRowRight = styled(StyledFlexRow)({
   flex: 1,
@@ -91,6 +127,9 @@ const StyledResultRow = styled(StyledFlexColumn)({
   p: {
     fontWeight: "inherit",
   },
+  ".percent":{
+    fontSize: 14
+  }
 });
 
 const StyledResults = styled(Container)({

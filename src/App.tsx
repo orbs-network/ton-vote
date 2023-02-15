@@ -92,7 +92,7 @@ const StyledLeft = styled(StyledFlexColumn)({
 });
 
 const StyledRight = styled(StyledFlexColumn)({
-  width: 340,
+  width: 370,
   position: "sticky",
   top: 90,
 });
