@@ -18,8 +18,8 @@ import {
 import { WalletProvider, Provider } from "types";
 import { useDataFromQueryClient } from "queries";
 import { useWalletVote } from "hooks";
-import { getStepConnectorUtilityClass } from "@mui/material";
 import TonConnect from "@tonconnect/sdk";
+import _ from "lodash";
 
 export const useWallets = () => {
   const connector = useConnectionStore().connectorTC;
@@ -27,8 +27,8 @@ export const useWallets = () => {
   return useQuery(
     [],
     async () => {
-      return connector.getWallets();
-    },
+      return  connector.getWallets();
+        },
     {
       staleTime: Infinity,
     }
@@ -101,8 +101,7 @@ const useOnConnectCallback = () => {
 
 export const useOnWalletSelected = () => {
   const [session, setSession] = useState("");
-  const { setTonConnectionProvider, setAddress } =
-    useConnectionStore();
+  const { setTonConnectionProvider, setAddress } = useConnectionStore();
   const [walletInfo, setWalletInfo] = useState<
     { name: string; icon: string } | undefined
   >();
@@ -133,19 +132,27 @@ export const useOnWalletSelected = () => {
   const selectWalletTC = (wallet: any) => {
     setWalletInfo({ name: wallet.name, icon: wallet.imageUrl });
     try {
-      const walletConnectionSource = {
-        jsBridgeKey: wallet.jsBridgeKey,
-      };
-      connector.connect(walletConnectionSource);
-    } catch (error) {
-      const walletConnectionSource = {
-        universalLink: wallet.universalLink,
-        bridgeUrl: wallet.bridgeUrl,
-      };
+      try {
+        const walletConnectionSource = {
+          jsBridgeKey: wallet.jsBridgeKey,
+        };
+        connector.connect(walletConnectionSource);
+      } catch (error) {
+        const walletConnectionSource = {
+          universalLink: wallet.universalLink,
+          bridgeUrl: wallet.bridgeUrl,
+        };
 
-      const _session = connector.connect(walletConnectionSource);
-      onSessionLinkReady(_session);
-      onShowQr();
+        const _session = connector.connect(walletConnectionSource);
+        onSessionLinkReady(_session);
+        onShowQr();
+      }
+    } catch (error) {
+      if (isMobile) {
+        (window as any).location = wallet.aboutUrl;
+      } else {
+        window.open(wallet.aboutUrl);
+      }
     }
   };
 
@@ -208,7 +215,7 @@ export const useGetTransaction = () => {
 
     if (connectorTC.connected) {
       handleMobileLink(connectorTC);
-        
+
       await connectorTC.sendTransaction({
         validUntil: Date.now() + 5 * 60 * 1000,
         messages: [
@@ -250,8 +257,8 @@ export const useGetTransaction = () => {
 
 const handleMobileLink = (connectorTC?: TonConnect) => {
   if (!isMobile) return;
-    const Tonkeeper = connectorTC?.wallet?.device.appName;
-    
+  const Tonkeeper = connectorTC?.wallet?.device.appName;
+
   switch (Tonkeeper) {
     case "Tonkeeper":
       (window as any).location = "https://app.tonkeeper.com";

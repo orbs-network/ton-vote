@@ -1,5 +1,5 @@
 import { getHttpEndpoint } from "@orbs-network/ton-access";
-import { Address, TonClient, TonClient4 } from "ton";
+import { Address, fromNano, TonClient, TonClient4 } from "ton";
 import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
 
 import BigNumber from "bignumber.js";
@@ -38,7 +38,7 @@ export async function getTransactions(
       lt: paging.fromLt,
       to_lt: toLt,
       hash: paging.hash,
-      limit: 100,
+      limit: 500,
     });  
 
     Logger(`Got ${txns.length}, lt ${paging.fromLt}`);
@@ -150,7 +150,6 @@ export function calcProposalResult(votes, votingPower) {
       throw new Error(`voter ${voter} not found in votingPower`);
 
       const _vote = vote.vote 
-
     if (_vote === "Yes") {
       sumVotes.yes = new BigNumber(votingPower[voter]).plus(sumVotes.yes);
     } else if (_vote === "No") {
@@ -162,24 +161,25 @@ export function calcProposalResult(votes, votingPower) {
     }
   }
 
+
   const totalWeights = sumVotes.yes.plus(sumVotes.no).plus(sumVotes.abstain);
   const yesPct = sumVotes.yes
     .div(totalWeights)
-    .decimalPlaces(2)
+    .decimalPlaces(4)
     .multipliedBy(100)
     .toNumber();
   const noPct = sumVotes.no
     .div(totalWeights)
-    .decimalPlaces(2)
+    .decimalPlaces(4)
     .multipliedBy(100)
     .toNumber();
   const abstainPct = sumVotes.abstain
     .div(totalWeights)
-    .decimalPlaces(2)
+    .decimalPlaces(4)
     .multipliedBy(100)
     .toNumber();
 
-  return {
+    return {
     yes: yesPct,
     no: noPct,
     abstain: abstainPct,

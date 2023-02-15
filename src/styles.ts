@@ -47,8 +47,15 @@ export const globalStyles = {
     scrollBehavior: "smooth" as const,
   },
   ".snackbar-success": {
-    backgroundColor: `${theme.palette.primary.main}!important`
-  }
+    backgroundColor: `${theme.palette.primary.main}!important`,
+  },
+  ".MuiTooltip-arrow": {
+    color: `#EEEEEE!important`,
+  },
+  ".MuiTooltip-tooltip": {
+    background: `#EEEEEE!important`,
+  
+  },
 };
 
 export const textOverflow: CSSProperties = {

@@ -1,33 +1,34 @@
 import { Chip, styled, Typography } from "@mui/material";
-import { Button, Container, Link, NumberDisplay } from "components";
+import { AppTooltip, Button, Container, Link } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "utils";
-import { TONSCAN, TONSCAN_ADDRESS_URL } from "config";
+import { TONSCAN } from "config";
 import { Vote } from "types";
 import { useStateQuery } from "queries";
 import { useConnectionStore, useVotesPaginationStore } from "store";
 import { fromNano } from "ton";
 import { useMemo } from "react";
 import moment from "moment";
+import _ from "lodash";
 
-const calculateTonAmount = (percent?: number, total?: string) => {
-  if (!percent || !total) return;
-  const result = (Number(fromNano(total)) * percent) / 100;
-  return nFormatter(result, 0);
-};
 
 const ContainerHeader = () => {
   const data = useStateQuery().data;
-  const totalTonAmount = data?.proposalResults.totalWeight || '0';
+  const totalTonAmount = data?.proposalResults?.totalWeight || '0';
+  const votesLength = _.size(data?.votes)
 
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
 
+   const totalVotes = useMemo(() => {
+     return nFormatter(votesLength);
+   }, [votesLength]);
+
   return (
     <StyledContainerHeader>
-      <StyledChip label={<NumberDisplay value={data?.votes.length} />} />
-      <Typography style={{fontWeight: 600}}>{tonAmount} TON</Typography>
+      <StyledChip label={`${totalVotes} votes`} />
+      <Typography style={{ fontWeight: 600 }}>{tonAmount} TON</Typography>
     </StyledContainerHeader>
   );
 };
@@ -77,16 +78,16 @@ const VoteComponent = ({ data }: { data: Vote }) => {
 
   return (
     <StyledVote justifyContent="flex-start">
-      <Typography className="date">
-        {moment.unix(timestamp).utc().fromNow()}
-      </Typography>
-
-      <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
-        {connectedAddress === address ? "You" : makeElipsisAddress(address, 5)}
-      </Link>
+      <AppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
+        <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
+          {connectedAddress === address
+            ? "You"
+            : makeElipsisAddress(address, 5)}
+        </Link>
+      </AppTooltip>
       <Typography className="vote">{vote}</Typography>
       <Typography className="voting-power">
-        <NumberDisplay value={votingPower} /> TON
+        {nFormatter(Number(votingPower))} TON
       </Typography>
     </StyledVote>
   );
@@ -119,7 +120,6 @@ const StyledVote = styled(StyledFlexRow)({
   ".voting-power": {
     width: 160,
     textAlign: "right",
-    display: "flex",
     gap: 5,
     ".number-display": {
       ...textOverflow,

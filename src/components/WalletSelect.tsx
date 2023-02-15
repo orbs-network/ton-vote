@@ -13,15 +13,26 @@ import {
   useWallets,
 } from "connection";
 import { isMobile } from "react-device-detect";
+import _ from "lodash";
 interface Props {
   open: boolean;
   close: () => void;
 }
 
+const useTonConnectWallets = () => {
+  const wallets = useWallets().data;
+
+  if (!isMobile) {
+    return wallets;
+  }
+
+  return _.filter(wallets, (wallet: any) => wallet.universalLink);
+};
+
 export function WalletSelect({ open, close }: Props) {
   const resetConnection = useResetConnection();
-  const tonConnectWallets = useWallets().data;
-
+  const tonConnectWallets = useTonConnectWallets();
+  
   const {
     selectWallet,
     selectWalletTC,
@@ -44,7 +55,7 @@ export function WalletSelect({ open, close }: Props) {
       resetSession();
     }, 500);
   };
-  
+
   return (
     <StyledPopup open={open}>
       <StyledContainer>
@@ -54,7 +65,7 @@ export function WalletSelect({ open, close }: Props) {
           title="Select wallet"
         >
           <StyledWalletsList>
-            {tonConnectWallets?.map((wallet) => {
+            {tonConnectWallets?.map((wallet: any) => {
               return (
                 <StyledWallet
                   justifyContent="flex-start"
