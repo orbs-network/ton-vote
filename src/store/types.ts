@@ -3,6 +3,7 @@ import { PAGE_SIZE } from "config";
 import { TonClient, TonClient4 } from "ton";
 import { Transaction } from "types";
 import { create } from "zustand";
+import TonConnect from "@tonconnect/sdk";
 
 export interface PersistedStore {
   clientV2Endpoint?: string;
@@ -65,6 +66,7 @@ export interface ServerStore {
 }
 
 export interface ConnectionStore {
+  connectorTC: TonConnect;
   reset: () => void;
   address?: string;
   connection?: TonConnection;

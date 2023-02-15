@@ -16,27 +16,13 @@ export const TX_APPROVED_AND_PENDING = "Transaction pending";
 export const TX_FEE = "0.0075";
 
 export const walletAdapters: WalletProvider[] = [
-  {
-    type: Provider.TONKEEPER,
-    icon: TonKeeperLogo,
-    title: "Tonkeeper",
-    description: "A Non-custodial cryptocurrency wallet",
-    reminder: true,
-  },
+ 
   {
     type: Provider.TONHUB,
     icon: TonhubLogo,
     title: "Tonhub",
     description: "A mobile wallet in your pocket",
     reminder: true,
-  },
-
-  {
-    type: Provider.OPEN_MASK,
-    icon: OpenMaskLogo,
-    title: "OpenMask",
-    description: "OpenMask Plugin for Google Chrome",
-    mobileDisabled: true,
   },
   {
     type: Provider.EXTENSION,
@@ -62,6 +48,9 @@ export const voteOptions = [
   },
 ];
 
+
+
+export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
 
 
 export const DEFAULT_ENDPOINTS = {

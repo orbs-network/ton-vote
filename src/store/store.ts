@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { TonConnection } from "@ton-defi.org/ton-connection";
-import { PAGE_SIZE } from "config";
+import { manifestUrl, PAGE_SIZE } from "config";
+import TonConnect from "@tonconnect/sdk";
+
 import {
   ClientsStore,
   ConnectionStore,
@@ -59,6 +61,9 @@ const storeDefaultValues = {
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   address: undefined,
   connection: undefined,
+  connectorTC: new TonConnect({
+    manifestUrl,
+  }),
   reset: () => set({ address: undefined, connection: undefined }),
   setAddress: (address) => set({ address }),
   setTonConnectionProvider: (provider) => {

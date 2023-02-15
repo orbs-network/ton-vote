@@ -2,6 +2,11 @@ import { styled, useMediaQuery } from "@mui/material";
 import { Box } from "@mui/system";
 import { EndpointPopup } from "components";
 import {
+  useConnectionEvenSubscription,
+  useEmbededWallet,
+  useRestoreConnection,
+} from "connection";
+import {
   MainLayout,
   VoteLayout,
   ResultsLayout,
@@ -11,9 +16,8 @@ import {
   Footer,
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
-import PasswordLayout from "layouts/PasswordLayout";
-import { useEffect, useState } from "react";
-import { useEagerlyConnect, useGetClientsOnLoad } from "store";
+import { useEffect } from "react";
+import { useGetClientsOnLoad } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 
 const Destop = () => {
@@ -47,12 +51,15 @@ const Mobile = () => {
 };
 
 function App() {
-  const restoreConnection = useEagerlyConnect();
+  const restoreConnection = useRestoreConnection();
   const getClients = useGetClientsOnLoad();
+  useConnectionEvenSubscription();
+  const handleEmbededWallet = useEmbededWallet();
 
   useEffect(() => {
     restoreConnection();
     getClients();
+    handleEmbededWallet();
   }, []);
   const match = useMediaQuery("(max-width:800px)");
 
