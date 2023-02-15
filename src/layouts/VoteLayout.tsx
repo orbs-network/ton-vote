@@ -26,7 +26,7 @@ export function VoteLayout() {
 
   if (!voteInProgress) return null;
   return (
-    <StyledContainer title="Vote">
+    <StyledContainer title="Should the validators to proceed with a proposal">
       <StyledFlexColumn>
         {voteOptions.map((option) => {
           return (

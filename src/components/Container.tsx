@@ -76,7 +76,10 @@ const Title = ({ children }: { children: string }) => {
 
 const StyledTitle = styled(Typography)({
   width: "100%",
+  maxWidth: '90%',
   textAlign: "left",
+  marginRight:'auto',
+  lineHeight: '28px'
 });
 
 export { Container };
