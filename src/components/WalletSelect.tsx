@@ -1,14 +1,18 @@
 import { Box, Fade, Skeleton, styled, Typography } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Popup } from "./Popup";
-import { useConnect, useResetConnection } from "store";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode, useState } from "react";
 import { GrClose } from "react-icons/gr";
 import { walletAdapters } from "config";
-import { isMobile } from "react-device-detect";
 import analytics from "analytics";
 
+import {
+  useOnWalletSelected,
+  useResetConnection,
+  useWallets,
+} from "connection";
+import { isMobile } from "react-device-detect";
 interface Props {
   open: boolean;
   close: () => void;
@@ -16,14 +20,17 @@ interface Props {
 
 export function WalletSelect({ open, close }: Props) {
   const resetConnection = useResetConnection();
+  const tonConnectWallets = useWallets().data;
+
   const {
-    mutate: connect,
+    selectWallet,
+    selectWalletTC,
     session,
+    reset: resetSession,
+    hideQR,
     showQR,
-    setShowQR,
-    clearSession,
-    selectedProvider,
-  } = useConnect();
+    walletInfo,
+  } = useOnWalletSelected();
 
   const onWalletsClose = () => {
     resetConnection();
@@ -31,13 +38,13 @@ export function WalletSelect({ open, close }: Props) {
   };
 
   const onQRClose = () => {
-    setShowQR(false);
+    hideQR();
     setTimeout(() => {
       resetConnection();
-      clearSession();
+      resetSession();
     }, 500);
   };
-
+  
   return (
     <StyledPopup open={open}>
       <StyledContainer>
@@ -47,17 +54,30 @@ export function WalletSelect({ open, close }: Props) {
           title="Select wallet"
         >
           <StyledWalletsList>
-            {walletAdapters.map((wallet) => {
-              if (wallet.mobileDisabled && isMobile) {
-                return null;
-              }
+            {tonConnectWallets?.map((wallet) => {
               return (
                 <StyledWallet
                   justifyContent="flex-start"
-                  key={wallet.type}
+                  key={wallet.name}
+                  onClick={() => {
+                    analytics.GA.walletSelectedClick(wallet.name);
+                    selectWalletTC(wallet);
+                  }}
+                >
+                  <img src={wallet.imageUrl} />
+                  <Typography className="wallet-name">{wallet.name}</Typography>
+                </StyledWallet>
+              );
+            })}
+            {walletAdapters?.map((wallet) => {
+              if (isMobile && wallet.mobileDisabled) return null;
+              return (
+                <StyledWallet
+                  justifyContent="flex-start"
+                  key={wallet.title}
                   onClick={() => {
                     analytics.GA.walletSelectedClick(wallet.title);
-                    connect(wallet);
+                    selectWallet(wallet);
                   }}
                 >
                   <img src={wallet.icon} />
@@ -71,14 +91,10 @@ export function WalletSelect({ open, close }: Props) {
         </StyledWalletsSelect>
         <StyledQr
           show={showQR}
-          title={
-            selectedProvider ? `Connect with ${selectedProvider.title}` : ""
-          }
+          title={walletInfo ? `Connect with ${walletInfo.name}` : ""}
           close={onQRClose}
         >
-          <StyledQrBox>
-            <QR session={session} icon={selectedProvider?.icon} />
-          </StyledQrBox>
+          <QR session={session} icon={walletInfo?.icon} />
         </StyledQr>
       </StyledContainer>
     </StyledPopup>

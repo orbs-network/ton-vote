@@ -5,6 +5,7 @@ export enum Provider {
   TONHUB = "TONHUB",
   EXTENSION = "EXTENSION",
   OPEN_MASK = "OPEN_MASK",
+  MY_TON_WALLET = "MY_TON_WALLET",
 }
 
 export interface WalletProvider {

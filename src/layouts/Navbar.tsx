@@ -8,8 +8,9 @@ import LogoImg from "assets/logo.svg";
 import { FiSettings } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RiRouteFill } from "react-icons/ri";
-import { useConnectionStore, useEndpointStore, useResetConnection } from "store";
+import { useConnectionStore, useEndpointStore } from "store";
 import analytics from "analytics";
+import { useResetConnection } from "connection";
 
 export function Navbar() {
     const mobile = useMediaQuery("(max-width:600px)");
@@ -90,7 +91,7 @@ const Settings = () => {
   const address = useConnectionStore().address;
  const { setShowSetEndpoint } = useEndpointStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const reset = useResetConnection();
+  const resetConnection = useResetConnection();
 
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -99,7 +100,7 @@ const Settings = () => {
   const handleClose = () => setAnchorEl(null);
 
   const logout = () => {
-    reset();
+    resetConnection();
     handleClose();
   };
 

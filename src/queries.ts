@@ -10,6 +10,7 @@ import {
   TX_SUBMIT_ERROR_TEXT,
   TX_SUBMIT_SUCCESS_TEXT,
 } from "config";
+import { useGetTransaction } from "connection";
 import {
   filterTxByTimestamp,
   getProposalInfo,
@@ -120,7 +121,7 @@ const useCheckServerhealth = () => {
   return async () => {
     try {
       const lastFetchUpdate = await api.getLastFetchUpdate();
-
+      
       return moment().valueOf() - lastFetchUpdate > LAST_FETCH_UPDATE_LIMIT;
     } catch (error) {
       return true;
@@ -172,7 +173,6 @@ export const useStateQuery = () => {
   return useQuery(
     [QueryKeys.STATE],
     async () => {
-   
       const onServerState = async () => {
         const data = await getServerStateCallback();
         return data || getStateCurrentData();
@@ -310,12 +310,13 @@ export const useSendTransaction = () => {
   const { mutateAsync: onVoteFinished } = useOnVoteCallback();
   const { showNotification } = useNotification();
   const { txLoading, setTxLoading } = useTxStore();
+  const connector = useConnectionStore().connectorTC;
+  const getTransaction = useGetTransaction();
 
   const query = useMutation(
     async (vote: string) => {
       analytics.GA.txSubmitted(vote);
-      const cell = new Cell();
-      new CommentMessage(vote).writeTo(cell);
+
       setTxLoading(true);
 
       const waiter = await waitForSeqno(
@@ -338,23 +339,8 @@ export const useSendTransaction = () => {
         });
       };
 
-      if (isMobile) {
-        await connection?.requestTransaction({
-          to: CONTRACT_ADDRESS,
-          value: toNano(TX_FEE),
-          message: cell,
-        });
-        await onSuccess();
-      } else {
-        await connection?.requestTransaction(
-          {
-            to: CONTRACT_ADDRESS,
-            value: toNano(TX_FEE),
-            message: cell,
-          },
-          onSuccess
-        );
-      }
+      const transaction = getTransaction(vote, onSuccess);
+      return transaction;
     },
     {
       onError: (error: any, vote) => {

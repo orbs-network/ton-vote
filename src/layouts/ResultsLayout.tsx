@@ -1,4 +1,4 @@
-import { Link, Typography } from "@mui/material";
+import { Chip, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
@@ -26,7 +26,7 @@ import { fromNano } from "ton";
 const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return ;
   const result =  Number(fromNano(total)) * percent / 100;
-  return nFormatter(result, 0);
+  return nFormatter(result, 2);
 };
 
 export const ResultsLayout = () => {
@@ -70,6 +70,7 @@ const ResultRow = ({
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <Typography>{name}</Typography>
+       
         <StyledResultRowRight justifyContent="flex-end">
           <Typography>{`${tonAmount} TON`}</Typography>
           <Typography>{percent}%</Typography>

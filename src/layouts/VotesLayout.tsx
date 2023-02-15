@@ -8,6 +8,7 @@ import { useStateQuery } from "queries";
 import { useConnectionStore, useVotesPaginationStore } from "store";
 import { fromNano } from "ton";
 import { useMemo } from "react";
+import moment from "moment";
 
 const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return;
@@ -70,12 +71,16 @@ export function VotesLayout() {
 }
 
 const VoteComponent = ({ data }: { data: Vote }) => {
-  const { address, votingPower, vote, hash } = data;
+  const { address, votingPower, vote, hash, timestamp } = data;
 
   const connectedAddress = useConnectionStore().address;
 
   return (
     <StyledVote justifyContent="flex-start">
+      <Typography className="date">
+        {moment.unix(timestamp).utc().fromNow()}
+      </Typography>
+
       <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
         {connectedAddress === address ? "You" : makeElipsisAddress(address, 5)}
       </Link>
@@ -129,6 +134,9 @@ const StyledVote = styled(StyledFlexRow)({
     ".address": {
       maxWidth: "60%",
     },
+    ".date": {
+
+    },  
     ".vote": {
       flex: "unset",
       marginLeft: "auto",

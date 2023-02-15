@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import { useSendTransaction } from "queries";
 import { useVoteTimeline } from "hooks";
 import { useConnectionStore, useVoteStore } from "store";
+import { useSendTransaction } from "queries";
 
 export function VoteLayout() {
   const { vote, setVote } = useVoteStore();
