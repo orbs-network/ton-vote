@@ -1,4 +1,4 @@
-import { Chip, styled, Typography } from "@mui/material";
+import { Chip, Fade, styled, Typography } from "@mui/material";
 import { AppTooltip, Button, Container, Link } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "utils";
@@ -13,7 +13,7 @@ import _ from "lodash";
 
 
 const ContainerHeader = () => {
-  const data = useStateQuery().data;
+  const {data, isLoading} = useStateQuery()
   const totalTonAmount = data?.proposalResults?.totalWeight || '0';
   const votesLength = _.size(data?.votes)
 
@@ -26,16 +26,25 @@ const ContainerHeader = () => {
    }, [votesLength]);
 
   return (
-    <StyledContainerHeader>
-      <StyledChip label={`${totalVotes} votes`} />
-      <Typography style={{ fontWeight: 600 }}>{tonAmount} TON</Typography>
-    </StyledContainerHeader>
+    <Fade in={!isLoading}>
+      <StyledContainerHeader>
+        <StyledChip label={`${totalVotes} votes`} />
+        <Typography className="total" style={{ fontWeight: 600 }}>
+          {tonAmount} TON
+        </Typography>
+      </StyledContainerHeader>
+    </Fade>
   );
 };
 
 const StyledContainerHeader = styled(StyledFlexRow)({
   flex:1,
-  justifyContent:'space-between'
+  justifyContent:'space-between',
+  '@media (max-width: 600px)': {
+    ".total": {
+      fontSize: 13
+    }
+  }
 });
 
 export function VotesLayout() {

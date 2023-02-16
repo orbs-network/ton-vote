@@ -40,9 +40,10 @@ export const useRestoreConnection = () => {
   const connector = useConnectionStore().connectorTC;
 
   return () => {
+     connector.restoreConnection();
     const provider = localStorage.getItem(LOCAL_STORAGE_PROVIDER);
     if (!provider) {
-      connector.restoreConnection();
+      return null
     }
     const walletAdapter = walletAdapters.find((it) => it.type === provider);
     if (walletAdapter) {
