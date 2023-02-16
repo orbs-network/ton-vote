@@ -1,5 +1,5 @@
 import { Chip, Fade, styled, Typography } from "@mui/material";
-import { AppTooltip, Button, Container, Link } from "components";
+import { AppTooltip, Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "utils";
 import { TONSCAN } from "config";
@@ -21,14 +21,18 @@ const ContainerHeader = () => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
 
-   const totalVotes = useMemo(() => {
-     return nFormatter(votesLength);
-   }, [votesLength]);
-
   return (
     <Fade in={!isLoading}>
       <StyledContainerHeader>
-        <StyledChip label={`${totalVotes} votes`} />
+        <StyledChip
+          label={
+            <>
+              <NumberDisplay value={votesLength} />
+              {" "}
+              votes
+            </>
+          }
+        />
         <Typography className="total" style={{ fontWeight: 600 }}>
           {tonAmount} TON
         </Typography>
