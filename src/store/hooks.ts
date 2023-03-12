@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { getClientV2, getClientV4 } from "contracts-api/logic";
+import { useEffect } from "react";
 import { EndpointsArgs } from "types";
 import { useClientStore, usePersistedStore } from "./store";
 
@@ -17,7 +18,7 @@ export const useGetClientsOnLoad = () => {
   const store = usePersistedStore();
   const { mutate: getClients } = useFetchClients();
 
-  return () => {
+  useEffect(() => {
     const args: EndpointsArgs = {
       clientV2Endpoint: store.clientV2Endpoint,
       clientV4Endpoint: store.clientV4Endpoint,
@@ -25,8 +26,5 @@ export const useGetClientsOnLoad = () => {
     };
 
     getClients(store.clientV2Endpoint ? args : undefined);
-  };
+  }, []);
 };
-
-
-

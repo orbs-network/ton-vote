@@ -44,7 +44,7 @@ export const globalStyles = {
     background: "#F8F9FB",
   },
   html: {
-    scrollBehavior: "smooth" as const,
+    // scrollBehavior: "smooth" as const,
   },
   ".snackbar-success": {
     backgroundColor: `${theme.palette.primary.main}!important`,
@@ -67,6 +67,7 @@ export const textOverflow: CSSProperties = {
 export const StyledGrid = styled(StyledFlexColumn)({
   gap: 0,
   width: "calc(100% - 100px)",
+  flex:1,
   maxWidth: 950,
   marginLeft: "auto",
   marginRight: "auto",
@@ -74,3 +75,9 @@ export const StyledGrid = styled(StyledFlexColumn)({
     width: "calc(100% - 30px)",
   },
 });
+
+
+
+export const StyledPage = styled(Box)({
+  paddingTop: 100
+})

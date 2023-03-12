@@ -27,8 +27,8 @@ export const useWallets = () => {
   return useQuery(
     [],
     async () => {
-      return  connector.getWallets();
-        },
+      return connector.getWallets();
+    },
     {
       staleTime: Infinity,
     }
@@ -39,17 +39,17 @@ export const useRestoreConnection = () => {
   const { selectWallet } = useOnWalletSelected();
   const connector = useConnectionStore().connectorTC;
 
-  return () => {
-     connector.restoreConnection();
+  useEffect(() => {
+    connector.restoreConnection();
     const provider = localStorage.getItem(LOCAL_STORAGE_PROVIDER);
     if (!provider) {
-      return null
+      return;
     }
     const walletAdapter = walletAdapters.find((it) => it.type === provider);
     if (walletAdapter) {
       selectWallet(walletAdapter);
     }
-  };
+  }, []);
 };
 
 export const useConnectionEvenSubscription = () => {
@@ -76,7 +76,7 @@ export const useEmbededWallet = () => {
   const wallets = useWallets().data;
   const connector = useConnectionStore().connectorTC;
 
-  return () => {
+  useEffect(() => {
     const embeddedWallet = wallets?.find(
       (wallet) => isWalletInfoInjected(wallet) && wallet.embedded
     ) as WalletInfoInjected;
@@ -84,7 +84,7 @@ export const useEmbededWallet = () => {
     if (embeddedWallet) {
       connector.connect({ jsBridgeKey: embeddedWallet.jsBridgeKey });
     }
-  };
+  }, []);
 };
 
 const useOnConnectCallback = () => {

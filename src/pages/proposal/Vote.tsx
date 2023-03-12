@@ -9,7 +9,7 @@ import { useVoteTimeline } from "hooks";
 import { useConnectionStore, useVoteStore } from "store";
 import { useSendTransaction } from "queries";
 
-export function VoteLayout() {
+export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();

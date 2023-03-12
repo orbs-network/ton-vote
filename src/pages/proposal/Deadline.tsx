@@ -11,7 +11,7 @@ const handleDate = (endDate?: number | Number) => {
   return moment.unix(Number(endDate)).utc().valueOf();
 };
 
-function DeadlineLayout() {
+export function Deadline() {
   const data = useProposalInfoQuery().data;
   const { voteEnded, voteStarted } = useVoteTimeline();
 
@@ -29,6 +29,5 @@ function DeadlineLayout() {
   );
 }
 
-export default DeadlineLayout;
 
 const StyledContainer = styled(Container)({});

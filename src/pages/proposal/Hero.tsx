@@ -7,7 +7,7 @@ import AnimateHeight from "react-animate-height";
 import { useVoteTimeline } from "hooks";
 import { CONTRACT_ADDRESS } from "config";
 
-export function MainLayout() {
+export function Hero() {
   const [showMore, setShowMore] = useState(false);
   return (
     <StyledContainer

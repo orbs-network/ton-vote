@@ -51,7 +51,7 @@ const StyledContainerHeader = styled(StyledFlexRow)({
   }
 });
 
-export function VotesLayout() {
+export function Votes() {
   const { isLoading, data } = useStateQuery();
 
   const votes = data?.votes;

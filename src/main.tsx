@@ -4,12 +4,12 @@ import { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { CssBaseline, GlobalStyles } from "@mui/material";
-import App from "./App";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "theme";
 import { globalStyles } from "styles";
 import { SnackbarProvider } from "notistack";
 import analytics from "analytics";
+import App from "App";
 analytics.GA.init();
 
 const queryClient = new QueryClient({
@@ -34,7 +34,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           variantError: "snackbar-error",
         }}
       >
-        <App />
+       <App />
       </SnackbarProvider>
     </ThemeProvider>
 

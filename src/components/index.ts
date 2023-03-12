@@ -13,3 +13,7 @@ export * from "./EndpointPopup";
 export * from './Notification'
 export * from "./Github";
 export * from "./Tooltip";
+export * from "./Navbar";
+export * from "./Footer";
+export * from "./Back";
+export * from "./Page";

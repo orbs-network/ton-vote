@@ -16,7 +16,7 @@ import {
   useVoteStore,
 } from "store";
 import { ProposalInfo, RawVotes, Transaction, Vote, VotingPower } from "types";
-import { parseVotes } from "utils";
+import { getProposalStatus, parseVotes } from "utils";
 
 export const useWalletVote = () => {
   const { setVote } = useVoteStore();
@@ -40,26 +40,16 @@ export const useWalletVote = () => {
   };
 };
 
-const numToMillis = (value: Number) => {
-  return moment.unix(Number(value)).utc().valueOf();
-};
-
 export const useVoteTimeline = () => {
-  const {data: info, isLoading} = useProposalInfoQuery();
+  const { data: info, isLoading } = useProposalInfoQuery();
 
   const query = useQuery(
     ["useVoteTimeline"],
     () => {
       if (!info) return null;
-      const startTime = info.startTime;
-      const endTime = info.endTime;
-      const now = moment.utc().valueOf();
-      const voteStarted = numToMillis(startTime) <= now;
-      const voteEnded = numToMillis(endTime) <= now;
+
       return {
-        voteStarted,
-        voteEnded,
-        voteInProgress: voteStarted && !voteEnded,
+        ...getProposalStatus(Number(info.startTime), Number(info.endTime)),
         isLoading,
       };
     },

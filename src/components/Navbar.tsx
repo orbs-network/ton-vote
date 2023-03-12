@@ -11,14 +11,16 @@ import { RiRouteFill } from "react-icons/ri";
 import { useConnectionStore, useEndpointStore } from "store";
 import analytics from "analytics";
 import { useResetConnection } from "connection";
+import { useAppNavigation } from "router";
 
 export function Navbar() {
     const mobile = useMediaQuery("(max-width:600px)");
+    const { navigateHome } = useAppNavigation();
   return (
     <StyledContainer>
       <StyledGrid>
         <StyledFlexRow justifyContent="space-between" width="100%">
-          <StyledLogo onClick={() => window.scrollTo(0, 0)}>
+          <StyledLogo onClick={navigateHome}>
             <img src={LogoImg} />
             <Typography>VOTE</Typography>
           </StyledLogo>

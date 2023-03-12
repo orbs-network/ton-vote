@@ -38,6 +38,8 @@ import {
   GetState,
   ProposalInfo,
   Transaction,
+  Proposal,
+  Space,
 } from "types";
 import { Logger, parseVotes, waitForSeqno } from "utils";
 
@@ -121,7 +123,7 @@ const useCheckServerhealth = () => {
   return async () => {
     try {
       const lastFetchUpdate = await api.getLastFetchUpdate();
-      
+
       return moment().valueOf() - lastFetchUpdate > LAST_FETCH_UPDATE_LIMIT;
     } catch (error) {
       return true;
@@ -361,4 +363,61 @@ export const useSendTransaction = () => {
     txApproved,
     isLoading: txLoading,
   };
+};
+
+const createSpaces = (amount: number): Space[] => {
+  return _.range(0, amount).map((it, i) => {
+    return {
+      name: `spaces ${i++}`,
+      image: `https://picsum.photos/id/${i}/200/200`,
+      members: i * 50,
+      id: `spaces-${i++}`,
+    };
+  });
+};
+
+export const useGetSpacesQuery = () => {
+  return useQuery<Space[]>(["useGetSpacesQuery"], () => {
+    return createSpaces(100);
+  });
+};
+
+export const useGetSpaceQuery = (id?: string) => {
+  const { data: spaces } = useGetSpacesQuery();
+  return useQuery<Space>(
+    ["useGetSpaceQuery", id],
+    () => {
+      return spaces!.find((s) => s.id === id) || ({} as Space);
+    },
+    {
+      enabled: !!spaces && spaces.length > 0 && !!id,
+    }
+  );
+};
+
+const createProposalPeview = (amount: number): Proposal[] => {
+  return _.range(0, amount).map((it, i) => {
+    return {
+      title: `Proposal ${i++}`,
+      description: `This is proposal ${i++}`,
+      ownerAvatar: `https://picsum.photos/id/${i++}/200/200`,
+      ownerAddress: "EQDehfd8rzzlqsQlVNPf9_svoBcWJ3eRbz-eqgswjNEKRIwo",
+      contractAddress: "EQDehfd8rzzlqsQlVNPf9_svoBcWJ3eRbz-eqgswjNEKRIwo",
+      startDate: moment().subtract(3, "days").unix().valueOf(),
+      endDate: moment().add(5, "days").unix().valueOf(),
+      id: crypto.randomUUID()
+    };
+  });
+};
+
+export const useGetSpaceProposals = (spaceId?: string) => {
+  return useQuery(
+    ["useGetSpaceProposals", spaceId],
+    () => {
+      return createProposalPeview(100);
+    },
+    {
+      enabled: !!spaceId,
+    }
+  );
 };

@@ -15,7 +15,7 @@ import { makeElipsisAddress } from "utils";
 };
 
 
-export const InformationLayout = () => {
+export const Information = () => {
   const { data: proposalInfo, isLoading } = useProposalInfoQuery();
 
   

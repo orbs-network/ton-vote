@@ -2,7 +2,14 @@ import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { fromNano, Wallet } from "ton";
-import { RawVote, RawVotes, Vote, VotingPower } from "types";
+import {
+  Proposal,
+  ProposalStatus,
+  RawVote,
+  RawVotes,
+  Vote,
+  VotingPower,
+} from "types";
 export const makeElipsisAddress = (address: string, padding = 6): string => {
   if (!address) return "";
   return `${address.substring(0, padding)}...${address.substring(
@@ -81,3 +88,53 @@ export function nFormatter(num: number, digits = 2) {
     ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol
     : "0";
 }
+
+export const timeLeft = (value: number) => {
+  var a = moment(unixToMilliseconds(value));
+  var b = moment();
+  const days = a.diff(b, "days");
+  const hours = a.diff(b, "hours");
+  const minutes = a.diff(b, "minutes");
+
+  if (days > 0) {
+    return days === 1 ? "1 day left" : `${days} days left`;
+  }
+  if (hours > 0) {
+    return hours === 1 ? "1 hour left" : `${hours} hours left`;
+  }
+
+  return minutes === 1 ? "1 minute left" : `${minutes} minutes left`;
+};
+
+export const getProposalStatus = (startTime?: number, endTime?: number) => {
+  if (!startTime || !endTime) {
+    return {
+      status: undefined,
+      text: undefined,
+    };
+  }
+
+  const now = moment.utc().valueOf();
+  const voteStarted = unixToMilliseconds(startTime) <= now;
+  const finished = unixToMilliseconds(endTime) <= now;
+  const voteInProgress = voteStarted && !finished;
+
+  const status: ProposalStatus = voteInProgress
+    ? "in-progress"
+    : finished
+    ? "finished"
+    : undefined;
+
+  return {
+    status,
+    voteStarted,
+    voteEnded: finished,
+    voteInProgress: voteStarted && !finished,
+    text: voteInProgress ? "Active" : finished ? "Closed" : undefined,
+  };
+};
+
+export const unixToMilliseconds = (value: Number) => {
+  return moment.unix(Number(value)).utc().valueOf();
+};
+

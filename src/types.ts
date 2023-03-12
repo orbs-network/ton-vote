@@ -1,3 +1,4 @@
+import moment from "moment";
 import { Address } from "ton";
 
 export enum Provider {
@@ -104,3 +105,26 @@ export type EndpointsArgs = {
   clientV4Endpoint?: string;
   apiKey?: string;
 };
+
+
+
+export interface Space {
+  name: string;
+  members: number;
+  image: string;
+  id: string;
+}
+
+
+export interface Proposal  {
+  startDate: number;
+  endDate: number;
+  title: string;
+  description: string;
+  ownerAvatar: string;
+  ownerAddress: string;
+  contractAddress: string;
+  id: string
+}
+
+export type ProposalStatus = 'finished' | 'in-progress' | undefined

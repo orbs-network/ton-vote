@@ -45,7 +45,7 @@ const calculateTonAmount = (percent?: number, total?: string) => {
   return nFormatter(result, 2);
 };
 
-export const ResultsLayout = () => {
+export const Results = () => {
   const { data, isLoading } = useStateQuery();
   const results = data?.proposalResults;
   
