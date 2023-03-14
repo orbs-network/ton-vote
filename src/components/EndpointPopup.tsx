@@ -7,17 +7,18 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
-import { useContractStore, useEndpointStore, useFetchClients, usePersistedStore, useServerStore } from "store";
+import { useAppPersistedStore, useEnpointModalStore, useIsCustomEnpoint } from "store";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { useStateQuery } from "queries";
 import { EndpointsArgs, QueryKeys } from "types";
 import analytics from "analytics";
-
+import { useProposalStore } from "pages/proposal/store";
+import { useGetClients } from "connection";
 
 const { clientV2, apiKey, clientV4 } = ENDPOINT_INPUTS;
 
 export function EndpointPopup() {
-  const store = usePersistedStore();
+  const store = useAppPersistedStore();
+  const isCustomEnpoint = useIsCustomEnpoint()
   const { validate, errors, clearError } = useValidation();
   const [customEndopointsSelected, setCustomEndopointsSelected] =
     useState(false);
@@ -27,18 +28,22 @@ export function EndpointPopup() {
     [clientV4.name]: store.clientV4Endpoint || clientV4.defaut,
   });
 
-  const {showSetEndpoint, endpointError, setShowSetEndpoint , setEndpointError} = useEndpointStore()
+  const {
+    showSetEndpoint,
+    endpointError,
+    setShowSetEndpoint,
+    setEndpointError,
+  } = useEnpointModalStore();
 
-  const { mutateAsync, isLoading } = useUpdateEndpoints()
-
+  const { mutateAsync, isLoading } = useUpdateEndpoints();
 
   const select = (value: boolean) => {
     setCustomEndopointsSelected(value);
   };
 
   useEffect(() => {
-    setCustomEndopointsSelected(store.isCustomEndpoints);
-  }, [store.isCustomEndpoints, showSetEndpoint]);
+    setCustomEndopointsSelected(!!isCustomEnpoint);
+  }, [isCustomEnpoint, showSetEndpoint]);
 
   const onUpdate = (name: string, value: string) => {
     setValues((prevState) => {
@@ -62,7 +67,7 @@ export function EndpointPopup() {
     }
     const clientV2Endpoint = values[clientV2.name];
     const clientV4Endpoint = values[clientV4.name];
-     analytics.GA.selectCustomEndpointClick(clientV2Endpoint, clientV4Endpoint);
+    analytics.GA.selectCustomEndpointClick(clientV2Endpoint, clientV4Endpoint);
     await mutateAsync({
       clientV2Endpoint,
       clientV4Endpoint,
@@ -134,32 +139,22 @@ export function EndpointPopup() {
   );
 }
 
-
 export const useUpdateEndpoints = () => {
   const queryClient = useQueryClient();
-  const { onUpdate: onEndpointsUpdate } = usePersistedStore();
-  const { mutateAsync: getClients } = useFetchClients();
-  const resetContractStore = useContractStore().reset;
-  const resetServerStore = useServerStore().reset;
-  const { refetch } = useStateQuery();
+  const { setEndpoint } = useAppPersistedStore();
+  const { mutateAsync: getClients } = useGetClients();
+  const resetProposalStore = useProposalStore().reset;
 
   return useMutation(async (args?: EndpointsArgs) => {
-    resetContractStore();
-    resetServerStore();
-    onEndpointsUpdate(
-      args?.clientV2Endpoint,
-      args?.clientV4Endpoint,
-      args?.apiKey
-    );
+    resetProposalStore();
+    setEndpoint(args);
     await getClients({
       clientV2Endpoint: args?.clientV2Endpoint,
       clientV4Endpoint: args?.clientV4Endpoint,
       apiKey: args?.apiKey,
     });
 
-    queryClient.removeQueries({ queryKey: [QueryKeys.PROPOSAL_INFO] });
-    queryClient.removeQueries({ queryKey: [QueryKeys.STATE] });
-    await refetch();
+    queryClient.clear();
   });
 };
 
@@ -233,5 +228,5 @@ const StyledTitle = styled(Typography)({
 
 const StyledSaveButton = styled(Button)({
   width: "100%",
-  maxWidth: 200
+  maxWidth: 200,
 });

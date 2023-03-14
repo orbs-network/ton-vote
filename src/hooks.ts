@@ -1,76 +1,28 @@
-import { useQuery } from "@tanstack/react-query";
-import { voteOptions } from "config";
 import {
   getAllVotes,
   getCurrentResults,
   getVotingPower,
 } from "contracts-api/logic";
-import moment from "moment";
-import { useDataFromQueryClient, useProposalInfoQuery } from "queries";
-import { useMemo } from "react";
-import {
-  useClientStore,
-  useConnectionStore,
-  usePersistedStore,
-  useServerStore,
-  useVoteStore,
-} from "store";
 import { ProposalInfo, RawVotes, Transaction, Vote, VotingPower } from "types";
-import { getProposalStatus, parseVotes } from "utils";
+import { parseVotes } from "utils";
 
-export const useWalletVote = () => {
-  const { setVote } = useVoteStore();
-
-  return (
-    votes: Vote[],
-    walletAddress = useConnectionStore.getState().address
-  ) => {
-    if (!walletAddress) return votes;
-    let vote = votes.find((it) => it.address === walletAddress);
-
-    if (!vote) return votes;
-    const index = votes.findIndex((it) => it.address === walletAddress);
-    votes.splice(index, 1);
-    votes.unshift(vote);
-
-    const value = voteOptions.find((it) => it.name === vote?.vote)?.value;
-    setVote(value || "");
-
-    return votes;
-  };
+export const useSpaceId = () => {
+  return useParams().spaceId as string;
 };
 
-export const useVoteTimeline = () => {
-  const { data: info, isLoading } = useProposalInfoQuery();
+export const useProposalId = () => {
+  return useParams().proposalId;
+};
 
-  const query = useQuery(
-    ["useVoteTimeline"],
-    () => {
-      if (!info) return null;
+export const useCurrentRoute = () => {
+  const location = useLocation();
+  const route = matchRoutes(flatRoutes, location);
 
-      return {
-        ...getProposalStatus(Number(info.startTime), Number(info.endTime)),
-        isLoading,
-      };
-    },
-    {
-      enabled: !!info,
-      refetchInterval: 1_000,
-    }
-  );
-
-  return (
-    query.data || {
-      voteStarted: false,
-      voteEnded: false,
-      voteInProgress: false,
-      isLoading,
-    }
-  );
+  return route ? route[0].route.path : undefined;
 };
 
 export const useGetContractState = () => {
-  const { clientV4 } = useClientStore();
+  const { clientV4 } = useConnectionStore();
   return async (
     proposalInfo: ProposalInfo,
     transactions: Transaction[],
@@ -95,4 +47,26 @@ export const useGetContractState = () => {
       votes: parseVotes(rawVotes, votingPower),
     };
   };
+};
+
+import { useState, useLayoutEffect } from "react";
+import { matchRoutes, useLocation, useParams } from "react-router-dom";
+import { flatRoutes } from "consts";
+import { useConnectionStore } from "connection";
+
+export const useWindowResize = () => {
+  const [size, setSize] = useState([0, 0]);
+
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+
+    window.addEventListener("resize", updateSize);
+    updateSize();
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  return size;
 };

@@ -1,9 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { isWalletInfoInjected, WalletInfoInjected } from "@tonconnect/sdk";
-import { useConnectionStore } from "store";
 import {
   ChromeExtensionWalletProvider,
+  TonConnection,
   TonhubProvider,
   TonWalletProvider,
 } from "@ton-defi.org/ton-connection";
@@ -15,11 +15,44 @@ import {
   TX_FEE,
   walletAdapters,
 } from "config";
-import { WalletProvider, Provider } from "types";
-import { useDataFromQueryClient } from "queries";
-import { useWalletVote } from "hooks";
+import { WalletProvider, Provider, ConnectionStore, EndpointsArgs } from "types";
 import TonConnect from "@tonconnect/sdk";
 import _ from "lodash";
+import { create } from "zustand";
+import {manifestUrl} from 'config'
+import { getClientV2, getClientV4 } from "contracts-api/logic";
+
+
+export const useConnectionStore = create<ConnectionStore>((set, get) => ({
+  address: undefined,
+  connection: undefined,
+  connectorTC: new TonConnect({
+    manifestUrl,
+  }),
+  clientV2: undefined,
+  clientV4: undefined,
+  setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
+  reset: () => set({ address: undefined, connection: undefined }),
+  setAddress: (address) => set({ address }),
+  setTonConnectionProvider: (provider) => {
+    const _connection = new TonConnection();
+    _connection.setProvider(provider);
+    set({ connection: _connection });
+  },
+}));
+
+
+
+export const useGetClients = () => {
+  const setClients = useConnectionStore().setClients;
+
+  return useMutation(async (args?: EndpointsArgs) => {
+    const clientV2 = await getClientV2(args?.clientV2Endpoint, args?.apiKey);
+    const clientV4 = await getClientV4(args?.clientV4Endpoint);
+    setClients(clientV2, clientV4);
+  });
+};
+
 
 export const useWallets = () => {
   const connector = useConnectionStore().connectorTC;
@@ -55,7 +88,6 @@ export const useRestoreConnection = () => {
 export const useConnectionEvenSubscription = () => {
   const { setAddress } = useConnectionStore();
   const connector = useConnectionStore().connectorTC;
-  const onConnectCallback = useOnConnectCallback();
 
   useEffect(() => {
     connector.onStatusChange((walletInfo) => {
@@ -63,10 +95,6 @@ export const useConnectionEvenSubscription = () => {
       const friendlyAddress = address
         ? Address.parse(address).toFriendly()
         : "";
-
-      if (friendlyAddress) {
-        onConnectCallback(friendlyAddress);
-      }
       setAddress(friendlyAddress);
     });
   }, []);
@@ -87,18 +115,7 @@ export const useEmbededWallet = () => {
   }, []);
 };
 
-const useOnConnectCallback = () => {
-  const { getStateData, setStateData } = useDataFromQueryClient();
-  const handleWalletVote = useWalletVote();
-  return (walletAddress: string) => {
-    const data = getStateData();
 
-    if (!data) return;
-
-    data.votes = handleWalletVote(data.votes, walletAddress);
-    setStateData(data);
-  };
-};
 
 export const useOnWalletSelected = () => {
   const [session, setSession] = useState("");
@@ -107,7 +124,6 @@ export const useOnWalletSelected = () => {
     { name: string; icon: string } | undefined
   >();
   const [showQR, setShowQR] = useState(false);
-  const onConnectCallback = useOnConnectCallback();
 
   const reset = () => {
     setSession("");
@@ -178,7 +194,6 @@ export const useOnWalletSelected = () => {
     setTonConnectionProvider(tonWalletProvider);
     const _wallet = await tonWalletProvider.connect();
     setAddress(_wallet.address);
-    onConnectCallback(_wallet.address);
     localStorage.setItem(LOCAL_STORAGE_PROVIDER, wallet.type);
   };
 

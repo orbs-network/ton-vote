@@ -1,11 +1,13 @@
 import { styled, useMediaQuery } from "@mui/material";
-import { EndpointPopup, Page } from "components";
-
+import { Page } from "components";
+import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Hero } from "./Hero";
 import { Information } from "./Information";
+import { useWalletAddressListener } from "./query";
 import { Results } from "./Results";
+import { useProposalStore } from "./store";
 import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 
@@ -41,13 +43,16 @@ const Mobile = () => {
 
 function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
+  useWalletAddressListener();
+  const resetStore = useProposalStore((store) => store.reset);
 
-  return (
-    <Page>
-      {mobile ? <Mobile /> : <Destop />}
-      <EndpointPopup />
-    </Page>
-  );
+  useEffect(() => {
+    return () => {
+      resetStore();
+    };
+  }, []);
+
+  return <Page>{mobile ? <Mobile /> : <Destop />}</Page>;
 }
 
 export { ProposalPage };

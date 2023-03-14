@@ -1,4 +1,11 @@
-import { IconButton, Menu, MenuItem, styled, Typography, useMediaQuery } from "@mui/material";
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+  styled,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { Button, ConnectButton, Github } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
@@ -8,19 +15,19 @@ import LogoImg from "assets/logo.svg";
 import { FiSettings } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RiRouteFill } from "react-icons/ri";
-import { useConnectionStore, useEndpointStore } from "store";
+import { useEnpointModalStore } from "store";
 import analytics from "analytics";
-import { useResetConnection } from "connection";
+import { useConnectionStore, useResetConnection } from "connection";
 import { useAppNavigation } from "router";
 
 export function Navbar() {
-    const mobile = useMediaQuery("(max-width:600px)");
-    const { navigateHome } = useAppNavigation();
+  const mobile = useMediaQuery("(max-width:600px)");
+  const { spacesPage } = useAppNavigation();
   return (
     <StyledContainer>
       <StyledGrid>
         <StyledFlexRow justifyContent="space-between" width="100%">
-          <StyledLogo onClick={navigateHome}>
+          <StyledLogo onClick={spacesPage.root}>
             <img src={LogoImg} />
             <Typography>VOTE</Typography>
           </StyledLogo>
@@ -46,14 +53,11 @@ const ConnectSection = () => {
 };
 
 const StyledConnected = styled(Button)({
-  pointerEvents:'none',
+  pointerEvents: "none",
   "*": {
     fontSize: 14,
   },
 });
-
-
-
 
 const StyledLogo = styled("button")(({ theme }) => ({
   background: "transparent",
@@ -91,7 +95,7 @@ const StyledContainer = styled(StyledFlexRow)({
 
 const Settings = () => {
   const address = useConnectionStore().address;
- const { setShowSetEndpoint } = useEndpointStore();
+  const { setShowSetEndpoint } = useEnpointModalStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const resetConnection = useResetConnection();
 
@@ -107,7 +111,7 @@ const Settings = () => {
   };
 
   const showPopup = () => {
-    analytics.GA.endpointSettingsClick()
+    analytics.GA.endpointSettingsClick();
     setShowSetEndpoint(true);
     handleClose();
   };

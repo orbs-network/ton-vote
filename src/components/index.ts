@@ -17,3 +17,5 @@ export * from "./Navbar";
 export * from "./Footer";
 export * from "./Back";
 export * from "./Page";
+export * from "./LoadMore";
+export * from "./FadeElement";

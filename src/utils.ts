@@ -138,3 +138,14 @@ export const unixToMilliseconds = (value: Number) => {
   return moment.unix(Number(value)).utc().valueOf();
 };
 
+
+
+
+export const createSpace = (i: number) => {
+  return {
+    name: `spaces ${i++}`,
+    image: `https://picsum.photos/id/${i}/200/200`,
+    members: i * 50,
+    id: `spaces-${i++}`,
+  };
+}

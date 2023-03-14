@@ -1,21 +1,20 @@
 import { Chip, Fade, styled, Typography } from "@mui/material";
-import { AppTooltip, Button, Container, Link, NumberDisplay } from "components";
+import { AppTooltip, Button, Container, Link, LoadMore, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "utils";
-import { TONSCAN } from "config";
+import { PAGE_SIZE, TONSCAN } from "config";
 import { Vote } from "types";
-import { useStateQuery } from "queries";
-import { useConnectionStore, useVotesPaginationStore } from "store";
 import { fromNano } from "ton";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
-
+import { useStateQuery } from "./query";
+import { useConnectionStore } from "connection";
 
 const ContainerHeader = () => {
-  const {data, isLoading} = useStateQuery()
-  const totalTonAmount = data?.proposalResults?.totalWeight || '0';
-  const votesLength = _.size(data?.votes)
+  const { data, isLoading } = useStateQuery();
+  const totalTonAmount = data?.proposalResults?.totalWeight || "0";
+  const votesLength = _.size(data?.votes);
 
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
@@ -27,9 +26,7 @@ const ContainerHeader = () => {
         <StyledChip
           label={
             <>
-              <NumberDisplay value={votesLength} />
-              {" "}
-              votes
+              <NumberDisplay value={votesLength} /> votes
             </>
           }
         />
@@ -42,21 +39,26 @@ const ContainerHeader = () => {
 };
 
 const StyledContainerHeader = styled(StyledFlexRow)({
-  flex:1,
-  justifyContent:'space-between',
-  '@media (max-width: 600px)': {
+  flex: 1,
+  justifyContent: "space-between",
+  "@media (max-width: 600px)": {
     ".total": {
-      fontSize: 13
-    }
-  }
+      fontSize: 13,
+    },
+  },
 });
 
 export function Votes() {
   const { isLoading, data } = useStateQuery();
+  const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
+
+
+  const showMoreVotes = () => {
+    setShowVotesAMount((prev) => prev + PAGE_SIZE);
+  };
 
   const votes = data?.votes;
-  const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();
-  const hideLoadMore = (votes?.length || 0) <= votesViewLimit;
+  const hideLoadMore = (votes?.length || 0) <= votesShowAmount;
 
   return (
     <StyledContainer
@@ -68,21 +70,28 @@ export function Votes() {
       {votes?.length ? (
         <StyledList gap={15}>
           {votes?.map((vote, index) => {
-            if (index >= votesViewLimit) return null;
+            if (index >= votesShowAmount) return null;
             return <VoteComponent data={vote} key={vote.address} />;
           })}
         </StyledList>
       ) : (
         <StyledNoVotes>No votes yet</StyledNoVotes>
       )}
-      {!hideLoadMore && (
-        <StyledLoaderMore>
-          <Button onClick={() => showMoreVotes()}>See More</Button>
-        </StyledLoaderMore>
-      )}
+      <StyledLoaderMore>
+        <LoadMore
+          hide={isLoading}
+          loadMoreOnScroll={votesShowAmount > PAGE_SIZE}
+          fetchNextPage={showMoreVotes}
+          isFetchingNextPage={false}
+        />
+      </StyledLoaderMore>
     </StyledContainer>
   );
 }
+
+const StyledLoaderMore = styled(StyledFlexRow)({
+  marginTop: 50
+})
 
 const VoteComponent = ({ data }: { data: Vote }) => {
   const { address, votingPower, vote, hash, timestamp } = data;
@@ -112,12 +121,6 @@ const StyledNoVotes = styled(Typography)({
   fontWeight: 600,
 });
 
-const StyledLoaderMore = styled(StyledFlexRow)({
-  marginTop: 30,
-  button: {
-    width: 160,
-  },
-});
 
 const StyledVote = styled(StyledFlexRow)({
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.16)",
@@ -147,9 +150,7 @@ const StyledVote = styled(StyledFlexRow)({
     ".address": {
       maxWidth: "60%",
     },
-    ".date": {
-
-    },  
+    ".date": {},
     ".vote": {
       flex: "unset",
       marginLeft: "auto",

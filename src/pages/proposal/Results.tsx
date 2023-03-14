@@ -3,26 +3,19 @@ import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
 import { getTransactions, filterTxByTimestamp } from "contracts-api/logic";
-import {
-  useIsFetchFromServer,
-  useProposalInfoQuery,
-  useStateQuery,
-} from "queries";
+import { useProposalInfoQuery, useStateQuery, useVoteTimeline } from "./query";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import {
-  useClientStore,
-  useContractStore,
-  usePersistedStore,
-  useServerStore,
-} from "store";
-import { useGetContractState, useVoteTimeline } from "hooks";
+import { useAppPersistedStore, useIsCustomEnpoint } from "store";
+import { useGetContractState } from "hooks";
 import { useEffect, useMemo } from "react";
 import { Logger, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
+import { useProposalPersistStore, useProposalStore } from "./store";
+import { useConnectionStore } from "connection";
 
 const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
@@ -48,9 +41,9 @@ const calculateTonAmount = (percent?: number, total?: string) => {
 export const Results = () => {
   const { data, isLoading } = useStateQuery();
   const results = data?.proposalResults;
-  
+
   const votesCount = useVotesCount();
-  
+
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
       <StyledFlexColumn gap={15}>
@@ -127,9 +120,9 @@ const StyledResultRow = styled(StyledFlexColumn)({
   p: {
     fontWeight: "inherit",
   },
-  ".percent":{
-    fontSize: 14
-  }
+  ".percent": {
+    fontSize: 14,
+  },
 });
 
 const StyledResults = styled(Container)({
@@ -146,15 +139,14 @@ const compare = (first: any, second: any) => {
 const useVerify = () => {
   const currentResults = useStateQuery().data?.proposalResults;
   const proposalInfo = useProposalInfoQuery().data;
-  const clientV2 = useClientStore().clientV2;
-  const contractMaxLt = useContractStore().contractMaxLt;
-  const fetchFromServer = useIsFetchFromServer();
-  const serverMaxLt = useServerStore().serverMaxLt;
+  const clientV2 = useConnectionStore().clientV2;
+  const { contractMaxLt, serverMaxLt } = useProposalStore();
+  const isCustomEnpoint = useIsCustomEnpoint()
   const getContractState = useGetContractState();
 
   const query = useMutation(async () => {
     analytics.GA.verifyButtonClick();
-    const maxLt = fetchFromServer ? serverMaxLt : contractMaxLt;
+    const maxLt = isCustomEnpoint ? contractMaxLt : serverMaxLt;
     const { allTxns } = await getTransactions(clientV2);
     const transactions = filterTxByTimestamp(allTxns, maxLt);
 
@@ -192,7 +184,8 @@ export function VerifyResults() {
   } = useVerify();
   const voteStarted = useVoteTimeline()?.voteStarted;
 
-  const maxLt = usePersistedStore().maxLt;
+  const { maxLt } = useProposalPersistStore();
+
   useEffect(() => {
     if (isVerified && maxLt) {
       reset();

@@ -1,8 +1,7 @@
 import { styled } from "@mui/material";
 import { Container, Countdown } from "components";
-import { useVoteTimeline } from "hooks";
 import moment from "moment";
-import { useProposalInfoQuery } from "queries";
+import { useProposalInfoQuery, useVoteTimeline } from "./query";
 import React from "react";
 
 const handleDate = (endDate?: number | Number) => {

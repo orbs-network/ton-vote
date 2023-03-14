@@ -4,8 +4,8 @@ import { Chip, Fade, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
-import { useVoteTimeline } from "hooks";
 import { CONTRACT_ADDRESS } from "config";
+import { useVoteTimeline } from "./query";
 
 export function Hero() {
   const [showMore, setShowMore] = useState(false);

@@ -11,8 +11,8 @@ export const theme = createTheme({
       secondary: "rgb(22, 28, 40)",
     },
   },
+
   typography: {
-    
     allVariants: {
       color: "rgb(114, 138, 150)",
     },

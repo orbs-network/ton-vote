@@ -22,10 +22,7 @@ export async function getClientV4(customEndpoint) {
   return new TonClient4({ endpoint });
 }
 
-export async function getTransactions(
-  client,
-  toLt
-) {
+export async function getTransactions(contractAddress, client, toLt) {
   let maxLt = new BigNumber(toLt ?? -1);
   let startPage = { fromLt: "0", hash: "" };
 
@@ -34,12 +31,12 @@ export async function getTransactions(
 
   while (true) {
     Logger("Querying...");
-    const txns = await client.getTransactions(CONTRACT_ADDRESS, {
+    const txns = await client.getTransactions(contractAddress, {
       lt: paging.fromLt,
       to_lt: toLt,
       hash: paging.hash,
       limit: 500,
-    });  
+    });
 
     Logger(`Got ${txns.length}, lt ${paging.fromLt}`);
 

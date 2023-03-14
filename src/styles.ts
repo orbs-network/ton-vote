@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { Skeleton, styled } from "@mui/material";
 import { Box } from "@mui/system";
 import { CSSProperties } from "react";
 import { theme } from "theme";
@@ -80,4 +80,10 @@ export const StyledGrid = styled(StyledFlexColumn)({
 
 export const StyledPage = styled(Box)({
   paddingTop: 100
+})
+
+export const StyledSkeletonLoader = styled(Skeleton)({
+  width:'100%',
+  transform:'unset',
+  background:'rgba(0,0,0, 0.07)'
 })

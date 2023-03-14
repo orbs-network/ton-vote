@@ -1,5 +1,8 @@
 import moment from "moment";
 import { Address } from "ton";
+import { TonConnection, TonWalletProvider } from "@ton-defi.org/ton-connection";
+import { TonClient, TonClient4 } from "ton";
+import TonConnect from "@tonconnect/sdk";
 
 export enum Provider {
   TONKEEPER = "TONKEEPER",
@@ -28,8 +31,7 @@ export interface Results {
 export enum QueryKeys {
   STATE = "STATE",
   PROPOSAL_INFO = "PROPOSAL_INFO",
-  CONTRACT_ADDRESS = "CONTRACT_ADDRESS",
-  SERVER_HEALTH_CHECK = "SERVER_HEALTH_CHECK",
+  PROPOSAL_TIMELINE = "PROPOSAL_TIMELINE",
 }
 
 export interface StateData {
@@ -72,20 +74,17 @@ export interface Transaction {
 
 export type VotingPower = { [key: string]: string };
 
-export type RawVote = { timestamp: number; vote: string, hash: string };
+export type RawVote = { timestamp: number; vote: string; hash: string };
 export type RawVotes = { [key: string]: RawVote };
-
-
 
 export interface ProposalInfo {
   startTime: Number;
   endTime: Number;
   snapshot: {
-  snapshotTime: Number;
+    snapshotTime: Number;
     mcSnapshotBlock: Number;
   };
 }
-
 
 export interface GetState {
   votes: Vote[];
@@ -93,20 +92,16 @@ export interface GetState {
   votingPower: VotingPower;
 }
 
-
 export type GetTransactionsPayload = {
   allTxns: Transaction[];
   maxLt: string;
 };
-
 
 export type EndpointsArgs = {
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
   apiKey?: string;
 };
-
-
 
 export interface Space {
   name: string;
@@ -115,8 +110,7 @@ export interface Space {
   id: string;
 }
 
-
-export interface Proposal  {
+export interface Proposal {
   startDate: number;
   endDate: number;
   title: string;
@@ -124,7 +118,33 @@ export interface Proposal  {
   ownerAvatar: string;
   ownerAddress: string;
   contractAddress: string;
-  id: string
+  id: string;
 }
 
-export type ProposalStatus = 'finished' | 'in-progress' | undefined
+export type ProposalStatus = "finished" | "in-progress" | undefined;
+
+export interface PersistedEndpointStore {
+  clientV2Endpoint?: string;
+  clientV4Endpoint?: string;
+  apiKey?: string;
+  setEndpoint: (args?: EndpointsArgs) => void;
+}
+
+export interface EndpointModalStore {
+  showSetEndpoint: boolean;
+  endpointError: boolean;
+  setShowSetEndpoint: (value: boolean) => void;
+  setEndpointError: (value: boolean) => void;
+}
+
+export interface ConnectionStore {
+  connectorTC: TonConnect;
+  reset: () => void;
+  address?: string;
+  connection?: TonConnection;
+  setAddress: (value?: string) => void;
+  setTonConnectionProvider: (provider: TonWalletProvider) => void;
+  clientV2?: TonClient;
+  clientV4?: TonClient4;
+  setClients: (clientV2: TonClient, clientV4: TonClient4) => void;
+}

@@ -1,36 +1,42 @@
 import { Box, Skeleton, styled, Typography } from "@mui/material";
-import React, { ReactNode } from "react";
+import React, { forwardRef, ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
-function Container({
-  children,
-  className = "",
-  title,
-  loading,
-  loaderAmount,
-  headerChildren,
-}: {
-  children: ReactNode;
-  className?: string;
-  title?: string;
-  loading?: boolean;
-  loaderAmount?: number;
-  headerChildren?: ReactNode;
-}) {
-  const showHeader = title || headerChildren;
-  return (
-    <StyledContainer className={className}>
-      {showHeader && (
-        <StyledHeader className="container-header">
-          {title && <Title>{title}</Title>}
-          {headerChildren}
-        </StyledHeader>
-      )}
+const Container = React.forwardRef(
+  (
+    {
+      children,
+      className = "",
+      title,
+      loading,
+      loaderAmount,
+      headerChildren,
+    }: {
+      children: ReactNode;
+      className?: string;
+      title?: string;
+      loading?: boolean;
+      loaderAmount?: number;
+      headerChildren?: ReactNode;
+    },
+    ref: any
+  ) => {
+    const showHeader = title || headerChildren;
 
-      {loading ? <Loader loaderAmount={loaderAmount} /> : children}
-    </StyledContainer>
-  );
-}
+    return (
+      <StyledContainer className={className} ref={ref}>
+        {showHeader && (
+          <StyledHeader className="container-header">
+            {title && <Title>{title}</Title>}
+            {headerChildren}
+          </StyledHeader>
+        )}
+
+        {loading ? <Loader loaderAmount={loaderAmount} /> : children}
+      </StyledContainer>
+    );
+  }
+);
 
 const Loader = ({ loaderAmount = 2 }: { loaderAmount?: number }) => {
   return (
@@ -53,7 +59,7 @@ const StyledLoader = styled(Skeleton)({
 
 const StyledLoaderContainer = styled(StyledFlexColumn)({
   gap: 10,
-  alignItems:'flex-start',
+  alignItems: "flex-start",
 });
 
 const StyledContainer = styled(Box)({
@@ -67,7 +73,7 @@ const StyledContainer = styled(Box)({
 
 const StyledHeader = styled(StyledFlexRow)({
   marginBottom: 20,
-  alignItems:'flex-start'
+  alignItems: "flex-start",
 });
 
 const Title = ({ children }: { children: string }) => {

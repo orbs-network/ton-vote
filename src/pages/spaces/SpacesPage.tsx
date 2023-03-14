@@ -1,6 +1,6 @@
 import { Box, styled } from "@mui/material";
 import { Container, Page } from "components";
-import SpacesList from "./SpacesList";
+import { SpacesList } from "./SpacesList";
 
 function SpacesPage() {
   return (
@@ -12,6 +12,4 @@ function SpacesPage() {
 
 export { SpacesPage };
 
-const StyledContainer = styled(Page)({
-
-});
+const StyledContainer = styled(Page)({});

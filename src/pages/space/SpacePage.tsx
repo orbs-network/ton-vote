@@ -1,23 +1,27 @@
-import { styled } from "@mui/material";
+import { Fade, styled } from "@mui/material";
 import { Page } from "components";
-import React from "react";
-import { StyledFlexRow } from "styles";
-import { Proposals } from "./Proposals";
 import { SideMenu } from "./SideMenu";
+import { Outlet } from "react-router-dom";
+import { Box } from "@mui/system";
+import { StyledFlexRow } from "styles";
+import { routes } from "consts";
 
 function SpacePage() {
   return (
-    <StyledContainer>
-      <SideMenu />
-      <Proposals />
-    </StyledContainer>
+    <Page back={routes.spaces}>
+      <StyledFlexRow alignItems='flex-start'>
+        <SideMenu />
+        <StyledOutlet>
+          <Outlet />
+        </StyledOutlet>
+      </StyledFlexRow>
+    </Page>
   );
 }
 
-const StyledContainer = styled(Page)({
-  alignItems: "flex-start",
-  gap: 20,
-  flexDirection:'row'
+const StyledOutlet = styled(Box)({
+  flex: 1,
 });
+
 
 export { SpacePage };

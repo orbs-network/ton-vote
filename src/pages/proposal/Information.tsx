@@ -2,7 +2,7 @@ import { Box, styled, Typography } from "@mui/material";
 import { Container, Link } from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
-import { useProposalInfoQuery } from "queries";
+import { useProposalInfoQuery } from "./query";
 import moment from "moment";
 import { CONTRACT_ADDRESS, TONSCAN_ADDRESS_URL } from "config";
 import { makeElipsisAddress } from "utils";
