@@ -1,6 +1,6 @@
 import { Avatar, styled, Typography } from "@mui/material";
 import { width } from "@mui/system";
-import { Button, Container, Loader, LoaderContainer } from "components";
+import { Button, Container, Loader } from "components";
 import Img from "components/Img";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoId } from "hooks";
