@@ -20,7 +20,7 @@ export const useAppPersistedStore = create(
 );
 
 
-export const useIsCustomEnpoint = () => {
+export const useIsCustomEndpoint = () => {
   const {clientV2Endpoint, clientV4Endpoint} = useAppPersistedStore();
 
   return !!clientV2Endpoint && !!clientV4Endpoint;

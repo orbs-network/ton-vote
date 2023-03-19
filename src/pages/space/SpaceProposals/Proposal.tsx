@@ -1,10 +1,10 @@
 import { Chip, Avatar, Typography } from "@mui/material";
-import { useSpaceId } from "hooks";
+import { useDaoId } from "hooks";
 import { useRef, useEffect, useState } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Proposal, ProposalStatus } from "types";
+import {  DaoProposal, ProposalStatus } from "types";
 import {
   getProposalStatus,
   makeElipsisAddress,
@@ -36,7 +36,7 @@ const ProposalContent = ({
   proposal,
   setHeight,
 }: {
-  proposal: Proposal;
+  proposal: DaoProposal;
   setHeight: (value: number) => void;
 }) => {
   const ref = useRef<any>();
@@ -86,7 +86,7 @@ const EndTime = ({
   proposal,
   status,
 }: {
-  proposal: Proposal;
+  proposal: DaoProposal;
   status: ProposalStatus;
 }) => {
   if (status === "finished") return null;
@@ -95,9 +95,9 @@ const EndTime = ({
   );
 };
 
-export const ProposalComponent = ({ proposal }: { proposal: Proposal }) => {
+export const ProposalComponent = ({ proposal }: { proposal: DaoProposal }) => {
   const { proposalPage } = useAppNavigation();
-  const spaceId = useSpaceId();
+  const daoId = useDaoId();
   const [height, setHeight] = useState(0);
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = !height ? true : entry && entry.isIntersecting;
@@ -105,7 +105,7 @@ export const ProposalComponent = ({ proposal }: { proposal: Proposal }) => {
   return (
     <StyledProposal
       style={{ height: height || "auto" }}
-      onClick={() => proposalPage.root(spaceId, proposal.id)}
+      onClick={() => proposalPage.root(daoId, proposal.id)}
       ref={ref}
     >
       {isVisible && (

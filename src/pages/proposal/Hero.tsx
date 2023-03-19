@@ -5,7 +5,7 @@ import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
 import { CONTRACT_ADDRESS } from "config";
-import { useVoteTimeline } from "./query";
+import { useVoteTimeline } from "./hooks";
 
 export function Hero() {
   const [showMore, setShowMore] = useState(false);
@@ -34,16 +34,16 @@ export function Hero() {
 }
 
 const VoteEndedChip = () => {
-  const { voteStarted, voteInProgress, isLoading } = useVoteTimeline();
+  const { data, isLoading } = useVoteTimeline();
   const label = useMemo(() => {
-    if (!voteStarted) {
+    if (!data?.voteStarted) {
       return "Not Started";
     }
-    if (voteInProgress) {
+    if (data?.voteInProgress) {
       return "Active";
     }
     return "Ended";
-  }, [voteStarted, voteInProgress]);
+  }, [data?.voteStarted, data?.voteInProgress]);
 
     return (
       <Fade in={!isLoading}>

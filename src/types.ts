@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Address } from "ton";
+import { Address, TonTransaction } from "ton";
 import { TonConnection, TonWalletProvider } from "@ton-defi.org/ton-connection";
 import { TonClient, TonClient4 } from "ton";
 import TonConnect from "@tonconnect/sdk";
@@ -28,11 +28,6 @@ export interface Results {
   totalWeight: string;
 }
 
-export enum QueryKeys {
-  STATE = "STATE",
-  PROPOSAL_INFO = "PROPOSAL_INFO",
-  PROPOSAL_TIMELINE = "PROPOSAL_TIMELINE",
-}
 
 export interface StateData {
   results?: Results;
@@ -47,30 +42,6 @@ export interface Vote {
   hash: string;
 }
 
-export interface Transaction {
-  id: {
-    lt: string;
-    hash: string;
-  };
-  time: number;
-  data: string;
-  storageFee: string;
-  otherFee: string;
-  fee: string;
-  inMessage: {
-    source: string;
-    destination: Address;
-    forwardFee: string;
-    ihrFee: string;
-    value: string;
-    createdLt: string;
-    body: {
-      type: string;
-      text: string;
-    };
-  };
-  outMessages: [];
-}
 
 export type VotingPower = { [key: string]: string };
 
@@ -86,14 +57,15 @@ export interface ProposalInfo {
   };
 }
 
-export interface GetState {
+export interface ProposalState {
   votes: Vote[];
   proposalResults: Results;
   votingPower: VotingPower;
+  maxLt?: string; 
 }
 
 export type GetTransactionsPayload = {
-  allTxns: Transaction[];
+  allTxns: TonTransaction[];
   maxLt: string;
 };
 
@@ -103,14 +75,14 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
-export interface Space {
+export interface Dao {
   name: string;
   members: number;
   image: string;
   id: string;
 }
 
-export interface Proposal {
+export interface DaoProposal {
   startDate: number;
   endDate: number;
   title: string;

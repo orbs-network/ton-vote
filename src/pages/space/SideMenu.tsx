@@ -1,30 +1,37 @@
 import { Avatar, styled, Typography } from "@mui/material";
-import { Button, Container } from "components";
+import { width } from "@mui/system";
+import { Button, Container, Loader, LoaderContainer } from "components";
+import Img from "components/Img";
 import { routes } from "consts";
-import { useCurrentRoute, useSpaceId } from "hooks";
+import { useCurrentRoute, useDaoId } from "hooks";
 import React from "react";
-import {
-  Link,
-  useParams,
-} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn } from "styles";
 import { nFormatter } from "utils";
-import { useGetSpaceQuery } from "./query";
+import { useDaoQuery } from "./query";
 import Socials from "./Socials";
 
 function SideMenu() {
-  const { spaceId } = useParams();
-
-  const { data: space } = useGetSpaceQuery(spaceId);
+  const { data: dao, isLoading } = useDaoQuery();
 
   return (
     <StyledContainer>
       <StyledTop>
-        <StyledLogo src={space?.image} />
-        <StyledTitle>{space?.name}</StyledTitle>
-        <Typography>{nFormatter(space?.members || 0)} members</Typography>
-        <StyledJoin>Join</StyledJoin>
+        <StyledLogo src={dao?.image} />
+
+        <StyledTitleLoader
+          isLoading={isLoading}
+          component={<Typography>{dao?.name}</Typography>}
+        />
+        <StyledMembersLoader
+          isLoading={isLoading}
+          component={
+            <Typography>{nFormatter(dao?.members || 0)} members</Typography>
+          }
+        />
+
+        <StyledJoin disabled={isLoading}>Join</StyledJoin>
       </StyledTop>
       <Navigation />
       <StyledSocials github="/" twitter="/" />
@@ -32,14 +39,25 @@ function SideMenu() {
   );
 }
 
+const StyledMembersLoader = styled(Loader)({
+  width: "50%",
+  height: 20,
+  marginTop: 5,
+});
+
+const StyledTitleLoader = styled(Loader)({
+  width: "70%",
+  height: 20,
+  marginTop: 5,
+});
 
 const StyledTop = styled(StyledFlexColumn)({
-    padding: 20,
-    paddingBottom: 0
-})
+  padding: 20,
+  paddingBottom: 0,
+});
 
 const Navigation = () => {
-  const spaceId = useSpaceId();
+  const daoId = useDaoId();
   const route = useCurrentRoute();
 
   return (
@@ -49,7 +67,7 @@ const Navigation = () => {
 
         return (
           <StyledNavigationLink
-            to={navigation.navigate(spaceId)}
+            to={navigation.navigate(daoId)}
             key={index}
             selected={selected}
           >
@@ -64,17 +82,17 @@ const Navigation = () => {
 const navigation = [
   {
     title: "Proposals",
-    navigate: (spaceId: string) => appNavigation.spacePage.root(spaceId),
+    navigate: (daoId: string) => appNavigation.spacePage.root(daoId),
     path: routes.space,
   },
   {
     title: "New proposal",
-    navigate: (spaceId: string) => appNavigation.spacePage.create(spaceId),
+    navigate: (daoId: string) => appNavigation.spacePage.create(daoId),
     path: routes.createProposal,
   },
   {
     title: "About",
-    navigate: (spaceId: string) => appNavigation.spacePage.about(spaceId),
+    navigate: (daoId: string) => appNavigation.spacePage.about(daoId),
     path: routes.spaceAbout,
   },
 ];
@@ -90,7 +108,7 @@ const StyledNavigation = styled(StyledFlexColumn)({
 
 const StyledNavigationLink = styled(Link)<{ selected: boolean }>(
   ({ selected, theme }) => ({
-    width:'100%',
+    width: "100%",
     paddingLeft: 15,
     transition: "0.2s all",
     textDecoration: "unset",
@@ -109,7 +127,7 @@ const StyledNavigationLink = styled(Link)<{ selected: boolean }>(
 const StyledSocials = styled(Socials)({
   marginTop: 20,
   justifyContent: "flex-start",
-  padding: 20
+  padding: 20,
 });
 
 export { SideMenu };
@@ -127,10 +145,11 @@ const StyledContainer = styled(Container)({
   position: "sticky",
   top: 90,
   width: 320,
-  padding: 0
+  padding: 0,
 });
 
-const StyledLogo = styled(Avatar)({
+const StyledLogo = styled(Img)({
   width: 90,
   height: 90,
+  borderRadius: "50%",
 });

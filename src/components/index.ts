@@ -19,3 +19,5 @@ export * from "./Back";
 export * from "./Page";
 export * from "./LoadMore";
 export * from "./FadeElement";
+export * from "./Textarea";
+export * from './Loader'

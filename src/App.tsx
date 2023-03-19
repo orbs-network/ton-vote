@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import {
   useConnectionEvenSubscription,
+  useConnectionStore,
   useEmbededWallet,
   useGetClients,
   useRestoreConnection,
@@ -31,13 +32,18 @@ function App() {
   useEmbededWallet();
   useConnectionEvenSubscription();
 
-  return (
-    <Box>
-      <RouterProvider router={router} />
-      <ScrollTop />
-      <EndpointPopup />
-    </Box>
-  );
+
+  
+  const {clientV2, clientV4} = useConnectionStore()
+
+  if (!clientV2 || !clientV4) return null
+    return (
+      <Box>
+        <RouterProvider router={router} />
+        <ScrollTop />
+        <EndpointPopup />
+      </Box>
+    );
 }
 
 export default App;

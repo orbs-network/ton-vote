@@ -2,6 +2,7 @@ import _ from "lodash";
 
 export const routes = {
   spaces: "/",
+  createSpace: '/setup',
   proposal: "/:spaceId/proposal/:proposalId",
   space: "/:spaceId",
   spaceAbout: "/:spaceId/about",

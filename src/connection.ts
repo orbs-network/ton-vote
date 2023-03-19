@@ -225,7 +225,7 @@ export const useResetConnection = () => {
 export const useGetTransaction = () => {
   const { connectorTC, connection } = useConnectionStore();
 
-  return async (vote: string, onSuccess: () => void) => {
+  return async (contractAddress: string, vote: string, onSuccess: () => void) => {
     const cell = new Cell();
     new CommentMessage(vote).writeTo(cell);
 
@@ -236,7 +236,7 @@ export const useGetTransaction = () => {
         validUntil: Date.now() + 5 * 60 * 1000,
         messages: [
           {
-            address: CONTRACT_ADDRESS.toFriendly(),
+            address: contractAddress,
             amount: toNano(TX_FEE).toString(),
             stateInit: undefined,
             payload: cell ? cell.toBoc().toString("base64") : undefined,
@@ -253,7 +253,7 @@ export const useGetTransaction = () => {
 
     if (isMobile || isExtension) {
       await connection?.requestTransaction({
-        to: CONTRACT_ADDRESS,
+        to: Address.parse(contractAddress),
         value: toNano(TX_FEE),
         message: cell,
       });
@@ -261,7 +261,7 @@ export const useGetTransaction = () => {
     } else {
       return connection?.requestTransaction(
         {
-          to: CONTRACT_ADDRESS,
+          to: Address.parse(contractAddress),
           value: toNano(TX_FEE),
           message: cell,
         },

@@ -1,45 +1,33 @@
-import { CircularProgress, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, Container, LoadMore } from "components";
+import { Button, Container } from "components";
 import _ from "lodash";
-import React from "react";
+import React, { ReactNode } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-import { Space } from "types";
+import { Dao } from "types";
 import { nFormatter } from "utils";
-import { useGetSpacesQuery } from "./query";
+import { useDaosQuery } from "./query";
 
 function SpacesList() {
-  const { data, fetchNextPage, isLoading, isFetchingNextPage } =
-    useGetSpacesQuery();
-  const loadMoreOnScroll = data?.pages && data?.pages.length > 1;
+  const { data: daos, isLoading } = useDaosQuery();
 
+  const { createSpace } = useAppNavigation();
 
   return (
-    <Container title='Spaces'>
+    <Container
+      title="Spaces"
+      headerChildren={<Button onClick={createSpace.root}>Create</Button>}
+    >
       <StyledFlexColumn gap={70}>
         <StyledList>
-          {isLoading ? (
-            <Loader />
-          ) : (
-            data?.pages.map((page) => {
-              return (
-                <React.Fragment key={page.nextPage}>
-                  {page.spaces.map((space) => {
-                    return <Item key={space.id} space={space} />;
-                  })}
-                </React.Fragment>
-              );
-            })
-          )}
+          <ListLoader isLoading={isLoading}>
+            {daos?.map((dao) => {
+              return <Item key={dao.id} dao={dao} />;
+            })}
+          </ListLoader>
         </StyledList>
-        <LoadMore
-          isFetchingNextPage={isFetchingNextPage}
-          loadMoreOnScroll={!!loadMoreOnScroll}
-          fetchNextPage={fetchNextPage}
-          hide={isLoading}
-        />
       </StyledFlexColumn>
     </Container>
   );
@@ -51,18 +39,27 @@ const StyledLoader = styled(StyledSkeletonLoader)({
   height: "100%",
 });
 
-const Loader = () => {
-  return (
-    <>
-      {_.range(0, 4).map((it, i) => {
-        return (
-          <StyledSpace key={i}>
-            <StyledLoader />
-          </StyledSpace>
-        );
-      })}
-    </>
-  );
+const ListLoader = ({
+  isLoading,
+  children,
+}: {
+  isLoading: boolean;
+  children: ReactNode;
+}) => {
+  if (isLoading) {
+    return (
+      <>
+        {_.range(0, 4).map((it, i) => {
+          return (
+            <StyledSpace key={i}>
+              <StyledLoader />
+            </StyledSpace>
+          );
+        })}
+      </>
+    );
+  }
+  return <>{children}</>;
 };
 
 const StyledList = styled(StyledFlexRow)({
@@ -72,21 +69,21 @@ const StyledList = styled(StyledFlexRow)({
   gap: 15,
 });
 
-const Item = ({ space }: { space: Space }) => {
+const Item = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
   const { spacePage } = useAppNavigation();
 
   return (
-    <StyledSpace ref={ref} onClick={() => spacePage.root(space.id)}>
+    <StyledSpace ref={ref} onClick={() => spacePage.root(dao.id)}>
       <StyledSpaceContent className="container">
         {isVisible ? (
           <StyledFlexColumn>
-            <StyledListItemImg src={space.image} />
+            <StyledListItemImg src={dao.image} />
             <StyledFlexColumn>
-              <Typography className="title">{space.name}</Typography>
+              <Typography className="title">{dao.name}</Typography>
               <Typography className="members">
-                {nFormatter(space.members)} members
+                {nFormatter(dao.members)} members
               </Typography>
               <StyledJoin>Join</StyledJoin>
             </StyledFlexColumn>
@@ -99,7 +96,7 @@ const Item = ({ space }: { space: Space }) => {
 
 const StyledSpaceContent = styled(StyledFlexColumn)({
   border: "1px solid lightgray",
-//   background: "rgba(0, 136, 204, 0.05)",
+  //   background: "rgba(0, 136, 204, 0.05)",
   borderRadius: 10,
 });
 
@@ -118,7 +115,7 @@ const StyledListItemImg = styled("img")({
 const StyledSpace = styled(Box)({
   width: "calc(100% / 4 - 12px)",
   height: 280,
- 
+
   cursor: "pointer",
   ".container": {
     height: "100%",

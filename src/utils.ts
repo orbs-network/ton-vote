@@ -2,14 +2,7 @@ import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { fromNano, Wallet } from "ton";
-import {
-  Proposal,
-  ProposalStatus,
-  RawVote,
-  RawVotes,
-  Vote,
-  VotingPower,
-} from "types";
+import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
 export const makeElipsisAddress = (address: string, padding = 6): string => {
   if (!address) return "";
   return `${address.substring(0, padding)}...${address.substring(
@@ -138,14 +131,9 @@ export const unixToMilliseconds = (value: Number) => {
   return moment.unix(Number(value)).utc().valueOf();
 };
 
-
-
-
-export const createSpace = (i: number) => {
-  return {
-    name: `spaces ${i++}`,
-    image: `https://picsum.photos/id/${i}/200/200`,
-    members: i * 50,
-    id: `spaces-${i++}`,
-  };
-}
+export const urlPatternValidation = (URL: string) => {
+  const regex = new RegExp(
+    "(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?"
+  );
+  return regex.test(URL);
+};

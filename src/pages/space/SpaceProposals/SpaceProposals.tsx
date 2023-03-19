@@ -1,20 +1,16 @@
 import { Fade } from "@mui/material";
-import { FadeElement, LoadMore } from "components";
+import { FadeElement } from "components";
+import { useDaoId } from "hooks";
 import _ from "lodash";
-import React, { Fragment } from "react";
-import { useParams } from "react-router-dom";
 import { StyledFlexColumn } from "styles";
+import { useDaoProposalsQuery } from "../query";
 import { ProposalComponent } from "./Proposal";
-import { useGetProposalsQuery } from "../query";
 import { StyledLoader, StyledProposalsContainer } from "./styles";
 
 export function SpaceProposals() {
-  const { spaceId } = useParams();
 
-  const { data, fetchNextPage, isLoading, isFetchingNextPage } =
-    useGetProposalsQuery(spaceId);
+  const { data: daoProposals, isLoading } = useDaoProposalsQuery();
 
-  const loadMoreOnScroll = data?.pages && data?.pages.length > 1;
   return (
     <FadeElement>
       <StyledProposalsContainer title="Proposals">
@@ -23,28 +19,13 @@ export function SpaceProposals() {
             {isLoading ? (
               <Loader />
             ) : (
-              data?.pages.map((page) => {
+              daoProposals?.map((proposal) => {
                 return (
-                  <Fragment key={page.nextPage}>
-                    {page.proposals?.map((proposal) => {
-                      return (
-                        <ProposalComponent
-                          proposal={proposal}
-                          key={proposal.title}
-                        />
-                      );
-                    })}
-                  </Fragment>
+                  <ProposalComponent proposal={proposal} key={proposal.title} />
                 );
               })
             )}
           </StyledFlexColumn>
-          <LoadMore
-            hide={isLoading}
-            fetchNextPage={fetchNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            loadMoreOnScroll={!!loadMoreOnScroll}
-          />
         </StyledFlexColumn>
       </StyledProposalsContainer>
     </FadeElement>

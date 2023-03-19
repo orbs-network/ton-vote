@@ -7,9 +7,13 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
-import { useAppPersistedStore, useEnpointModalStore, useIsCustomEnpoint } from "store";
+import {
+  useAppPersistedStore,
+  useEnpointModalStore,
+  useIsCustomEndpoint,
+} from "store";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { EndpointsArgs, QueryKeys } from "types";
+import { EndpointsArgs } from "types";
 import analytics from "analytics";
 import { useProposalStore } from "pages/proposal/store";
 import { useGetClients } from "connection";
@@ -18,7 +22,7 @@ const { clientV2, apiKey, clientV4 } = ENDPOINT_INPUTS;
 
 export function EndpointPopup() {
   const store = useAppPersistedStore();
-  const isCustomEnpoint = useIsCustomEnpoint()
+  const isCustomEndpoint = useIsCustomEndpoint();
   const { validate, errors, clearError } = useValidation();
   const [customEndopointsSelected, setCustomEndopointsSelected] =
     useState(false);
@@ -42,8 +46,8 @@ export function EndpointPopup() {
   };
 
   useEffect(() => {
-    setCustomEndopointsSelected(!!isCustomEnpoint);
-  }, [isCustomEnpoint, showSetEndpoint]);
+    setCustomEndopointsSelected(!!isCustomEndpoint);
+  }, [isCustomEndpoint, showSetEndpoint]);
 
   const onUpdate = (name: string, value: string) => {
     setValues((prevState) => {

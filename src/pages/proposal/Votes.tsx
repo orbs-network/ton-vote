@@ -1,5 +1,12 @@
 import { Chip, Fade, styled, Typography } from "@mui/material";
-import { AppTooltip, Button, Container, Link, LoadMore, NumberDisplay } from "components";
+import {
+  AppTooltip,
+  Button,
+  Container,
+  Link,
+  LoadMore,
+  NumberDisplay,
+} from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "utils";
 import { PAGE_SIZE, TONSCAN } from "config";
@@ -8,13 +15,17 @@ import { fromNano } from "ton";
 import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
-import { useStateQuery } from "./query";
 import { useConnectionStore } from "connection";
+import {
+  useProposalResults,
+  useProposalVotes,
+} from "./hooks";
 
 const ContainerHeader = () => {
-  const { data, isLoading } = useStateQuery();
-  const totalTonAmount = data?.proposalResults?.totalWeight || "0";
-  const votesLength = _.size(data?.votes);
+  const { proposalVotes, isLoading } = useProposalVotes();
+  const proposalResults = useProposalResults().proposalResults;
+  const totalTonAmount = proposalResults?.totalWeight || "0";
+  const votesLength = _.size(proposalVotes);
 
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
@@ -49,16 +60,11 @@ const StyledContainerHeader = styled(StyledFlexRow)({
 });
 
 export function Votes() {
-  const { isLoading, data } = useStateQuery();
+  const { proposalVotes, isLoading, walletVote } = useProposalVotes();
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
-
-
   const showMoreVotes = () => {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
   };
-
-  const votes = data?.votes;
-  const hideLoadMore = (votes?.length || 0) <= votesShowAmount;
 
   return (
     <StyledContainer
@@ -67,9 +73,10 @@ export function Votes() {
       loaderAmount={3}
       headerChildren={<ContainerHeader />}
     >
-      {votes?.length ? (
+      {proposalVotes?.length ? (
         <StyledList gap={15}>
-          {votes?.map((vote, index) => {
+          <VoteComponent data={walletVote} />
+          {proposalVotes?.map((vote, index) => {
             if (index >= votesShowAmount) return null;
             return <VoteComponent data={vote} key={vote.address} />;
           })}
@@ -90,10 +97,11 @@ export function Votes() {
 }
 
 const StyledLoaderMore = styled(StyledFlexRow)({
-  marginTop: 50
-})
+  marginTop: 50,
+});
 
-const VoteComponent = ({ data }: { data: Vote }) => {
+const VoteComponent = ({ data }: { data?: Vote }) => {
+  if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
   const connectedAddress = useConnectionStore().address;
@@ -120,7 +128,6 @@ const StyledNoVotes = styled(Typography)({
   fontSize: 17,
   fontWeight: 600,
 });
-
 
 const StyledVote = styled(StyledFlexRow)({
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.16)",

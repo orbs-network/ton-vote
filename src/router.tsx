@@ -9,6 +9,8 @@ import {
   SpaceProposals,
   CreateProposal,
 } from "pages";
+import CreateSpace from "pages/create-space/CreateSpace";
+import { SpaceMenuLayout } from "pages/space/SpaceMenuLayout";
 import { createBrowserRouter, useNavigate } from "react-router-dom";
 
 export const appNavigation = {
@@ -46,6 +48,9 @@ export const useAppNavigation = () => {
     spacesPage: {
       root: () => navigate(routes.spaces),
     },
+    createSpace: {
+      root: () => navigate(routes.createSpace),
+    },
   };
 };
 
@@ -59,20 +64,31 @@ export const router = createBrowserRouter([
         element: <SpacesPage />,
       },
       {
+        path: routes.createSpace,
+        element: <CreateSpace />,
+      },
+
+      {
         path: routes.space,
         element: <SpacePage />,
         children: [
           {
             path: routes.space,
-            element: <SpaceProposals />,
-          },
-          {
-            path: routes.spaceAbout,
-            element: <SpaceAbout />,
-          },
-          {
-            path: routes.createProposal,
-            element: <CreateProposal />,
+            element: <SpaceMenuLayout />,
+            children: [
+              {
+                index: true,
+                element: <SpaceProposals />,
+              },
+              {
+                path: routes.spaceAbout,
+                element: <SpaceAbout />,
+              },
+              {
+                path: routes.createProposal,
+                element: <CreateProposal />,
+              },
+            ],
           },
         ],
       },

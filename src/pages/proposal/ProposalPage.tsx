@@ -5,7 +5,6 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Hero } from "./Hero";
 import { Information } from "./Information";
-import { useWalletAddressListener } from "./query";
 import { Results } from "./Results";
 import { useProposalStore } from "./store";
 import { Vote } from "./Vote";
@@ -43,7 +42,6 @@ const Mobile = () => {
 
 function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
-  useWalletAddressListener();
   const resetStore = useProposalStore((store) => store.reset);
 
   useEffect(() => {

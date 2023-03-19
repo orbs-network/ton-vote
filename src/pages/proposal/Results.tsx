@@ -1,36 +1,20 @@
 import { Chip, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
-import { getTransactions, filterTxByTimestamp } from "contracts-api/logic";
-import { useProposalInfoQuery, useStateQuery, useVoteTimeline } from "./query";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { useAppPersistedStore, useIsCustomEnpoint } from "store";
-import { useGetContractState } from "hooks";
-import { useEffect, useMemo } from "react";
-import { Logger, nFormatter } from "utils";
+import { useEffect } from "react";
+import { nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
-import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
-import { useProposalPersistStore, useProposalStore } from "./store";
-import { useConnectionStore } from "connection";
-
-const useVotesCount = () => {
-  const votes = useStateQuery().data?.votes;
-  const updated = useStateQuery().dataUpdatedAt;
-
-  return useMemo(() => {
-    const grouped = _.groupBy(votes, "vote");
-
-    return {
-      yes: nFormatter(_.size(grouped.Yes)),
-      no: nFormatter(_.size(grouped.No)),
-      abstain: nFormatter(_.size(grouped.Abstain)),
-    };
-  }, [updated]);
-};
+import {
+  useLatestMaxLtAfterTx,
+  useProposalResults,
+  useProposalVotesCount,
+  useVerifyProposalResults,
+  useVoteTimeline,
+} from "./hooks";
 
 const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return;
@@ -39,30 +23,38 @@ const calculateTonAmount = (percent?: number, total?: string) => {
 };
 
 export const Results = () => {
-  const { data, isLoading } = useStateQuery();
-  const results = data?.proposalResults;
+  const { proposalResults, isLoading } = useProposalResults();
 
-  const votesCount = useVotesCount();
+  const votesCount = useProposalVotesCount();
 
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
       <StyledFlexColumn gap={15}>
         <ResultRow
           name="Yes"
-          percent={results?.yes || 0}
-          tonAmount={calculateTonAmount(results?.yes, results?.totalWeight)}
+          percent={proposalResults?.yes || 0}
+          tonAmount={calculateTonAmount(
+            proposalResults?.yes,
+            proposalResults?.totalWeight
+          )}
           votes={votesCount.yes}
         />
         <ResultRow
           name="No"
-          percent={results?.no || 0}
-          tonAmount={calculateTonAmount(results?.no, results?.totalWeight)}
+          percent={proposalResults?.no || 0}
+          tonAmount={calculateTonAmount(
+            proposalResults?.no,
+            proposalResults?.totalWeight
+          )}
           votes={votesCount.no}
         />
         <ResultRow
           name="Abstain"
-          percent={results?.abstain || 0}
-          tonAmount={calculateTonAmount(results?.abstain, results?.totalWeight)}
+          percent={proposalResults?.abstain || 0}
+          tonAmount={calculateTonAmount(
+            proposalResults?.abstain,
+            proposalResults?.totalWeight
+          )}
           votes={votesCount.abstain}
         />
       </StyledFlexColumn>
@@ -129,51 +121,6 @@ const StyledResults = styled(Container)({
   width: "100%",
 });
 
-const compare = (first: any, second: any) => {
-  const firstValue = isNaN(first) ? 0 : Number(first);
-  const secondValue = isNaN(second) ? 0 : Number(second);
-
-  return firstValue === secondValue;
-};
-
-const useVerify = () => {
-  const currentResults = useStateQuery().data?.proposalResults;
-  const proposalInfo = useProposalInfoQuery().data;
-  const clientV2 = useConnectionStore().clientV2;
-  const { contractMaxLt, serverMaxLt } = useProposalStore();
-  const isCustomEnpoint = useIsCustomEnpoint()
-  const getContractState = useGetContractState();
-
-  const query = useMutation(async () => {
-    analytics.GA.verifyButtonClick();
-    const maxLt = isCustomEnpoint ? contractMaxLt : serverMaxLt;
-    const { allTxns } = await getTransactions(clientV2);
-    const transactions = filterTxByTimestamp(allTxns, maxLt);
-
-    const contractState = await getContractState(proposalInfo!, transactions);
-
-    const proposalResults = contractState.proposalResults;
-
-    Logger({ currentResults, proposalResults });
-
-    const yes = compare(currentResults?.yes, proposalResults.yes);
-
-    const no = compare(currentResults?.no, proposalResults.no);
-    const totalWeight = compare(
-      currentResults?.totalWeight,
-      proposalResults.totalWeight
-    );
-    const abstain = compare(currentResults?.abstain, proposalResults.abstain);
-
-    return yes && no && abstain && totalWeight;
-  });
-
-  return {
-    ...query,
-    isReady: !!currentResults,
-  };
-};
-
 export function VerifyResults() {
   const {
     mutate: verify,
@@ -181,18 +128,18 @@ export function VerifyResults() {
     data: isVerified,
     isReady,
     reset,
-  } = useVerify();
-  const voteStarted = useVoteTimeline()?.voteStarted;
+  } = useVerifyProposalResults();
+  const { data: timelineData } = useVoteTimeline();
 
-  const { maxLt } = useProposalPersistStore();
+  const { latestMaxLtAfterTx } = useLatestMaxLtAfterTx();
 
   useEffect(() => {
-    if (isVerified && maxLt) {
+    if (isVerified && latestMaxLtAfterTx) {
       reset();
     }
-  }, [maxLt]);
+  }, [latestMaxLtAfterTx]);
 
-  if (!voteStarted) return null;
+  if (!timelineData?.voteStarted) return null;
 
   const component = () => {
     if (!isReady) return null;
