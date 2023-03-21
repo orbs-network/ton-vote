@@ -5,14 +5,14 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import { useSendTransaction, useVoteTimeline } from "./hooks";
+import { useVote, useVoteTimeline } from "./hooks";
 import { useVoteStore } from "./store";
 import { useConnectionStore } from "connection";
 
 export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
-  const { mutate, isLoading, txApproved } = useSendTransaction();
+  const { mutate, isLoading, txApproved } = useVote();
   const { data: timelineData } = useVoteTimeline();
 
 

@@ -64,11 +64,6 @@ export interface ProposalState {
   maxLt?: string; 
 }
 
-export type GetTransactionsPayload = {
-  allTxns: TonTransaction[];
-  maxLt: string;
-};
-
 export type EndpointsArgs = {
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
@@ -96,10 +91,18 @@ export interface DaoProposal {
 export type ProposalStatus = "finished" | "in-progress" | undefined;
 
 export interface PersistedEndpointStore {
+  serverUpdateTime?: number;
+  setSrverUpdateTime: (value: number) => void;
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
   apiKey?: string;
-  setEndpoint: (args?: EndpointsArgs) => void;
+  setEndpoints: (args?: EndpointsArgs) => void;
+  clientV2Fallback?: string;
+  clientV4Fallback?: string;
+  setClientV2Fallback: (clientV2Fallback: string) => void;
+  setClientV4Fallback: (clientV4Fallback: string) => void;
+  latestMaxLtAfterTx: { [key: string]: string | undefined };
+  setLatestMaxLtAfterTx: (contractAddress: string, value?: string) => void;
 }
 
 export interface EndpointModalStore {
@@ -116,7 +119,4 @@ export interface ConnectionStore {
   connection?: TonConnection;
   setAddress: (value?: string) => void;
   setTonConnectionProvider: (provider: TonWalletProvider) => void;
-  clientV2?: TonClient;
-  clientV4?: TonClient4;
-  setClients: (clientV2: TonClient, clientV4: TonClient4) => void;
 }

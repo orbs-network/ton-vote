@@ -3,7 +3,7 @@ import { FadeElement } from "components";
 import { useDaoId } from "hooks";
 import _ from "lodash";
 import { StyledFlexColumn } from "styles";
-import { useDaoProposalsQuery } from "../query";
+import { useDaoProposalsQuery } from "../hooks";
 import { ProposalComponent } from "./Proposal";
 import { StyledLoader, StyledProposalsContainer } from "./styles";
 

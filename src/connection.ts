@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { isWalletInfoInjected, WalletInfoInjected } from "@tonconnect/sdk";
 import {
@@ -7,21 +7,22 @@ import {
   TonhubProvider,
   TonWalletProvider,
 } from "@ton-defi.org/ton-connection";
-import { Address, Cell, CommentMessage, toNano } from "ton";
+import { Address } from "ton";
 import { isMobile } from "react-device-detect";
 import {
-  CONTRACT_ADDRESS,
   LOCAL_STORAGE_PROVIDER,
   TX_FEE,
   walletAdapters,
 } from "config";
-import { WalletProvider, Provider, ConnectionStore, EndpointsArgs } from "types";
+import {
+  WalletProvider,
+  Provider,
+  ConnectionStore,
+} from "types";
 import TonConnect from "@tonconnect/sdk";
 import _ from "lodash";
 import { create } from "zustand";
-import {manifestUrl} from 'config'
-import { getClientV2, getClientV4 } from "contracts-api/logic";
-
+import { manifestUrl } from "config";
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   address: undefined,
@@ -29,9 +30,6 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   connectorTC: new TonConnect({
     manifestUrl,
   }),
-  clientV2: undefined,
-  clientV4: undefined,
-  setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
   reset: () => set({ address: undefined, connection: undefined }),
   setAddress: (address) => set({ address }),
   setTonConnectionProvider: (provider) => {
@@ -40,19 +38,6 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
     set({ connection: _connection });
   },
 }));
-
-
-
-export const useGetClients = () => {
-  const setClients = useConnectionStore().setClients;
-
-  return useMutation(async (args?: EndpointsArgs) => {
-    const clientV2 = await getClientV2(args?.clientV2Endpoint, args?.apiKey);
-    const clientV4 = await getClientV4(args?.clientV4Endpoint);
-    setClients(clientV2, clientV4);
-  });
-};
-
 
 export const useWallets = () => {
   const connector = useConnectionStore().connectorTC;
@@ -114,8 +99,6 @@ export const useEmbededWallet = () => {
     }
   }, []);
 };
-
-
 
 export const useOnWalletSelected = () => {
   const [session, setSession] = useState("");
@@ -222,65 +205,3 @@ export const useResetConnection = () => {
   };
 };
 
-export const useGetTransaction = () => {
-  const { connectorTC, connection } = useConnectionStore();
-
-  return async (contractAddress: string, vote: string, onSuccess: () => void) => {
-    const cell = new Cell();
-    new CommentMessage(vote).writeTo(cell);
-
-    if (connectorTC.connected) {
-      handleMobileLink(connectorTC);
-
-      await connectorTC.sendTransaction({
-        validUntil: Date.now() + 5 * 60 * 1000,
-        messages: [
-          {
-            address: contractAddress,
-            amount: toNano(TX_FEE).toString(),
-            stateInit: undefined,
-            payload: cell ? cell.toBoc().toString("base64") : undefined,
-          },
-        ],
-      });
-      onSuccess();
-      return;
-    }
-    if (!connection) return;
-
-    const isExtension =
-      (connection as any)._provider instanceof ChromeExtensionWalletProvider;
-
-    if (isMobile || isExtension) {
-      await connection?.requestTransaction({
-        to: Address.parse(contractAddress),
-        value: toNano(TX_FEE),
-        message: cell,
-      });
-      onSuccess();
-    } else {
-      return connection?.requestTransaction(
-        {
-          to: Address.parse(contractAddress),
-          value: toNano(TX_FEE),
-          message: cell,
-        },
-        onSuccess
-      );
-    }
-  };
-};
-
-const handleMobileLink = (connectorTC?: TonConnect) => {
-  if (!isMobile) return;
-  const Tonkeeper = connectorTC?.wallet?.device.appName;
-
-  switch (Tonkeeper) {
-    case "Tonkeeper":
-      (window as any).location = "https://app.tonkeeper.com";
-      break;
-
-    default:
-      break;
-  }
-};

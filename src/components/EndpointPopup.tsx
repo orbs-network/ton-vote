@@ -1,5 +1,5 @@
 import { Box, Fade, Radio, styled, Typography } from "@mui/material";
-import { ENDPOINT_INPUTS, INVALID_ENDPOINT_ERROR } from "config";
+import { DEFAULT_ENDPOINT_INPUTS, INVALID_ENDPOINT_ERROR } from "config";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -7,18 +7,13 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
-import {
-  useAppPersistedStore,
-  useEnpointModalStore,
-  useIsCustomEndpoint,
-} from "store";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useAppPersistedStore, useEnpointModalStore } from "store";
+import { useMutation } from "@tanstack/react-query";
 import { EndpointsArgs } from "types";
 import analytics from "analytics";
-import { useProposalStore } from "pages/proposal/store";
-import { useGetClients } from "connection";
+import { useIsCustomEndpoint } from "hooks";
 
-const { clientV2, apiKey, clientV4 } = ENDPOINT_INPUTS;
+const { clientV2, apiKey, clientV4 } = DEFAULT_ENDPOINT_INPUTS;
 
 export function EndpointPopup() {
   const store = useAppPersistedStore();
@@ -118,7 +113,7 @@ export function EndpointPopup() {
         >
           <Fade in={customEndopointsSelected}>
             <StyledCustomEndpoints gap={20}>
-              {_.map(ENDPOINT_INPUTS).map((input) => {
+              {_.map(DEFAULT_ENDPOINT_INPUTS).map((input) => {
                 return (
                   <Input
                     onFocus={() => clearError(input.name)}
@@ -144,22 +139,9 @@ export function EndpointPopup() {
 }
 
 export const useUpdateEndpoints = () => {
-  const queryClient = useQueryClient();
-  const { setEndpoint } = useAppPersistedStore();
-  const { mutateAsync: getClients } = useGetClients();
-  const resetProposalStore = useProposalStore().reset;
+  const setEndpoints = useAppPersistedStore((store) => store.setEndpoints);
 
-  return useMutation(async (args?: EndpointsArgs) => {
-    resetProposalStore();
-    setEndpoint(args);
-    await getClients({
-      clientV2Endpoint: args?.clientV2Endpoint,
-      clientV4Endpoint: args?.clientV4Endpoint,
-      apiKey: args?.apiKey,
-    });
-
-    queryClient.clear();
-  });
+  return useMutation(async (args?: EndpointsArgs) => setEndpoints(args));
 };
 
 const StyledError = styled(Box)({
@@ -193,7 +175,7 @@ const useValidation = () => {
     let _errors: { [key: string]: boolean } = {};
     let clean = true;
     _.map(inputs, (value, key) => {
-      if (key === ENDPOINT_INPUTS.apiKey.name) {
+      if (key === DEFAULT_ENDPOINT_INPUTS.apiKey.name) {
         return;
       }
       if (!value.startsWith("https://")) {

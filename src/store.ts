@@ -4,8 +4,21 @@ import { persist } from "zustand/middleware";
 import { EndpointModalStore, PersistedEndpointStore } from "./types";
 export const useAppPersistedStore = create(
   persist<PersistedEndpointStore>(
-    (set) => ({
-      setEndpoint: (args) => {
+    (set, get) => ({
+      latestMaxLtAfterTx: {},
+      setLatestMaxLtAfterTx: (contractAddress, value) => {
+        const prev = { ...get().latestMaxLtAfterTx, [contractAddress]: value };
+        set({
+          latestMaxLtAfterTx: prev,
+        });
+      },
+      serverUpdateTime: undefined,
+      clientV2Fallback: undefined,
+      clientV4Fallback: undefined,
+      setSrverUpdateTime: (serverUpdateTime) => set({ serverUpdateTime }),
+      setClientV2Fallback: (clientV2Fallback) => set({ clientV2Fallback }),
+      setClientV4Fallback: (clientV4Fallback) => set({ clientV4Fallback }),
+      setEndpoints: (args) => {
         set({
           clientV2Endpoint: args?.clientV2Endpoint,
           clientV4Endpoint: args?.clientV4Endpoint,
@@ -18,13 +31,6 @@ export const useAppPersistedStore = create(
     }
   )
 );
-
-
-export const useIsCustomEndpoint = () => {
-  const {clientV2Endpoint, clientV4Endpoint} = useAppPersistedStore();
-
-  return !!clientV2Endpoint && !!clientV4Endpoint;
-}
 
 export const useEnpointModalStore = create<EndpointModalStore>((set, get) => ({
   showSetEndpoint: false,

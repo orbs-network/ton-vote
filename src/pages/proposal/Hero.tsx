@@ -4,15 +4,17 @@ import { Chip, Fade, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
-import { CONTRACT_ADDRESS } from "config";
-import { useVoteTimeline } from "./hooks";
+import { useProposalStateQuery, useVoteTimeline } from "./hooks";
+import { useProposalId } from "hooks";
 
 export function Hero() {
   const [showMore, setShowMore] = useState(false);
+  const {isLoading} = useProposalStateQuery()
   return (
     <StyledContainer
       title="Proposal of TON Tokenomics Optimization"
       headerChildren={<VoteEndedChip />}
+      loading={isLoading}
     >
       <StyledFlexColumn alignItems="flex-start">
         <Typography>
@@ -34,7 +36,7 @@ export function Hero() {
 }
 
 const VoteEndedChip = () => {
-  const { data, isLoading } = useVoteTimeline();
+  const { data } = useVoteTimeline();
   const label = useMemo(() => {
     if (!data?.voteStarted) {
       return "Not Started";
@@ -45,11 +47,7 @@ const VoteEndedChip = () => {
     return "Ended";
   }, [data?.voteStarted, data?.voteInProgress]);
 
-    return (
-      <Fade in={!isLoading}>
-        <StyledVoteEnded label={label} variant="filled" color="primary" />
-      </Fade>
-    );
+  return <StyledVoteEnded label={label} variant="filled" color="primary" />;
 };
 
 const StyledVoteEnded = styled(Chip)({
@@ -58,6 +56,7 @@ const StyledVoteEnded = styled(Chip)({
 });
 
 const ShowMorePart = () => {
+  const proposalId = useProposalId()
   return (
     <StyledShowMoreText>
       <Typography>
@@ -78,10 +77,7 @@ const ShowMorePart = () => {
           here
         </Link>
         , which is also specified in the{" "}
-        <Link
-          href={`https://verifier.ton.org/${CONTRACT_ADDRESS}`}
-          target="_blank"
-        >
+        <Link href={`https://verifier.ton.org/${proposalId}`} target="_blank">
           proposal smart-contract.
         </Link>
       </Typography>

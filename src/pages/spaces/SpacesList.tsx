@@ -8,7 +8,7 @@ import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { Dao } from "types";
 import { nFormatter } from "utils";
-import { useDaosQuery } from "./query";
+import { useDaosQuery } from "./hooks";
 
 function SpacesList() {
   const { data: daos, isLoading } = useDaosQuery();

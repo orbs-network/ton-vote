@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn } from "styles";
 import { nFormatter } from "utils";
-import { useDaoQuery } from "./query";
+import { useDaoQuery } from "./hooks";
 import Socials from "./Socials";
 
 function SideMenu() {

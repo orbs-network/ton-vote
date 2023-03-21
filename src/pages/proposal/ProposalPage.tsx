@@ -1,14 +1,14 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { Page } from "components";
-import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Hero } from "./Hero";
 import { Information } from "./Information";
 import { Results } from "./Results";
-import { useProposalStore } from "./store";
 import { Vote } from "./Vote";
 import { Votes } from "./Votes";
+import { Helmet } from "react-helmet";
+import { APP_TITLE } from "config";
 
 const Destop = () => {
   return (
@@ -42,15 +42,20 @@ const Mobile = () => {
 
 function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
-  const resetStore = useProposalStore((store) => store.reset);
 
-  useEffect(() => {
-    return () => {
-      resetStore();
-    };
-  }, []);
+  // TODO, should come from server
+  const title = 'Proposal of TON Tokenomics Optimization'
 
-  return <Page>{mobile ? <Mobile /> : <Destop />}</Page>;
+  return (
+    <Page>
+      <Helmet>
+        <title>
+          {APP_TITLE} - {title}
+        </title>
+      </Helmet>
+      {mobile ? <Mobile /> : <Destop />}
+    </Page>
+  );
 }
 
 export { ProposalPage };

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { delay } from "@ton-defi.org/ton-connection";
 import { useNotification } from "components";
-import { contractDataService } from "data-service";
+import { contract } from "data-service";
 import { create } from "zustand";
 
 interface State {
@@ -38,17 +38,20 @@ type CreateProposalArgs = {
 };
 
 export const useCreateProposal = () => {
-    const {showNotification} = useNotification()
-  return useMutation(async (args: CreateProposalArgs) => {
-    await delay(2000);
-    return contractDataService.createProposal(
-      args.title,
-      args.description,
-      args.discussion
-    );
-  }, {
-    onSuccess: () => {
-        showNotification({variant:'success', message:'Proposal created'});
+  const { showNotification } = useNotification();
+  return useMutation(
+    async (args: CreateProposalArgs) => {
+      await delay(2000);
+      return contract.createProposal(
+        args.title,
+        args.description,
+        args.discussion
+      );
+    },
+    {
+      onSuccess: () => {
+        showNotification({ variant: "success", message: "Proposal created" });
+      },
     }
-  });
+  );
 };

@@ -1,6 +1,6 @@
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import React, { forwardRef, ReactNode } from "react";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 const Container = React.forwardRef(
   (
@@ -27,8 +27,14 @@ const Container = React.forwardRef(
       <StyledContainer className={className} ref={ref}>
         {showHeader && (
           <StyledHeader className="container-header">
-            {title && <Title>{title}</Title>}
-            {headerChildren}
+            {loading ? (
+              <StyledHeaderLoader />
+            ) : (
+              <>
+                {title && <Title>{title}</Title>}
+                {headerChildren}
+              </>
+            )}
           </StyledHeader>
         )}
 
@@ -38,23 +44,32 @@ const Container = React.forwardRef(
   }
 );
 
-const Loader = ({ loaderAmount = 2 }: { loaderAmount?: number }) => {
+
+const Loader = ({ loaderAmount = 4 }: { loaderAmount?: number }) => {
   return (
     <StyledLoaderContainer>
       {[...Array(loaderAmount).keys()].map((i) => {
-        return <StyledLoader key={i} />;
+        const percent = (i + 1) * 20;
+        return (
+          <StyledLoader
+            key={i}
+            style={{ width: percent > 100 ? `100%` : `${percent}%` }}
+          />
+        );
       })}
     </StyledLoaderContainer>
   );
 };
 
-const StyledLoader = styled(Skeleton)({
-  width: "85%",
+const StyledLoader = styled(StyledSkeletonLoader)({
   height: 20,
   transform: "unset",
-  background: "rgba(0,0,0, 0.12)",
   borderRadius: 10,
   gap: 15,
+});
+const StyledHeaderLoader = styled(StyledLoader)({
+  width:'30%',
+  marginRight:'auto'
 });
 
 const StyledLoaderContainer = styled(StyledFlexColumn)({

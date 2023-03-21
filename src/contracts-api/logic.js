@@ -1,28 +1,59 @@
-import { getHttpEndpoint } from "@orbs-network/ton-access";
-import { Address, fromNano, TonClient, TonClient4 } from "ton";
-import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
-
+import { Address, TonClient, TonClient4 } from "ton";
+import { getStartTime, getEndTime, getSnapshotTime } from "./getters";
+import { getHttpEndpoint, getHttpV4Endpoint } from "@orbs-network/ton-access";
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 import { Logger } from "utils";
-import { CONTRACT_ADDRESS } from "config";
 import { CUSTODIAN_ADDRESSES } from "./custodian";
+import { useAppPersistedStore } from "store";
+import { DEFAULT_CLIENT_V2_ENDPOINT, DEFAULT_CLIENT_V4_ENDPOINT } from "config";
 
+export async function getClientV2() {
+  const { clientV2Endpoint, apiKey, clientV2Fallback, setClientV2Fallback } =
+    useAppPersistedStore.getState();
 
-export async function getClientV2(customEndpoint, apiKey) {
-  if (customEndpoint) {
-    return new TonClient({ endpoint: customEndpoint, apiKey });
+  if (clientV2Endpoint) {
+    return new TonClient({ endpoint: clientV2Endpoint, apiKey });
   }
-  const endpoint = await getHttpEndpoint();
-  return new TonClient({ endpoint });
+  if (clientV2Fallback) {
+    return new TonClient({ endpoint: clientV2Fallback, apiKey });
+  }
+
+  let endpoint;
+  try {
+    endpoint = await getHttpEndpoint();
+  } catch (error) {
+    endpoint = DEFAULT_CLIENT_V2_ENDPOINT;
+  }
+  setClientV2Fallback(endpoint);
+
+  return new TonClient({ endpoint, apiKey });
 }
 
-export async function getClientV4(customEndpoint) {
-  const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
+export async function getClientV4() {
+  const { clientV4Endpoint, clientV4Fallback, setClientV4Fallback } =
+    useAppPersistedStore.getState();
+
+  if (clientV4Endpoint) {
+    return new TonClient4({ endpoint: clientV4Endpoint });
+  }
+  if (clientV4Fallback) {
+    return new TonClient4({ endpoint: clientV4Fallback });
+  }
+
+  try {
+    endpoint = await getHttpV4Endpoint();
+  } catch (error) {
+    endpoint = DEFAULT_CLIENT_V4_ENDPOINT;
+  }
+  setClientV4Fallback(endpoint);
+
   return new TonClient4({ endpoint });
 }
 
-export async function getTransactions(contractAddress, client, toLt) {
+export async function getTransactions(contractAddress, toLt) {
+  const client = await getClientV2();
+
   let maxLt = new BigNumber(toLt ?? -1);
   let startPage = { fromLt: "0", hash: "" };
 
@@ -74,7 +105,8 @@ export function getAllVotes(transactions, proposalInfo) {
 
     if (
       transactions[i].time < proposalInfo.startTime ||
-      transactions[i].time > proposalInfo.endTime || CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
+      transactions[i].time > proposalInfo.endTime ||
+      CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
     )
       continue;
 
@@ -82,7 +114,7 @@ export function getAllVotes(transactions, proposalInfo) {
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
       vote: "",
-      hash: transactions[i].id.hash
+      hash: transactions[i].id.hash,
     };
 
     if (["y", "yes"].includes(vote)) {
@@ -94,16 +126,16 @@ export function getAllVotes(transactions, proposalInfo) {
     }
   }
 
-  
   return allVotes;
 }
 
 export async function getVotingPower(
-  clientV4,
   proposalInfo,
   transactions,
   votingPower = {}
 ) {
+  const clientV4 = await getClientV4();
+
   let voters = Object.keys(getAllVotes(transactions, proposalInfo));
 
   let newVoters = [...new Set([...voters, ...Object.keys(votingPower)])];
@@ -122,17 +154,15 @@ export async function getVotingPower(
   return votingPower;
 }
 
-export async function getSingleVotingPower(
-  clientV4,
-  mcSnapshotBlock,
-  address
-) {
-    return (
-      await clientV4.getAccountLite(
-        mcSnapshotBlock,
-        Address.parse(address)
-      )
-    ).account.balance.coins;
+export async function getSingleVotingPower(mcSnapshotBlock, contractAddress) {
+  const clientV4 = await getClientV4();
+
+  return (
+    await clientV4.getAccountLite(
+      mcSnapshotBlock,
+      Address.parse(contractAddress)
+    )
+  ).account.balance.coins;
 }
 
 export function calcProposalResult(votes, votingPower) {
@@ -146,7 +176,7 @@ export function calcProposalResult(votes, votingPower) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
 
-      const _vote = vote.vote 
+    const _vote = vote.vote;
     if (_vote === "Yes") {
       sumVotes.yes = new BigNumber(votingPower[voter]).plus(sumVotes.yes);
     } else if (_vote === "No") {
@@ -157,7 +187,6 @@ export function calcProposalResult(votes, votingPower) {
       );
     }
   }
-
 
   const totalWeights = sumVotes.yes.plus(sumVotes.no).plus(sumVotes.abstain);
   const yesPct = sumVotes.yes
@@ -176,7 +205,7 @@ export function calcProposalResult(votes, votingPower) {
     .multipliedBy(100)
     .toNumber();
 
-    return {
+  return {
     yes: yesPct,
     no: noPct,
     abstain: abstainPct,
@@ -189,10 +218,10 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
   return calcProposalResult(votes, votingPower);
 }
 
-export async function getProposalInfo(client, clientV4) {
+export async function getProposalInfo(contractAddress) {
   return {
-    startTime: await getStartTime(client, CONTRACT_ADDRESS),
-    endTime: await getEndTime(client, CONTRACT_ADDRESS),
-    snapshot: await getSnapshotTime(client, clientV4, CONTRACT_ADDRESS),
+    startTime: await getStartTime(contractAddress),
+    endTime: await getEndTime(contractAddress),
+    snapshot: await getSnapshotTime(contractAddress),
   };
 }

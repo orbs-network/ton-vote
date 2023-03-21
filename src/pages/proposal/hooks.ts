@@ -5,31 +5,17 @@ import {
   QueryKey,
 } from "@tanstack/react-query";
 import analytics from "analytics";
-import { useNotification } from "components";
-import {
-  QueryKeys,
-  STATE_REFETCH_INTERVAL,
-  LAST_FETCH_UPDATE_LIMIT,
-  TX_SUBMIT_SUCCESS_TEXT,
-  TX_SUBMIT_ERROR_TEXT,
-  voteOptions,
-} from "config";
-import { useConnectionStore, useGetTransaction } from "connection";
-import { contractDataService, serverDataService } from "data-service";
-import { useProposalId, useDaoId } from "hooks";
+import { QueryKeys, STATE_REFETCH_INTERVAL } from "config";
+import { useConnectionStore } from "connection";
+import { contract, server } from "data-service";
+import { useProposalId, useDaoId, useIsCustomEndpoint } from "hooks";
 import _ from "lodash";
-import moment from "moment";
-import { useMemo, useEffect, useState } from "react";
-import { useIsCustomEndpoint, useEnpointModalStore } from "store";
-import { Address, TonTransaction } from "ton";
-import {
-  ProposalState,
-  GetTransactionsPayload,
-  ProposalInfo,
-  Vote,
-} from "types";
-import { nFormatter, waitForSeqno, getProposalStatus, Logger } from "utils";
-import { useProposalStore, useProposalPersistStore } from "./store";
+import { getServerFetchUpdateValid, useSendTransaction } from "logic";
+import { useMemo } from "react";
+import { useEnpointModalStore, useAppPersistedStore } from "store";
+import { TonTransaction } from "ton";
+import { ProposalState, ProposalInfo } from "types";
+import { nFormatter, getProposalStatus, Logger } from "utils";
 
 export const useProposalVotesCount = () => {
   const { proposalVotes, dataUpdatedAt } = useProposalVotes();
@@ -86,7 +72,7 @@ export const useVerifyProposalResults = () => {
 
     analytics.GA.verifyButtonClick();
     const { proposalResults: contractProposalResults } =
-      await contractDataService.getStateUntilMaxLt(proposalId, getMaxLt());
+      await contract.getStateUntilMaxLt(proposalId, getMaxLt());
 
     Logger({ currentProposalResults, contractProposalResults });
 
@@ -115,7 +101,7 @@ export const useVerifyProposalResults = () => {
 };
 
 export const useGetProposalMaxLt = () => {
-  const queryKey = useStateQueryWithParams(QueryKeys.STATE);
+  const queryKey = useQueryKeyWithParams(QueryKeys.STATE);
   const queryClient = useQueryClient();
 
   return () => {
@@ -126,7 +112,7 @@ export const useGetProposalMaxLt = () => {
 
 const useContractTransactions = () => {
   const queryClient = useQueryClient();
-  const queryKey = useStateQueryWithParams(QueryKeys.PROPOSAL_TRANSACTIONS);
+  const queryKey = useQueryKeyWithParams(QueryKeys.PROPOSAL_TRANSACTIONS);
   const getTransactions = () =>
     queryClient.getQueryData(queryKey) as TonTransaction[] | undefined;
 
@@ -149,22 +135,24 @@ const useFetchFromContract = () => {
   const proposalId = useProposalId();
 
   return async (proposalInfo: ProposalInfo): Promise<ProposalState> => {
-    const result: GetTransactionsPayload =
-      await contractDataService.getTransactions(proposalId, getProposalMaxLt());
+    const currentState = getCurrentState();
+    const result = await contract.getTransactions(
+      proposalId,
+      getProposalMaxLt()
+    );
     // fetch from contract only if got new transactions
-
     if (result.allTxns.length === 0) {
-      const state = getCurrentState() || ({} as ProposalState);
+      const state = currentState || ({} as ProposalState);
       return {
         ...state,
         maxLt: result.maxLt,
       };
     }
 
-    const state = await contractDataService.getState(
+    const state = await contract.getState(
       proposalInfo,
       addTransactions(result.allTxns) || [],
-      getCurrentState()?.votingPower
+      currentState?.votingPower
     );
     return {
       ...state,
@@ -179,16 +167,15 @@ const useGetProposalInfo = () => {
 
   return () => {
     if (isCustomEndpoint) {
-      return contractDataService.getDAOProposalInfo(proposalId);
-    } else {
-      return serverDataService.getDAOProposalInfo(proposalId);
+      return contract.getDAOProposalInfo(proposalId);
     }
+    return server.getDAOProposalInfo(proposalId);
   };
 };
 
 const useEnsureProposalInfoQuery = () => {
   const queryClient = useQueryClient();
-  const queryKey = useStateQueryWithParams(QueryKeys.PROPOSAL_INFO);
+  const queryKey = useQueryKeyWithParams(QueryKeys.PROPOSAL_INFO);
   const getProposalInfo = useGetProposalInfo();
 
   return async () => {
@@ -199,70 +186,42 @@ const useEnsureProposalInfoQuery = () => {
   };
 };
 
-// we use this in case that user did refresh after sending tx,
-// and have minMaxLt in the persisted store, and the server is outdated
-const useFetchFromContractWhileServerOutdated = () => {
-  const getProposalState = useGetProposalState();
-  const { latestMaxLtAfterTx } = useLatestMaxLtAfterTx();
-  const proposalId = useProposalId();
-
-  return async (): Promise<ProposalState> => {
-    const state = getProposalState();
-    if (state) return state;
-    return contractDataService.getStateUntilMaxLt(
-      proposalId,
-      latestMaxLtAfterTx
-    );
-  };
-};
-
 export const useProposalStateQuery = () => {
   const { setEndpointError } = useEnpointModalStore();
   const isCustomEndpoint = useIsCustomEndpoint();
   const { updateMaxLtAfterTx, latestMaxLtAfterTx } = useLatestMaxLtAfterTx();
-  const getStatewhileServerOutdatedAndStateEmpty =
-    useFetchFromContractWhileServerOutdated();
+
   const getContractState = useFetchFromContract();
   const ensureProposalInfo = useEnsureProposalInfoQuery();
-  const getProposalState = useGetProposalState();
 
   const { data: voteTimeline } = useVoteTimeline();
 
-  const queryKey = useStateQueryWithParams(QueryKeys.STATE);
+  const proposalId = useProposalId();
 
-  const refetchInterval =
-    voteTimeline?.status === "in-progress" ? STATE_REFETCH_INTERVAL : undefined;
+  const queryKey = useQueryKeyWithParams(QueryKeys.STATE);
+
+  const voteFinished = voteTimeline?.status === "finished";
 
   return useQuery(
     queryKey,
     async () => {
       const proposalInfo = await ensureProposalInfo();
 
-      const proposalState = getProposalState();
-
-      //   if (voteTimeline?.status === "finished" && proposalState) {
-      //     return proposalState;
-      //   }
       if (isCustomEndpoint) {
         Logger("custom endpoint, fetching from contract");
         return getContractState(proposalInfo);
       }
 
-      const isServerLastUpdateTimeInvalid =
-        moment().valueOf() - (await serverDataService.getLastFetchUpdate()) >
-        LAST_FETCH_UPDATE_LIMIT;
-
-      if (isServerLastUpdateTimeInvalid) {
+      if (!(await getServerFetchUpdateValid())) {
         Logger("server last fetch update error, fetching from contract");
-
         return getContractState(proposalInfo);
       }
 
       if (!latestMaxLtAfterTx) {
         Logger("fetching from server");
-        return serverDataService.getState();
+        return server.getState();
       }
-      const serverMaxLt = await serverDataService.getMaxLt();
+      const serverMaxLt = await server.getMaxLt();
 
       if (Number(serverMaxLt) >= Number(latestMaxLtAfterTx || "0")) {
         Logger(
@@ -270,25 +229,25 @@ export const useProposalStateQuery = () => {
         );
         updateMaxLtAfterTx(undefined);
 
-        return serverDataService.getState();
+        return server.getState();
       }
 
       Logger(
-        `server is outdated, server maxLt:${serverMaxLt} currentMaxLt:${latestMaxLtAfterTx}`
+        `server is outdated, server maxLt:${serverMaxLt}, currentMaxLt:${latestMaxLtAfterTx}`
       );
-      return getStatewhileServerOutdatedAndStateEmpty();
+      return contract.getStateUntilMaxLt(proposalId, latestMaxLtAfterTx);
     },
     {
       onError: () => setEndpointError(true),
-      refetchInterval,
-        staleTime: 2_000,
+      refetchInterval: !voteFinished ? STATE_REFETCH_INTERVAL : undefined,
+      staleTime: voteFinished ? Infinity : 2_000,
     }
   );
 };
 
 const useGetProposalState = () => {
   const queryClient = useQueryClient();
-  const queryKey = useStateQueryWithParams(QueryKeys.STATE);
+  const queryKey = useQueryKeyWithParams(QueryKeys.STATE);
 
   return () => {
     return queryClient.getQueryData(queryKey) as ProposalState | undefined;
@@ -297,7 +256,7 @@ const useGetProposalState = () => {
 
 const useUpdateProposalState = () => {
   const queryClient = useQueryClient();
-  const queryKey = useStateQueryWithParams(QueryKeys.STATE);
+  const queryKey = useQueryKeyWithParams(QueryKeys.STATE);
 
   return (newData: ProposalState) => {
     queryClient.setQueryData<ProposalState | undefined>(queryKey, (oldData) => {
@@ -307,7 +266,7 @@ const useUpdateProposalState = () => {
 };
 
 export const useProposalInfoQuery = () => {
-  const queryKey = useStateQueryWithParams(QueryKeys.PROPOSAL_INFO);
+  const queryKey = useQueryKeyWithParams(QueryKeys.PROPOSAL_INFO);
   const getProposalInfo = useGetProposalInfo();
 
   return useQuery<ProposalInfo | undefined>(queryKey, () => getProposalInfo(), {
@@ -327,10 +286,8 @@ const useOnVoteCallback = () => {
   return useMutation(
     async () => {
       Logger("fetching data from contract after transaction");
-      const { allTxns, maxLt } = await contractDataService.getTransactions(
-        proposalId
-      );
-      const state = await contractDataService.getState(
+      const { allTxns, maxLt } = await contract.getTransactions(proposalId);
+      const state = await contract.getState(
         proposalInfo!,
         allTxns,
         getProposalState()?.votingPower
@@ -354,68 +311,9 @@ const useOnVoteCallback = () => {
   );
 };
 
-export const useSendTransaction = () => {
-  const { address } = useConnectionStore();
-  const clientV2 = useConnectionStore().clientV2;
-  const [txApproved, setTxApproved] = useState(false);
-  const { mutateAsync: onVoteFinished } = useOnVoteCallback();
-  const { showNotification } = useNotification();
-  const { txLoading, setTxLoading } = useProposalStore();
-  const getTransaction = useGetTransaction();
-  const proposalId = useProposalId();
-
-  const query = useMutation(
-    async (vote: string) => {
-      analytics.GA.txSubmitted(vote);
-
-      setTxLoading(true);
-
-      const waiter = await waitForSeqno(
-        clientV2!.openWalletFromAddress({
-          source: Address.parse(address!),
-        })
-      );
-
-      const onSuccess = async () => {
-        setTxApproved(true);
-        analytics.GA.txConfirmed(vote);
-        await waiter();
-        await onVoteFinished();
-        setTxApproved(false);
-        setTxLoading(false);
-        analytics.GA.txCompleted(vote);
-        showNotification({
-          variant: "success",
-          message: TX_SUBMIT_SUCCESS_TEXT,
-        });
-      };
-
-      return getTransaction(proposalId, vote, onSuccess);
-    },
-    {
-      onError: (error: any, vote) => {
-        if (error instanceof Error) {
-          analytics.GA.txFailed(vote, error.message);
-          Logger(error.message);
-        }
-
-        setTxLoading(false);
-        setTxApproved(false);
-        showNotification({ variant: "error", message: TX_SUBMIT_ERROR_TEXT });
-      },
-    }
-  );
-
-  return {
-    ...query,
-    txApproved,
-    isLoading: txLoading,
-  };
-};
-
 export const useVoteTimeline = () => {
   const { data: info, isLoading } = useProposalInfoQuery();
-  const queryKey = useStateQueryWithParams(QueryKeys.PROPOSAL_TIMELINE);
+  const queryKey = useQueryKeyWithParams(QueryKeys.PROPOSAL_TIMELINE);
 
   return useQuery(
     queryKey,
@@ -434,20 +332,45 @@ export const useVoteTimeline = () => {
   );
 };
 
-export const useStateQueryWithParams = (key: string): QueryKey => {
+const useQueryKeyWithParams = (key: string): QueryKey => {
   const daoId = useDaoId();
   const daoProposalId = useProposalId();
-  return [key, daoId, daoProposalId];
+  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
+  return [key, daoId, daoProposalId, clientV2Endpoint, clientV4Endpoint];
 };
 
 export const useLatestMaxLtAfterTx = () => {
-  const { latestMaxLtAfterTx, setLatestMaxLtAfterTx } =
-    useProposalPersistStore();
+  const { latestMaxLtAfterTx, setLatestMaxLtAfterTx } = useAppPersistedStore();
 
   const daoProposalId = useProposalId();
   return {
     latestMaxLtAfterTx: latestMaxLtAfterTx[daoProposalId],
     updateMaxLtAfterTx: (value?: string) =>
       setLatestMaxLtAfterTx(daoProposalId, value),
+  };
+};
+
+export const useVote = () => {
+  const query = useSendTransaction();
+  const { mutate: onFinished } = useOnVoteCallback();
+  const contractAddress = useProposalId();
+
+  const mutate = (vote: string) => {
+    const args = {
+      analytics: {
+        submitted: () => analytics.GA.txSubmitted(vote),
+        success: () => analytics.GA.txCompleted(vote),
+        error: (error: string) => analytics.GA.txFailed(vote, error),
+      },
+      onFinished,
+      message: vote,
+      contractAddress,
+    };
+    query.mutate(args);
+  };
+
+  return {
+    ...query,
+    mutate,
   };
 };

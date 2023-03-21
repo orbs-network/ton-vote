@@ -1,7 +1,7 @@
 import { useState, useLayoutEffect } from "react";
 import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes } from "consts";
-import { CONTRACT_ADDRESS } from "config";
+import { useAppPersistedStore } from "store";
 
 export const useDaoId = () => {
   return useParams().spaceId as string;
@@ -9,7 +9,7 @@ export const useDaoId = () => {
 
 export const useProposalId = () => {
   // return useParams().proposalId;
-  return CONTRACT_ADDRESS
+  return "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS";
 };
 
 export const useCurrentRoute = () => {
@@ -35,3 +35,14 @@ export const useWindowResize = () => {
 
   return size;
 };
+
+
+export const useIsCustomEndpoint = () => {
+  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
+
+  return !!clientV2Endpoint && !!clientV4Endpoint;
+};
+
+
+
+

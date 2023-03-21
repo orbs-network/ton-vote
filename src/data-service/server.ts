@@ -12,23 +12,28 @@ import {
   StateData,
   VotingPower,
 } from "types";
-import { parseVotes } from "utils";
+import { Logger, parseVotes } from "utils";
 
 const axiosInstance = axios.create({
   baseURL: "https://dao-vote-cache-server.herokuapp.com",
 });
 
 const getDAOS = async (): Promise<Dao[]> => {
+  Logger("getDAOs from server");
   await delay(1000);
   return createDaos(50);
 };
 
 const getDAO = async (daoId: string): Promise<Dao> => {
+  Logger("getDAO from server");
+
   await delay(1000);
   return createDaos(1)[0];
 };
 
 const getDAOProposals = async (daoId: string): Promise<DaoProposal[]> => {
+  Logger("getDAOProposals from server");
+
   await delay(1000);
   return createProposals(20);
 };
@@ -59,9 +64,7 @@ const getStateUpdateTime = async (): Promise<number> => {
   return (await axiosInstance.get("/stateUpdateTime")).data;
 };
 
-
-
-export const serverDataService = {
+export const server = {
   getDAOS,
   getDAO,
   getDAOProposals,

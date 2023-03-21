@@ -16,10 +16,7 @@ import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
 import { useConnectionStore } from "connection";
-import {
-  useProposalResults,
-  useProposalVotes,
-} from "./hooks";
+import { useProposalResults, useProposalVotes } from "./hooks";
 
 const ContainerHeader = () => {
   const { proposalVotes, isLoading } = useProposalVotes();
@@ -101,10 +98,10 @@ const StyledLoaderMore = styled(StyledFlexRow)({
 });
 
 const VoteComponent = ({ data }: { data?: Vote }) => {
+  const connectedAddress = useConnectionStore().address;
+
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
-
-  const connectedAddress = useConnectionStore().address;
 
   return (
     <StyledVote justifyContent="flex-start">
