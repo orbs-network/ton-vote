@@ -3,8 +3,9 @@ import ReactDOM from "react-dom/client";
 import { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { CssBaseline, GlobalStyles } from "@mui/material";
-import { ThemeProvider } from "@mui/material";
+import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
+import { QueryParamProvider } from "use-query-params";
+import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 import { theme } from "theme";
 import { globalStyles } from "styles";
 import { SnackbarProvider } from "notistack";
@@ -33,7 +34,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           variantError: "snackbar-error",
         }}
       >
-       <App />
+        <App />
       </SnackbarProvider>
     </ThemeProvider>
 

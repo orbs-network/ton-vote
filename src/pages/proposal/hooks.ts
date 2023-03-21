@@ -13,8 +13,8 @@ import _ from "lodash";
 import { getServerFetchUpdateValid, useSendTransaction } from "logic";
 import { useMemo } from "react";
 import { useEnpointModalStore, useAppPersistedStore } from "store";
-import { TonTransaction } from "ton";
-import { ProposalState, ProposalInfo } from "types";
+import {  Transaction } from "ton";
+import { ProposalState, ProposalInfo, ProposalStatus } from "types";
 import { nFormatter, getProposalStatus, Logger } from "utils";
 
 export const useProposalVotesCount = () => {
@@ -114,9 +114,9 @@ const useContractTransactions = () => {
   const queryClient = useQueryClient();
   const queryKey = useQueryKeyWithParams(QueryKeys.PROPOSAL_TRANSACTIONS);
   const getTransactions = () =>
-    queryClient.getQueryData(queryKey) as TonTransaction[] | undefined;
+    queryClient.getQueryData(queryKey) as Transaction[] | undefined;
 
-  const addTransactions = (newTransactions: TonTransaction[]) => {
+  const addTransactions = (newTransactions: Transaction[]) => {
     const transactions = getTransactions() || [];
     transactions.unshift(...newTransactions);
     queryClient.setQueryData(queryKey, transactions);
@@ -167,9 +167,9 @@ const useGetProposalInfo = () => {
 
   return () => {
     if (isCustomEndpoint) {
-      return contract.getDAOProposalInfo(proposalId);
+      return contract.getDaoProposalInfo(proposalId);
     }
-    return server.getDAOProposalInfo(proposalId);
+    return server.getDaoProposalInfo(proposalId);
   };
 };
 
@@ -194,13 +194,13 @@ export const useProposalStateQuery = () => {
   const getContractState = useFetchFromContract();
   const ensureProposalInfo = useEnsureProposalInfoQuery();
 
-  const { data: voteTimeline } = useVoteTimeline();
+  const proposalStatus = useProposalStatus();
 
   const proposalId = useProposalId();
 
   const queryKey = useQueryKeyWithParams(QueryKeys.STATE);
 
-  const voteFinished = voteTimeline?.status === "finished";
+  const voteFinished = proposalStatus === ProposalStatus.CLOSED;
 
   return useQuery(
     queryKey,
@@ -311,25 +311,26 @@ const useOnVoteCallback = () => {
   );
 };
 
-export const useVoteTimeline = () => {
-  const { data: info, isLoading } = useProposalInfoQuery();
+export const useProposalStatus = () => {
+  const { data: info } = useProposalInfoQuery();
   const queryKey = useQueryKeyWithParams(QueryKeys.PROPOSAL_TIMELINE);
 
-  return useQuery(
+  const query =  useQuery(
     queryKey,
     () => {
       if (!info) return null;
-
-      return {
-        ...getProposalStatus(Number(info.startTime), Number(info.endTime)),
-        isLoading,
-      };
+      return  getProposalStatus(
+        Number(info.startTime),
+        Number(info.endTime)
+      );
     },
     {
       enabled: !!info,
       refetchInterval: 1_000,
     }
   );
+
+  return query.data as ProposalStatus | null
 };
 
 const useQueryKeyWithParams = (key: string): QueryKey => {

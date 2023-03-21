@@ -4,8 +4,9 @@ import { Chip, Fade, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
-import { useProposalStateQuery, useVoteTimeline } from "./hooks";
+import { useProposalStateQuery, useProposalStatus } from "./hooks";
 import { useProposalId } from "hooks";
+import { getProposalStatusText } from "utils";
 
 export function Hero() {
   const [showMore, setShowMore] = useState(false);
@@ -36,18 +37,16 @@ export function Hero() {
 }
 
 const VoteEndedChip = () => {
-  const { data } = useVoteTimeline();
-  const label = useMemo(() => {
-    if (!data?.voteStarted) {
-      return "Not Started";
-    }
-    if (data?.voteInProgress) {
-      return "Active";
-    }
-    return "Ended";
-  }, [data?.voteStarted, data?.voteInProgress]);
+  const proposalStatus = useProposalStatus();
 
-  return <StyledVoteEnded label={label} variant="filled" color="primary" />;
+  const label = getProposalStatusText(proposalStatus);
+  
+
+  return (
+    <Fade in={!!label}>
+      <StyledVoteEnded label={label} variant="filled" color="primary" />
+    </Fade>
+  );
 };
 
 const StyledVoteEnded = styled(Chip)({

@@ -81,14 +81,12 @@ export function Votes() {
       ) : (
         <StyledNoVotes>No votes yet</StyledNoVotes>
       )}
-      <StyledLoaderMore>
-        <LoadMore
-          hide={isLoading}
-          loadMoreOnScroll={votesShowAmount > PAGE_SIZE}
-          fetchNextPage={showMoreVotes}
-          isFetchingNextPage={false}
-        />
-      </StyledLoaderMore>
+      <LoadMore
+        hide={isLoading}
+        loadMoreOnScroll={votesShowAmount > PAGE_SIZE}
+        showMore={showMoreVotes}
+        isFetchingNextPage={false}
+      />
     </StyledContainer>
   );
 }

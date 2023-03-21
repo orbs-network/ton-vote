@@ -21,3 +21,6 @@ export * from "./LoadMore";
 export * from "./FadeElement";
 export * from "./TextArea";
 export * from './Loader'
+export * from "./Img";
+export * from "./BorderContainer";
+export * from "./Select";

@@ -78,7 +78,7 @@ export const useConnectionEvenSubscription = () => {
     connector.onStatusChange((walletInfo) => {
       const address = walletInfo?.account.address;
       const friendlyAddress = address
-        ? Address.parse(address).toFriendly()
+        ? Address.parse(address).toString()
         : "";
       setAddress(friendlyAddress);
     });

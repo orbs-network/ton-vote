@@ -1,10 +1,13 @@
 import { delay } from "@ton-defi.org/ton-connection";
-import { createDaos, createProposals } from "mock";
+import {  createProposals } from "mock";
 import axios from "axios";
 import _ from "lodash";
 import {
-  Dao,
+  DaoMetadata,
   DaoProposal,
+  DaoRoles,
+  GetDaoProposals,
+  GetDaos,
   ProposalInfo,
   ProposalState,
   RawVotes,
@@ -13,35 +16,50 @@ import {
   VotingPower,
 } from "types";
 import { Logger, parseVotes } from "utils";
+import * as mock from 'mock'
 
 const axiosInstance = axios.create({
   baseURL: "https://dao-vote-cache-server.herokuapp.com",
 });
 
-const getDAOS = async (): Promise<Dao[]> => {
-  Logger("getDAOs from server");
-  await delay(1000);
-  return createDaos(50);
+const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
+  Logger("getDapRoles from contract");
+
+  return mock.getDaoRoles(daoAddress);
 };
 
-const getDAO = async (daoId: string): Promise<Dao> => {
+const getDaos = async (): Promise<GetDaos> => {
+  Logger("getDaos from server");
+  await delay(1000);
+  return mock.getDaos();
+};
+
+const getDaoMetadata = async (daoAddress: string): Promise<DaoMetadata> => {
   Logger("getDAO from server");
 
   await delay(1000);
-  return createDaos(1)[0];
+  return mock.createDaoMetadata(daoAddress);
 };
 
-const getDAOProposals = async (daoId: string): Promise<DaoProposal[]> => {
-  Logger("getDAOProposals from server");
+const getDaoProposals = async (daoAddress: string): Promise<GetDaoProposals> => {
+  Logger("getDaoProposals from server");
 
   await delay(1000);
-  return createProposals(20);
+  return mock.getProposals(daoAddress);
 };
-const getDAOProposalInfo = async (
+const getDaoProposalInfo = async (
   contractAddress: string
 ): Promise<ProposalInfo> => {
   return (await axiosInstance.get("/info")).data;
 };
+
+const getDapProposalMetadata = (
+  daoAddress: string,
+  proposalAddress: string
+) => {
+  return mock.getProposalMetadata(daoAddress, proposalAddress);
+};
+
 
 const getState = async (): Promise<ProposalState> => {
   const state: GetStateApiPayload = (await axiosInstance.get("/state")).data;
@@ -65,14 +83,16 @@ const getStateUpdateTime = async (): Promise<number> => {
 };
 
 export const server = {
-  getDAOS,
-  getDAO,
-  getDAOProposals,
-  getDAOProposalInfo,
+  getDaos,
+  getDaoMetadata,
+  getDaoProposals,
+  getDaoProposalInfo,
   getState,
   getMaxLt,
   getLastFetchUpdate,
   getStateUpdateTime,
+  getDaoRoles,
+  getDapProposalMetadata,
 };
 
 export interface GetStateApiPayload {

@@ -13,8 +13,9 @@ import {
   useProposalResults,
   useProposalVotesCount,
   useVerifyProposalResults,
-  useVoteTimeline,
+  useProposalStatus,
 } from "./hooks";
+import { ProposalStatus } from "types";
 
 const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return;
@@ -129,7 +130,7 @@ export function VerifyResults() {
     isReady,
     reset,
   } = useVerifyProposalResults();
-  const { data: timelineData } = useVoteTimeline();
+  const proposalStatus = useProposalStatus();
 
   const { latestMaxLtAfterTx } = useLatestMaxLtAfterTx();
 
@@ -139,7 +140,7 @@ export function VerifyResults() {
     }
   }, [latestMaxLtAfterTx]);
 
-  if (!timelineData?.voteStarted) return null;
+  if (proposalStatus !== ProposalStatus.ACTIVE) return null;
 
   const component = () => {
     if (!isReady) return null;

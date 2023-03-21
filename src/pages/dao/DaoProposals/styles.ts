@@ -1,5 +1,5 @@
 import { Box, styled } from "@mui/material";
-import { Container } from "components";
+import { BorderContainer, Container } from "components";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 export const StyledLoader = styled(StyledSkeletonLoader)({
@@ -12,17 +12,19 @@ export const StyledProposalsContainer = styled(Container)({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  ".container-header":{
+    alignItems:'center'
+  }
 });
 
-export const StyledProposalContent = styled(StyledFlexColumn)(({ theme }) => ({
-  borderBottom: `1px solid lightgray`,
-  paddingBottom: 20,
-  marginBottom: 20,
+export const StyledProposalContent = styled(BorderContainer)({
+  display:'flex',
+  flexDirection:'column',
   ".title": {
     fontSize: 18,
     fontWeight: 700,
   },
-}));
+})
 
 export const StyledProposalResultProgress = styled("div")(({ theme }) => ({
   height: "100%",
@@ -58,10 +60,5 @@ export const StyledProposal = styled(Box)({
   },
   ".time-left": {
     fontSize: 14,
-  },
-  ":last-child": {
-    ".container": {
-      border: "unset",
-    },
   },
 });

@@ -1,35 +1,34 @@
-import { Avatar, styled, Typography } from "@mui/material";
-import { width } from "@mui/system";
-import { Button, Container, Loader } from "components";
-import Img from "components/Img";
+import { styled, Typography } from "@mui/material";
+import { Button, Container, Loader, Img } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoId } from "hooks";
+import { useDaoMetadataQuery } from "query";
 import React from "react";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn } from "styles";
-import { nFormatter } from "utils";
-import { useDaoQuery } from "./hooks";
+import { makeElipsisAddress, nFormatter } from "utils";
 import Socials from "./Socials";
 
 function SideMenu() {
-  const { data: dao, isLoading } = useDaoQuery();
+    const daoAddresses = useDaoId()
+  const { data: dao, isLoading } = useDaoMetadataQuery(daoAddresses);
 
   return (
     <StyledContainer>
       <StyledTop>
-        <StyledLogo src={dao?.image} />
+        <StyledLogo src={dao?.avatar} />
 
         <StyledTitleLoader
           isLoading={isLoading}
-          component={<Typography>{dao?.name}</Typography>}
+          component={<Typography>{makeElipsisAddress(dao?.name, 5)}</Typography>}
         />
-        <StyledMembersLoader
+        {/* <StyledMembersLoader
           isLoading={isLoading}
           component={
             <Typography>{nFormatter(dao?.members || 0)} members</Typography>
           }
-        />
+        /> */}
 
         <StyledJoin disabled={isLoading}>Join</StyledJoin>
       </StyledTop>

@@ -2,7 +2,7 @@ import { Box, Fade, styled } from "@mui/material";
 import React, { useState } from "react";
 import { StyledSkeletonLoader } from "styles";
 
-function Img({ src, className = "" }: { src?: string; className?: string }) {
+export function Img({ src, className = "" }: { src?: string; className?: string }) {
   const [isLoading, setIsLoading] = useState(true);
   return (
     <StyledContainer className={className}>
@@ -16,7 +16,6 @@ function Img({ src, className = "" }: { src?: string; className?: string }) {
   );
 }
 
-export default Img;
 
 const StyledImg = styled("img")({
   width: "100%",

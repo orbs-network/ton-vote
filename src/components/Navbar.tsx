@@ -22,12 +22,12 @@ import { useAppNavigation } from "router";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
-  const { spacesPage } = useAppNavigation();
+  const { daosPage } = useAppNavigation();
   return (
     <StyledContainer>
       <StyledGrid>
         <StyledFlexRow justifyContent="space-between" width="100%">
-          <StyledLogo onClick={spacesPage.root}>
+          <StyledLogo onClick={daosPage.root}>
             <img src={LogoImg} />
             <Typography>VOTE</Typography>
           </StyledLogo>

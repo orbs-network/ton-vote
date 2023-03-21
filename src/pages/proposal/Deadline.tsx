@@ -1,8 +1,9 @@
 import { styled } from "@mui/material";
 import { Container, Countdown } from "components";
 import moment from "moment";
-import { useProposalInfoQuery, useVoteTimeline } from "./hooks";
+import { useProposalInfoQuery, useProposalStatus } from "./hooks";
 import React from "react";
+import { ProposalStatus } from "types";
 
 const handleDate = (endDate?: number | Number) => {
   if (!endDate) return 0;
@@ -12,17 +13,17 @@ const handleDate = (endDate?: number | Number) => {
 
 export function Deadline() {
   const data = useProposalInfoQuery().data;
-  const { data: timelineData } = useVoteTimeline();
+  const proposalStatus = useProposalStatus();
 
-
-  if (timelineData?.voteEnded) return null;
-  const date = timelineData?.voteStarted ? data?.endTime : data?.startTime;
+  if (proposalStatus === ProposalStatus.CLOSED || !proposalStatus) return null;
+  const date =
+    proposalStatus === ProposalStatus.ACTIVE ? data?.endTime : data?.startTime;
   return (
     <StyledContainer
       title={
-        !data
+        !proposalStatus
           ? ""
-          : !timelineData?.voteStarted
+          : proposalStatus === ProposalStatus.NOT_STARTED
           ? "Vote starts in"
           : "Time left to vote"
       }
@@ -33,6 +34,5 @@ export function Deadline() {
     </StyledContainer>
   );
 }
-
 
 const StyledContainer = styled(Container)({});

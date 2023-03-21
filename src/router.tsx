@@ -3,14 +3,14 @@ import { Layout } from "Layout";
 import _ from "lodash";
 import {
   ProposalPage,
-  SpacesPage,
-  SpacePage,
-  SpaceAbout,
-  SpaceProposals,
+  DaoPage,
+  DaoAbout,
+  DaoProposals,
   CreateProposal,
+  DaosPage,
 } from "pages";
 import CreateSpace from "pages/create-space/CreateSpace";
-import { SpaceMenuLayout } from "pages/space/SpaceMenuLayout";
+import { SpaceMenuLayout } from "pages/dao/SpaceMenuLayout";
 import { createBrowserRouter, useNavigate } from "react-router-dom";
 
 export const appNavigation = {
@@ -45,7 +45,7 @@ export const useAppNavigation = () => {
       root: (spaceId: string, proposalId: string) =>
         navigate(appNavigation.proposalPage.root(spaceId, proposalId)),
     },
-    spacesPage: {
+    daosPage: {
       root: () => navigate(routes.spaces),
     },
     createSpace: {
@@ -61,7 +61,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: routes.spaces,
-        element: <SpacesPage />,
+        element: <DaosPage />,
       },
       {
         path: routes.createSpace,
@@ -70,7 +70,7 @@ export const router = createBrowserRouter([
 
       {
         path: routes.space,
-        element: <SpacePage />,
+        element: <DaoPage />,
         children: [
           {
             path: routes.space,
@@ -78,11 +78,11 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <SpaceProposals />,
+                element: <DaoProposals />,
               },
               {
                 path: routes.spaceAbout,
-                element: <SpaceAbout />,
+                element: <DaoAbout />,
               },
               {
                 path: routes.createProposal,

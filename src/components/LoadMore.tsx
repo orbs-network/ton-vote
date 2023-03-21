@@ -1,15 +1,16 @@
 import { CircularProgress, styled } from "@mui/material";
 import React, { useEffect } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
+import { StyledFlexRow } from "styles";
 import { Button } from "./Button";
 
 function LoadMore({
-  fetchNextPage,
+  showMore,
   loadMoreOnScroll,
   isFetchingNextPage,
   hide,
 }: {
-  fetchNextPage: () => void;
+  showMore: () => void;
   loadMoreOnScroll: boolean;
   isFetchingNextPage: boolean;
   hide: boolean;
@@ -19,24 +20,35 @@ function LoadMore({
 
   useEffect(() => {
     if (isVisible) {
-      fetchNextPage();
+      showMore();
     }
   }, [isVisible]);
 
-
   if (hide) {
-    return null
+    return null;
   }
-    if (isFetchingNextPage) {
-      return <StyledSpinner />;
-    }
+  if (isFetchingNextPage) {
+    return <StyledSpinner />;
+  }
 
   if (loadMoreOnScroll) {
     return <div ref={ref}></div>;
   }
-  return <Button onClick={fetchNextPage}>Load more</Button>;
+  return (
+    <StyledContainer>
+      <StyledButton onClick={showMore}>Load more</StyledButton>
+    </StyledContainer>
+  );
 }
 
 export { LoadMore };
+
+const StyledButton = styled(Button)({
+  minWidth: 170
+});
+
+const StyledContainer = styled(StyledFlexRow)({
+  marginTop: 50
+})
 
 const StyledSpinner = styled(CircularProgress)({});

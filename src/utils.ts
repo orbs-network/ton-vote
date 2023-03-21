@@ -1,9 +1,9 @@
 import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import _ from "lodash";
 import moment from "moment";
-import { fromNano, Wallet } from "ton";
+import { fromNano } from "ton";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
-export const makeElipsisAddress = (address: string, padding = 6): string => {
+export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
   return `${address.substring(0, padding)}...${address.substring(
     address.length - padding
@@ -12,7 +12,7 @@ export const makeElipsisAddress = (address: string, padding = 6): string => {
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-export async function waitForSeqno(wallet: Wallet) {
+export async function waitForSeqno(wallet: any) {
   const seqnoBefore = await wallet.getSeqNo();
 
   return async () => {
@@ -82,7 +82,7 @@ export function nFormatter(num: number, digits = 2) {
     : "0";
 }
 
-export const timeLeft = (value: number) => {
+export const getTimeDiff = (value: number) => {
   var a = moment(unixToMilliseconds(value));
   var b = moment();
   const days = a.diff(b, "days");
@@ -90,41 +90,36 @@ export const timeLeft = (value: number) => {
   const minutes = a.diff(b, "minutes");
 
   if (days > 0) {
-    return days === 1 ? "1 day left" : `${days} days left`;
+    return days === 1 ? "1 day" : `${days} days`;
   }
   if (hours > 0) {
-    return hours === 1 ? "1 hour left" : `${hours} hours left`;
+    return hours === 1 ? "1 hour" : `${hours} hours`;
   }
 
-  return minutes === 1 ? "1 minute left" : `${minutes} minutes left`;
+  return minutes === 1 ? "1 minute" : `${minutes} minutes`;
 };
 
-export const getProposalStatus = (startTime?: number, endTime?: number) => {
+export const getProposalStatus = (
+  startTime?: number,
+  endTime?: number
+): ProposalStatus | null => {
   if (!startTime || !endTime) {
-    return {
-      status: undefined,
-      text: undefined,
-    };
+    return null;
   }
 
   const now = moment.utc().valueOf();
   const voteStarted = unixToMilliseconds(startTime) <= now;
   const finished = unixToMilliseconds(endTime) <= now;
-  const voteInProgress = voteStarted && !finished;
 
-  const status: ProposalStatus = voteInProgress
-    ? "in-progress"
-    : finished
-    ? "finished"
-    : undefined;
-
-  return {
-    status,
-    voteStarted,
-    voteEnded: finished,
-    voteInProgress: voteStarted && !finished,
-    text: voteInProgress ? "Active" : finished ? "Closed" : undefined,
-  };
+  return finished
+    ? ProposalStatus.CLOSED
+    : voteStarted && !finished
+    ? ProposalStatus.PENDING
+    : voteStarted
+    ? ProposalStatus.ACTIVE
+    : !voteStarted
+    ? ProposalStatus.NOT_STARTED
+    : null;
 };
 
 export const unixToMilliseconds = (value: Number) => {
@@ -136,4 +131,20 @@ export const urlPatternValidation = (URL: string) => {
     "(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?"
   );
   return regex.test(URL);
+};
+
+export const getProposalStatusText = (status: ProposalStatus | null) => {
+  switch (status) {
+    case ProposalStatus.CLOSED:
+      return "Ended";
+    case ProposalStatus.ACTIVE:
+      return "Active";
+    case ProposalStatus.NOT_STARTED:
+      return "Not started";
+    case ProposalStatus.PENDING:
+      return "Pending";
+
+    default:
+      break;
+  }
 };

@@ -5,16 +5,16 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import { useVote, useVoteTimeline } from "./hooks";
+import { useVote, useProposalStatus } from "./hooks";
 import { useVoteStore } from "./store";
 import { useConnectionStore } from "connection";
+import { ProposalStatus } from "types";
 
 export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useVote();
-  const { data: timelineData } = useVoteTimeline();
-
+  const proposalStatus = useProposalStatus();
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -25,7 +25,8 @@ export function Vote() {
     mutate(vote);
   };
 
-  if (!timelineData?.voteInProgress) return null;
+  if (proposalStatus !== ProposalStatus.PENDING) return null;
+
   return (
     <StyledContainer title="Should the validators proceed with this proposal?">
       <StyledFlexColumn>

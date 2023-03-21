@@ -2,7 +2,7 @@ import { Fade, Typography } from "@mui/material";
 import { Container, FadeElement, Page } from "components";
 import React from "react";
 
-function SpaceAbout() {
+export function DaoAbout() {
   return (
     <FadeElement>
       <Container title="About">
@@ -12,4 +12,3 @@ function SpaceAbout() {
   );
 }
 
-export { SpaceAbout };

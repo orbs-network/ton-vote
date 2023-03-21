@@ -16,43 +16,52 @@ import {
   getAllVotes,
   getTransactions as getTXs,
   filterTxByTimestamp,
-  getClientV2,
 } from "contracts-api/logic";
-import { createDaos, createProposals } from "mock";
+import * as mock from "mock";
 import { isMobile } from "react-device-detect";
-import { Address, Cell, CommentMessage, toNano, TonTransaction } from "ton";
+import { Cell, toNano, Transaction } from "ton";
 import {
   ProposalInfo,
   VotingPower,
   RawVotes,
-  Dao,
   DaoProposal,
   ProposalState,
+  DaoMetadata,
+  DaoRoles,
+  GetDaos,
+  GetDaoProposals,
 } from "types";
-import { Logger, parseVotes, waitForSeqno } from "utils";
+import { Logger, parseVotes } from "utils";
 
-const getDAOS = async (): Promise<Dao[]> => {
-  Logger("getDAOs from contract");
+const getDaos = async (): Promise<GetDaos> => {
+  Logger("getDaos from contract");
 
   await delay(1000);
-  return createDaos(150);
+  return mock.getDaos();
 };
 
-const getDAO = async (daoId: string): Promise<Dao> => {
+const getDaoMetadata = async (daoAddress: string): Promise<DaoMetadata> => {
   Logger("getDAO from contract");
 
-  await delay(1000);
-  return createDaos(1)[0];
+  return mock.createDaoMetadata(daoAddress);
 };
 
-const getDAOProposals = async (daoId: string): Promise<DaoProposal[]> => {
-  Logger("getDAOProposals from contract");
+const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
+  Logger("getDapRoles from contract");
 
-  await delay(1000);
-  return createProposals(20);
+  return mock.getDaoRoles(daoAddress);
 };
 
-const getDAOProposalInfo = async (
+const getDaoProposals = async (
+  daoAddress: string
+): Promise<GetDaoProposals> => {
+  Logger("getDaoProposals from contract");
+
+  await delay(1000);
+  return mock.getProposals(daoAddress);
+};
+
+const getDaoProposalInfo = async (
   contractAddress: string
 ): Promise<ProposalInfo> => {
   await delay(1000);
@@ -65,7 +74,7 @@ const getDAOProposalInfo = async (
 
 export const getState = async (
   proposalInfo: ProposalInfo,
-  transactions: TonTransaction[],
+  transactions: Transaction[],
   prevVotingPower: VotingPower = {}
 ) => {
   const votingPower = await getVotingPower(
@@ -90,7 +99,7 @@ export const getState = async (
 const getTransactions = async (
   contractAddress: string,
   toLt?: string
-): Promise<{ allTxns: TonTransaction[]; maxLt?: string }> => {
+): Promise<{ allTxns: Transaction[]; maxLt?: string }> => {
   return getTXs(contractAddress, toLt);
 };
 
@@ -101,7 +110,7 @@ const getStateUntilMaxLt = async (
 ): Promise<ProposalState> => {
   const _transactions = (await getTransactions(contractAddress)).allTxns;
   const _proposalInfo =
-    proposalInfo || (await getDAOProposalInfo(contractAddress));
+    proposalInfo || (await getDaoProposalInfo(contractAddress));
   const filteredTransactions = filterTxByTimestamp(_transactions, maxLt);
 
   const contractState = await contract.getState(
@@ -128,7 +137,7 @@ export const sendTransaction = async (
   const { connectorTC, connection } = useConnectionStore.getState();
 
   const cell = new Cell();
-  new CommentMessage(message).writeTo(cell);
+  // new CommentMessage(message).writeTo(cell);
 
   if (connectorTC.connected) {
     handleMobileLink(connectorTC);
@@ -150,35 +159,42 @@ export const sendTransaction = async (
       (connection as any)._provider instanceof ChromeExtensionWalletProvider;
 
     if (isMobile || isExtension) {
-      await connection?.requestTransaction({
-        to: Address.parse(contractAddress),
-        value: toNano(TX_FEE),
-        message: cell,
-      });
+      // await connection?.requestTransaction({
+      //   to: Address.parse(contractAddress),
+      //   value: toNano(TX_FEE),
+      //   message: cell,
+      // });
       onSuccess();
     } else {
-      return connection?.requestTransaction(
-        {
-          to: Address.parse(contractAddress),
-          value: toNano(TX_FEE),
-          message: cell,
-        },
-        onSuccess
-      );
+      // return connection?.requestTransaction(
+      //   {
+      //     to: Address.parse(contractAddress),
+      //     value: toNano(TX_FEE),
+      //     message: cell,
+      //   },
+      //   onSuccess
+      // );
     }
   }
 };
 
+
+const getDapProposalMetadata = (daoAddress: string, proposalAddress: string) => {
+    return mock.getProposalMetadata(daoAddress, proposalAddress);
+}
+
 export const contract = {
-  getDAOS,
-  getDAO,
-  getDAOProposals,
-  getDAOProposalInfo,
+  getDaos,
+  getDaoMetadata,
+  getDaoProposals,
+  getDaoProposalInfo,
   getState,
   getTransactions,
   getStateUntilMaxLt,
   createProposal,
   sendTransaction,
+  getDaoRoles,
+  getDapProposalMetadata,
 };
 
 const handleMobileLink = (connectorTC?: TonConnect) => {

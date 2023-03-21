@@ -11,7 +11,7 @@ import { contract, server } from "data-service";
 import { useProposalId } from "hooks";
 import moment from "moment";
 import { useState } from "react";
-import { Address } from "ton";
+import { Address, contractAddress } from "ton";
 import { Logger, waitForSeqno } from "utils";
 
 export const getServerFetchUpdateValid = async () => {
@@ -45,20 +45,16 @@ export const useSendTransaction = () => {
 
       setTxLoading(true);
       const clientV2 = await getClientV2();
-      const waiter = await waitForSeqno(
-        clientV2!.openWalletFromAddress({
-          source: Address.parse(walletAddress!),
-        })
-      );
+    //   const waiter = await waitForSeqno(clientV2!.open(contractAddress(args.contractAddress)));
 
       const onSuccess = async () => {
         setTxApproved(true);
-        await waiter();
+        // await waiter();
         args.onFinished();
         setTxApproved(false);
         setTxLoading(false);
         args.analytics?.success?.();
-        
+
         showNotification({
           variant: "success",
           message: TX_SUBMIT_SUCCESS_TEXT,

@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Address, TonTransaction } from "ton";
+import { Address } from "ton";
 import { TonConnection, TonWalletProvider } from "@ton-defi.org/ton-connection";
 import { TonClient, TonClient4 } from "ton";
 import TonConnect from "@tonconnect/sdk";
@@ -28,7 +28,6 @@ export interface Results {
   totalWeight: string;
 }
 
-
 export interface StateData {
   results?: Results;
   votes?: Vote[];
@@ -41,7 +40,6 @@ export interface Vote {
   timestamp: number;
   hash: string;
 }
-
 
 export type VotingPower = { [key: string]: string };
 
@@ -61,7 +59,7 @@ export interface ProposalState {
   votes: Vote[];
   proposalResults: Results;
   votingPower: VotingPower;
-  maxLt?: string; 
+  maxLt?: string;
 }
 
 export type EndpointsArgs = {
@@ -70,11 +68,20 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
-export interface Dao {
+export interface DaoMetadata {
+  about: string;
+  avatar: string;
+  github: string;
+  hide: boolean;
   name: string;
-  members: number;
-  image: string;
-  id: string;
+  terms: string;
+  twitter: string;
+  website: string;
+}
+
+export interface GetDaos {
+  endDaoId: bigint;
+  daoAddresses: Address[];
 }
 
 export interface DaoProposal {
@@ -88,7 +95,23 @@ export interface DaoProposal {
   id: string;
 }
 
-export type ProposalStatus = "finished" | "in-progress" | undefined;
+export interface GetDaoProposals {
+  endProposalId: bigint;
+  proposalAddresses: Address[];
+}
+
+
+export interface DaoProposalMetadata {
+  title: string;
+  description: string;
+  owner: string;
+}
+
+export interface DaoRoles {
+  owner: string;
+  proposalOwner: string;
+  id: string;
+}
 
 export interface PersistedEndpointStore {
   serverUpdateTime?: number;
@@ -119,4 +142,16 @@ export interface ConnectionStore {
   connection?: TonConnection;
   setAddress: (value?: string) => void;
   setTonConnectionProvider: (provider: TonWalletProvider) => void;
+}
+
+export enum ProposalStatus {
+  CLOSED = "CLOSED",
+  PENDING = "PENDING",
+  NOT_STARTED = "NOT_STARTED",
+  ACTIVE = "ACTIVE",
+}
+
+export interface SelectOption {
+  text: string;
+  value: string;
 }
