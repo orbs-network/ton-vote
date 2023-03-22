@@ -7,7 +7,7 @@ import { Button } from "./Button";
 import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
-import { useAppPersistedStore, useEnpointModalStore } from "store";
+import { useAppPersistedStore, useEnpointModal } from "store";
 import { useMutation } from "@tanstack/react-query";
 import { EndpointsArgs } from "types";
 import analytics from "analytics";
@@ -32,7 +32,7 @@ export function EndpointPopup() {
     endpointError,
     setShowSetEndpoint,
     setEndpointError,
-  } = useEnpointModalStore();
+  } = useEnpointModal();
 
   const { mutateAsync, isLoading } = useUpdateEndpoints();
 

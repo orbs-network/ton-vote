@@ -1,7 +1,8 @@
 import { styled } from "@mui/material";
 import { Container, Countdown } from "components";
+import { useProposalAddress } from "hooks";
 import moment from "moment";
-import { useProposalInfoQuery, useProposalStatus } from "./hooks";
+import { useProposalInfoQuery, useProposalStatusQuery } from "query";
 import React from "react";
 import { ProposalStatus } from "types";
 
@@ -12,12 +13,13 @@ const handleDate = (endDate?: number | Number) => {
 };
 
 export function Deadline() {
-  const data = useProposalInfoQuery().data;
-  const proposalStatus = useProposalStatus();
+  const proposalAddress = useProposalAddress()
+  const data = useProposalInfoQuery(proposalAddress).data;
+  const proposalStatus = useProposalStatusQuery(proposalAddress);
 
   if (proposalStatus === ProposalStatus.CLOSED || !proposalStatus) return null;
   const date =
-    proposalStatus === ProposalStatus.ACTIVE ? data?.endTime : data?.startTime;
+    proposalStatus === ProposalStatus.ACTIVE ? data?.proposalEndTime : data?.proposalStartTime;
   return (
     <StyledContainer
       title={

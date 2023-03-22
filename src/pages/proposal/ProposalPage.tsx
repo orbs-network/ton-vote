@@ -9,6 +9,8 @@ import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
+import { useProposalMetadataQuery } from "query";
+import { useProposalAddress } from "hooks";
 
 const Destop = () => {
   return (
@@ -40,19 +42,26 @@ const Mobile = () => {
   );
 };
 
+const Meta = () => {
+  const proposalAddress = useProposalAddress();
+  const { data } = useProposalMetadataQuery(proposalAddress);
+
+  return (
+    <Helmet>
+      <title>
+        {APP_TITLE}
+        {data ? `- ${data.title}` : ""}
+      </title>
+    </Helmet>
+  );
+};
+
 function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
 
-  // TODO, should come from server
-  const title = 'Proposal of TON Tokenomics Optimization'
-
   return (
     <Page>
-      <Helmet>
-        <title>
-          {APP_TITLE} - {title}
-        </title>
-      </Helmet>
+      <Meta />
       {mobile ? <Mobile /> : <Destop />}
     </Page>
   );

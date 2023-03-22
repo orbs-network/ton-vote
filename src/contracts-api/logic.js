@@ -74,12 +74,11 @@ export async function getTransactions(contractAddress, toLt) {
     if (txns.length === 0) break;
 
     allTxns = [...allTxns, ...txns];
-
-    paging.fromLt = txns[txns.length - 1].id.lt;
-    paging.hash = txns[txns.length - 1].id.hash;
+    paging.fromLt = txns[txns.length - 1].lt;
+    // paging.hash = txns[txns.length - 1].id.hash;
     txns.forEach((t) => {
-      t.inMessage.source = t.inMessage.source.toFriendly();
-      maxLt = BigNumber.max(new BigNumber(t.id.lt), maxLt);
+      t.inMessage.info.src = t.inMessage.info.src.toString();
+      maxLt = BigNumber.max(new BigNumber(t.lt), maxLt);
     });
   }
 

@@ -1,11 +1,10 @@
-import { Chip, Typography, styled, Fade } from "@mui/material";
-import { Img } from "components";
-import { useDaoId } from "hooks";
-import { useDaoProposalMetadataQuery, useProposalInfoQuery } from "query";
+import { Chip, Typography, Fade } from "@mui/material";
+import { useDaoAddress } from "hooks";
+import { useProposalMetadataQuery, useProposalInfoQuery } from "query";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Address } from "ton-core";
-import { DaoProposal, DaoProposalMetadata, ProposalStatus } from "types";
+import { ProposalInfo, ProposalStatus } from "types";
 import {
   getProposalStatus,
   makeElipsisAddress,
@@ -14,6 +13,7 @@ import {
   getProposalStatusText,
 } from "utils";
 import {
+  StyledDescription,
   StyledProposal,
   StyledProposalContent,
   StyledProposalOwner,
@@ -22,24 +22,11 @@ import {
   StyledProposalResultProgress,
 } from "./styles";
 
-const StyledDescription = styled(Typography)({
-  display: "-webkit-box",
-  overflow: "hidden",
-  WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 2,
-});
-
-const StyledProfileImg = styled(Img)({
-  width: 30,
-  height: 30,
-  borderRadius: "50%",
-});
-
 const Time = ({
   proposalInfo,
   status,
 }: {
-  proposalInfo: DaoProposal;
+  proposalInfo: ProposalInfo;
   status: ProposalStatus | null;
 }) => {
   if (!status) return null;
@@ -47,40 +34,35 @@ const Time = ({
   if (status === ProposalStatus.NOT_STARTED) {
     return (
       <Typography className="time-left">
-        Start in {getTimeDiff(proposal.startDate)}
+        Start in {getTimeDiff(proposalInfo.proposalStartTime)}
       </Typography>
     );
   }
   return (
     <Typography className="time-left">
-      {getTimeDiff(proposal.endDate)} Left
+      {getTimeDiff(proposalInfo.proposalEndTime)} Left
     </Typography>
   );
 };
 
 export const ProposalComponent = ({ address }: { address: Address }) => {
   const { proposalPage } = useAppNavigation();
-  const daoAddress = useDaoId();
-  // const [height, setHeight] = useState(0);
-  // const [ref, { entry }] = useIntersectionObserver();
-  // const isVisible = !height ? true : entry && entry.isIntersecting;
+  const daoAddress = useDaoAddress();
 
-  const { data: proposalMetadata } = useDaoProposalMetadataQuery(
-    daoAddress,
+  const { data: proposalMetadata } = useProposalMetadataQuery(
     address.toString()
   );
-  const { data: proposalInfo } = useProposalInfoQuery(address.toString());
+  const { data: proposalInfo, error } = useProposalInfoQuery(address.toString());
+  
   const status = getProposalStatus(
-    Number(proposalInfo?.startTime),
-    Number(proposalInfo?.endTime)
+    Number(proposalInfo?.proposalStartTime),
+    Number(proposalInfo?.proposalEndTime)
   );
 
   return (
     <Fade in={true}>
       <StyledProposal
-        // style={{ height: height || "auto" }}
         onClick={() => proposalPage.root(daoAddress, address.toString())}
-        // ref={ref}
       >
         <StyledProposalContent className="container">
           <StyledFlexRow justifyContent="space-between">
@@ -93,15 +75,14 @@ export const ProposalComponent = ({ address }: { address: Address }) => {
           </StyledFlexRow>
           <StyledFlexColumn alignItems="flex-start">
             <StyledProposalOwner>
-              {/* <StyledProfileImg src={proposal.ownerAvatar} /> */}
-              <Typography>
-                {makeElipsisAddress(proposalMetadata?.owner, 8)}
-              </Typography>
+              Owner: {makeElipsisAddress(proposalMetadata?.owner, 8)}
             </StyledProposalOwner>
             <StyledDescription>
               {proposalMetadata?.description}
             </StyledDescription>
-            <Time proposalInfo={proposalInfo} status={status} />
+            {proposalInfo && (
+              <Time proposalInfo={proposalInfo} status={status} />
+            )}
             <Results status={status} />
           </StyledFlexColumn>
         </StyledProposalContent>

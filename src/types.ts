@@ -1,8 +1,5 @@
-import moment from "moment";
-import { Address } from "ton";
-import { TonConnection, TonWalletProvider } from "@ton-defi.org/ton-connection";
-import { TonClient, TonClient4 } from "ton";
-import TonConnect from "@tonconnect/sdk";
+import { Address, Transaction } from "ton";
+
 
 export enum Provider {
   TONKEEPER = "TONKEEPER",
@@ -11,7 +8,6 @@ export enum Provider {
   OPEN_MASK = "OPEN_MASK",
   MY_TON_WALLET = "MY_TON_WALLET",
 }
-
 export interface WalletProvider {
   type: Provider;
   icon: string;
@@ -21,17 +17,13 @@ export interface WalletProvider {
   reminder?: boolean;
 }
 
-export interface Results {
+export interface ProposalResults {
   yes: number;
   no: number;
   abstain: number;
   totalWeight: string;
 }
 
-export interface StateData {
-  results?: Results;
-  votes?: Vote[];
-}
 
 export interface Vote {
   address: string;
@@ -47,21 +39,15 @@ export type RawVote = { timestamp: number; vote: string; hash: string };
 export type RawVotes = { [key: string]: RawVote };
 
 export interface ProposalInfo {
-  startTime: Number;
-  endTime: Number;
-  snapshot: {
-    snapshotTime: Number;
-    mcSnapshotBlock: Number;
-  };
+  id: string;
+  owner: string;
+  mcSnapshotBlock: number;
+  proposalStartTime: number;
+  proposalEndTime: number;
+  proposalSnapshotTime: number;
+  proposalType: string;
+  votingPowerStrategy: string;
 }
-
-export interface ProposalState {
-  votes: Vote[];
-  proposalResults: Results;
-  votingPower: VotingPower;
-  maxLt?: string;
-}
-
 export type EndpointsArgs = {
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
@@ -101,7 +87,7 @@ export interface GetDaoProposals {
 }
 
 
-export interface DaoProposalMetadata {
+export interface ProposalMetadata {
   title: string;
   description: string;
   owner: string;
@@ -113,36 +99,6 @@ export interface DaoRoles {
   id: string;
 }
 
-export interface PersistedEndpointStore {
-  serverUpdateTime?: number;
-  setSrverUpdateTime: (value: number) => void;
-  clientV2Endpoint?: string;
-  clientV4Endpoint?: string;
-  apiKey?: string;
-  setEndpoints: (args?: EndpointsArgs) => void;
-  clientV2Fallback?: string;
-  clientV4Fallback?: string;
-  setClientV2Fallback: (clientV2Fallback: string) => void;
-  setClientV4Fallback: (clientV4Fallback: string) => void;
-  latestMaxLtAfterTx: { [key: string]: string | undefined };
-  setLatestMaxLtAfterTx: (contractAddress: string, value?: string) => void;
-}
-
-export interface EndpointModalStore {
-  showSetEndpoint: boolean;
-  endpointError: boolean;
-  setShowSetEndpoint: (value: boolean) => void;
-  setEndpointError: (value: boolean) => void;
-}
-
-export interface ConnectionStore {
-  connectorTC: TonConnect;
-  reset: () => void;
-  address?: string;
-  connection?: TonConnection;
-  setAddress: (value?: string) => void;
-  setTonConnectionProvider: (provider: TonWalletProvider) => void;
-}
 
 export enum ProposalStatus {
   CLOSED = "CLOSED",
@@ -154,4 +110,23 @@ export enum ProposalStatus {
 export interface SelectOption {
   text: string;
   value: string;
+}
+
+
+
+export interface ProposalState {
+  votingPower: VotingPower;
+  votes: Vote[];
+  results: ProposalResults;
+  maxLt?: string;
+  transactions?: Transaction[];
+}
+
+type InputType = "text" | "url";
+
+export interface InputInterface {
+  label: string;
+  type: InputType;
+  name: string;
+  required: boolean;
 }

@@ -8,8 +8,8 @@ import {
   DaoProposals,
   CreateProposal,
   DaosPage,
+  CreateDao
 } from "pages";
-import CreateSpace from "pages/create-space/CreateSpace";
 import { SpaceMenuLayout } from "pages/dao/SpaceMenuLayout";
 import { createBrowserRouter, useNavigate } from "react-router-dom";
 
@@ -65,7 +65,7 @@ export const router = createBrowserRouter([
       },
       {
         path: routes.createSpace,
-        element: <CreateSpace />,
+        element: <CreateDao />,
       },
 
       {

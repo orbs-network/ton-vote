@@ -1,12 +1,12 @@
 import { Page } from "components";
 import { APP_TITLE } from "config";
-import { useDaoId } from "hooks";
+import { useDaoAddress } from "hooks";
 import { useDaoMetadataQuery } from "query";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 
 export function DaoPage() {
-  const dapAddress = useDaoId()
+  const dapAddress = useDaoAddress()
   const daoMetadata = useDaoMetadataQuery(dapAddress).data;
   return (
     <Page>

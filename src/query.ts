@@ -1,30 +1,33 @@
-import { useQuery } from "@tanstack/react-query";
-import { QueryKeys } from "config";
+import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryKeys, STATE_REFETCH_INTERVAL } from "config";
 import { contract, server } from "data-service";
 import { useIsCustomEndpoint } from "hooks";
-import { useAppPersistedStore } from "store";
+import {
+  useAppPersistedStore,
+  useEnpointModal,
+  useLatestMaxLtAfterTx,
+} from "store";
+import { ProposalState, ProposalStatus } from "types";
+import { getProposalStatus, Logger } from "utils";
 
-export const useDaoMetadataQuery = (address: string) => {
+export const useDaoMetadataQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
+  const queryKey = useGetQueryKey([QueryKeys.DAO_METADATA, daoAddress]);
 
-  return useQuery(
-    [QueryKeys.DAO_METADATA, address, clientV2Endpoint, clientV4Endpoint],
-    async () => {
-      if (isCustomEndpoint) {
-        return contract.getDaoMetadata(address);
-      }
-      return server.getDaoMetadata(address);
+  return useQuery(queryKey, async () => {
+    if (isCustomEndpoint) {
+      return contract.getDaoMetadata(daoAddress);
     }
-  );
+    return server.getDaoMetadata(daoAddress);
+  });
 };
 
 export const useDaosQuery = () => {
   const isCustomEndpoint = useIsCustomEndpoint();
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
+  const queryKey = useGetQueryKey([QueryKeys.DAOS]);
 
   return useQuery(
-    [QueryKeys.DAOS, clientV2Endpoint, clientV4Endpoint],
+    queryKey,
     async () => {
       if (isCustomEndpoint) {
         return contract.getDaos();
@@ -39,78 +42,148 @@ export const useDaosQuery = () => {
 
 export const useDaoRolesQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
+  const queryKey = useGetQueryKey([QueryKeys.DAO_ROLES, daoAddress]);
 
-  return useQuery(
-    [QueryKeys.DAO_ROLES, daoAddress, clientV2Endpoint, clientV4Endpoint],
-    () => {
-      if (isCustomEndpoint) {
-        return contract.getDaoRoles(daoAddress);
-      }
-      return server.getDaoRoles(daoAddress);
+  return useQuery(queryKey, () => {
+    if (isCustomEndpoint) {
+      return contract.getDaoRoles(daoAddress);
     }
-  );
+    return server.getDaoRoles(daoAddress);
+  });
 };
 
 export const useDaoProposalsQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
-  return useQuery(
-    [QueryKeys.DAO_PROPOSALS, daoAddress, clientV2Endpoint, clientV4Endpoint],
-    () => {
-      if (isCustomEndpoint) {
-        return contract.getDaoProposals(daoAddress);
-      } else {
-        return server.getDaoProposals(daoAddress);
-      }
+
+  const queryKey = useGetQueryKey([QueryKeys.PROPOSALS, daoAddress]);
+
+  return useQuery(queryKey, () => {
+    if (isCustomEndpoint) {
+      return contract.getDaoProposals(daoAddress);
+    } else {
+      return server.getDaoProposals(daoAddress);
     }
-  );
+  });
 };
 
-export const useDaoProposalMetadataQuery = (
-  daoAddress: string,
-  proposalAddress: string
-) => {
+export const useProposalMetadataQuery = (proposalAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
-  return useQuery(
-    [
-      QueryKeys.DAO_PROPOSAL,
-      daoAddress,
-      proposalAddress,
-      clientV2Endpoint,
-      clientV4Endpoint,
-    ],
-    () => {
-      if (isCustomEndpoint) {
-        return contract.getDapProposalMetadata(daoAddress, proposalAddress);
-      } else {
-        server.getDapProposalMetadata(daoAddress, proposalAddress);
-      }
-    }
-  );
+  const queryKey = useGetQueryKey([QueryKeys.PROPOSAL, proposalAddress]);
+
+  return useQuery(queryKey, () => {
+    if (isCustomEndpoint)
+      return contract.getDapProposalMetadata(proposalAddress);
+    return server.getDapProposalMetadata(proposalAddress);
+  });
 };
 
 export const useProposalInfoQuery = (proposalAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
+  const queryKey = useGetQueryKey([QueryKeys.PROPOSAL_INFO, proposalAddress]);
 
   return useQuery(
-    [
-      QueryKeys.DAO_PROPOSAL_INFO,
-      proposalAddress,
-      clientV2Endpoint,
-      clientV4Endpoint,
-    ],
+    queryKey,
     () => {
-      if (isCustomEndpoint) {
-        return contract.getDaoProposalInfo(proposalAddress);
-      } else {
-        server.getDaoProposalInfo(proposalAddress);
-      }
+      if (isCustomEndpoint) return contract.getDaoProposalInfo(proposalAddress);
+      return server.getDaoProposalInfo(proposalAddress);
     },
     {
       staleTime: Infinity,
     }
   );
+};
+
+export const useProposalStatusQuery = (proposalAddress: string) => {
+  const { data: proposalInfo } = useProposalInfoQuery(proposalAddress);
+  const queryKey = useGetQueryKey([
+    QueryKeys.PROPOSAL_TIMELINE,
+    proposalAddress,
+  ]);
+
+  const query = useQuery(
+    queryKey,
+    async () => {
+      if (!proposalInfo) return null;
+      return getProposalStatus(
+        Number(proposalInfo.proposalStartTime),
+        Number(proposalInfo.proposalEndTime)
+      );
+    },
+    {
+      enabled: !!proposalInfo,
+      refetchInterval: 1_000,
+    }
+  );
+
+  return query.data as ProposalStatus | null;
+};
+
+export const useProposalStateQuery = (
+  proposalAddress: string,
+  refetchInterval: number = STATE_REFETCH_INTERVAL
+) => {
+  const { setEndpointError } = useEnpointModal();
+  const isCustomEndpoint = useIsCustomEndpoint();
+  const proposalStatus = useProposalStatusQuery(proposalAddress);
+  const queryKey = useGetQueryKey([QueryKeys.STATE, proposalAddress]);
+  const queryClient = useQueryClient();
+  const voteFinished = proposalStatus === ProposalStatus.CLOSED;
+  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
+    useAppPersistedStore();
+
+  const { refetch: fetchProposalInfo } = useProposalInfoQuery(proposalAddress);
+
+  return useQuery(
+    queryKey,
+    async () => {
+      const { data: proposalInfo } = await fetchProposalInfo();
+
+      if (!proposalInfo) throw new Error("Missing proposal info");
+
+      const state = queryClient.getQueryData(queryKey) as ProposalState | null;
+
+      const getContractState = () => {
+        return contract.getState(proposalAddress, proposalInfo, state);
+      };
+
+      if (isCustomEndpoint) {
+        Logger("custom endpoint, fetching from contract");
+        return getContractState();
+      }
+      const serverState = await server.getState(
+        proposalAddress,
+        getLatestMaxLtAfterTx(proposalAddress)
+      );
+      if (serverState) {
+        setLatestMaxLtAfterTx(proposalAddress, undefined);
+      }
+      return serverState || getContractState();
+    },
+    {
+      onError: () => setEndpointError(true),
+      refetchInterval: !voteFinished ? refetchInterval : undefined,
+      staleTime: voteFinished ? Infinity : 2_000,
+    }
+  );
+};
+
+export const useServerLastFetchUpdateValidationQuery = () => {
+  const { setEndpointError } = useEnpointModal();
+  return useQuery(
+    [QueryKeys.SERVER_VALIDATION],
+    () => server.validateServerLastUpdate(),
+    {
+      refetchInterval: 20_000,
+      // TODO, maybe set custom endpoint
+      onError: () => setEndpointError(true),
+      onSuccess: (isValid) => {
+        if (!isValid) setEndpointError(true);
+      },
+    }
+  );
+};
+
+const useGetQueryKey = (key: string[]): QueryKey => {
+  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
+  return [...key, clientV2Endpoint, clientV4Endpoint];
 };

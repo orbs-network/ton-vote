@@ -2,14 +2,16 @@ import { useState, useLayoutEffect } from "react";
 import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes } from "consts";
 import { useAppPersistedStore } from "store";
+import { InputInterface } from "types";
+import { urlPatternValidation } from "utils";
 
-export const useDaoId = () => {
+export const useDaoAddress = () => {
   return useParams().spaceId as string;
 };
 
-export const useProposalId = () => {
-  // return useParams().proposalId;
-  return "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS";
+export const useProposalAddress = () => {
+  return useParams().proposalId!;
+  // return "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS";
 };
 
 export const useCurrentRoute = () => {
@@ -36,13 +38,47 @@ export const useWindowResize = () => {
   return size;
 };
 
-
 export const useIsCustomEndpoint = () => {
   const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
 
   return !!clientV2Endpoint && !!clientV4Endpoint;
 };
 
+export const useInputValidation = (inputs: InputInterface[]) => {
+  const [errors, setErrors] = useState({} as { [key: string]: string });
 
+  const clearError = (name: string) => {
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
 
+  const validate = <T>(values: T) => {
+    let _errors: { [key: string]: string } = {};
+    inputs.forEach((input) => {
+      let error = "";
+      const value = values[input.name as keyof T];
+      if (!value && input.required) {
+        error = "Required field";
+      }
+      else{
+        switch (input.type) {
+          case "url":
+            error =
+              value && !urlPatternValidation(value as string)
+                ? "Invalid URL"
+                : "";
+          default:
+            break;
+        }
+      }
+      _errors[input.name] = error;
+    });
 
+    setErrors(_errors);
+    return _errors;
+  };
+
+  return { validate, errors, clearError };
+};

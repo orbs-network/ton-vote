@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { BorderContainer, Container } from "components";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
@@ -48,8 +48,7 @@ export const StyledProposalResult = styled(StyledFlexRow)({
   paddingLeft: 10,
 });
 
-export const StyledProposalOwner = styled(StyledFlexRow)({
-  justifyContent: "flex-start",
+export const StyledProposalOwner = styled(Typography)({
 });
 
 export const StyledProposal = styled(Box)({
@@ -61,4 +60,12 @@ export const StyledProposal = styled(Box)({
   ".time-left": {
     fontSize: 14,
   },
+});
+
+
+export const StyledDescription = styled(Typography)({
+  display: "-webkit-box",
+  overflow: "hidden",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 2,
 });

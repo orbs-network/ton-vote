@@ -5,16 +5,19 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import { useVote, useProposalStatus } from "./hooks";
+import { useVote } from "./hooks";
 import { useVoteStore } from "./store";
 import { useConnectionStore } from "connection";
 import { ProposalStatus } from "types";
+import { useProposalStatusQuery } from "query";
+import { useProposalAddress } from "hooks";
 
 export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useVote();
-  const proposalStatus = useProposalStatus();
+  const proposalAddress = useProposalAddress()
+  const proposalStatus = useProposalStatusQuery(proposalAddress);
 
   useEffect(() => {
     setShowModal(isLoading);

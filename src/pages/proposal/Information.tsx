@@ -5,8 +5,8 @@ import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import moment from "moment";
 import { TONSCAN_ADDRESS_URL } from "config";
 import { makeElipsisAddress } from "utils";
-import { useProposalId } from "hooks";
-import { useProposalInfoQuery } from "./hooks";
+import { useProposalAddress } from "hooks";
+import { useProposalInfoQuery } from "query";
 
  const fromUnixToString = (
   time: number,
@@ -17,8 +17,9 @@ import { useProposalInfoQuery } from "./hooks";
 
 
 export const Information = () => {
-  const { data: proposalInfo, isLoading } = useProposalInfoQuery();
-  const proposalId = useProposalId()
+    const proposalAddress = useProposalAddress()
+  const { data: proposalInfo, isLoading } =
+    useProposalInfoQuery(proposalAddress);
   
     return (
       <StyledInformation
@@ -30,23 +31,23 @@ export const Information = () => {
           <StyledFlexColumn gap={12}>
             <InformationRow label="Start date">
               <Typography>
-                {fromUnixToString(Number(proposalInfo.startTime))}
+                {fromUnixToString(Number(proposalInfo.proposalStartTime))}
               </Typography>
             </InformationRow>
             <InformationRow label="End date">
               <Typography>
-                {fromUnixToString(Number(proposalInfo.endTime))}
+                {fromUnixToString(Number(proposalInfo.proposalEndTime))}
               </Typography>
             </InformationRow>
 
             <InformationRow label="Snapshot">
               <Typography>
-                {fromUnixToString(Number(proposalInfo.snapshot.snapshotTime))}
+                {fromUnixToString(Number(proposalInfo.proposalSnapshotTime))}
               </Typography>
             </InformationRow>
             <InformationRow label="Contract">
-              <Link href={`${TONSCAN_ADDRESS_URL}/${proposalId}`}>
-                {makeElipsisAddress(proposalId, 8)}
+              <Link href={`${TONSCAN_ADDRESS_URL}/${proposalAddress}`}>
+                {makeElipsisAddress(proposalAddress, 8)}
               </Link>
             </InformationRow>
           </StyledFlexColumn>

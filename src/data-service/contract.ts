@@ -6,11 +6,6 @@ import { TonConnect } from "@tonconnect/sdk";
 import { TX_FEE } from "config";
 import { useConnectionStore } from "connection";
 import {
-  getEndTime,
-  getSnapshotTime,
-  getStartTime,
-} from "contracts-api/getters";
-import {
   getVotingPower,
   getCurrentResults,
   getAllVotes,
@@ -19,17 +14,18 @@ import {
 } from "contracts-api/logic";
 import * as mock from "mock";
 import { isMobile } from "react-device-detect";
+import { useAppPersistedStore } from "store";
 import { Cell, toNano, Transaction } from "ton";
 import {
   ProposalInfo,
   VotingPower,
   RawVotes,
-  DaoProposal,
   ProposalState,
   DaoMetadata,
   DaoRoles,
   GetDaos,
   GetDaoProposals,
+  ProposalResults,
 } from "types";
 import { Logger, parseVotes } from "utils";
 
@@ -58,41 +54,59 @@ const getDaoProposals = async (
   Logger("getDaoProposals from contract");
 
   await delay(1000);
-  return mock.getProposals(daoAddress);
+  return mock.getProposals();
 };
 
 const getDaoProposalInfo = async (
   contractAddress: string
 ): Promise<ProposalInfo> => {
   await delay(1000);
-  return {
-    startTime: await getStartTime(contractAddress),
-    endTime: await getEndTime(contractAddress),
-    snapshot: await getSnapshotTime(contractAddress),
-  };
+  return {} as ProposalInfo;
 };
 
 export const getState = async (
+  proposalAddress: string,
   proposalInfo: ProposalInfo,
-  transactions: Transaction[],
-  prevVotingPower: VotingPower = {}
-) => {
+  prevState: ProposalState | null
+): Promise<ProposalState | null> => {
+  let _transactions = prevState?.transactions || [];
+  let _maxLt = prevState?.maxLt;
+
+
+  const latestMaxLtAfterTx =
+    useAppPersistedStore.getState().getLatestMaxLtAfterTx(proposalAddress) ||
+    "0";
+
+  if (latestMaxLtAfterTx) {
+    const { allTxns } = await getTransactions(proposalAddress);
+    _transactions = filterTxByTimestamp(allTxns, latestMaxLtAfterTx);
+  } else {
+    const { allTxns, maxLt } = await getTransactions(
+      proposalAddress,
+      prevState?.maxLt
+    );
+    _maxLt = maxLt;
+    _transactions.unshift(...allTxns);
+  console.log({ _transactions });
+
+  }
+
+  if (_transactions.length === 0) {
+    return prevState;
+  }
   const votingPower = await getVotingPower(
     proposalInfo,
-    transactions,
-    prevVotingPower
+    _transactions,
+    prevState?.votingPower
   );
 
-  const proposalResults = getCurrentResults(
-    transactions,
-    votingPower,
-    proposalInfo
-  );
-  const rawVotes = getAllVotes(transactions, proposalInfo) as RawVotes;
+  const results = getCurrentResults(_transactions, votingPower, proposalInfo);
+  const rawVotes = getAllVotes(_transactions, proposalInfo) as RawVotes;
   return {
     votingPower,
-    proposalResults,
+    results,
     votes: parseVotes(rawVotes, votingPower),
+    maxLt: _maxLt,
   };
 };
 
@@ -101,24 +115,6 @@ const getTransactions = async (
   toLt?: string
 ): Promise<{ allTxns: Transaction[]; maxLt?: string }> => {
   return getTXs(contractAddress, toLt);
-};
-
-const getStateUntilMaxLt = async (
-  contractAddress: string,
-  maxLt?: string,
-  proposalInfo?: ProposalInfo
-): Promise<ProposalState> => {
-  const _transactions = (await getTransactions(contractAddress)).allTxns;
-  const _proposalInfo =
-    proposalInfo || (await getDaoProposalInfo(contractAddress));
-  const filteredTransactions = filterTxByTimestamp(_transactions, maxLt);
-
-  const contractState = await contract.getState(
-    _proposalInfo!,
-    filteredTransactions
-  );
-
-  return contractState;
 };
 
 const createProposal = async (
@@ -178,10 +174,9 @@ export const sendTransaction = async (
   }
 };
 
-
-const getDapProposalMetadata = (daoAddress: string, proposalAddress: string) => {
-    return mock.getProposalMetadata(daoAddress, proposalAddress);
-}
+const getDapProposalMetadata = (proposalAddress: string) => {
+  return mock.getProposalMetadata(proposalAddress);
+};
 
 export const contract = {
   getDaos,
@@ -190,7 +185,6 @@ export const contract = {
   getDaoProposalInfo,
   getState,
   getTransactions,
-  getStateUntilMaxLt,
   createProposal,
   sendTransaction,
   getDaoRoles,

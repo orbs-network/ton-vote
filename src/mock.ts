@@ -1,17 +1,15 @@
-import _, { shuffle } from "lodash";
+import _ from "lodash";
 import moment from "moment";
 import { Address } from "ton";
 import {
   DaoMetadata,
   DaoProposal,
-  DaoProposalMetadata,
-  DapProposalMetadata,
+  ProposalMetadata,
   GetDaoProposals,
   GetDaos,
 } from "types";
-import { makeElipsisAddress } from "utils";
 
-const addresses = [
+const daoAddresses = [
   "EQAnOgaTMcdWIE4G4btaz5I-2AUdj_ajtrvwmyBc7FKoooGG",
   "EQB5_SSILhGXMLBPIE2QbTZoaPHBzwK4Z1Ek9kigqQ_mwImE",
   "EQDUSJ7EfT6Wuy1Is2NgMMpMAI4FzHS1Q8nw9a5ZRqiC0Xlu",
@@ -19,11 +17,20 @@ const addresses = [
   "EQCajaUU1XXSAjTD-xOV7pE49fGtg4q8kF3ELCOJtGvQFQ2C",
 ];
 
+const proposalAddresses = [
+  "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS",
+  "EQCYUeHtuIshs3xS2d_uI9WNV5gmtGw57TKcyk_oBZiD7eyb",
+  "EQCmnBaZmlgbURj0GcJCH4foWEuk0O5lWNQDI6B_6wyto-B2",
+  "EQCogh0uaL1-p7nBx4eB8yIrH2Pf5qQ5ZUUeS4on5VzAkQHH",
+  "EQAkjdUMkoGxy1LmD7nMj1b_FNImolA1dfqGiLkV56VPbCl5",
+  "EQC1dF4jDhLTBYkSoQOCLP0Hn2sXW12K9poC9ObO0XENCpBn",
+];
+
 export const getDaos = (): GetDaos => {
   return {
     endDaoId: BigInt(0),
     daoAddresses: _.range(0, 5).map((it, i) => {
-      const address = _.first(_.shuffle(addresses));
+      const address = daoAddresses[i]
       return Address.parse(address!);
     }),
   };
@@ -64,23 +71,24 @@ const end = [
   moment().add(5, "days").unix().valueOf(),
 ];
 
-export const getProposals = (daoAddress: string): GetDaoProposals => {
+export const getProposals = (): GetDaoProposals => {
   return {
     endProposalId: BigInt(0),
     proposalAddresses: _.range(0, 5).map((e, i) => {
-      return Address.parse(`${daoAddress}-${i}`);
+      const address = proposalAddresses[i]
+
+      return Address.parse(address!);
     }),
   };
 };
 
 export const getProposalMetadata = (
-  daoAddress: string,
   proposalAddress: string
-): DaoProposalMetadata => {
+): ProposalMetadata => {
   return {
     title: "Some title",
     description: "Some description",
-    owner: daoAddress,
+    owner: proposalAddress,
   };
 };
 

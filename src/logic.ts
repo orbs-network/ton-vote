@@ -1,25 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNotification } from "components";
-import {
-  LAST_FETCH_UPDATE_LIMIT,
-  TX_SUBMIT_ERROR_TEXT,
-  TX_SUBMIT_SUCCESS_TEXT,
-} from "config";
+import { TX_SUBMIT_ERROR_TEXT, TX_SUBMIT_SUCCESS_TEXT } from "config";
 import { useConnectionStore } from "connection";
 import { getClientV2 } from "contracts-api/logic";
-import { contract, server } from "data-service";
-import { useProposalId } from "hooks";
-import moment from "moment";
-import { useState } from "react";
-import { Address, contractAddress } from "ton";
-import { Logger, waitForSeqno } from "utils";
+import { contract } from "data-service";
 
-export const getServerFetchUpdateValid = async () => {
-  return (
-    moment().valueOf() - (await server.getLastFetchUpdate()) <
-    LAST_FETCH_UPDATE_LIMIT
-  );
-};
+import { useState } from "react";
+import { Logger } from "utils";
 
 interface SendTxArgs {
   analytics?: {
@@ -45,7 +32,7 @@ export const useSendTransaction = () => {
 
       setTxLoading(true);
       const clientV2 = await getClientV2();
-    //   const waiter = await waitForSeqno(clientV2!.open(contractAddress(args.contractAddress)));
+      //   const waiter = await waitForSeqno(clientV2!.open(contractAddress(args.contractAddress)));
 
       const onSuccess = async () => {
         setTxApproved(true);
@@ -61,7 +48,11 @@ export const useSendTransaction = () => {
         });
       };
 
-      return contract.sendTransaction(args.contractAddress, args.message, onSuccess);
+      return contract.sendTransaction(
+        args.contractAddress,
+        args.message,
+        onSuccess
+      );
     },
     {
       onError: (error: any, args) => {

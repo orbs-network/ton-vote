@@ -15,7 +15,7 @@ import LogoImg from "assets/logo.svg";
 import { FiSettings } from "react-icons/fi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RiRouteFill } from "react-icons/ri";
-import { useEnpointModalStore } from "store";
+import { useEnpointModal } from "store";
 import analytics from "analytics";
 import { useConnectionStore, useResetConnection } from "connection";
 import { useAppNavigation } from "router";
@@ -95,7 +95,7 @@ const StyledContainer = styled(StyledFlexRow)({
 
 const Settings = () => {
   const address = useConnectionStore().address;
-  const { setShowSetEndpoint } = useEnpointModalStore();
+  const { setShowSetEndpoint } = useEnpointModal();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const resetConnection = useResetConnection();
 

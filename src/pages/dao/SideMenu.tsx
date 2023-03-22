@@ -1,7 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import { Button, Container, Loader, Img } from "components";
 import { routes } from "consts";
-import { useCurrentRoute, useDaoId } from "hooks";
+import { useCurrentRoute, useDaoAddress } from "hooks";
 import { useDaoMetadataQuery } from "query";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -11,7 +11,7 @@ import { makeElipsisAddress, nFormatter } from "utils";
 import Socials from "./Socials";
 
 function SideMenu() {
-    const daoAddresses = useDaoId()
+    const daoAddresses = useDaoAddress()
   const { data: dao, isLoading } = useDaoMetadataQuery(daoAddresses);
 
   return (
@@ -56,7 +56,7 @@ const StyledTop = styled(StyledFlexColumn)({
 });
 
 const Navigation = () => {
-  const daoId = useDaoId();
+  const daoId = useDaoAddress();
   const route = useCurrentRoute();
 
   return (

@@ -9,13 +9,13 @@ import { VERIFY_LINK } from "config";
 import { fromNano } from "ton";
 import _ from "lodash";
 import {
-  useLatestMaxLtAfterTx,
-  useProposalResults,
   useProposalVotesCount,
   useVerifyProposalResults,
-  useProposalStatus,
 } from "./hooks";
 import { ProposalStatus } from "types";
+import { useProposalStateQuery, useProposalStatusQuery } from "query";
+import { useProposalAddress } from "hooks";
+import { useLatestMaxLtAfterTx } from "store";
 
 const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return;
@@ -24,7 +24,10 @@ const calculateTonAmount = (percent?: number, total?: string) => {
 };
 
 export const Results = () => {
-  const { proposalResults, isLoading } = useProposalResults();
+  const proposalAddress = useProposalAddress();
+  const { data, isLoading } = useProposalStateQuery(proposalAddress);
+
+  const proposalResults = data?.results;
 
   const votesCount = useProposalVotesCount();
 
@@ -130,9 +133,10 @@ export function VerifyResults() {
     isReady,
     reset,
   } = useVerifyProposalResults();
-  const proposalStatus = useProposalStatus();
+  const proposalAddress = useProposalAddress();
+  const proposalStatus = useProposalStatusQuery(proposalAddress);
 
-  const { latestMaxLtAfterTx } = useLatestMaxLtAfterTx();
+  const latestMaxLtAfterTx = useLatestMaxLtAfterTx(proposalAddress);
 
   useEffect(() => {
     if (isVerified && latestMaxLtAfterTx) {

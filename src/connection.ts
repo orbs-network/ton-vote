@@ -17,12 +17,20 @@ import {
 import {
   WalletProvider,
   Provider,
-  ConnectionStore,
 } from "types";
 import TonConnect from "@tonconnect/sdk";
 import _ from "lodash";
 import { create } from "zustand";
 import { manifestUrl } from "config";
+
+interface ConnectionStore {
+  connectorTC: TonConnect;
+  reset: () => void;
+  address?: string;
+  connection?: TonConnection;
+  setAddress: (value?: string) => void;
+  setTonConnectionProvider: (provider: TonWalletProvider) => void;
+}
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   address: undefined,

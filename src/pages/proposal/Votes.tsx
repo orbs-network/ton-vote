@@ -1,7 +1,6 @@
 import { Chip, Fade, styled, Typography } from "@mui/material";
 import {
   AppTooltip,
-  Button,
   Container,
   Link,
   LoadMore,
@@ -16,11 +15,16 @@ import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
 import { useConnectionStore } from "connection";
-import { useProposalResults, useProposalVotes } from "./hooks";
+import {  useProposalVotes } from "./hooks";
+import { useProposalStateQuery } from "query";
+import { useProposalAddress } from "hooks";
 
 const ContainerHeader = () => {
   const { proposalVotes, isLoading } = useProposalVotes();
-  const proposalResults = useProposalResults().proposalResults;
+  const proposalAddress = useProposalAddress()
+  const proposalResults =
+    useProposalStateQuery(proposalAddress).data?.results;
+
   const totalTonAmount = proposalResults?.totalWeight || "0";
   const votesLength = _.size(proposalVotes);
 

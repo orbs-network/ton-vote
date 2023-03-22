@@ -1,7 +1,9 @@
-import { TextField, styled, Typography } from "@mui/material";
-import React from "react";
+import { TextField, styled, Typography, Box } from "@mui/material";
+import React, { useCallback } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
+import { useDropzone } from "react-dropzone";
+import { BsUpload } from "react-icons/bs";
 interface Props {
   value: string;
   onChange: (value: string) => void;
@@ -12,7 +14,8 @@ interface Props {
   multiline?: boolean;
   rows?: number;
   onBlur?: () => void;
-  placeholder?: string
+  placeholder?: string;
+  title?: string;
 }
 
 function Input({
@@ -26,9 +29,11 @@ function Input({
   rows,
   onBlur,
   placeholder,
+  title,
 }: Props) {
   return (
     <StyledContainer>
+      {title && <StyledTitle>{title}</StyledTitle>}
       <StyledInput
         placeholder={placeholder}
         onBlur={onBlur}
@@ -52,7 +57,63 @@ function Input({
   );
 }
 
-export { Input };
+interface UploadInputProps {
+  onChange: (file: File) => void;
+  className?: string;
+}
+
+function UploadInput({ onChange, className = "" }: UploadInputProps) {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    onChange(acceptedFiles[0]);
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    maxFiles: 1,
+  });
+
+  return (
+    <StyledUpload
+      {...getRootProps()}
+      className={className}
+      isDragActive={isDragActive}
+    >
+      <BsUpload />
+      <input {...getInputProps()} />
+    </StyledUpload>
+  );
+}
+
+const StyledUpload = styled(Box)<{ isDragActive: boolean }>(
+  ({ isDragActive }) => ({
+    background: "rgba(211, 211, 211, 0.6)",
+    borderRadius: 20,
+    position: "relative",
+    cursor: "pointer",
+    svg: {
+      transition:'0.2s all',
+      width: 50,
+      height: 50,
+      position: "absolute",
+      top: "50%",
+      transform: isDragActive
+        ? "translate(-50%, -50%) scale(1.2)"
+        : "translate(-50%, -50%)",
+      left: "50%",
+    },
+    "&:hover":{
+      svg:{
+        transform:  "translate(-50%, -50%) scale(1.2)"
+      }
+    }
+  })
+);
+
+export { Input, UploadInput };
+
+const StyledTitle = styled(Typography)({
+  textAlign: "left",
+  width: "100%",
+});
 
 const StyledContainer = styled(StyledFlexColumn)({
   gap: 2,

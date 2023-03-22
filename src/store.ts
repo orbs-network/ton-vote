@@ -1,11 +1,37 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { EndpointModalStore, PersistedEndpointStore } from "./types";
+import { EndpointsArgs } from "./types";
+
+interface EndpointModalStore {
+  showSetEndpoint: boolean;
+  endpointError: boolean;
+  setShowSetEndpoint: (value: boolean) => void;
+  setEndpointError: (value: boolean) => void;
+}
+
+interface PersistedEndpointStore {
+  serverUpdateTime?: number;
+  setSrverUpdateTime: (value: number) => void;
+  clientV2Endpoint?: string;
+  clientV4Endpoint?: string;
+  apiKey?: string;
+  setEndpoints: (args?: EndpointsArgs) => void;
+  clientV2Fallback?: string;
+  clientV4Fallback?: string;
+  setClientV2Fallback: (clientV2Fallback: string) => void;
+  setClientV4Fallback: (clientV4Fallback: string) => void;
+  latestMaxLtAfterTx: { [key: string]: string | undefined };
+  getLatestMaxLtAfterTx: (proposalAddress: string) => string | undefined ;
+  setLatestMaxLtAfterTx: (contractAddress: string, value?: string) => void;
+}
+
 export const useAppPersistedStore = create(
   persist<PersistedEndpointStore>(
     (set, get) => ({
       latestMaxLtAfterTx: {},
+      getLatestMaxLtAfterTx: (proposalAddress) =>
+        get().latestMaxLtAfterTx ? get().latestMaxLtAfterTx[proposalAddress] : undefined,
       setLatestMaxLtAfterTx: (contractAddress, value) => {
         const prev = { ...get().latestMaxLtAfterTx, [contractAddress]: value };
         set({
@@ -32,7 +58,16 @@ export const useAppPersistedStore = create(
   )
 );
 
-export const useEnpointModalStore = create<EndpointModalStore>((set, get) => ({
+export const useLatestMaxLtAfterTx = (address: string) => {
+  const latestMaxLtAfterTx = useAppPersistedStore(
+    (store) => store.latestMaxLtAfterTx || {}
+  );
+  
+  return latestMaxLtAfterTx[address];
+};
+
+
+export const useEnpointModal = create<EndpointModalStore>((set, get) => ({
   showSetEndpoint: false,
   endpointError: false,
   setShowSetEndpoint: (showSetEndpoint) => set({ showSetEndpoint }),
