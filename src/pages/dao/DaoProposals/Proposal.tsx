@@ -1,12 +1,17 @@
-import { Chip, Typography, Fade } from "@mui/material";
+import { Chip, Typography, Fade, styled } from "@mui/material";
+import { Loader } from "components";
 import { useDaoAddress } from "hooks";
-import { useProposalMetadataQuery, useProposalInfoQuery } from "query";
+import {
+  useProposalMetadataQuery,
+  useProposalInfoQuery,
+  useProposalStatusQuery,
+} from "query";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Address } from "ton-core";
-import { ProposalInfo, ProposalStatus } from "types";
+import { ProposalMetadata } from "ton-vote-npm";
+import { ProposalStatus } from "types";
 import {
-  getProposalStatus,
   makeElipsisAddress,
   getTimeDiff,
   nFormatter,
@@ -26,7 +31,7 @@ const Time = ({
   proposalInfo,
   status,
 }: {
-  proposalInfo: ProposalInfo;
+  proposalInfo: ProposalMetadata;
   status: ProposalStatus | null;
 }) => {
   if (!status) return null;
@@ -49,15 +54,11 @@ export const ProposalComponent = ({ address }: { address: Address }) => {
   const { proposalPage } = useAppNavigation();
   const daoAddress = useDaoAddress();
 
-  const { data: proposalMetadata } = useProposalMetadataQuery(
+  const { data: proposalMetadata, isLoading } = useProposalMetadataQuery(
     address.toString()
   );
-  const { data: proposalInfo, error } = useProposalInfoQuery(address.toString());
-  
-  const status = getProposalStatus(
-    Number(proposalInfo?.proposalStartTime),
-    Number(proposalInfo?.proposalEndTime)
-  );
+  const { data: proposalInfo } = useProposalInfoQuery(address.toString());
+  const status = useProposalStatusQuery(address.toString());
 
   return (
     <Fade in={true}>
@@ -65,21 +66,45 @@ export const ProposalComponent = ({ address }: { address: Address }) => {
         onClick={() => proposalPage.root(daoAddress, address.toString())}
       >
         <StyledProposalContent className="container">
-          <StyledFlexRow justifyContent="space-between">
-            <Typography className="title">{proposalMetadata?.title}</Typography>
-            <Chip
-              label={getProposalStatusText(status)}
-              className="status"
-              color="primary"
-            />
-          </StyledFlexRow>
           <StyledFlexColumn alignItems="flex-start">
-            <StyledProposalOwner>
-              Owner: {makeElipsisAddress(proposalMetadata?.owner, 8)}
-            </StyledProposalOwner>
-            <StyledDescription>
-              {proposalMetadata?.description}
-            </StyledDescription>
+            <StyledFlexRow justifyContent="space-between">
+              <StyledTitleLoader
+                isLoading={isLoading}
+                component={
+                  <Typography className="title">
+                    {proposalMetadata?.title}
+                  </Typography>
+                }
+              />
+              <StyledStatus
+                isLoading={!status}
+                component={
+                  <Chip
+                    label={getProposalStatusText(status)}
+                    className="status"
+                    color="primary"
+                  />
+                }
+              />
+            </StyledFlexRow>
+            <StyledOwnerLoader
+              isLoading={isLoading}
+              component={
+                <StyledProposalOwner>
+                  Owner: {makeElipsisAddress(proposalMetadata?.owner, 8)}
+                </StyledProposalOwner>
+              }
+            />
+
+            <StyledDescriptionLoader
+              isLoading={isLoading}
+              component={
+                <StyledDescription>
+                  {proposalMetadata?.description}
+                </StyledDescription>
+              }
+            />
+
             {proposalInfo && (
               <Time proposalInfo={proposalInfo} status={status} />
             )}
@@ -90,6 +115,23 @@ export const ProposalComponent = ({ address }: { address: Address }) => {
     </Fade>
   );
 };
+
+const StyledTitleLoader = styled(Loader)({
+  maxWidth: "30%",
+});
+const StyledDescriptionLoader = styled(Loader)({
+  maxWidth: "70%",
+});
+
+const StyledOwnerLoader = styled(Loader)({
+  maxWidth: "50%",
+});
+
+const StyledStatus = styled(Loader)({
+  width: 80,
+  height: 30,
+  borderRadius: 20,
+});
 
 const Results = ({ status }: { status: ProposalStatus | null }) => {
   if (status !== ProposalStatus.CLOSED) return null;

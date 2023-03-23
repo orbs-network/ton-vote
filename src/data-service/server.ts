@@ -1,4 +1,3 @@
-import { delay } from "@ton-defi.org/ton-connection";
 import { createProposals } from "mock";
 import axios from "axios";
 import _ from "lodash";
@@ -19,12 +18,13 @@ import * as mock from "mock";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT } from "config";
 import { useAppPersistedStore } from "store";
+import { ProposalMetadata } from "ton-vote-npm";
 
 const axiosInstance = axios.create({
   baseURL: "https://dao-vote-cache-server.herokuapp.com",
 });
 
-const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
+const getDaoRoles = async (daoAddress: string): Promise<any> => {
   Logger("getDapRoles from contract");
 
   return mock.getDaoRoles(daoAddress);
@@ -32,14 +32,12 @@ const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
 
 const getDaos = async (): Promise<GetDaos> => {
   Logger("getDaos from server");
-  await delay(1000);
   return mock.getDaos();
 };
 
 const getDaoMetadata = async (daoAddress: string): Promise<DaoMetadata> => {
   Logger("getDAO from server");
 
-  await delay(1000);
   return mock.createDaoMetadata(daoAddress);
 };
 
@@ -48,12 +46,11 @@ const getDaoProposals = async (
 ): Promise<GetDaoProposals> => {
   Logger("getDaoProposals from server");
 
-  await delay(1000);
   return mock.getProposals();
 };
 const getDaoProposalInfo = async (
   contractAddress: string
-): Promise<ProposalInfo> => {
+): Promise<ProposalMetadata> => {
   return (await axiosInstance.get("/info")).data;
 };
 

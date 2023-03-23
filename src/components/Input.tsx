@@ -6,16 +6,16 @@ import { useDropzone } from "react-dropzone";
 import { BsUpload } from "react-icons/bs";
 interface Props {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (e: any) => void;
   label?: string;
   error?: string;
   onFocus?: () => void;
   type?: "text" | "password";
-  multiline?: boolean;
   rows?: number;
   onBlur?: () => void;
   placeholder?: string;
   title?: string;
+  name?: string;
 }
 
 function Input({
@@ -25,11 +25,11 @@ function Input({
   error,
   onFocus,
   type = "text",
-  multiline,
   rows,
   onBlur,
   placeholder,
   title,
+  name,
 }: Props) {
   return (
     <StyledContainer>
@@ -37,15 +37,16 @@ function Input({
       <StyledInput
         placeholder={placeholder}
         onBlur={onBlur}
+        name={name}
         rows={rows}
-        multiline={multiline}
+        multiline={rows && rows  > 1 ? true : false}
         onFocus={onFocus}
         variant="outlined"
         value={value}
         type={type}
         error={!!error}
         label={label}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
       />
       {error && (
         <StyledError>

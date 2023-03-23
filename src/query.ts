@@ -2,11 +2,7 @@ import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys, STATE_REFETCH_INTERVAL } from "config";
 import { contract, server } from "data-service";
 import { useIsCustomEndpoint } from "hooks";
-import {
-  useAppPersistedStore,
-  useEnpointModal,
-  useLatestMaxLtAfterTx,
-} from "store";
+import { useAppPersistedStore, useEnpointModal } from "store";
 import { ProposalState, ProposalStatus } from "types";
 import { getProposalStatus, Logger } from "utils";
 
@@ -14,12 +10,18 @@ export const useDaoMetadataQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAO_METADATA, daoAddress]);
 
-  return useQuery(queryKey, async () => {
-    if (isCustomEndpoint) {
-      return contract.getDaoMetadata(daoAddress);
+  return useQuery(
+    queryKey,
+    async () => {
+      if (isCustomEndpoint) {
+        return contract.getDaoMetadata(daoAddress);
+      }
+      return server.getDaoMetadata(daoAddress);
+    },
+    {
+      staleTime: Infinity,
     }
-    return server.getDaoMetadata(daoAddress);
-  });
+  );
 };
 
 export const useDaosQuery = () => {
@@ -44,12 +46,18 @@ export const useDaoRolesQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAO_ROLES, daoAddress]);
 
-  return useQuery(queryKey, () => {
-    if (isCustomEndpoint) {
-      return contract.getDaoRoles(daoAddress);
+  return useQuery(
+    queryKey,
+    () => {
+      if (isCustomEndpoint) {
+        return contract.getDaoRoles(daoAddress);
+      }
+      return server.getDaoRoles(daoAddress);
+    },
+    {
+      staleTime: Infinity,
     }
-    return server.getDaoRoles(daoAddress);
-  });
+  );
 };
 
 export const useDaoProposalsQuery = (daoAddress: string) => {
@@ -93,7 +101,10 @@ export const useProposalInfoQuery = (proposalAddress: string) => {
   );
 };
 
-export const useProposalStatusQuery = (proposalAddress: string) => {
+export const useProposalStatusQuery = (
+  proposalAddress: string,
+  refetchInterval?: number
+) => {
   const { data: proposalInfo } = useProposalInfoQuery(proposalAddress);
   const queryKey = useGetQueryKey([
     QueryKeys.PROPOSAL_TIMELINE,
@@ -104,14 +115,11 @@ export const useProposalStatusQuery = (proposalAddress: string) => {
     queryKey,
     async () => {
       if (!proposalInfo) return null;
-      return getProposalStatus(
-        Number(proposalInfo.proposalStartTime),
-        Number(proposalInfo.proposalEndTime)
-      );
+      return getProposalStatus(proposalInfo);
     },
     {
       enabled: !!proposalInfo,
-      refetchInterval: 1_000,
+      refetchInterval: refetchInterval,
     }
   );
 

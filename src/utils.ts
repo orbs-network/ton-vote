@@ -2,6 +2,7 @@ import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { fromNano } from "ton";
+import { ProposalMetadata } from "ton-vote-npm";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -82,8 +83,8 @@ export function nFormatter(num: number, digits = 2) {
     : "0";
 }
 
-export const getTimeDiff = (value: number) => {
-  var a = moment(unixToMilliseconds(value));
+export const getTimeDiff = (value: bigint) => {
+  var a = moment(unixToMilliseconds(Number(value)));
   var b = moment();
   const days = a.diff(b, "days");
   const hours = a.diff(b, "hours");
@@ -99,17 +100,12 @@ export const getTimeDiff = (value: number) => {
   return minutes === 1 ? "1 minute" : `${minutes} minutes`;
 };
 
-export const getProposalStatus = (
-  startTime?: number,
-  endTime?: number
-): ProposalStatus | null => {
-  if (!startTime || !endTime) {
-    return null;
-  }
-
+export const getProposalStatus = (proposalInfo: ProposalMetadata): ProposalStatus | null => {
+  const {proposalStartTime, proposalEndTime} = proposalInfo;
+  
   const now = moment.utc().valueOf();
-  const voteStarted = unixToMilliseconds(startTime) <= now;
-  const finished = unixToMilliseconds(endTime) <= now;
+  const voteStarted = unixToMilliseconds(Number(proposalStartTime)) <= now;
+  const finished = unixToMilliseconds(Number(proposalEndTime)) <= now;
 
   return finished
     ? ProposalStatus.CLOSED

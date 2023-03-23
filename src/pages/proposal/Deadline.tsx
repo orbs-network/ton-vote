@@ -6,7 +6,7 @@ import { useProposalInfoQuery, useProposalStatusQuery } from "query";
 import React from "react";
 import { ProposalStatus } from "types";
 
-const handleDate = (endDate?: number | Number) => {
+const handleDate = (endDate?: bigint) => {
   if (!endDate) return 0;
 
   return moment.unix(Number(endDate)).utc().valueOf();

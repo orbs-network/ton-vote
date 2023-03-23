@@ -30,8 +30,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <SnackbarProvider
         maxSnack={3}
         classes={{
-          variantSuccess: "snackbar-success",
-          variantError: "snackbar-error",
+         
         }}
       >
         <App />

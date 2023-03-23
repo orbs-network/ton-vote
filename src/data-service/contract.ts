@@ -1,7 +1,3 @@
-import {
-  ChromeExtensionWalletProvider,
-  delay,
-} from "@ton-defi.org/ton-connection";
 import { TonConnect } from "@tonconnect/sdk";
 import { TX_FEE } from "config";
 import { useConnectionStore } from "connection";
@@ -11,41 +7,51 @@ import {
   getAllVotes,
   getTransactions as getTXs,
   filterTxByTimestamp,
+  getClientV2,
+  getClientV4,
 } from "contracts-api/logic";
 import * as mock from "mock";
 import { isMobile } from "react-device-detect";
 import { useAppPersistedStore } from "store";
-import { Cell, toNano, Transaction } from "ton";
 import {
-  ProposalInfo,
-  VotingPower,
+  Address,
+  Cell,
+  Sender,
+  SenderArguments,
+  toNano,
+  TonClient,
+  Transaction,
+} from "ton";
+import {
   RawVotes,
   ProposalState,
   DaoMetadata,
   DaoRoles,
   GetDaos,
   GetDaoProposals,
-  ProposalResults,
 } from "types";
 import { Logger, parseVotes } from "utils";
+
+import * as TonVoteSDK from "ton-vote-npm";
+import { ProposalMetadata } from "ton-vote-npm";
 
 const getDaos = async (): Promise<GetDaos> => {
   Logger("getDaos from contract");
 
-  await delay(1000);
-  return mock.getDaos();
+  const tonClient = await getClientV2();
+  return TonVoteSDK.getDaos(tonClient);
 };
-
 const getDaoMetadata = async (daoAddress: string): Promise<DaoMetadata> => {
   Logger("getDAO from contract");
+  const tonClient = await getClientV2();
 
-  return mock.createDaoMetadata(daoAddress);
+  return TonVoteSDK.getDaoMetadata(tonClient, Address.parse(daoAddress));
 };
-
 const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
   Logger("getDapRoles from contract");
+  const tonClient = await getClientV2();
 
-  return mock.getDaoRoles(daoAddress);
+  return TonVoteSDK.getDaoRoles(tonClient, Address.parse(daoAddress));
 };
 
 const getDaoProposals = async (
@@ -53,25 +59,31 @@ const getDaoProposals = async (
 ): Promise<GetDaoProposals> => {
   Logger("getDaoProposals from contract");
 
-  await delay(1000);
-  return mock.getProposals();
+  const tonClient = await getClientV2();
+
+  return TonVoteSDK.getDaoProposals(tonClient, Address.parse(daoAddress));
 };
 
 const getDaoProposalInfo = async (
   contractAddress: string
-): Promise<ProposalInfo> => {
-  await delay(1000);
-  return {} as ProposalInfo;
+): Promise<ProposalMetadata> => {
+  const tonClient = await getClientV2();
+  const tonClienV4 = await getClientV4();
+
+  return TonVoteSDK.getProposalInfo(
+    tonClient,
+    tonClienV4,
+    Address.parse(contractAddress)
+  );
 };
 
 export const getState = async (
   proposalAddress: string,
-  proposalInfo: ProposalInfo,
+  proposalInfo: ProposalMetadata,
   prevState: ProposalState | null
 ): Promise<ProposalState | null> => {
   let _transactions = prevState?.transactions || [];
   let _maxLt = prevState?.maxLt;
-
 
   const latestMaxLtAfterTx =
     useAppPersistedStore.getState().getLatestMaxLtAfterTx(proposalAddress) ||
@@ -87,8 +99,7 @@ export const getState = async (
     );
     _maxLt = maxLt;
     _transactions.unshift(...allTxns);
-  console.log({ _transactions });
-
+    console.log({ _transactions });
   }
 
   if (_transactions.length === 0) {
@@ -122,56 +133,79 @@ const createProposal = async (
   description: string,
   discussion: string
 ) => {
-  console.log({ title, description, discussion });
+  // return TonVoteSDK.newProposal();
+};
+
+const createDao = async (
+  about: string,
+  avatar: string,
+  github: string,
+  hide: boolean,
+  name: string,
+  terms: string,
+  twitter: string,
+  website: string
+) => {
+  // return TonVoteSDK.newDao();
+};
+
+const createMetadata = async (
+  about: string,
+  avatar: string,
+  github: string,
+  hide: boolean,
+  name: string,
+  terms: string,
+  twitter: string,
+  website: string
+) => {
+  return TonVoteSDK.newMetdata();
+};
+
+const getSender = (address: Address, client: TonClient): Sender => {
+  const connectorTC = useConnectionStore.getState().connectorTC;
+
+  return {
+    address,
+    async send(args: SenderArguments) {
+      await connectorTC.sendTransaction({
+        validUntil: Date.now() + 5 * 60 * 1000,
+        messages: [
+          {
+            address: args.to.toString(),
+            amount: args.value.toString(),
+            payload: args.body!.toString(),
+            stateInit: args.init!.data?.toString(),
+          },
+        ],
+      });
+    },
+  };
 };
 
 export const sendTransaction = async (
-  contractAddress: string,
+  address: string,
   message: string,
   onSuccess: () => void
 ) => {
-  const { connectorTC, connection } = useConnectionStore.getState();
+  const connectorTC = useConnectionStore.getState().connectorTC;
 
   const cell = new Cell();
   // new CommentMessage(message).writeTo(cell);
 
-  if (connectorTC.connected) {
-    handleMobileLink(connectorTC);
+  handleMobileLink(connectorTC);
 
-    await connectorTC.sendTransaction({
-      validUntil: Date.now() + 5 * 60 * 1000,
-      messages: [
-        {
-          address: contractAddress,
-          amount: toNano(TX_FEE).toString(),
-          stateInit: undefined,
-          payload: cell ? cell.toBoc().toString("base64") : undefined,
-        },
-      ],
-    });
-    onSuccess();
-  } else {
-    const isExtension =
-      (connection as any)._provider instanceof ChromeExtensionWalletProvider;
-
-    if (isMobile || isExtension) {
-      // await connection?.requestTransaction({
-      //   to: Address.parse(contractAddress),
-      //   value: toNano(TX_FEE),
-      //   message: cell,
-      // });
-      onSuccess();
-    } else {
-      // return connection?.requestTransaction(
-      //   {
-      //     to: Address.parse(contractAddress),
-      //     value: toNano(TX_FEE),
-      //     message: cell,
-      //   },
-      //   onSuccess
-      // );
-    }
-  }
+  await connectorTC.sendTransaction({
+    validUntil: Date.now() + 5 * 60 * 1000,
+    messages: [
+      {
+        address: address,
+        amount: toNano(TX_FEE).toString(),
+        stateInit: undefined,
+      },
+    ],
+  });
+  onSuccess();
 };
 
 const getDapProposalMetadata = (proposalAddress: string) => {
@@ -189,6 +223,7 @@ export const contract = {
   sendTransaction,
   getDaoRoles,
   getDapProposalMetadata,
+  createMetadata,
 };
 
 const handleMobileLink = (connectorTC?: TonConnect) => {

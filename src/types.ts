@@ -94,9 +94,9 @@ export interface ProposalMetadata {
 }
 
 export interface DaoRoles {
-  owner: string;
-  proposalOwner: string;
-  id: string;
+  owner: Address;
+  proposalOwner: Address;
+  id: bigint;
 }
 
 
@@ -122,11 +122,10 @@ export interface ProposalState {
   transactions?: Transaction[];
 }
 
-type InputType = "text" | "url";
+type InputType = "text" | "url" | 'textarea';
 
 export interface InputInterface {
   label: string;
   type: InputType;
   name: string;
-  required: boolean;
 }

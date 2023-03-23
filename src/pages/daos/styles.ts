@@ -50,4 +50,5 @@ export const StyledDaosList = styled(StyledFlexRow)({
   marginRight: "auto",
   flexWrap: "wrap",
   gap: 15,
+  justifyContent:'flex-start'
 });

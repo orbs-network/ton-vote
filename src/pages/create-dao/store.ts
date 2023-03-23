@@ -1,4 +1,13 @@
+import { useMutation } from "@tanstack/react-query";
+import { contract } from "data-service";
 import { create } from "zustand";
+
+interface State {
+  step: number;
+  setStep: (value: number) => void;
+  avatar?: File;
+  setAvatar: (value?: File) => void;
+}
 
 export interface FormData {
   name: string;
@@ -9,23 +18,39 @@ export interface FormData {
   github: string;
 }
 
-interface State {
-  formData: FormData;
-  avatar?: File;
-  setFormData: (name: string, value: string) => void;
-  setAvatar: (avatar: File) => void;
-}
-
 export const useCreatDaoStore = create<State>((set, get) => ({
-  formData: {} as FormData,
+  step: 0,
+  setStep: (step) => set({ step }),
   setAvatar: (avatar) => set({ avatar }),
-  setFormData: (name, value) =>
-    set({ formData: { ...get().formData, [name]: value } }),
 }));
 
 export const steps = [
-  { title: "Getting Started", index: 0 },
+  { title: "Set avatar", index: 0 },
   { title: "ENS", index: 1 },
   { title: "Profile", index: 2 },
   { title: "Strategy", index: 3 },
 ];
+
+interface CreateDaoArgs {
+  values: FormData;
+  avatar?: File;
+}
+
+export const useCreateDao = () => {
+  return useMutation(async (args: CreateDaoArgs) => {
+    console.log(args.values);
+
+    const { values, avatar } = args;
+    const hide = false;
+    return contract.createMetadata(
+      values.about,
+      "",
+      values.github,
+      hide,
+      values.name,
+      values.terms,
+      values.twitter,
+      values.website
+    );
+  });
+};

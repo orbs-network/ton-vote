@@ -105,16 +105,5 @@ const ListLoader = () => {
 };
 
 const LoadingProposal = () => {
-  return (
-    <StyledProposalContent sx={{ width: "100%" }}>
-      <StyledFlexColumn alignItems="flex-start">
-        <StyledFlexRow justifyContent="space-between">
-          <StyledSkeletonLoader height={20} width={80} />
-          <StyledSkeletonLoader height={20} width={50} />
-        </StyledFlexRow>
-        <StyledSkeletonLoader height={20} width={180} />
-        <StyledSkeletonLoader height={20} width={220} />
-      </StyledFlexColumn>
-    </StyledProposalContent>
-  );
+  return <StyledSkeletonLoader style={{ width: "100%", height: 100 }} />;
 };

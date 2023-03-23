@@ -7,7 +7,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn } from "styles";
-import { makeElipsisAddress, nFormatter } from "utils";
 import Socials from "./Socials";
 
 function SideMenu() {
@@ -19,17 +18,8 @@ function SideMenu() {
       <StyledTop>
         <StyledLogo src={dao?.avatar} />
 
-        <StyledTitleLoader
-          isLoading={isLoading}
-          component={<Typography>{makeElipsisAddress(dao?.name, 5)}</Typography>}
-        />
-        {/* <StyledMembersLoader
-          isLoading={isLoading}
-          component={
-            <Typography>{nFormatter(dao?.members || 0)} members</Typography>
-          }
-        /> */}
-
+        <StyledTitleLoader isLoading={isLoading} component={dao?.name} />
+     
         <StyledJoin disabled={isLoading}>Join</StyledJoin>
       </StyledTop>
       <Navigation />

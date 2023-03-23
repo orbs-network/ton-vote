@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { isWalletInfoInjected, WalletInfoInjected } from "@tonconnect/sdk";
+import { isWalletInfoInjectable, WalletInfoInjectable } from "@tonconnect/sdk";
 import {
   ChromeExtensionWalletProvider,
   TonConnection,
@@ -50,31 +50,16 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
 export const useWallets = () => {
   const connector = useConnectionStore().connectorTC;
 
-  return useQuery(
-    [],
-    async () => {
-      return connector.getWallets();
-    },
-    {
-      staleTime: Infinity,
-    }
-  );
+  return useQuery([], () => connector.getWallets(), {
+    staleTime: Infinity,
+  });
 };
 
 export const useRestoreConnection = () => {
-  const { selectWallet } = useOnWalletSelected();
   const connector = useConnectionStore().connectorTC;
 
   useEffect(() => {
     connector.restoreConnection();
-    const provider = localStorage.getItem(LOCAL_STORAGE_PROVIDER);
-    if (!provider) {
-      return;
-    }
-    const walletAdapter = walletAdapters.find((it) => it.type === provider);
-    if (walletAdapter) {
-      selectWallet(walletAdapter);
-    }
   }, []);
 };
 
@@ -99,8 +84,8 @@ export const useEmbededWallet = () => {
 
   useEffect(() => {
     const embeddedWallet = wallets?.find(
-      (wallet) => isWalletInfoInjected(wallet) && wallet.embedded
-    ) as WalletInfoInjected;
+      (wallet) => isWalletInfoInjectable(wallet) && wallet.embedded
+    ) as WalletInfoInjectable;
 
     if (embeddedWallet) {
       connector.connect({ jsBridgeKey: embeddedWallet.jsBridgeKey });

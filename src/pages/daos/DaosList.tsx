@@ -8,7 +8,7 @@ import { Dao } from "./Dao";
 import { StyledDao, StyledDaosList, StyledLoader } from "./styles";
 
 export function DaosList() {
-  const { data: daos, isLoading } = useDaosQuery();
+  const { data: daos, isLoading } = useDaosQuery();  
 
   const { createSpace } = useAppNavigation();
 
