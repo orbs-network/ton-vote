@@ -5,12 +5,10 @@ import TonConnect, {
   WalletInfoInjected,
   WalletInfoRemote,
 } from "@tonconnect/sdk";
-import { Address, Cell, StateInit } from "ton";
+import { Address, Cell, StateInit, storeStateInit } from "ton";
 
 export function stateInitToBuffer(s: StateInit): Buffer {
-  const INIT_CELL = new Cell();
-  s.writeTo(INIT_CELL);
-  return INIT_CELL.toBoc();
+ return Buffer.from(storeStateInit(s).toString());
 }
 
 export type Config = {

@@ -33,7 +33,8 @@ import {
 import { Logger, parseVotes } from "utils";
 
 import * as TonVoteSDK from "ton-vote-npm";
-import { ProposalMetadata } from "ton-vote-npm";
+import { MetadataArgs, ProposalMetadata } from "ton-vote-npm";
+import { stateInitToBuffer } from "adapters";
 
 const getDaos = async (): Promise<GetDaos> => {
   Logger("getDaos from contract");
@@ -159,23 +160,53 @@ const createMetadata = async (
   twitter: string,
   website: string
 ) => {
-  return TonVoteSDK.newMetdata();
+  console.log("start");
+
+  const sender = getSender();
+
+  const client = await getClientV2();
+  const args: MetadataArgs = {
+    about,
+    avatar,
+    github,
+    hide,
+    name,
+    terms,
+    twitter,
+    website,
+  };
+  return TonVoteSDK.newMetdata(sender, client, args);
 };
 
-const getSender = (address: Address, client: TonClient): Sender => {
-  const connectorTC = useConnectionStore.getState().connectorTC;
+const getSender = (): Sender => {
+  const { connectorTC, address } = useConnectionStore.getState();
+  console.log(address?.toString());
+
+  const init = (init: any) => {
+    const result = init
+      ? stateInitToBuffer(init).toString("base64")
+      : undefined;
+
+    console.log({ result, init });
+
+    return result;
+  };
 
   return {
-    address,
+    address: Address.parse(address!),
     async send(args: SenderArguments) {
+      console.log({ args });
+      
       await connectorTC.sendTransaction({
         validUntil: Date.now() + 5 * 60 * 1000,
         messages: [
           {
             address: args.to.toString(),
             amount: args.value.toString(),
-            payload: args.body!.toString(),
-            stateInit: args.init!.data?.toString(),
+            stateInit: init(args.init),
+            payload: args.body
+              ? args.body.toBoc().toString("base64")
+              : undefined,
           },
         ],
       });

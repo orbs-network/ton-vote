@@ -21,12 +21,12 @@ export const FormSchema = Yup.object().shape({
 });
 
 const initialValues = {
-  name: "",
-  twitter: "",
-  website: "",
-  github: "",
-  about: "",
-  terms: "",
+  name: "test",
+  twitter: "https://reactdatepicker.com/",
+  website: "https://reactdatepicker.com/",
+  github: "https://reactdatepicker.com/",
+  about: "https://reactdatepicker.com/",
+  terms: "https://reactdatepicker.com/",
 };
 
 
@@ -34,7 +34,10 @@ const steps = [<SelectAvatar />]
 
 export function CreateDao() {
   const {step, avatar} = useCreatDaoStore()
-  const {mutate} = useCreateDao();
+  const {mutate, error} = useCreateDao();
+
+  console.log({ error });
+  
   return (
     <Page back={routes.spaces}>
       <Formik<FormData>
