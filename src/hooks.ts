@@ -4,6 +4,8 @@ import { flatRoutes } from "consts";
 import { useAppPersistedStore } from "store";
 import { InputInterface } from "types";
 import { urlPatternValidation } from "utils";
+import { useDaoRolesQuery } from "query";
+import { useConnectionStore } from "connection";
 
 export const useDaoAddress = () => {
   return useParams().spaceId as string;
@@ -43,3 +45,15 @@ export const useIsCustomEndpoint = () => {
 
   return !!clientV2Endpoint && !!clientV4Endpoint;
 };
+
+
+export const useIsOwner = (daoAddress: string) => {
+  const address = useConnectionStore().address
+  const {data} =  useDaoRolesQuery(daoAddress);
+
+    return {
+      isDaoOwner: address && address === data?.owner.toString(),
+      isProposalOnwer: address && address === data?.proposalOwner.toString(),
+    };
+
+}

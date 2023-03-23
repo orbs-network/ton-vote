@@ -122,10 +122,11 @@ export interface ProposalState {
   transactions?: Transaction[];
 }
 
-type InputType = "text" | "url" | 'textarea';
+export type InputType = "text" | "url" | 'textarea' | 'date';
 
 export interface InputInterface {
   label: string;
   type: InputType;
   name: string;
+  defaultValue?: () => string | undefined;
 }

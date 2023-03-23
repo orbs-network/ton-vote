@@ -1,5 +1,3 @@
-import { TonConnect } from "@tonconnect/sdk";
-import { TX_FEE } from "config";
 import { useConnectionStore } from "connection";
 import {
   getVotingPower,
@@ -11,15 +9,13 @@ import {
   getClientV4,
 } from "contracts-api/logic";
 import * as mock from "mock";
-import { isMobile } from "react-device-detect";
 import { useAppPersistedStore } from "store";
 import {
   Address,
-  Cell,
+  beginCell,
   Sender,
   SenderArguments,
-  toNano,
-  TonClient,
+  storeStateInit,
   Transaction,
 } from "ton";
 import {
@@ -34,7 +30,7 @@ import { Logger, parseVotes } from "utils";
 
 import * as TonVoteSDK from "ton-vote-npm";
 import { MetadataArgs, ProposalMetadata } from "ton-vote-npm";
-import { stateInitToBuffer } from "adapters";
+import BigNumber from "bignumber.js";
 
 const getDaos = async (): Promise<GetDaos> => {
   Logger("getDaos from contract");
@@ -100,7 +96,6 @@ export const getState = async (
     );
     _maxLt = maxLt;
     _transactions.unshift(...allTxns);
-    console.log({ _transactions });
   }
 
   if (_transactions.length === 0) {
@@ -129,25 +124,28 @@ const getTransactions = async (
   return getTXs(contractAddress, toLt);
 };
 
-const createProposal = async (
-  title: string,
-  description: string,
-  discussion: string
-) => {
-  // return TonVoteSDK.newProposal();
+const createProposal = async (daoAddr: string, args: ProposalMetadata) => {
+  const sender = getSender();
+  const client = await getClientV2();
+  console.log(sender.address?.toString());
+  
+  return TonVoteSDK.newProposal(sender, client, Address.parse(daoAddr), args);
 };
 
 const createDao = async (
-  about: string,
-  avatar: string,
-  github: string,
-  hide: boolean,
-  name: string,
-  terms: string,
-  twitter: string,
-  website: string
+  metadataAddress: Address,
+  ownerAddress: Address,
+  proposalOwner: Address
 ) => {
-  // return TonVoteSDK.newDao();
+  const sender = getSender();
+  const client = await getClientV2();
+  return TonVoteSDK.newDao(
+    sender,
+    client,
+    metadataAddress,
+    ownerAddress,
+    proposalOwner
+  );
 };
 
 const createMetadata = async (
@@ -160,8 +158,6 @@ const createMetadata = async (
   twitter: string,
   website: string
 ) => {
-  console.log("start");
-
   const sender = getSender();
 
   const client = await getClientV2();
@@ -180,14 +176,17 @@ const createMetadata = async (
 
 const getSender = (): Sender => {
   const { connectorTC, address } = useConnectionStore.getState();
-  console.log(address?.toString());
-
+  if (!connectorTC || !address) {
+    throw new Error("Not connected");
+  }
   const init = (init: any) => {
     const result = init
-      ? stateInitToBuffer(init).toString("base64")
+      ? beginCell()
+          .store(storeStateInit(init))
+          .endCell()
+          .toBoc({ idx: false })
+          .toString("base64")
       : undefined;
-
-    console.log({ result, init });
 
     return result;
   };
@@ -195,8 +194,6 @@ const getSender = (): Sender => {
   return {
     address: Address.parse(address!),
     async send(args: SenderArguments) {
-      console.log({ args });
-      
       await connectorTC.sendTransaction({
         validUntil: Date.now() + 5 * 60 * 1000,
         messages: [
@@ -214,31 +211,6 @@ const getSender = (): Sender => {
   };
 };
 
-export const sendTransaction = async (
-  address: string,
-  message: string,
-  onSuccess: () => void
-) => {
-  const connectorTC = useConnectionStore.getState().connectorTC;
-
-  const cell = new Cell();
-  // new CommentMessage(message).writeTo(cell);
-
-  handleMobileLink(connectorTC);
-
-  await connectorTC.sendTransaction({
-    validUntil: Date.now() + 5 * 60 * 1000,
-    messages: [
-      {
-        address: address,
-        amount: toNano(TX_FEE).toString(),
-        stateInit: undefined,
-      },
-    ],
-  });
-  onSuccess();
-};
-
 const getDapProposalMetadata = (proposalAddress: string) => {
   return mock.getProposalMetadata(proposalAddress);
 };
@@ -251,22 +223,22 @@ export const contract = {
   getState,
   getTransactions,
   createProposal,
-  sendTransaction,
   getDaoRoles,
   getDapProposalMetadata,
   createMetadata,
+  createDao,
 };
 
-const handleMobileLink = (connectorTC?: TonConnect) => {
-  if (!isMobile) return;
-  const Tonkeeper = connectorTC?.wallet?.device.appName;
+// const handleMobileLink = (connectorTC?: TonConnect) => {
+//   if (!isMobile) return;
+//   const Tonkeeper = connectorTC?.wallet?.device.appName;
 
-  switch (Tonkeeper) {
-    case "Tonkeeper":
-      (window as any).location = "https://app.tonkeeper.com";
-      break;
+//   switch (Tonkeeper) {
+//     case "Tonkeeper":
+//       (window as any).location = "https://app.tonkeeper.com";
+//       break;
 
-    default:
-      break;
-  }
-};
+//     default:
+//       break;
+//   }
+// };

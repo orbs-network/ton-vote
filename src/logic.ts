@@ -48,11 +48,11 @@ export const useSendTransaction = () => {
         });
       };
 
-      return contract.sendTransaction(
-        args.contractAddress,
-        args.message,
-        onSuccess
-      );
+      // return contract.sendTransaction(
+      //   args.contractAddress,
+      //   args.message,
+      //   onSuccess
+      // );
     },
     {
       onError: (error: any, args) => {

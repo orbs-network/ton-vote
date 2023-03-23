@@ -1,8 +1,8 @@
 import { styled, Typography } from "@mui/material";
 import { Button, Container, Loader, Img } from "components";
 import { routes } from "consts";
-import { useCurrentRoute, useDaoAddress } from "hooks";
-import { useDaoMetadataQuery } from "query";
+import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
+import { useDaoMetadataQuery, useDaoRolesQuery } from "query";
 import React from "react";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
@@ -10,7 +10,7 @@ import { StyledFlexColumn } from "styles";
 import Socials from "./Socials";
 
 function SideMenu() {
-    const daoAddresses = useDaoAddress()
+  const daoAddresses = useDaoAddress();
   const { data: dao, isLoading } = useDaoMetadataQuery(daoAddresses);
 
   return (
@@ -19,7 +19,7 @@ function SideMenu() {
         <StyledLogo src={dao?.avatar} />
 
         <StyledTitleLoader isLoading={isLoading} component={dao?.name} />
-     
+
         <StyledJoin disabled={isLoading}>Join</StyledJoin>
       </StyledTop>
       <Navigation />
@@ -46,17 +46,20 @@ const StyledTop = styled(StyledFlexColumn)({
 });
 
 const Navigation = () => {
-  const daoId = useDaoAddress();
+  const daoAddress = useDaoAddress();
   const route = useCurrentRoute();
+  const { isDaoOwner, isProposalOnwer } = useIsOwner(daoAddress);
 
+  const isOwner = isDaoOwner || isProposalOnwer;
   return (
     <StyledNavigation>
       {navigation.map((navigation, index) => {
+        if (navigation.onlyOwner && !isOwner) return null;
         const selected = route === navigation.path;
 
         return (
           <StyledNavigationLink
-            to={navigation.navigate(daoId)}
+            to={navigation.navigate(daoAddress)}
             key={index}
             selected={selected}
           >
@@ -74,15 +77,17 @@ const navigation = [
     navigate: (daoId: string) => appNavigation.spacePage.root(daoId),
     path: routes.space,
   },
-  {
-    title: "New proposal",
-    navigate: (daoId: string) => appNavigation.spacePage.create(daoId),
-    path: routes.createProposal,
-  },
+
   {
     title: "About",
     navigate: (daoId: string) => appNavigation.spacePage.about(daoId),
     path: routes.spaceAbout,
+  },
+  {
+    title: "New proposal",
+    navigate: (daoId: string) => appNavigation.spacePage.create(daoId),
+    path: routes.createProposal,
+    onlyOwner: true,
   },
 ];
 

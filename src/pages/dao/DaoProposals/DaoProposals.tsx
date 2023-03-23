@@ -24,7 +24,8 @@ const options: Option[] = [
 ];
 
 export function DaoProposals() {
-  const { data, isLoading } = useDaoProposalsQuery();
+  const { data, isLoading, error } = useDaoProposalsQuery();
+  
   const [itemsAmount, setItemsAmount] = useState(SIZE);
   const [filterValue, setFilterValue] = useState<string>(options[0].value);
   // const [queryParamState, setQueryParamState] = useQueryParam(

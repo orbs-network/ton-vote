@@ -19,6 +19,7 @@ function App() {
 
   return (
     <Box>
+    
       <Helmet>
         <title>{APP_TITLE}</title>
       </Helmet>

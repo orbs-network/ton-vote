@@ -1,62 +1,70 @@
 import { Box, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import BigNumber from "bignumber.js";
 import {
   Button,
   Container,
   FadeElement,
-  Input,
+  getInput,
   useNotification,
 } from "components";
 import { contract } from "data-service";
 import { Formik } from "formik";
+import { useDaoAddress } from "hooks";
 import { StyledFlexColumn } from "styles";
+import { ProposalMetadata } from "ton-vote-npm";
 import { InputInterface } from "types";
 import * as Yup from "yup";
 
 export const FormSchema = Yup.object().shape({
-  title: Yup.string().required("Required"),
-  discussion: Yup.string().url("invalid URL"),
+  proposalStartTime: Yup.string().required("Required"),
+  proposalEndTime: Yup.string().required("Required"),
+  proposalSnapshotTime: Yup.string().required("Required"),
 });
 
 const inputs: InputInterface[] = [
   {
-    label: "Title",
-    type: "text",
-    name: "title",
+    label: "Start time",
+    type: "date",
+    name: "proposalStartTime",
   },
   {
-    label: "Description (optional)",
-    type: "textarea",
-    name: "description",
+    label: "End time",
+    type: "date",
+    name: "proposalEndTime",
   },
   {
-    label: "Discussion (optional)",
-    type: "url",
-    name: "discussion",
+    label: "Snapshot time",
+    type: "date",
+    name: "proposalSnapshotTime",
   },
 ];
 
 interface FormData {
-  title: string;
-  description: string;
-  discussion: string;
+  proposalStartTime?: number;
+  proposalEndTime?: number;
+  proposalSnapshotTime?: number;
 }
 
 const initialValues: FormData = {
-  title: "",
-  description: "",
-  discussion: "",
+  proposalStartTime: undefined,
+  proposalEndTime: undefined,
+  proposalSnapshotTime: undefined,
 };
 
 export const useCreateProposal = () => {
   const { showNotification } = useNotification();
+  const daoAddress = useDaoAddress();
   return useMutation(
-    async (args: any) => {
-      return contract.createProposal(
-        args.title,
-        args.description,
-        args.discussion
-      );
+    async (values: FormData) => {
+      const args: ProposalMetadata = {
+        proposalStartTime: BigInt(values.proposalStartTime!),
+        proposalEndTime: BigInt(values.proposalEndTime!),
+        proposalSnapshotTime: BigInt(values.proposalSnapshotTime!),
+        votingPowerStrategy: BigInt(1),
+        proposalType: BigInt(1),
+      };
+      return contract.createProposal(daoAddress, args);
     },
     {
       onSuccess: () => {
@@ -67,7 +75,7 @@ export const useCreateProposal = () => {
 };
 
 function CreateProposal() {
-  const { mutate: create, isLoading } = useCreateProposal();
+  const { mutate: create, isLoading, error } = useCreateProposal();
 
   return (
     <StyledContainer title="Create Proposal">
@@ -75,24 +83,28 @@ function CreateProposal() {
         <Formik<FormData>
           initialValues={initialValues}
           validationSchema={FormSchema}
-          onSubmit={(values) => {}}
+          onSubmit={(values) => create(values)}
           validateOnChange={false}
           validateOnBlur={true}
         >
           {(formik) => {
+            console.log(formik.values);
+
             return (
               <StyledFlexColumn gap={30}>
                 {inputs.map((input) => {
+                  const InputComponent = getInput(input.type);
+
                   const name = input.name as keyof FormData;
                   return (
-                    <Input
+                    <InputComponent
                       onFocus={() => formik.setFieldError(name, "")}
                       key={name}
                       error={formik.errors[name]}
                       title={input.label}
-                      value={formik.values[name]}
+                      value={formik.values[name] || ""}
                       name={name}
-                      onChange={formik.handleChange}
+                      onChange={(value) => formik.setFieldValue(name, value)}
                       rows={input.type === "textarea" ? 4 : 1}
                     />
                   );
@@ -108,6 +120,8 @@ function CreateProposal() {
     </StyledContainer>
   );
 }
+
+const StyledDatePicker = styled(StyledFlexColumn)({});
 
 export { CreateProposal };
 

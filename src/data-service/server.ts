@@ -24,10 +24,10 @@ const axiosInstance = axios.create({
   baseURL: "https://dao-vote-cache-server.herokuapp.com",
 });
 
-const getDaoRoles = async (daoAddress: string): Promise<any> => {
+const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
   Logger("getDapRoles from contract");
 
-  return mock.getDaoRoles(daoAddress);
+  return {} as DaoRoles;
 };
 
 const getDaos = async (): Promise<GetDaos> => {

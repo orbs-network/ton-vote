@@ -4,9 +4,15 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
 import { BsUpload } from "react-icons/bs";
-interface Props {
-  value: string;
-  onChange: (e: any) => void;
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs from "dayjs";
+import { InputType } from "types";
+
+interface InputProps {
+  value: string | number;
+  onChange: (value: string) => void;
   label?: string;
   error?: string;
   onFocus?: () => void;
@@ -30,7 +36,7 @@ function Input({
   placeholder,
   title,
   name,
-}: Props) {
+}: InputProps) {
   return (
     <StyledContainer>
       {title && <StyledTitle>{title}</StyledTitle>}
@@ -39,14 +45,14 @@ function Input({
         onBlur={onBlur}
         name={name}
         rows={rows}
-        multiline={rows && rows  > 1 ? true : false}
+        multiline={rows && rows > 1 ? true : false}
         onFocus={onFocus}
         variant="outlined"
         value={value}
         type={type}
         error={!!error}
         label={label}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
       />
       {error && (
         <StyledError>
@@ -76,7 +82,7 @@ function UploadInput({ onChange, className = "" }: UploadInputProps) {
     <StyledUpload
       {...getRootProps()}
       className={className}
-      isDragActive={isDragActive}
+      active={isDragActive}
     >
       <BsUpload />
       <input {...getInputProps()} />
@@ -84,30 +90,28 @@ function UploadInput({ onChange, className = "" }: UploadInputProps) {
   );
 }
 
-const StyledUpload = styled(Box)<{ isDragActive: boolean }>(
-  ({ isDragActive }) => ({
-    background: "rgba(211, 211, 211, 0.6)",
-    borderRadius: 20,
-    position: "relative",
-    cursor: "pointer",
+const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
+  background: "rgba(211, 211, 211, 0.6)",
+  borderRadius: 20,
+  position: "relative",
+  cursor: "pointer",
+  svg: {
+    transition: "0.2s all",
+    width: 50,
+    height: 50,
+    position: "absolute",
+    top: "50%",
+    transform: active
+      ? "translate(-50%, -50%) scale(1.2)"
+      : "translate(-50%, -50%)",
+    left: "50%",
+  },
+  "&:hover": {
     svg: {
-      transition:'0.2s all',
-      width: 50,
-      height: 50,
-      position: "absolute",
-      top: "50%",
-      transform: isDragActive
-        ? "translate(-50%, -50%) scale(1.2)"
-        : "translate(-50%, -50%)",
-      left: "50%",
+      transform: "translate(-50%, -50%) scale(1.2)",
     },
-    "&:hover":{
-      svg:{
-        transform:  "translate(-50%, -50%) scale(1.2)"
-      }
-    }
-  })
-);
+  },
+}));
 
 export { Input, UploadInput };
 
@@ -143,7 +147,67 @@ const StyledInput = styled(TextField)({
   },
   input: {
     fontSize: 16,
-    // padding: "12.5px 14px 15.5px 14px",
     fontWeight: 500,
   },
 });
+
+export const DateRangeSelect = ({
+  className = "",
+  onChange,
+  title,
+  error,
+  onFocus,
+  minDate,
+}: {
+  className?: string;
+  onChange: (value: number) => void;
+  title?: string;
+  error?: string;
+  onFocus: () => void;
+  minDate?: string;
+}) => {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <StyledDatepicker className={className}>
+        {title && <StyledTitle>{title}</StyledTitle>}
+        <DateTimePicker
+          // minDateTime={dayjs().startOf('D')}
+          onOpen={onFocus}
+          className="datepicker"
+          onChange={(value: any) =>
+            onChange(dayjs(value).unix().valueOf())
+          }
+          format={"DD/MM/YYYY HH:mm"}
+        />
+        {error && (
+          <StyledError>
+            <RiErrorWarningLine />
+            <Typography>{error}</Typography>
+          </StyledError>
+        )}
+      </StyledDatepicker>
+    </LocalizationProvider>
+  );
+};
+
+
+const StyledDatepicker = styled(StyledContainer)({
+  alignItems:'flex-start',
+  flex: 1,
+  fieldset: {
+    borderRadius: 10,
+  },
+  input: {
+    fontSize: 14,
+  },
+});
+
+export const getInput = (type: InputType) => {
+  switch (type) {
+    case "date":
+      return DateRangeSelect;
+
+    default:
+      return Input;
+  }
+};

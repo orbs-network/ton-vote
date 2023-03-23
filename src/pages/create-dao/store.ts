@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
+import { useConnectionStore } from "connection";
 import { contract } from "data-service";
+import { Address } from "ton-core";
 import { create } from "zustand";
 
 interface State {
@@ -16,6 +18,8 @@ export interface FormData {
   twitter: string;
   terms: string;
   github: string;
+  ownerAddress: string;
+  proposalOwner: string;
 }
 
 export const useCreatDaoStore = create<State>((set, get) => ({
@@ -37,12 +41,12 @@ interface CreateDaoArgs {
 }
 
 export const useCreateDao = () => {
+  const address = useConnectionStore().address;
   return useMutation(async (args: CreateDaoArgs) => {
-    console.log(args.values);
 
     const { values, avatar } = args;
     const hide = false;
-    return contract.createMetadata(
+    const metadata = await contract.createMetadata(
       values.about,
       "",
       values.github,
@@ -51,6 +55,16 @@ export const useCreateDao = () => {
       values.terms,
       values.twitter,
       values.website
+    );
+
+    if (!metadata || !address) {
+      return null;
+    }
+
+    return contract.createDao(
+      metadata as Address,
+      Address.parse(values.ownerAddress),
+      Address.parse(values.proposalOwner)
     );
   });
 };

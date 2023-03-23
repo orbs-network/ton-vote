@@ -3,22 +3,10 @@ import { Button, Container, Img, Input, UploadInput } from "components";
 import React, { useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { InputInterface } from "types";
-import { Form, useFormik, useFormikContext } from "formik";
-import * as Yup from "yup";
+import { Form, useFormikContext } from "formik";
 import { FormData } from "./store";
-import { StyledDaoAvatar } from "pages/daos/styles";
 import { Box } from "@mui/system";
-
-const FormSchema = Yup.object().shape({
-  name: Yup.string().required("Required"),
-  github: Yup.string().url("invalid URL").required("Required"),
-  website: Yup.string().url("invalid URL").required("Required"),
-  twitter: Yup.string().url("invalid URL").required("Required"),
-  about: Yup.string().url("invalid URL").required("Required"),
-  terms: Yup.string().url("invalid URL").required("Required"),
-});
-
-
+import { useConnectionStore } from "connection";
 
 const inputs: InputInterface[] = [
   {
@@ -51,13 +39,24 @@ const inputs: InputInterface[] = [
     type: "url",
     name: "terms",
   },
+  {
+    label: "Owner Address",
+    type: "text",
+    name: "ownerAddress",
+    defaultValue: () => useConnectionStore.getState().address,
+  },
+  {
+    label: "Proposal Owner Address",
+    type: "text",
+    name: "proposalOwner",
+    defaultValue: () => useConnectionStore.getState().address,
+  },
 ];
 
-function Main() {
+function Main({ isLoading }: { isLoading: boolean }) {
   const [avatar, setAvatar] = useState<any>("");
 
   const formik = useFormikContext<FormData>();
-
 
   return (
     <StyledContainer title="Create Dao">
@@ -84,7 +83,7 @@ function Main() {
             );
           })}
 
-          <Button isLoading={formik.isSubmitting} onClick={formik.submitForm}>
+          <Button isLoading={isLoading} onClick={formik.submitForm}>
             Submit
           </Button>
         </StyledFlexColumn>
@@ -94,7 +93,7 @@ function Main() {
 }
 
 const StyledUpload = styled(UploadInput)({
-  flex:1,
+  flex: 1,
   height: 200,
 });
 
@@ -109,9 +108,8 @@ const StyledAvatar = styled(Box)({
 });
 
 const StyledImg = styled(Img)({
-  width: '100%',
-  height: '100%',
- 
+  width: "100%",
+  height: "100%",
 });
 
 const StyledContainer = styled(Container)({});
