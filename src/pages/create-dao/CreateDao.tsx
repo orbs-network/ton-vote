@@ -1,24 +1,13 @@
 import { styled } from "@mui/material";
-import { Container, Page } from "components";
+import { Button, Container, Page } from "components";
 import { routes } from "consts";
 import { Formik } from "formik";
 import { StyledFlexRow } from "styles";
-import Main from "./Main";
-import * as Yup from "yup";
-import { SelectAvatar } from "./steps/SelectAvatar";
-import { FormData, useCreatDaoStore, useCreateDao } from "./store";
+import {Main} from "./Main";
+import { FormData, FormSchema, useCreatDaoStore, useCreateDao } from "./store";
 import { Box } from "@mui/system";
 
-export const FormSchema = Yup.object().shape({
-  name: Yup.string().required("Required"),
-  github: Yup.string().url("invalid URL").required("Required"),
-  website: Yup.string().url("invalid URL").required("Required"),
-  twitter: Yup.string().url("invalid URL").required("Required"),
-  about: Yup.string().url("invalid URL").required("Required"),
-  terms: Yup.string().url("invalid URL").required("Required"),
-  ownerAddress: Yup.string().required("Required"),
-  proposalOwner: Yup.string().required("Required")
-});
+
 
 const initialValues = {
   name: "test",
@@ -31,10 +20,9 @@ const initialValues = {
   proposalOwner: "",
 };
 
-const steps = [<SelectAvatar />];
+
 
 export function CreateDao() {
-  const { step, avatar } = useCreatDaoStore();
   const { mutate, isLoading, data } = useCreateDao();
  
 
@@ -43,13 +31,12 @@ export function CreateDao() {
       <Formik<FormData>
         initialValues={initialValues}
         validationSchema={FormSchema}
-        onSubmit={(values) => mutate({ values, avatar })}
+        onSubmit={(values) => mutate({ values })}
         validateOnChange={false}
         validateOnBlur={true}
       >
         <StyledContainer>
           {/* <SideMenu /> */}
-          {/* <StyledSteps>{steps[step]}</StyledSteps> */}
           <Main isLoading={isLoading} />
         </StyledContainer>
       </Formik>
@@ -57,9 +44,6 @@ export function CreateDao() {
   );
 }
 
-const StyledSteps = styled(Box)({
-  flex: 1,
-});
 
 const StyledContainer = styled(StyledFlexRow)({
   gap: 20,

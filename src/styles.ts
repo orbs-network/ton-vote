@@ -1,4 +1,4 @@
-import { Skeleton, styled } from "@mui/material";
+import { Skeleton, styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { CSSProperties } from "react";
 import { theme } from "theme";
@@ -54,7 +54,6 @@ export const globalStyles = {
   },
   ".MuiTooltip-tooltip": {
     background: `#EEEEEE!important`,
-  
   },
 };
 
@@ -67,7 +66,7 @@ export const textOverflow: CSSProperties = {
 export const StyledGrid = styled(StyledFlexColumn)({
   gap: 0,
   width: "calc(100% - 100px)",
-  flex:1,
+  flex: 1,
   maxWidth: 950,
   marginLeft: "auto",
   marginRight: "auto",
@@ -76,14 +75,18 @@ export const StyledGrid = styled(StyledFlexColumn)({
   },
 });
 
-
-
 export const StyledPage = styled(Box)({
-  paddingTop: 100
-})
+  paddingTop: 100,
+});
 
 export const StyledSkeletonLoader = styled(Skeleton)({
-  width:'100%',
-  transform:'unset',
-  background:'rgba(0,0,0, 0.07)'
-})
+  width: "100%",
+  transform: "unset",
+  background: "rgba(0,0,0, 0.07)",
+});
+
+export const StyledOneLine = styled(Typography)({
+  display: "inline-block",
+  overflow: "hidden",
+  whiteSpace: "nowrap",
+});

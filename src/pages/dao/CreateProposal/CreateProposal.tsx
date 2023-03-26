@@ -1,44 +1,19 @@
 import { Box, styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import BigNumber from "bignumber.js";
 import {
   Button,
   Container,
   FadeElement,
-  getInput,
+  MapInput,
   useNotification,
 } from "components";
 import { contract } from "data-service";
-import { Formik } from "formik";
+import { Formik, FormikProps } from "formik";
 import { useDaoAddress } from "hooks";
 import { StyledFlexColumn } from "styles";
 import { ProposalMetadata } from "ton-vote-npm";
 import { InputInterface } from "types";
-import * as Yup from "yup";
-
-export const FormSchema = Yup.object().shape({
-  proposalStartTime: Yup.string().required("Required"),
-  proposalEndTime: Yup.string().required("Required"),
-  proposalSnapshotTime: Yup.string().required("Required"),
-});
-
-const inputs: InputInterface[] = [
-  {
-    label: "Start time",
-    type: "date",
-    name: "proposalStartTime",
-  },
-  {
-    label: "End time",
-    type: "date",
-    name: "proposalEndTime",
-  },
-  {
-    label: "Snapshot time",
-    type: "date",
-    name: "proposalSnapshotTime",
-  },
-];
+import { FormSchema, inputs } from "./data";
 
 interface FormData {
   proposalStartTime?: number;
@@ -88,25 +63,11 @@ function CreateProposal() {
           validateOnBlur={true}
         >
           {(formik) => {
-            console.log(formik.values);
-
             return (
               <StyledFlexColumn gap={30}>
                 {inputs.map((input) => {
-                  const InputComponent = getInput(input.type);
-
-                  const name = input.name as keyof FormData;
                   return (
-                    <InputComponent
-                      onFocus={() => formik.setFieldError(name, "")}
-                      key={name}
-                      error={formik.errors[name]}
-                      title={input.label}
-                      value={formik.values[name] || ""}
-                      name={name}
-                      onChange={(value) => formik.setFieldValue(name, value)}
-                      rows={input.type === "textarea" ? 4 : 1}
-                    />
+                    <MapInput<FormData> key={input.name} input={input} formik={formik} />
                   );
                 })}
                 <StyledSubmit isLoading={isLoading} onClick={formik.submitForm}>
@@ -120,6 +81,8 @@ function CreateProposal() {
     </StyledContainer>
   );
 }
+
+
 
 const StyledDatePicker = styled(StyledFlexColumn)({});
 

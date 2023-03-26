@@ -4,7 +4,6 @@ import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Button } from "./Button";
-import { Input } from "./Input";
 import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
 import { useAppPersistedStore, useEnpointModal } from "store";
@@ -12,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { EndpointsArgs } from "types";
 import analytics from "analytics";
 import { useIsCustomEndpoint } from "hooks";
+import { TextInput } from "./Input";
 
 const { clientV2, apiKey, clientV4 } = DEFAULT_ENDPOINT_INPUTS;
 
@@ -115,7 +115,7 @@ export function EndpointPopup() {
             <StyledCustomEndpoints gap={20}>
               {_.map(DEFAULT_ENDPOINT_INPUTS).map((input) => {
                 return (
-                  <Input
+                  <TextInput
                     onFocus={() => clearError(input.name)}
                     key={input.name}
                     error={
