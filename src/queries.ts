@@ -31,7 +31,7 @@ import {
   useTxStore,
   useVotesPaginationStore,
 } from "store";
-import { Address, Cell, CommentMessage, toNano } from "ton";
+import { Address, Cell, CommentMessage, fromNano, toNano } from "ton";
 import {
   QueryKeys,
   GetTransactionsPayload,
@@ -175,16 +175,18 @@ export const useStateQuery = () => {
     async () => {
       const onServerState = async () => {
         const data = await getServerStateCallback();
-        return data || getStateCurrentData();
+        return data || getStateCurrentData() || null;
       };
 
       const onContractState = async () => {
         const data = await getContractStateCallback();
-        return data || getStateCurrentData();
+        console.log({ data });
+        
+        return data || getStateCurrentData() || null;
       };
 
       if (!fetchFromServer) {
-        return onContractState();
+        return onContractState() || null;
       }
 
       const isSrverError = await checkServerHealth();
@@ -206,14 +208,16 @@ export const useStateQuery = () => {
         );
         clearMaxLt();
 
-        return onServerState();
+        return onServerState() || null;
       }
 
       Logger(
         `server is outdated, server maxLt:${serverMaxLt} currentMaxLt:${minServerMaxLt}`
       );
       return (
-        getStateCurrentData() || getStatewhileServerOutdatedAndStateEmpty()
+        getStateCurrentData() ||
+        getStatewhileServerOutdatedAndStateEmpty() ||
+        null
       );
     },
     {

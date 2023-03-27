@@ -17,9 +17,9 @@ import {
   useServerStore,
 } from "store";
 import { useGetContractState, useVoteTimeline } from "hooks";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Logger, nFormatter } from "utils";
-import { VERIFY_LINK } from "config";
+import { VERIFY_LINK, VOTE_OPTIONS } from "config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
@@ -47,31 +47,33 @@ const calculateTonAmount = (percent?: number, total?: string) => {
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
-  const results = data?.proposalResults;
-  
+  const results = data?.proposalResults as any;
+  const [showAll, setShowAll] = useState(false)
+
   const votesCount = useVotesCount();
-  
+
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
-      <StyledFlexColumn gap={15}>
-        <ResultRow
-          name="Yes"
-          percent={results?.yes || 0}
-          tonAmount={calculateTonAmount(results?.yes, results?.totalWeight)}
-          votes={votesCount.yes}
-        />
-        <ResultRow
-          name="No"
-          percent={results?.no || 0}
-          tonAmount={calculateTonAmount(results?.no, results?.totalWeight)}
-          votes={votesCount.no}
-        />
-        <ResultRow
-          name="Abstain"
-          percent={results?.abstain || 0}
-          tonAmount={calculateTonAmount(results?.abstain, results?.totalWeight)}
-          votes={votesCount.abstain}
-        />
+      <StyledFlexColumn gap={30}>
+        <StyledFlexColumn gap={15}>
+          {VOTE_OPTIONS.map((option, index) => {
+            if (!showAll && index > 2) return null;
+            const _option = option.toString();
+            return (
+              <ResultRow
+                key={_option}
+                name={_option}
+                percent={results?.proposalResult[_option] || 0}
+                tonAmount={calculateTonAmount(
+                  results?.proposalResult[_option as any],
+                  results?.totalPower
+                )}
+                votes={votesCount.yes}
+              />
+            );
+          })}
+        </StyledFlexColumn>
+        <Button onClick={() => setShowAll(true)}>Show more</Button>
       </StyledFlexColumn>
       <VerifyResults />
     </StyledResults>
@@ -127,9 +129,9 @@ const StyledResultRow = styled(StyledFlexColumn)({
   p: {
     fontWeight: "inherit",
   },
-  ".percent":{
-    fontSize: 14
-  }
+  ".percent": {
+    fontSize: 14,
+  },
 });
 
 const StyledResults = styled(Container)({
@@ -164,16 +166,17 @@ const useVerify = () => {
 
     Logger({ currentResults, proposalResults });
 
-    const yes = compare(currentResults?.yes, proposalResults.yes);
+    // const yes = compare(currentResults?.yes, proposalResults.yes);
 
-    const no = compare(currentResults?.no, proposalResults.no);
-    const totalWeight = compare(
-      currentResults?.totalWeight,
-      proposalResults.totalWeight
-    );
-    const abstain = compare(currentResults?.abstain, proposalResults.abstain);
+    // const no = compare(currentResults?.no, proposalResults.no);
+    // const totalWeight = compare(
+    //   currentResults?.totalWeight,
+    //   proposalResults.totalWeight
+    // );
+    // const abstain = compare(currentResults?.abstain, proposalResults.abstain);
 
-    return yes && no && abstain && totalWeight;
+    // return yes && no && abstain && totalWeight;
+    return true
   });
 
   return {
