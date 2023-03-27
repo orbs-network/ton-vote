@@ -5,7 +5,7 @@ import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 import { Logger } from "utils";
-import { CONTRACT_ADDRESS, VOTE_OPTIONS } from "config";
+import { CONTRACT_ADDRESS, VOTE_OPTIONS, VOTE_REQUIRED_NUM_OPTIONS } from "config";
 import { CUSTODIAN_ADDRESSES } from "./custodian";
 
 
@@ -64,6 +64,8 @@ export async function getTransactions(client, toLt) {
     });
   }
 
+  console.log(allTxns);
+
   return { allTxns, maxLt: maxLt.toString() };
 }
 
@@ -76,9 +78,10 @@ export function filterTxByTimestamp(transactions, lastLt) {
 }
 
 function verifyVote(vote) {
+  console.log('vote---', vote, !vote, !Array.isArray(vote));
   if (!vote) return false;
   if (!Array.isArray(vote)) return false;
-  if (!vote.length != VOTE_OPTIONS.length) return false;
+  if (vote.length != VOTE_REQUIRED_NUM_OPTIONS) return false;
 
   const voteObj = vote.reduce((accumulator, currentValue) => {
     if (currentValue in VOTE_OPTIONS) {
@@ -88,7 +91,8 @@ function verifyVote(vote) {
     return accumulator;
   }, {});
 
-  return Object.keys(accumulator).length == VOTE_OPTIONS.length;
+  console.log('voteObj: ', voteObj);
+  return Object.keys(voteObj).length == VOTE_REQUIRED_NUM_OPTIONS;
 }
 
 export function getAllVotes(transactions, proposalInfo) {
@@ -99,12 +103,14 @@ export function getAllVotes(transactions, proposalInfo) {
 
     if (!txnBody.text) continue;
 
+    console.log('txnBody.text: ', txnBody.text);
     // vote should be a string of numbers with or without comma
     // e.g: '1, 2, 3' or '1 2 3'
-    const vote = txnBody.text.split("/,|s/").map((numberString) => {
+    const vote = txnBody.text.split(/[,\s]+/).map((numberString) => {
       return parseInt(numberString.trim());
     });
 
+    console.log('vote: ', vote);
     // verify user sent exatcly 3 options all of them are valid and every option appears only once
     if (!verifyVote(vote)) continue;
 
@@ -121,6 +127,8 @@ export function getAllVotes(transactions, proposalInfo) {
       hash: transactions[i].id.hash,
     };
   }
+
+  console.log('allVotes: ', allVotes);
 
   return allVotes;
 }
