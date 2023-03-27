@@ -319,6 +319,8 @@ export const useSendTransaction = () => {
 
   const query = useMutation(
     async (vote: string) => {
+      console.log(vote);
+      
       analytics.GA.txSubmitted(vote);
 
       setTxLoading(true);

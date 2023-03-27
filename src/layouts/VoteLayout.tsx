@@ -23,8 +23,7 @@ export function VoteLayout() {
   }, [isLoading]);
 
   const onSubmit = () => {
-    // if (!vote) return;
-    // mutate(vote);
+    mutate(selectedOptions.join(','));
   };
 
   // if (!voteInProgress) return null;
