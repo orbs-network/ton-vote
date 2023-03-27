@@ -6,6 +6,7 @@
   "homepage": "https://ton.vote/",
   "scripts": {
     "dev": "vite",
+    "dev-force": "vite --force",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -49,7 +50,7 @@
     "react-window": "^1.8.8",
     "ton": "^13.4.1",
     "ton-core": "^0.48.0",
-    "ton-vote-npm": "^1.0.2",
+    "ton-vote-npm": "^1.0.7",
     "use-query-params": "^2.2.0",
     "vite-plugin-require": "^1.1.10",
     "vite-tsconfig-paths": "^4.0.5",

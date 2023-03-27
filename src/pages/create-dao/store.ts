@@ -6,11 +6,19 @@ import { Address } from "ton-core";
 import { InputInterface } from "types";
 import { create } from "zustand";
 import * as Yup from "yup";
+import _ from "lodash";
+import { useNotification } from "components";
 
-interface State {
-  step: number;
-  setStep: (value: number) => void;
-}
+const initialFormData: FormData = {
+  name: "test",
+  twitter: "https://reactdatepicker.com/",
+  website: "https://reactdatepicker.com/",
+  github: "https://reactdatepicker.com/",
+  about: "https://reactdatepicker.com/",
+  terms: "https://reactdatepicker.com/",
+  ownerAddress: "",
+  proposalOwner: "",
+};
 
 export interface FormData {
   name: string;
@@ -23,49 +31,86 @@ export interface FormData {
   proposalOwner: string;
   avatar?: File;
 }
+interface State {
+  step: number;
+  setStep: (value: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  setFormData: (value: FormData) => void;
+  formData: FormData;
+  metadataAddress?: Address;
+  setMetadataAddress: (value: Address) => void;
+  reset: () => void;
+}
 
 export const useCreatDaoStore = create<State>((set, get) => ({
+  formData: initialFormData,
   step: 0,
   setStep: (step) => set({ step }),
+  nextStep: () => set((state) => ({ step: state.step + 1 })),
+  prevStep: () => set((state) => ({ step: state.step - 1 })),
+  setFormData: (formData) => set({ formData }),
+  setMetadataAddress: (metadataAddress) => set({ metadataAddress }),
+  reset: () => set({ formData: {} as FormData, step: 0 }),
 }));
 
 export const steps = [
-  { title: "Set avatar", index: 0 },
-  { title: "ENS", index: 1 },
-  { title: "Profile", index: 2 },
-  { title: "Strategy", index: 3 },
+  { title: "Create Metadata", index: 0 },
+  { title: "Create Dao", index: 1 },
 ];
 
-interface CreateDaoArgs {
-  values: FormData;
-}
+export const useCreateMetadata = () => {
+  const address = useConnectionStore().address;
+  const { nextStep, setMetadataAddress, setFormData } = useCreatDaoStore();
+  const { showNotification } = useNotification();
+
+  return useMutation(
+    async (values: FormData) => {
+      const response = await contract.createMetadata(
+        values.about,
+        "",
+        values.github,
+        false,
+        values.name,
+        values.terms,
+        values.twitter,
+        values.website
+      );
+      console.log({ response });
+
+      if (Address.isAddress(response)) {
+        nextStep();
+        setFormData(values);
+        setMetadataAddress(response);
+      }
+    },
+    {
+      onError: (error: any) => {
+        showNotification({ message: error.message, variant: "error" });
+      },
+    }
+  );
+};
 
 export const useCreateDao = () => {
-  const address = useConnectionStore().address;
-  return useMutation(async (args: CreateDaoArgs) => {
-    const { values } = args;
-    const hide = false;
-    const metadata = await contract.createMetadata(
-      values.about,
-      "",
-      values.github,
-      hide,
-      values.name,
-      values.terms,
-      values.twitter,
-      values.website
-    );
+  const { metadataAddress, formData, reset } = useCreatDaoStore();
+  const { showNotification } = useNotification();
 
-    if (!metadata || !address) {
-      return null;
+  return useMutation(
+    async () => {
+      return contract.createDao(
+        metadataAddress as Address,
+        Address.parse(formData.ownerAddress),
+        Address.parse(formData.proposalOwner)
+      );
+    },
+    {
+      onSuccess: reset,
+      onError: (error: any) => {
+        showNotification({ message: error.message, variant: "error" });
+      },
     }
-
-    return contract.createDao(
-      metadata as Address,
-      Address.parse(values.ownerAddress),
-      Address.parse(values.proposalOwner)
-    );
-  });
+  );
 };
 
 export const useInputs = (): InputInterface[] => {

@@ -8,11 +8,11 @@ import {
   useNotification,
 } from "components";
 import { contract } from "data-service";
-import { Formik, FormikProps } from "formik";
+import { Formik } from "formik";
 import { useDaoAddress } from "hooks";
+import { useDaoRolesQuery } from "query";
 import { StyledFlexColumn } from "styles";
 import { ProposalMetadata } from "ton-vote-npm";
-import { InputInterface } from "types";
 import { FormSchema, inputs } from "./data";
 
 interface FormData {
@@ -51,6 +51,9 @@ export const useCreateProposal = () => {
 
 function CreateProposal() {
   const { mutate: create, isLoading, error } = useCreateProposal();
+  const daoAddress = useDaoAddress();
+
+  
 
   return (
     <StyledContainer title="Create Proposal">
@@ -67,7 +70,11 @@ function CreateProposal() {
               <StyledFlexColumn gap={30}>
                 {inputs.map((input) => {
                   return (
-                    <MapInput<FormData> key={input.name} input={input} formik={formik} />
+                    <MapInput<FormData>
+                      key={input.name}
+                      input={input}
+                      formik={formik}
+                    />
                   );
                 })}
                 <StyledSubmit isLoading={isLoading} onClick={formik.submitForm}>
@@ -82,9 +89,7 @@ function CreateProposal() {
   );
 }
 
-
-
-const StyledDatePicker = styled(StyledFlexColumn)({});
+const StyledMapInput = styled(StyledFlexColumn)({});
 
 export { CreateProposal };
 

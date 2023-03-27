@@ -1,4 +1,4 @@
-import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryKey, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys, STATE_REFETCH_INTERVAL } from "config";
 import { contract, server } from "data-service";
 import { useIsCustomEndpoint } from "hooks";
@@ -28,7 +28,7 @@ export const useDaosQuery = () => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAOS]);
 
-  return useQuery(
+  return useInfiniteQuery(
     queryKey,
     async () => {
       if (isCustomEndpoint) {
@@ -38,6 +38,7 @@ export const useDaosQuery = () => {
     },
     {
       staleTime: Infinity,
+      getNextPageParam: (lastPage) => lastPage.endDaoId,
     }
   );
 };
@@ -80,7 +81,7 @@ export const useProposalMetadataQuery = (proposalAddress: string) => {
 
   return useQuery(queryKey, () => {
     if (isCustomEndpoint)
-      return contract.getDapProposalMetadata(proposalAddress);
+      return contract.getDaoProposalMetadata(proposalAddress);
     return server.getDapProposalMetadata(proposalAddress);
   });
 };

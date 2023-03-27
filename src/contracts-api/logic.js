@@ -9,15 +9,17 @@ import { useAppPersistedStore } from "store";
 import { DEFAULT_CLIENT_V2_ENDPOINT, DEFAULT_CLIENT_V4_ENDPOINT } from "config";
 
 export async function getClientV2() {
+  // TODO - use persisted store
+
   const { clientV2Endpoint, apiKey, clientV2Fallback, setClientV2Fallback } =
     useAppPersistedStore.getState();
 
-  if (clientV2Endpoint) {
-    return new TonClient({ endpoint: clientV2Endpoint, apiKey });
-  }
-  if (clientV2Fallback) {
-    return new TonClient({ endpoint: clientV2Fallback, apiKey });
-  }
+  // if (clientV2Endpoint) {
+  //   return new TonClient({ endpoint: clientV2Endpoint, apiKey });
+  // }
+  // if (clientV2Fallback) {
+  //   return new TonClient({ endpoint: clientV2Fallback, apiKey });
+  // }
 
   let endpoint;
   try {
@@ -31,15 +33,17 @@ export async function getClientV2() {
 }
 
 export async function getClientV4() {
+  // TODO - use persisted store
   const { clientV4Endpoint, clientV4Fallback, setClientV4Fallback } =
     useAppPersistedStore.getState();
 
-  if (clientV4Endpoint) {
-    return new TonClient4({ endpoint: clientV4Endpoint });
-  }
-  if (clientV4Fallback) {
-    return new TonClient4({ endpoint: clientV4Fallback });
-  }
+  // if (clientV4Endpoint) {
+  //   return new TonClient4({ endpoint: clientV4Endpoint });
+  // }
+  // if (clientV4Fallback) {
+  //   return new TonClient4({ endpoint: clientV4Fallback });
+  // }
+  let endpoint;
 
   try {
     endpoint = await getHttpV4Endpoint();

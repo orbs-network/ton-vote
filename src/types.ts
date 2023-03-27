@@ -83,7 +83,7 @@ export interface DaoProposal {
 
 export interface GetDaoProposals {
   endProposalId: bigint;
-  proposalAddresses: Address[];
+  proposalAddresses?: Address[];
 }
 
 

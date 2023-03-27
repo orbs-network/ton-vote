@@ -1,14 +1,5 @@
 import { TextField, styled, Typography, Box } from "@mui/material";
-import React, {
-  Component,
-  ComponentElement,
-  ElementType,
-  FunctionComponent,
-  JSXElementConstructor,
-  ReactComponentElement,
-  ReactElement,
-  useCallback,
-} from "react";
+import React, { useCallback } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
@@ -48,9 +39,10 @@ export function TextInput({
   title,
   name,
   endAdornment,
+  className,
 }: TextInputProps) {
   return (
-    <StyledContainer>
+    <StyledContainer className={`${className} text-input`}>
       {title && <StyledTitle>{title}</StyledTitle>}
       <StyledInput
         placeholder={placeholder}
@@ -80,12 +72,14 @@ interface UploadInputProps {
   onChange: (file: File) => void;
   className?: string;
   value?: File;
+  title: string;
 }
 
 export function UploadInput({
   onChange,
   className = "",
   value,
+  title,
 }: UploadInputProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     onChange(acceptedFiles[0]);
@@ -97,12 +91,13 @@ export function UploadInput({
 
   return (
     <StyledUploadContainer>
-      {value && <StyledUploadImg src={URL.createObjectURL(value)} />}
+      {title && <StyledTitle>{title}</StyledTitle>}
       <StyledUpload
         {...getRootProps()}
-        className={className}
+        className={`${className} upload-input`}
         active={isDragActive}
       >
+        {value && <StyledUploadImg src={URL.createObjectURL(value)} />}
         <BsUpload />
         <input {...getInputProps()} />
       </StyledUpload>
@@ -110,25 +105,27 @@ export function UploadInput({
   );
 }
 
-const StyledUploadImg = styled(Img)({
-  width: 150,
-  height: 150,
-  borderRadius:'50%'
+const StyledUploadContainer = styled(StyledFlexColumn)({
+  alignItems: "flex-start",
 });
 
-const StyledUploadContainer = styled(StyledFlexRow)({
-  gap: 150
+const StyledUploadImg = styled(Img)({
+  width: "100%",
+  height: "100%",
 });
 
 const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
+  width: 110,
+  height: 110,
   background: "rgba(211, 211, 211, 0.6)",
-  borderRadius: 20,
+  borderRadius: "50%",
   position: "relative",
   cursor: "pointer",
+  overflow: "hidden",
   svg: {
     transition: "0.2s all",
-    width: 50,
-    height: 50,
+    width: 35,
+    height: 35,
     position: "absolute",
     top: "50%",
     transform: active
@@ -136,9 +133,17 @@ const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
       : "translate(-50%, -50%)",
     left: "50%",
   },
+  ".img": {
+    transition: "0.2s all",
+    position: "relative",
+    zIndex: 2,
+  },
   "&:hover": {
+    ".img": {
+      opacity: 0,
+    },
     svg: {
-      transform: "translate(-50%, -50%) scale(1.2)",
+      transform: "translate(-50%, -50%) scale(1.1)",
     },
   },
 }));
@@ -146,10 +151,13 @@ const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
 const StyledTitle = styled(Typography)({
   textAlign: "left",
   width: "100%",
+  marginBottom: 3,
+  fontSize: 14,
+  fontWeight: 600,
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
-  gap: 2,
+  gap: 0,
   position: "relative",
 });
 
@@ -174,6 +182,7 @@ const StyledInput = styled(TextField)({
     borderRadius: 10,
   },
   input: {
+    padding: "12.5px 12px",
     fontSize: 16,
     fontWeight: 500,
   },
@@ -198,7 +207,7 @@ export const DateRangeInput = ({
 }: DateRangeInput) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <StyledDatepicker className={className}>
+      <StyledDatepicker className={`${className} date-input`}>
         {title && <StyledTitle>{title}</StyledTitle>}
         <DateTimePicker
           // minDateTime={dayjs().startOf('D')}
@@ -233,17 +242,22 @@ export function MapInput<T>({
   input,
   formik,
   EndAdornment,
+  className,
 }: {
   input: InputInterface;
   formik: FormikProps<T>;
   EndAdornment?: any;
+  className?: string;
 }) {
   const name = input.name;
   const value = formik.values[name as keyof T];
   const error = formik.errors[name as keyof T] as string;
   const label = input.label;
   const clearError = () => formik.setFieldError(name as string, undefined);
-  const onChange = (value: any) => formik.setFieldValue(name as string, value);
+  const onChange = (value: any) => {
+    formik.setFieldValue(name as string, value);
+    clearError();
+  };
   if (input.type === "date") {
     return (
       <DateRangeInput
@@ -251,11 +265,14 @@ export function MapInput<T>({
         title={label}
         error={error as string}
         onFocus={clearError}
+        className={className}
       />
     );
   }
   if (input.type === "upload") {
-    return <UploadInput onChange={onChange} value={value as File} />;
+    return (
+      <UploadInput title={label} onChange={onChange} value={value as File} />
+    );
   }
   return (
     <TextInput
@@ -269,11 +286,7 @@ export function MapInput<T>({
       rows={input.rows}
       endAdornment={
         input.defaultValue && !value ? (
-          <EndAdornment
-            onClick={() =>
-              formik.setFieldValue(name as string, input.defaultValue)
-            }
-          />
+          <EndAdornment onClick={() => onChange(input.defaultValue)} />
         ) : undefined
       }
     />

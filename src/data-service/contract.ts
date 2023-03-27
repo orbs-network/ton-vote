@@ -1,13 +1,5 @@
 import { useConnectionStore } from "connection";
-import {
-  getVotingPower,
-  getCurrentResults,
-  getAllVotes,
-  getTransactions as getTXs,
-  filterTxByTimestamp,
-  getClientV2,
-  getClientV4,
-} from "contracts-api/logic";
+import { getClientV2, getClientV4 } from "contracts-api/logic";
 import * as mock from "mock";
 import { useAppPersistedStore } from "store";
 import {
@@ -16,44 +8,33 @@ import {
   Sender,
   SenderArguments,
   storeStateInit,
-  Transaction,
 } from "ton";
-import {
-  RawVotes,
-  ProposalState,
-  DaoMetadata,
-  DaoRoles,
-  GetDaos,
-  GetDaoProposals,
-} from "types";
+import { RawVotes, ProposalState } from "types";
 import { Logger, parseVotes } from "utils";
 
 import * as TonVoteSDK from "ton-vote-npm";
 import { MetadataArgs, ProposalMetadata } from "ton-vote-npm";
-import BigNumber from "bignumber.js";
 
-const getDaos = async (): Promise<GetDaos> => {
+const getDaos = async () => {
   Logger("getDaos from contract");
 
   const tonClient = await getClientV2();
   return TonVoteSDK.getDaos(tonClient);
 };
-const getDaoMetadata = async (daoAddress: string): Promise<DaoMetadata> => {
+const getDaoMetadata = async (daoAddress: string) => {
   Logger("getDAO from contract");
   const tonClient = await getClientV2();
 
   return TonVoteSDK.getDaoMetadata(tonClient, Address.parse(daoAddress));
 };
-const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
+const getDaoRoles = async (daoAddress: string) => {
   Logger("getDapRoles from contract");
   const tonClient = await getClientV2();
 
   return TonVoteSDK.getDaoRoles(tonClient, Address.parse(daoAddress));
 };
 
-const getDaoProposals = async (
-  daoAddress: string
-): Promise<GetDaoProposals> => {
+const getDaoProposals = async (daoAddress: string) => {
   Logger("getDaoProposals from contract");
 
   const tonClient = await getClientV2();
@@ -61,9 +42,7 @@ const getDaoProposals = async (
   return TonVoteSDK.getDaoProposals(tonClient, Address.parse(daoAddress));
 };
 
-const getDaoProposalInfo = async (
-  contractAddress: string
-): Promise<ProposalMetadata> => {
+const getDaoProposalInfo = async (contractAddress: string) => {
   const tonClient = await getClientV2();
   const tonClienV4 = await getClientV4();
 
@@ -81,17 +60,22 @@ export const getState = async (
 ): Promise<ProposalState | null> => {
   let _transactions = prevState?.transactions || [];
   let _maxLt = prevState?.maxLt;
-
+  const client = await getClientV2();
+  const clientV4 = await getClientV4();
   const latestMaxLtAfterTx =
     useAppPersistedStore.getState().getLatestMaxLtAfterTx(proposalAddress) ||
     "0";
 
   if (latestMaxLtAfterTx) {
-    const { allTxns } = await getTransactions(proposalAddress);
-    _transactions = filterTxByTimestamp(allTxns, latestMaxLtAfterTx);
+    const { allTxns } = await TonVoteSDK.getTransactions(
+      client,
+      Address.parse(proposalAddress)
+    );
+    _transactions = TonVoteSDK.filterTxByTimestamp(allTxns, latestMaxLtAfterTx);
   } else {
-    const { allTxns, maxLt } = await getTransactions(
-      proposalAddress,
+    const { allTxns, maxLt } = await TonVoteSDK.getTransactions(
+      client,
+      Address.parse(proposalAddress),
       prevState?.maxLt
     );
     _maxLt = maxLt;
@@ -101,14 +85,22 @@ export const getState = async (
   if (_transactions.length === 0) {
     return prevState;
   }
-  const votingPower = await getVotingPower(
+  const votingPower = await TonVoteSDK.getVotingPower(
+    clientV4,
     proposalInfo,
     _transactions,
     prevState?.votingPower
   );
 
-  const results = getCurrentResults(_transactions, votingPower, proposalInfo);
-  const rawVotes = getAllVotes(_transactions, proposalInfo) as RawVotes;
+  const results = TonVoteSDK.getCurrentResults(
+    _transactions,
+    votingPower,
+    proposalInfo
+  );
+  const rawVotes = TonVoteSDK.getAllVotes(
+    _transactions,
+    proposalInfo
+  ) as RawVotes;
   return {
     votingPower,
     results,
@@ -117,18 +109,10 @@ export const getState = async (
   };
 };
 
-const getTransactions = async (
-  contractAddress: string,
-  toLt?: string
-): Promise<{ allTxns: Transaction[]; maxLt?: string }> => {
-  return getTXs(contractAddress, toLt);
-};
-
 const createProposal = async (daoAddr: string, args: ProposalMetadata) => {
   const sender = getSender();
   const client = await getClientV2();
-  console.log(sender.address?.toString());
-  
+
   return TonVoteSDK.newProposal(sender, client, Address.parse(daoAddr), args);
 };
 
@@ -211,7 +195,7 @@ const getSender = (): Sender => {
   };
 };
 
-const getDapProposalMetadata = (proposalAddress: string) => {
+const getDaoProposalMetadata = (proposalAddress: string) => {
   return mock.getProposalMetadata(proposalAddress);
 };
 
@@ -221,10 +205,9 @@ export const contract = {
   getDaoProposals,
   getDaoProposalInfo,
   getState,
-  getTransactions,
   createProposal,
   getDaoRoles,
-  getDapProposalMetadata,
+  getDaoProposalMetadata,
   createMetadata,
   createDao,
 };

@@ -5,21 +5,22 @@ import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";
 import { Address } from "ton-core";
-import { StyledDao, StyledDaoAvatar, StyledDaoContent, StyledJoinDao } from "./styles";
-
-
+import {
+  StyledDao,
+  StyledDaoAvatar,
+  StyledDaoContent,
+  StyledJoinDao,
+} from "./styles";
 
 export const Dao = ({ address }: { address: Address }) => {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
   const { spacePage } = useAppNavigation();
-  const { data: daoMetadata, isLoading } = useDaoMetadataQuery(address.toString());
-  
+  const { data: daoMetadata, isLoading } = useDaoMetadataQuery(
+    address.toString()
+  );
 
-  const navigate = () => {
-    if (!daoMetadata) return;
-    spacePage.root(address.toString());
-  };
+  const navigate = () => spacePage.root(address.toString());
 
   return (
     <StyledDao ref={ref} onClick={navigate}>
@@ -34,7 +35,7 @@ export const Dao = ({ address }: { address: Address }) => {
                   <Typography className="title">{daoMetadata?.name}</Typography>
                 }
               />
-             {!isLoading &&  <StyledJoinDao>Join</StyledJoinDao>}
+              {!isLoading && <StyledJoinDao>Join</StyledJoinDao>}
             </StyledFlexColumn>
           </StyledFlexColumn>
         ) : null}
@@ -42,6 +43,3 @@ export const Dao = ({ address }: { address: Address }) => {
     </StyledDao>
   );
 };
-
-
-

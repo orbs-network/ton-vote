@@ -8,7 +8,8 @@ import { Dao } from "./Dao";
 import { StyledDao, StyledDaosList, StyledLoader } from "./styles";
 
 export function DaosList() {
-  const { data: daos, isLoading } = useDaosQuery();  
+  const { data: daos, isLoading } = useDaosQuery();
+  
   const { createSpace } = useAppNavigation();
 
   return (
@@ -19,8 +20,10 @@ export function DaosList() {
       <StyledFlexColumn gap={70}>
         <StyledDaosList>
           <ListLoader isLoading={isLoading}>
-            {daos?.daoAddresses.map((address, index) => {
-              return <Dao key={index} address={address} />;
+            {daos?.pages.map((page) => {
+              return page.daoAddresses.map((address, index) => {
+                return <Dao key={index} address={address} />;
+              });
             })}
           </ListLoader>
         </StyledDaosList>
@@ -28,7 +31,6 @@ export function DaosList() {
     </Container>
   );
 }
-
 
 const ListLoader = ({
   isLoading,
@@ -52,4 +54,3 @@ const ListLoader = ({
   }
   return <>{children}</>;
 };
-

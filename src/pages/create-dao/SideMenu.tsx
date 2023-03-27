@@ -1,15 +1,13 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
 import { Container } from "components";
-import React, { useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsCheckLg } from "react-icons/bs";
 import { steps, useCreatDaoStore } from "./store";
 
-
-
 function SideMenu() {
   const { step: currentStep, setStep } = useCreatDaoStore();
+  const theme = useTheme();
   const onStepSelect = (index: number) => {
     if (index <= currentStep) {
       setStep(index);
@@ -20,14 +18,19 @@ function SideMenu() {
       <StyledSteps>
         <StyledStepsLine />
         {steps.map((step) => {
-          const finished = currentStep > step.index;
+          const finished = currentStep > step.index ? true : false;
           const isCurrent = currentStep === step.index;
           return (
             <StyledStep
               key={step.index}
               onClick={() => onStepSelect(step.index)}
             >
-              <StyledIndicator finished={finished}>
+              <StyledIndicator
+                style={{
+                  background: finished ? theme.palette.primary.main : "white",
+                  cursor: finished ? "pointer" : "default",
+                }}
+              >
                 {finished && <BsCheckLg style={{ color: "white" }} />}
                 {isCurrent && <StyledDot />}
               </StyledIndicator>
@@ -69,15 +72,12 @@ const StyledSteps = styled(StyledFlexColumn)({
   position: "relative",
 });
 
-const StyledIndicator = styled(StyledFlexRow)<{
-  finished: boolean;
-}>(({ theme, finished }) => ({
+const StyledIndicator = styled(StyledFlexRow)(({ theme }) => ({
   position: "relative",
   width: 40,
   height: 40,
   borderRadius: "50%",
   border: `2px solid ${theme.palette.primary.main}`,
-  background: finished ? theme.palette.primary.main : "white",
 }));
 
 const StyledStep = styled(StyledFlexRow)({
@@ -88,7 +88,8 @@ const StyledStep = styled(StyledFlexRow)({
 
 const StyledContainer = styled(Container)({
   width: 320,
+  position: "sticky",
+  top: 100
 });
 
-
-export {}
+export {};

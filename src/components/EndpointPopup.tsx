@@ -11,7 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { EndpointsArgs } from "types";
 import analytics from "analytics";
 import { useIsCustomEndpoint } from "hooks";
-import { TextInput } from "./Input";
+import { TextInput } from "./Inputs";
 
 const { clientV2, apiKey, clientV4 } = DEFAULT_ENDPOINT_INPUTS;
 
