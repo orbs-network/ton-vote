@@ -103,9 +103,17 @@ export const useClientStore = create<ClientsStore>((set, get) => ({
 }));
 
 export const useVoteStore = create<VoteStore>((set, get) => ({
-  vote: undefined,
-
-  setVote: (vote) => set({ vote }),
+  selectedOptions: [],
+  setSelectedOptions: (selectedOptions) => set({ selectedOptions }),
+  selectOption: (option: number) => {
+    const selectedOptions = get().selectedOptions || [];
+    if (selectedOptions.includes(option)) {
+      selectedOptions.splice(selectedOptions.indexOf(option), 1);
+    } else {
+      selectedOptions.push(option);
+    }
+    set({ selectedOptions });
+  },
 }));
 
 export const useVotesPaginationStore = create<VotesPaginationStore>(

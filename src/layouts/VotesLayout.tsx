@@ -14,11 +14,11 @@ import _ from "lodash";
 
 const ContainerHeader = () => {
   const {data, isLoading} = useStateQuery()
-  const totalTonAmount = data?.proposalResults?.totalWeight || '0';
+  const totalTonAmount = data?.proposalResults.totalPower;
   const votesLength = _.size(data?.votes)
 
   const tonAmount = useMemo(() => {
-    return nFormatter(Number(fromNano(totalTonAmount)));
+    return nFormatter(Number(totalTonAmount));
   }, [totalTonAmount]);
 
   return (
@@ -98,7 +98,7 @@ const VoteComponent = ({ data }: { data: Vote }) => {
             : makeElipsisAddress(address, 5)}
         </Link>
       </AppTooltip>
-      <Typography className="vote">{vote}</Typography>
+      {/* <Typography className="vote">{vote}</Typography> */}
       <Typography className="voting-power">
         {nFormatter(Number(votingPower))} TON
       </Typography>

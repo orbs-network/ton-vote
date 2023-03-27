@@ -68,7 +68,7 @@ function App() {
       <Navbar />
       <StyledGrid>{match ? <Mobile /> : <Destop />}</StyledGrid>
       <Footer />
-      <EndpointPopup />
+      {/* <EndpointPopup /> */}
     </StyledApp>
   );
 }

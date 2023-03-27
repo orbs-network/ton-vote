@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import { Address } from "ton";
 
 export enum Provider {
@@ -18,10 +19,8 @@ export interface WalletProvider {
 }
 
 export interface Results {
-  yes: number;
-  no: number;
-  abstain: number;
-  totalWeight: string;
+  proposalResult: {};
+  totalPower: string;
 }
 
 export enum QueryKeys {

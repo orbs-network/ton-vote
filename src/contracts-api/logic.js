@@ -1,4 +1,4 @@
-import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { getHttpEndpoint , getHttpV4Endpoint} from "@orbs-network/ton-access";
 import { Address, fromNano, TonClient, TonClient4 } from "ton";
 import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
 
@@ -9,16 +9,28 @@ import { CONTRACT_ADDRESS, VOTE_OPTIONS } from "config";
 import { CUSTODIAN_ADDRESSES } from "./custodian";
 
 
+
 export async function getClientV2(customEndpoint, apiKey) {
-  if (customEndpoint) {
-    return new TonClient({ endpoint: customEndpoint, apiKey });
+  const localStorageV2 = localStorage.getItem("v2");
+  if (localStorageV2) {
+     return new TonClient({ endpoint: localStorageV2 });
   }
+    // if (customEndpoint) {
+    //   return new TonClient({ endpoint: customEndpoint, apiKey });
+    // }
   const endpoint = await getHttpEndpoint();
+   localStorage.setItem("v2", endpoint);
   return new TonClient({ endpoint });
 }
 
 export async function getClientV4(customEndpoint) {
-  const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
+    const localStorageV4 = localStorage.getItem("v4");
+  if(localStorageV4) {
+     return new TonClient4({ endpoint: localStorageV4 });
+  }
+  // const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
+  const endpoint = await getHttpV4Endpoint();
+   localStorage.setItem("v4", endpoint);
   return new TonClient4({ endpoint });
 }
 
@@ -88,6 +100,8 @@ export function getAllVotes(transactions, proposalInfo) {
 
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
+
+    console.log({ txnBody });
 
     // vote should be a string of numbers with or without comma
     // e.g: '1, 2, 3' or '1 2 3'
@@ -172,7 +186,7 @@ export function calcProposalResult(votes, votingPower) {
   }
 
   let proposalResult = {};
-  const totalPower = new BigNumber(0);
+  let totalPower = new BigNumber(0);
 
   for (const optionTotalPower of Object.values(sumVotes)) {
     totalPower = totalPower.plus(optionTotalPower)
@@ -191,7 +205,11 @@ export function calcProposalResult(votes, votingPower) {
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
   let votes = getAllVotes(transactions, proposalInfo);
-  return calcProposalResult(votes, votingPower);
+  const res =  calcProposalResult(votes, votingPower);
+  return {
+    proposalResult: res.proposalResult,
+    totalPower: fromNano(res.totalPower),
+  };
 }
 
 export async function getProposalInfo(client, clientV4) {
