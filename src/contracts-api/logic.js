@@ -181,7 +181,7 @@ export function calcProposalResult(votes, votingPower) {
     totalPower = totalPower.plus(optionTotalPower);
   }
 
-  for (const [voteOption, optionTotalPow] of Object.items(sumVotes)) {
+  for (const [voteOption, optionTotalPow] of Object.entries(sumVotes)) {
     proposalResult[voteOption] = optionTotalPow
     .div(totalPower)
     .decimalPlaces(4)
