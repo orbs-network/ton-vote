@@ -5,7 +5,7 @@ import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 import { Logger } from "utils";
-import { CONTRACT_ADDRESS } from "config";
+import { CONTRACT_ADDRESS, VOTE_OPTIONS } from "config";
 import { CUSTODIAN_ADDRESSES } from "./custodian";
 
 
@@ -66,35 +66,46 @@ export function filterTxByTimestamp(transactions, lastLt) {
   return filteredTx;
 }
 
+function verifyVote(vote) {
+
+  if (!vote) return false;
+  if (!Array.isArray(vote)) return false;
+  if (!vote.length != VOTE_OPTIONS.length) return false;
+
+  const voteObj = vote.reduce((accumulator, currentValue) => {
+    if (currentValue in VOTE_OPTIONS) {
+      accumulator[currentValue] = currentValue in accumulator ? accumulator[currentValue] + 1: 1;
+    }
+    return accumulator;
+  }, {});
+
+  return Object.keys(accumulator).length == VOTE_OPTIONS.length
+
+}
+
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
 
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
-    let vote = txnBody.text;
-    if (!vote) continue;
+    const vote = txnBody.text.split('/,|\s/').map((numberString) => {
+      return parseInt(numberString.trim());
+    });
+    
+    if (!verifyVote(vote)) continue;
 
     if (
       transactions[i].time < proposalInfo.startTime ||
       transactions[i].time > proposalInfo.endTime || CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
-    )
-      continue;
+    ) continue;
 
-    vote = vote.toLowerCase();
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
-      vote: "",
+      vote: vote,
       hash: transactions[i].id.hash
     };
-
-    if (["y", "yes"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source].vote = "Yes";
-    } else if (["n", "no"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source].vote = "No";
-    } else if (["a", "abstain"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source].vote = "Abstain";
-    }
+    
   }
 
   
@@ -139,52 +150,41 @@ export async function getSingleVotingPower(
 }
 
 export function calcProposalResult(votes, votingPower) {
-  let sumVotes = {
-    yes: new BigNumber(0),
-    no: new BigNumber(0),
-    abstain: new BigNumber(0),
-  };
+  
+  // sumVotes = {"0": 0, "1": 0, "2": 0, "3": 0, ...}
+  const sumVotes = VOTE_OPTIONS.reduce((accumulator, currentValue) => {
+    accumulator[currentValue] = new BigNumber(0);
+    return accumulator;
+  }, {});
 
   for (const [voter, vote] of Object.entries(votes)) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
 
-      const _vote = vote.vote 
-    if (_vote === "Yes") {
-      sumVotes.yes = new BigNumber(votingPower[voter]).plus(sumVotes.yes);
-    } else if (_vote === "No") {
-      sumVotes.no = new BigNumber(votingPower[voter]).plus(sumVotes.no);
-    } else if (_vote === "Abstain") {
-      sumVotes.abstain = new BigNumber(votingPower[voter]).plus(
-        sumVotes.abstain
-      );
+    const votingPower = new BigNumber(votingPower[voter]);
+    const votingPowerPart = votingPower.div(vote.vote.length);
+    // vote.vote is an arary with exactly 3 options e.g.: ['7', '2', '5']
+    for (const _vote of vote.vote) {
+      sumVotes[_vote] = votingPowerPart.plus(sumVotes[_vote]);
     }
   }
 
+  let proposalResult = {};
+  const totalPower = new BigNumber(0);
 
-  const totalWeights = sumVotes.yes.plus(sumVotes.no).plus(sumVotes.abstain);
-  const yesPct = sumVotes.yes
-    .div(totalWeights)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
-  const noPct = sumVotes.no
-    .div(totalWeights)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
-  const abstainPct = sumVotes.abstain
-    .div(totalWeights)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
+  for (const optionTotalPower of Object.values(sumVotes)) {
+    totalPower = totalPower.plus(optionTotalPower)
+  }
 
-    return {
-    yes: yesPct,
-    no: noPct,
-    abstain: abstainPct,
-    totalWeight: totalWeights.toString(),
-  };
+  for (const [voteOption, optionTotalPower] of Object.values(sumVotes)) {
+    proposalResult[voteOption] = sumVotes[voteOption]
+    .div(totalPower)
+    .decimalPlaces(4)
+    .multipliedBy(100)
+    .toNumber();
+  }
+
+  return {proposalResult, totalPower} 
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {

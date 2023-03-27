@@ -111,3 +111,5 @@ export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 
 
 export const PASSWORD = "ton-vote-14-02";
+
+export const VOTE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
