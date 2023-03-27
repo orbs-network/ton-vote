@@ -89,10 +89,13 @@ export function getAllVotes(transactions, proposalInfo) {
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
+    // vote should be a string of numbers with or without comma
+    // e.g: '1, 2, 3' or '1 2 3'
     const vote = txnBody.text.split('/,|\s/').map((numberString) => {
       return parseInt(numberString.trim());
     });
     
+    // verify user sent exatcly 3 options all of them are valid and every option appears only once
     if (!verifyVote(vote)) continue;
 
     if (
@@ -105,9 +108,8 @@ export function getAllVotes(transactions, proposalInfo) {
       vote: vote,
       hash: transactions[i].id.hash
     };
-    
-  }
 
+  }
   
   return allVotes;
 }
