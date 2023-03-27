@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { voteOptions } from "config";
+import { VOTE_OPTIONS } from "config";
 import {
   getAllVotes,
   getCurrentResults,
@@ -19,7 +19,7 @@ import { ProposalInfo, RawVotes, Transaction, Vote, VotingPower } from "types";
 import { parseVotes } from "utils";
 
 export const useWalletVote = () => {
-  const { setVote } = useVoteStore();
+  // const { setVote } = useVoteStore();
 
   return (
     votes: Vote[],
@@ -33,8 +33,8 @@ export const useWalletVote = () => {
     votes.splice(index, 1);
     votes.unshift(vote);
 
-    const value = voteOptions.find((it) => it.name === vote?.vote)?.value;
-    setVote(value || "");
+    // const value = VOTE_OPTIONS.find((it) => it === vote);
+    // setVote(value || "");
 
     return votes;
   };

@@ -38,8 +38,9 @@ export interface VotesPaginationStore {
 }
 
 export interface VoteStore {
-  setVote: (vote?: string) => void;
-  vote?: string;
+  selectedOptions: number[];
+  setSelectedOptions: (value?: number[]) => void;
+  selectOption: (value: number) => void;
 }
 
 export interface ClientsStore {
