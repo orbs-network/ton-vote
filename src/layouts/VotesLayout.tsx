@@ -18,7 +18,7 @@ const ContainerHeader = () => {
   const votesLength = _.size(data?.votes)
 
   const tonAmount = useMemo(() => {
-    return nFormatter(Number(totalTonAmount));
+    return nFormatter(Number(fromNano(totalTonAmount?.toNumber() || '0')));
   }, [totalTonAmount]);
 
   return (
@@ -90,7 +90,7 @@ const VoteComponent = ({ data }: { data: Vote }) => {
   const connectedAddress = useConnectionStore().address;
 
   return (
-    <StyledVote justifyContent="flex-start">
+    <StyledVote justifyContent='space-between'>
       <AppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
         <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
           {connectedAddress === address

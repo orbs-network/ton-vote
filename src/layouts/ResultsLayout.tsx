@@ -1,4 +1,4 @@
-import { Chip, Link, Typography } from "@mui/material";
+import { Chip, Fade, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
@@ -28,9 +28,13 @@ const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
   const updated = useStateQuery().dataUpdatedAt;
 
+  console.log({ votes });
+  
+
   return useMemo(() => {
     const grouped = _.groupBy(votes, "vote");
-
+    console.log({ grouped });
+    
     return {
       yes: nFormatter(_.size(grouped.Yes)),
       no: nFormatter(_.size(grouped.No)),
@@ -47,8 +51,7 @@ const calculateTonAmount = (percent?: number, total?: string) => {
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
-  const results = data?.proposalResults as any || {};
-
+  const results = data?.proposalResults.proposalResult as any || {};
   
   const [showAll, setShowAll] = useState(false)
 
@@ -62,14 +65,13 @@ export const ResultsLayout = () => {
         <StyledFlexColumn gap={15}>
           {VOTE_OPTIONS.map((option, index) => {
             if (!showAll && index > 2) return null;
-            const _option = option.toString();
             return (
               <ResultRow
-                key={_option}
-                name={_option}
-                percent={results[_option] || 0}
+                key={option}
+                name={option.toString()}
+                percent={results[option] || 0}
                 tonAmount={calculateTonAmount(
-                  results[_option as any],
+                  results[option as any],
                   results?.totalPower
                 )}
                 votes={votesCount.yes}
@@ -77,9 +79,8 @@ export const ResultsLayout = () => {
             );
           })}
         </StyledFlexColumn>
-        <Button onClick={() => setShowAll(true)}>Show more</Button>
+       {!showAll &&  <Button onClick={() => setShowAll(true)}>Show more</Button>}
       </StyledFlexColumn>
-     
     </StyledResults>
   );
 };
