@@ -85,7 +85,7 @@ function verifyVote(vote) {
 
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
-
+  
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
@@ -186,7 +186,7 @@ export function calcProposalResult(votes, votingPower) {
     .toNumber();
   }
 
-  return {proposalResult, totalPower} 
+  return {proposalResult, totalPower: totalPower.toString()} 
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
