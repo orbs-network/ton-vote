@@ -60,12 +60,14 @@ export const ResultsLayout = () => {
           tonAmount={calculateTonAmount(results?.yes, results?.totalWeight)}
           votes={votesCount.yes}
         />
+        
         <ResultRow
           name="No"
           percent={results?.no || 0}
           tonAmount={calculateTonAmount(results?.no, results?.totalWeight)}
           votes={votesCount.no}
         />
+
         <ResultRow
           name="Abstain"
           percent={results?.abstain || 0}
