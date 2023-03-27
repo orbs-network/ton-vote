@@ -93,11 +93,12 @@ function verifyVote(vote) {
 
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
-
+  console.log(transactions);
+  if (transactions.length == 0) return allVotes;
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
-    console.log(txnBody.text);
+    console.log(txnBody);
 
     // vote should be a string of numbers with or without comma
     // e.g: '1, 2, 3' or '1 2 3'
@@ -175,7 +176,7 @@ export function calcProposalResult(votes, votingPower) {
   }
 
   let proposalResult = {};
-  const totalPower = new BigNumber(0);
+  let totalPower = new BigNumber(0);
 
   for (const optionTotalPower of Object.values(sumVotes)) {
     totalPower = totalPower.plus(optionTotalPower);

@@ -75,7 +75,7 @@ export const ResultsLayout = () => {
         </StyledFlexColumn>
         <Button onClick={() => setShowAll(true)}>Show more</Button>
       </StyledFlexColumn>
-      <VerifyResults />
+     
     </StyledResults>
   );
 };
@@ -176,7 +176,7 @@ const useVerify = () => {
     // const abstain = compare(currentResults?.abstain, proposalResults.abstain);
 
     // return yes && no && abstain && totalWeight;
-    return true
+    return false
   });
 
   return {
