@@ -178,8 +178,8 @@ export function calcProposalResult(votes, votingPower) {
     totalPower = totalPower.plus(optionTotalPower)
   }
 
-  for (const [voteOption, optionTotalPower] of Object.values(sumVotes)) {
-    proposalResult[voteOption] = sumVotes[voteOption]
+  for (const [voteOption, optionTotalPow] of Object.items(sumVotes)) {
+    proposalResult[voteOption] = optionTotalPow
     .div(totalPower)
     .decimalPlaces(4)
     .multipliedBy(100)
