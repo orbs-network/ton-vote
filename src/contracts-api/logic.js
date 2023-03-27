@@ -97,7 +97,7 @@ export function getAllVotes(transactions, proposalInfo) {
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
-    console.log(txnBody);
+    if (!txnBody.text) continue;
 
     // vote should be a string of numbers with or without comma
     // e.g: '1, 2, 3' or '1 2 3'
