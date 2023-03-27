@@ -34,10 +34,7 @@ export async function getClientV4(customEndpoint) {
   return new TonClient4({ endpoint });
 }
 
-export async function getTransactions(
-  client,
-  toLt
-) {
+export async function getTransactions(client, toLt) {
   let maxLt = new BigNumber(toLt ?? -1);
   let startPage = { fromLt: "0", hash: "" };
 
@@ -51,7 +48,7 @@ export async function getTransactions(
       to_lt: toLt,
       hash: paging.hash,
       limit: 500,
-    });  
+    });
 
     Logger(`Got ${txns.length}, lt ${paging.fromLt}`);
 
@@ -79,20 +76,19 @@ export function filterTxByTimestamp(transactions, lastLt) {
 }
 
 function verifyVote(vote) {
-
   if (!vote) return false;
   if (!Array.isArray(vote)) return false;
   if (!vote.length != VOTE_OPTIONS.length) return false;
 
   const voteObj = vote.reduce((accumulator, currentValue) => {
     if (currentValue in VOTE_OPTIONS) {
-      accumulator[currentValue] = currentValue in accumulator ? accumulator[currentValue] + 1: 1;
+      accumulator[currentValue] =
+        currentValue in accumulator ? accumulator[currentValue] + 1 : 1;
     }
     return accumulator;
   }, {});
 
-  return Object.keys(accumulator).length == VOTE_OPTIONS.length
-
+  return Object.keys(accumulator).length == VOTE_OPTIONS.length;
 }
 
 export function getAllVotes(transactions, proposalInfo) {
@@ -101,30 +97,31 @@ export function getAllVotes(transactions, proposalInfo) {
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
-    console.log({ txnBody });
+    console.log(txnBody.text);
 
     // vote should be a string of numbers with or without comma
     // e.g: '1, 2, 3' or '1 2 3'
-    const vote = txnBody.text.split('/,|\s/').map((numberString) => {
+    const vote = txnBody.text.split("/,|s/").map((numberString) => {
       return parseInt(numberString.trim());
     });
-    
+
     // verify user sent exatcly 3 options all of them are valid and every option appears only once
     if (!verifyVote(vote)) continue;
 
     if (
       transactions[i].time < proposalInfo.startTime ||
-      transactions[i].time > proposalInfo.endTime || CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
-    ) continue;
+      transactions[i].time > proposalInfo.endTime ||
+      CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
+    )
+      continue;
 
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
       vote: vote,
-      hash: transactions[i].id.hash
+      hash: transactions[i].id.hash,
     };
-
   }
-  
+
   return allVotes;
 }
 
@@ -152,21 +149,13 @@ export async function getVotingPower(
   return votingPower;
 }
 
-export async function getSingleVotingPower(
-  clientV4,
-  mcSnapshotBlock,
-  address
-) {
-    return (
-      await clientV4.getAccountLite(
-        mcSnapshotBlock,
-        Address.parse(address)
-      )
-    ).account.balance.coins;
+export async function getSingleVotingPower(clientV4, mcSnapshotBlock, address) {
+  return (
+    await clientV4.getAccountLite(mcSnapshotBlock, Address.parse(address))
+  ).account.balance.coins;
 }
 
 export function calcProposalResult(votes, votingPower) {
-  
   // sumVotes = {"0": 0, "1": 0, "2": 0, "3": 0, ...}
   const sumVotes = VOTE_OPTIONS.reduce((accumulator, currentValue) => {
     accumulator[currentValue] = new BigNumber(0);
@@ -186,30 +175,26 @@ export function calcProposalResult(votes, votingPower) {
   }
 
   let proposalResult = {};
-  let totalPower = new BigNumber(0);
+  const totalPower = new BigNumber(0);
 
   for (const optionTotalPower of Object.values(sumVotes)) {
-    totalPower = totalPower.plus(optionTotalPower)
+    totalPower = totalPower.plus(optionTotalPower);
   }
 
-  for (const [voteOption, optionTotalPower] of Object.values(sumVotes)) {
-    proposalResult[voteOption] = sumVotes[voteOption]
-    .div(totalPower)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
+  for (const [voteOption, optionTotalPow] of Object.items(sumVotes)) {
+    proposalResult[voteOption] = optionTotalPow
+      .div(totalPower)
+      .decimalPlaces(4)
+      .multipliedBy(100)
+      .toNumber();
   }
 
-  return {proposalResult, totalPower} 
+  return { proposalResult, totalPower };
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
   let votes = getAllVotes(transactions, proposalInfo);
-  const res =  calcProposalResult(votes, votingPower);
-  return {
-    proposalResult: res.proposalResult,
-    totalPower: fromNano(res.totalPower),
-  };
+  return calcProposalResult(votes, votingPower);
 }
 
 export async function getProposalInfo(client, clientV4) {
