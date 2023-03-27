@@ -47,10 +47,14 @@ const calculateTonAmount = (percent?: number, total?: string) => {
 
 export const ResultsLayout = () => {
   const { data, isLoading } = useStateQuery();
-  const results = data?.proposalResults as any;
+  const results = data?.proposalResults as any || {};
+
+  
   const [showAll, setShowAll] = useState(false)
 
   const votesCount = useVotesCount();
+
+
 
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
@@ -63,9 +67,9 @@ export const ResultsLayout = () => {
               <ResultRow
                 key={_option}
                 name={_option}
-                percent={results?.proposalResult[_option] || 0}
+                percent={results[_option] || 0}
                 tonAmount={calculateTonAmount(
-                  results?.proposalResult[_option as any],
+                  results[_option as any],
                   results?.totalPower
                 )}
                 votes={votesCount.yes}
