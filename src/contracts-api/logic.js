@@ -163,11 +163,11 @@ export function calcProposalResult(votes, votingPower) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
 
-    const votingPower = new BigNumber(votingPower[voter]);
-    const votingPowerPart = votingPower.div(vote.vote.length);
+    const voterPower = new BigNumber(votingPower[voter]);
+    const voterPowerPart = voterPower.div(vote.vote.length);
     // vote.vote is an arary with exactly 3 options e.g.: ['7', '2', '5']
     for (const _vote of vote.vote) {
-      sumVotes[_vote] = votingPowerPart.plus(sumVotes[_vote]);
+      sumVotes[_vote] = voterPowerPart.plus(sumVotes[_vote]);
     }
   }
 
