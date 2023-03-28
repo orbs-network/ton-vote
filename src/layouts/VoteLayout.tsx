@@ -3,7 +3,7 @@ import { styled, Typography } from "@mui/material";
 import { Container, Button, TxReminderPopup, ConnectButton } from "components";
 import { useEffect, useMemo, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { APPROVE_TX, TX_APPROVED_AND_PENDING, VOTE_OPTIONS } from "config";
+import { APPROVE_TX, TX_APPROVED_AND_PENDING, VOTE_OPTIONS, VOTE_REQUIRED_NUM_OPTIONS } from "config";
 import { useVoteTimeline } from "hooks";
 import { useConnectionStore } from "store";
 import { useSendTransaction, useStateQuery } from "queries";
@@ -63,7 +63,7 @@ export function VoteLayout() {
           return (
             <Option
               key={option}
-              disabled={!checked && optionsSize === 3}
+              disabled={!checked && optionsSize === VOTE_REQUIRED_NUM_OPTIONS}
               checked={checked}
               option={option}
               onClick={onSelect}
@@ -73,7 +73,7 @@ export function VoteLayout() {
       </StyledFlexColumn>
       <VoteButton
         isLoading={isLoading}
-        disabled={optionsSize !== 3}
+        disabled={optionsSize !== VOTE_REQUIRED_NUM_OPTIONS}
         onSubmit={onSubmit}
       />
 
