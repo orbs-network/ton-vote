@@ -4,5 +4,5 @@ export const KEY_LEN = 0x1;
 export const KEY_VAL = 0x1;
 
 export const START_EPOCH = 1680098400;
-export const END_EPOCH = 1680703200;
+export const END_EPOCH = 1680195600;
 export const SNAPSHOT_EPOCH = 1680012000;

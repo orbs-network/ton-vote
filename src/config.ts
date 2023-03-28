@@ -90,7 +90,8 @@ export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
 
 export const CONTRACT_ADDRESS = Address.parse(
   // "EQAdCBpXEk8er0qwd7egXvPjJvb1QkEF8ftSDiDJ3sRKVs4y"
-  "EQD9v2dqghN0TPeTDNYqmRIXNAxyVKWf2fr8xvinTF07utaZ"
+  //"EQD9v2dqghN0TPeTDNYqmRIXNAxyVKWf2fr8xvinTF07utaZ"
+  "EQDOpqfdHHfB0YvPqPupyPnA8HHF0V1aoDaZEStO1fG0nzdb"
 );
 
 // EQD9v2dqghN0TPeTDNYqmRIXNAxyVKWf2fr8xvinTF07utaZ; 
