@@ -21,7 +21,7 @@ export const usePersistedStore = create(
       maxLt: undefined,
       setMaxLt: (maxLt) => set({ maxLt }),
       clearMaxLt: () => set({ maxLt: undefined }),
-      serverDisabled: false,
+      serverDisabled: true,
       disableServer: (serverDisabled) => set({ serverDisabled }),
       isCustomEndpoints: false,
       onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) => {
