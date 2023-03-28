@@ -78,13 +78,12 @@ export function filterTxByTimestamp(transactions, lastLt) {
 }
 
 function verifyVote(vote) {
-  // console.log('vote---', vote, !vote, !Array.isArray(vote));
   if (!vote) return false;
   if (!Array.isArray(vote)) return false;
   if (vote.length != VOTE_REQUIRED_NUM_OPTIONS) return false;
 
   const voteObj = vote.reduce((accumulator, currentValue) => {
-    if (currentValue in VOTE_OPTIONS) {
+    if (VOTE_OPTIONS.includes(currentValue)) {
       accumulator[currentValue] =
         currentValue in accumulator ? accumulator[currentValue] + 1 : 1;
     }
@@ -96,7 +95,7 @@ function verifyVote(vote) {
 
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
-  
+    
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
@@ -115,8 +114,7 @@ export function getAllVotes(transactions, proposalInfo) {
       transactions[i].time < proposalInfo.startTime ||
       transactions[i].time > proposalInfo.endTime ||
       CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
-    )
-      continue;
+    ) continue;
 
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
