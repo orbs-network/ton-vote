@@ -20,7 +20,7 @@ export interface WalletProvider {
 
 export interface Results {
   proposalResult: {};
-  totalPower: BigNumber;
+  totalPower: string;
 }
 
 export enum QueryKeys {

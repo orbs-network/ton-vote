@@ -35,9 +35,9 @@ const useVotesCount = () => {
   }, [updated]);
 };
 
-const calculateTonAmount = (percent?: number, totalPower?: BigNumber) => {
+const calculateTonAmount = (percent?: number, totalPower?: string) => {
   if (!percent || !totalPower) return;
-  const result = (Number(fromNano(totalPower.toNumber())) * percent) / 100;
+  const result = (Number(fromNano(Number(totalPower))) * percent) / 100;
   return nFormatter(result, 2);
 };
 

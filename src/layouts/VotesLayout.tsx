@@ -18,7 +18,7 @@ const ContainerHeader = () => {
   const votesLength = _.size(data?.votes);
 
   const tonAmount = useMemo(() => {
-    return nFormatter(Number(fromNano(totalTonAmount?.toNumber() || "0")));
+    return nFormatter(Number(fromNano(Number(totalTonAmount) || "0")));
   }, [totalTonAmount]);
 
   return (
