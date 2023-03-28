@@ -9,16 +9,15 @@ import { useConnectionStore, useVotesPaginationStore } from "store";
 import { fromNano } from "ton";
 import { useMemo } from "react";
 import moment from "moment";
-import _ from "lodash";
-
+import _, { isArray } from "lodash";
 
 const ContainerHeader = () => {
-  const {data, isLoading} = useStateQuery()
+  const { data, isLoading } = useStateQuery();
   const totalTonAmount = data?.proposalResults.totalPower;
-  const votesLength = _.size(data?.votes)
+  const votesLength = _.size(data?.votes);
 
   const tonAmount = useMemo(() => {
-    return nFormatter(Number(fromNano(totalTonAmount?.toNumber() || '0')));
+    return nFormatter(Number(fromNano(totalTonAmount?.toNumber() || "0")));
   }, [totalTonAmount]);
 
   return (
@@ -27,9 +26,7 @@ const ContainerHeader = () => {
         <StyledChip
           label={
             <>
-              <NumberDisplay value={votesLength} />
-              {" "}
-              votes
+              <NumberDisplay value={votesLength} /> votes
             </>
           }
         />
@@ -42,21 +39,27 @@ const ContainerHeader = () => {
 };
 
 const StyledContainerHeader = styled(StyledFlexRow)({
-  flex:1,
-  justifyContent:'space-between',
-  '@media (max-width: 600px)': {
+  flex: 1,
+  justifyContent: "space-between",
+  "@media (max-width: 600px)": {
     ".total": {
-      fontSize: 13
-    }
-  }
+      fontSize: 13,
+    },
+  },
 });
 
 export function VotesLayout() {
-  const { isLoading, data } = useStateQuery();
+  const { isLoading, data, dataUpdatedAt: votesUpdatedDate } = useStateQuery();
 
   const votes = data?.votes;
   const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();
   const hideLoadMore = (votes?.length || 0) <= votesViewLimit;
+  const connectedAddress = useConnectionStore((store) => store.address);
+
+  const addressVote = useMemo(() => {
+    if (!connectedAddress) return;
+    return votes?.find((vote) => vote.address === connectedAddress);
+  }, [votesUpdatedDate, connectedAddress]);
 
   return (
     <StyledContainer
@@ -67,8 +70,12 @@ export function VotesLayout() {
     >
       {votes?.length ? (
         <StyledList gap={15}>
+          {addressVote && <VoteComponent you={true} data={addressVote} />}
           {votes?.map((vote, index) => {
-            if (index >= votesViewLimit) return null;
+            if (index >= votesViewLimit || vote.address === connectedAddress){
+                 return null;
+            }
+           
             return <VoteComponent data={vote} key={vote.address} />;
           })}
         </StyledList>
@@ -84,21 +91,25 @@ export function VotesLayout() {
   );
 }
 
-const VoteComponent = ({ data }: { data: Vote }) => {
-  const { address, votingPower, vote, hash, timestamp } = data;
-
-  const connectedAddress = useConnectionStore().address;
+const VoteComponent = ({ data, you }: { data: Vote; you?: boolean }) => {
+  const { address, votingPower,vote,  hash, timestamp } = data;
 
   return (
-    <StyledVote justifyContent='space-between'>
-      <AppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
+    <StyledVote justifyContent="space-between">
+      <AppTooltip
+        text={
+          <StyledFlexColumn>
+            {vote && isArray(vote) && (
+              <Typography>Vote: {vote.join(",")}</Typography>
+            )}
+            <Typography>{moment.unix(timestamp).utc().fromNow()}</Typography>
+          </StyledFlexColumn>
+        }
+      >
         <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
-          {connectedAddress === address
-            ? "You"
-            : makeElipsisAddress(address, 5)}
+          {you ? "You" : makeElipsisAddress(address, 5)}
         </Link>
       </AppTooltip>
-      {/* <Typography className="vote">{vote}</Typography> */}
       <Typography className="voting-power">
         {nFormatter(Number(votingPower))} TON
       </Typography>
@@ -147,9 +158,7 @@ const StyledVote = styled(StyledFlexRow)({
     ".address": {
       maxWidth: "60%",
     },
-    ".date": {
-
-    },  
+    ".date": {},
     ".vote": {
       flex: "unset",
       marginLeft: "auto",

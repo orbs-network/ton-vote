@@ -1,44 +1,72 @@
-import { Checkbox, Fade, useTheme } from "@mui/material";
+import { useTheme } from "@mui/material";
 import { styled, Typography } from "@mui/material";
 import { Container, Button, TxReminderPopup, ConnectButton } from "components";
 import { useEffect, useMemo, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, VOTE_OPTIONS } from "config";
 import { useVoteTimeline } from "hooks";
-import { useConnectionStore, useVoteStore } from "store";
-import { useSendTransaction } from "queries";
-import _ from "lodash";
+import { useConnectionStore } from "store";
+import { useSendTransaction, useStateQuery } from "queries";
+import _, { isNumber } from "lodash";
 
 export function VoteLayout() {
-  const { selectedOptions, selectOption } = useVoteStore();
+  const [selectedVotes, setSelectedVotes] = useState<number[]>([]);
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();
   const voteInProgress = useVoteTimeline()?.voteInProgress;
+  const connectedAddress = useConnectionStore((store) => store.address);
+  const { dataUpdatedAt: votesUpdatedDate, data } = useStateQuery();
 
-  const optionsSize = _.size(selectedOptions);
+  const votes = data?.votes;
+
+
+
+  useEffect(() => {
+    if (connectedAddress) {
+      const index = votes?.findIndex((it) => it.address === connectedAddress);
+      if (!isNumber(index) || index === -1) return;
+      
+      setSelectedVotes(votes![index].vote);
+    }
+  }, [connectedAddress, votesUpdatedDate]);
+
+
+
+  const optionsSize = _.size(selectedVotes);
+
+  const onSelect = (option: number) => {
+    setSelectedVotes((currentVotes) => {
+      const temp = [...currentVotes];
+      if (temp.includes(option)) {
+        temp.splice(temp.indexOf(option), 1);
+      } else {
+        temp.push(option);
+      }
+      return temp;
+    });
+  };
 
   useEffect(() => {
     setShowModal(isLoading);
   }, [isLoading]);
 
   const onSubmit = () => {
-    mutate(selectedOptions.join(','));
+    mutate(_.sortBy(selectedVotes).join(","));
   };
 
-  // if (!voteInProgress) return null;
+  if (!voteInProgress) return null;
   return (
     <StyledContainer title="Should the validators proceed with this proposal?">
       <StyledFlexColumn>
         {VOTE_OPTIONS.map((option) => {
-          const checked = selectedOptions.includes(option);
+          const checked = selectedVotes.includes(option);
           return (
             <Option
               key={option}
               disabled={!checked && optionsSize === 3}
               checked={checked}
               option={option}
-              onClick={selectOption}
+              onClick={onSelect}
             />
           );
         })}
@@ -93,8 +121,6 @@ const StyledConnectButton = styled(ConnectButton)({
   marginTop: 20,
   width: "100%",
 });
-
-
 
 const Option = ({
   option,

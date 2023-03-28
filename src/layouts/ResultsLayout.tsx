@@ -1,4 +1,4 @@
-import { Chip, Fade, Link, Typography } from "@mui/material";
+import { Box, Chip, Fade, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
@@ -23,67 +23,85 @@ import { VERIFY_LINK, VOTE_OPTIONS } from "config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
+import BigNumber from "bignumber.js";
 
 const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
   const updated = useStateQuery().dataUpdatedAt;
 
-  console.log({ votes });
-  
-
   return useMemo(() => {
-    const grouped = _.groupBy(votes, "vote");
-    console.log({ grouped });
-    
-    return {
-      yes: nFormatter(_.size(grouped.Yes)),
-      no: nFormatter(_.size(grouped.No)),
-      abstain: nFormatter(_.size(grouped.Abstain)),
-    };
+    const _votes = _.flatten(_.map(votes, (vote) => vote.vote));
+    return _.countBy(_votes);
   }, [updated]);
 };
 
-const calculateTonAmount = (percent?: number, total?: string) => {
-  if (!percent || !total) return;
-  const result = (Number(fromNano(total)) * percent) / 100;
+const calculateTonAmount = (percent?: number, totalPower?: BigNumber) => {
+  if (!percent || !totalPower) return;
+  const result = (Number(fromNano(totalPower.toNumber())) * percent) / 100;
   return nFormatter(result, 2);
 };
 
 export const ResultsLayout = () => {
-  const { data, isLoading } = useStateQuery();
-  const results = data?.proposalResults.proposalResult as any || {};
-  
-  const [showAll, setShowAll] = useState(false)
+  const { data, isLoading, dataUpdatedAt } = useStateQuery();
+  const results = data?.proposalResults.proposalResult || {};
+  const totalPower = data?.proposalResults.totalPower;
+  const [showAll, setShowAll] = useState(false);
 
   const votesCount = useVotesCount();
 
-
+  const sortedList = useMemo(() => {
+    const mapped = _.map(VOTE_OPTIONS, (option) => ({
+      option,
+      value: results[option as keyof {}],
+    }));
+    return _.sortBy(mapped, "value", "desc").reverse();
+  }, [dataUpdatedAt]);
 
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
-      <StyledFlexColumn gap={30}>
+      <StyledFlexColumn gap={0}>
         <StyledFlexColumn gap={15}>
-          {VOTE_OPTIONS.map((option, index) => {
+          {sortedList.map((item, index) => {
             if (!showAll && index > 2) return null;
             return (
               <ResultRow
-                key={option}
-                name={option.toString()}
-                percent={results[option] || 0}
-                tonAmount={calculateTonAmount(
-                  results[option as any],
-                  results?.totalPower
-                )}
-                votes={votesCount.yes}
+                key={item.option}
+                name={item.option.toString()}
+                percent={item.value || 0}
+                tonAmount={calculateTonAmount(item.value, totalPower)}
+                votes={nFormatter(votesCount[item.option], 2)}
               />
             );
           })}
         </StyledFlexColumn>
-       {!showAll &&  <Button onClick={() => setShowAll(true)}>Show more</Button>}
+        {showAll ? (
+          <StyledShowAllButton onClick={() => setShowAll(false)}>
+            Show Less
+          </StyledShowAllButton>
+        ) : (
+          <StyledShowAllButton onClick={() => setShowAll(true)}>
+            Show more
+          </StyledShowAllButton>
+        )}
       </StyledFlexColumn>
+      <VerifyResults />
     </StyledResults>
   );
 };
+
+const StyledShowAllButton = styled(Box)(({ theme }) => ({
+  color: theme.palette.primary.main,
+  fontSize: 14,
+  fontWeight: 700,
+  marginLeft: "auto",
+  marginTop: 10,
+  cursor: "pointer",
+  borderBottom: "2px solid transparent",
+  transition: "0.2s all",
+  "&:hover": {
+    borderBottom: `2px solid ${theme.palette.primary.main}`,
+  },
+}));
 
 const ResultRow = ({
   name,
@@ -161,27 +179,31 @@ const useVerify = () => {
 
   const query = useMutation(async () => {
     analytics.GA.verifyButtonClick();
-    const maxLt = fetchFromServer ? serverMaxLt : contractMaxLt;
+    const maxLt =  fetchFromServer ? serverMaxLt : contractMaxLt;
+    console.log({ maxLt, fetchFromServer });
+
     const { allTxns } = await getTransactions(clientV2);
     const transactions = filterTxByTimestamp(allTxns, maxLt);
 
     const contractState = await getContractState(proposalInfo!, transactions);
 
-    const proposalResults = contractState.proposalResults;
+    const compareResults = contractState.proposalResults;
 
-    Logger({ currentResults, proposalResults });
+    Logger({
+      currentResults: currentResults?.proposalResult,
+      compareResults: compareResults.proposalResult,
+    });
 
-    // const yes = compare(currentResults?.yes, proposalResults.yes);
+    const isVotesEqual = _.isEqual(
+      currentResults?.proposalResult,
+      compareResults.proposalResult
+    );
+    const isVotingPowerEqual = _.isEqual(
+      compareResults.totalPower,
+      compareResults.totalPower
+    );
 
-    // const no = compare(currentResults?.no, proposalResults.no);
-    // const totalWeight = compare(
-    //   currentResults?.totalWeight,
-    //   proposalResults.totalWeight
-    // );
-    // const abstain = compare(currentResults?.abstain, proposalResults.abstain);
-
-    // return yes && no && abstain && totalWeight;
-    return false
+    return isVotesEqual && isVotingPowerEqual;
   });
 
   return {
