@@ -191,7 +191,7 @@ export function calcProposalResult(votes, votingPower) {
     .toNumber();
   }
 
-  return {proposalResult, totalPower} 
+  return {proposalResult, totalPower: totalPower.toString()} 
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
