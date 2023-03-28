@@ -24,6 +24,9 @@ export function AppTooltip({
 
 
 const StyledTitle = styled(Box)({
+  fontSize: 14,
+  fontWeight: 600,
+  color: "rgb(114, 138, 150)",
   "*": {
     fontSize: 14,
     fontWeight: 600,

@@ -10,6 +10,7 @@ import { fromNano } from "ton";
 import { useMemo } from "react";
 import moment from "moment";
 import _, { isArray } from "lodash";
+import { useVoteTimeline } from "hooks";
 
 const ContainerHeader = () => {
   const { data, isLoading } = useStateQuery();
@@ -56,43 +57,51 @@ export function VotesLayout() {
   const hideLoadMore = (votes?.length || 0) <= votesViewLimit;
   const connectedAddress = useConnectionStore((store) => store.address);
 
+  const { voteStarted, isLoading: voteTimelineLoading } = useVoteTimeline();
+
+
+
   const addressVote = useMemo(() => {
     if (!connectedAddress) return;
     return votes?.find((vote) => vote.address === connectedAddress);
   }, [votesUpdatedDate, connectedAddress]);
 
-  return (
-    <StyledContainer
-      title="Recent votes"
-      loading={isLoading}
-      loaderAmount={3}
-      headerChildren={<ContainerHeader />}
-    >
-      {votes?.length ? (
-        <StyledList gap={15}>
-          {addressVote && <VoteComponent you={true} data={addressVote} />}
-          {votes?.map((vote, index) => {
-            if (index >= votesViewLimit || vote.address === connectedAddress){
-                 return null;
-            }
-           
-            return <VoteComponent data={vote} key={vote.address} />;
-          })}
-        </StyledList>
-      ) : (
-        <StyledNoVotes>No votes yet</StyledNoVotes>
-      )}
-      {!hideLoadMore && (
-        <StyledLoaderMore>
-          <Button onClick={() => showMoreVotes()}>See More</Button>
-        </StyledLoaderMore>
-      )}
-    </StyledContainer>
-  );
+  if (!voteStarted && !voteTimelineLoading) return null;
+    return (
+      <StyledContainer
+        title="Recent votes"
+        loading={isLoading}
+        loaderAmount={3}
+        headerChildren={<ContainerHeader />}
+      >
+        {votes?.length ? (
+          <StyledList gap={15}>
+            {addressVote && <VoteComponent you={true} data={addressVote} />}
+            {votes?.map((vote, index) => {
+              if (
+                index >= votesViewLimit ||
+                vote.address === connectedAddress
+              ) {
+                return null;
+              }
+
+              return <VoteComponent data={vote} key={vote.address} />;
+            })}
+          </StyledList>
+        ) : (
+          <StyledNoVotes>No votes yet</StyledNoVotes>
+        )}
+        {!hideLoadMore && (
+          <StyledLoaderMore>
+            <Button onClick={() => showMoreVotes()}>See More</Button>
+          </StyledLoaderMore>
+        )}
+      </StyledContainer>
+    );
 }
 
 const VoteComponent = ({ data, you }: { data: Vote; you?: boolean }) => {
-  const { address, votingPower,vote,  hash, timestamp } = data;
+  const { address, votingPower, vote, hash, timestamp } = data;
 
   return (
     <StyledVote justifyContent="space-between">
@@ -109,10 +118,11 @@ const VoteComponent = ({ data, you }: { data: Vote; you?: boolean }) => {
         <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
           {you ? "You" : makeElipsisAddress(address, 5)}
         </Link>
+
+        <Typography className="voting-power">
+          {nFormatter(Number(votingPower))} TON
+        </Typography>
       </AppTooltip>
-      <Typography className="voting-power">
-        {nFormatter(Number(votingPower))} TON
-      </Typography>
     </StyledVote>
   );
 };
@@ -131,6 +141,11 @@ const StyledLoaderMore = styled(StyledFlexRow)({
 });
 
 const StyledVote = styled(StyledFlexRow)({
+  ".tooltip-children": {
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.16)",
   paddingBottom: 10,
   gap: 10,
@@ -152,8 +167,10 @@ const StyledVote = styled(StyledFlexRow)({
   },
 
   "@media (max-width: 850px)": {
-    alignItems: "flex-start",
-    flexWrap: "wrap",
+    ".tooltip-children": {
+      alignItems: "flex-start",
+      flexWrap: "wrap",
+    },
 
     ".address": {
       maxWidth: "60%",

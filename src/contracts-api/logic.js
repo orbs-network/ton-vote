@@ -200,6 +200,7 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
 }
 
 export async function getProposalInfo(client, clientV4) {
+
   return {
     startTime: await getStartTime(client, CONTRACT_ADDRESS),
     endTime: await getEndTime(client, CONTRACT_ADDRESS),

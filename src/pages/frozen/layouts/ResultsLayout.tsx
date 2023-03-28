@@ -1,13 +1,13 @@
-import { Box, Chip, Fade, Link, Typography } from "@mui/material";
+import { Chip, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Container, Progress } from "components";
-import { getTransactions, filterTxByTimestamp } from "contracts-api/logic";
+import { getTransactions, filterTxByTimestamp } from "../frozen-contracts-api/logic";
 import {
   useIsFetchFromServer,
   useProposalInfoQuery,
   useStateQuery,
-} from "queries";
+} from "../queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import {
@@ -15,95 +15,68 @@ import {
   useContractStore,
   usePersistedStore,
   useServerStore,
-} from "store";
-import { useGetContractState, useVoteTimeline } from "hooks";
-import { useEffect, useMemo, useState } from "react";
-import { Logger, nFormatter } from "utils";
-import { VERIFY_LINK, VOTE_OPTIONS } from "config";
+} from "../store";
+import { useGetContractState, useVoteTimeline } from "../hooks";
+import { useEffect, useMemo } from "react";
+import { Logger, nFormatter } from "../utils";
+import { VERIFY_LINK } from "../config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
-import BigNumber from "bignumber.js";
 
 const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
   const updated = useStateQuery().dataUpdatedAt;
 
   return useMemo(() => {
-    const _votes = _.flatten(_.map(votes, (vote) => vote.vote));
-    return _.countBy(_votes);
+    const grouped = _.groupBy(votes, "vote");
+
+    return {
+      yes: nFormatter(_.size(grouped.Yes)),
+      no: nFormatter(_.size(grouped.No)),
+      abstain: nFormatter(_.size(grouped.Abstain)),
+    };
   }, [updated]);
 };
 
-const calculateTonAmount = (percent?: number, totalPower?: BigNumber) => {
-  if (!percent || !totalPower) return;
-  const result = (Number(fromNano(totalPower.toNumber())) * percent) / 100;
+const calculateTonAmount = (percent?: number, total?: string) => {
+  if (!percent || !total) return;
+  const result = (Number(fromNano(total)) * percent) / 100;
   return nFormatter(result, 2);
 };
 
 export const ResultsLayout = () => {
-  const { data, isLoading, dataUpdatedAt } = useStateQuery();
-  const results = data?.proposalResults.proposalResult || {};
-  const totalPower = data?.proposalResults.totalPower;
-  const [showAll, setShowAll] = useState(false);
-  const {voteStarted, isLoading: voteTimelineLoading} = useVoteTimeline();
-
+  const { data, isLoading } = useStateQuery();
+  const results = data?.proposalResults;
+  
   const votesCount = useVotesCount();
-
-  const sortedList = useMemo(() => {
-    const mapped = _.map(VOTE_OPTIONS, (option) => ({
-      option,
-      value: results[option as keyof {}],
-    }));
-    return _.sortBy(mapped, "value", "desc").reverse();
-  }, [dataUpdatedAt]);
-
-  if (!voteTimelineLoading && !voteStarted) return null;
+  
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
-      <StyledFlexColumn gap={0}>
-        <StyledFlexColumn gap={15}>
-          {sortedList.map((item, index) => {
-            if (!showAll && index > 2) return null;
-            return (
-              <ResultRow
-                key={item.option}
-                name={item.option.toString()}
-                percent={item.value || 0}
-                tonAmount={calculateTonAmount(item.value, totalPower)}
-                votes={nFormatter(votesCount[item.option], 2)}
-              />
-            );
-          })}
-        </StyledFlexColumn>
-        {showAll ? (
-          <StyledShowAllButton onClick={() => setShowAll(false)}>
-            Show Less
-          </StyledShowAllButton>
-        ) : (
-          <StyledShowAllButton onClick={() => setShowAll(true)}>
-            Show more
-          </StyledShowAllButton>
-        )}
+      <StyledFlexColumn gap={15}>
+        <ResultRow
+          name="Yes"
+          percent={results?.yes || 0}
+          tonAmount={calculateTonAmount(results?.yes, results?.totalWeight)}
+          votes={votesCount.yes}
+        />
+        <ResultRow
+          name="No"
+          percent={results?.no || 0}
+          tonAmount={calculateTonAmount(results?.no, results?.totalWeight)}
+          votes={votesCount.no}
+        />
+        <ResultRow
+          name="Abstain"
+          percent={results?.abstain || 0}
+          tonAmount={calculateTonAmount(results?.abstain, results?.totalWeight)}
+          votes={votesCount.abstain}
+        />
       </StyledFlexColumn>
       <VerifyResults />
     </StyledResults>
   );
 };
-
-const StyledShowAllButton = styled(Box)(({ theme }) => ({
-  color: theme.palette.primary.main,
-  fontSize: 14,
-  fontWeight: 700,
-  marginLeft: "auto",
-  marginTop: 10,
-  cursor: "pointer",
-  borderBottom: "2px solid transparent",
-  transition: "0.2s all",
-  "&:hover": {
-    borderBottom: `2px solid ${theme.palette.primary.main}`,
-  },
-}));
 
 const ResultRow = ({
   name,
@@ -154,9 +127,9 @@ const StyledResultRow = styled(StyledFlexColumn)({
   p: {
     fontWeight: "inherit",
   },
-  ".percent": {
-    fontSize: 14,
-  },
+  ".percent":{
+    fontSize: 14
+  }
 });
 
 const StyledResults = styled(Container)({
@@ -182,29 +155,25 @@ const useVerify = () => {
   const query = useMutation(async () => {
     analytics.GA.verifyButtonClick();
     const maxLt = fetchFromServer ? serverMaxLt : contractMaxLt;
-
     const { allTxns } = await getTransactions(clientV2);
     const transactions = filterTxByTimestamp(allTxns, maxLt);
 
     const contractState = await getContractState(proposalInfo!, transactions);
 
-    const compareResults = contractState.proposalResults;
+    const proposalResults = contractState.proposalResults;
 
-    Logger({
-      currentResults: currentResults?.proposalResult,
-      compareResults: compareResults.proposalResult,
-    });
+    Logger({ currentResults, proposalResults });
 
-    const isVotesEqual = _.isEqual(
-      currentResults?.proposalResult,
-      compareResults.proposalResult
+    const yes = compare(currentResults?.yes, proposalResults.yes);
+
+    const no = compare(currentResults?.no, proposalResults.no);
+    const totalWeight = compare(
+      currentResults?.totalWeight,
+      proposalResults.totalWeight
     );
-    const isVotingPowerEqual = _.isEqual(
-      compareResults.totalPower,
-      compareResults.totalPower
-    );
+    const abstain = compare(currentResults?.abstain, proposalResults.abstain);
 
-    return isVotesEqual && isVotingPowerEqual;
+    return yes && no && abstain && totalWeight;
   });
 
   return {
