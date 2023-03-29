@@ -1,22 +1,34 @@
-import { getHttpEndpoint , getHttpV4Endpoint} from "@orbs-network/ton-access";
+import { getHttpEndpoint, getHttpV4Endpoint } from "@orbs-network/ton-access";
 import { Address, fromNano, TonClient, TonClient4 } from "ton";
-import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
+import { getStartTime, getEndTime, getSnapshotTime } from "./getters";
 
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 import { Logger } from "utils";
-import { CONTRACT_ADDRESS, VOTE_OPTIONS, VOTE_REQUIRED_NUM_OPTIONS } from "config";
+import {
+  CONTRACT_ADDRESS,
+  DEFAULT_ENDPOINTS,
+  VOTE_OPTIONS,
+  VOTE_REQUIRED_NUM_OPTIONS,
+} from "config";
 import { CUSTODIAN_ADDRESSES } from "./custodian";
+import { V2_API_KEY } from "pages/frozen/config";
 
 
-
-export  function getClientV2(endpoint, apiKey) {
-  return new TonClient({ endpoint, apiKey });
+export async function getClientV2(customEndpoint, apiKey = V2_API_KEY) {
+  if (customEndpoint) {
+    return new TonClient({
+      endpoint: customEndpoint,
+      apiKey: apiKey,
+    });
+  }
+  const endpoint = await getHttpEndpoint();
+  return new TonClient({ endpoint });
 }
 
-export  function getClientV4(endpoint) {
+export async function getClientV4(customEndpoint) {
+  const endpoint = customEndpoint || DEFAULT_ENDPOINTS.v4;
   return new TonClient4({ endpoint });
- 
 }
 
 export async function getTransactions(client, toLt) {
@@ -80,7 +92,7 @@ function verifyVote(vote) {
 
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
-    
+
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
@@ -99,7 +111,8 @@ export function getAllVotes(transactions, proposalInfo) {
       transactions[i].time < proposalInfo.startTime ||
       transactions[i].time > proposalInfo.endTime ||
       CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
-    ) continue;
+    )
+      continue;
 
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
@@ -107,7 +120,6 @@ export function getAllVotes(transactions, proposalInfo) {
       hash: transactions[i].id.hash,
     };
   }
-
 
   return allVotes;
 }
@@ -170,13 +182,13 @@ export function calcProposalResult(votes, votingPower) {
 
   for (const [voteOption, optionTotalPow] of Object.entries(sumVotes)) {
     proposalResult[voteOption] = optionTotalPow
-    .div(totalPower)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
+      .div(totalPower)
+      .decimalPlaces(4)
+      .multipliedBy(100)
+      .toNumber();
   }
 
-  return {proposalResult, totalPower: totalPower.toString()} 
+  return { proposalResult, totalPower: totalPower.toString() };
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
@@ -185,7 +197,6 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
 }
 
 export async function getProposalInfo(client, clientV4) {
-
   return {
     startTime: await getStartTime(client, CONTRACT_ADDRESS),
     endTime: await getEndTime(client, CONTRACT_ADDRESS),
