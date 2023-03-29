@@ -6,8 +6,6 @@ Our team is working on an open no code governance platform for TON, similar to [
 
 This system will support governance proposals and voting using native coins (TON coin), jettons or NTFs, with programmable strategies. For example, NFT voting weights can factor rarity if that's what a DAO wants to do.
 
-Due to the recent turmoil in the community due to the miner addresses that may get frozen, we wanted to see if the DAO platform could be used to get the general TON holder community's opinion on the matter.
-
 The full system is still WIP and not ready for a production release, so we decided to implement a much simpler case for a single vote and pitch it to TF.
 
 ## Properties of this version
@@ -34,7 +32,7 @@ There are many wallets on TON, we made sure that you can use any of them and tha
   
 After voting, you can open the client in https://ton.vote to see your vote counted. It will appear in the top of the recent votes list.
 
-Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/dao-vote/blob/e14d9e301297d4c47f221742bb030bf800d3150f/src/contracts-api/custodian.js). 
+Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/dao-vote/blob/12ddd3d368c3bc1dc331cc219de496f23c99771e/src/contracts-api/custodian.js). 
 If you are an owner of an address from this list and want to know how to vote, you can contact us via Telegram: https://t.me/TONVoteSupportGroup.
 
 ## How can you verify the results?
