@@ -193,7 +193,7 @@ export function calcProposalResult(votes, votingPower) {
 
   for (const [voteOption, optionTotalPow] of Object.entries(sumVotes)) {
     proposalResult[voteOption] = optionTotalPow
-      .div(totalPower)
+      .div(totalVotes)
       .decimalPlaces(4)
       .multipliedBy(100)
       .toNumber();
