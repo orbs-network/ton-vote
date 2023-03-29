@@ -1,15 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import analytics from "analytics";
-import { api } from "./api";
+import { api } from "api";
 import { useNotification } from "components";
 import {
+  CONTRACT_ADDRESS,
   LAST_FETCH_UPDATE_LIMIT,
   STATE_REFETCH_INTERVAL,
+  TX_FEE,
   TX_SUBMIT_ERROR_TEXT,
   TX_SUBMIT_SUCCESS_TEXT,
-} from "./config";
-import { useGetTransaction } from "./connection";
-import * as frozenLogic from "./frozen-contracts-api/logic";
+} from "config";
+import { useGetTransaction } from "connection";
+import {
+  filterTxByTimestamp,
+  getProposalInfo,
+  getTransactions,
+} from "./frozen-contracts-api/logic";
 import { useGetContractState, useWalletVote } from "./hooks";
 import _ from "lodash";
 import moment from "moment";
@@ -23,49 +29,18 @@ import {
   useServerStore,
   useTxStore,
   useVotesPaginationStore,
-} from "./store";
-import { Address } from "ton";
+} from "store";
+import { Address, Cell, CommentMessage, toNano } from "ton";
 import {
   QueryKeys,
   GetTransactionsPayload,
   GetState,
   ProposalInfo,
+  Transaction,
 } from "./types";
 import { Logger, parseVotes, waitForSeqno } from "./utils";
 
-const useGetServerStateCallback = () => {
-  const { serverUpdateTime, setServerUpdateTime } = useServerStore();
-  const handleWalletVote = useWalletVote();
-  const setServerMaxLt = useServerStore().setServerMaxLt;
-  const queryClient = useQueryClient();
 
-  return async () => {
-    Logger("Fetching from server");
-    const newStateUpdateTime = await api.getStateUpdateTime();
-    // if new state update time is not equal to prev state update time, trigger fetch from server
-    if (serverUpdateTime === newStateUpdateTime) {
-      return;
-    }
-
-    setServerUpdateTime(newStateUpdateTime);
-    const state = await api.getState();
-
-    setServerMaxLt(state.maxLt);
-
-    await queryClient.ensureQueryData({
-      queryKey: [QueryKeys.PROPOSAL_INFO],
-      queryFn: () => api.getProposalInfo(),
-    });
-
-    const votes = parseVotes(state.votes, state.votingPower);
-
-    return {
-      votes: handleWalletVote(votes),
-      proposalResults: state.proposalResults,
-      votingPower: state.votingPower,
-    };
-  };
-};
 
 const useGetContractStateCallback = () => {
   const { contractMaxLt, setContractMaxLt, addContractTransactions } =
@@ -78,7 +53,7 @@ const useGetContractStateCallback = () => {
 
   return async () => {
     Logger("Fetching from contract");
-    const result: GetTransactionsPayload = await frozenLogic.getTransactions(
+    const result: GetTransactionsPayload = await getTransactions(
       clientV2,
       contractMaxLt
     );
@@ -91,8 +66,8 @@ const useGetContractStateCallback = () => {
 
     setContractMaxLt(result.maxLt);
     const proposalInfo = await queryClient.ensureQueryData({
-      queryKey: [QueryKeys.PROPOSAL_INFO],
-      queryFn: () => frozenLogic.getProposalInfo(clientV2, clientV4),
+      queryKey: [QueryKeys.FROZEN_PROPOSAL_INFO],
+      queryFn: () => getProposalInfo(clientV2, clientV4),
     });
 
     const data = await getContractState(
@@ -109,110 +84,31 @@ const useGetContractStateCallback = () => {
   };
 };
 
-const useCheckServerhealth = () => {
-  return async () => {
-    try {
-      const lastFetchUpdate = await api.getLastFetchUpdate();
-      
-      return moment().valueOf() - lastFetchUpdate > LAST_FETCH_UPDATE_LIMIT;
-    } catch (error) {
-      return true;
-    }
-  };
-};
 
-// we use this in case that user did refresh after sending tx,
-// and have minMaxLt in the persisted store, and the server is outdated
-const useGetStatewhileServerOutdated = () => {
-  const getContractState = useGetContractState();
-  const { getStateData } = useDataFromQueryClient();
-  const queryClient = useQueryClient();
-  const { clientV2, clientV4 } = useClientStore();
-  const { maxLt } = usePersistedStore();
-  const handleWalletVote = useWalletVote();
-  const setServerMaxLt = useServerStore().setServerMaxLt;
 
-  return async () => {
-    const state = getStateData();
-    if (state) return state;
-    const proposalInfo = await queryClient.ensureQueryData({
-      queryKey: [QueryKeys.PROPOSAL_INFO],
-      queryFn: () => frozenLogic.getProposalInfo(clientV2, clientV4),
-    });
-    const transactions = (await frozenLogic.getTransactions(clientV2)).allTxns;
-    const filtered = frozenLogic.filterTxByTimestamp(transactions, maxLt);
-    const result = await getContractState(proposalInfo, filtered);
-    setServerMaxLt(maxLt);
-    return {
-      ...result,
-      votes: handleWalletVote(result.votes),
-    };
-  };
-};
-
-export const useStateQuery = () => {
+export const useFrozenStateQuery = () => {
   const { clientV2, clientV4 } = useClientStore();
   const { setEndpointError } = useEndpointStore();
-  const fetchFromServer = useIsFetchFromServer();
   const { getStateData: getStateCurrentData } = useDataFromQueryClient();
-  const { maxLt: minServerMaxLt, clearMaxLt } = usePersistedStore();
   const txLoading = useTxStore().txLoading;
-  const checkServerHealth = useCheckServerhealth();
-  const getStatewhileServerOutdatedAndStateEmpty =
-    useGetStatewhileServerOutdated();
-  const getServerStateCallback = useGetServerStateCallback();
+
   const getContractStateCallback = useGetContractStateCallback();
   return useQuery(
-    [QueryKeys.STATE],
+    [QueryKeys.FROZEN_STATE],
     async () => {
-      const onServerState = async () => {
-        const data = await getServerStateCallback();
-        return data || getStateCurrentData();
-      };
 
       const onContractState = async () => {
         const data = await getContractStateCallback();
         return data || getStateCurrentData();
       };
 
-      if (!fetchFromServer) {
-        return onContractState();
-      }
+      return onContractState();
 
-      const isSrverError = await checkServerHealth();
-
-      if (isSrverError) {
-        Logger("server error, fetching from contract");
-
-        return onContractState();
-      }
-
-      if (!minServerMaxLt) {
-        return onServerState();
-      }
-      const serverMaxLt = await api.getMaxLt();
-
-      if (Number(serverMaxLt) >= Number(minServerMaxLt || "0")) {
-        Logger(
-          `server is up to date, fetching from server matLt:${serverMaxLt} currentMaxLt:${minServerMaxLt}`
-        );
-        clearMaxLt();
-
-        return onServerState();
-      }
-
-      Logger(
-        `server is outdated, server maxLt:${serverMaxLt} currentMaxLt:${minServerMaxLt}`
-      );
-      return (
-        getStateCurrentData() || getStatewhileServerOutdatedAndStateEmpty()
-      );
     },
     {
       onError: () => {
         setEndpointError(true);
       },
-      refetchInterval: STATE_REFETCH_INTERVAL,
       enabled: !!clientV2 && !!clientV4 && !txLoading,
       staleTime: Infinity,
     }
@@ -222,12 +118,12 @@ export const useStateQuery = () => {
 export const useDataFromQueryClient = () => {
   const queryClient = useQueryClient();
   const getStateData = (): GetState | undefined => {
-    return queryClient.getQueryData([QueryKeys.STATE]);
+    return queryClient.getQueryData([QueryKeys.FROZEN_STATE]);
   };
 
   const setStateData = (newData: GetState) => {
     queryClient.setQueryData<GetState | undefined>(
-      [QueryKeys.STATE],
+      [QueryKeys.FROZEN_STATE],
       (oldData) => {
         return oldData ? { ...oldData, ...newData } : newData;
       }
@@ -240,26 +136,26 @@ export const useDataFromQueryClient = () => {
   };
 };
 
-export const useProposalInfoQuery = () => {
-  return useQuery<ProposalInfo | undefined>([QueryKeys.PROPOSAL_INFO], {
+export const useFrozenProposalInfoQuery = () => {
+  return useQuery<ProposalInfo | undefined>([QueryKeys.FROZEN_PROPOSAL_INFO], {
     staleTime: Infinity,
     enabled: false,
   });
 };
 
 export const useIsFetchFromServer = () => {
-  const { serverDisabled, isCustomEndpoints } = usePersistedStore();
+  // const { serverDisabled, isCustomEndpoints } = usePersistedStore();
 
-  if (serverDisabled || isCustomEndpoints) {
-    return false;
-  }
+  // if (serverDisabled || isCustomEndpoints) {
+  //   return false;
+  // }
 
-  return true;
+  return false;
 };
 
 const useOnVoteCallback = () => {
   const getContractState = useGetContractState();
-  const proposalInfo = useProposalInfoQuery().data;
+  const proposalInfo = useFrozenProposalInfoQuery().data;
   const { showMoreVotes } = useVotesPaginationStore();
   const clientV2 = useClientStore().clientV2;
   const { setStateData, getStateData } = useDataFromQueryClient();
@@ -267,7 +163,7 @@ const useOnVoteCallback = () => {
   return useMutation(
     async () => {
       Logger("fetching data from contract after transaction");
-      const transactions = await frozenLogic.getTransactions(clientV2);
+      const transactions = await getTransactions(clientV2);
       const state = await getContractState(
         proposalInfo!,
         transactions.allTxns,

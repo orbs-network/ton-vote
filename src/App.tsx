@@ -1,6 +1,5 @@
 import { styled } from "@mui/material";
 import { Box } from "@mui/system";
-import { EndpointPopup } from "components";
 import {
   useConnectionEvenSubscription,
   useEmbededWallet,
@@ -11,7 +10,7 @@ import { DorahackPage } from "pages/dorahack/Dorahack";
 import { FrozenPage } from "pages/frozen/Frozen";
 import { useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useGetClientsOnLoad } from "store";
+import { useClientStore, useGetClientsOnLoad } from "store";
 
 export const router = createBrowserRouter(
   [
@@ -45,6 +44,7 @@ function App() {
   const getClients = useGetClientsOnLoad();
   useConnectionEvenSubscription();
   const handleEmbededWallet = useEmbededWallet();
+  const { clientV2, clientV4 } = useClientStore();
 
   useEffect(() => {
     restoreConnection();
@@ -52,10 +52,11 @@ function App() {
     handleEmbededWallet();
   }, []);
 
+  if (!clientV2 || !clientV4) return null;
+
   return (
     <StyledApp>
       <RouterProvider router={router} />
-      <EndpointPopup />
     </StyledApp>
   );
 }

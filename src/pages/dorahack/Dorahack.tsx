@@ -1,4 +1,5 @@
 import { styled, useMediaQuery } from "@mui/material";
+import { EndpointPopup } from "components";
 import {
   MainLayout,
   VoteLayout,
@@ -8,8 +9,6 @@ import {
 } from "layouts";
 import DeadlineLayout from "layouts/DeadlineLayout";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-
-
 
 const Destop = () => {
   return (
@@ -44,7 +43,12 @@ const Mobile = () => {
 export function DorahackPage() {
   const match = useMediaQuery("(max-width:800px)");
 
-  return match ? <Mobile /> : <Destop />;
+  return (
+    <>
+      <EndpointPopup />
+      {match ? <Mobile /> : <Destop />}
+    </>
+  );
 }
 
 const StyledWrapper = styled(StyledFlexRow)({
@@ -53,7 +57,6 @@ const StyledWrapper = styled(StyledFlexRow)({
     flexDirection: "column",
   },
 });
-
 
 const StyledLeft = styled(StyledFlexColumn)({
   flex: 1,

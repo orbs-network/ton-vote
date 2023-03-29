@@ -6,14 +6,13 @@ import {
   getVotingPower,
 } from "./frozen-contracts-api/logic";
 import moment from "moment";
-import {  useProposalInfoQuery } from "./queries";
+import {  useFrozenProposalInfoQuery } from "./queries";
 import {
-  useClientStore,
-  useConnectionStore,
   useVoteStore,
 } from "./store";
 import { ProposalInfo, RawVotes, Transaction, Vote, VotingPower } from "./types";
 import { parseVotes } from "./utils";
+import { useConnectionStore, useClientStore } from "store";
 
 export const useWalletVote = () => {
   const { setVote } = useVoteStore();
@@ -42,10 +41,10 @@ const numToMillis = (value: Number) => {
 };
 
 export const useVoteTimeline = () => {
-  const {data: info, isLoading} = useProposalInfoQuery();
+  const {data: info, isLoading} = useFrozenProposalInfoQuery();
 
   const query = useQuery(
-    ["useVoteTimeline"],
+    ["useFrozenVoteTimeline"],
     () => {
       if (!info) return null;
       const startTime = info.startTime;

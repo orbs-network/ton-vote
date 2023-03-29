@@ -58,6 +58,10 @@ export const DEFAULT_ENDPOINTS = {
 };
 
 
+
+export const V2_API_KEY =
+  "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
+
 export const ENDPOINT_INPUTS = {
   clientV2: {
     name: "clientV2Endpoint",
@@ -67,7 +71,7 @@ export const ENDPOINT_INPUTS = {
   apiKey: {
     name: "apiKey",
     label: "HTTP v2 API key",
-    default: "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2",
+    default: V2_API_KEY,
     // default:''
   },
 
@@ -96,7 +100,7 @@ export const TX_SUBMIT_ERROR_TEXT = 'Transaction failed'
 export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction completed'
 
 
-export const CONTRACT_ADDRESS = Address.parse(
+export const FROZEN_CONTRACT_ADDRESS = Address.parse(
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS"
 );
 

@@ -5,7 +5,7 @@ import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
 import { useVoteTimeline } from "../hooks";
-import { CONTRACT_ADDRESS } from "../config";
+import { FROZEN_CONTRACT_ADDRESS } from "../config";
 
 export function MainLayout() {
   const [showMore, setShowMore] = useState(false);
@@ -79,7 +79,7 @@ const ShowMorePart = () => {
         </Link>
         , which is also specified in the{" "}
         <Link
-          href={`https://verifier.ton.org/${CONTRACT_ADDRESS}`}
+          href={`https://verifier.ton.org/${FROZEN_CONTRACT_ADDRESS}`}
           target="_blank"
         >
           proposal smart-contract.

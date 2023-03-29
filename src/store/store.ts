@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { TonConnection } from "@ton-defi.org/ton-connection";
-import { manifestUrl, PAGE_SIZE } from "config";
+import { manifestUrl, PAGE_SIZE, DEFAULT_ENDPOINTS } from "config";
 import TonConnect from "@tonconnect/sdk";
 
 import {
@@ -18,12 +18,20 @@ import {
 export const usePersistedStore = create(
   persist<PersistedStore>(
     (set) => ({
+      defaultClientV2Endpoint: "",
+      defaultClientV4Endpoint: "",
+      apiKey: "",
+      defa: "",
       maxLt: undefined,
       setMaxLt: (maxLt) => set({ maxLt }),
       clearMaxLt: () => set({ maxLt: undefined }),
-      serverDisabled: true,
+      serverDisabled: false,
       disableServer: (serverDisabled) => set({ serverDisabled }),
       isCustomEndpoints: false,
+      setDefaultV2ClientEndpoint: (defaultClientV2Endpoint) =>
+        set({ defaultClientV2Endpoint }),
+      setDefaultV4ClientEndpoint: (defaultClientV4Endpoint) =>
+        set({ defaultClientV4Endpoint }),
       onUpdate: (clientV2Endpoint, clientV4Endpoint, apiKey) => {
         set({
           clientV2Endpoint,
@@ -38,25 +46,6 @@ export const usePersistedStore = create(
     }
   )
 );
-
-const storeDefaultValues = {
-  serverUpdateTime: undefined,
-  serverMaxLt: undefined,
-
-  contractMaxLt: undefined,
-  transactions: [],
-
-  vote: "",
-
-  address: undefined,
-  connection: undefined,
-  txLoading: false,
-  votesViewLimit: PAGE_SIZE,
-  showSetEndpoint: false,
-  endpointError: false,
-  clientV2: undefined,
-  clientV4: undefined,
-};
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   address: undefined,
@@ -101,7 +90,6 @@ export const useClientStore = create<ClientsStore>((set, get) => ({
   clientV4: undefined,
   setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
 }));
-
 
 export const useVotesPaginationStore = create<VotesPaginationStore>(
   (set, get) => ({

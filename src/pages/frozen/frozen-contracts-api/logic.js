@@ -1,31 +1,14 @@
-import { getHttpEndpoint } from "@orbs-network/ton-access";
-import { Address, TonClient, TonClient4 } from "ton";
-import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
+import { Address, fromNano, TonClient, TonClient4 } from "ton";
+import { getStartTime, getEndTime, getSnapshotTime } from "./getters";
 
 import BigNumber from "bignumber.js";
 import _ from "lodash";
-import { Logger } from "../utils";
-import { CONTRACT_ADDRESS } from "../config";
+import { Logger } from "utils";
 import { CUSTODIAN_ADDRESSES } from "./custodian";
+import { FROZEN_CONTRACT_ADDRESS } from "../config";
 
 
-export async function getClientV2(customEndpoint, apiKey) {
-  if (customEndpoint) {
-    return new TonClient({ endpoint: customEndpoint, apiKey });
-  }
-  const endpoint = await getHttpEndpoint();
-  return new TonClient({ endpoint });
-}
-
-export async function getClientV4(customEndpoint) {
-  const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
-  return new TonClient4({ endpoint });
-}
-
-export async function getTransactions(
-  client,
-  toLt
-) {
+export async function getTransactions(client, toLt) {
   let maxLt = new BigNumber(toLt ?? -1);
   let startPage = { fromLt: "0", hash: "" };
 
@@ -34,12 +17,12 @@ export async function getTransactions(
 
   while (true) {
     Logger("Querying...");
-    const txns = await client.getTransactions(CONTRACT_ADDRESS, {
+    const txns = await client.getTransactions(FROZEN_CONTRACT_ADDRESS, {
       lt: paging.fromLt,
       to_lt: toLt,
       hash: paging.hash,
       limit: 500,
-    });  
+    });
 
     Logger(`Got ${txns.length}, lt ${paging.fromLt}`);
 
@@ -77,7 +60,8 @@ export function getAllVotes(transactions, proposalInfo) {
 
     if (
       transactions[i].time < proposalInfo.startTime ||
-      transactions[i].time > proposalInfo.endTime || CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
+      transactions[i].time > proposalInfo.endTime ||
+      CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
     )
       continue;
 
@@ -85,7 +69,7 @@ export function getAllVotes(transactions, proposalInfo) {
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
       vote: "",
-      hash: transactions[i].id.hash
+      hash: transactions[i].id.hash,
     };
 
     if (["y", "yes"].includes(vote)) {
@@ -97,7 +81,6 @@ export function getAllVotes(transactions, proposalInfo) {
     }
   }
 
-  
   return allVotes;
 }
 
@@ -125,17 +108,10 @@ export async function getVotingPower(
   return votingPower;
 }
 
-export async function getSingleVotingPower(
-  clientV4,
-  mcSnapshotBlock,
-  address
-) {
-    return (
-      await clientV4.getAccountLite(
-        mcSnapshotBlock,
-        Address.parse(address)
-      )
-    ).account.balance.coins;
+export async function getSingleVotingPower(clientV4, mcSnapshotBlock, address) {
+  return (
+    await clientV4.getAccountLite(mcSnapshotBlock, Address.parse(address))
+  ).account.balance.coins;
 }
 
 export function calcProposalResult(votes, votingPower) {
@@ -149,7 +125,7 @@ export function calcProposalResult(votes, votingPower) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
 
-      const _vote = vote.vote 
+    const _vote = vote.vote;
     if (_vote === "Yes") {
       sumVotes.yes = new BigNumber(votingPower[voter]).plus(sumVotes.yes);
     } else if (_vote === "No") {
@@ -160,7 +136,6 @@ export function calcProposalResult(votes, votingPower) {
       );
     }
   }
-
 
   const totalWeights = sumVotes.yes.plus(sumVotes.no).plus(sumVotes.abstain);
   const yesPct = sumVotes.yes
@@ -179,7 +154,7 @@ export function calcProposalResult(votes, votingPower) {
     .multipliedBy(100)
     .toNumber();
 
-    return {
+  return {
     yes: yesPct,
     no: noPct,
     abstain: abstainPct,
@@ -193,10 +168,9 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
 }
 
 export async function getProposalInfo(client, clientV4) {
-
   return {
-    startTime: await getStartTime(client, CONTRACT_ADDRESS),
-    endTime: await getEndTime(client, CONTRACT_ADDRESS),
-    snapshot: await getSnapshotTime(client, clientV4, CONTRACT_ADDRESS),
+    startTime: await getStartTime(client, FROZEN_CONTRACT_ADDRESS),
+    endTime: await getEndTime(client, FROZEN_CONTRACT_ADDRESS),
+    snapshot: await getSnapshotTime(client, clientV4, FROZEN_CONTRACT_ADDRESS),
   };
 }
