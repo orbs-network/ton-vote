@@ -48,7 +48,7 @@ export const voteOptions = [
 
 
 
-export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
+export const manifestUrl = "https://ton-vote.netlify.app/tonconnect-manifest.json";
 
 
 export const DEFAULT_ENDPOINTS = {
