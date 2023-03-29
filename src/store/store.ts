@@ -42,7 +42,7 @@ export const usePersistedStore = create(
       },
     }),
     {
-      name: "ton_vote_persisted_store", // name of the item in the storage (must be unique)
+      name: "ton_vote_persisted_store_1", // name of the item in the storage (must be unique)
     }
   )
 );
