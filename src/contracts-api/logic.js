@@ -137,12 +137,13 @@ export async function getVotingPower(
   if (!newVoters) return votingPower;
 
   for (const voter of newVoters) {
-    votingPower[voter] = (
-      await clientV4.getAccountLite(
-        proposalInfo.snapshot.mcSnapshotBlock,
-        Address.parse(voter)
-      )
-    ).account.balance.coins;
+    votingPower[voter] = 1
+    // votingPower[voter] = (
+    //   await clientV4.getAccountLite(
+    //     proposalInfo.snapshot.mcSnapshotBlock,
+    //     Address.parse(voter)
+    //   )
+    // ).account.balance.coins;
   }
 
   return votingPower;
