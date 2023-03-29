@@ -35,7 +35,8 @@ After voting, you can open the client in https://ton.vote to see your vote count
 If you choose to send a direct message to the contract with a message please use the following mapping:
 1 - Tsunami Exchange, 2 - 1ton, 3 - Genlock, 4 - Tonic Lounge, 5 - DeDust, 6 - Nunjan IDE, 7 - TonEase, 
 8 - Evaa, 9 - re:doubt, 10 - Punk City.
-For example, if you want to vote to: Tsunami Exchange, 1ton, Genlock, Tonic Lounge, DeDust you should send a message with 0.075 ton to the voting contract at address EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr with a comment '1, 2, 3, 4, 5' or '1 2 3 4 5'
+
+For example, if you want to vote to: Tsunami Exchange, 1ton, Genlock, Tonic Lounge, DeDust you should send a message with 0.075 Ton to the voting contract at address EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr with a comment '1, 2, 3, 4, 5' or '1 2 3 4 5'
 
 Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/dao-vote/blob/12ddd3d368c3bc1dc331cc219de496f23c99771e/src/contracts-api/custodian.js). 
 If you are an owner of an address from this list and want to know how to vote, you can contact us via Telegram: https://t.me/TONVoteSupportGroup.
