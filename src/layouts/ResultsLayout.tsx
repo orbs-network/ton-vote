@@ -19,11 +19,11 @@ import {
 import { useGetContractState, useVoteTimeline } from "hooks";
 import { useEffect, useMemo, useState } from "react";
 import { Logger, nFormatter } from "utils";
-import { VERIFY_LINK, VOTE_OPTIONS } from "config";
+import { PROJECT_NAMES, VERIFY_LINK, VOTE_OPTIONS } from "config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
-import BigNumber from "bignumber.js";
+import {textOverflow} from "styles";
 
 const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
@@ -64,11 +64,11 @@ export const ResultsLayout = () => {
       <StyledFlexColumn gap={0}>
         <StyledFlexColumn gap={15}>
           {sortedList.map((item, index) => {
-            if (!showAll && index > 2) return null;
+            if (!showAll && index > 4) return null;
             return (
               <ResultRow
                 key={item.option}
-                name={item.option.toString()}
+                option={item.option}
                 percent={item.value || 0}
                 tonAmount={calculateTonAmount(item.value, totalPower)}
                 votes={nFormatter(votesCount[item.option], 2)}
@@ -106,12 +106,12 @@ const StyledShowAllButton = styled(Box)(({ theme }) => ({
 }));
 
 const ResultRow = ({
-  name,
+  option,
   percent = 0,
   tonAmount = "0",
   votes,
 }: {
-  name: string;
+  option: number;
   percent?: number;
   tonAmount?: string;
   votes: string;
@@ -120,7 +120,7 @@ const ResultRow = ({
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <StyledFlexRow style={{ width: "fit-content" }}>
-          <Typography>{name}</Typography>
+          <StyledResultName>{PROJECT_NAMES[option]}</StyledResultName>
           <StyledChip label={`${votes} votes`} />
         </StyledFlexRow>
 
@@ -134,6 +134,12 @@ const ResultRow = ({
     </StyledResultRow>
   );
 };
+
+
+const StyledResultName = styled(Typography)({
+  maxWidth: 100,
+...textOverflow
+})
 
 const StyledChip = styled(Chip)({
   fontSize: 11,

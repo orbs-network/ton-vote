@@ -87,10 +87,11 @@ export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const TX_SUBMIT_ERROR_TEXT = "Transaction failed";
 export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
+console.log(import.meta.env.VITE_CONTRACT_ADDRESS);
 
-
-
-export const CONTRACT_ADDRESS = Address.parse(import.meta.env.VITE_CONTRACT_ADDRESS);
+export const CONTRACT_ADDRESS = Address.parse(
+  import.meta.env.VITE_CONTRACT_ADDRESS
+);
 
 export const VERIFY_LINK =
   "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
@@ -101,4 +102,18 @@ export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 export const PASSWORD = "ton-vote-14-02";
 
 export const VOTE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-export const VOTE_REQUIRED_NUM_OPTIONS = 3;
+export const VOTE_REQUIRED_NUM_OPTIONS = 5;
+
+export const PROJECT_NAMES = [
+  "",
+  "Tsunami Exchange",
+  "1ton",
+  "Genlock",
+  "Tonic Lounge",
+  "DeDust",
+  "Nunjan IDE",
+  "TonEase",
+  "Evaa",
+  "re:doubt",
+  "Punk City",
+];

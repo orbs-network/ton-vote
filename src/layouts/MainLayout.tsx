@@ -6,6 +6,7 @@ import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
 import { useVoteTimeline } from "hooks";
 import { Box } from "@mui/system";
+import { PROJECT_NAMES } from "config";
 
 export function MainLayout() {
   const [showMore, setShowMore] = useState(false);
@@ -26,11 +27,10 @@ export function MainLayout() {
         </Typography>
         <Typography>
           2 months have passed since the launch of the first ever TON global
-          hackathon. During this time, we received 234 submissions from
-          top-quality teams choosing to Build-on-TON. After a thorough review
-          process, the Hack-a-TONx judges panel chose 10 projects to proceed to
-          the grand finale. We want to thank everyone who participated in this
-          fantastic event, you are awesome!
+          hackathon. During this time, 234 submissions have been received from
+          top-quality teams who chose to Build-on-TON. After a thorough review
+          process, the panel if Hack-a-TONx judges chose 10 projects to proceed
+          to the grand finale.
         </Typography>
         <AnimateHeight height={showMore ? "auto" : 0} duration={400}>
           <ShowMorePart />
@@ -71,13 +71,14 @@ const ShowMorePart = () => {
   return (
     <StyledShowMoreText>
       <Typography>
-        In this vote, the community is called upon to choose its 5 Hack-a-TONx
-        winning projects. All in all, 5 winning projects will be chosen, ranked
-        by the total amount of votes they receive.
+        Each voter can vote for his top 5 favorite projects, in no particular
+        order and the voting power will be splitted equally between the
+        projects. All in all, 5 winning projects will be chosen, ranked by the
+        total amount of votes they receive.
       </Typography>
       <Typography>
-        The community vote will account for 20% of the final winning teams, so
-        choose wisely!
+        The community vote will account for 20% of the decision on the final
+        winning teams, so choose wisely!
       </Typography>
       <StyledFirstList>
         <Typography className="list-title">
@@ -110,10 +111,10 @@ const ShowMorePart = () => {
       <StyledSecondList>
         <Typography className="list-title">And the finalists are…</Typography>
         <Styledlist>
-          {list.map((item) => {
+          {list.map((item, index) => {
             return (
-              <li key={item.title} className="item">
-                <strong>{item.title}:</strong> {item.text}{" "}
+              <li key={index} className="item">
+                <strong>{PROJECT_NAMES[index + 1]}:</strong> {item.text}{" "}
                 <Link href={item.link} target="_blank">
                   Learn more
                 </Link>
@@ -122,6 +123,10 @@ const ShowMorePart = () => {
           })}
         </Styledlist>
       </StyledSecondList>
+      <Typography>
+        Any holder of TONCoin is eligible to vote. The vote will open on March
+        29, 2023 at 2:00 PM GMT and close on March 30, 2023 at 5:00 PM.
+      </Typography>
     </StyledShowMoreText>
   );
 };
@@ -173,59 +178,48 @@ const StyledShowMore = styled("div")(({ theme }) => ({
 const StyledContainer = styled(Container)({});
 
 interface ListInterace {
-  title: string;
   text: string;
   link: string;
 }
 
 const list: ListInterace[] = [
   {
-    title: "Tsunami Exchange",
     text: "Tsunami - Trade Everything on TON including Crypto, Stock, Commodities & Forex! ",
     link: "https://dorahacks.io/buidl/4511",
   },
   {
-    title: "1ton",
     text: "1TON Finance empowers unbanked creators to achieve their financial goals and thrive in their businesses.",
     link: "https://dorahacks.io/buidl/4580",
   },
   {
-    title: "Genlock",
     text: "Web service that uses Generative AI technologies to generate unique game assets as NFT.",
     link: "https://dorahacks.io/buidl/4562",
   },
   {
-    title: "Tonic Lounge",
     text: "Build and Find Your Token Gated Telegram Community with Tonic Lounge and Tonic Wallet.",
     link: "https://dorahacks.io/buidl/4521",
   },
   {
-    title: "DeDust",
     text: "Hub for managing DeFi assets",
     link: "https://dorahacks.io/buidl/4158",
   },
   {
-    title: "Nunjan IDE",
     text: "To make the development process on TON smooth, frictionless, and convenient. We aim to minimize the barrier to entry for developers who are coming on a TON.",
     link: "https://dorahacks.io/buidl/4473",
   },
   {
-    title: "TonEase",
     text: "Streamline your payments with TonEase - the all-in-one solution for batch, date-specific, and recurring payments.",
     link: "https://dorahacks.io/buidl/4492",
   },
   {
-    title: "Evaa",
     text: "he first decentralized lending protocol on TON that lets users lend or borrow native and wrapper assets without going to a centralized intermediary.",
     link: " https://dorahacks.io/buidl/4093",
   },
   {
-    title: "re:doubt",
     text: "Real-time security & operational monitoring.",
     link: "https://dorahacks.io/buidl/4157",
   },
   {
-    title: "Punk City",
     text: " A metaverse of Play-2-Earn games in telegram.",
     link: "https://dorahacks.io/buidl/4557",
   },
