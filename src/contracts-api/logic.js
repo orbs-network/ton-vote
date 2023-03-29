@@ -11,12 +11,10 @@ import { CUSTODIAN_ADDRESSES } from "./custodian";
 
 
 export  function getClientV2(endpoint, apiKey) {
-  console.log({ endpoint, apiKey });
   return new TonClient({ endpoint, apiKey });
 }
 
 export  function getClientV4(endpoint) {
-  console.log(endpoint);
   return new TonClient4({ endpoint });
  
 }
