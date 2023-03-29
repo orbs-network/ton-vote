@@ -29,7 +29,7 @@ export function MainLayout() {
           2 months have passed since the launch of the first ever TON global
           hackathon. During this time, 234 submissions have been received from
           top-quality teams who chose to Build-on-TON. After a thorough review
-          process, the panel if Hack-a-TONx judges chose 10 projects to proceed
+          process, the panel of Hack-a-TONx judges chose 10 projects to proceed
           to the grand finale.
         </Typography>
         <AnimateHeight height={showMore ? "auto" : 0} duration={400}>
