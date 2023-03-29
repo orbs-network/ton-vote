@@ -72,7 +72,8 @@ const ShowMorePart = () => {
     <StyledShowMoreText>
       <Typography>
         Each voter can vote for his top 5 favorite projects, in no particular
-        order. All in all, 5 winning projects will be chosen, ranked by the
+        order and the voting power will be spliltted equally between the
+        projects. All in all, 5 winning projects will be chosen, ranked by the
         total amount of votes they receive.
       </Typography>
       <Typography>
