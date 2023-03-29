@@ -36,8 +36,9 @@ export const getAdapterName = () => {
 
 export const Logger = (log: any) => {
   if (import.meta.env.DEV) {
-    console.log(log);
+    // console.log(log);
   }
+    console.log(log);
 };
 
 export const parseVotes = (rawVotes: RawVotes, votingPower: VotingPower) => {
