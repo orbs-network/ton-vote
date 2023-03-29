@@ -89,7 +89,7 @@ export const TX_SUBMIT_ERROR_TEXT = "Transaction failed";
 export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
 
 export const CONTRACT_ADDRESS = Address.parse(
-  "EQCBsoyYOx0foXYqnjCqOdPEuBYrVxJ87cILogSUJlkKOxQ5"
+  "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr"
 );
 
 export const VERIFY_LINK =
