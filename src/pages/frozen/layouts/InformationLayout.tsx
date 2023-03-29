@@ -2,9 +2,9 @@ import { Box, styled, Typography } from "@mui/material";
 import { Container, Link } from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
-import { useProposalInfoQuery } from "../queries";
+import { useFrozenProposalInfoQuery } from "../queries";
 import moment from "moment";
-import { CONTRACT_ADDRESS, TONSCAN_ADDRESS_URL } from "../config";
+import { FROZEN_CONTRACT_ADDRESS, TONSCAN_ADDRESS_URL } from "../config";
 import { makeElipsisAddress } from "../utils";
 
  const fromUnixToString = (
@@ -16,9 +16,9 @@ import { makeElipsisAddress } from "../utils";
 
 
 export const InformationLayout = () => {
-  const { data: proposalInfo, isLoading } = useProposalInfoQuery();
+  const { data: proposalInfo, isLoading } = useFrozenProposalInfoQuery();
 
-  
+      
     return (
       <StyledInformation
         title="Information"
@@ -45,9 +45,9 @@ export const InformationLayout = () => {
             </InformationRow>
             <InformationRow label="Contract">
               <Link
-                href={`${TONSCAN_ADDRESS_URL}/${CONTRACT_ADDRESS.toFriendly()}`}
+                href={`${TONSCAN_ADDRESS_URL}/${FROZEN_CONTRACT_ADDRESS.toFriendly()}`}
               >
-                {makeElipsisAddress(CONTRACT_ADDRESS.toFriendly(), 8)}
+                {makeElipsisAddress(FROZEN_CONTRACT_ADDRESS.toFriendly(), 8)}
               </Link>
             </InformationRow>
           </StyledFlexColumn>

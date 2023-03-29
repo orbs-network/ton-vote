@@ -1,8 +1,8 @@
-import { CONTRACT_ADDRESS } from "../config";
+import { FROZEN_CONTRACT_ADDRESS } from "../config";
 
 export async function getSnapshotTime(client, clientV4) {
   const res = await client.callGetMethod(
-    CONTRACT_ADDRESS,
+    FROZEN_CONTRACT_ADDRESS,
     "proposal_snapshot_time"
   );
   const snapshotTime = Number(res.stack[0][1]);
@@ -14,17 +14,14 @@ export async function getSnapshotTime(client, clientV4) {
 
 export async function getStartTime(client) {
   const res = await client.callGetMethod(
-    CONTRACT_ADDRESS,
+    FROZEN_CONTRACT_ADDRESS,
     "proposal_start_time"
   );
   return Number(res.stack[0][1]);
 }
 
 export async function getEndTime(client) {
-  const res = await client.callGetMethod(
-    CONTRACT_ADDRESS,
-    "proposal_end_time"
-  );
+  const res = await client.callGetMethod(FROZEN_CONTRACT_ADDRESS, "proposal_end_time");
   return Number(res.stack[0][1]);
 }
 

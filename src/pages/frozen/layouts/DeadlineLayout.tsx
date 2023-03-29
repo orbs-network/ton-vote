@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import { Container, Countdown } from "components";
 import { useVoteTimeline } from "../hooks";
 import moment from "moment";
-import { useProposalInfoQuery } from "../queries";
+import { useFrozenProposalInfoQuery } from "../queries";
 
 const handleDate = (endDate?: number | Number) => {
   if (!endDate) return 0;
@@ -11,7 +11,7 @@ const handleDate = (endDate?: number | Number) => {
 };
 
 export function DeadlineLayout() {
-  const data = useProposalInfoQuery().data;
+  const data = useFrozenProposalInfoQuery().data;
   const { voteEnded, voteStarted } = useVoteTimeline();
 
 

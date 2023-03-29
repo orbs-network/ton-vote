@@ -4,16 +4,16 @@ import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "../utils";
 import { TONSCAN } from "../config";
 import { Vote } from "../types";
-import { useStateQuery } from "../queries";
-import { useConnectionStore, useVotesPaginationStore } from "../store";
+import { useFrozenStateQuery } from "../queries";
 import { fromNano } from "ton";
 import { useMemo } from "react";
 import moment from "moment";
 import _ from "lodash";
+import { useConnectionStore, useVotesPaginationStore } from "store";
 
 
 const ContainerHeader = () => {
-  const {data, isLoading} = useStateQuery()
+  const { data, isLoading } = useFrozenStateQuery();
   const totalTonAmount = data?.proposalResults?.totalWeight || '0';
   const votesLength = _.size(data?.votes)
 
@@ -52,7 +52,7 @@ const StyledContainerHeader = styled(StyledFlexRow)({
 });
 
 export function VotesLayout() {
-  const { isLoading, data } = useStateQuery();
+  const { isLoading, data } = useFrozenStateQuery();
 
   const votes = data?.votes;
   const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();

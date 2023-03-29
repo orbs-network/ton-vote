@@ -164,6 +164,7 @@ export const useStateQuery = () => {
   return useQuery(
     [QueryKeys.STATE],
     async () => {
+      
       const onServerState = async () => {
         const data = await getServerStateCallback();
         return data || getStateCurrentData() || null;

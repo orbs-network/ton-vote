@@ -6,6 +6,10 @@ import { create } from "zustand";
 import TonConnect from "@tonconnect/sdk";
 
 export interface PersistedStore {
+  setDefaultV2ClientEndpoint: (value: string) => void;
+  setDefaultV4ClientEndpoint: (value: string) => void;
+  defaultClientV2Endpoint?: string;
+  defaultClientV4Endpoint?: string;
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
   apiKey?: string;

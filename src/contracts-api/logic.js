@@ -10,28 +10,15 @@ import { CUSTODIAN_ADDRESSES } from "./custodian";
 
 
 
-export async function getClientV2(customEndpoint, apiKey) {
-  const localStorageV2 = localStorage.getItem("v2");
-  if (localStorageV2) {
-     return new TonClient({ endpoint: localStorageV2 });
-  }
-    // if (customEndpoint) {
-    //   return new TonClient({ endpoint: customEndpoint, apiKey });
-    // }
-  const endpoint = await getHttpEndpoint();
-   localStorage.setItem("v2", endpoint);
-  return new TonClient({ endpoint });
+export  function getClientV2(endpoint, apiKey) {
+  console.log({ endpoint, apiKey });
+  return new TonClient({ endpoint, apiKey });
 }
 
-export async function getClientV4(customEndpoint) {
-    const localStorageV4 = localStorage.getItem("v4");
-  if(localStorageV4) {
-     return new TonClient4({ endpoint: localStorageV4 });
-  }
-  // const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
-  const endpoint = await getHttpV4Endpoint();
-   localStorage.setItem("v4", endpoint);
+export  function getClientV4(endpoint) {
+  console.log(endpoint);
   return new TonClient4({ endpoint });
+ 
 }
 
 export async function getTransactions(client, toLt) {

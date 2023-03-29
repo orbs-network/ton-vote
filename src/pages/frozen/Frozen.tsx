@@ -8,13 +8,13 @@ import {
   DeadlineLayout,
 } from "./layouts";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
+import { EndpointPopup } from "./EndpointPopup";
 
-const Destop = () => {
+const Desktop = () => {
   return (
     <StyledWrapper>
       <StyledLeft>
         <MainLayout />
-        <VoteLayout />
         <VotesLayout />
       </StyledLeft>
       <StyledRight>
@@ -31,7 +31,6 @@ const Mobile = () => {
     <StyledWrapper>
       <DeadlineLayout />
       <MainLayout />
-      <VoteLayout />
       <ResultsLayout />
       <InformationLayout />
       <VotesLayout />
@@ -42,9 +41,12 @@ const Mobile = () => {
 export function FrozenPage() {
   const match = useMediaQuery("(max-width:800px)");
 
-  
-
-  return match ? <Mobile /> : <Destop />;
+  return (
+    <>
+      <EndpointPopup />
+      {match ? <Mobile /> : <Desktop />}
+    </>
+  );
 }
 
 const StyledWrapper = styled(StyledFlexRow)({
@@ -53,7 +55,6 @@ const StyledWrapper = styled(StyledFlexRow)({
     flexDirection: "column",
   },
 });
-
 
 const StyledLeft = styled(StyledFlexColumn)({
   flex: 1,

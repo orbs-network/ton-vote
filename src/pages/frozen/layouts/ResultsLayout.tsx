@@ -5,17 +5,12 @@ import { Button, Container, Progress } from "components";
 import { getTransactions, filterTxByTimestamp } from "../frozen-contracts-api/logic";
 import {
   useIsFetchFromServer,
-  useProposalInfoQuery,
-  useStateQuery,
+  useFrozenProposalInfoQuery,
+  useFrozenStateQuery,
 } from "../queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import {
-  useClientStore,
-  useContractStore,
-  usePersistedStore,
-  useServerStore,
-} from "../store";
+
 import { useGetContractState, useVoteTimeline } from "../hooks";
 import { useEffect, useMemo } from "react";
 import { Logger, nFormatter } from "../utils";
@@ -23,10 +18,11 @@ import { VERIFY_LINK } from "../config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
+import { useClientStore, useContractStore, useServerStore, usePersistedStore } from "store";
 
 const useVotesCount = () => {
-  const votes = useStateQuery().data?.votes;
-  const updated = useStateQuery().dataUpdatedAt;
+  const votes = useFrozenStateQuery().data?.votes;
+  const updated = useFrozenStateQuery().dataUpdatedAt;
 
   return useMemo(() => {
     const grouped = _.groupBy(votes, "vote");
@@ -46,7 +42,7 @@ const calculateTonAmount = (percent?: number, total?: string) => {
 };
 
 export const ResultsLayout = () => {
-  const { data, isLoading } = useStateQuery();
+  const { data, isLoading } = useFrozenStateQuery();
   const results = data?.proposalResults;
   
   const votesCount = useVotesCount();
@@ -144,8 +140,8 @@ const compare = (first: any, second: any) => {
 };
 
 const useVerify = () => {
-  const currentResults = useStateQuery().data?.proposalResults;
-  const proposalInfo = useProposalInfoQuery().data;
+  const currentResults = useFrozenStateQuery().data?.proposalResults;
+  const proposalInfo = useFrozenProposalInfoQuery().data;
   const clientV2 = useClientStore().clientV2;
   const contractMaxLt = useContractStore().contractMaxLt;
   const fetchFromServer = useIsFetchFromServer();

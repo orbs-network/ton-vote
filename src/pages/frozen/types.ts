@@ -25,10 +25,8 @@ export interface Results {
 }
 
 export enum QueryKeys {
-  STATE = "STATE",
-  PROPOSAL_INFO = "PROPOSAL_INFO",
-  CONTRACT_ADDRESS = "CONTRACT_ADDRESS",
-  SERVER_HEALTH_CHECK = "SERVER_HEALTH_CHECK",
+  FROZEN_STATE = "FROZEN_STATE",
+  FROZEN_PROPOSAL_INFO = "FROZEN_PROPOSAL_INFO",
 }
 
 export interface StateData {

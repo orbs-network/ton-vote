@@ -16,7 +16,6 @@ import {
   walletAdapters,
 } from "config";
 import { WalletProvider, Provider } from "types";
-import { useDataFromQueryClient } from "queries";
 import TonConnect from "@tonconnect/sdk";
 import _ from "lodash";
 
