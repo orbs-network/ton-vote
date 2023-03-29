@@ -28,9 +28,11 @@ import {textOverflow} from "styles";
 const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
   const updated = useStateQuery().dataUpdatedAt;
+  
 
   return useMemo(() => {
     const _votes = _.flatten(_.map(votes, (vote) => vote.vote));
+    
     return _.countBy(_votes);
   }, [updated]);
 };
