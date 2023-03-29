@@ -87,6 +87,7 @@ export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const TX_SUBMIT_ERROR_TEXT = "Transaction failed";
 export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
+console.log(import.meta.env.VITE_CONTRACT_ADDRESS);
 
 export const CONTRACT_ADDRESS = Address.parse(
   import.meta.env.VITE_CONTRACT_ADDRESS
