@@ -9,7 +9,7 @@ import { V2_API_KEY } from "pages/frozen/config";
 const getDefaultV2Endpoint = async () => {
   let endpoint;
   try {
-    endpoint = DEFAULT_ENDPOINTS.v2;
+    endpoint = await getHttpEndpoint();
   } catch (error) {
     endpoint = DEFAULT_ENDPOINTS.v2;
   }
