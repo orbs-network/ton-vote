@@ -2,7 +2,7 @@ import { Chip, Fade, styled, Typography } from "@mui/material";
 import { AppTooltip, Button, Container, Link, NumberDisplay } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "utils";
-import { TONSCAN } from "config";
+import { PROJECT_NAMES, TONSCAN } from "config";
 import { Vote } from "types";
 import { useStateQuery } from "queries";
 import { useConnectionStore, useVotesPaginationStore } from "store";
@@ -100,6 +100,11 @@ export function VotesLayout() {
     );
 }
 
+
+const getNames = (vote: number[]) => {
+  return _.map(vote, (name) => PROJECT_NAMES[name]).join(', ');
+};
+
 const VoteComponent = ({ data, you }: { data: Vote; you?: boolean }) => {
   const { address, votingPower, vote, hash, timestamp } = data;
 
@@ -108,9 +113,7 @@ const VoteComponent = ({ data, you }: { data: Vote; you?: boolean }) => {
       <AppTooltip
         text={
           <StyledFlexColumn>
-            {vote && isArray(vote) && (
-              <Typography>Vote: {vote.join(",")}</Typography>
-            )}
+            {vote && isArray(vote) && <Typography>Vote: {getNames(vote)}</Typography>}
             <Typography>{moment.unix(timestamp).utc().fromNow()}</Typography>
           </StyledFlexColumn>
         }

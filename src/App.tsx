@@ -38,7 +38,6 @@ export const router = createBrowserRouter(
     basename: import.meta.env.BASE_URL,
   }
 );
-
 function App() {
   const restoreConnection = useRestoreConnection();
   const getClients = useGetClientsOnLoad();
