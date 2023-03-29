@@ -88,9 +88,9 @@ export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 export const TX_SUBMIT_ERROR_TEXT = "Transaction failed";
 export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
 
-export const CONTRACT_ADDRESS = Address.parse(
-  "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr"
-);
+
+
+export const CONTRACT_ADDRESS = Address.parse(import.meta.env.VITE_CONTRACT_ADDRESS);
 
 export const VERIFY_LINK =
   "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
