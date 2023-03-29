@@ -13,27 +13,32 @@ import { useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useGetClientsOnLoad } from "store";
 
-export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Layout />,
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <Layout />,
 
-    children: [
-      {
-        path: "/",
-        element: <DorahackPage />,
-      },
-      {
-        path: "/frozen",
-        element: <FrozenPage />,
-      },
-      {
-        path: "/dorahack",
-        element: <DorahackPage />,
-      },
-    ],
-  },
-]);
+      children: [
+        {
+          path: "/",
+          element: <DorahackPage />,
+        },
+        {
+          path: "/frozen",
+          element: <FrozenPage />,
+        },
+        {
+          path: "/dorahack",
+          element: <DorahackPage />,
+        },
+      ],
+    },
+  ],
+  {
+    basename: import.meta.env.BASE_URL,
+  }
+);
 
 function App() {
   const restoreConnection = useRestoreConnection();
@@ -58,6 +63,5 @@ function App() {
 export default App;
 
 const StyledApp = styled(Box)({
-
   paddingBottom: 0,
 });
