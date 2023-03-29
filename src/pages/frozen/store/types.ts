@@ -1,8 +1,6 @@
 import { TonConnection, TonWalletProvider } from "@ton-defi.org/ton-connection";
-import { PAGE_SIZE } from "config";
 import { TonClient, TonClient4 } from "ton";
-import { Transaction } from "types";
-import { create } from "zustand";
+import { Transaction } from "../types";
 import TonConnect from "@tonconnect/sdk";
 
 export interface PersistedStore {
@@ -38,9 +36,8 @@ export interface VotesPaginationStore {
 }
 
 export interface VoteStore {
-  selectedOptions: number[];
-  setSelectedOptions: (value?: number[]) => void;
-  selectOption: (value: number) => void;
+  setVote: (vote?: string) => void;
+  vote?: string;
 }
 
 export interface ClientsStore {

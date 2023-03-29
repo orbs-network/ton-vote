@@ -9,16 +9,16 @@ import { useConnectionStore, useVotesPaginationStore } from "store";
 import { fromNano } from "ton";
 import { useMemo } from "react";
 import moment from "moment";
-import _ from "lodash";
-
+import _, { isArray } from "lodash";
+import { useVoteTimeline } from "hooks";
 
 const ContainerHeader = () => {
-  const {data, isLoading} = useStateQuery()
-  const totalTonAmount = data?.proposalResults?.totalWeight || '0';
-  const votesLength = _.size(data?.votes)
+  const { data, isLoading } = useStateQuery();
+  const totalTonAmount = data?.proposalResults.totalPower;
+  const votesLength = _.size(data?.votes);
 
   const tonAmount = useMemo(() => {
-    return nFormatter(Number(fromNano(totalTonAmount)));
+    return nFormatter(Number(fromNano(Number(totalTonAmount) || "0")));
   }, [totalTonAmount]);
 
   return (
@@ -27,9 +27,7 @@ const ContainerHeader = () => {
         <StyledChip
           label={
             <>
-              <NumberDisplay value={votesLength} />
-              {" "}
-              votes
+              <NumberDisplay value={votesLength} /> votes
             </>
           }
         />
@@ -42,66 +40,89 @@ const ContainerHeader = () => {
 };
 
 const StyledContainerHeader = styled(StyledFlexRow)({
-  flex:1,
-  justifyContent:'space-between',
-  '@media (max-width: 600px)': {
+  flex: 1,
+  justifyContent: "space-between",
+  "@media (max-width: 600px)": {
     ".total": {
-      fontSize: 13
-    }
-  }
+      fontSize: 13,
+    },
+  },
 });
 
 export function VotesLayout() {
-  const { isLoading, data } = useStateQuery();
+  const { isLoading, data, dataUpdatedAt: votesUpdatedDate } = useStateQuery();
 
   const votes = data?.votes;
   const { showMoreVotes, votesViewLimit } = useVotesPaginationStore();
   const hideLoadMore = (votes?.length || 0) <= votesViewLimit;
+  const connectedAddress = useConnectionStore((store) => store.address);
 
-  return (
-    <StyledContainer
-      title="Recent votes"
-      loading={isLoading}
-      loaderAmount={3}
-      headerChildren={<ContainerHeader />}
-    >
-      {votes?.length ? (
-        <StyledList gap={15}>
-          {votes?.map((vote, index) => {
-            if (index >= votesViewLimit) return null;
-            return <VoteComponent data={vote} key={vote.address} />;
-          })}
-        </StyledList>
-      ) : (
-        <StyledNoVotes>No votes yet</StyledNoVotes>
-      )}
-      {!hideLoadMore && (
-        <StyledLoaderMore>
-          <Button onClick={() => showMoreVotes()}>See More</Button>
-        </StyledLoaderMore>
-      )}
-    </StyledContainer>
-  );
+  const { voteStarted, isLoading: voteTimelineLoading } = useVoteTimeline();
+
+
+
+  const addressVote = useMemo(() => {
+    if (!connectedAddress) return;
+    return votes?.find((vote) => vote.address === connectedAddress);
+  }, [votesUpdatedDate, connectedAddress]);
+
+  if (!voteStarted && !voteTimelineLoading) return null;
+    return (
+      <StyledContainer
+        title="Recent votes"
+        loading={isLoading}
+        loaderAmount={3}
+        headerChildren={<ContainerHeader />}
+      >
+        {votes?.length ? (
+          <StyledList gap={15}>
+            {addressVote && <VoteComponent you={true} data={addressVote} />}
+            {votes?.map((vote, index) => {
+              if (
+                index >= votesViewLimit ||
+                vote.address === connectedAddress
+              ) {
+                return null;
+              }
+
+              return <VoteComponent data={vote} key={vote.address} />;
+            })}
+          </StyledList>
+        ) : (
+          <StyledNoVotes>No votes yet</StyledNoVotes>
+        )}
+        {!hideLoadMore && (
+          <StyledLoaderMore>
+            <Button onClick={() => showMoreVotes()}>See More</Button>
+          </StyledLoaderMore>
+        )}
+      </StyledContainer>
+    );
 }
 
-const VoteComponent = ({ data }: { data: Vote }) => {
+const VoteComponent = ({ data, you }: { data: Vote; you?: boolean }) => {
   const { address, votingPower, vote, hash, timestamp } = data;
 
-  const connectedAddress = useConnectionStore().address;
-
   return (
-    <StyledVote justifyContent="flex-start">
-      <AppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
+    <StyledVote justifyContent="space-between">
+      <AppTooltip
+        text={
+          <StyledFlexColumn>
+            {vote && isArray(vote) && (
+              <Typography>Vote: {vote.join(",")}</Typography>
+            )}
+            <Typography>{moment.unix(timestamp).utc().fromNow()}</Typography>
+          </StyledFlexColumn>
+        }
+      >
         <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
-          {connectedAddress === address
-            ? "You"
-            : makeElipsisAddress(address, 5)}
+          {you ? "You" : makeElipsisAddress(address, 5)}
         </Link>
+
+        <Typography className="voting-power">
+          {nFormatter(Number(votingPower))} TON
+        </Typography>
       </AppTooltip>
-      <Typography className="vote">{vote}</Typography>
-      <Typography className="voting-power">
-        {nFormatter(Number(votingPower))} TON
-      </Typography>
     </StyledVote>
   );
 };
@@ -120,6 +141,11 @@ const StyledLoaderMore = styled(StyledFlexRow)({
 });
 
 const StyledVote = styled(StyledFlexRow)({
+  ".tooltip-children": {
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.16)",
   paddingBottom: 10,
   gap: 10,
@@ -141,15 +167,15 @@ const StyledVote = styled(StyledFlexRow)({
   },
 
   "@media (max-width: 850px)": {
-    alignItems: "flex-start",
-    flexWrap: "wrap",
+    ".tooltip-children": {
+      alignItems: "flex-start",
+      flexWrap: "wrap",
+    },
 
     ".address": {
       maxWidth: "60%",
     },
-    ".date": {
-
-    },  
+    ".date": {},
     ".vote": {
       flex: "unset",
       marginLeft: "auto",

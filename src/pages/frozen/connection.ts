@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { isWalletInfoInjected, WalletInfoInjected } from "@tonconnect/sdk";
-import { useConnectionStore } from "store";
+import { useConnectionStore } from "./store";
 import {
   ChromeExtensionWalletProvider,
   TonhubProvider,
@@ -14,9 +14,10 @@ import {
   LOCAL_STORAGE_PROVIDER,
   TX_FEE,
   walletAdapters,
-} from "config";
-import { WalletProvider, Provider } from "types";
-import { useDataFromQueryClient } from "queries";
+} from "./config";
+import { WalletProvider, Provider } from "./types";
+import { useDataFromQueryClient } from "./queries";
+import { useWalletVote } from "./hooks";
 import TonConnect from "@tonconnect/sdk";
 import _ from "lodash";
 
@@ -54,6 +55,7 @@ export const useRestoreConnection = () => {
 export const useConnectionEvenSubscription = () => {
   const { setAddress } = useConnectionStore();
   const connector = useConnectionStore().connectorTC;
+  const onConnectCallback = useOnConnectCallback();
 
   useEffect(() => {
     connector.onStatusChange((walletInfo) => {
@@ -62,7 +64,9 @@ export const useConnectionEvenSubscription = () => {
         ? Address.parse(address).toFriendly()
         : "";
 
-      
+      if (friendlyAddress) {
+        onConnectCallback(friendlyAddress);
+      }
       setAddress(friendlyAddress);
     });
   }, []);
@@ -83,7 +87,18 @@ export const useEmbededWallet = () => {
   };
 };
 
+const useOnConnectCallback = () => {
+  const { getStateData, setStateData } = useDataFromQueryClient();
+  const handleWalletVote = useWalletVote();
+  return (walletAddress: string) => {
+    const data = getStateData();
 
+    if (!data) return;
+
+    data.votes = handleWalletVote(data.votes, walletAddress);
+    setStateData(data);
+  };
+};
 
 export const useOnWalletSelected = () => {
   const [session, setSession] = useState("");
@@ -92,6 +107,7 @@ export const useOnWalletSelected = () => {
     { name: string; icon: string } | undefined
   >();
   const [showQR, setShowQR] = useState(false);
+  const onConnectCallback = useOnConnectCallback();
 
   const reset = () => {
     setSession("");
@@ -162,6 +178,7 @@ export const useOnWalletSelected = () => {
     setTonConnectionProvider(tonWalletProvider);
     const _wallet = await tonWalletProvider.connect();
     setAddress(_wallet.address);
+    onConnectCallback(_wallet.address);
     localStorage.setItem(LOCAL_STORAGE_PROVIDER, wallet.type);
   };
 

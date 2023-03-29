@@ -1,7 +1,7 @@
 import TonhubLogo from "assets/tonhub.png";
 import ExtensionLogo from "assets/chrome.svg";
 
-import { Provider, WalletProvider } from "types";
+import { Provider, WalletProvider } from "./types";
 import { Address } from "ton";
 
 export const TONSCAN = "https://tonscan.org";
@@ -14,6 +14,7 @@ export const TX_APPROVED_AND_PENDING = "Transaction pending";
 export const TX_FEE = "0.0075";
 
 export const walletAdapters: WalletProvider[] = [
+ 
   {
     type: Provider.TONHUB,
     icon: TonhubLogo,
@@ -45,13 +46,17 @@ export const voteOptions = [
   },
 ];
 
+
+
 export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
+
 
 export const DEFAULT_ENDPOINTS = {
   v2: "https://toncenter.com/api/v2/jsonRPC",
   // v2: "https://scalable-api.tonwhales.com/jsonRPC",
   v4: "https://mainnet-v4.tonhubapi.com",
 };
+
 
 export const ENDPOINT_INPUTS = {
   clientV2: {
@@ -73,24 +78,28 @@ export const ENDPOINT_INPUTS = {
   },
 };
 
-export const STATE_REFETCH_INTERVAL = 30_000;
+
+export const STATE_REFETCH_INTERVAL = 30_000
 
 export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
-export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
+export const USER_VOTE_LOCAL_STORAGE = 'ton_vote_user_vote'
 
-export const PAGE_SIZE = 20;
+export const PAGE_SIZE = 20
 
 export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
+
 
 export const CLIENT_V4_ENDPOINT = "htyarn dtps://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
-export const TX_SUBMIT_ERROR_TEXT = "Transaction failed";
-export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
+export const TX_SUBMIT_ERROR_TEXT = 'Transaction failed'
+export const TX_SUBMIT_SUCCESS_TEXT = 'Transaction completed'
+
 
 export const CONTRACT_ADDRESS = Address.parse(
-  "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr"
+  "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS"
 );
+
 
 export const VERIFY_LINK =
   "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
@@ -98,7 +107,5 @@ export const VERIFY_LINK =
 export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";
 export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 
-export const PASSWORD = "ton-vote-14-02";
 
-export const VOTE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-export const VOTE_REQUIRED_NUM_OPTIONS = 3;
+export const PASSWORD = "ton-vote-14-02";

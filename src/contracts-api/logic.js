@@ -1,31 +1,40 @@
-import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { getHttpEndpoint , getHttpV4Endpoint} from "@orbs-network/ton-access";
 import { Address, fromNano, TonClient, TonClient4 } from "ton";
 import {getStartTime, getEndTime, getSnapshotTime} from "./getters";
 
 import BigNumber from "bignumber.js";
 import _ from "lodash";
 import { Logger } from "utils";
-import { CONTRACT_ADDRESS } from "config";
+import { CONTRACT_ADDRESS, VOTE_OPTIONS, VOTE_REQUIRED_NUM_OPTIONS } from "config";
 import { CUSTODIAN_ADDRESSES } from "./custodian";
 
 
+
 export async function getClientV2(customEndpoint, apiKey) {
-  if (customEndpoint) {
-    return new TonClient({ endpoint: customEndpoint, apiKey });
+  const localStorageV2 = localStorage.getItem("v2");
+  if (localStorageV2) {
+     return new TonClient({ endpoint: localStorageV2 });
   }
+    // if (customEndpoint) {
+    //   return new TonClient({ endpoint: customEndpoint, apiKey });
+    // }
   const endpoint = await getHttpEndpoint();
+   localStorage.setItem("v2", endpoint);
   return new TonClient({ endpoint });
 }
 
 export async function getClientV4(customEndpoint) {
-  const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
+    const localStorageV4 = localStorage.getItem("v4");
+  if(localStorageV4) {
+     return new TonClient4({ endpoint: localStorageV4 });
+  }
+  // const endpoint = customEndpoint || "https://mainnet-v4.tonhubapi.com";
+  const endpoint = await getHttpV4Endpoint();
+   localStorage.setItem("v4", endpoint);
   return new TonClient4({ endpoint });
 }
 
-export async function getTransactions(
-  client,
-  toLt
-) {
+export async function getTransactions(client, toLt) {
   let maxLt = new BigNumber(toLt ?? -1);
   let startPage = { fromLt: "0", hash: "" };
 
@@ -39,7 +48,7 @@ export async function getTransactions(
       to_lt: toLt,
       hash: paging.hash,
       limit: 500,
-    });  
+    });
 
     Logger(`Got ${txns.length}, lt ${paging.fromLt}`);
 
@@ -55,6 +64,8 @@ export async function getTransactions(
     });
   }
 
+  // console.log(allTxns);
+
   return { allTxns, maxLt: maxLt.toString() };
 }
 
@@ -66,38 +77,53 @@ export function filterTxByTimestamp(transactions, lastLt) {
   return filteredTx;
 }
 
+function verifyVote(vote) {
+  if (!vote) return false;
+  if (!Array.isArray(vote)) return false;
+  if (vote.length != VOTE_REQUIRED_NUM_OPTIONS) return false;
+
+  const voteObj = vote.reduce((accumulator, currentValue) => {
+    if (VOTE_OPTIONS.includes(currentValue)) {
+      accumulator[currentValue] =
+        currentValue in accumulator ? accumulator[currentValue] + 1 : 1;
+    }
+    return accumulator;
+  }, {});
+
+  return Object.keys(voteObj).length == VOTE_REQUIRED_NUM_OPTIONS;
+}
+
 export function getAllVotes(transactions, proposalInfo) {
   let allVotes = {};
-
+    
   for (let i = transactions.length - 1; i >= 0; i--) {
     const txnBody = transactions[i].inMessage.body;
 
-    let vote = txnBody.text;
-    if (!vote) continue;
+    if (!txnBody.text) continue;
+
+    // vote should be a string of numbers with or without comma
+    // e.g: '1, 2, 3' or '1 2 3'
+    const vote = txnBody.text.split(/[,\s]+/).map((numberString) => {
+      return parseInt(numberString.trim());
+    });
+
+    // verify user sent exatcly 3 options all of them are valid and every option appears only once
+    if (!verifyVote(vote)) continue;
 
     if (
       transactions[i].time < proposalInfo.startTime ||
-      transactions[i].time > proposalInfo.endTime || CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
-    )
-      continue;
+      transactions[i].time > proposalInfo.endTime ||
+      CUSTODIAN_ADDRESSES.includes(transactions[i].inMessage.source)
+    ) continue;
 
-    vote = vote.toLowerCase();
     allVotes[transactions[i].inMessage.source] = {
       timestamp: transactions[i].time,
-      vote: "",
-      hash: transactions[i].id.hash
+      vote: vote,
+      hash: transactions[i].id.hash,
     };
-
-    if (["y", "yes"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source].vote = "Yes";
-    } else if (["n", "no"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source].vote = "No";
-    } else if (["a", "abstain"].includes(vote)) {
-      allVotes[transactions[i].inMessage.source].vote = "Abstain";
-    }
   }
 
-  
+
   return allVotes;
 }
 
@@ -125,66 +151,47 @@ export async function getVotingPower(
   return votingPower;
 }
 
-export async function getSingleVotingPower(
-  clientV4,
-  mcSnapshotBlock,
-  address
-) {
-    return (
-      await clientV4.getAccountLite(
-        mcSnapshotBlock,
-        Address.parse(address)
-      )
-    ).account.balance.coins;
+export async function getSingleVotingPower(clientV4, mcSnapshotBlock, address) {
+  return (
+    await clientV4.getAccountLite(mcSnapshotBlock, Address.parse(address))
+  ).account.balance.coins;
 }
 
 export function calcProposalResult(votes, votingPower) {
-  let sumVotes = {
-    yes: new BigNumber(0),
-    no: new BigNumber(0),
-    abstain: new BigNumber(0),
-  };
+  // sumVotes = {"0": 0, "1": 0, "2": 0, "3": 0, ...}
+  const sumVotes = VOTE_OPTIONS.reduce((accumulator, currentValue) => {
+    accumulator[currentValue] = new BigNumber(0);
+    return accumulator;
+  }, {});
 
   for (const [voter, vote] of Object.entries(votes)) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
 
-      const _vote = vote.vote 
-    if (_vote === "Yes") {
-      sumVotes.yes = new BigNumber(votingPower[voter]).plus(sumVotes.yes);
-    } else if (_vote === "No") {
-      sumVotes.no = new BigNumber(votingPower[voter]).plus(sumVotes.no);
-    } else if (_vote === "Abstain") {
-      sumVotes.abstain = new BigNumber(votingPower[voter]).plus(
-        sumVotes.abstain
-      );
+    const voterPower = new BigNumber(votingPower[voter]);
+    const voterPowerPart = voterPower.div(vote.vote.length);
+    // vote.vote is an arary with exactly 3 options e.g.: ['7', '2', '5']
+    for (const _vote of vote.vote) {
+      sumVotes[_vote] = voterPowerPart.plus(sumVotes[_vote]);
     }
   }
 
+  let proposalResult = {};
+  let totalPower = new BigNumber(0);
 
-  const totalWeights = sumVotes.yes.plus(sumVotes.no).plus(sumVotes.abstain);
-  const yesPct = sumVotes.yes
-    .div(totalWeights)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
-  const noPct = sumVotes.no
-    .div(totalWeights)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
-  const abstainPct = sumVotes.abstain
-    .div(totalWeights)
-    .decimalPlaces(4)
-    .multipliedBy(100)
-    .toNumber();
+  for (const optionTotalPower of Object.values(sumVotes)) {
+    totalPower = totalPower.plus(optionTotalPower);
+  }
 
-    return {
-    yes: yesPct,
-    no: noPct,
-    abstain: abstainPct,
-    totalWeight: totalWeights.toString(),
-  };
+  for (const [voteOption, optionTotalPow] of Object.entries(sumVotes)) {
+    proposalResult[voteOption] = optionTotalPow
+    .div(totalPower)
+    .decimalPlaces(4)
+    .multipliedBy(100)
+    .toNumber();
+  }
+
+  return {proposalResult, totalPower: totalPower.toString()} 
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
@@ -193,6 +200,7 @@ export function getCurrentResults(transactions, votingPower, proposalInfo) {
 }
 
 export async function getProposalInfo(client, clientV4) {
+
   return {
     startTime: await getStartTime(client, CONTRACT_ADDRESS),
     endTime: await getEndTime(client, CONTRACT_ADDRESS),

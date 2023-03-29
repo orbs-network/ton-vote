@@ -5,23 +5,33 @@ import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import AnimateHeight from "react-animate-height";
 import { useVoteTimeline } from "hooks";
-import { CONTRACT_ADDRESS } from "config";
+import { Box } from "@mui/system";
 
 export function MainLayout() {
   const [showMore, setShowMore] = useState(false);
   return (
     <StyledContainer
-      title="Proposal of TON Tokenomics Optimization"
+      title="Hack-a-TONx: Choose your winners!"
       headerChildren={<VoteEndedChip />}
     >
       <StyledFlexColumn alignItems="flex-start">
         <Typography>
-          Tokenomics proposal to achieve community consensus on circulating
-          supply of TON. Proposal for a 48 month temporary freeze of inactive
-          mining wallets, which have never been activated and do not have any
-          outgoing transfer in their history.
+          The grand finale of the Hack-a-TONx w/ DoraHacks is finally here -
         </Typography>
-
+        <Typography>
+          <strong>
+            It is now time for the community to vote on the winning projects and
+            distribute the $300,000 pool prize!
+          </strong>
+        </Typography>
+        <Typography>
+          2 months have passed since the launch of the first ever TON global
+          hackathon. During this time, we received 234 submissions from
+          top-quality teams choosing to Build-on-TON. After a thorough review
+          process, the Hack-a-TONx judges panel chose 10 projects to proceed to
+          the grand finale. We want to thank everyone who participated in this
+          fantastic event, you are awesome!
+        </Typography>
         <AnimateHeight height={showMore ? "auto" : 0} duration={400}>
           <ShowMorePart />
         </AnimateHeight>
@@ -45,11 +55,11 @@ const VoteEndedChip = () => {
     return "Ended";
   }, [voteStarted, voteInProgress]);
 
-    return (
-      <Fade in={!isLoading}>
-        <StyledVoteEnded label={label} variant="filled" color="primary" />
-      </Fade>
-    );
+  return (
+    <Fade in={!isLoading}>
+      <StyledVoteEnded label={label} variant="filled" color="primary" />
+    </Fade>
+  );
 };
 
 const StyledVoteEnded = styled(Chip)({
@@ -61,72 +71,86 @@ const ShowMorePart = () => {
   return (
     <StyledShowMoreText>
       <Typography>
-        In response to repeated requests for greater certainty, clarity and
-        transparency over the tokenomics of the TON network on December 17,
-        2022, the community called for all early miners to activate their
-        inactive mining wallets by the end of 2022.
+        In this vote, the community is called upon to choose its 5 Hack-a-TONx
+        winning projects. All in all, 5 winning projects will be chosen, ranked
+        by the total amount of votes they receive.
       </Typography>
       <Typography>
-        Out of the 204 inactive mining wallets identified by the community, 182
-        wallets remain inactive as of February 14, 2023. 182 wallets constitute
-        less than 0.009% of the total number of wallets on the network. These
-        mining wallets — the genesis wallets which have mined Toncoin directly
-        from the Proof-of-Work smart-contracts — have never been activated and
-        do not have a single outgoing transfer in their history. The full list
-        of inactive mining wallet addresses can be found{" "}
-        <Link href="https://tontech.io/stats/early-miners" target="_blank">
-          here
-        </Link>
-        , which is also specified in the{" "}
-        <Link
-          href={`https://verifier.ton.org/${CONTRACT_ADDRESS}`}
-          target="_blank"
-        >
-          proposal smart-contract.
-        </Link>
+        The community vote will account for 20% of the final winning teams, so
+        choose wisely!
       </Typography>
-      <Typography>
-        Any address that becomes active prior to the network voting shall be
-        excluded from this list. The network voting by the validators is
-        expected to take place on or around February 21, 2023.
-      </Typography>
-      <Typography>
-        Toncoin acts as a gas fee required to obtain access to decentralized
-        services on the TON network. It has been widely speculated that access
-        to these inactive wallets may have been lost. What is clear is that
-        there is a community consensus: the existence of these unutilized
-        Toncoin only increases the uncertainty for network participants.
-      </Typography>
-      <Typography>
-        In spite of some community members proposing for a permanent
-        inactivation, a large part of the community was in favor of preserving
-        the very idea that keeps us together: decentralization. For this reason,
-        we are suggesting this inactivation period to last temporarily for 48
-        months. This will give the TON ecosystem enough time to flourish while
-        providing flexibility to those who may not be aware of these discussions
-        in the community.
-      </Typography>
-      <Typography>
-        TON is a community-driven blockchain and we believe that the network
-        validators should listen to the voice of the community as a whole.
-        Therefore, we are suggesting every Toncoin holder to participate in this
-        vote ahead of the network voting. It is momentous that everyone
-        participates in this new chapter of TON’s history.
-      </Typography>
-      <Typography>Make your voice heard.</Typography>
-      <Typography>
-        <small>
-          Disclaimer: the voting results on ton.vote will not have a direct
-          impact on the network voting. However, the community believes that the
-          network validators will consider the voice of the community seriously.
-        </small>
-      </Typography>
+      <StyledFirstList>
+        <Typography className="list-title">
+          Before you cast your vote, be sure to check out the following:
+        </Typography>
+        <Styledlist>
+          <li>
+            Demo day 1 live judging (Tsunami Exchange, 1ton, Genlock, Tonic
+            Lounge, DeDust):{" "}
+            <Link
+              href="https://www.youtube.com/watch?v=kZWvJCGJ9Js"
+              target="_blank"
+            >
+              Link
+            </Link>
+          </li>
+
+          <li>
+            Demo day 2 live judging (Nujan IDE, TonEase, Evaa Protocol,
+            re:doubt, Punk City):{" "}
+            <Link
+              href="https://www.youtube.com/watch?v=hgcKkpvGDp0"
+              target="_blank"
+            >
+              Link
+            </Link>
+          </li>
+        </Styledlist>
+      </StyledFirstList>
+      <StyledSecondList>
+        <Typography className="list-title">And the finalists are…</Typography>
+        <Styledlist>
+          {list.map((item) => {
+            return (
+              <li key={item.title} className="item">
+                <strong>{item.title}:</strong> {item.text}{" "}
+                <Link href={item.link} target="_blank">
+                  Learn more
+                </Link>
+              </li>
+            );
+          })}
+        </Styledlist>
+      </StyledSecondList>
     </StyledShowMoreText>
   );
 };
 
+const Styledlist = styled("ul")({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  gap: 10,
+  padding: 0,
+  listStylePosition: "inside",
+});
+
+const StyledFirstList = styled(Box)({
+  alignItems: "flex-start",
+  ul: {
+    // listStyleType: "decimal",
+  },
+});
+
+const StyledSecondList = styled(Box)({
+  alignItems: "flex-start",
+  ul: {
+    listStyleType: "decimal",
+  },
+});
+
 const StyledShowMoreText = styled(StyledFlexColumn)({
-  gap: 20,
+  gap: 10,
   alignItems: "flex-start",
   p: {
     textAlign: "left",
@@ -147,3 +171,62 @@ const StyledShowMore = styled("div")(({ theme }) => ({
 }));
 
 const StyledContainer = styled(Container)({});
+
+interface ListInterace {
+  title: string;
+  text: string;
+  link: string;
+}
+
+const list: ListInterace[] = [
+  {
+    title: "Tsunami Exchange",
+    text: "Tsunami - Trade Everything on TON including Crypto, Stock, Commodities & Forex! ",
+    link: "https://dorahacks.io/buidl/4511",
+  },
+  {
+    title: "1ton",
+    text: "1TON Finance empowers unbanked creators to achieve their financial goals and thrive in their businesses.",
+    link: "https://dorahacks.io/buidl/4580",
+  },
+  {
+    title: "Genlock",
+    text: "Web service that uses Generative AI technologies to generate unique game assets as NFT.",
+    link: "https://dorahacks.io/buidl/4562",
+  },
+  {
+    title: "Tonic Lounge",
+    text: "Build and Find Your Token Gated Telegram Community with Tonic Lounge and Tonic Wallet.",
+    link: "https://dorahacks.io/buidl/4521",
+  },
+  {
+    title: "DeDust",
+    text: "Hub for managing DeFi assets",
+    link: "https://dorahacks.io/buidl/4158",
+  },
+  {
+    title: "Nunjan IDE",
+    text: "To make the development process on TON smooth, frictionless, and convenient. We aim to minimize the barrier to entry for developers who are coming on a TON.",
+    link: "https://dorahacks.io/buidl/4473",
+  },
+  {
+    title: "TonEase",
+    text: "Streamline your payments with TonEase - the all-in-one solution for batch, date-specific, and recurring payments.",
+    link: "https://dorahacks.io/buidl/4492",
+  },
+  {
+    title: "Evaa",
+    text: "he first decentralized lending protocol on TON that lets users lend or borrow native and wrapper assets without going to a centralized intermediary.",
+    link: " https://dorahacks.io/buidl/4093",
+  },
+  {
+    title: "re:doubt",
+    text: "Real-time security & operational monitoring.",
+    link: "https://dorahacks.io/buidl/4157",
+  },
+  {
+    title: "Punk City",
+    text: " A metaverse of Play-2-Earn games in telegram.",
+    link: "https://dorahacks.io/buidl/4557",
+  },
+];

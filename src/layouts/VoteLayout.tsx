@@ -1,53 +1,79 @@
-import { Fade } from "@mui/material";
+import { useTheme } from "@mui/material";
 import { styled, Typography } from "@mui/material";
 import { Container, Button, TxReminderPopup, ConnectButton } from "components";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { FiCheck } from "react-icons/fi";
-import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
+import { APPROVE_TX, TX_APPROVED_AND_PENDING, VOTE_OPTIONS, VOTE_REQUIRED_NUM_OPTIONS } from "config";
 import { useVoteTimeline } from "hooks";
-import { useConnectionStore, useVoteStore } from "store";
-import { useSendTransaction } from "queries";
+import { useConnectionStore } from "store";
+import { useSendTransaction, useStateQuery } from "queries";
+import _, { isNumber } from "lodash";
 
 export function VoteLayout() {
-  const { vote, setVote } = useVoteStore();
+  const [selectedVotes, setSelectedVotes] = useState<number[]>([]);
   const [showModal, setShowModal] = useState(false);
   const { mutate, isLoading, txApproved } = useSendTransaction();
   const voteInProgress = useVoteTimeline()?.voteInProgress;
+  const connectedAddress = useConnectionStore((store) => store.address);
+  const { dataUpdatedAt: votesUpdatedDate, data } = useStateQuery();
+
+  const votes = data?.votes;
+
+
+
+  useEffect(() => {
+    if (connectedAddress) {
+      const index = votes?.findIndex((it) => it.address === connectedAddress);
+      if (!isNumber(index) || index === -1) return;
+      
+      setSelectedVotes(votes![index].vote);
+    }
+  }, [connectedAddress, votesUpdatedDate]);
+
+
+
+  const optionsSize = _.size(selectedVotes);
+
+  const onSelect = (option: number) => {
+    setSelectedVotes((currentVotes) => {
+      const temp = [...currentVotes];
+      if (temp.includes(option)) {
+        temp.splice(temp.indexOf(option), 1);
+      } else {
+        temp.push(option);
+      }
+      return temp;
+    });
+  };
 
   useEffect(() => {
     setShowModal(isLoading);
   }, [isLoading]);
 
   const onSubmit = () => {
-    if (!vote) return;
-    mutate(vote);
+    mutate(_.sortBy(selectedVotes).join(","));
   };
 
   if (!voteInProgress) return null;
   return (
     <StyledContainer title="Should the validators proceed with this proposal?">
       <StyledFlexColumn>
-        {voteOptions.map((option) => {
+        {VOTE_OPTIONS.map((option) => {
+          const checked = selectedVotes.includes(option);
           return (
-            <StyledOption
-              selected={option.value === vote}
-              key={option.value}
-              onClick={() => setVote(option.value)}
-            >
-              <Fade in={option.value === vote}>
-                <StyledFlexRow className="icon">
-                  <FiCheck style={{ width: 20, height: 20 }} />
-                </StyledFlexRow>
-              </Fade>
-              <Typography>{option.name}</Typography>
-            </StyledOption>
+            <Option
+              key={option}
+              disabled={!checked && optionsSize === VOTE_REQUIRED_NUM_OPTIONS}
+              checked={checked}
+              option={option}
+              onClick={onSelect}
+            />
           );
         })}
       </StyledFlexColumn>
       <VoteButton
         isLoading={isLoading}
-        disabled={!vote || isLoading}
+        disabled={optionsSize !== VOTE_REQUIRED_NUM_OPTIONS}
         onSubmit={onSubmit}
       />
 
@@ -96,9 +122,36 @@ const StyledConnectButton = styled(ConnectButton)({
   width: "100%",
 });
 
-const StyledOption = styled(StyledFlexRow)<{
-  selected?: boolean;
-}>(({ theme, selected }) => ({
+const Option = ({
+  option,
+  checked,
+  onClick,
+  disabled,
+}: {
+  option: number;
+  checked: boolean;
+  onClick: (value: number) => void;
+  disabled: boolean;
+}) => {
+  const theme = useTheme();
+  return (
+    <StyledOption
+      onClick={() => onClick(option)}
+      style={{
+        border: checked
+          ? `1.5px solid ${theme.palette.primary.main}`
+          : "1.5px solid rgba(114, 138, 150, 0.24)",
+        opacity: disabled ? 0.5 : 1,
+        pointerEvents: disabled ? "none" : "all",
+      }}
+    >
+      {/* <Checkbox checked={checked} /> */}
+      <Typography>{option}</Typography>
+    </StyledOption>
+  );
+};
+
+const StyledOption = styled(StyledFlexRow)<{}>(({ theme }) => ({
   transition: "0.2s all",
   width: "100%",
   borderRadius: 30,
@@ -112,9 +165,6 @@ const StyledOption = styled(StyledFlexRow)<{
     transform: "translate(0, -50%)",
     width: "fit-content",
   },
-  border: selected
-    ? `1.5px solid ${theme.palette.primary.main}`
-    : "1.5px solid rgba(114, 138, 150, 0.24)",
   color: theme.palette.primary.main,
   p: {
     color: "inherit",

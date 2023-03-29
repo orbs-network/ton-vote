@@ -23,7 +23,7 @@ export function Footer() {
 
 
 const StyledContainer = styled(StyledFlexColumn)(({ theme }) => ({
-    marginTop:100,
+    marginTop:'auto',
     height: 100,
   a: {
     textDecoration: "unset",

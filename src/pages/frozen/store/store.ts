@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { TonConnection } from "@ton-defi.org/ton-connection";
-import { manifestUrl, PAGE_SIZE } from "config";
+import { DEFAULT_ENDPOINTS, manifestUrl, PAGE_SIZE } from "../config";
 import TonConnect from "@tonconnect/sdk";
 
 import {
@@ -18,6 +18,9 @@ import {
 export const usePersistedStore = create(
   persist<PersistedStore>(
     (set) => ({
+      clientV2Endpoint: DEFAULT_ENDPOINTS.v2,
+      apiKey:'3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2',
+      clientV4Endpoint: DEFAULT_ENDPOINTS.v4,
       maxLt: undefined,
       setMaxLt: (maxLt) => set({ maxLt }),
       clearMaxLt: () => set({ maxLt: undefined }),
@@ -102,6 +105,11 @@ export const useClientStore = create<ClientsStore>((set, get) => ({
   setClients: (clientV2, clientV4) => set({ clientV2, clientV4 }),
 }));
 
+export const useVoteStore = create<VoteStore>((set, get) => ({
+  vote: undefined,
+
+  setVote: (vote) => set({ vote }),
+}));
 
 export const useVotesPaginationStore = create<VotesPaginationStore>(
   (set, get) => ({

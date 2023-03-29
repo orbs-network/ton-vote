@@ -80,24 +80,7 @@ export function WalletSelect({ open, close }: Props) {
                 </StyledWallet>
               );
             })}
-            {walletAdapters?.map((wallet) => {
-              if (isMobile && wallet.mobileDisabled) return null;
-              return (
-                <StyledWallet
-                  justifyContent="flex-start"
-                  key={wallet.title}
-                  onClick={() => {
-                    analytics.GA.walletSelectedClick(wallet.title);
-                    selectWallet(wallet);
-                  }}
-                >
-                  <img src={wallet.icon} />
-                  <Typography className="wallet-name">
-                    {wallet.title}
-                  </Typography>
-                </StyledWallet>
-              );
-            })}
+
           </StyledWalletsList>
         </StyledWalletsSelect>
         <StyledQr
