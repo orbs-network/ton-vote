@@ -1,7 +1,7 @@
 import { useTheme } from "@mui/material";
 import { styled, Typography } from "@mui/material";
 import { Container, Button, TxReminderPopup, ConnectButton } from "components";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {
   APPROVE_TX,
@@ -22,19 +22,22 @@ export function VoteLayout() {
   const voteInProgress = useVoteTimeline()?.voteInProgress;
   const connectedAddress = useConnectionStore((store) => store.address);
   const { dataUpdatedAt: votesUpdatedDate, data } = useStateQuery();
+  const [voted, setVoted] = useState(false);
 
   const votes = data?.votes;
+  const optionsSize = _.size(selectedVotes);
+  const ref = useRef(false)
 
   useEffect(() => {
-    if (connectedAddress) {
+
+    if (connectedAddress && !ref.current) {
       const index = votes?.findIndex((it) => it.address === connectedAddress);
       if (!isNumber(index) || index === -1) return;
-
+      setVoted(true);
       setSelectedVotes(votes![index].vote);
+      ref.current = true;
     }
-  }, [connectedAddress, votesUpdatedDate]);
-
-  const optionsSize = _.size(selectedVotes);
+  }, [connectedAddress, votesUpdatedDate, optionsSize]);
 
   const onSelect = (option: number) => {
     setSelectedVotes((currentVotes) => {
@@ -75,6 +78,7 @@ export function VoteLayout() {
       </StyledFlexColumn>
 
       <VoteButton
+        voted={voted}
         selected={optionsSize}
         isLoading={isLoading}
         onSubmit={onSubmit}
@@ -90,6 +94,7 @@ export function VoteLayout() {
 }
 
 const VoteButton = ({
+  voted,
   onSubmit,
   isLoading,
   selected,
@@ -97,6 +102,7 @@ const VoteButton = ({
   onSubmit: () => void;
   isLoading: boolean;
   selected: number;
+  voted: boolean;
 }) => {
   const walletAddress = useConnectionStore().address;
 
@@ -113,7 +119,7 @@ const VoteButton = ({
   }
   return (
     <StyledVoteButton onClick={onSubmit} isLoading={isLoading}>
-      Vote
+      {voted ? "Change Vote" : "Vote"}
     </StyledVoteButton>
   );
 };
@@ -147,7 +153,7 @@ const Option = ({
         border: checked
           ? `1.5px solid ${theme.palette.primary.main}`
           : "1.5px solid rgba(114, 138, 150, 0.24)",
-        opacity: disabled ? 0.5 : 1,
+        opacity: disabled ? 0.65 : 1,
         pointerEvents: disabled ? "none" : "all",
       }}
     >
