@@ -27,11 +27,10 @@ export function MainLayout() {
         </Typography>
         <Typography>
           2 months have passed since the launch of the first ever TON global
-          hackathon. During this time, we received 234 submissions from
-          top-quality teams choosing to Build-on-TON. After a thorough review
-          process, the Hack-a-TONx judges panel chose 10 projects to proceed to
-          the grand finale. We want to thank everyone who participated in this
-          fantastic event, you are awesome!
+          hackathon. During this time, 234 submissions have been received from
+          top-quality teams who chose to Build-on-TON. After a thorough review
+          process, the panel if Hack-a-TONx judges chose 10 projects to proceed
+          to the grand finale.
         </Typography>
         <AnimateHeight height={showMore ? "auto" : 0} duration={400}>
           <ShowMorePart />
@@ -72,13 +71,13 @@ const ShowMorePart = () => {
   return (
     <StyledShowMoreText>
       <Typography>
-        In this vote, the community is called upon to choose its 5 Hack-a-TONx
-        winning projects. All in all, 5 winning projects will be chosen, ranked
-        by the total amount of votes they receive.
+        Each voter can vote for his top 5 favorite projects, in no particular
+        order. All in all, 5 winning projects will be chosen, ranked by the
+        total amount of votes they receive.
       </Typography>
       <Typography>
-        The community vote will account for 20% of the final winning teams, so
-        choose wisely!
+        The community vote will account for 20% of the decision on the final
+        winning teams, so choose wisely!
       </Typography>
       <StyledFirstList>
         <Typography className="list-title">
@@ -123,6 +122,10 @@ const ShowMorePart = () => {
           })}
         </Styledlist>
       </StyledSecondList>
+      <Typography>
+        Any holder of TONCoin is eligible to vote. The vote will open on March
+        29, 2023 at 2:00 PM GMT and close on March 30, 2023 at 5:00 PM.
+      </Typography>
     </StyledShowMoreText>
   );
 };

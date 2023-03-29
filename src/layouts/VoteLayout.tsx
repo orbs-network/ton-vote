@@ -58,7 +58,7 @@ export function VoteLayout() {
 
   if (!voteInProgress) return null;
   return (
-    <StyledContainer title="Should the validators proceed with this proposal?">
+    <StyledContainer title="Please choose exactly 5 projects">
       <StyledFlexColumn>
         {VOTE_OPTIONS.map((option) => {
           const checked = selectedVotes.includes(option);

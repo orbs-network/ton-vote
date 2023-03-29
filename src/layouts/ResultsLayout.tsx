@@ -23,7 +23,7 @@ import { PROJECT_NAMES, VERIFY_LINK, VOTE_OPTIONS } from "config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
-import BigNumber from "bignumber.js";
+import {textOverflow} from "styles";
 
 const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
@@ -120,7 +120,7 @@ const ResultRow = ({
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <StyledFlexRow style={{ width: "fit-content" }}>
-          <Typography>{PROJECT_NAMES[option]}</Typography>
+          <StyledResultName>{PROJECT_NAMES[option]}</StyledResultName>
           <StyledChip label={`${votes} votes`} />
         </StyledFlexRow>
 
@@ -134,6 +134,12 @@ const ResultRow = ({
     </StyledResultRow>
   );
 };
+
+
+const StyledResultName = styled(Typography)({
+  maxWidth: 100,
+...textOverflow
+})
 
 const StyledChip = styled(Chip)({
   fontSize: 11,

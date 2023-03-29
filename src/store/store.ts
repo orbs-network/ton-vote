@@ -25,7 +25,7 @@ export const usePersistedStore = create(
       maxLt: undefined,
       setMaxLt: (maxLt) => set({ maxLt }),
       clearMaxLt: () => set({ maxLt: undefined }),
-      serverDisabled: false,
+      serverDisabled: import.meta.env.VITE_SERVER_DISABLED,
       disableServer: (serverDisabled) => set({ serverDisabled }),
       isCustomEndpoints: false,
       setDefaultV2ClientEndpoint: (defaultClientV2Endpoint) =>
