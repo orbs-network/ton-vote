@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import { Button, Container, Loader, Img } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
-import { useDaoMetadataQuery, useDaoRolesQuery } from "query";
+import { useDaoMetadataQuery, useDaoRolesQuery } from "query/queries";
 import React from "react";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";

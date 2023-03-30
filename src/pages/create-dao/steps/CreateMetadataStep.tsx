@@ -2,13 +2,7 @@ import { styled, Typography } from "@mui/material";
 import { Button, Container, FadeElement, MapInput } from "components";
 import { StyledFlexColumn } from "styles";
 import { useFormik } from "formik";
-import {
-  FormData,
-  FormSchema,
-  useCreatDaoStore,
-  useCreateMetadata,
-  useInputs,
-} from "../store";
+import { FormData, FormSchema, useCreatDaoStore, useCreateDaoMetadata, useInputs } from "../store";
 import { StyledStep, StyledSubmitButton } from "../styles";
 import _ from "lodash";
 
@@ -32,14 +26,14 @@ const StyledEndAdornment = styled(Button)({
 });
 
 export function CreateMetadataStep() {
-  const { mutate: createMetadata, isLoading } = useCreateMetadata();
+  const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
   const { formData, nextStep, metadataAddress } = useCreatDaoStore();
 
-  const onSubmit = async (values: FormData) => {
-    const valuesChanged = metadataAddress && !_.isEqual(values, formData);
+  const onSubmit = async (_formData: FormData) => {
+    const valuesChanged = metadataAddress && !_.isEqual(_formData, formData);
 
     if (!metadataAddress || valuesChanged) {
-      createMetadata(values);
+      createMetadata(_formData);
     } else {
       nextStep();
     }

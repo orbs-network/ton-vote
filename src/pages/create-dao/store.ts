@@ -1,13 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { useConnectionStore } from "connection";
-import { contract } from "data-service";
 import { useMemo } from "react";
 import { Address } from "ton-core";
 import { InputInterface } from "types";
 import { create } from "zustand";
 import * as Yup from "yup";
 import _ from "lodash";
-import { useNotification } from "components";
+import { useGetSender } from "hooks";
+import { useClientsQuery } from "query/queries";
+import * as TonVoteContract from "ton-vote-npm";
+import { MetadataArgs } from "ton-vote-npm";
 
 const initialFormData: FormData = {
   name: "test",
@@ -59,58 +61,57 @@ export const steps = [
   { title: "Create Dao", index: 1 },
 ];
 
-export const useCreateMetadata = () => {
-  const address = useConnectionStore().address;
+export const useCreateDaoMetadata = () => {
+  const getSender = useGetSender();
+  const clientV2 = useClientsQuery()?.clientV2;
   const { nextStep, setMetadataAddress, setFormData } = useCreatDaoStore();
-  const { showNotification } = useNotification();
 
-  return useMutation(
-    async (values: FormData) => {
-      const response = await contract.createMetadata(
-        values.about,
-        "",
-        values.github,
-        false,
-        values.name,
-        values.terms,
-        values.twitter,
-        values.website
-      );
-      console.log({ response });
+  return useMutation(async (values: FormData) => {
+    const sender = getSender();
 
-      if (Address.isAddress(response)) {
-        nextStep();
-        setFormData(values);
-        setMetadataAddress(response);
-      }
-    },
-    {
-      onError: (error: any) => {
-        showNotification({ message: error.message, variant: "error" });
-      },
+    const metadataArgs: MetadataArgs = {
+      about: values.about,
+      avatar: "",
+      github: values.github,
+      hide: false,
+      name: values.name,
+      terms: values.terms,
+      twitter: values.twitter,
+      website: values.website,
+    };
+    const address = await TonVoteContract.newMetdata(
+      sender,
+      clientV2!,
+      metadataArgs
+    );
+    if (Address.isAddress(address)) {
+      nextStep();
+      setFormData(values);
+      setMetadataAddress(address);
     }
-  );
+  });
 };
 
 export const useCreateDao = () => {
-  const { metadataAddress, formData, reset } = useCreatDaoStore();
-  const { showNotification } = useNotification();
+  const getSender = useGetSender();
+  const clientV2 = useClientsQuery()?.clientV2;
+  const {
+    prevStep,
+    formData: { ownerAddress, proposalOwner },
+    metadataAddress,
+  } = useCreatDaoStore();
 
-  return useMutation(
-    async () => {
-      return contract.createDao(
-        metadataAddress as Address,
-        Address.parse(formData.ownerAddress),
-        Address.parse(formData.proposalOwner)
-      );
-    },
-    {
-      onSuccess: reset,
-      onError: (error: any) => {
-        showNotification({ message: error.message, variant: "error" });
-      },
-    }
-  );
+  return useMutation(async () => {
+    const sender = getSender();
+
+    return TonVoteContract.newDao(
+      sender,
+      clientV2!,
+      metadataAddress!,
+      Address.parse(ownerAddress),
+      Address.parse(proposalOwner)
+    );
+  });
 };
 
 export const useInputs = (): InputInterface[] => {

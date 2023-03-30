@@ -4,7 +4,7 @@ import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import { useProposalAddress } from "hooks";
 import { getProposalStatusText } from "utils";
-import { useProposalMetadataQuery, useProposalStatusQuery } from "query";
+import { useProposalMetadataQuery, useProposalStatusQuery } from "query/queries";
 
 export function Hero() {
   const proposalAddress = useProposalAddress();

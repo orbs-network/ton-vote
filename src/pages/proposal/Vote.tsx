@@ -5,17 +5,17 @@ import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import { useVote } from "./hooks";
 import { useVoteStore } from "./store";
 import { useConnectionStore } from "connection";
 import { ProposalStatus } from "types";
-import { useProposalStatusQuery } from "query";
+import { useProposalStatusQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
+import { useVote } from "query/mutations";
 
 export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
-  const { mutate, isLoading, txApproved } = useVote();
+  const { mutate, isLoading } = useVote();
   const proposalAddress = useProposalAddress()
   const proposalStatus = useProposalStatusQuery(proposalAddress);
 
@@ -25,7 +25,7 @@ export function Vote() {
 
   const onSubmit = () => {
     if (!vote) return;
-    mutate(vote);
+    mutate();
   };
 
   if (proposalStatus !== ProposalStatus.PENDING) return null;
@@ -57,7 +57,7 @@ export function Vote() {
       />
 
       <TxReminderPopup
-        text={txApproved ? TX_APPROVED_AND_PENDING : APPROVE_TX}
+        text={TX_APPROVED_AND_PENDING}
         open={showModal}
         close={() => setShowModal(false)}
       />

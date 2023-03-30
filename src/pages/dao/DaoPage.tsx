@@ -1,7 +1,7 @@
 import { Page } from "components";
 import { APP_TITLE } from "config";
 import { useDaoAddress } from "hooks";
-import { useDaoMetadataQuery, useDaoRolesQuery } from "query";
+import { useDaoMetadataQuery, useDaoRolesQuery } from "query/queries";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 

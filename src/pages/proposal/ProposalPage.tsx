@@ -9,7 +9,7 @@ import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
-import { useProposalMetadataQuery } from "query";
+import { useProposalMetadataQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
 
 const Destop = () => {

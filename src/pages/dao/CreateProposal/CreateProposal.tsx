@@ -1,16 +1,8 @@
 import { Box, styled } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
-import {
-  Button,
-  Container,
-  FadeElement,
-  MapInput,
-  useNotification,
-} from "components";
-import { contract } from "data-service";
+import { Button, Container, FadeElement, MapInput } from "components";
 import { Formik } from "formik";
 import { useDaoAddress } from "hooks";
-import { useDaoRolesQuery } from "query";
+import { useCreateProposal } from "query/mutations";
 import { StyledFlexColumn } from "styles";
 import { ProposalMetadata } from "ton-vote-npm";
 import { FormSchema, inputs } from "./data";
@@ -26,34 +18,20 @@ const initialValues: FormData = {
   proposalEndTime: undefined,
   proposalSnapshotTime: undefined,
 };
-
-export const useCreateProposal = () => {
-  const { showNotification } = useNotification();
-  const daoAddress = useDaoAddress();
-  return useMutation(
-    async (values: FormData) => {
-      const args: ProposalMetadata = {
-        proposalStartTime: BigInt(values.proposalStartTime!),
-        proposalEndTime: BigInt(values.proposalEndTime!),
-        proposalSnapshotTime: BigInt(values.proposalSnapshotTime!),
-        votingPowerStrategy: BigInt(1),
-        proposalType: BigInt(1),
-      };
-      return contract.createProposal(daoAddress, args);
-    },
-    {
-      onSuccess: () => {
-        showNotification({ variant: "success", message: "Proposal created" });
-      },
-    }
-  );
-};
-
 function CreateProposal() {
-  const { mutate: create, isLoading, error } = useCreateProposal();
+  const { mutate: createProposal, isLoading } = useCreateProposal();
   const daoAddress = useDaoAddress();
 
-  
+  const onCreate = (values: FormData) => {
+    const proposalMetadata: ProposalMetadata = {
+      proposalStartTime: BigInt(values.proposalStartTime!),
+      proposalEndTime: BigInt(values.proposalEndTime!),
+      proposalSnapshotTime: BigInt(values.proposalSnapshotTime!),
+      votingPowerStrategy: BigInt(1),
+      proposalType: BigInt(1),
+    };
+    createProposal({ daoAddr: daoAddress, proposalMetadata });
+  };
 
   return (
     <StyledContainer title="Create Proposal">
@@ -61,7 +39,7 @@ function CreateProposal() {
         <Formik<FormData>
           initialValues={initialValues}
           validationSchema={FormSchema}
-          onSubmit={(values) => create(values)}
+          onSubmit={(values) => onCreate(values)}
           validateOnChange={false}
           validateOnBlur={true}
         >

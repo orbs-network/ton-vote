@@ -1,25 +1,38 @@
-import { QueryKey, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryKey,
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { QueryKeys, STATE_REFETCH_INTERVAL } from "config";
-import { contract, server } from "data-service";
+import { getContractState, server } from "lib";
 import { useIsCustomEndpoint } from "hooks";
 import { useAppPersistedStore, useEnpointModal } from "store";
 import { ProposalState, ProposalStatus } from "types";
 import { getProposalStatus, Logger } from "utils";
+import * as TonVoteContract from "ton-vote-npm";
+import { Address } from "ton-core";
+import * as mock from "mock";
+import _ from "lodash";
 
 export const useDaoMetadataQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAO_METADATA, daoAddress]);
-
+  const clientV2 = useClientsQuery()?.clientV2;
   return useQuery(
     queryKey,
-    async () => {
+    () => {
       if (isCustomEndpoint) {
-        return contract.getDaoMetadata(daoAddress);
+        return TonVoteContract.getDaoMetadata(
+          clientV2!,
+          Address.parse(daoAddress)
+        );
       }
       return server.getDaoMetadata(daoAddress);
     },
     {
       staleTime: Infinity,
+      enabled: !!clientV2 && !!daoAddress,
     }
   );
 };
@@ -27,18 +40,20 @@ export const useDaoMetadataQuery = (daoAddress: string) => {
 export const useDaosQuery = () => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAOS]);
+  const clientV2 = useClientsQuery()?.clientV2;
 
   return useInfiniteQuery(
     queryKey,
     async () => {
       if (isCustomEndpoint) {
-        return contract.getDaos();
+        return TonVoteContract.getDaos(clientV2!);
       }
       return server.getDaos();
     },
     {
       staleTime: Infinity,
       getNextPageParam: (lastPage) => lastPage.endDaoId,
+      enabled: !!clientV2,
     }
   );
 };
@@ -46,58 +61,87 @@ export const useDaosQuery = () => {
 export const useDaoRolesQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAO_ROLES, daoAddress]);
+  const clientV2 = useClientsQuery()?.clientV2;
 
   return useQuery(
     queryKey,
     () => {
       if (isCustomEndpoint) {
-        return contract.getDaoRoles(daoAddress);
+        return TonVoteContract.getDaoRoles(
+          clientV2!,
+          Address.parse(daoAddress)
+        );
       }
       return server.getDaoRoles(daoAddress);
     },
     {
       staleTime: Infinity,
+      enabled: !!clientV2 && !!daoAddress,
     }
   );
 };
 
 export const useDaoProposalsQuery = (daoAddress: string) => {
-  const isCustomEndpoint = useIsCustomEndpoint();
+  const isCustomEndpoint = useIsCustomEndpoint();  
 
   const queryKey = useGetQueryKey([QueryKeys.PROPOSALS, daoAddress]);
+  const clientV2 = useClientsQuery()?.clientV2;
 
-  return useQuery(queryKey, () => {
-    if (isCustomEndpoint) {
-      return contract.getDaoProposals(daoAddress);
-    } else {
+  return useQuery(
+    queryKey,
+    () => {
+      if (isCustomEndpoint) {
+        return TonVoteContract.getDaoProposals(
+          clientV2!,
+          Address.parse(daoAddress)
+        );
+      }
       return server.getDaoProposals(daoAddress);
+    },
+    {
+      enabled: !!clientV2 && !!daoAddress,
     }
-  });
+  );
 };
 
 export const useProposalMetadataQuery = (proposalAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.PROPOSAL, proposalAddress]);
 
-  return useQuery(queryKey, () => {
-    if (isCustomEndpoint)
-      return contract.getDaoProposalMetadata(proposalAddress);
-    return server.getDapProposalMetadata(proposalAddress);
-  });
+  return useQuery(
+    queryKey,
+    () => {
+      if (isCustomEndpoint) {
+        return mock.getProposalMetadata(proposalAddress);
+      }
+      return server.getDapProposalMetadata(proposalAddress);
+    },
+    {
+      enabled: !!proposalAddress,
+    }
+  );
 };
 
 export const useProposalInfoQuery = (proposalAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.PROPOSAL_INFO, proposalAddress]);
+  const clients = useClientsQuery();
 
   return useQuery(
     queryKey,
     () => {
-      if (isCustomEndpoint) return contract.getDaoProposalInfo(proposalAddress);
+      if (isCustomEndpoint) {
+        return TonVoteContract.getProposalInfo(
+          clients!.clientV2,
+          clients!.clientV4,
+          Address.parse(proposalAddress)
+        );
+      }
       return server.getDaoProposalInfo(proposalAddress);
     },
     {
       staleTime: Infinity,
+      enabled: !!clients?.clientV2 && !!clients.clientV4 && !!proposalAddress,
     }
   );
 };
@@ -140,6 +184,8 @@ export const useProposalStateQuery = (
   const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
     useAppPersistedStore();
 
+  const clients = useClientsQuery();
+
   const { refetch: fetchProposalInfo } = useProposalInfoQuery(proposalAddress);
 
   return useQuery(
@@ -151,13 +197,19 @@ export const useProposalStateQuery = (
 
       const state = queryClient.getQueryData(queryKey) as ProposalState | null;
 
-      const getContractState = () => {
-        return contract.getState(proposalAddress, proposalInfo, state);
+      const _getContractState = () => {
+        return getContractState(
+          clients?.clientV2!,
+          clients?.clientV4!,
+          proposalAddress,
+          proposalInfo,
+          state
+        );
       };
 
       if (isCustomEndpoint) {
         Logger("custom endpoint, fetching from contract");
-        return getContractState();
+        return _getContractState();
       }
       const serverState = await server.getState(
         proposalAddress,
@@ -166,12 +218,13 @@ export const useProposalStateQuery = (
       if (serverState) {
         setLatestMaxLtAfterTx(proposalAddress, undefined);
       }
-      return serverState || getContractState();
+      return serverState || _getContractState();
     },
     {
       onError: () => setEndpointError(true),
       refetchInterval: !voteFinished ? refetchInterval : undefined,
       staleTime: voteFinished ? Infinity : 2_000,
+      enabled: !!clients?.clientV2 && !!clients?.clientV4 && !!proposalAddress,
     }
   );
 };
@@ -193,6 +246,20 @@ export const useServerLastFetchUpdateValidationQuery = () => {
 };
 
 const useGetQueryKey = (key: string[]): QueryKey => {
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
-  return [...key, clientV2Endpoint, clientV4Endpoint];
+  const { clientV2Endpoint, clientV4Endpoint, apiKey } = useAppPersistedStore();
+  return [...key, clientV2Endpoint, clientV4Endpoint, apiKey];
 };
+
+export const useClientsQuery = () => {
+  const key = useGetQueryKey(["useGetQueryKey"]);
+  const { clientV2Endpoint, clientV4Endpoint, apiKey } = useAppPersistedStore();
+  const query = useQuery(key, async () => {
+    return {
+      clientV2: await TonVoteContract.getClientV2(clientV2Endpoint, apiKey),
+      clientV4: await TonVoteContract.getClientV4(clientV4Endpoint || ""),
+    };
+  });
+
+  return query.data;
+};
+

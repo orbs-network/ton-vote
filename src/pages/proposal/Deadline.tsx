@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import { Container, Countdown } from "components";
 import { useProposalAddress } from "hooks";
 import moment from "moment";
-import { useProposalInfoQuery, useProposalStatusQuery } from "query";
+import { useProposalInfoQuery, useProposalStatusQuery } from "query/queries";
 import React from "react";
 import { ProposalStatus } from "types";
 

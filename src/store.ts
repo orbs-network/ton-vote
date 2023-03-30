@@ -17,10 +17,6 @@ interface PersistedEndpointStore {
   clientV4Endpoint?: string;
   apiKey?: string;
   setEndpoints: (args?: EndpointsArgs) => void;
-  clientV2Fallback?: string;
-  clientV4Fallback?: string;
-  setClientV2Fallback: (clientV2Fallback: string) => void;
-  setClientV4Fallback: (clientV4Fallback: string) => void;
   latestMaxLtAfterTx: { [key: string]: string | undefined };
   getLatestMaxLtAfterTx: (proposalAddress: string) => string | undefined ;
   setLatestMaxLtAfterTx: (contractAddress: string, value?: string) => void;
@@ -39,11 +35,7 @@ export const useAppPersistedStore = create(
         });
       },
       serverUpdateTime: undefined,
-      clientV2Fallback: undefined,
-      clientV4Fallback: undefined,
       setSrverUpdateTime: (serverUpdateTime) => set({ serverUpdateTime }),
-      setClientV2Fallback: (clientV2Fallback) => set({ clientV2Fallback }),
-      setClientV4Fallback: (clientV4Fallback) => set({ clientV4Fallback }),
       setEndpoints: (args) => {
         set({
           clientV2Endpoint: args?.clientV2Endpoint,

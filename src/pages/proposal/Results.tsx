@@ -8,14 +8,15 @@ import { nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import { fromNano } from "ton";
 import _ from "lodash";
-import {
-  useProposalVotesCount,
-  useVerifyProposalResults,
-} from "./hooks";
+import { useProposalVotesCount } from "./hooks";
 import { ProposalStatus } from "types";
-import { useProposalStateQuery, useProposalStatusQuery } from "query";
+import {
+  useProposalStateQuery,
+  useProposalStatusQuery,
+} from "query/queries";
 import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "store";
+import { useVerifyProposalResults } from "query/mutations";
 
 const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return;
@@ -126,14 +127,13 @@ const StyledResults = styled(Container)({
 });
 
 export function VerifyResults() {
+  const proposalAddress = useProposalAddress();
   const {
     mutate: verify,
     isLoading,
     data: isVerified,
-    isReady,
     reset,
-  } = useVerifyProposalResults();
-  const proposalAddress = useProposalAddress();
+  } = useVerifyProposalResults(proposalAddress);
   const proposalStatus = useProposalStatusQuery(proposalAddress);
 
   const latestMaxLtAfterTx = useLatestMaxLtAfterTx(proposalAddress);
@@ -147,7 +147,6 @@ export function VerifyResults() {
   if (proposalStatus !== ProposalStatus.ACTIVE) return null;
 
   const component = () => {
-    if (!isReady) return null;
     if (isVerified) {
       return (
         <StyledVerifiedButton>

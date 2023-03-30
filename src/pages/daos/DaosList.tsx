@@ -1,6 +1,6 @@
 import { Button, Container } from "components";
 import _ from "lodash";
-import { useDaoRolesQuery, useDaosQuery } from "query";
+import { useDaoRolesQuery, useDaosQuery } from "query/queries";
 import React, { ReactNode } from "react";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";

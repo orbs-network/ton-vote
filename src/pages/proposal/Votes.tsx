@@ -16,7 +16,7 @@ import moment from "moment";
 import _ from "lodash";
 import { useConnectionStore } from "connection";
 import {  useProposalVotes } from "./hooks";
-import { useProposalStateQuery } from "query";
+import { useProposalStateQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
 
 const ContainerHeader = () => {

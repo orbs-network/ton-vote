@@ -6,7 +6,7 @@ import moment from "moment";
 import { TONSCAN_ADDRESS_URL } from "config";
 import { makeElipsisAddress } from "utils";
 import { useProposalAddress } from "hooks";
-import { useProposalInfoQuery } from "query";
+import { useProposalInfoQuery } from "query/queries";
 
  const fromUnixToString = (
   time: number,

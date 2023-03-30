@@ -7,7 +7,6 @@ import {
   DaoRoles,
   GetDaoProposals,
   GetDaos,
-  ProposalInfo,
   ProposalResults,
   ProposalState,
   RawVotes,
@@ -32,7 +31,7 @@ const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
 
 const getDaos = async (): Promise<GetDaos> => {
   Logger("getDaos from server");
-  return mock.getDaos();
+  return [] as any;
 };
 
 const getDaoMetadata = async (daoAddress: string): Promise<DaoMetadata> => {

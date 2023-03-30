@@ -1,33 +1,41 @@
-import { styled } from "@mui/material";
-import { Back, Footer, Navbar } from "components";
-import { useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import { StyledGrid } from "styles";
+import { Box, styled } from '@mui/material';
+import { Footer, Navbar } from './components';
+import React, { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom';
+import { StyledFlexColumn, StyledGrid } from 'styles';
+import { QueryParamProvider } from "use-query-params";
+import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 
 function Layout() {
-  const location = useLocation();
-  useEffect(() => {
-    if (!location.hash) {
-      window.scrollTo(0, 0);
-    }
-  }, [location]);
+  const location = useLocation()
 
+  const pathname = location.pathname;
+
+  useEffect(() => {
+   
+  }, [pathname]);
+    
+  
   return (
-    <>
-      <Navbar />
+    <QueryParamProvider adapter={ReactRouter6Adapter}>
       <StyledContainer>
-        <Outlet />
+        <Navbar />
+        <StyledContent>
+          <Outlet />
+        </StyledContent>
+        <Footer />
       </StyledContainer>
-      <Footer />
-    </>
+    </QueryParamProvider>
   );
 }
 
-export { Layout };
-
-const StyledContainer = styled(StyledGrid)({
-  display: "flex",
-  flexDirection: "column",
-  paddingTop: 90,
-  minHeight: "100vh",
+const StyledContent = styled(StyledGrid)({
+  // marginBottom: 100
 });
+
+const StyledContainer = styled(StyledFlexColumn)({
+  minHeight:'100vh',
+  paddingTop: 100
+});
+
+export default Layout

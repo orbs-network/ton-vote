@@ -1,14 +1,14 @@
 import { Box, styled, Typography } from "@mui/material";
 import { FadeElement, LoadMore, Select } from "components";
+import { useDaoAddress, useProposalAddress } from "hooks";
 import _ from "lodash";
-import { ReactNode, useMemo, useState } from "react";
-import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-import { DaoProposal, ProposalStatus, SelectOption } from "types";
+import { useDaoProposalsQuery } from "query/queries";
+import { useState } from "react";
+import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
+import { ProposalStatus, SelectOption } from "types";
 import { StringParam, useQueryParam } from "use-query-params";
-import { getProposalStatus } from "utils";
-import { useDaoProposalsQuery } from "../hooks";
 import { ProposalComponent } from "./Proposal";
-import { StyledProposalContent, StyledProposalsContainer } from "./styles";
+import { StyledProposalsContainer } from "./styles";
 
 const SIZE = 7;
 
@@ -24,37 +24,33 @@ const options: Option[] = [
 ];
 
 export function DaoProposals() {
-  const { data, isLoading, error } = useDaoProposalsQuery();
+  const daoAddress = useDaoAddress()
+  const { data, isLoading, error } = useDaoProposalsQuery(daoAddress);
+
+  console.log({ data });
   
-  const [itemsAmount, setItemsAmount] = useState(SIZE);
+
+  const [renderedProposalsCount, setRenderedProposalsCount] = useState(SIZE);
   const [filterValue, setFilterValue] = useState<string>(options[0].value);
-  // const [queryParamState, setQueryParamState] = useQueryParam(
-  //   "state",
-  //   StringParam
-  // );
+  const [queryParamState, setQueryParamState] = useQueryParam(
+    "state",
+    StringParam
+  );
 
   const showMore = () => {
-    setItemsAmount((prev) => prev + SIZE);
+    setRenderedProposalsCount((prev) => prev + SIZE);
   };
 
   const onSelect = (value: string) => {
     setFilterValue(value);
-    setItemsAmount(SIZE);
-    // setQueryParamState(value);
+    setRenderedProposalsCount(SIZE);
+    setQueryParamState(value);
   };
 
-  // const filteredProposals = useMemo(() => {
-  //   return _.filter(daoProposals, (proposal) => {
-  //     if (filterValue === "all") return true;
-  //     return (
-  //       getProposalStatus(proposal.startDate, proposal.endDate) === filterValue
-  //     );
-  //   });
-  // }, [_.size(daoProposals), filterValue]);
-
-  // const hideLoadMore = _.size(filteredProposals) < SIZE;
-
   const emptyList = !isLoading && !_.size(data?.proposalAddresses);
+
+
+  const hideLoadMoreButton = isLoading || renderedProposalsCount >= SIZE;
 
   return (
     <FadeElement>
@@ -73,15 +69,17 @@ export function DaoProposals() {
             <ListLoader />
           ) : (
             data?.proposalAddresses?.map((address, index) => {
-              if (index >= itemsAmount) return null;
-              return <ProposalComponent address={address} key={address.toString()} />;
+              if (index >= renderedProposalsCount) return null;
+              return (
+                <ProposalComponent address={address} key={address.toString()} />
+              );
             })
           )}
         </StyledFlexColumn>
         {emptyList && <StyledEmptyList>No Proposals</StyledEmptyList>}
         <LoadMore
-          hide={isLoading}
-          loadMoreOnScroll={itemsAmount > SIZE}
+          hide={hideLoadMoreButton}
+          loadMoreOnScroll={renderedProposalsCount > SIZE}
           showMore={showMore}
           isFetchingNextPage={false}
         />
@@ -92,8 +90,8 @@ export function DaoProposals() {
 
 const StyledEmptyList = styled(Typography)({
   fontSize: 20,
-  fontWeight: 700
-})
+  fontWeight: 700,
+});
 
 const ListLoader = () => {
   return (
@@ -108,3 +106,5 @@ const ListLoader = () => {
 const LoadingProposal = () => {
   return <StyledSkeletonLoader style={{ width: "100%", height: 100 }} />;
 };
+
+

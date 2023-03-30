@@ -5,7 +5,7 @@ import {
   useProposalMetadataQuery,
   useProposalInfoQuery,
   useProposalStatusQuery,
-} from "query";
+} from "query/queries";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Address } from "ton-core";

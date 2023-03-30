@@ -3,7 +3,7 @@ import { Button, Container, FadeElement, Img } from "components";
 import moment from "moment";
 import { StyledFlexColumn } from "styles";
 import { InputInterface } from "types";
-import { useCreatDaoStore, useCreateDao, useInputs } from "../store";
+import { FormData, useCreatDaoStore, useCreateDao, useInputs } from "../store";
 import { StyledStep, StyledSubmitButton } from "../styles";
 
 export function CreateDaoStep() {

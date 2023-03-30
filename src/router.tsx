@@ -1,5 +1,5 @@
 import { routes } from "consts";
-import { Layout } from "Layout";
+import Layout from "Layout";
 import _ from "lodash";
 import {
   ProposalPage,

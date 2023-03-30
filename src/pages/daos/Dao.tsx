@@ -1,10 +1,11 @@
 import { Typography } from "@mui/material";
 import { Loader } from "components";
-import { useDaoMetadataQuery } from "query";
+import { useDaoMetadataQuery } from "query/queries";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";
 import { Address } from "ton-core";
+import { makeElipsisAddress } from "utils";
 import {
   StyledDao,
   StyledDaoAvatar,
@@ -32,7 +33,7 @@ export const Dao = ({ address }: { address: Address }) => {
               <Loader
                 isLoading={isLoading}
                 component={
-                  <Typography className="title">{daoMetadata?.name}</Typography>
+                  <Typography className="title">{makeElipsisAddress(daoMetadata?.name, 6)}</Typography>
                 }
               />
               {!isLoading && <StyledJoinDao>Join</StyledJoinDao>}

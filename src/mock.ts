@@ -9,13 +9,6 @@ import {
   GetDaos,
 } from "types";
 
-const daoAddresses = [
-  "EQAnOgaTMcdWIE4G4btaz5I-2AUdj_ajtrvwmyBc7FKoooGG",
-  "EQB5_SSILhGXMLBPIE2QbTZoaPHBzwK4Z1Ek9kigqQ_mwImE",
-  "EQDUSJ7EfT6Wuy1Is2NgMMpMAI4FzHS1Q8nw9a5ZRqiC0Xlu",
-  "EQBTCgbs6dOyLI2qmyDfLPm2YBWj45eL7B57DERGVWAErchd",
-  "EQCajaUU1XXSAjTD-xOV7pE49fGtg4q8kF3ELCOJtGvQFQ2C",
-];
 
 const proposalAddresses = [
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS",
@@ -26,15 +19,7 @@ const proposalAddresses = [
   "EQC1dF4jDhLTBYkSoQOCLP0Hn2sXW12K9poC9ObO0XENCpBn",
 ];
 
-export const getDaos = (): GetDaos => {
-  return {
-    endDaoId: BigInt(0),
-    daoAddresses: _.range(0, 5).map((it, i) => {
-      const address = daoAddresses[i]
-      return Address.parse(address!);
-    }),
-  };
-};
+
 
 export const getDaoRoles = (daoAddress: string) => {
   return {
