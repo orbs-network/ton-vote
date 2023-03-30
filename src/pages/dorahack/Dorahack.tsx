@@ -64,6 +64,6 @@ const StyledLeft = styled(StyledFlexColumn)({
 
 const StyledRight = styled(StyledFlexColumn)({
   width: 370,
-  position: "sticky",
-  top: 90,
+  // position: "sticky",
+  // top: 90,
 });
