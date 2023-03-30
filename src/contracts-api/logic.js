@@ -1,5 +1,5 @@
 import { getHttpEndpoint, getHttpV4Endpoint } from "@orbs-network/ton-access";
-import { Address, fromNano, TonClient, TonClient4 } from "ton";
+import { Address, fromNano, TonClient, TonClient4, toNano } from "ton";
 import { getStartTime, getEndTime, getSnapshotTime } from "./getters";
 
 import BigNumber from "bignumber.js";
@@ -169,6 +169,8 @@ export function calcProposalResult(votes, votingPower) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
 
+    if (Number(fromNano(votingPower[voter])) < 0.25) continue;
+    
     const voterPower = new BigNumber(votingPower[voter]);
     const voterPowerPart = voterPower.div(vote.vote.length);
     // vote.vote is an arary with exactly 3 options e.g.: ['7', '2', '5']
