@@ -23,16 +23,16 @@ import { PROJECT_NAMES, VERIFY_LINK, VOTE_OPTIONS } from "config";
 import analytics from "analytics";
 import { fromNano } from "ton";
 import _ from "lodash";
-import {textOverflow} from "styles";
+import { textOverflow } from "styles";
+import BigNumber from "bignumber.js";
 
 const useVotesCount = () => {
   const votes = useStateQuery().data?.votes;
   const updated = useStateQuery().dataUpdatedAt;
-  
 
   return useMemo(() => {
     const _votes = _.flatten(_.map(votes, (vote) => vote.vote));
-    
+
     return _.countBy(_votes);
   }, [updated]);
 };
@@ -43,12 +43,22 @@ const calculateTonAmount = (percent?: number, totalPower?: string) => {
   return nFormatter(result, 2);
 };
 
+const getTonAmount = (value?: BigNumber) => {
+  if (!value) return "0";
+
+  const amount = typeof value === "string" ? Number(value) : value.toNumber();
+
+  // console.log(fromNano(Math.round(value.toNumber())));
+  return nFormatter(Number(fromNano(Math.round(amount))), 2);
+};
+
 export const ResultsLayout = () => {
   const { data, isLoading, dataUpdatedAt } = useStateQuery();
+  const sumCoins = data?.proposalResults?.sumCoins;
+
   const results = data?.proposalResults.proposalResult || {};
-  const totalPower = data?.proposalResults.totalPower;
   const [showAll, setShowAll] = useState(false);
-  const {voteStarted, isLoading: voteTimelineLoading} = useVoteTimeline();
+  const { voteStarted, isLoading: voteTimelineLoading } = useVoteTimeline();
 
   const votesCount = useVotesCount();
 
@@ -72,7 +82,9 @@ export const ResultsLayout = () => {
                 key={item.option}
                 option={item.option}
                 percent={item.value || 0}
-                tonAmount={calculateTonAmount(item.value, totalPower)}
+                tonAmount={getTonAmount(
+                  sumCoins ? sumCoins[item.option] : undefined
+                )}
                 votes={nFormatter(votesCount[item.option], 2)}
               />
             );
@@ -137,11 +149,10 @@ const ResultRow = ({
   );
 };
 
-
 const StyledResultName = styled(Typography)({
   maxWidth: 100,
-...textOverflow
-})
+  ...textOverflow,
+});
 
 const StyledChip = styled(Chip)({
   fontSize: 11,

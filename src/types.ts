@@ -21,6 +21,7 @@ export interface WalletProvider {
 export interface Results {
   proposalResult: {};
   totalPower: string;
+  sumCoins: { [key: number]: BigNumber };
 }
 
 export enum QueryKeys {

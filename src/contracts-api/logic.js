@@ -14,7 +14,6 @@ import {
 import { CUSTODIAN_ADDRESSES } from "./custodian";
 import { V2_API_KEY } from "pages/frozen/config";
 
-
 export async function getClientV2(customEndpoint, apiKey = V2_API_KEY) {
   if (customEndpoint) {
     return new TonClient({
@@ -199,7 +198,7 @@ export function calcProposalResult(votes, votingPower) {
       .toNumber();
   }
 
-  return { proposalResult, totalPower: totalCoins.toString(),  sumVotes};
+  return { proposalResult, totalPower: totalCoins.toString(), sumCoins };
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
