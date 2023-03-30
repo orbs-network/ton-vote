@@ -30,7 +30,6 @@ function Layout() {
 }
 
 const StyledContent = styled(StyledGrid)({
-  // marginBottom: 100
 });
 
 const StyledContainer = styled(StyledFlexColumn)({

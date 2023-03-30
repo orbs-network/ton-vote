@@ -82,7 +82,7 @@ export const useDaoRolesQuery = (daoAddress: string) => {
 };
 
 export const useDaoProposalsQuery = (daoAddress: string) => {
-  const isCustomEndpoint = useIsCustomEndpoint();  
+  const isCustomEndpoint = useIsCustomEndpoint();
 
   const queryKey = useGetQueryKey([QueryKeys.PROPOSALS, daoAddress]);
   const clientV2 = useClientsQuery()?.clientV2;
@@ -181,7 +181,7 @@ export const useProposalStateQuery = (
   const queryKey = useGetQueryKey([QueryKeys.STATE, proposalAddress]);
   const queryClient = useQueryClient();
   const voteFinished = proposalStatus === ProposalStatus.CLOSED;
-  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
+  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx, latestMaxLtAfterTx } =
     useAppPersistedStore();
 
   const clients = useClientsQuery();
@@ -203,13 +203,14 @@ export const useProposalStateQuery = (
           clients?.clientV4!,
           proposalAddress,
           proposalInfo,
-          state
+          state,
+          getLatestMaxLtAfterTx(proposalAddress)
         );
       };
 
       if (isCustomEndpoint) {
         Logger("custom endpoint, fetching from contract");
-        return _getContractState();
+        return _getContractState() || null;
       }
       const serverState = await server.getState(
         proposalAddress,
@@ -218,7 +219,7 @@ export const useProposalStateQuery = (
       if (serverState) {
         setLatestMaxLtAfterTx(proposalAddress, undefined);
       }
-      return serverState || _getContractState();
+      return serverState || _getContractState() || null;;
     },
     {
       onError: () => setEndpointError(true),
@@ -262,4 +263,3 @@ export const useClientsQuery = () => {
 
   return query.data;
 };
-

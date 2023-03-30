@@ -11,14 +11,11 @@ export const getContractState = async (
   clientV4: TonClient4,
   proposalAddress: string,
   proposalInfo: ProposalMetadata,
-  prevState: ProposalState | null
+  prevState: ProposalState | null,
+  latestMaxLtAfterTx?: string
 ): Promise<ProposalState | null> => {
   let _transactions = prevState?.transactions || [];
   let _maxLt = prevState?.maxLt;
-
-  const latestMaxLtAfterTx =
-    useAppPersistedStore.getState().getLatestMaxLtAfterTx(proposalAddress) ||
-    "0";
 
   if (latestMaxLtAfterTx) {
     const { allTxns } = await TonVoteContract.getTransactions(
@@ -58,6 +55,9 @@ export const getContractState = async (
     _transactions,
     proposalInfo
   ) as RawVotes;
+
+
+
   return {
     votingPower,
     results,
