@@ -199,7 +199,7 @@ export function calcProposalResult(votes, votingPower) {
       .toNumber();
   }
 
-  return { proposalResult, totalPower: totalCoins.toString() };
+  return { proposalResult, totalPower: totalCoins.toString(),  sumVotes};
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {
