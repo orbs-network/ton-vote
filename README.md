@@ -33,7 +33,7 @@ There are many wallets on TON, we made sure that you can use any of them and tha
 After voting, you can open the client in https://ton.vote to see your vote counted. It will appear in the top of the recent votes list.
 
 If you choose to send a direct message to the contract please use the following mapping:
-1 - Tsunami Exchange, 2 - 1ton, 3 - Genlock, 4 - Tonic Lounge, 5 - DeDust, 6 - Nunjan IDE, 7 - TonEase, 
+1 - Tsunami Exchange, 2 - 1ton, 3 - Genlock, 4 - Tonic Lounge, 5 - DeDust, 6 - Nujan IDE, 7 - TonEase, 
 8 - Evaa, 9 - re:doubt, 10 - Punk City.
 
 For example, if you want to vote to: Tsunami Exchange, 1ton, Genlock, Tonic Lounge, DeDust you should send a message with 0.075 Ton to the voting contract at address EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr with a comment '1, 2, 3, 4, 5' or '1 2 3 4 5'

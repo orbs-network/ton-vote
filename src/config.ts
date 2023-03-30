@@ -111,7 +111,7 @@ export const PROJECT_NAMES = [
   "Genlock",
   "Tonic Lounge",
   "DeDust",
-  "Nunjan IDE",
+  "Nujan IDE",
   "TonEase",
   "Evaa",
   "re:doubt",
