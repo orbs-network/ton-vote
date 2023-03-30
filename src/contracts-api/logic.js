@@ -137,7 +137,6 @@ export async function getVotingPower(
   if (!newVoters) return votingPower;
 
   for (const voter of newVoters) {
-    // votingPower[voter] = 1
     votingPower[voter] = (
       await clientV4.getAccountLite(
         proposalInfo.snapshot.mcSnapshotBlock,
@@ -162,6 +161,11 @@ export function calcProposalResult(votes, votingPower) {
     return accumulator;
   }, {});
 
+  const sumCoins = VOTE_OPTIONS.reduce((accumulator, currentValue) => {
+    accumulator[currentValue] = new BigNumber(0);
+    return accumulator;
+  }, {});
+
   for (const [voter, vote] of Object.entries(votes)) {
     if (!(voter in votingPower))
       throw new Error(`voter ${voter} not found in votingPower`);
@@ -170,26 +174,32 @@ export function calcProposalResult(votes, votingPower) {
     const voterPowerPart = voterPower.div(vote.vote.length);
     // vote.vote is an arary with exactly 3 options e.g.: ['7', '2', '5']
     for (const _vote of vote.vote) {
-      sumVotes[_vote] = voterPowerPart.plus(sumVotes[_vote]);
+      sumCoins[_vote] = voterPowerPart.plus(sumCoins[_vote]);
+      sumVotes[_vote] = sumVotes[_vote].plus(new BigNumber(1));
     }
   }
 
   let proposalResult = {};
-  let totalPower = new BigNumber(0);
+  let totalCoins = new BigNumber(0);
+  let totalVotes = new BigNumber(0);
+
+  for (const optionTotalPower of Object.values(sumCoins)) {
+    totalCoins = totalCoins.plus(optionTotalPower);
+  }
 
   for (const optionTotalPower of Object.values(sumVotes)) {
-    totalPower = totalPower.plus(optionTotalPower);
+    totalVotes = totalVotes.plus(optionTotalPower);
   }
 
   for (const [voteOption, optionTotalPow] of Object.entries(sumVotes)) {
     proposalResult[voteOption] = optionTotalPow
-      .div(totalPower)
+      .div(totalVotes)
       .decimalPlaces(4)
       .multipliedBy(100)
       .toNumber();
   }
 
-  return { proposalResult, totalPower: totalPower.toString() };
+  return { proposalResult, totalPower: totalCoins.toString() };
 }
 
 export function getCurrentResults(transactions, votingPower, proposalInfo) {

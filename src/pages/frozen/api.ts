@@ -3,7 +3,7 @@ import _ from "lodash";
 import { ProposalInfo, RawVotes, Results, Vote } from "./types";
 
 const axiosInstance = axios.create({
-  baseURL: "https://dao-vote-cache-server.herokuapp.com",
+  baseURL: "https://one-wallet-one-vote.herokuapp.com/",
 });
 
 
