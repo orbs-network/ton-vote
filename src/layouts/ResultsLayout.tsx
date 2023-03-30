@@ -52,15 +52,22 @@ const getTonAmount = (value?: BigNumber) => {
   return nFormatter(Number(fromNano(Math.round(amount))), 2);
 };
 
+const getVotesAmount = (value?: BigNumber) => {
+  if (!value) return "0";
+
+  const amount = typeof value === "string" ? Number(value) : value.toNumber();
+
+  return nFormatter(Math.round(amount), 2);
+};
+
 export const ResultsLayout = () => {
   const { data, isLoading, dataUpdatedAt } = useStateQuery();
   const sumCoins = data?.proposalResults?.sumCoins;
+  const sumVotes = data?.proposalResults?.sumVotes;
 
   const results = data?.proposalResults.proposalResult || {};
   const [showAll, setShowAll] = useState(false);
   const { voteStarted, isLoading: voteTimelineLoading } = useVoteTimeline();
-
-  const votesCount = useVotesCount();
 
   const sortedList = useMemo(() => {
     const mapped = _.map(VOTE_OPTIONS, (option) => ({
@@ -85,7 +92,9 @@ export const ResultsLayout = () => {
                 tonAmount={getTonAmount(
                   sumCoins ? sumCoins[item.option] : undefined
                 )}
-                votes={nFormatter(votesCount[item.option], 2)}
+                votes={getVotesAmount(
+                  sumVotes ? sumVotes[item.option] : undefined
+                )}
               />
             );
           })}

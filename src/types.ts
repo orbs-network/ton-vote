@@ -22,6 +22,7 @@ export interface Results {
   proposalResult: {};
   totalPower: string;
   sumCoins: { [key: number]: BigNumber };
+  sumVotes: { [key: number]: BigNumber };
 }
 
 export enum QueryKeys {
