@@ -1,15 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
-import { useConnectionStore } from "connection";
-import { useMemo } from "react";
 import { Address } from "ton-core";
-import { InputInterface } from "types";
 import { create } from "zustand";
-import * as Yup from "yup";
 import _ from "lodash";
 import { useGetSender } from "hooks";
 import { useClientsQuery } from "query/queries";
 import * as TonVoteContract from "ton-vote-npm";
 import { MetadataArgs } from "ton-vote-npm";
+import { useNotification } from "components";
+
 
 const initialFormData: FormData = {
   name: "test",
@@ -56,15 +54,11 @@ export const useCreatDaoStore = create<State>((set, get) => ({
   reset: () => set({ formData: {} as FormData, step: 0 }),
 }));
 
-export const steps = [
-  { title: "Create Metadata", index: 0 },
-  { title: "Create Dao", index: 1 },
-];
-
 export const useCreateDaoMetadata = () => {
   const getSender = useGetSender();
   const clientV2 = useClientsQuery()?.clientV2;
   const { nextStep, setMetadataAddress, setFormData } = useCreatDaoStore();
+  const {showNotification} = useNotification()
 
   return useMutation(async (values: FormData) => {
     const sender = getSender();
@@ -89,94 +83,45 @@ export const useCreateDaoMetadata = () => {
       setFormData(values);
       setMetadataAddress(address);
     }
+  }, {
+    onSuccess: () => {
+      showNotification({variant: 'success', message: 'Metadata created'})
+      window.scrollTo(0,0)
+    },
+    onError: () => {
+       showNotification({ variant: "error", message: "Transaction failed" });
+    }
   });
 };
 
 export const useCreateDao = () => {
   const getSender = useGetSender();
   const clientV2 = useClientsQuery()?.clientV2;
+  const { showNotification } = useNotification();
   const {
-    prevStep,
     formData: { ownerAddress, proposalOwner },
     metadataAddress,
   } = useCreatDaoStore();
 
-  return useMutation(async () => {
-    const sender = getSender();
+  return useMutation(
+    async () => {
+      const sender = getSender();
 
-    return TonVoteContract.newDao(
-      sender,
-      clientV2!,
-      metadataAddress!,
-      Address.parse(ownerAddress),
-      Address.parse(proposalOwner)
-    );
-  });
+      return TonVoteContract.newDao(
+        sender,
+        clientV2!,
+        metadataAddress!,
+        Address.parse(ownerAddress),
+        Address.parse(proposalOwner)
+      );
+    },
+    {
+      onSuccess: () => {
+        showNotification({ variant: "success", message: "Dao created" });
+      },
+      onError: () => {
+        showNotification({ variant: "error", message: "Transaction failed" });
+      },
+    }
+  );
 };
-
-export const useInputs = (): InputInterface[] => {
-  const address = useConnectionStore((store) => store.address);
-  return useMemo(() => {
-    return [
-      {
-        label: "Avatar",
-        type: "upload",
-        name: "avatar",
-      },
-
-      {
-        label: "Name",
-        type: "text",
-        name: "name",
-      },
-      {
-        label: "Github",
-        type: "url",
-        name: "github",
-      },
-      {
-        label: "Twitter",
-        type: "url",
-        name: "twitter",
-      },
-      {
-        label: "Website",
-        type: "url",
-        name: "website",
-      },
-      {
-        label: "About",
-        type: "text",
-        name: "about",
-      },
-      {
-        label: "Terms",
-        type: "url",
-        name: "terms",
-      },
-      {
-        label: "Owner Address",
-        type: "text",
-        name: "ownerAddress",
-        defaultValue: address,
-      },
-      {
-        label: "Proposal Owner Address",
-        type: "text",
-        name: "proposalOwner",
-        defaultValue: address,
-      },
-    ];
-  }, [address]);
-};
-
-export const FormSchema = Yup.object().shape({
-  name: Yup.string().required("Required"),
-  github: Yup.string().url("invalid URL").required("Required"),
-  website: Yup.string().url("invalid URL").required("Required"),
-  twitter: Yup.string().url("invalid URL").required("Required"),
-  about: Yup.string().url("invalid URL").required("Required"),
-  terms: Yup.string().url("invalid URL").required("Required"),
-  ownerAddress: Yup.string().required("Required"),
-  proposalOwner: Yup.string().required("Required"),
-});

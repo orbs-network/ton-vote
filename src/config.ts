@@ -1,7 +1,4 @@
-import TonhubLogo from "assets/tonhub.png";
-import ExtensionLogo from "assets/chrome.svg";
-
-import { Provider, WalletProvider } from "types";
+import TonConnect from "@tonconnect/sdk";
 
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
@@ -11,23 +8,6 @@ export const BASE_ERROR_MESSAGE = "Oops, something went wrong";
 export const APPROVE_TX = "Please check wallet for pending transaction";
 export const TX_APPROVED_AND_PENDING = "Transaction pending";
 export const TX_FEE = "0.0075";
-
-export const walletAdapters: WalletProvider[] = [
-  {
-    type: Provider.TONHUB,
-    icon: TonhubLogo,
-    title: "Tonhub",
-    description: "A mobile wallet in your pocket",
-    reminder: true,
-  },
-  {
-    type: Provider.EXTENSION,
-    icon: ExtensionLogo,
-    title: "TON Wallet",
-    description: "TON Wallet Plugin for Google Chrome",
-    mobileDisabled: true,
-  },
-];
 
 export const voteOptions = [
   {
@@ -50,24 +30,11 @@ export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";
 export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 
-export const DEFAULT_ENDPOINT_INPUTS = {
-  clientV2: {
-    name: "clientV2Endpoint",
-    label: "HTTP v2 endpoint",
-    defaut: DEFAULT_CLIENT_V2_ENDPOINT,
-  },
-  apiKey: {
-    name: "apiKey",
-    label: "HTTP v2 API key",
-    default: "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2",
-  },
 
-  clientV4: {
-    name: "clientV4Endpoint",
-    label: "HTTP v4 endpoint",
-    defaut: DEFAULT_CLIENT_V4_ENDPOINT,
-  },
-};
+export const CLIENT_V2_API_KEY =
+  "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
+
+
 
 export const STATE_REFETCH_INTERVAL = 30_000;
 
@@ -105,5 +72,8 @@ export enum QueryKeys {
 }
 
 export const APP_TITLE = "TON Vote";
-
 export const FETCH_PROPOSALS_INTERVAL = 30_000;
+
+export const TON_CONNECTOR = new TonConnect({
+  manifestUrl,
+});

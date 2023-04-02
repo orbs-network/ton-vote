@@ -6,11 +6,11 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
 import { useVoteStore } from "./store";
-import { useConnectionStore } from "connection";
 import { ProposalStatus } from "types";
 import { useProposalStatusQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
 import { useVote } from "query/mutations";
+import { useConnection } from "ConnectionProvider";
 
 export function Vote() {
   const { vote, setVote } = useVoteStore();
@@ -74,7 +74,7 @@ const VoteButton = ({
   isLoading: boolean;
   disabled: boolean;
 }) => {
-  const walletAddress = useConnectionStore().address;
+  const walletAddress = useConnection().address;
 
   if (!walletAddress) {
     return <StyledConnectButton text="Connect wallet" />;

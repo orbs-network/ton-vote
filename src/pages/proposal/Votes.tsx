@@ -14,10 +14,10 @@ import { fromNano } from "ton";
 import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
-import { useConnectionStore } from "connection";
 import {  useProposalVotes } from "./hooks";
 import { useProposalStateQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
+import { useConnection } from "ConnectionProvider";
 
 const ContainerHeader = () => {
   const { proposalVotes, isLoading } = useProposalVotes();
@@ -95,12 +95,10 @@ export function Votes() {
   );
 }
 
-const StyledLoaderMore = styled(StyledFlexRow)({
-  marginTop: 50,
-});
+
 
 const VoteComponent = ({ data }: { data?: Vote }) => {
-  const connectedAddress = useConnectionStore().address;
+  const connectedAddress = useConnection().address;
 
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;

@@ -1,5 +1,9 @@
 import { Box, Fade, Radio, styled, Typography } from "@mui/material";
-import { DEFAULT_ENDPOINT_INPUTS, INVALID_ENDPOINT_ERROR } from "config";
+import {
+  CLIENT_V2_API_KEY,
+  DEFAULT_CLIENT_V2_ENDPOINT,
+  DEFAULT_CLIENT_V4_ENDPOINT,
+} from "config";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -8,31 +12,72 @@ import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
 import { useAppPersistedStore, useEnpointModal } from "store";
 import { useMutation } from "@tanstack/react-query";
-import { EndpointsArgs } from "types";
+import { EndpointsArgs, InputInterface } from "types";
 import analytics from "analytics";
 import { useIsCustomEndpoint } from "hooks";
-import { TextInput } from "./Inputs";
+import { MapInput, TextInput } from "./Inputs";
+import * as Yup from "yup";
+import { useFormik } from "formik";
 
-const { clientV2, apiKey, clientV4 } = DEFAULT_ENDPOINT_INPUTS;
+export const FormSchema = Yup.object().shape({
+  clientV2Endpoint: Yup.string().required("Required"),
+  apiKey: Yup.string(),
+  clientV4Endpoint: Yup.string().required("Required"),
+});
+
+const inputs: InputInterface[] = [
+  {
+    label: "HTTP v2 endpoint",
+    type: "text",
+    name: "clientV2Endpoint",
+  },
+  {
+    label: "HTTP v2 API key",
+    type: "text",
+    name: "apiKey",
+  },
+  {
+    label: "HTTP v4 endpoint",
+    type: "text",
+    name: "clientV4Endpoint",
+  },
+];
+
+interface FormData {
+  clientV2Endpoint: string;
+  apiKey: string;
+  clientV4Endpoint: string;
+}
 
 export function EndpointPopup() {
   const store = useAppPersistedStore();
   const isCustomEndpoint = useIsCustomEndpoint();
-  const { validate, errors, clearError } = useValidation();
+  const formik = useFormik<FormData>({
+    initialValues: {
+      apiKey: store.apiKey || CLIENT_V2_API_KEY,
+      clientV2Endpoint: store.clientV2Endpoint || DEFAULT_CLIENT_V2_ENDPOINT,
+      clientV4Endpoint: store.clientV4Endpoint || DEFAULT_CLIENT_V4_ENDPOINT,
+    },
+    validationSchema: FormSchema,
+    validateOnChange: false,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      analytics.GA.selectCustomEndpointClick(
+        values.clientV2Endpoint,
+        values.clientV4Endpoint
+      );
+      await mutateAsync({
+        clientV2Endpoint: values.clientV2Endpoint,
+        clientV4Endpoint: values.clientV4Endpoint,
+        apiKey: values.apiKey,
+      });
+      onClose();
+    },
+  });
   const [customEndopointsSelected, setCustomEndopointsSelected] =
     useState(false);
-  const [values, setValues] = useState({
-    [clientV2.name]: store.clientV2Endpoint || clientV2.defaut,
-    [apiKey.name]: store.apiKey || apiKey.default,
-    [clientV4.name]: store.clientV4Endpoint || clientV4.defaut,
-  });
 
-  const {
-    showSetEndpoint,
-    endpointError,
-    setShowSetEndpoint,
-    setEndpointError,
-  } = useEnpointModal();
+  const endpointModal = useEnpointModal();
 
   const { mutateAsync, isLoading } = useUpdateEndpoints();
 
@@ -42,49 +87,28 @@ export function EndpointPopup() {
 
   useEffect(() => {
     setCustomEndopointsSelected(!!isCustomEndpoint);
-  }, [isCustomEndpoint, showSetEndpoint]);
+  }, [isCustomEndpoint, endpointModal.error]);
 
-  const onUpdate = (name: string, value: string) => {
-    setValues((prevState) => {
-      return {
-        ...prevState,
-        [name]: value,
-      };
-    });
-  };
-
-  const onSave = async () => {
+  const onSubmit = async () => {
     if (!customEndopointsSelected) {
       analytics.GA.selectDefaultEndpointsClick();
       await mutateAsync(undefined);
       onClose();
-      return;
+    } else {
+      formik.handleSubmit();
     }
-
-    if (!validate(values)) {
-      return;
-    }
-    const clientV2Endpoint = values[clientV2.name];
-    const clientV4Endpoint = values[clientV4.name];
-    analytics.GA.selectCustomEndpointClick(clientV2Endpoint, clientV4Endpoint);
-    await mutateAsync({
-      clientV2Endpoint,
-      clientV4Endpoint,
-      apiKey: values[apiKey.name],
-    });
-    onClose();
   };
 
   const onClose = () => {
-    setEndpointError(false);
-    setShowSetEndpoint(false);
+    endpointModal.setError(false);
+    endpointModal.setShow(false);
   };
 
   return (
-    <Popup open={showSetEndpoint} close={onClose}>
+    <Popup open={endpointModal.show} close={onClose}>
       <StyledContent>
         <StyledTitle variant="h4">RPC endpoint settings</StyledTitle>
-        {endpointError && (
+        {endpointModal.error && (
           <StyledError>
             <Typography>Endpoint Error: Insert different endpoints</Typography>
           </StyledError>
@@ -113,24 +137,19 @@ export function EndpointPopup() {
         >
           <Fade in={customEndopointsSelected}>
             <StyledCustomEndpoints gap={20}>
-              {_.map(DEFAULT_ENDPOINT_INPUTS).map((input) => {
+              {inputs.map((input) => {
                 return (
-                  <TextInput
-                    onFocus={() => clearError(input.name)}
+                  <MapInput<FormData>
                     key={input.name}
-                    error={
-                      errors[input.name] ? INVALID_ENDPOINT_ERROR : undefined
-                    }
-                    label={input.label}
-                    value={values[input.name]}
-                    onChange={(value) => onUpdate(input.name, value)}
+                    input={input}
+                    formik={formik}
                   />
                 );
               })}
             </StyledCustomEndpoints>
           </Fade>
         </AnimateHeight>
-        <StyledSaveButton isLoading={isLoading} onClick={onSave}>
+        <StyledSaveButton isLoading={isLoading} onClick={onSubmit}>
           Save
         </StyledSaveButton>
       </StyledContent>
@@ -163,45 +182,6 @@ const StyledRadio = styled(StyledFlexRow)({
     fontSize: 17,
   },
 });
-
-interface ValidateArgs {
-  [key: string]: string;
-}
-
-const useValidation = () => {
-  const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
-
-  const validate = (inputs: ValidateArgs) => {
-    let _errors: { [key: string]: boolean } = {};
-    let clean = true;
-    _.map(inputs, (value, key) => {
-      if (key === DEFAULT_ENDPOINT_INPUTS.apiKey.name) {
-        return;
-      }
-      if (!value.startsWith("https://")) {
-        clean = false;
-        _errors[key] = true;
-      }
-    });
-    setErrors(_errors);
-    return clean;
-  };
-
-  const clearError = (name: string) => {
-    setErrors((prevState) => {
-      return {
-        ...prevState,
-        [name]: false,
-      };
-    });
-  };
-
-  return {
-    errors,
-    validate,
-    clearError,
-  };
-};
 
 const StyledContent = styled(StyledFlexColumn)({
   width: "calc(100vw - 80px)",

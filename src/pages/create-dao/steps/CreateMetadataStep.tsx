@@ -2,9 +2,10 @@ import { styled, Typography } from "@mui/material";
 import { Button, Container, FadeElement, MapInput } from "components";
 import { StyledFlexColumn } from "styles";
 import { useFormik } from "formik";
-import { FormData, FormSchema, useCreatDaoStore, useCreateDaoMetadata, useInputs } from "../store";
-import { StyledStep, StyledSubmitButton } from "../styles";
+import { FormData, useCreatDaoStore, useCreateDaoMetadata } from "../store";
 import _ from "lodash";
+import { FormSchema, useInputs } from "./form";
+import { Submit } from "./Submit";
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
   return (
@@ -61,7 +62,7 @@ export function CreateMetadataStep() {
   return (
     <FadeElement show={true}>
       <StyledContainer title="Create Dao Metadata">
-        <StyledStep>
+        <StyledFlexColumn>
           <StyledInputs>
             {inputs.map((input) => {
               return (
@@ -74,11 +75,12 @@ export function CreateMetadataStep() {
               );
             })}
           </StyledInputs>
-
-          <StyledSubmitButton isLoading={isLoading} onClick={formik.submitForm}>
-            Create metadata
-          </StyledSubmitButton>
-        </StyledStep>
+          <Submit>
+            <Button isLoading={isLoading} onClick={formik.submitForm}>
+              Create metadata
+            </Button>
+          </Submit>
+        </StyledFlexColumn>
       </StyledContainer>
     </FadeElement>
   );

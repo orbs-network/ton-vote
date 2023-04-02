@@ -9,7 +9,7 @@ interface Props {
   disabled?: boolean;
   isLoading?: boolean;
   className?: string;
-  onClick?: () => void
+  onClick?: (e: any) => void;
 }
 
 function Button({

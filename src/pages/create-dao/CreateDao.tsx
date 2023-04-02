@@ -1,16 +1,27 @@
-import { styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { Page } from "components";
 import { routes } from "consts";
 import { StyledFlexRow } from "styles";
 import { SideMenu } from "./SideMenu";
-import { Steps } from "./steps/Steps";
+import { steps } from "./steps";
+import { useCreatDaoStore } from "./store";
+
+const SelectedStep = () => {
+  const step = useCreatDaoStore(store => store.step);
+  const Component = steps[step].component;
+  return (
+    <StyledStep>
+      <Component />
+    </StyledStep>
+  );
+};
 
 export function CreateDao() {
   return (
     <Page back={routes.spaces}>
       <StyledContainer>
         <SideMenu />
-        <Steps />
+        <SelectedStep />
       </StyledContainer>
     </Page>
   );
@@ -21,3 +32,9 @@ const StyledContainer = styled(StyledFlexRow)({
   alignItems: "flex-start",
   width: "100%",
 });
+
+const StyledStep = styled(Box)({
+  flex: 1,
+});
+
+

@@ -1,21 +1,13 @@
-import { Box, styled } from '@mui/material';
-import { Footer, Navbar } from './components';
-import React, { useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom';
-import { StyledFlexColumn, StyledGrid } from 'styles';
+import { Box, styled } from "@mui/material";
+import { EndpointPopup, Footer, Navbar } from "./components";
+import React, { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
+import ScrollTop from "components/ScrollTop";
 
 function Layout() {
-  const location = useLocation()
-
-  const pathname = location.pathname;
-
-  useEffect(() => {
-   
-  }, [pathname]);
-    
-  
   return (
     <QueryParamProvider adapter={ReactRouter6Adapter}>
       <StyledContainer>
@@ -25,16 +17,17 @@ function Layout() {
         </StyledContent>
         <Footer />
       </StyledContainer>
+      <ScrollTop />
+      <EndpointPopup />
     </QueryParamProvider>
   );
 }
 
-const StyledContent = styled(StyledGrid)({
-});
+const StyledContent = styled(StyledGrid)({});
 
 const StyledContainer = styled(StyledFlexColumn)({
-  minHeight:'100vh',
-  paddingTop: 100
+  minHeight: "100vh",
+  paddingTop: 100,
 });
 
-export default Layout
+export default Layout;

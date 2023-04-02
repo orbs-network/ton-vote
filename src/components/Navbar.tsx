@@ -17,8 +17,8 @@ import { IoLogOutOutline } from "react-icons/io5";
 import { RiRouteFill } from "react-icons/ri";
 import { useEnpointModal } from "store";
 import analytics from "analytics";
-import { useConnectionStore, useResetConnection } from "connection";
 import { useAppNavigation } from "router";
+import { useConnection } from "ConnectionProvider";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -43,14 +43,34 @@ export function Navbar() {
 }
 
 const ConnectSection = () => {
-  const address = useConnectionStore().address;
+  const { address, walletIcon } = useConnection();
 
   if (!address) {
     return <ConnectButton />;
   }
 
-  return <StyledConnected>{makeElipsisAddress(address!, 6)}</StyledConnected>;
+  return (
+    <StyledConnected>
+      <StyledFlexRow>
+        {makeElipsisAddress(address!, 6)}
+        <StyledSelectedWallet>
+          <img src={walletIcon} />
+        </StyledSelectedWallet>
+      </StyledFlexRow>
+    </StyledConnected>
+  );
 };
+
+const StyledSelectedWallet = styled(Box)({
+  width: 25,
+  height: 25,
+  borderRadius: "50%",
+  overflow: "hidden",
+  img: {
+    width: "100%",
+    height: "100%",
+  },
+});
 
 const StyledConnected = styled(Button)({
   pointerEvents: "none",
@@ -94,10 +114,9 @@ const StyledContainer = styled(StyledFlexRow)({
 /// setings component
 
 const Settings = () => {
-  const address = useConnectionStore().address;
-  const { setShowSetEndpoint } = useEnpointModal();
+  const { address, disconnect } = useConnection();
+  const endpointModal = useEnpointModal();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const resetConnection = useResetConnection();
 
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -106,13 +125,13 @@ const Settings = () => {
   const handleClose = () => setAnchorEl(null);
 
   const logout = () => {
-    resetConnection();
+    disconnect();
     handleClose();
   };
 
   const showPopup = () => {
     analytics.GA.endpointSettingsClick();
-    setShowSetEndpoint(true);
+    endpointModal.setShow(true);
     handleClose();
   };
 

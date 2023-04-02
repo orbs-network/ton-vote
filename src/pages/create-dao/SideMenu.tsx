@@ -3,7 +3,8 @@ import { Box } from "@mui/system";
 import { Container } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsCheckLg } from "react-icons/bs";
-import { steps, useCreatDaoStore } from "./store";
+import { useCreatDaoStore } from "./store";
+import { steps } from "./steps";
 
 function SideMenu() {
   const { step: currentStep, setStep } = useCreatDaoStore();
@@ -17,14 +18,11 @@ function SideMenu() {
     <StyledContainer>
       <StyledSteps>
         <StyledStepsLine />
-        {steps.map((step) => {
-          const finished = currentStep > step.index ? true : false;
-          const isCurrent = currentStep === step.index;
+        {steps.map((step, index) => {
+          const finished = currentStep > index ? true : false;
+          const isCurrent = currentStep === index;
           return (
-            <StyledStep
-              key={step.index}
-              onClick={() => onStepSelect(step.index)}
-            >
+            <StyledStep key={index} onClick={() => onStepSelect(index)}>
               <StyledIndicator
                 style={{
                   background: finished ? theme.palette.primary.main : "white",
@@ -89,7 +87,7 @@ const StyledStep = styled(StyledFlexRow)({
 const StyledContainer = styled(Container)({
   width: 320,
   position: "sticky",
-  top: 100
+  top: 100,
 });
 
 export {};

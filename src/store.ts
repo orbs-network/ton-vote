@@ -3,11 +3,11 @@ import { persist } from "zustand/middleware";
 
 import { EndpointsArgs } from "./types";
 
-interface EndpointModalStore {
-  showSetEndpoint: boolean;
-  endpointError: boolean;
-  setShowSetEndpoint: (value: boolean) => void;
-  setEndpointError: (value: boolean) => void;
+interface EndpointModal {
+  show: boolean;
+  error: boolean;
+  setShow: (value: boolean) => void;
+  setError: (value: boolean) => void;
 }
 
 interface PersistedEndpointStore {
@@ -18,7 +18,7 @@ interface PersistedEndpointStore {
   apiKey?: string;
   setEndpoints: (args?: EndpointsArgs) => void;
   latestMaxLtAfterTx: { [key: string]: string | undefined };
-  getLatestMaxLtAfterTx: (proposalAddress: string) => string | undefined ;
+  getLatestMaxLtAfterTx: (proposalAddress: string) => string | undefined;
   setLatestMaxLtAfterTx: (contractAddress: string, value?: string) => void;
 }
 
@@ -27,7 +27,9 @@ export const useAppPersistedStore = create(
     (set, get) => ({
       latestMaxLtAfterTx: {},
       getLatestMaxLtAfterTx: (proposalAddress) =>
-        get().latestMaxLtAfterTx ? get().latestMaxLtAfterTx[proposalAddress] : undefined,
+        get().latestMaxLtAfterTx
+          ? get().latestMaxLtAfterTx[proposalAddress]
+          : undefined,
       setLatestMaxLtAfterTx: (contractAddress, value) => {
         const prev = { ...get().latestMaxLtAfterTx, [contractAddress]: value };
         set({
@@ -54,16 +56,15 @@ export const useLatestMaxLtAfterTx = (address: string) => {
   const latestMaxLtAfterTx = useAppPersistedStore(
     (store) => store.latestMaxLtAfterTx || {}
   );
-  
+
   return latestMaxLtAfterTx[address];
 };
 
-
-export const useEnpointModal = create<EndpointModalStore>((set, get) => ({
-  showSetEndpoint: false,
-  endpointError: false,
-  setShowSetEndpoint: (showSetEndpoint) => set({ showSetEndpoint }),
-  setEndpointError: (endpointError) => {
-    set({ endpointError, showSetEndpoint: endpointError ? true : false });
+export const useEnpointModal = create<EndpointModal>((set) => ({
+  show: false,
+  error: false,
+  setShow: (show) => set({ show }),
+  setError: (error) => {
+    set({ error, show: error ? true : false });
   },
 }));

@@ -2,26 +2,35 @@ import { Box, Fade, Skeleton, styled, Typography } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Popup } from "./Popup";
 import { QRCodeSVG } from "qrcode.react";
-import { ReactNode, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 import { GrClose } from "react-icons/gr";
-import { walletAdapters } from "config";
 import analytics from "analytics";
-
-import {
-  useOnWalletSelected,
-  useResetConnection,
-  useWallets,
-} from "connection";
 import { isMobile } from "react-device-detect";
 import _ from "lodash";
+import { useWalletsQuery } from "query/queries";
+import { useConnection } from "ConnectionProvider";
 interface Props {
   open: boolean;
   close: () => void;
 }
 
-const useTonConnectWallets = () => {
-  const wallets = useWallets().data;
+interface SelectedWallet {
+  name: string;
+  icon: string;
+}
 
+interface ContextType {
+  sessionUrl?: string;
+  setSessionUrl: (url: string | undefined) => void;
+  selectedWallet: SelectedWallet | undefined;
+  setSelectedWallet: (wallet?: SelectedWallet) => void;
+  close: () => void;
+}
+
+const Context = createContext({} as ContextType);
+
+const useWallets = () => {
+  const wallets = useWalletsQuery().data;
   if (!isMobile) {
     return wallets;
   }
@@ -30,102 +39,125 @@ const useTonConnectWallets = () => {
 };
 
 export function WalletSelect({ open, close }: Props) {
-  const resetConnection = useResetConnection();
-  const tonConnectWallets = useTonConnectWallets();
-
-  const {
-    selectWallet,
-    selectWalletTC,
-    session,
-    reset: resetSession,
-    hideQR,
-    showQR,
-    walletInfo,
-  } = useOnWalletSelected();
-
-  const onWalletsClose = () => {
-    resetConnection();
-    close();
-  };
-
-  const onQRClose = () => {
-    hideQR();
-    setTimeout(() => {
-      resetConnection();
-      resetSession();
-    }, 500);
-  };
+  const [sessionUrl, setSessionUrl] = useState<string | undefined>();
+  const [selectedWallet, setSelectedWallet] = useState<SelectedWallet>();
 
   return (
-    <StyledPopup open={open}>
-      <StyledContainer>
-        <StyledWalletsSelect
-          close={onWalletsClose}
-          show={!showQR}
-          title="Select wallet"
-        >
-          <StyledWalletsList>
-            {tonConnectWallets?.map((wallet: any) => {
-              return (
-                <StyledWallet
-                  justifyContent="flex-start"
-                  key={wallet.name}
-                  onClick={() => {
-                    analytics.GA.walletSelectedClick(wallet.name);
-                    selectWalletTC(wallet);
-                  }}
-                >
-                  <img src={wallet.imageUrl} />
-                  <Typography className="wallet-name">{wallet.name}</Typography>
-                </StyledWallet>
-              );
-            })}
-          
-          </StyledWalletsList>
-        </StyledWalletsSelect>
-        <StyledQr
-          show={showQR}
-          title={walletInfo ? `Connect with ${walletInfo.name}` : ""}
-          close={onQRClose}
-        >
-          <QR session={session} icon={walletInfo?.icon} />
-        </StyledQr>
-      </StyledContainer>
-    </StyledPopup>
+    <Context.Provider
+      value={{
+        sessionUrl,
+        setSessionUrl,
+        selectedWallet,
+        setSelectedWallet,
+        close,
+      }}
+    >
+      <StyledPopup open={open}>
+        <StyledContainer>
+          <WalletList />
+          <QR />
+        </StyledContainer>
+      </StyledPopup>
+    </Context.Provider>
   );
 }
 
-const QR = ({ session, icon = "" }: { session?: string; icon?: string }) => {
+const WalletList = () => {
+  const { connect } = useConnection();
+  const wallets = useWallets();
+
+  const context = useContext(Context);
+  const onConnect = (wallet: any) => {
+    context.setSessionUrl(undefined);
+    analytics.GA.walletSelectedClick(wallet.name);
+    context.setSelectedWallet({ name: wallet.name, icon: wallet.imageUrl });
+    const session = connect(wallet);
+    context.setSessionUrl(session);
+  };
+
   return (
-    <StyledQrBox>
-      {session ? (
-        <QRCodeSVG
-          imageSettings={{
-            src: icon,
-            x: undefined,
-            y: undefined,
-            height: 50,
-            width: 50,
-            excavate: true,
-          }}
-          level={"M"}
-          value={session}
-          size={260}
-        />
-      ) : (
-        <Skeleton
-          style={{
-            width: "100%",
-            height: "100%",
-            borderRadius: 10,
-            background: "rgba(0,0,0, 0.16)",
-          }}
-          variant="rectangular"
-          width={210}
-          height={60}
-        />
-      )}
-    </StyledQrBox>
+    <StyledWalletsSelect
+      close={close}
+      show={!context.sessionUrl}
+      title="Select wallet"
+    >
+      <StyledWalletsList>
+        {wallets?.map((wallet: any) => {
+          return (
+            <Wallet
+              key={wallet.name}
+              wallet={wallet}
+              onConnect={() => onConnect(wallet)}
+            />
+          );
+        })}
+      </StyledWalletsList>
+    </StyledWalletsSelect>
+  );
+};
+
+const Wallet = ({
+  wallet,
+  onConnect,
+}: {
+  wallet: any;
+  onConnect: () => void;
+}) => {
+  return (
+    <StyledWallet
+      justifyContent="flex-start"
+      key={wallet.name}
+      onClick={onConnect}
+    >
+      <img src={wallet.imageUrl} />
+      <Typography className="wallet-name">{wallet.name}</Typography>
+    </StyledWallet>
+  );
+};
+
+const QR = () => {
+  const { selectedWallet, sessionUrl, setSessionUrl } = useContext(Context);
+
+  const onClose = () => {
+    setSessionUrl(undefined);
+  };
+
+  return (
+    <StyledQr
+      show={!!sessionUrl}
+      title={selectedWallet ? `Connect with ${selectedWallet.name}` : ""}
+      close={onClose}
+    >
+      <StyledQrBox>
+        {sessionUrl ? (
+          <QRCodeSVG
+            imageSettings={{
+              src: selectedWallet?.icon || "",
+              x: undefined,
+              y: undefined,
+              height: 50,
+              width: 50,
+              excavate: true,
+            }}
+            level={"M"}
+            value={sessionUrl}
+            size={260}
+          />
+        ) : (
+          <Skeleton
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius: 10,
+              background: "rgba(0,0,0, 0.16)",
+            }}
+            variant="rectangular"
+            width={210}
+            height={60}
+          />
+        )}
+      </StyledQrBox>
+    </StyledQr>
   );
 };
 

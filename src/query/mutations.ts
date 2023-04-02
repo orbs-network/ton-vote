@@ -10,7 +10,6 @@ import {  ProposalState } from "types";
 import { Logger } from "utils";
 import { useClientsQuery, useProposalStateQuery } from "./queries";
 import * as TonVoteContract from 'ton-vote-npm'
-import { useConnectionStore } from "connection";
 
 export const useCreateProposal = () => {
   const getSender = useGetSender();
@@ -80,10 +79,20 @@ export const useVerifyProposalResults = (proposalAddress: string) => {
 
 export const useVote = () => {
   const getSender = useGetSender();
-  const {connectorTC} = useConnectionStore()
   return useMutation(async () => {
     const sender = getSender();
     return null
   })  
   
 };
+
+
+
+export const useJoinDao = () => {
+    const getSender = useGetSender();
+
+  return useMutation(async () => {
+    const sender = getSender();
+    return null;
+  })
+}

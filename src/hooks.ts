@@ -2,7 +2,6 @@ import { useState, useLayoutEffect, useCallback } from "react";
 import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes } from "consts";
 import { useAppPersistedStore } from "store";
-import { useConnectionStore } from "connection";
 import {
   Address,
   beginCell,
@@ -11,6 +10,8 @@ import {
   storeStateInit,
 } from "ton-core";
 import { useDaoRolesQuery } from "query/queries";
+import { useConnection } from "ConnectionProvider";
+import { TON_CONNECTOR } from "config";
 
 export const useDaoAddress = () => {
   return useParams().spaceId as string;
@@ -48,11 +49,12 @@ export const useWindowResize = () => {
 export const useIsCustomEndpoint = () => {
   const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
 
-  return !!clientV2Endpoint && !!clientV4Endpoint;
+  // return !!clientV2Endpoint && !!clientV4Endpoint;
+  return  true
 };
 
 export const useIsOwner = (daoAddress: string) => {
-  const address = useConnectionStore().address;
+  const address = useConnection().address;
   const { data } = useDaoRolesQuery(daoAddress);
 
   return {
@@ -62,10 +64,10 @@ export const useIsOwner = (daoAddress: string) => {
 };
 
 export const useGetSender = () => {
-  const { connectorTC, address } = useConnectionStore();
+  const { address } = useConnection();
 
   return useCallback((): Sender => {
-    if (!connectorTC || !address) {
+    if (!address) {
       throw new Error("Not connected");
     }
 
@@ -84,7 +86,7 @@ export const useGetSender = () => {
     return {
       address: Address.parse(address!),
       async send(args: SenderArguments) {
-        await connectorTC.sendTransaction({
+        await TON_CONNECTOR.sendTransaction({
           validUntil: Date.now() + 5 * 60 * 1000,
           messages: [
             {
@@ -99,5 +101,5 @@ export const useGetSender = () => {
         });
       },
     };
-  }, [connectorTC, address]);
+  }, [address]);
 };

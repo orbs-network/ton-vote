@@ -3,8 +3,9 @@ import { Button, Container, FadeElement, Img } from "components";
 import moment from "moment";
 import { StyledFlexColumn } from "styles";
 import { InputInterface } from "types";
-import { FormData, useCreatDaoStore, useCreateDao, useInputs } from "../store";
-import { StyledStep, StyledSubmitButton } from "../styles";
+import { useInputs } from "./form";
+import { FormData, useCreatDaoStore, useCreateDao } from "../store";
+import { Submit } from "./Submit";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
@@ -18,7 +19,7 @@ export function CreateDaoStep() {
         title="Create Dao"
         headerChildren={<StyledEdit onClick={prevStep}>Edit</StyledEdit>}
       >
-        <StyledStep>
+        <StyledFlexColumn>
           <StyledInputs>
             {inputs.map((input) => {
               const name = input.name as keyof FormData;
@@ -32,10 +33,12 @@ export function CreateDaoStep() {
               );
             })}
           </StyledInputs>
-          <StyledSubmitButton isLoading={isLoading} onClick={createDao}>
-            Create Dao
-          </StyledSubmitButton>
-        </StyledStep>
+          <Submit>
+            <Button isLoading={isLoading} onClick={() => createDao()}>
+              Create Dao
+            </Button>
+          </Submit>
+        </StyledFlexColumn>
       </StyledContainer>
     </FadeElement>
   );
@@ -43,8 +46,8 @@ export function CreateDaoStep() {
 const StyledContainer = styled(Container)({});
 
 const StyledInputs = styled(StyledFlexColumn)({
-  gap:20
-})
+  gap: 20,
+});
 
 const InputPreview = ({
   input,
@@ -89,10 +92,9 @@ const StyledInputPreview = styled(StyledFlexColumn)({
   },
 });
 
-
 const StyledEdit = styled(Button)({
   padding: "5px 15px",
-  height:'unset',
+  height: "unset",
   "*": {
     fontSize: 14,
   },

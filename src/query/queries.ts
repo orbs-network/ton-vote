@@ -4,7 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { QueryKeys, STATE_REFETCH_INTERVAL } from "config";
+import { QueryKeys, STATE_REFETCH_INTERVAL, TON_CONNECTOR } from "config";
 import { getContractState, server } from "lib";
 import { useIsCustomEndpoint } from "hooks";
 import { useAppPersistedStore, useEnpointModal } from "store";
@@ -14,6 +14,8 @@ import * as TonVoteContract from "ton-vote-npm";
 import { Address } from "ton-core";
 import * as mock from "mock";
 import _ from "lodash";
+import { manifestUrl } from "config";
+import TonConnect from "@tonconnect/sdk";
 
 export const useDaoMetadataQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
@@ -37,25 +39,30 @@ export const useDaoMetadataQuery = (daoAddress: string) => {
   );
 };
 
+const DAO_LIMIT = 2;
 export const useDaosQuery = () => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAOS]);
   const clientV2 = useClientsQuery()?.clientV2;
 
-  return useInfiniteQuery(
+  return useInfiniteQuery({
     queryKey,
-    async () => {
+    queryFn: async ({ pageParam }) => {
       if (isCustomEndpoint) {
-        return TonVoteContract.getDaos(clientV2!);
+        const nextPage = pageParam ? Number(pageParam) : 0;
+
+        return await TonVoteContract.getDaos(
+          clientV2!,
+          nextPage,
+          BigInt(nextPage + DAO_LIMIT)
+        );
       }
       return server.getDaos();
     },
-    {
-      staleTime: Infinity,
-      getNextPageParam: (lastPage) => lastPage.endDaoId,
-      enabled: !!clientV2,
-    }
-  );
+    staleTime: Infinity,
+    getNextPageParam: (lastPage) => lastPage.endDaoId,
+    enabled: !!clientV2,
+  });
 };
 
 export const useDaoRolesQuery = (daoAddress: string) => {
@@ -175,7 +182,7 @@ export const useProposalStateQuery = (
   proposalAddress: string,
   refetchInterval: number = STATE_REFETCH_INTERVAL
 ) => {
-  const { setEndpointError } = useEnpointModal();
+  const endpointModal = useEnpointModal();
   const isCustomEndpoint = useIsCustomEndpoint();
   const proposalStatus = useProposalStatusQuery(proposalAddress);
   const queryKey = useGetQueryKey([QueryKeys.STATE, proposalAddress]);
@@ -219,10 +226,10 @@ export const useProposalStateQuery = (
       if (serverState) {
         setLatestMaxLtAfterTx(proposalAddress, undefined);
       }
-      return serverState || _getContractState() || null;;
+      return serverState || _getContractState() || null;
     },
     {
-      onError: () => setEndpointError(true),
+      onError: () => endpointModal.setError(true),
       refetchInterval: !voteFinished ? refetchInterval : undefined,
       staleTime: voteFinished ? Infinity : 2_000,
       enabled: !!clients?.clientV2 && !!clients?.clientV4 && !!proposalAddress,
@@ -231,16 +238,16 @@ export const useProposalStateQuery = (
 };
 
 export const useServerLastFetchUpdateValidationQuery = () => {
-  const { setEndpointError } = useEnpointModal();
+  const endpointModal = useEnpointModal();
   return useQuery(
     [QueryKeys.SERVER_VALIDATION],
     () => server.validateServerLastUpdate(),
     {
       refetchInterval: 20_000,
       // TODO, maybe set custom endpoint
-      onError: () => setEndpointError(true),
+      onError: () => endpointModal.setError(true),
       onSuccess: (isValid) => {
-        if (!isValid) setEndpointError(true);
+        if (!isValid) endpointModal.setError(true);
       },
     }
   );
@@ -262,4 +269,17 @@ export const useClientsQuery = () => {
   });
 
   return query.data;
+};
+
+export const useWalletsQuery = () => {
+  return useQuery(
+    ["useWalletsQuery"],
+    () => {
+     
+      return TON_CONNECTOR.getWallets();
+    },
+    {
+      staleTime: Infinity,
+    }
+  );
 };

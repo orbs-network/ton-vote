@@ -1,8 +1,7 @@
 import analytics from "analytics";
-import { useConnectionStore } from "connection";
+import { useConnection } from "ConnectionProvider";
 import { useProposalAddress } from "hooks";
 import _ from "lodash";
-import { useSendTransaction } from "logic";
 import { useProposalStateQuery } from "query/queries";
 import { useMemo } from "react";
 import { useAppPersistedStore } from "store";
@@ -25,7 +24,7 @@ export const useProposalVotesCount = () => {
 export const useProposalVotes = () => {
   const proposalAddress = useProposalAddress();
   const query = useProposalStateQuery(proposalAddress);
-  const walletAddress = useConnectionStore().address;
+  const walletAddress = useConnection().address;
 
   const _proposalVotes = query.data?.votes;
   const size = _.size(_proposalVotes);
