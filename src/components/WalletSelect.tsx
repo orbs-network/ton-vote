@@ -77,7 +77,7 @@ const WalletList = () => {
 
   return (
     <StyledWalletsSelect
-      close={close}
+      close={context.close}
       show={!context.sessionUrl}
       title="Select wallet"
     >

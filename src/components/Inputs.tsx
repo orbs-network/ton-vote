@@ -1,5 +1,5 @@
 import { TextField, styled, Typography, Box } from "@mui/material";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
@@ -11,7 +11,9 @@ import dayjs from "dayjs";
 import { InputInterface } from "types";
 import { FormikProps } from "formik";
 import { Img } from "./Img";
-
+import { Editor } from "react-draft-wysiwyg";
+import { Editable, Slate, useSlate, withReact } from "slate-react";
+import { createEditor } from "slate";
 interface TextInputProps {
   value: string | number;
   onChange: (value: string) => void;
@@ -194,7 +196,8 @@ interface DateRangeInput {
   title?: string;
   error?: string;
   onFocus?: () => void;
-  minDate?: string;
+  min?: number;
+  max?: number
 }
 
 export const DateRangeInput = ({
@@ -203,17 +206,20 @@ export const DateRangeInput = ({
   title,
   error,
   onFocus,
-  minDate,
+  min,
+  max
 }: DateRangeInput) => {
+  
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <StyledDatepicker className={`${className} date-input`}>
         {title && <StyledTitle>{title}</StyledTitle>}
         <DateTimePicker
-          // minDateTime={dayjs().startOf('D')}
+          maxDate={max && dayjs(max)}
+          minDate={min && dayjs(min)}
           onOpen={onFocus}
           className="datepicker"
-          onChange={(value: any) => onChange(dayjs(value).unix().valueOf())}
+          onChange={(value: any) => onChange(dayjs(value).valueOf())}
           format={"DD/MM/YYYY HH:mm"}
         />
         {error && (
@@ -230,6 +236,7 @@ export const DateRangeInput = ({
 const StyledDatepicker = styled(StyledContainer)({
   alignItems: "flex-start",
   flex: 1,
+  
   fieldset: {
     borderRadius: 10,
   },
@@ -266,6 +273,8 @@ export function MapInput<T>({
         error={error as string}
         onFocus={clearError}
         className={className}
+        min={input.min}
+        max={input.max}
       />
     );
   }
@@ -292,3 +301,4 @@ export function MapInput<T>({
     />
   );
 }
+

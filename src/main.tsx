@@ -11,6 +11,7 @@ import analytics from "analytics";
 import { RouterProvider } from "react-router-dom";
 import { router } from "router";
 import {ConnectionProvider} from "ConnectionProvider";
+
 analytics.GA.init();
 
 const queryClient = new QueryClient({

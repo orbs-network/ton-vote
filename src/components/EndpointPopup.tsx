@@ -5,7 +5,7 @@ import {
   DEFAULT_CLIENT_V4_ENDPOINT,
 } from "config";
 import _ from "lodash";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Button } from "./Button";
 import { Popup } from "./Popup";
@@ -15,7 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import { EndpointsArgs, InputInterface } from "types";
 import analytics from "analytics";
 import { useIsCustomEndpoint } from "hooks";
-import { MapInput, TextInput } from "./Inputs";
+import { MapInput } from "./Inputs";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
@@ -52,6 +52,8 @@ interface FormData {
 export function EndpointPopup() {
   const store = useAppPersistedStore();
   const isCustomEndpoint = useIsCustomEndpoint();
+  const setEndpoints = useAppPersistedStore((store) => store.setEndpoints);
+
   const formik = useFormik<FormData>({
     initialValues: {
       apiKey: store.apiKey || CLIENT_V2_API_KEY,
@@ -66,37 +68,29 @@ export function EndpointPopup() {
         values.clientV2Endpoint,
         values.clientV4Endpoint
       );
-      await mutateAsync({
+      setEndpoints({
         clientV2Endpoint: values.clientV2Endpoint,
         clientV4Endpoint: values.clientV4Endpoint,
         apiKey: values.apiKey,
       });
-      onClose();
     },
   });
-  const [customEndopointsSelected, setCustomEndopointsSelected] =
-    useState(false);
+  const [customSelected, setCustomSelected] = useState(false);
 
   const endpointModal = useEnpointModal();
 
-  const { mutateAsync, isLoading } = useUpdateEndpoints();
-
-  const select = (value: boolean) => {
-    setCustomEndopointsSelected(value);
-  };
-
   useEffect(() => {
-    setCustomEndopointsSelected(!!isCustomEndpoint);
+    setCustomSelected(!!isCustomEndpoint);
   }, [isCustomEndpoint, endpointModal.error]);
 
-  const onSubmit = async () => {
-    if (!customEndopointsSelected) {
+  const onSubmit = async () => {    
+    if (!customSelected) {
       analytics.GA.selectDefaultEndpointsClick();
-      await mutateAsync(undefined);
-      onClose();
+      setEndpoints(undefined);
     } else {
       formik.handleSubmit();
     }
+    onClose();
   };
 
   const onClose = () => {
@@ -116,15 +110,15 @@ export function EndpointPopup() {
         <StyledFlexColumn gap={5} style={{ marginBottom: 20 }}>
           <StyledRadio>
             <Radio
-              checked={!customEndopointsSelected}
-              onChange={() => select(false)}
+              checked={!customSelected}
+              onChange={() => setCustomSelected(false)}
             />
             <Typography>Default endpoint {`(Orbs Ton Access)`}</Typography>
           </StyledRadio>
           <StyledRadio>
             <Radio
-              checked={customEndopointsSelected}
-              onChange={() => select(true)}
+              checked={customSelected}
+              onChange={() => setCustomSelected(true)}
             />
             <Typography>Custom endpoint</Typography>
           </StyledRadio>
@@ -132,10 +126,10 @@ export function EndpointPopup() {
 
         <AnimateHeight
           style={{ width: "100%" }}
-          height={customEndopointsSelected ? "auto" : 0}
+          height={customSelected ? "auto" : 0}
           duration={200}
         >
-          <Fade in={customEndopointsSelected}>
+          <Fade in={customSelected}>
             <StyledCustomEndpoints gap={20}>
               {inputs.map((input) => {
                 return (
@@ -149,9 +143,7 @@ export function EndpointPopup() {
             </StyledCustomEndpoints>
           </Fade>
         </AnimateHeight>
-        <StyledSaveButton isLoading={isLoading} onClick={onSubmit}>
-          Save
-        </StyledSaveButton>
+        <StyledSaveButton onClick={onSubmit}>Save</StyledSaveButton>
       </StyledContent>
     </Popup>
   );

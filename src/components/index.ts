@@ -23,3 +23,4 @@ export * from './Loader'
 export * from "./Img";
 export * from "./BorderContainer";
 export * from "./Select";
+export * from './SideMenu'

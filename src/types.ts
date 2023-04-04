@@ -106,7 +106,7 @@ export interface ProposalState {
   transactions?: Transaction[];
 }
 
-export type InputType = "text" | "url" | 'textarea' | 'date' | 'upload';
+export type InputType = "text" | "url" | 'textarea' | 'date' | 'upload' | 'editor';
 
 export interface InputInterface {
   label: string;
@@ -114,4 +114,6 @@ export interface InputInterface {
   name: string;
   defaultValue?:  string;
   rows?: number;
+  min?: number;
+  max?: number;
 }

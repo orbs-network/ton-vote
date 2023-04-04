@@ -43,6 +43,9 @@ export const globalStyles = {
   body: {
     background: "#F8F9FB",
   },
+  ".MuiPickersDay-today": {
+    border: "unset!important",
+  },
   html: {
     // scrollBehavior: "smooth" as const,
   },

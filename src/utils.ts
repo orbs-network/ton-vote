@@ -1,4 +1,3 @@
-import { BASE_ERROR_MESSAGE, LOCAL_STORAGE_PROVIDER } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { fromNano } from "ton";
@@ -9,30 +8,6 @@ export const makeElipsisAddress = (address?: string, padding = 6): string => {
   return `${address.substring(0, padding)}...${address.substring(
     address.length - padding
   )}`;
-};
-
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-export async function waitForSeqno(wallet: any) {
-  const seqnoBefore = await wallet.getSeqNo();
-
-  return async () => {
-    for (let attempt = 0; attempt < 20; attempt++) {
-      await delay(3000);
-      let seqnoAfter;
-
-      try {
-        seqnoAfter = await wallet.getSeqNo();
-      } catch (error) {}
-
-      if (seqnoAfter && seqnoAfter > seqnoBefore) return;
-    }
-    throw new Error(BASE_ERROR_MESSAGE);
-  };
-}
-
-export const getAdapterName = () => {
-  return localStorage.getItem(LOCAL_STORAGE_PROVIDER);
 };
 
 export const Logger = (log: any) => {

@@ -26,8 +26,6 @@ const options: Option[] = [
 export function DaoProposals() {
   const daoAddress = useDaoAddress()
   const { data, isLoading, error } = useDaoProposalsQuery(daoAddress);
-
-  console.log({ data });
   
 
   const [renderedProposalsCount, setRenderedProposalsCount] = useState(SIZE);

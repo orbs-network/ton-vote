@@ -77,3 +77,6 @@ export const FETCH_PROPOSALS_INTERVAL = 30_000;
 export const TON_CONNECTOR = new TonConnect({
   manifestUrl,
 });
+
+
+export const DAO_LIMIT = 80;

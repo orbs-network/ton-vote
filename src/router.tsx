@@ -14,6 +14,7 @@ import { SpaceMenuLayout } from "pages/dao/SpaceMenuLayout";
 import { createBrowserRouter, useNavigate } from "react-router-dom";
 
 export const appNavigation = {
+  spaces: routes.spaces,
   spacePage: {
     root: (spaceId: string) => routes.space.replace(":spaceId", spaceId),
     about: (spaceId: string) =>
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
         element: <DaoPage />,
         children: [
           {
+            path: routes.createProposal,
+            element: <CreateProposal />,
+          },
+          {
             path: routes.space,
             element: <SpaceMenuLayout />,
             children: [
@@ -83,10 +88,6 @@ export const router = createBrowserRouter([
               {
                 path: routes.spaceAbout,
                 element: <DaoAbout />,
-              },
-              {
-                path: routes.createProposal,
-                element: <CreateProposal />,
               },
             ],
           },

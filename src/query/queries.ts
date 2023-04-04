@@ -4,7 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { QueryKeys, STATE_REFETCH_INTERVAL, TON_CONNECTOR } from "config";
+import { DAO_LIMIT, QueryKeys, STATE_REFETCH_INTERVAL, TON_CONNECTOR } from "config";
 import { getContractState, server } from "lib";
 import { useIsCustomEndpoint } from "hooks";
 import { useAppPersistedStore, useEnpointModal } from "store";
@@ -14,8 +14,7 @@ import * as TonVoteContract from "ton-vote-npm";
 import { Address } from "ton-core";
 import * as mock from "mock";
 import _ from "lodash";
-import { manifestUrl } from "config";
-import TonConnect from "@tonconnect/sdk";
+
 
 export const useDaoMetadataQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
@@ -39,7 +38,6 @@ export const useDaoMetadataQuery = (daoAddress: string) => {
   );
 };
 
-const DAO_LIMIT = 2;
 export const useDaosQuery = () => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAOS]);
