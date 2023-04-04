@@ -1,6 +1,9 @@
 import { Avatar, styled } from "@mui/material";
 import React from "react";
 import { StyledFlexRow } from "styles";
+import { AiOutlineTwitter, AiFillGithub } from "react-icons/ai";
+import { ReactElement } from "react";
+import {BsGlobe} from 'react-icons/bs'
 
 interface Props {
   twitter?: string;
@@ -13,23 +16,32 @@ interface Props {
 function Socials({ twitter, github, website, coingecko, className = '' }: Props) {
   return (
     <StyledContainer className={className}>
-      <Social url={twitter} img="" />
-      <Social url={github} img="" />
-      <Social url={website} img="" />
-      <Social url={coingecko} img="" />
+      <Social url={twitter} icon={<AiOutlineTwitter />} />
+      <Social url={github} icon={<AiFillGithub />} />
+      <Social url={website} icon={<BsGlobe />} />
     </StyledContainer>
   );
 }
 
 export default Socials;
 
-const Social = ({ url, img }: { url?: string; img: string }) => {
+const Social = ({ url, icon }: { url?: string; icon: ReactElement }) => {
   if (!url) return null;
   return (
-    <a href={url} target="_blank">
-      <Avatar src={img} style={{ width: 30, height: 30 }} />
-    </a>
+    <StyledSocial href={url} target="_blank">
+      {icon}
+    </StyledSocial>
   );
 };
 
-const StyledContainer = styled(StyledFlexRow)({});
+const StyledSocial = styled('a')({
+  svg :{
+    width:25,
+    height:25,
+    color:'black'
+  }
+})
+
+const StyledContainer = styled(StyledFlexRow)({
+  gap:10
+});

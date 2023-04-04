@@ -5,7 +5,6 @@ import {
   Container,
   MapInput,
   SideMenu,
-  useNotification,
 } from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress } from "hooks";
@@ -17,27 +16,23 @@ import { useCreateProposalStore } from "./store";
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
+import { showErrorToast } from "toasts";
 
 function CreateProposal() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
   const daoAddress = useDaoAddress();
   const { formData, setFormData, preview } = useCreateProposalStore();
-  const { showNotification } = useNotification();
 
   const onCreate = (values: FormData) => {
+
     if (values.proposalSnapshotTime! >= values.proposalStartTime!) {
-      showNotification({
-        variant: "error",
-        message:
-          "Proposal snapshot time must be less than proposal start time",
-      });
+      showErrorToast(
+        "Proposal snapshot time must be less than proposal start time"
+      );
       return;
     }
     if (values.proposalStartTime! >= values.proposalEndTime!) {
-      showNotification({
-        variant: "error",
-        message: "Proposal start time must be less than proposal end time",
-      });
+      showErrorToast("Proposal start time must be less than proposal end time");
       return;
     }
     const proposalMetadata: ProposalMetadata = {
@@ -162,6 +157,7 @@ const StyledButton = styled(Button)({
 });
 
 const StyledContainer = styled(Container)({
+  paddingBottom:40,
   flex: 1,
   ".date-input": {
     ".MuiFormControl-root": {

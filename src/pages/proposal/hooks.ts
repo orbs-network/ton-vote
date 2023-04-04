@@ -4,7 +4,6 @@ import { useProposalAddress } from "hooks";
 import _ from "lodash";
 import { useProposalStateQuery } from "query/queries";
 import { useMemo } from "react";
-import { useAppPersistedStore } from "store";
 import { nFormatter } from "utils";
 
 export const useProposalVotesCount = () => {

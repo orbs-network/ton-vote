@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import analytics from "analytics";
-import { useNotification } from "components";
 import { useGetSender } from "hooks";
 import { getContractState } from "lib";
 import _ from "lodash";
@@ -10,11 +9,11 @@ import {  ProposalState } from "types";
 import { Logger } from "utils";
 import { useClientsQuery, useProposalStateQuery } from "./queries";
 import * as TonVoteContract from 'ton-vote-npm'
+import { showPromiseToast } from "toasts";
 
 export const useCreateProposal = () => {
   const getSender = useGetSender();
   const clientV2 = useClientsQuery()?.clientV2;
-  const { showNotification } = useNotification();
 
   return useMutation(
     async ({
@@ -26,17 +25,16 @@ export const useCreateProposal = () => {
     }) => {
       const sender = getSender();
 
-      return TonVoteContract.newProposal(
+      const promise =  TonVoteContract.newProposal(
         sender,
         clientV2!,
         Address.parse(daoAddr),
         proposalMetadata
       );
-    },
-    {
-      onSuccess: () => {
-        showNotification({ variant: "success", message: "Proposal created" });
-      },
+
+      showPromiseToast({ promise , loading:'Create proposal transaction pending...', success:'Proposal created'});
+
+      return promise;
     }
   );
 };

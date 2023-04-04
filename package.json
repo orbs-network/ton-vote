@@ -45,6 +45,7 @@
     "react-flip-numbers": "^3.0.7",
     "react-ga4": "^2.0.0",
     "react-helmet": "^6.1.0",
+    "react-hot-toast": "^2.4.0",
     "react-icons": "^4.7.1",
     "react-intersection-observer-hook": "^2.1.1",
     "react-markdown": "^8.0.6",

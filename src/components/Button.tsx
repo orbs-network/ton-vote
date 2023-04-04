@@ -23,11 +23,14 @@ function Button({
     <StyledContainer
       onClick={onClick}
       disabled={disabled || !!isLoading}
-      className={className}
+      className={`${className} button`}
     >
       <Fade in={isLoading}>
         <StyledLoader>
-          <CircularProgress className="loader" style={{ width: 30, height: 30 }} />
+          <CircularProgress
+            className="loader"
+            style={{ width: 30, height: 30 }}
+          />
         </StyledLoader>
       </Fade>
       <Fade in={!isLoading}>

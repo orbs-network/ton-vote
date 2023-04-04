@@ -197,7 +197,7 @@ interface DateRangeInput {
   error?: string;
   onFocus?: () => void;
   min?: number;
-  max?: number
+  max?: number;
 }
 
 export const DateRangeInput = ({
@@ -207,9 +207,8 @@ export const DateRangeInput = ({
   error,
   onFocus,
   min,
-  max
+  max,
 }: DateRangeInput) => {
-  
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <StyledDatepicker className={`${className} date-input`}>
@@ -236,7 +235,7 @@ export const DateRangeInput = ({
 const StyledDatepicker = styled(StyledContainer)({
   alignItems: "flex-start",
   flex: 1,
-  
+
   fieldset: {
     borderRadius: 10,
   },
@@ -301,4 +300,3 @@ export function MapInput<T>({
     />
   );
 }
-

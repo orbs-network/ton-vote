@@ -6,6 +6,7 @@ import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 import ScrollTop from "components/ScrollTop";
+import  { Toaster } from "react-hot-toast";
 
 function Layout() {
   return (
@@ -19,6 +20,7 @@ function Layout() {
       </StyledContainer>
       <ScrollTop />
       <EndpointPopup />
+      <Toaster />
     </QueryParamProvider>
   );
 }

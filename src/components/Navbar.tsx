@@ -1,14 +1,26 @@
 import {
+  ClickAwayListener,
+  Fade,
   IconButton,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
+  Popover,
+  Popper,
   styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, ConnectButton, Github } from "components";
-import { StyledFlexRow, StyledGrid } from "styles";
+import {
+  Button,
+  ConnectButton,
+  Container,
+  FadeElement,
+  Github,
+} from "components";
+import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
 import LogoImg from "assets/logo.svg";
@@ -19,6 +31,10 @@ import { useEnpointModal } from "store";
 import analytics from "analytics";
 import { useAppNavigation } from "router";
 import { useConnection } from "ConnectionProvider";
+import { MdContentCopy, MdLogout } from "react-icons/md";
+import useCopyToClipboard from "hooks";
+import { GoSettings } from "react-icons/go";
+import { showSuccessToast, showToast } from "toasts";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -33,7 +49,7 @@ export function Navbar() {
           </StyledLogo>
           <StyledFlexRow style={{ width: "fit-content" }}>
             <Settings />
-            <ConnectSection />
+            <Wallet />
             {!mobile && <Github />}
           </StyledFlexRow>
         </StyledFlexRow>
@@ -42,41 +58,96 @@ export function Navbar() {
   );
 }
 
-const ConnectSection = () => {
-  const { address, walletIcon } = useConnection();
+const Wallet = () => {
+  const { address, walletIcon, disconnect } = useConnection();
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const open = Boolean(anchorEl);
+  const [_, copy] = useCopyToClipboard();
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   if (!address) {
-    return <ConnectButton />;
+    return (
+      <StyledWalletContainer>
+        <ConnectButton />
+      </StyledWalletContainer>
+    );
   }
 
   return (
-    <StyledConnected>
-      <StyledFlexRow>
-        {makeElipsisAddress(address!, 6)}
-        <StyledSelectedWallet>
-          <img src={walletIcon} />
-        </StyledSelectedWallet>
-      </StyledFlexRow>
-    </StyledConnected>
+    <StyledWalletContainer>
+      <StyledConnected onClick={handleClick}>
+        <StyledFlexRow>
+          {makeElipsisAddress(address!, 5)}
+          <StyledSelectedWallet src={walletIcon} />
+        </StyledFlexRow>
+      </StyledConnected>
+
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <StyledMenuItem onClick={() =>{
+           copy(address);
+           showSuccessToast("Copied to clipboard");
+        }}>
+          <Typography>Copy Address</Typography>
+          <MdContentCopy />
+        </StyledMenuItem>
+        <StyledMenuItem
+          onClick={() => {
+            disconnect();
+            handleClose();
+          }}
+        >
+          <Typography>Logout</Typography>
+          <MdLogout />
+        </StyledMenuItem>
+      </Menu>
+    </StyledWalletContainer>
   );
 };
 
-const StyledSelectedWallet = styled(Box)({
-  width: 25,
-  height: 25,
-  borderRadius: "50%",
-  overflow: "hidden",
-  img: {
+const StyledMenuItem = styled(MenuItem)({
+  gap: 20,
+  justifyContent: "space-between",
+});
+
+const StyledWalletContainer = styled(Box)({
+  width: 170,
+  ".button": {
     width: "100%",
-    height: "100%",
   },
 });
 
 const StyledConnected = styled(Button)({
-  pointerEvents: "none",
   "*": {
     fontSize: 14,
   },
+});
+
+const StyledSelectedWallet = styled("img")({
+  width: 25,
+  height: 25,
+  borderRadius: "50%",
+  overflow: "hidden",
 });
 
 const StyledLogo = styled("button")(({ theme }) => ({
@@ -124,11 +195,6 @@ const Settings = () => {
 
   const handleClose = () => setAnchorEl(null);
 
-  const logout = () => {
-    disconnect();
-    handleClose();
-  };
-
   const showPopup = () => {
     analytics.GA.endpointSettingsClick();
     endpointModal.setShow(true);
@@ -136,53 +202,9 @@ const Settings = () => {
   };
 
   return (
-    <StyledSettings>
-      <IconButton onClick={handleClick}>
-        <FiSettings />
-      </IconButton>
-      <StyledMenu
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
-      >
-        <MenuItem onClick={showPopup}>
-          <StyledMenuItemContent>
-            <RiRouteFill />
-            <Typography>RPC endpoint</Typography>
-          </StyledMenuItemContent>
-        </MenuItem>
-        {address && (
-          <MenuItem onClick={logout}>
-            <StyledMenuItemContent>
-              <IoLogOutOutline />
-              <Typography>Logout</Typography>
-            </StyledMenuItemContent>
-          </MenuItem>
-        )}
-      </StyledMenu>
-    </StyledSettings>
+    <IconButton onClick={showPopup}>
+      <GoSettings />
+    </IconButton>
   );
 };
 
-const StyledMenu = styled(Menu)({
-  ".MuiPaper-root": {
-    borderRadius: 10,
-  },
-});
-
-const StyledMenuItemContent = styled(StyledFlexRow)({
-  justifyContent: "flex-start",
-});
-
-const StyledSettings = styled(Box)({});

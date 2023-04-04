@@ -105,7 +105,7 @@ export const ProposalComponent = ({ address }: { address: Address }) => {
               }
             />
 
-            {proposalInfo && (
+            {status !== ProposalStatus.CLOSED && proposalInfo && (
               <Time proposalInfo={proposalInfo} status={status} />
             )}
             <Results status={status} />
@@ -120,6 +120,10 @@ const StyledTitleLoader = styled(Loader)({
   maxWidth: "30%",
 });
 const StyledDescriptionLoader = styled(Loader)({
+  maxWidth: "70%",
+});
+
+const StyledResultsLoader = styled(Loader)({
   maxWidth: "70%",
 });
 

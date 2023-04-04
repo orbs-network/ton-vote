@@ -1,15 +1,15 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, Loader, Img } from "components";
+import { Button, Container, Loader, Img, SideMenu } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
-import { useDaoMetadataQuery, useDaoRolesQuery } from "query/queries";
+import { useDaoMetadataQuery } from "query/queries";
 import React from "react";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn } from "styles";
 import Socials from "./Socials";
 
-function SideMenu() {
+export function DaoMenu() {
   const daoAddresses = useDaoAddress();
   const { data: dao, isLoading } = useDaoMetadataQuery(daoAddresses);
 
@@ -18,7 +18,10 @@ function SideMenu() {
       <StyledTop>
         <StyledLogo src={dao?.avatar} />
 
-        <StyledTitleLoader isLoading={isLoading} component={dao?.name} />
+        <StyledTitleLoader
+          isLoading={isLoading}
+          component={<Typography variant="h2" className="title">{dao?.name}</Typography>}
+        />
 
         <StyledJoin disabled={isLoading}>Join</StyledJoin>
       </StyledTop>
@@ -28,11 +31,7 @@ function SideMenu() {
   );
 }
 
-const StyledMembersLoader = styled(Loader)({
-  width: "50%",
-  height: 20,
-  marginTop: 5,
-});
+
 
 const StyledTitleLoader = styled(Loader)({
   width: "70%",
@@ -124,21 +123,14 @@ const StyledSocials = styled(Socials)({
   padding: 20,
 });
 
-export { SideMenu };
-
 const StyledJoin = styled(Button)({
   minWidth: 120,
 });
 
-const StyledTitle = styled(Typography)({
-  fontSize: 20,
-  fontWeight: 800,
-});
 
-const StyledContainer = styled(Container)({
-  position: "sticky",
-  top: 90,
-  width: 320,
+
+const StyledContainer = styled(SideMenu)({
+
   padding: 0,
 });
 

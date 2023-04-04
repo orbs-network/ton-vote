@@ -4,7 +4,7 @@ import _ from "lodash";
 import {
   ProposalPage,
   DaoPage,
-  DaoAbout,
+  About as DaoAbout,
   DaoProposals,
   CreateProposal,
   DaosPage,
