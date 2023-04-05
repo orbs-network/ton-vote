@@ -80,3 +80,6 @@ export const TON_CONNECTOR = new TonConnect({
 
 
 export const DAO_LIMIT = 80;
+
+
+export const PROPOSALS_LIMIT = 2;

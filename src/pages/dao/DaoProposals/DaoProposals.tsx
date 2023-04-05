@@ -25,30 +25,26 @@ const options: Option[] = [
 
 export function DaoProposals() {
   const daoAddress = useDaoAddress()
-  const { data, isLoading, error } = useDaoProposalsQuery(daoAddress);
-  
+  const { data, isLoading, error, fetchNextPage, isFetchingNextPage, hasNextPage } = useDaoProposalsQuery(daoAddress);
 
-  const [renderedProposalsCount, setRenderedProposalsCount] = useState(SIZE);
+  const noMore = !_.size(_.last(data?.pages)?.proposalAddresses);
+    
   const [filterValue, setFilterValue] = useState<string>(options[0].value);
   const [queryParamState, setQueryParamState] = useQueryParam(
     "state",
     StringParam
   );
 
-  const showMore = () => {
-    setRenderedProposalsCount((prev) => prev + SIZE);
-  };
+
 
   const onSelect = (value: string) => {
     setFilterValue(value);
-    setRenderedProposalsCount(SIZE);
     setQueryParamState(value);
   };
 
-  const emptyList = !isLoading && !_.size(data?.proposalAddresses);
+  const emptyList = false
 
 
-  const hideLoadMoreButton = isLoading || renderedProposalsCount >= SIZE;
 
   return (
     <FadeElement>
@@ -66,20 +62,19 @@ export function DaoProposals() {
           {isLoading ? (
             <ListLoader />
           ) : (
-            data?.proposalAddresses?.map((address, index) => {
-              if (index >= renderedProposalsCount) return null;
-              return (
-                <ProposalComponent address={address} key={address.toString()} />
-              );
+            data?.pages?.map((page) => {
+              return page.proposalAddresses?.map((address, index) => {
+                return <ProposalComponent key={index} address={address} />;
+              });
             })
           )}
         </StyledFlexColumn>
         {emptyList && <StyledEmptyList>No Proposals</StyledEmptyList>}
         <LoadMore
-          hide={hideLoadMoreButton}
-          loadMoreOnScroll={renderedProposalsCount > SIZE}
-          showMore={showMore}
-          isFetchingNextPage={false}
+          hide={noMore}
+          loadMoreOnScroll={false}
+          showMore={fetchNextPage}
+          isFetchingNextPage={isFetchingNextPage}
         />
       </StyledProposalsContainer>
     </FadeElement>

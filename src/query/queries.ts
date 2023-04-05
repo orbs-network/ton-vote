@@ -4,7 +4,13 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { DAO_LIMIT, QueryKeys, STATE_REFETCH_INTERVAL, TON_CONNECTOR } from "config";
+import {
+  DAO_LIMIT,
+  PROPOSALS_LIMIT,
+  QueryKeys,
+  STATE_REFETCH_INTERVAL,
+  TON_CONNECTOR,
+} from "config";
 import { getContractState, server } from "lib";
 import { useIsCustomEndpoint } from "hooks";
 import { useAppPersistedStore, useEnpointModal } from "store";
@@ -14,7 +20,6 @@ import * as TonVoteContract from "ton-vote-npm";
 import { Address } from "ton-core";
 import * as mock from "mock";
 import _ from "lodash";
-
 
 export const useDaoMetadataQuery = (daoAddress: string) => {
   const isCustomEndpoint = useIsCustomEndpoint();
@@ -92,21 +97,23 @@ export const useDaoProposalsQuery = (daoAddress: string) => {
   const queryKey = useGetQueryKey([QueryKeys.PROPOSALS, daoAddress]);
   const clientV2 = useClientsQuery()?.clientV2;
 
-  return useQuery(
+  return useInfiniteQuery({
     queryKey,
-    () => {
+    queryFn: async ({ pageParam }) => {
+       const nextPage = pageParam ? Number(pageParam) : 0;
       if (isCustomEndpoint) {
         return TonVoteContract.getDaoProposals(
           clientV2!,
-          Address.parse(daoAddress)
+          Address.parse(daoAddress),
+          nextPage,
+          BigInt(nextPage + PROPOSALS_LIMIT)
         );
       }
       return server.getDaoProposals(daoAddress);
     },
-    {
-      enabled: !!clientV2 && !!daoAddress,
-    }
-  );
+    enabled: !!clientV2 && !!daoAddress,
+    getNextPageParam: (lastPage) => lastPage.endProposalId,
+  });
 };
 
 export const useProposalMetadataQuery = (proposalAddress: string) => {
@@ -273,7 +280,6 @@ export const useWalletsQuery = () => {
   return useQuery(
     ["useWalletsQuery"],
     () => {
-     
       return TON_CONNECTOR.getWallets();
     },
     {
