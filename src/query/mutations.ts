@@ -1,19 +1,22 @@
 import { useMutation } from "@tanstack/react-query";
 import analytics from "analytics";
-import { useGetSender } from "hooks";
+import { useDaoAddress, useGetSender } from "hooks";
 import { getContractState } from "lib";
 import _ from "lodash";
 import { Address } from "ton-core";
 import { MetadataArgs, getProposalInfo, ProposalMetadata } from "ton-vote-sdk";
-import {  ProposalState } from "types";
+import { ProposalState } from "types";
 import { Logger } from "utils";
 import { useClientsQuery, useProposalStateQuery } from "./queries";
-import * as TonVoteContract from 'ton-vote-sdk'
+import * as TonVoteContract from "ton-vote-sdk";
 import { showPromiseToast } from "toasts";
+import { useAppNavigation } from "router";
 
 export const useCreateProposal = () => {
+  const daoAddress = useDaoAddress()
   const getSender = useGetSender();
   const clientV2 = useClientsQuery()?.clientV2;
+  const appNavigation = useAppNavigation();
 
   return useMutation(
     async ({
@@ -25,16 +28,27 @@ export const useCreateProposal = () => {
     }) => {
       const sender = getSender();
 
-      const promise =  TonVoteContract.newProposal(
+      const promise = TonVoteContract.newProposal(
         sender,
         clientV2!,
         Address.parse(daoAddr),
         proposalMetadata
       );
 
-      showPromiseToast({ promise , loading:'Create proposal transaction pending...', success:'Proposal created'});
+      showPromiseToast({
+        promise,
+        loading: "Create proposal transaction pending...",
+        success: "Proposal created",
+      });
 
-      return promise;
+      const address = await promise;
+      console.log({ address });
+      
+      if (Address.isAddress(address)) {
+        appNavigation.proposalPage.root(daoAddress, address.toString());
+      } else {
+        throw new Error("Proposal address is not valid");
+      }
     }
   );
 };
@@ -73,24 +87,19 @@ export const useVerifyProposalResults = (proposalAddress: string) => {
   });
 };
 
-
-
 export const useVote = () => {
   const getSender = useGetSender();
   return useMutation(async () => {
     const sender = getSender();
-    return null
-  })  
-  
+    return null;
+  });
 };
 
-
-
 export const useJoinDao = () => {
-    const getSender = useGetSender();
+  const getSender = useGetSender();
 
   return useMutation(async () => {
     const sender = getSender();
     return null;
-  })
-}
+  });
+};

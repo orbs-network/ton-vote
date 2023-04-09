@@ -19,7 +19,10 @@ import { useConnection } from "ConnectionProvider";
 import { showErrorToast } from "toasts";
 
 function CreateProposal() {
-  const { mutate: createProposal, isLoading } = useCreateProposal();
+  const { mutate: createProposal, isLoading, error } = useCreateProposal();
+
+  console.log('useCreateProposal',error);
+  
   const daoAddress = useDaoAddress();
   const { formData, setFormData, preview } = useCreateProposalStore();
 

@@ -127,7 +127,7 @@ export const useCreateDao = () => {
       success: "Dao created!",
     });
     const address = await promise;
-    if (address) {
+    if (Address.isAddress(address)) {
       addDao(address.toString());
       appNavigation.daoPage.root(address.toString());
     } else {

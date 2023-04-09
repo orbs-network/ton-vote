@@ -22,7 +22,7 @@ import * as mock from "mock";
 import _ from "lodash";
 import { useConnection } from "ConnectionProvider";
 
-export const useDaoMetadataQuery = (daoAddress: string) => {
+export const useDaoMetadataQuery = (daoAddress: string, enabled: boolean) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAO_METADATA, daoAddress]);
   const clientV2 = useClientsQuery()?.clientV2;
@@ -36,7 +36,7 @@ export const useDaoMetadataQuery = (daoAddress: string) => {
     },
     {
       staleTime: Infinity,
-      enabled: !!clientV2 && !!daoAddress,
+      enabled: !!clientV2 && !!daoAddress && enabled,
     }
   );
 };
@@ -51,6 +51,8 @@ export const useDaosQuery = () => {
     queryFn: async ({ pageParam }) => {
       if (isCustomEndpoint) {
         const nextPage = pageParam ? Number(pageParam) : undefined;
+        console.log({ nextPage });
+        
         return TonVoteSDK.getDaos(clientV2!, nextPage, DAOS_LIMIT);
       }
       return server.getDaos();
@@ -107,15 +109,18 @@ export const useDaoRolesQuery = (daoAddress: string) => {
 };
 
 export const useDaoProposalsQuery = (daoAddress: string) => {
+  
   const isCustomEndpoint = useIsCustomEndpoint();
 
   const queryKey = useGetQueryKey([QueryKeys.PROPOSALS, daoAddress]);
   const clientV2 = useClientsQuery()?.clientV2;
 
+  
+
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const nextPage = pageParam ? Number(pageParam) : 0;
+      const nextPage = pageParam ? Number(pageParam) : undefined;      
       if (isCustomEndpoint) {
         return TonVoteSDK.getDaoProposals(
           clientV2!,

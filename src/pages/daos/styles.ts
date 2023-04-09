@@ -41,7 +41,6 @@ export const StyledDao = styled(Box)({
   },
   ".address": {
     width: "100%",
-    ...textOverflow,
     textAlign: "center",
     fontSize: 14
   },

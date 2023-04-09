@@ -118,7 +118,7 @@ export const getProposalStatusText = (status: ProposalStatus | null) => {
 
 
 
-export const getTonScanUrl = (address: string) => {
+export const getTonScanContractUrl = (address: string) => {
   return TONSCAN_ADDRESS_URL.replace("address", address);
 };
 

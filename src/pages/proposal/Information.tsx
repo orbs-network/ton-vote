@@ -18,9 +18,12 @@ import { useProposalInfoQuery } from "query/queries";
 
 export const Information = () => {
     const proposalAddress = useProposalAddress()
+    
   const { data: proposalInfo, isLoading } =
     useProposalInfoQuery(proposalAddress);
   
+
+
     return (
       <StyledInformation
         title="Information"
