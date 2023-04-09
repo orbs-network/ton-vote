@@ -4,7 +4,7 @@ import { Button, Container, Progress } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { useEffect } from "react";
-import { nFormatter } from "utils";
+import { calculateTonAmount, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import { fromNano } from "ton";
 import _ from "lodash";
@@ -18,11 +18,7 @@ import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "store";
 import { useVerifyProposalResults } from "query/mutations";
 
-const calculateTonAmount = (percent?: number, total?: string) => {
-  if (!percent || !total) return;
-  const result = (Number(fromNano(total)) * percent) / 100;
-  return nFormatter(result, 2);
-};
+
 
 export const Results = () => {
   const proposalAddress = useProposalAddress();

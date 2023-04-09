@@ -28,7 +28,7 @@ export function Vote() {
     mutate();
   };
 
-  if (proposalStatus !== ProposalStatus.PENDING) return null;
+  if (proposalStatus !== ProposalStatus.ACTIVE) return null;
 
   return (
     <StyledContainer title="Should the validators proceed with this proposal?">

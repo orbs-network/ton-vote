@@ -1,3 +1,4 @@
+import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { fromNano } from "ton";
@@ -85,8 +86,6 @@ export const getProposalStatus = (proposalInfo: ProposalMetadata): ProposalStatu
   return finished
     ? ProposalStatus.CLOSED
     : voteStarted && !finished
-    ? ProposalStatus.PENDING
-    : voteStarted
     ? ProposalStatus.ACTIVE
     : !voteStarted
     ? ProposalStatus.NOT_STARTED
@@ -107,15 +106,24 @@ export const urlPatternValidation = (URL: string) => {
 export const getProposalStatusText = (status: ProposalStatus | null) => {
   switch (status) {
     case ProposalStatus.CLOSED:
-      return "Ended";
+      return "Closed";
     case ProposalStatus.ACTIVE:
       return "Active";
     case ProposalStatus.NOT_STARTED:
       return "Not started";
-    case ProposalStatus.PENDING:
-      return "Pending";
-
     default:
       break;
   }
+};
+
+
+
+export const getTonScanUrl = (address: string) => {
+  return TONSCAN_ADDRESS_URL.replace("address", address);
+};
+
+export const calculateTonAmount = (percent?: number, total?: string) => {
+  if (!percent || !total) return;
+  const result = (Number(fromNano(total)) * percent) / 100;
+  return nFormatter(result, 2);
 };

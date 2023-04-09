@@ -1,12 +1,12 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, Loader, Img, SideMenu } from "components";
+import { Button, Loader, Img, SideMenu } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
+import _ from "lodash";
 import { useDaoMetadataQuery } from "query/queries";
-import React from "react";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
-import { StyledFlexColumn } from "styles";
+import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
 import Socials from "./Socials";
 
 export function DaoMenu() {
@@ -20,7 +20,11 @@ export function DaoMenu() {
 
         <StyledTitleLoader
           isLoading={isLoading}
-          component={<Typography variant="h2" className="title">{dao?.name}</Typography>}
+          component={
+            <Typography variant="h2" className="title">
+              {dao?.name}
+            </Typography>
+          }
         />
 
         <StyledJoin disabled={isLoading}>Join</StyledJoin>
@@ -30,8 +34,6 @@ export function DaoMenu() {
     </StyledContainer>
   );
 }
-
-
 
 const StyledTitleLoader = styled(Loader)({
   width: "70%",
@@ -47,52 +49,70 @@ const StyledTop = styled(StyledFlexColumn)({
 const Navigation = () => {
   const daoAddress = useDaoAddress();
   const route = useCurrentRoute();
-  const { isDaoOwner, isProposalOnwer } = useIsOwner(daoAddress);
+  const { isDaoOwner, isProposalOnwer, isLoading } = useIsOwner(daoAddress);
 
   const isOwner = isDaoOwner || isProposalOnwer;
   return (
-    <StyledNavigation>
-      {navigation.map((navigation, index) => {
-        if (navigation.onlyOwner && !isOwner) return null;
-        const selected = route === navigation.path;
+    <Loader
+      isLoading={isLoading}
+      loader={
+        <StyledNavigation>
+          {_.range(0, 3).map((_, i) => {
+            return <StyledNavigationLoader key={i} />;
+          })}
+        </StyledNavigation>
+      }
+      component={
+        <StyledNavigation>
+          {navigation.map((navigation, index) => {
+            if (navigation.onlyOwner && !isOwner) return null;
+            const selected = route === navigation.path;
 
-        return (
-          <StyledNavigationLink
-            to={navigation.navigate(daoAddress)}
-            key={index}
-            selected={selected}
-          >
-            <Typography>{navigation.title}</Typography>
-          </StyledNavigationLink>
-        );
-      })}
-    </StyledNavigation>
+            return (
+              <StyledNavigationLink
+                to={navigation.navigate(daoAddress)}
+                key={index}
+                selected={selected}
+              >
+                <Typography>{navigation.title}</Typography>
+              </StyledNavigationLink>
+            );
+          })}
+        </StyledNavigation>
+      }
+    />
   );
 };
 
 const navigation = [
   {
     title: "Proposals",
-    navigate: (daoId: string) => appNavigation.spacePage.root(daoId),
+    navigate: (daoId: string) => appNavigation.daoPage.root(daoId),
     path: routes.space,
   },
 
   {
     title: "About",
-    navigate: (daoId: string) => appNavigation.spacePage.about(daoId),
+    navigate: (daoId: string) => appNavigation.daoPage.about(daoId),
     path: routes.spaceAbout,
   },
   {
     title: "New proposal",
-    navigate: (daoId: string) => appNavigation.spacePage.create(daoId),
+    navigate: (daoId: string) => appNavigation.daoPage.create(daoId),
     path: routes.createProposal,
     onlyOwner: true,
   },
 ];
 
+const StyledNavigationLoader = styled(StyledSkeletonLoader)({
+  width: "calc(100% - 30px)",
+  height: 30,
+  marginBottom: 10,
+});
+
 const StyledNavigation = styled(StyledFlexColumn)({
   gap: 0,
-  alignItems: "flex-start",
+  alignItems: "center",
   marginTop: 40,
   p: {
     fontWeight: 600,
@@ -127,10 +147,7 @@ const StyledJoin = styled(Button)({
   minWidth: 120,
 });
 
-
-
 const StyledContainer = styled(SideMenu)({
-
   padding: 0,
 });
 

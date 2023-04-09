@@ -14,7 +14,7 @@ import { useConnection } from "ConnectionProvider";
 import { TON_CONNECTOR } from "config";
 
 export const useDaoAddress = () => {
-  return useParams().spaceId as string;
+  return useParams().daoId as string;
 };
 
 export const useProposalAddress = () => {
@@ -55,11 +55,12 @@ export const useIsCustomEndpoint = () => {
 
 export const useIsOwner = (daoAddress: string) => {
   const address = useConnection().address;
-  const { data } = useDaoRolesQuery(daoAddress);
+  const { data, isLoading } = useDaoRolesQuery(daoAddress);
 
   return {
-    isDaoOwner: address && address === data?.owner.toString(),
-    isProposalOnwer: address && address === data?.proposalOwner.toString(),
+    isDaoOwner: address && address === data?.owner,
+    isProposalOnwer: address && address === data?.proposalOwner,
+    isLoading,
   };
 };
 

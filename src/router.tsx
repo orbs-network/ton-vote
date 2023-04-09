@@ -15,17 +15,15 @@ import { createBrowserRouter, useNavigate } from "react-router-dom";
 
 export const appNavigation = {
   spaces: routes.spaces,
-  spacePage: {
-    root: (spaceId: string) => routes.space.replace(":spaceId", spaceId),
-    about: (spaceId: string) =>
-      `${routes.spaceAbout.replace(":spaceId", spaceId)}`,
-    create: (spaceId: string) =>
-      routes.createProposal.replace(":spaceId", spaceId),
+  daoPage: {
+    root: (daoId: string) => routes.space.replace(":daoId", daoId),
+    about: (daoId: string) => `${routes.spaceAbout.replace(":daoId", daoId)}`,
+    create: (daoId: string) => routes.createProposal.replace(":daoId", daoId),
   },
   proposalPage: {
-    root: (spaceId: string, proposalId: string) =>
+    root: (daoId: string, proposalId: string) =>
       routes.proposal
-        .replace(":spaceId", spaceId)
+        .replace(":daoId", daoId)
         .replace(":proposalId", proposalId),
   },
 };
@@ -34,17 +32,16 @@ export const useAppNavigation = () => {
   const navigate = useNavigate();
 
   return {
-    spacePage: {
-      root: (spaceId: string) =>
-        navigate(appNavigation.spacePage.root(spaceId)),
-      createProposal: (spaceId: string) =>
-        navigate(appNavigation.spacePage.create(spaceId)),
-      about: (spaceId: string) =>
-        navigate(appNavigation.spacePage.about(spaceId)),
+    daoPage: {
+      root: (daoId: string) => navigate(appNavigation.daoPage.root(daoId)),
+      createProposal: (daoId: string) =>
+        navigate(appNavigation.daoPage.create(daoId)),
+      about: (daoId: string) =>
+        navigate(appNavigation.daoPage.about(daoId)),
     },
     proposalPage: {
-      root: (spaceId: string, proposalId: string) =>
-        navigate(appNavigation.proposalPage.root(spaceId, proposalId)),
+      root: (daoId: string, proposalId: string) =>
+        navigate(appNavigation.proposalPage.root(daoId, proposalId)),
     },
     daosPage: {
       root: () => navigate(routes.spaces),

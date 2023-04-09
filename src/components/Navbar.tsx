@@ -85,7 +85,7 @@ const Wallet = () => {
     <StyledWalletContainer>
       <StyledConnected onClick={handleClick}>
         <StyledFlexRow>
-          {makeElipsisAddress(address!, 5)}
+          <Typography style={{flex:1}}>{makeElipsisAddress(address!, 5)}</Typography>
           <StyledSelectedWallet src={walletIcon} />
         </StyledFlexRow>
       </StyledConnected>
@@ -104,10 +104,12 @@ const Wallet = () => {
           horizontal: "center",
         }}
       >
-        <StyledMenuItem onClick={() =>{
-           copy(address);
-           showSuccessToast("Copied to clipboard");
-        }}>
+        <StyledMenuItem
+          onClick={() => {
+            copy(address);
+            showSuccessToast("Copied to clipboard");
+          }}
+        >
           <Typography>Copy Address</Typography>
           <MdContentCopy />
         </StyledMenuItem>

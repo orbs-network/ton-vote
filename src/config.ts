@@ -79,7 +79,7 @@ export const TON_CONNECTOR = new TonConnect({
 });
 
 
-export const DAO_LIMIT = 80;
+export const DAOS_LIMIT = 8;
 
 
-export const PROPOSALS_LIMIT = 2;
+export const PROPOSALS_LIMIT = 20;

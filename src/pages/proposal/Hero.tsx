@@ -4,19 +4,20 @@ import { styled } from "@mui/material";
 import { StyledFlexColumn } from "styles";
 import { useProposalAddress } from "hooks";
 import { getProposalStatusText } from "utils";
-import { useProposalMetadataQuery, useProposalStatusQuery } from "query/queries";
+import { useProposalStatusQuery } from "query/queries";
 
 export function Hero() {
-  const proposalAddress = useProposalAddress();
-  const { isLoading, data } = useProposalMetadataQuery(proposalAddress);
+
+  const title = 'Title'
+  const description = 'Description'
   return (
     <StyledContainer
-      title={data?.title}
+      title={title}
       headerChildren={<VoteEndedChip />}
-      loading={isLoading}
+      loading={false}
     >
       <StyledFlexColumn alignItems="flex-start">
-        <Typography>{data?.description}</Typography>
+        <Typography>{description}</Typography>
         {/* <Typography>
           Tokenomics proposal to achieve community consensus on circulating
           supply of TON. Proposal for a 48 month temporary freeze of inactive

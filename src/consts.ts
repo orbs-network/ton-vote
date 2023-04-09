@@ -3,10 +3,10 @@ import _ from "lodash";
 export const routes = {
   spaces: "/",
   createSpace: '/setup',
-  proposal: "/:spaceId/proposal/:proposalId",
-  space: "/:spaceId",
-  spaceAbout: "/:spaceId/about",
-  createProposal: "/:spaceId/create",
+  proposal: "/:daoId/proposal/:proposalId",
+  space: "/:daoId",
+  spaceAbout: "/:daoId/about",
+  createProposal: "/:daoId/create",
 };
 
 export const flatRoutes = _.map(routes, (value) => {

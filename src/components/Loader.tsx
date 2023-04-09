@@ -7,18 +7,20 @@ interface Props {
   isLoading: boolean;
   className?: string;
   component: ReactNode;
+  loader?: ReactNode;
 }
 
-function Loader({ component, isLoading, className = "" }: Props) {
+function Loader({ component, isLoading, className = "", loader }: Props) {
   if (isLoading) {
-    return (
+    return loader ? (
+      <>{loader}</>
+    ) : (
       <Fade in={true}>
         <StyledSkeletonLoader className={className} />
       </Fade>
     );
   }
-  return <FadeElement show={!isLoading}>{component}</FadeElement>;
+  return <>{component}</>;
 }
 
 export { Loader };
-

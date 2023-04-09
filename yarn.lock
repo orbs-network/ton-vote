@@ -783,7 +783,7 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@tonconnect/sdk@^2.0.7", "@tonconnect/sdk@^2.1.0":
+"@tonconnect/sdk@^2.0.7", "@tonconnect/sdk@^2.1.3":
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/@tonconnect/sdk/-/sdk-2.1.3.tgz#c147361474b074c904722691027fac4ba942693c"
   integrity sha512-LxHJr96NvGTqj4qSKYPPS/7fMlUpHNyj5bCNlzY5xMW8JmdgPj+jXxm5wEI00xBWy478dbE9ZaBhLMLH1V2wZw==
@@ -2338,10 +2338,10 @@ ton-crypto@^3.0.0, ton-crypto@^3.1.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton-vote-sdk@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/ton-vote-sdk/-/ton-vote-sdk-1.0.3.tgz#43d05cbc55db1f0975650be3792b6a93bfffb11c"
-  integrity sha512-GtMHmNl3S93F0geBBcpiu8wwdAgH2mhBHsdXjNvzQAuGm4SkXa9nSV6kvktkTbQNsf8fqILyDzbiRrnj2n0NhA==
+ton-vote-sdk@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/ton-vote-sdk/-/ton-vote-sdk-1.1.0.tgz#65c44ae5a05fd35e993ba51afd799f5e032f1f87"
+  integrity sha512-PSxSoihtVs02uCK+SLOAYcBcy9ARPbxG4x/2lQ7ssfqYq6SoRj2wkaekdqCYBR1GWBZwvAguBJPExyTD2VI9Lw==
   dependencies:
     "@orbs-network/ton-access" "^2.2.2"
     bignumber.js "^9.1.1"

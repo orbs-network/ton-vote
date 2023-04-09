@@ -86,7 +86,7 @@ export function Votes() {
         <StyledNoVotes>No votes yet</StyledNoVotes>
       )}
       <LoadMore
-        hide={isLoading}
+        hide={isLoading || votesShowAmount >= proposalVotes?.length}
         loadMoreOnScroll={votesShowAmount > PAGE_SIZE}
         showMore={showMoreVotes}
         isFetchingNextPage={false}
@@ -94,6 +94,8 @@ export function Votes() {
     </StyledContainer>
   );
 }
+
+
 
 
 

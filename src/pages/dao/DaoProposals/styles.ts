@@ -2,9 +2,7 @@ import { Box, styled, Typography } from "@mui/material";
 import { BorderContainer, Container } from "components";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
-export const StyledLoader = styled(StyledSkeletonLoader)({
-  height: 100,
-});
+
 
 export const StyledProposalsContainer = styled(Container)({
   flex: 1,
@@ -68,4 +66,10 @@ export const StyledDescription = styled(Typography)({
   overflow: "hidden",
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 2,
+});
+
+
+export const StyledLoader = styled(StyledSkeletonLoader)({
+  width: "100%",
+  height: 100,
 });

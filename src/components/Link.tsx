@@ -17,9 +17,14 @@ export function Link({
   const theme = useTheme();
   return (
     <StyledLink className={className} href={href} target={target}>
-      <Typography style={{}}>{children}</Typography>
-      <BiLinkExternal style={{ color: theme.palette.text.primary, minWidth:16,
-      minHeight:16 }} />
+      <Typography style={{...textOverflow}}>{children}</Typography>
+      <BiLinkExternal
+        style={{
+          color: theme.palette.text.primary,
+          minWidth: 16,
+          minHeight: 16,
+        }}
+      />
     </StyledLink>
   );
 }
@@ -27,6 +32,7 @@ export function Link({
 
 
 const StyledLink = styled('a')({
+  width: "100%",
   display: "flex",
   alignItems: "center",
   gap: 5,

@@ -28,7 +28,11 @@ function LoadMore({
     return null;
   }
   if (isFetchingNextPage) {
-    return <StyledSpinner />;
+    return (
+      <StyledContainer>
+        <StyledSpinner style={{width:45, height:45}} />
+      </StyledContainer>
+    );
   }
 
   if (loadMoreOnScroll) {
@@ -48,7 +52,10 @@ const StyledButton = styled(Button)({
 });
 
 const StyledContainer = styled(StyledFlexRow)({
-  marginTop: 50
+  marginTop: 50,
+  marginBottom: 50,
 })
 
-const StyledSpinner = styled(CircularProgress)({});
+const StyledSpinner = styled(CircularProgress)({
+
+});

@@ -1,6 +1,6 @@
 import { Box, styled } from "@mui/material";
 import { BorderContainer, Button, Img } from "components";
-import { StyledFlexRow, StyledSkeletonLoader } from "styles";
+import { StyledFlexRow, StyledSkeletonLoader, textOverflow } from "styles";
 
 
 export const StyledDaoContent = styled(BorderContainer)({
@@ -32,9 +32,18 @@ export const StyledDao = styled(Box)({
   ".title": {
     fontSize: 18,
     fontWeight: 700,
+    width: "100%",
+    ...textOverflow,
+    textAlign: "center",
   },
   ".members": {
     fontWeight: 700,
+  },
+  ".address": {
+    width: "100%",
+    ...textOverflow,
+    textAlign: "center",
+    fontSize: 14
   },
 });
 

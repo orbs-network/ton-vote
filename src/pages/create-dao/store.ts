@@ -3,10 +3,11 @@ import { Address } from "ton-core";
 import { create } from "zustand";
 import _ from "lodash";
 import { useGetSender } from "hooks";
-import { useClientsQuery } from "query/queries";
+import { useAddDao, useClientsQuery } from "query/queries";
 import * as TonVoteContract from "ton-vote-sdk";
 import { MetadataArgs } from "ton-vote-sdk";
 import { showPromiseToast, toastTxMessage } from "toasts";
+import { useAppNavigation } from "router";
 
 const initialFormData: FormData = {
   name: "test",
@@ -65,7 +66,7 @@ export const useCreateDaoMetadata = () => {
 
       const metadataArgs: MetadataArgs = {
         about: values.about,
-        avatar: values.avatar,
+        avatar: values.avatar || "",
         github: values.github,
         hide: false,
         name: values.name,
@@ -102,6 +103,8 @@ export const useCreateDaoMetadata = () => {
 export const useCreateDao = () => {
   const getSender = useGetSender();
   const clientV2 = useClientsQuery()?.clientV2;
+  const appNavigation = useAppNavigation();
+  const addDao = useAddDao();
   const {
     formData: { ownerAddress, proposalOwner },
     metadataAddress,
@@ -123,6 +126,12 @@ export const useCreateDao = () => {
       loading: "Transaction pending",
       success: "Dao created!",
     });
-    return  promise;
-      });
+    const address = await promise;
+    if (address) {
+      addDao(address.toString());
+      appNavigation.daoPage.root(address.toString());
+    } else {
+      throw new Error("Dao address is not valid");
+    }
+  });
 };

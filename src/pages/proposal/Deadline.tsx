@@ -3,7 +3,7 @@ import { Container, Countdown } from "components";
 import { useProposalAddress } from "hooks";
 import moment from "moment";
 import { useProposalInfoQuery, useProposalStatusQuery } from "query/queries";
-import React from "react";
+import React, { useMemo } from "react";
 import { ProposalStatus } from "types";
 
 const handleDate = (endDate?: bigint) => {
@@ -13,13 +13,12 @@ const handleDate = (endDate?: bigint) => {
 };
 
 export function Deadline() {
-  const proposalAddress = useProposalAddress()
+  const proposalAddress = useProposalAddress();
   const data = useProposalInfoQuery(proposalAddress).data;
-  const proposalStatus = useProposalStatusQuery(proposalAddress);
+  const proposalStatus = useProposalStatusQuery(proposalAddress, 1_000);
 
   if (proposalStatus === ProposalStatus.CLOSED || !proposalStatus) return null;
-  const date =
-    proposalStatus === ProposalStatus.ACTIVE ? data?.proposalEndTime : data?.proposalStartTime;
+  
   return (
     <StyledContainer
       title={
@@ -32,7 +31,11 @@ export function Deadline() {
       loading={!data}
       loaderAmount={1}
     >
-      <Countdown date={handleDate(date)} />
+      {proposalStatus === ProposalStatus.NOT_STARTED ? (
+        <Countdown date={handleDate(data?.proposalStartTime)} />
+      ) : proposalStatus === ProposalStatus.ACTIVE ? (
+        <Countdown date={handleDate(data?.proposalEndTime)} />
+      ) : null}
     </StyledContainer>
   );
 }

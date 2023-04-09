@@ -86,7 +86,6 @@ export interface DaoRoles {
 
 export enum ProposalStatus {
   CLOSED = "CLOSED",
-  PENDING = "PENDING",
   NOT_STARTED = "NOT_STARTED",
   ACTIVE = "ACTIVE",
 }

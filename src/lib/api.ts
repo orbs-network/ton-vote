@@ -53,11 +53,7 @@ const getDaoProposalInfo = async (
   return (await axiosInstance.get("/info")).data;
 };
 
-const getDapProposalMetadata = (
-  proposalAddress: string,
-) => {
-  return mock.getProposalMetadata(proposalAddress);
-};
+
 
 const getState = async (
   proposalAddress: string,
@@ -117,7 +113,6 @@ export const server = {
   validateServerLastUpdate,
   getStateUpdateTime,
   getDaoRoles,
-  getDapProposalMetadata,
 };
 
 export interface GetStateApiPayload {
