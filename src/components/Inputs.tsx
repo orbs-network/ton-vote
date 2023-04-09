@@ -11,11 +11,9 @@ import dayjs from "dayjs";
 import { InputInterface } from "types";
 import { FormikProps } from "formik";
 import { Img } from "./Img";
-import { Editor } from "react-draft-wysiwyg";
-import { Editable, Slate, useSlate, withReact } from "slate-react";
-import { createEditor } from "slate";
+
 interface TextInputProps {
-  value: string | number;
+  value?: string | number;
   onChange: (value: string) => void;
   label?: string;
   error?: string;
@@ -30,7 +28,7 @@ interface TextInputProps {
 }
 
 export function TextInput({
-  value,
+  value = '',
   onChange,
   label,
   error,

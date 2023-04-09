@@ -17,6 +17,7 @@ const initialFormData: FormData = {
   terms: "https://reactdatepicker.com/",
   ownerAddress: "",
   proposalOwner: "",
+  avatar: "",
 };
 
 export interface FormData {
@@ -28,7 +29,7 @@ export interface FormData {
   github: string;
   ownerAddress: string;
   proposalOwner: string;
-  avatar?: File;
+  avatar: string;
 }
 interface State {
   step: number;
@@ -64,7 +65,7 @@ export const useCreateDaoMetadata = () => {
 
       const metadataArgs: MetadataArgs = {
         about: values.about,
-        avatar: "",
+        avatar: values.avatar,
         github: values.github,
         hide: false,
         name: values.name,
@@ -122,9 +123,6 @@ export const useCreateDao = () => {
       loading: "Transaction pending",
       success: "Dao created!",
     });
-    const res = await promise;
-    console.log(res);
-    
-    return res
-  });
+    return  promise;
+      });
 };

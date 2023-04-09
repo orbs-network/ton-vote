@@ -1,11 +1,10 @@
 import { Typography } from "@mui/material";
-import { Button, Container, Loader } from "components";
+import { Button, Container, Loader, LoadMore } from "components";
 import _ from "lodash";
 import { useDaoMetadataQuery, useDaosQuery } from "query/queries";
 import { ReactNode } from "react";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";
-import { makeElipsisAddress } from "utils";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 import {
@@ -20,8 +19,13 @@ import { Address } from "ton";
 import { useJoinDao } from "query/mutations";
 
 export function DaosList() {
-  const { data: daos, isLoading, fetchNextPage, refetch } = useDaosQuery();
+  const { data: daos, isLoading, fetchNextPage } = useDaosQuery();
 
+  // if (daos) {
+  //   const mapped = daos.pages[0].daoAddresses.map((it) => it.toString());
+  //   console.log(mapped);
+    
+  // }
   const navigation = useAppNavigation();
 
   return (
@@ -31,19 +35,21 @@ export function DaosList() {
         <Button onClick={navigation.createSpace.root}>Create</Button>
       }
     >
-      <StyledFlexColumn gap={70}>
-        <StyledDaosList>
-          <ListLoader isLoading={isLoading}>
-            {daos?.pages?.map((page) => {
-              return page.daoAddresses?.map((address, index) => {
-                return <DaoListItem key={index} address={address} />;
-              });
-            })}
-          </ListLoader>
-        </StyledDaosList>
-        {/* <button onClick={() => fetchNextPage()}>Load more</button>
-        <button onClick={() => refetch()}>Refetch</button> */}
-      </StyledFlexColumn>
+      <StyledDaosList>
+        <ListLoader isLoading={isLoading}>
+          {daos?.pages?.map((page) => {
+            return page.daoAddresses?.map((address, index) => {
+              return <DaoListItem key={index} address={address} />;
+            });
+          })}
+        </ListLoader>
+      </StyledDaosList>
+      <LoadMore
+        showMore={fetchNextPage}
+        isFetchingNextPage={isLoading}
+        loadMoreOnScroll={false}
+        hide={isLoading}
+      />
     </Container>
   );
 }
@@ -75,10 +81,11 @@ export const DaoListItem = ({ address }: { address: Address }) => {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
   const { spacePage } = useAppNavigation();
-  const {mutate} = useJoinDao();
+  const { mutate } = useJoinDao();
   const { data: daoMetadata, isLoading } = useDaoMetadataQuery(
     address.toString()
   );
+  
 
   const navigate = () => spacePage.root(address.toString());
 
@@ -97,9 +104,7 @@ export const DaoListItem = ({ address }: { address: Address }) => {
               <Loader
                 isLoading={isLoading}
                 component={
-                  <Typography className="title">
-                    {makeElipsisAddress(daoMetadata?.name, 6)}
-                  </Typography>
+                  <Typography className="title">{daoMetadata?.name}</Typography>
                 }
               />
               {!isLoading && <StyledJoinDao onClick={join}>Join</StyledJoinDao>}

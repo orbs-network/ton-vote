@@ -9,7 +9,7 @@ export const useInputs = (): InputInterface[] => {
     return [
       {
         label: "Avatar",
-        type: "upload",
+        type: "text",
         name: "avatar",
       },
 
@@ -60,6 +60,7 @@ export const useInputs = (): InputInterface[] => {
 };
 
 export const FormSchema = Yup.object().shape({
+  avatar: Yup.string().url("invalid URL"),
   name: Yup.string().required("Required"),
   github: Yup.string().url("invalid URL").required("Required"),
   website: Yup.string().url("invalid URL").required("Required"),

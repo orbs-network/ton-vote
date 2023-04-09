@@ -2338,10 +2338,10 @@ ton-crypto@^3.0.0, ton-crypto@^3.1.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton-vote-sdk@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/ton-vote-sdk/-/ton-vote-sdk-1.0.1.tgz#2fea8661982be05fbb97b6bf7f0911967a1b990f"
-  integrity sha512-4q3aBPiPUpOGeKTiHsUk+D19mw5Oj4fvJTkjF3Pje43chDc2Gj5EALpOUkX6qRBlz9IZSEfvE43EqpKwFQTnYA==
+ton-vote-sdk@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/ton-vote-sdk/-/ton-vote-sdk-1.0.3.tgz#43d05cbc55db1f0975650be3792b6a93bfffb11c"
+  integrity sha512-GtMHmNl3S93F0geBBcpiu8wwdAgH2mhBHsdXjNvzQAuGm4SkXa9nSV6kvktkTbQNsf8fqILyDzbiRrnj2n0NhA==
   dependencies:
     "@orbs-network/ton-access" "^2.2.2"
     bignumber.js "^9.1.1"

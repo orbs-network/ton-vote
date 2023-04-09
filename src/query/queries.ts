@@ -53,8 +53,9 @@ export const useDaosQuery = () => {
     queryFn: async ({ pageParam }) => {
       if (isCustomEndpoint) {
         const nextPage = pageParam ? Number(pageParam) : 0;
-
-        return await TonVoteContract.getDaos(
+        console.log('Get daos from contract');
+        
+        return TonVoteContract.getDaos(
           clientV2!,
           nextPage,
           BigInt(nextPage + DAO_LIMIT)
