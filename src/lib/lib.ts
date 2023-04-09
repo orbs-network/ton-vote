@@ -1,8 +1,8 @@
 import { useAppPersistedStore } from "store";
 import { TonClient, TonClient4 } from "ton";
 import { Address } from "ton-core";
-import * as TonVoteContract from "ton-vote-npm";
-import { ProposalMetadata } from "ton-vote-npm";
+import * as TonVoteContract from "ton-vote-sdk";
+import { ProposalMetadata } from "ton-vote-sdk";
 import { ProposalState, RawVotes } from "types";
 import { parseVotes } from "utils";
 

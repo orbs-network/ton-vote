@@ -1,7 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
 import { fromNano } from "ton";
-import { ProposalMetadata } from "ton-vote-npm";
+import { ProposalMetadata } from "ton-vote-sdk";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";

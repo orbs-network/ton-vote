@@ -2,6 +2,7 @@ import {
   isWalletInfoInjectable,
   WalletInfoInjectable,
   CHAIN,
+  WalletInfo,
 } from "@tonconnect/sdk";
 import _ from "lodash";
 import {
@@ -15,8 +16,8 @@ import {
 } from "react";
 import { TON_CONNECTOR } from "config";
 import { Address } from "ton";
-import { useWalletsQuery } from "query/queries";
 import { isMobile } from "react-device-detect";
+import { useQuery } from "@tanstack/react-query";
 
 type Chain = "mainnet" | "testnet" | undefined;
 
@@ -26,7 +27,20 @@ export interface State {
   connect: (wallet: any) => string | undefined;
   chain: Chain;
   walletIcon?: string;
+  wallets?: WalletInfo[];
 }
+
+export const useWalletsQuery = () => {
+  return useQuery(
+    ["useWalletsQuery"],
+    () => {
+      return TON_CONNECTOR.getWallets();
+    },
+    {
+      staleTime: Infinity,
+    }
+  );
+};
 
 const Context = createContext({} as State);
 
@@ -106,6 +120,7 @@ const ConnectionProvider = ({ children }: { children: ReactNode }) => {
         connect,
         chain,
         walletIcon,
+        wallets,
       }}
     >
       {children}

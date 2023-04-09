@@ -4,11 +4,11 @@ import { useGetSender } from "hooks";
 import { getContractState } from "lib";
 import _ from "lodash";
 import { Address } from "ton-core";
-import { MetadataArgs, getProposalInfo, ProposalMetadata } from "ton-vote-npm";
+import { MetadataArgs, getProposalInfo, ProposalMetadata } from "ton-vote-sdk";
 import {  ProposalState } from "types";
 import { Logger } from "utils";
 import { useClientsQuery, useProposalStateQuery } from "./queries";
-import * as TonVoteContract from 'ton-vote-npm'
+import * as TonVoteContract from 'ton-vote-sdk'
 import { showPromiseToast } from "toasts";
 
 export const useCreateProposal = () => {

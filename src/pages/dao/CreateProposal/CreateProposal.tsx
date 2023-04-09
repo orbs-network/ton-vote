@@ -10,7 +10,7 @@ import { FormikProps, useFormik } from "formik";
 import { useDaoAddress } from "hooks";
 import { useCreateProposal } from "query/mutations";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { ProposalMetadata } from "ton-vote-npm";
+import { ProposalMetadata } from "ton-vote-sdk";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposalStore } from "./store";
 import { useEffect } from "react";
@@ -36,9 +36,9 @@ function CreateProposal() {
       return;
     }
     const proposalMetadata: ProposalMetadata = {
-      proposalStartTime: BigInt(values.proposalStartTime!),
-      proposalEndTime: BigInt(values.proposalEndTime!),
-      proposalSnapshotTime: BigInt(values.proposalSnapshotTime!),
+      proposalStartTime: BigInt(values.proposalStartTime! / 1000),
+      proposalEndTime: BigInt(values.proposalEndTime! / 1000),
+      proposalSnapshotTime: BigInt(values.proposalSnapshotTime! / 1000),
       votingPowerStrategy: BigInt(1),
       proposalType: BigInt(1),
     };

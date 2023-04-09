@@ -7,7 +7,6 @@ import { GrClose } from "react-icons/gr";
 import analytics from "analytics";
 import { isMobile } from "react-device-detect";
 import _ from "lodash";
-import { useWalletsQuery } from "query/queries";
 import { useConnection } from "ConnectionProvider";
 interface Props {
   open: boolean;
@@ -30,7 +29,7 @@ interface ContextType {
 const Context = createContext({} as ContextType);
 
 const useWallets = () => {
-  const wallets = useWalletsQuery().data;
+  const {wallets} = useConnection()
   if (!isMobile) {
     return wallets;
   }

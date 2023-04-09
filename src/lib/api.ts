@@ -17,7 +17,7 @@ import * as mock from "mock";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT } from "config";
 import { useAppPersistedStore } from "store";
-import { ProposalMetadata } from "ton-vote-npm";
+import { ProposalMetadata } from "ton-vote-sdk";
 
 const axiosInstance = axios.create({
   baseURL: "https://dao-vote-cache-server.herokuapp.com",

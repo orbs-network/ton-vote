@@ -16,7 +16,7 @@ import { useIsCustomEndpoint } from "hooks";
 import { useAppPersistedStore, useEnpointModal } from "store";
 import { ProposalState, ProposalStatus } from "types";
 import { getProposalStatus, Logger } from "utils";
-import * as TonVoteContract from "ton-vote-npm";
+import * as TonVoteContract from "ton-vote-sdk";
 import { Address } from "ton-core";
 import * as mock from "mock";
 import _ from "lodash";
@@ -276,14 +276,4 @@ export const useClientsQuery = () => {
   return query.data;
 };
 
-export const useWalletsQuery = () => {
-  return useQuery(
-    ["useWalletsQuery"],
-    () => {
-      return TON_CONNECTOR.getWallets();
-    },
-    {
-      staleTime: Infinity,
-    }
-  );
-};
+

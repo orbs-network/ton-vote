@@ -6,7 +6,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
 import { theme } from "theme";
 import { globalStyles } from "styles";
-import { SnackbarProvider } from "notistack";
 import analytics from "analytics";
 import { RouterProvider } from "react-router-dom";
 import { router } from "router";
@@ -28,11 +27,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalStyles styles={globalStyles} />
-      <SnackbarProvider maxSnack={3} classes={{}}>
-        <ConnectionProvider>
-          <RouterProvider router={router} />
-        </ConnectionProvider>
-      </SnackbarProvider>
+      <ConnectionProvider>
+        <RouterProvider router={router} />
+      </ConnectionProvider>
     </ThemeProvider>
 
     <ReactQueryDevtools />

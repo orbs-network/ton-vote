@@ -4,8 +4,8 @@ import { create } from "zustand";
 import _ from "lodash";
 import { useGetSender } from "hooks";
 import { useClientsQuery } from "query/queries";
-import * as TonVoteContract from "ton-vote-npm";
-import { MetadataArgs } from "ton-vote-npm";
+import * as TonVoteContract from "ton-vote-sdk";
+import { MetadataArgs } from "ton-vote-sdk";
 import { showPromiseToast, toastTxMessage } from "toasts";
 
 const initialFormData: FormData = {
@@ -122,6 +122,9 @@ export const useCreateDao = () => {
       loading: "Transaction pending",
       success: "Dao created!",
     });
-    return promise;
+    const res = await promise;
+    console.log(res);
+    
+    return res
   });
 };

@@ -9,7 +9,7 @@ import {
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Address } from "ton-core";
-import { ProposalMetadata } from "ton-vote-npm";
+import { ProposalMetadata } from "ton-vote-sdk";
 import { ProposalStatus } from "types";
 import {
   makeElipsisAddress,
