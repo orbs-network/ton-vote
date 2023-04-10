@@ -4,7 +4,7 @@ import { ReactElement } from "react";
 import { styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton, Typography } from "@mui/material";
-import { CloseButton } from "./CloseButton";
+import { Container } from "./Container";
 interface Props {
   children: ReactElement;
   close?: () => void;
@@ -22,43 +22,71 @@ export const Popup = ({
 }: Props) => {
   return (
     <StyledModal open={open} onClose={close} className={className}>
-      <StyledChildren className="children">
-        {close && <CloseButton close={close} />}
-        {title && (
-          <Typography variant="h3" className="popup-title">
-            {title}
-          </Typography>
-        )}
+      <StyledChildren
+        className="children"
+        title={title}
+        headerChildren={close && <CloseButton close={close} />}
+      >
         {children}
       </StyledChildren>
     </StyledModal>
   );
-}
+};
 
-const StyledChildren = styled(Box)(({ theme }) => ({
+const StyledChildren = styled(Container)(({ theme }) => ({
+ 
+  ".container-header": {
+    alignItems: "center",
+  },
   boxShadow: "0px 0px 25px 0px rgb(0 0 0 / 10%)",
   position: "relative",
-  padding: "50px 20px 40px 20px",
-  background: 'white',
+  padding: "20px 20px 40px 20px",
   width: "fit-content",
   height: "fit-content",
-    outline:'unset',
-  border:'unset',
+  outline: "unset",
+  border: "unset",
   borderRadius: 10,
   ".popup-title": {
     fontSize: 18,
     fontWeight: 600,
     textAlign: "center",
-    marginBottom: 20,
   },
 }));
 
 const StyledModal = styled(Modal)({
+  backdropFilter: "blur(5px)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   padding: 20,
-  outline:'unset',
-  border:'unset'
+  outline: "unset",
+  border: "unset",
 });
 
+export function CloseButton({
+  close,
+  className = "",
+}: {
+  close: () => void;
+  className?: string;
+}) {
+  return (
+    <StyledClose className={className} onClick={close}>
+      <GrClose style={{ width: 15, height: 15 }} />
+    </StyledClose>
+  );
+}
+
+const StyledClose = styled(IconButton)({
+  background: "transparent",
+  border: "unset",
+  cursor: "pointer",
+  svg: {
+    stroke: "black",
+
+    "*": {
+      color: "inherit",
+      stroke: "inherit",
+    },
+  },
+});

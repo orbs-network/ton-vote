@@ -8,45 +8,19 @@ import {
 } from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress } from "hooks";
-import { useCreateProposal } from "query/mutations";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { ProposalMetadata } from "ton-vote-sdk";
 import { FormData, FormSchema, useInputs } from "./form";
-import { useCreateProposalStore } from "./store";
+import { useCreateProposal, useCreateProposalStore } from "./store";
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
-import { showErrorToast } from "toasts";
+import moment from "moment";
 
 function CreateProposal() {
-  const { mutate: createProposal, isLoading, error } = useCreateProposal();
-
-  console.log('useCreateProposal',error);
+  const { mutate: createProposal, isLoading } = useCreateProposal();
   
   const daoAddress = useDaoAddress();
   const { formData, setFormData, preview } = useCreateProposalStore();
-
-  const onCreate = (values: FormData) => {
-
-    if (values.proposalSnapshotTime! >= values.proposalStartTime!) {
-      showErrorToast(
-        "Proposal snapshot time must be less than proposal start time"
-      );
-      return;
-    }
-    if (values.proposalStartTime! >= values.proposalEndTime!) {
-      showErrorToast("Proposal start time must be less than proposal end time");
-      return;
-    }
-    const proposalMetadata: ProposalMetadata = {
-      proposalStartTime: BigInt(values.proposalStartTime! / 1000),
-      proposalEndTime: BigInt(values.proposalEndTime! / 1000),
-      proposalSnapshotTime: BigInt(values.proposalSnapshotTime! / 1000),
-      votingPowerStrategy: BigInt(1),
-      proposalType: BigInt(1),
-    };
-    createProposal({ daoAddr: daoAddress, proposalMetadata });
-  };
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -57,7 +31,8 @@ function CreateProposal() {
       title: formData.title,
     },
     validationSchema: FormSchema,
-    onSubmit: (values) => onCreate(values),
+    onSubmit: (formValues) =>
+      createProposal({ formValues, daoAddr: daoAddress }),
     validateOnChange: false,
     validateOnBlur: true,
   });
@@ -84,11 +59,24 @@ function CreateProposal() {
 
 export { CreateProposal };
 
+const formatTime = (millis?: number) => moment(millis).format('DD/MM/YYYY HH:mm');
+
 const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
   return (
     <StyledPreview>
-      <Typography variant="h2" className="title">{formik?.values.title}</Typography>
-      <ReactMarkdown>{formik?.values.description || ''}</ReactMarkdown>
+      <Typography variant="h2" className="title">
+        {formik?.values.title}
+      </Typography>
+      <ReactMarkdown>{formik?.values.description || ""}</ReactMarkdown>
+      <Typography>
+        Start: {formatTime(formik?.values.proposalStartTime)}
+      </Typography>
+      <Typography>
+        End: {formatTime(formik?.values.proposalEndTime)}
+      </Typography>
+      <Typography>
+        Snapshot: {formatTime(formik?.values.proposalSnapshotTime)}
+      </Typography>
     </StyledPreview>
   );
 };

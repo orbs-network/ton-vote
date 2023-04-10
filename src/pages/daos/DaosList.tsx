@@ -3,7 +3,7 @@ import { Button, Container, List, Loader, LoadMore } from "components";
 import _ from "lodash";
 import { useDaoMetadataQuery, useDaosQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 import {
@@ -27,9 +27,11 @@ export function DaosList() {
 
   return (
     <Container
-      title="Spaces"
+      title="Daos"
       headerChildren={
-        <Button onClick={navigation.createSpace.root}>Create</Button>
+        <Button onClick={navigation.createSpace.root}>
+          <Typography style={textOverflow}>Create Dao</Typography>
+        </Button>
       }
     >
       <StyledFlexColumn>
@@ -37,7 +39,9 @@ export function DaosList() {
           isLoading={isLoading}
           isEmpty={!!emptyList}
           loader={<ListLoader />}
-          emptyComponent={<StyledEmptyList>There are no Daos yet</StyledEmptyList>}
+          emptyComponent={
+            <StyledEmptyList>There are no Daos yet</StyledEmptyList>
+          }
         >
           <StyledDaosList>
             {data?.pages?.map((page) => {

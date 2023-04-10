@@ -11,18 +11,18 @@ import Socials from "./Socials";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
-  const { data: dao, isLoading } = useDaoMetadataQuery(daoAddresses, true);
+  const { data: metadata, isLoading } = useDaoMetadataQuery(daoAddresses, true);
 
   return (
     <StyledContainer>
       <StyledTop>
-        <StyledLogo src={dao?.avatar} />
+        <StyledLogo src={metadata?.avatar} />
 
         <StyledTitleLoader
           isLoading={isLoading}
           component={
             <Typography variant="h2" className="title">
-              {dao?.name}
+              {metadata?.name}
             </Typography>
           }
         />
@@ -30,7 +30,12 @@ export function DaoMenu() {
         <StyledJoin disabled={isLoading}>Join</StyledJoin>
       </StyledTop>
       <Navigation />
-      <StyledSocials github="/" twitter="/" />
+      <StyledSocials
+        github={metadata?.github}
+        twitter={metadata?.twitter}
+        website={metadata?.website}
+        
+      />
     </StyledContainer>
   );
 }

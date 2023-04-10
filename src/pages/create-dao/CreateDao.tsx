@@ -2,7 +2,7 @@ import { Box, styled } from "@mui/material";
 import { Page } from "components";
 import { routes } from "consts";
 import { StyledFlexRow } from "styles";
-import { SideMenu } from "./SideMenu";
+import { CreateDaoMenu } from "./SideMenu";
 import { steps } from "./steps";
 import { useCreatDaoStore } from "./store";
 
@@ -20,7 +20,7 @@ export function CreateDao() {
   return (
     <Page back={routes.spaces}>
       <StyledContainer>
-        <SideMenu />
+        <CreateDaoMenu />
         <SelectedStep />
       </StyledContainer>
     </Page>

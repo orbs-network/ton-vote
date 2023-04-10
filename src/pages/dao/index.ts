@@ -1,4 +1,4 @@
 export * from './DaoPage'
 export * from "./About";
-export * from './DaoProposals/DaoProposals'
+export * from './ProposalsList/ProposalsList'
 export * from "./CreateProposal/CreateProposal";

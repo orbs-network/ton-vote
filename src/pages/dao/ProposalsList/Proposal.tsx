@@ -84,29 +84,18 @@ export const ProposalComponent = ({
           <StyledProposalContent className="container">
             <StyledFlexColumn alignItems="flex-start">
               <StyledFlexRow justifyContent="space-between">
-                <StyledTitleLoader
-                  isLoading={isLoading}
-                  component={<Typography className="title">Title</Typography>}
-                />
+                <Typography className="title">Title</Typography>
                 <Chip
                   label={getProposalStatusText(status)}
                   className="status"
                   color="primary"
                 />
               </StyledFlexRow>
-              <StyledOwnerLoader
-                isLoading={isLoading}
-                component={
-                  <StyledProposalOwner>
-                    Owner: {makeElipsisAddress(roles?.owner, 8)}
-                  </StyledProposalOwner>
-                }
-              />
+              <StyledProposalOwner>
+                Owner: {makeElipsisAddress(roles?.owner, 8)}
+              </StyledProposalOwner>
 
-              <StyledDescriptionLoader
-                isLoading={isLoading}
-                component={<StyledDescription>Description</StyledDescription>}
-              />
+              <StyledDescription>Description</StyledDescription>
 
               {status !== ProposalStatus.CLOSED && proposalMetadata && (
                 <Time proposalMetadata={proposalMetadata} status={status} />
@@ -125,20 +114,6 @@ const StyledContainer = styled(Loader)({
   width: "100%",
 });
 
-const StyledTitleLoader = styled(Loader)({
-  maxWidth: "30%",
-});
-const StyledDescriptionLoader = styled(Loader)({
-  maxWidth: "70%",
-});
-
-const StyledResultsLoader = styled(Loader)({
-  maxWidth: "70%",
-});
-
-const StyledOwnerLoader = styled(Loader)({
-  maxWidth: "50%",
-});
 
 const Results = ({ address }: { address: string }) => {
   const results = useProposalStateQuery(address).data?.results;

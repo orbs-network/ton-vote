@@ -18,11 +18,9 @@ import { DaoRoles, ProposalState, ProposalStatus } from "types";
 import { getProposalStatus, Logger } from "utils";
 import * as TonVoteSDK from "ton-vote-sdk";
 import { Address } from "ton-core";
-import * as mock from "mock";
 import _ from "lodash";
-import { useConnection } from "ConnectionProvider";
 
-export const useDaoMetadataQuery = (daoAddress: string, enabled: boolean) => {
+export const useDaoMetadataQuery = (daoAddress: string, enabled?: boolean) => {
   const isCustomEndpoint = useIsCustomEndpoint();
   const queryKey = useGetQueryKey([QueryKeys.DAO_METADATA, daoAddress]);
   const clientV2 = useClientsQuery()?.clientV2;
@@ -36,7 +34,7 @@ export const useDaoMetadataQuery = (daoAddress: string, enabled: boolean) => {
     },
     {
       staleTime: Infinity,
-      enabled: !!clientV2 && !!daoAddress && enabled,
+      enabled: !!clientV2 && !!daoAddress && !!enabled,
     }
   );
 };
@@ -48,11 +46,9 @@ export const useDaosQuery = () => {
 
   return useInfiniteQuery({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       if (isCustomEndpoint) {
         const nextPage = pageParam ? Number(pageParam) : undefined;
-        console.log({ nextPage });
-        
         return TonVoteSDK.getDaos(clientV2!, nextPage, DAOS_LIMIT);
       }
       return server.getDaos();
@@ -70,9 +66,8 @@ export const useAddDao = () => {
   return (daoAddress: string) => {
     const daos = queryClient.getQueryData(queryKey) as any;
 
-    if(!daos) return;
-    
-    
+    if (!daos) return;
+
     daos.pages[0].daoAddresses.unshift(daoAddress);
     queryClient.setQueryData(queryKey, daos);
   };
@@ -109,18 +104,15 @@ export const useDaoRolesQuery = (daoAddress: string) => {
 };
 
 export const useDaoProposalsQuery = (daoAddress: string) => {
-  
   const isCustomEndpoint = useIsCustomEndpoint();
 
   const queryKey = useGetQueryKey([QueryKeys.PROPOSALS, daoAddress]);
   const clientV2 = useClientsQuery()?.clientV2;
 
-  
-
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const nextPage = pageParam ? Number(pageParam) : undefined;      
+      const nextPage = pageParam ? Number(pageParam) : undefined;
       if (isCustomEndpoint) {
         return TonVoteSDK.getDaoProposals(
           clientV2!,
@@ -189,6 +181,8 @@ export const useProposalStateQuery = (
   proposalAddress: string,
   refetchInterval: number = STATE_REFETCH_INTERVAL
 ) => {
+  console.log(Address.isAddress(proposalAddress));
+
   const endpointModal = useEnpointModal();
   const isCustomEndpoint = useIsCustomEndpoint();
   const proposalStatus = useProposalStatusQuery(proposalAddress);

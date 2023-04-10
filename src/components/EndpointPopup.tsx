@@ -99,9 +99,12 @@ export function EndpointPopup() {
   };
 
   return (
-    <Popup open={endpointModal.show} close={onClose}>
+    <Popup
+      open={endpointModal.show}
+      close={onClose}
+      title="RPC endpoint settings"
+    >
       <StyledContent>
-        <StyledTitle variant="h4">RPC endpoint settings</StyledTitle>
         {endpointModal.error && (
           <StyledError>
             <Typography>Endpoint Error: Insert different endpoints</Typography>

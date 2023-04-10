@@ -1,7 +1,7 @@
 import { Link as MuiLink, styled, Typography, useTheme } from "@mui/material";
 import React, { HTMLAttributeAnchorTarget, ReactNode } from "react";
 import {BiLinkExternal} from 'react-icons/bi'
-import { textOverflow } from "styles";
+import { StyledFlexRow, textOverflow } from "styles";
 
 export function Link({
   children,
@@ -16,7 +16,7 @@ export function Link({
 }) {
   const theme = useTheme();
   return (
-    <StyledLink className={className} href={href} target={target}>
+    <StyledLink  className={className} href={href} target={target}>
       <Typography style={{...textOverflow}}>{children}</Typography>
       <BiLinkExternal
         style={{
@@ -30,12 +30,10 @@ export function Link({
 }
 
 
-
 const StyledLink = styled('a')({
   width: "100%",
-  display: "flex",
-  alignItems: "center",
   gap: 5,
   textDecoration: "unset",
-
+  display:'flex',
+  alignItems:'center'
 });

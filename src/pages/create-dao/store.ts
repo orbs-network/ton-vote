@@ -6,7 +6,7 @@ import { useGetSender } from "hooks";
 import { useAddDao, useClientsQuery } from "query/queries";
 import * as TonVoteContract from "ton-vote-sdk";
 import { MetadataArgs } from "ton-vote-sdk";
-import { showPromiseToast, toastTxMessage } from "toasts";
+import { showPromiseToast } from "toasts";
 import { useAppNavigation } from "router";
 
 const initialFormData: FormData = {
@@ -82,7 +82,6 @@ export const useCreateDaoMetadata = () => {
 
       showPromiseToast({
         promise,
-        loading: toastTxMessage(),
         success: "Metadata created!",
       });
       const address = await promise;
@@ -90,6 +89,8 @@ export const useCreateDaoMetadata = () => {
         nextStep();
         setFormData(values);
         setMetadataAddress(address);
+      } else {
+        throw new Error("Something went wrong");
       }
     },
     {
@@ -104,7 +105,7 @@ export const useCreateDao = () => {
   const getSender = useGetSender();
   const clientV2 = useClientsQuery()?.clientV2;
   const appNavigation = useAppNavigation();
-  const addDao = useAddDao();
+  const unshiftDao = useAddDao();
   const {
     formData: { ownerAddress, proposalOwner },
     metadataAddress,
@@ -128,10 +129,10 @@ export const useCreateDao = () => {
     });
     const address = await promise;
     if (Address.isAddress(address)) {
-      addDao(address.toString());
+      unshiftDao(address.toString());
       appNavigation.daoPage.root(address.toString());
     } else {
-      throw new Error("Dao address is not valid");
+      throw new Error("Something went wrong");
     }
   });
 };

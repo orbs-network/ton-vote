@@ -1,31 +1,47 @@
-import { Fade, Typography } from "@mui/material";
-import { Container, FadeElement, Link, Page } from "components";
+import { Fade, styled, Typography } from "@mui/material";
+import { Container, FadeElement, Link } from "components";
 import { useDaoAddress } from "hooks";
-import { useDaoRolesQuery } from "query/queries";
+import {  useDaoRolesQuery } from "query/queries";
 import React from "react";
-import { StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { getTonScanContractUrl } from "utils";
 
 export function About() {
   const daoAddress = useDaoAddress();
-  const {data} = useDaoRolesQuery(daoAddress);
+  const { data: roles } = useDaoRolesQuery(daoAddress);
+
   return (
     <FadeElement>
       <Container title="About">
-        <StyledFlexRow>
-          <Typography>Dao Owner:</Typography>
-          {data && (
-            <Link href={getTonScanContractUrl(data.owner)}>{data.owner} </Link>
-          )}
-        </StyledFlexRow>
-        <StyledFlexRow>
-          <Typography>Proposal Owner:</Typography>
-          <Typography>{data?.proposalOwner}</Typography>
-        </StyledFlexRow>
+        <StyledFlexColumn gap={20}>
+          <StyledSection>
+            <Typography>Dao Owner:</Typography>
+            {roles && (
+              <StyledLink href={getTonScanContractUrl(roles.owner)}>
+                {roles.owner}
+              </StyledLink>
+            )}
+          </StyledSection>
+          <StyledSection>
+            <Typography>Proposal Owner:</Typography>
+            {roles && (
+              <StyledLink href={getTonScanContractUrl(roles?.proposalOwner)}>
+                {roles?.proposalOwner}
+              </StyledLink>
+            )}
+          </StyledSection>
+        </StyledFlexColumn>
       </Container>
     </FadeElement>
   );
 }
 
+const StyledSection = styled(StyledFlexRow)({
+  gap: 30,
+  justifyContent: "flex-start",
+});
 
-
+const StyledLink = styled(Link)({
+  width: 300,
+  ...textOverflow,
+});

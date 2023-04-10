@@ -20,7 +20,7 @@ function Layout() {
       </StyledContainer>
       <ScrollTop />
       <EndpointPopup />
-      <Toaster />
+      <Toaster  />
     </QueryParamProvider>
   );
 }

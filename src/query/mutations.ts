@@ -3,55 +3,17 @@ import analytics from "analytics";
 import { useDaoAddress, useGetSender } from "hooks";
 import { getContractState } from "lib";
 import _ from "lodash";
-import { Address } from "ton-core";
-import { MetadataArgs, getProposalInfo, ProposalMetadata } from "ton-vote-sdk";
+import TonConnect from "@tonconnect/sdk";
+import { Address, beginCell, Cell, toNano } from "ton-core";
+import { getProposalInfo, ProposalMetadata } from "ton-vote-sdk";
 import { ProposalState } from "types";
 import { Logger } from "utils";
 import { useClientsQuery, useProposalStateQuery } from "./queries";
-import * as TonVoteContract from "ton-vote-sdk";
+import * as TonVoteSDK from "ton-vote-sdk";
 import { showPromiseToast } from "toasts";
 import { useAppNavigation } from "router";
-
-export const useCreateProposal = () => {
-  const daoAddress = useDaoAddress()
-  const getSender = useGetSender();
-  const clientV2 = useClientsQuery()?.clientV2;
-  const appNavigation = useAppNavigation();
-
-  return useMutation(
-    async ({
-      daoAddr,
-      proposalMetadata,
-    }: {
-      daoAddr: string;
-      proposalMetadata: ProposalMetadata;
-    }) => {
-      const sender = getSender();
-
-      const promise = TonVoteContract.newProposal(
-        sender,
-        clientV2!,
-        Address.parse(daoAddr),
-        proposalMetadata
-      );
-
-      showPromiseToast({
-        promise,
-        loading: "Create proposal transaction pending...",
-        success: "Proposal created",
-      });
-
-      const address = await promise;
-      console.log({ address });
-      
-      if (Address.isAddress(address)) {
-        appNavigation.proposalPage.root(daoAddress, address.toString());
-      } else {
-        throw new Error("Proposal address is not valid");
-      }
-    }
-  );
-};
+import { TON_CONNECTOR, TX_FEE } from "config";
+import TonWeb from "tonweb";
 
 export const useVerifyProposalResults = (proposalAddress: string) => {
   const clients = useClientsQuery();
@@ -87,12 +49,16 @@ export const useVerifyProposalResults = (proposalAddress: string) => {
   });
 };
 
-export const useVote = () => {
+export const useVote = (proposalAddress: string) => {
   const getSender = useGetSender();
-  return useMutation(async () => {
-    const sender = getSender();
-    return null;
-  });
+  return useMutation(
+    async (vote: string) => {
+      const sender = getSender;
+    },
+    {
+      onError: (error) => console.log(error),
+    }
+  );
 };
 
 export const useJoinDao = () => {

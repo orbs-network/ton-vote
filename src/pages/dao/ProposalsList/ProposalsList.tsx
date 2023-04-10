@@ -3,7 +3,7 @@ import { List, FadeElement, Loader, LoadMore, Select } from "components";
 import { PROPOSALS_LIMIT } from "config";
 import { useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
-import { useDaoProposalsQuery, useDaoRolesQuery } from "query/queries";
+import { useDaoProposalsQuery } from "query/queries";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router";
@@ -28,11 +28,10 @@ const options: Option[] = [
   { text: "Not started", value: ProposalStatus.NOT_STARTED },
 ];
 
-export function DaoProposals() {
+export function ProposalsList() {
   const daoAddress = useDaoAddress();
-  
-  const { data, isLoading, error } = useDaoProposalsQuery(daoAddress);
-    console.log({ data });
+
+  const { data, isLoading } = useDaoProposalsQuery(daoAddress);
 
   const [queryParamState] = useFilterValue();
 

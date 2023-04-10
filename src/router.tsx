@@ -5,10 +5,10 @@ import {
   ProposalPage,
   DaoPage,
   About as DaoAbout,
-  DaoProposals,
+  ProposalsList,
   CreateProposal,
   DaosPage,
-  CreateDao
+  CreateDao,
 } from "pages";
 import { SpaceMenuLayout } from "pages/dao/SpaceMenuLayout";
 import { createBrowserRouter, useNavigate } from "react-router-dom";
@@ -80,7 +80,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <DaoProposals />,
+                element: <ProposalsList />,
               },
               {
                 path: routes.spaceAbout,

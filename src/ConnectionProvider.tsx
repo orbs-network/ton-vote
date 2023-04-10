@@ -84,19 +84,18 @@ const ConnectionProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const connect = useCallback((wallet: any) => {
+  const connect = useCallback( (wallet: any) => {
     try {
       try {
         const walletConnectionSource = {
           jsBridgeKey: wallet.jsBridgeKey,
         };
-        TON_CONNECTOR.connect(walletConnectionSource);
+         TON_CONNECTOR.connect(walletConnectionSource);
       } catch (error) {
         const walletConnectionSource = {
           universalLink: wallet.universalLink,
           bridgeUrl: wallet.bridgeUrl,
         };
-
         return TON_CONNECTOR.connect(walletConnectionSource);
       }
     } catch (error) {

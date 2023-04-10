@@ -1,12 +1,12 @@
 import { styled, Typography, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
-import { Container } from "components";
+import { SideMenu } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsCheckLg } from "react-icons/bs";
 import { useCreatDaoStore } from "./store";
 import { steps } from "./steps";
 
-function SideMenu() {
+export function CreateDaoMenu() {
   const { step: currentStep, setStep } = useCreatDaoStore();
   const theme = useTheme();
   const onStepSelect = (index: number) => {
@@ -84,10 +84,8 @@ const StyledStep = styled(StyledFlexRow)({
   position: "relative",
 });
 
-const StyledContainer = styled(Container)({
-  width: 320,
-  position: "sticky",
-  top: 100,
+const StyledContainer = styled(SideMenu)({
+
 });
 
-export {};
+

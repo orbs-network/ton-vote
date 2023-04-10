@@ -1,7 +1,6 @@
 import { IconButton, styled } from "@mui/material";
 import _ from "lodash";
-import { ReactNode } from "react";
-import toast, { Toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import { StyledFlexRow } from "styles";
 export function showPromiseToast<T>(args: {
@@ -10,11 +9,12 @@ export function showPromiseToast<T>(args: {
   success: string;
   error?: string;
 }) {
+  toast.dismiss();
+
   toast.promise(
     args.promise,
     {
-    
-      loading: args.loading || "Loading",
+      loading: args.loading || "Transaction pending",
       success: () => <ToastContent message={args.success} />,
       error: (err) => {
         const error = args.error || getErrorText(err);
@@ -29,7 +29,7 @@ export function showPromiseToast<T>(args: {
       error: {
         duration: 125000,
       },
-      position: "top-right",
+      position: 'top-center',
     }
   );
 }
@@ -39,6 +39,8 @@ export const toastTxMessage = (message?: string) => {
 };
 
 export const showErrorToast = (message: string) => {
+  toast.dismiss();
+
   toast.error((t) => <ToastContent message={message} id={t.id} />, {
     duration: 5000,
   });

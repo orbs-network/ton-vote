@@ -4,7 +4,7 @@ import { Container, Button, TxReminderPopup, ConnectButton } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { APPROVE_TX, TX_APPROVED_AND_PENDING, voteOptions } from "config";
+import { TX_APPROVED_AND_PENDING, voteOptions } from "config";
 import { useVoteStore } from "./store";
 import { ProposalStatus } from "types";
 import { useProposalStatusQuery } from "query/queries";
@@ -15,9 +15,9 @@ import { useConnection } from "ConnectionProvider";
 export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
-  const { mutate, isLoading } = useVote();
   const proposalAddress = useProposalAddress()
   const proposalStatus = useProposalStatusQuery(proposalAddress);
+  const { mutate, isLoading } = useVote(proposalAddress);
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -25,7 +25,7 @@ export function Vote() {
 
   const onSubmit = () => {
     if (!vote) return;
-    mutate();
+    mutate(vote);
   };
 
   if (proposalStatus !== ProposalStatus.ACTIVE) return null;
