@@ -16,11 +16,10 @@ import { Logger, parseVotes } from "utils";
 import * as mock from "mock";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT } from "config";
-import { useAppPersistedStore } from "store";
 import { ProposalMetadata } from "ton-vote-sdk";
 
 const axiosInstance = axios.create({
-  baseURL: "https://dao-vote-cache-server.herokuapp.com",
+  baseURL: "https://ton-vote-cache-server.herokuapp.com",
 });
 
 const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
