@@ -1,13 +1,8 @@
 import {
-  ClickAwayListener,
-  Fade,
+
   IconButton,
-  ListItemIcon,
-  ListItemText,
   Menu,
   MenuItem,
-  Popover,
-  Popper,
   styled,
   Typography,
   useMediaQuery,
@@ -16,17 +11,12 @@ import { Box } from "@mui/system";
 import {
   Button,
   ConnectButton,
-  Container,
-  FadeElement,
   Github,
 } from "components";
-import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
+import {StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
 import LogoImg from "assets/logo.svg";
-import { FiSettings } from "react-icons/fi";
-import { IoLogOutOutline } from "react-icons/io5";
-import { RiRouteFill } from "react-icons/ri";
 import { useEnpointModal } from "store";
 import analytics from "analytics";
 import { useAppNavigation } from "router";
@@ -34,7 +24,7 @@ import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
 import useCopyToClipboard from "hooks";
 import { GoSettings } from "react-icons/go";
-import { showSuccessToast, showToast } from "toasts";
+import { showSuccessToast } from "toasts";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -48,7 +38,7 @@ export function Navbar() {
             <Typography>VOTE</Typography>
           </StyledLogo>
           <StyledFlexRow style={{ width: "fit-content" }}>
-            <Settings />
+           
             <Wallet />
             {!mobile && <Github />}
           </StyledFlexRow>
@@ -186,27 +176,5 @@ const StyledContainer = styled(StyledFlexRow)({
 
 /// setings component
 
-const Settings = () => {
-  const { address, disconnect } = useConnection();
-  const endpointModal = useEnpointModal();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
-    setAnchorEl(event.currentTarget);
-
-  const handleClose = () => setAnchorEl(null);
-
-  const showPopup = () => {
-    analytics.GA.endpointSettingsClick();
-    endpointModal.setShow(true);
-    handleClose();
-  };
-
-  return (
-    <IconButton onClick={showPopup}>
-      <GoSettings />
-    </IconButton>
-  );
-};
 

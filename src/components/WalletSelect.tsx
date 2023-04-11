@@ -67,7 +67,7 @@ export function WalletSelect({ open, close }: Props) {
         setSelectedWallet,
       }}
     >
-      <StyledPopup open={open} close={onPopupClose} title={title}>
+      <StyledPopup open={open} onClose={onPopupClose} title={title}>
         {!sessionUrl ? <WalletList /> : <QR />}
       </StyledPopup>
     </Context.Provider>

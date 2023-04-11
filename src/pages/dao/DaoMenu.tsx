@@ -3,7 +3,7 @@ import { Button, Loader, Img, SideMenu } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
-import { useDaoMetadataQuery } from "query/queries";
+import { useDaoQuery } from "query/queries";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
@@ -11,18 +11,18 @@ import Socials from "./Socials";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
-  const { data: metadata, isLoading } = useDaoMetadataQuery(daoAddresses, true);
+  const { data: dao, isLoading } = useDaoQuery(daoAddresses, true);
 
   return (
     <StyledContainer>
       <StyledTop>
-        <StyledLogo src={metadata?.avatar} />
+        <StyledLogo src={dao?.daoMetadata?.avatar} />
 
         <StyledTitleLoader
           isLoading={isLoading}
           component={
             <Typography variant="h2" className="title">
-              {metadata?.name}
+              {dao?.daoMetadata?.name}
             </Typography>
           }
         />
@@ -31,10 +31,9 @@ export function DaoMenu() {
       </StyledTop>
       <Navigation />
       <StyledSocials
-        github={metadata?.github}
-        twitter={metadata?.twitter}
-        website={metadata?.website}
-        
+        github={dao?.daoMetadata?.github}
+        twitter={dao?.daoMetadata?.twitter}
+        website={dao?.daoMetadata?.website}
       />
     </StyledContainer>
   );

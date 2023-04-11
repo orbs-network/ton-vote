@@ -33,10 +33,11 @@ export function ProposalsList() {
 
   const { data, isLoading } = useDaoProposalsQuery(daoAddress);
 
+  console.log({ data });
+  
   const [queryParamState] = useFilterValue();
 
-  const emptyList =
-    data && _.size(_.first(data.pages)?.proposalAddresses) === 0;
+  const emptyList = !isLoading && !_.size(_.first(data?.pages))
 
   return (
     <FadeElement>
@@ -52,19 +53,19 @@ export function ProposalsList() {
             emptyComponent={<EmptyList />}
           >
             {data?.pages?.map((page) => {
-              return page.proposalAddresses?.map((address, index) => {
+              return page.proposals?.map((proposal, index) => {
                 return (
                   <ProposalComponent
                     filterValue={queryParamState as ProposalStatus | undefined}
-                    key={index}
-                    address={address}
+                    key={proposal.proposalAddr}
+                    proposal={proposal}
                   />
                 );
               });
             })}
           </List>
         </StyledFlexColumn>
-        <LoadMoreProposals />
+        <LoadMoreProposals emptyList={emptyList} />
       </StyledProposalsContainer>
     </FadeElement>
   );
@@ -104,14 +105,12 @@ const DaoFilter = () => {
   );
 };
 
-const LoadMoreProposals = () => {
+const LoadMoreProposals = ({ emptyList }: { emptyList: boolean }) => {
   const daoAddress = useDaoAddress();
   const { data, isLoading, fetchNextPage, isFetchingNextPage } =
     useDaoProposalsQuery(daoAddress);
   const loadMoreOnScroll = _.size(data?.pages) > 1 && !isFetchingNextPage;
-  const hide =
-    isLoading ||
-    _.size(_.last(data?.pages)?.proposalAddresses) < PROPOSALS_LIMIT;
+  const hide = emptyList ||  isLoading;
 
   return (
     <LoadMore

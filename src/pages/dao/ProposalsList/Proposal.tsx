@@ -2,23 +2,19 @@ import { Chip, Typography, Fade, styled } from "@mui/material";
 import { Loader } from "components";
 import { useDaoAddress } from "hooks";
 import _ from "lodash";
-import {
-  useProposalInfoQuery,
-  useProposalStatusQuery,
-  useDaoRolesQuery,
-  useProposalStateQuery,
-} from "query/queries";
+import { useDaoQuery } from "query/queries";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Address } from "ton-core";
 import { ProposalMetadata } from "ton-vote-sdk";
-import { ProposalResults, ProposalStatus } from "types";
+import { Proposal, ProposalStatus } from "types";
 import {
   makeElipsisAddress,
   getTimeDiff,
   nFormatter,
   getProposalStatusText,
   calculateTonAmount,
+  getProposalStatus,
 } from "utils";
 import {
   StyledDescription,
@@ -55,31 +51,30 @@ const Time = ({
 };
 
 export const ProposalComponent = ({
-  address,
+  proposal,
   filterValue,
 }: {
-  address: Address;
+  proposal: Proposal;
   filterValue?: ProposalStatus;
 }) => {
   const { proposalPage } = useAppNavigation();
   const daoAddress = useDaoAddress();
-
-  const { data: proposalState, isLoading } = useProposalStateQuery(
-    address.toString()
-  );
-  const status = useProposalStatusQuery(address.toString());
-  const { data: roles } = useDaoRolesQuery(address.toString());
-  const { data: proposalMetadata } = useProposalInfoQuery(address.toString());
+  // const status = useProposalStatusQuery(proposal.proposalAddr);
+  const status = getProposalStatus(proposal.metadata);
+  const roles = useDaoQuery(proposal.proposalAddr).data?.roles;
+  const { metadata } = proposal;
 
   if (filterValue && status && status !== filterValue) return null;
 
   return (
     <StyledContainer
-      isLoading={!status}
+      isLoading={false}
       loader={<StyledLoader />}
       component={
         <StyledProposal
-          onClick={() => proposalPage.root(daoAddress, address.toString())}
+          onClick={() =>
+            proposalPage.root(daoAddress, proposal.proposalAddr.toString())
+          }
         >
           <StyledProposalContent className="container">
             <StyledFlexColumn alignItems="flex-start">
@@ -97,11 +92,11 @@ export const ProposalComponent = ({
 
               <StyledDescription>Description</StyledDescription>
 
-              {status !== ProposalStatus.CLOSED && proposalMetadata && (
-                <Time proposalMetadata={proposalMetadata} status={status} />
+              {status !== ProposalStatus.CLOSED && metadata && (
+                <Time proposalMetadata={metadata} status={status} />
               )}
 
-              {status && <Results address={address.toString()} />}
+              {status && <Results address={proposal.proposalAddr} />}
             </StyledFlexColumn>
           </StyledProposalContent>
         </StyledProposal>
@@ -114,9 +109,8 @@ const StyledContainer = styled(Loader)({
   width: "100%",
 });
 
-
 const Results = ({ address }: { address: string }) => {
-  const results = useProposalStateQuery(address).data?.results;
+  const results = {} as any;
   return (
     <StyledFlexColumn gap={5}>
       <Result

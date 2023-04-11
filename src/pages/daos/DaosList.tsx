@@ -1,7 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import { Button, Container, List, Loader, LoadMore } from "components";
 import _ from "lodash";
-import { useDaoMetadataQuery, useDaosQuery } from "query/queries";
+import {  useDaosQuery } from "query/queries";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
@@ -15,16 +15,17 @@ import {
   StyledLoader,
 } from "./styles";
 import { useJoinDao } from "query/mutations";
-import { DAOS_LIMIT } from "config";
 import { makeElipsisAddress } from "utils";
+import { Dao } from "types";
 
 export function DaosList() {
-  const { data, isLoading } = useDaosQuery();
+  const { data, isLoading } = useDaosQuery();  
+
 
   const navigation = useAppNavigation();
 
-  const emptyList = data && _.size(_.first(data.pages)?.daoAddresses) === 0;
-
+  // const emptyList = data && _.size(_.first(data.pages)?.daoAddresses) === 0;
+  const emptyList = false
   return (
     <Container
       title="Daos"
@@ -45,8 +46,8 @@ export function DaosList() {
         >
           <StyledDaosList>
             {data?.pages?.map((page) => {
-              return page.daoAddresses?.map((address, index) => {
-                return <DaoListItem key={index} address={address.toString()} />;
+              return page.daos?.map((dao, index) => {
+                return <DaoListItem key={index} dao={dao} />;
               });
             })}
           </StyledDaosList>
@@ -60,51 +61,47 @@ export function DaosList() {
 
 const StyledEmptyList = styled(Typography)({
   fontSize: 18,
-  fontWeight: 700
-})
-
+  fontWeight: 700,
+});
 
 const LoadMoreDaos = () => {
-  const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage } = useDaosQuery();
-  
+  const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage } =
+    useDaosQuery();
 
   const loadMoreOnScroll = _.size(data?.pages) > 1 && !isFetchingNextPage;
-  const hide =
-    isLoading || _.size(_.last(data?.pages)?.daoAddresses) < DAOS_LIMIT;
-
+  
   return (
     <LoadMore
       showMore={fetchNextPage}
       isFetchingNextPage={isFetchingNextPage}
       loadMoreOnScroll={loadMoreOnScroll}
-      hide={hide}
+      hide={false}
     />
   );
 };
 
 const ListLoader = () => {
-  return <StyledDaosList>
-    {_.range(0, 4).map((it, i) => {
-      return (
-        <StyledDao key={i}>
-          <StyledLoader />
-        </StyledDao>
-      );
-    })}
-  </StyledDaosList>;
+  return (
+    <StyledDaosList>
+      {_.range(0, 4).map((it, i) => {
+        return (
+          <StyledDao key={i}>
+            <StyledLoader />
+          </StyledDao>
+        );
+      })}
+    </StyledDaosList>
+  );
 };
 
-export const DaoListItem = ({ address }: { address: string }) => {
+export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
   const { daoPage } = useAppNavigation();
   const { mutate } = useJoinDao();
-  const { data: daoMetadata, isLoading } = useDaoMetadataQuery(
-    address,
-    !!isVisible
-  );
+  const { daoMetadata } = dao;
 
-  const navigate = () => daoPage.root(address);
+  const navigate = () => daoPage.root(dao.address);
 
   const join = (e: any) => {
     e.stopPropagation();
@@ -117,18 +114,11 @@ export const DaoListItem = ({ address }: { address: string }) => {
         {isVisible ? (
           <StyledFlexColumn>
             <StyledDaoAvatar src={daoMetadata?.avatar} />
-            <Loader
-              isLoading={isLoading}
-              component={
-                <>
-                  <Typography className="title">{daoMetadata?.name}</Typography>
-                  <Typography className="address">
-                    {makeElipsisAddress(address, 6)}
-                  </Typography>
-                  <StyledJoinDao onClick={join}>Join</StyledJoinDao>
-                </>
-              }
-            />
+            <Typography className="title">{daoMetadata?.name}</Typography>
+            <Typography className="address">
+              {makeElipsisAddress(dao.address, 6)}
+            </Typography>
+            <StyledJoinDao onClick={join}>Join</StyledJoinDao>
           </StyledFlexColumn>
         ) : null}
       </StyledDaoContent>

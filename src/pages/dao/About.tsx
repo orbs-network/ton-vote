@@ -1,14 +1,14 @@
 import { Fade, styled, Typography } from "@mui/material";
 import { Container, FadeElement, Link } from "components";
 import { useDaoAddress } from "hooks";
-import {  useDaoRolesQuery } from "query/queries";
+import {  useDaoQuery } from "query/queries";
 import React from "react";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { getTonScanContractUrl } from "utils";
 
 export function About() {
   const daoAddress = useDaoAddress();
-  const { data: roles } = useDaoRolesQuery(daoAddress);
+  const roles = useDaoQuery(daoAddress).data?.roles;
 
   return (
     <FadeElement>

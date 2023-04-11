@@ -3,6 +3,7 @@ import {
   AppTooltip,
   Container,
   Link,
+  List,
   LoadMore,
   NumberDisplay,
 } from "components";
@@ -14,16 +15,14 @@ import { fromNano } from "ton";
 import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
-import {  useProposalVotes } from "./hooks";
-import { useProposalStateQuery } from "query/queries";
+import { useProposalStateQuery, useProposalVotes } from "./hooks";
 import { useProposalAddress } from "hooks";
 import { useConnection } from "ConnectionProvider";
 
 const ContainerHeader = () => {
   const { proposalVotes, isLoading } = useProposalVotes();
-  const proposalAddress = useProposalAddress()
-  const proposalResults =
-    useProposalStateQuery(proposalAddress).data?.results;
+  const proposalAddress = useProposalAddress();
+  const proposalResults = useProposalStateQuery(proposalAddress).data?.results;
 
   const totalTonAmount = proposalResults?.totalWeight || "0";
   const votesLength = _.size(proposalVotes);
@@ -74,7 +73,11 @@ export function Votes() {
       loaderAmount={3}
       headerChildren={<ContainerHeader />}
     >
-      {proposalVotes?.length ? (
+      <List
+        isLoading={isLoading}
+        isEmpty={!isLoading && !_.size(proposalVotes)}
+        emptyComponent={<StyledNoVotes>No votes yet</StyledNoVotes>}
+      >
         <StyledList gap={15}>
           <VoteComponent data={walletVote} />
           {proposalVotes?.map((vote, index) => {
@@ -82,9 +85,8 @@ export function Votes() {
             return <VoteComponent data={vote} key={vote.address} />;
           })}
         </StyledList>
-      ) : (
-        <StyledNoVotes>No votes yet</StyledNoVotes>
-      )}
+      </List>
+
       <LoadMore
         hide={isLoading || votesShowAmount >= proposalVotes?.length}
         loadMoreOnScroll={votesShowAmount > PAGE_SIZE}
@@ -94,10 +96,6 @@ export function Votes() {
     </StyledContainer>
   );
 }
-
-
-
-
 
 const VoteComponent = ({ data }: { data?: Vote }) => {
   const connectedAddress = useConnection().address;

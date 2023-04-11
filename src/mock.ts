@@ -58,11 +58,11 @@ const end = [
 
 export const getProposals = (): GetDaoProposals => {
   return {
-    endProposalId: BigInt(0),
+    endProposalId: 0,
     proposalAddresses: _.range(0, 5).map((e, i) => {
       const address = proposalAddresses[i]
 
-      return Address.parse(address!);
+      return address;
     }),
   };
 };

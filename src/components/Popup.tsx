@@ -7,25 +7,19 @@ import { IconButton, Typography } from "@mui/material";
 import { Container } from "./Container";
 interface Props {
   children: ReactElement;
-  close?: () => void;
+  onClose?: () => void;
   open: boolean;
   className?: string;
   title?: string;
 }
 
-export const Popup = ({
-  children,
-  close,
-  open,
-  className = "",
-  title,
-}: Props) => {
+export const Popup = ({ children, onClose, open, className = "", title }: Props) => {
   return (
-    <StyledModal open={open} onClose={close} className={className}>
+    <StyledModal open={open} onClose={onClose} className={className}>
       <StyledChildren
         className="children"
         title={title}
-        headerChildren={close && <CloseButton close={close} />}
+        headerChildren={onClose && <CloseButton close={onClose} />}
       >
         {children}
       </StyledChildren>

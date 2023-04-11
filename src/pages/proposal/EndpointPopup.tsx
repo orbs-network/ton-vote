@@ -1,4 +1,4 @@
-import { Box, Fade, Radio, styled, Typography } from "@mui/material";
+import { Box, Fade, IconButton, Radio, styled, Typography } from "@mui/material";
 import {
   CLIENT_V2_API_KEY,
   DEFAULT_CLIENT_V2_ENDPOINT,
@@ -7,19 +7,19 @@ import {
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Button } from "./Button";
-import { Popup } from "./Popup";
 import AnimateHeight from "react-animate-height";
-import { useAppPersistedStore, useEnpointModal } from "store";
 import { useMutation } from "@tanstack/react-query";
 import { EndpointsArgs, InputInterface } from "types";
 import analytics from "analytics";
-import { useIsCustomEndpoint } from "hooks";
-import { MapInput } from "./Inputs";
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { Button, MapInput, Popup } from "components";
+import { GoSettings } from "react-icons/go";
+import { useProposalPersistedStore } from "./store";
+import { useIsCustomEndpoint } from "./hooks";
+import { useEnpointsStore } from "store";
 
-export const FormSchema = Yup.object().shape({
+const FormSchema = Yup.object().shape({
   clientV2Endpoint: Yup.string().required("Required"),
   apiKey: Yup.string(),
   clientV4Endpoint: Yup.string().required("Required"),
@@ -49,10 +49,15 @@ interface FormData {
   clientV4Endpoint: string;
 }
 
-export function EndpointPopup() {
-  const store = useAppPersistedStore();
+function EndpointPopup({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const store = useEnpointsStore();
   const isCustomEndpoint = useIsCustomEndpoint();
-  const setEndpoints = useAppPersistedStore((store) => store.setEndpoints);
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -68,7 +73,7 @@ export function EndpointPopup() {
         values.clientV2Endpoint,
         values.clientV4Endpoint
       );
-      setEndpoints({
+      store.setEndpoints({
         clientV2Endpoint: values.clientV2Endpoint,
         clientV4Endpoint: values.clientV4Endpoint,
         apiKey: values.apiKey,
@@ -77,39 +82,23 @@ export function EndpointPopup() {
   });
   const [customSelected, setCustomSelected] = useState(false);
 
-  const endpointModal = useEnpointModal();
-
   useEffect(() => {
     setCustomSelected(!!isCustomEndpoint);
-  }, [isCustomEndpoint, endpointModal.error]);
+  }, [isCustomEndpoint, open]);
 
-  const onSubmit = async () => {    
+  const onSubmit = async () => {
     if (!customSelected) {
       analytics.GA.selectDefaultEndpointsClick();
-      setEndpoints(undefined);
+      store.setEndpoints(undefined);
     } else {
       formik.handleSubmit();
     }
     onClose();
   };
 
-  const onClose = () => {
-    endpointModal.setError(false);
-    endpointModal.setShow(false);
-  };
-
   return (
-    <Popup
-      open={endpointModal.show}
-      close={onClose}
-      title="RPC endpoint settings"
-    >
+    <Popup open={open} onClose={onClose} title="RPC endpoint settings">
       <StyledContent>
-        {endpointModal.error && (
-          <StyledError>
-            <Typography>Endpoint Error: Insert different endpoints</Typography>
-          </StyledError>
-        )}
         <StyledFlexColumn gap={5} style={{ marginBottom: 20 }}>
           <StyledRadio>
             <Radio
@@ -153,18 +142,35 @@ export function EndpointPopup() {
 }
 
 export const useUpdateEndpoints = () => {
-  const setEndpoints = useAppPersistedStore((store) => store.setEndpoints);
+  const setEndpoints = useEnpointsStore((store) => store.setEndpoints);
 
   return useMutation(async (args?: EndpointsArgs) => setEndpoints(args));
 };
 
-const StyledError = styled(Box)({
-  p: {
-    color: "red",
-    fontSize: 14,
-    fontWeight: 500,
-  },
-});
+export const CustomEndpointButton = () => {
+  const [open, setOpen] = useState(false);
+
+  const showPopup = () => {
+    analytics.GA.endpointSettingsClick();
+    setOpen(true);
+  };
+
+  return (
+    <>
+      <StyledSettingsButton onClick={showPopup}>
+        <GoSettings />
+      </StyledSettingsButton>
+      <EndpointPopup open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+};
+
+const StyledSettingsButton = styled(Button)({
+  borderRadius:'50%',
+  width: 40,
+  height: 40,
+  padding: 0
+})
 
 const StyledCustomEndpoints = styled(StyledFlexColumn)({
   paddingBottom: 30,
@@ -181,10 +187,6 @@ const StyledRadio = styled(StyledFlexRow)({
 const StyledContent = styled(StyledFlexColumn)({
   width: "calc(100vw - 80px)",
   maxWidth: 500,
-});
-
-const StyledTitle = styled(Typography)({
-  marginBottom: 10,
 });
 
 const StyledSaveButton = styled(Button)({

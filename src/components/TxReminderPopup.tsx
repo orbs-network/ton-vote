@@ -5,17 +5,16 @@ import { Popup } from "./Popup";
 
 export function TxReminderPopup({
   open,
-  close,
+  onClose,
   text,
 }: {
   open: boolean;
-  close: () => void;
+  onClose: () => void;
   text: string;
 }) {
-
   if (!text) return null;
   return (
-    <Popup open={open} close={close}>
+    <Popup open={open} onClose={onClose}>
       <StyledContainer>
         <Typography>{text}</Typography>
         <CircularProgress />

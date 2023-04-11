@@ -31,7 +31,6 @@ export { Back };
 
 const StyledContainer = styled(StyledFlexRow)({
   justifyContent: "flex-start",
-  marginBottom: 20,
   cursor: "pointer",
   width: "fit-content",
 });

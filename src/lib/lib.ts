@@ -1,4 +1,3 @@
-import { useAppPersistedStore } from "store";
 import { TonClient, TonClient4 } from "ton";
 import { Address } from "ton-core";
 import * as TonVoteContract from "ton-vote-sdk";

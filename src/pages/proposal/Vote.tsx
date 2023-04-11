@@ -1,6 +1,12 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
-import { Container, Button, TxReminderPopup, ConnectButton } from "components";
+import {
+  Container,
+  Button,
+  TxReminderPopup,
+  ConnectButton,
+  Popup,
+} from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
@@ -15,7 +21,7 @@ import { useConnection } from "ConnectionProvider";
 export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
-  const proposalAddress = useProposalAddress()
+  const proposalAddress = useProposalAddress();
   const proposalStatus = useProposalStatusQuery(proposalAddress);
   const { mutate, isLoading } = useVote(proposalAddress);
 
@@ -55,11 +61,10 @@ export function Vote() {
         disabled={!vote || isLoading}
         onSubmit={onSubmit}
       />
-
       <TxReminderPopup
         text={TX_APPROVED_AND_PENDING}
         open={showModal}
-        close={() => setShowModal(false)}
+        onClose={() => setShowModal(false)}
       />
     </StyledContainer>
   );
@@ -129,3 +134,13 @@ const StyledOption = styled(StyledFlexRow)<{
 }));
 
 const StyledContainer = styled(Container)({});
+
+export const Confirmation = ({ open }: { open: boolean }) => {
+  return (
+    <Popup open={true}>
+      <StyledConfirmation></StyledConfirmation>
+    </Popup>
+  );
+};
+
+const StyledConfirmation = styled(StyledFlexColumn)({});

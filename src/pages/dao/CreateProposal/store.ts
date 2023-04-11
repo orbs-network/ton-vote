@@ -44,11 +44,11 @@ export const useCreateProposal = () => {
       }
 
       const proposalMetadata: ProposalMetadata = {
-        proposalStartTime: BigInt(formValues.proposalStartTime! / 1000),
-        proposalEndTime: BigInt(formValues.proposalEndTime! / 1000),
-        proposalSnapshotTime: BigInt(formValues.proposalSnapshotTime! / 1000),
-        votingPowerStrategy: BigInt(1),
-        proposalType: BigInt(1),
+        proposalStartTime: formValues.proposalStartTime! / 1_000,
+        proposalEndTime: formValues.proposalEndTime! / 1_000,
+        proposalSnapshotTime: formValues.proposalSnapshotTime! / 1_000,
+        votingPowerStrategy: 1,
+        proposalType: 1,
       };
 
       const sender = getSender();

@@ -1,15 +1,16 @@
-import { styled, useMediaQuery } from "@mui/material";
+import {  styled, useMediaQuery } from "@mui/material";
 import { Page } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Hero } from "./Hero";
 import { Information } from "./Information";
 import { Results } from "./Results";
-import { Vote } from "./Vote";
+import { Confirmation, Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
 import { useProposalAddress } from "hooks";
+import { CustomEndpointButton } from "./EndpointPopup";
 
 const Destop = () => {
   return (
@@ -42,10 +43,9 @@ const Mobile = () => {
 };
 
 const Meta = () => {
-  const proposalAddress = useProposalAddress();
-
   return (
     <Helmet>
+      <Confirmation open={true} />
       <title>
         {APP_TITLE}
         {/* {data ? `- ${data.title}` : ""} */}
@@ -58,7 +58,7 @@ function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
 
   return (
-    <Page>
+    <Page headerComponent={<CustomEndpointButton />}>
       <Meta />
       {mobile ? <Mobile /> : <Destop />}
     </Page>
@@ -66,6 +66,8 @@ function ProposalPage() {
 }
 
 export { ProposalPage };
+
+
 
 const StyledWrapper = styled(StyledFlexRow)({
   alignItems: "flex-start",

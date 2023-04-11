@@ -1,12 +1,10 @@
-import { createProposals } from "mock";
 import axios from "axios";
 import _ from "lodash";
 import {
+  Dao,
   DaoMetadata,
-  DaoProposal,
-  DaoRoles,
   GetDaoProposals,
-  GetDaos,
+  Proposal,
   ProposalResults,
   ProposalState,
   RawVotes,
@@ -17,45 +15,51 @@ import * as mock from "mock";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT } from "config";
 import { ProposalMetadata } from "ton-vote-sdk";
+import * as TonVoteSDK from "ton-vote-sdk";
+const baseURL = "https://ton-vote-cache-server.herokuapp.com";
 
 const axiosInstance = axios.create({
-  baseURL: "https://ton-vote-cache-server.herokuapp.com",
+  baseURL,
 });
 
-const getDaoRoles = async (daoAddress: string): Promise<DaoRoles> => {
-  Logger("getDapRoles from contract");
-
-  return {} as DaoRoles;
+const getDaos = async (
+  page: number = 0,
+  signal?: AbortSignal
+): Promise<{ nextId: number; daos: Dao[] }> => {
+  Logger(`getDaos from server, ${page}`);
+  return (await axiosInstance.get(`/daos/${page}`, { signal })).data;
 };
 
-const getDaos = async (): Promise<GetDaos> => {
-  Logger("getDaos from server");
-  return [] as any;
-};
-
-const getDaoMetadata = async (daoAddress: string): Promise<DaoMetadata> => {
+const getDaoMetadata = async (
+  daoAddress: string,
+  signal?: AbortSignal
+): Promise<DaoMetadata> => {
   Logger("getDAO from server");
 
   return mock.createDaoMetadata(daoAddress);
 };
 
-const getDaoProposals = async (
-  daoAddress: string
-): Promise<GetDaoProposals> => {
+const getProposals = async (
+  daoAddress: string,
+  page: number = 0,
+  signal?: AbortSignal
+): Promise<{ nextId: number; proposals: Proposal[] }> => {
   Logger("getDaoProposals from server");
 
-  return mock.getProposals();
+  return (
+    await axiosInstance.get(`/proposals/${daoAddress}/${page}`, { signal })
+  ).data;
 };
-const getDaoProposalInfo = async (
-  contractAddress: string
+const getDaoProposalMetadata = async (
+  contractAddress: string,
+  signal?: AbortSignal
 ): Promise<ProposalMetadata> => {
   return (await axiosInstance.get("/info")).data;
 };
 
-
-
 const getState = async (
   proposalAddress: string,
+  signal?: AbortSignal,
   latestMaxLtAfterTx?: string
 ): Promise<ProposalState | null> => {
   const _getState = async () => {
@@ -67,17 +71,17 @@ const getState = async (
     };
   };
 
-  const isServerLastUpdateValid = await validateServerLastUpdate();
+  const isServerLastUpdateValid = await validateServerLastUpdate(signal);
   if (!isServerLastUpdateValid) {
     Logger(`server last update time invalid, fetching from contract`);
     return null;
   }
 
   if (!latestMaxLtAfterTx) {
-     Logger(`fetching from server`);
+    Logger(`fetching from server`);
     return _getState();
   }
-  const serverMaxLt = await getMaxLt();
+  const serverMaxLt = await getMaxLt(signal);
 
   if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
     Logger(`server is outdated, fetching from contract`);
@@ -89,29 +93,30 @@ const getState = async (
   return _getState();
 };
 
-const getMaxLt = async (): Promise<string> => {
+const getMaxLt = async (signal?: AbortSignal): Promise<string> => {
   return (await axiosInstance.get("/maxLt")).data;
 };
 
-const getStateUpdateTime = async (): Promise<number> => {
+const getStateUpdateTime = async (signal?: AbortSignal): Promise<number> => {
   return (await axiosInstance.get("/stateUpdateTime")).data;
 };
 
-const validateServerLastUpdate = async (): Promise<boolean> => {
+const validateServerLastUpdate = async (
+  signal?: AbortSignal
+): Promise<boolean> => {
   const serverLastUpdate = (await axiosInstance.get("/fetchUpdateTime")).data;
   return moment().valueOf() - serverLastUpdate < LAST_FETCH_UPDATE_LIMIT;
 };
 
-export const server = {
+export const api = {
   getDaos,
   getDaoMetadata,
-  getDaoProposals,
-  getDaoProposalInfo,
+  getProposals,
+  getDaoProposalMetadata,
   getState,
   getMaxLt,
   validateServerLastUpdate,
   getStateUpdateTime,
-  getDaoRoles,
 };
 
 export interface GetStateApiPayload {

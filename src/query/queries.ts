@@ -1,175 +1,137 @@
 import {
-  QueryKey,
   useInfiniteQuery,
+  UseInfiniteQueryResult,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import {
-  DAOS_LIMIT,
-  PROPOSALS_LIMIT,
-  QueryKeys,
-  STATE_REFETCH_INTERVAL,
-  TON_CONNECTOR,
-} from "config";
-import { getContractState, server } from "lib";
-import { useIsCustomEndpoint } from "hooks";
-import { useAppPersistedStore, useEnpointModal } from "store";
-import { DaoRoles, ProposalState, ProposalStatus } from "types";
-import { getProposalStatus, Logger } from "utils";
-import * as TonVoteSDK from "ton-vote-sdk";
-import { Address } from "ton-core";
+import { QueryKeys } from "config";
+import { api } from "lib";
+import { Dao, DaoMetadata, ProposalStatus } from "types";
 import _ from "lodash";
-
-export const useDaoMetadataQuery = (daoAddress: string, enabled?: boolean) => {
-  const isCustomEndpoint = useIsCustomEndpoint();
-  const queryKey = useGetQueryKey([QueryKeys.DAO_METADATA, daoAddress]);
-  const clientV2 = useClientsQuery()?.clientV2;
-  return useQuery(
-    queryKey,
-    () => {
-      if (isCustomEndpoint) {
-        return TonVoteSDK.getDaoMetadata(clientV2!, Address.parse(daoAddress));
-      }
-      return server.getDaoMetadata(daoAddress);
-    },
-    {
-      staleTime: Infinity,
-      enabled: !!clientV2 && !!daoAddress && !!enabled,
-    }
-  );
-};
+import { useEnpointsStore } from "store";
+import { getClientV2, getClientV4 } from "ton-vote-sdk";
+import * as TonVoteSDK from "ton-vote-sdk";
 
 export const useDaosQuery = () => {
-  const isCustomEndpoint = useIsCustomEndpoint();
-  const queryKey = useGetQueryKey([QueryKeys.DAOS]);
-  const clientV2 = useClientsQuery()?.clientV2;
-
   return useInfiniteQuery({
-    queryKey,
+    queryKey: [QueryKeys.DAOS],
     queryFn: async ({ pageParam, signal }) => {
-      if (isCustomEndpoint) {
-        const nextPage = pageParam ? Number(pageParam) : undefined;
-        return TonVoteSDK.getDaos(clientV2!, nextPage, DAOS_LIMIT);
-      }
-      return server.getDaos();
+      console.log({ pageParam });
+
+      const nextPage = pageParam ? Number(pageParam) : undefined;
+
+      return api.getDaos(nextPage, signal);
     },
     staleTime: Infinity,
-    getNextPageParam: (lastPage) => lastPage.endDaoId,
-    enabled: !!clientV2,
+    getNextPageParam: (lastPage) => lastPage.nextId,
   });
+};
+
+export const useDaoQuery = (daoAddress: string, enabled?: boolean) => {
+  const queryClient = useQueryClient();
+  const clients = useClientsQuery();
+  const { fetchNextPage } = useDaosQuery();
+
+  return useQuery(
+    [QueryKeys.DAO_METADATA, daoAddress],
+    async () => {
+      type DaosQueryType = {
+        pageParams: Array<number | undefined>;
+        pages: Array<{ daos: Dao[]; nextId: number }>;
+      };
+
+      const daosQuery = queryClient.getQueryData([
+        QueryKeys.DAOS,
+      ]) as DaosQueryType;
+
+      const daos = _.flatten(daosQuery?.pages.map((it) => it.daos));
+      const cachedDao = _.find(daos, (it) => it.address === daoAddress);
+      if (cachedDao) {
+        return cachedDao;
+      }
+
+      try {
+        // const daoFromApi = await api.getDao(daoAddress);
+        // if (daoFromApi) return daoFromApi;
+        throw new Error('Not found')
+      } catch (error) {
+        const daoFromContract = {
+          address: daoAddress,
+          roles: await TonVoteSDK.getDaoRoles(clients!.clientV2, daoAddress),
+          daoMetadata: await TonVoteSDK.getDaoMetadata(
+            clients!.clientV2,
+            daoAddress
+          ),
+        };
+
+        // adding to list of daos
+        queryClient.setQueryData(
+          [QueryKeys.DAOS],
+          (prevData: DaosQueryType | undefined) => {
+            if (!prevData) {
+              return {
+                pageParams: [undefined],
+                pages: [
+                  {
+                    daos: [daoFromContract],
+                    nextId: 0,
+                  },
+                ],
+              };
+            } else {
+              _.first(prevData.pages)?.daos.unshift(daoFromContract);
+            }
+            return prevData;
+          }
+        );
+
+        fetchNextPage();
+
+        return daoFromContract;
+      }
+    },
+    {
+      enabled: !!clients?.clientV2 && !!enabled,
+    }
+  );
 };
 
 export const useAddDao = () => {
   const queryClient = useQueryClient();
-  const queryKey = useGetQueryKey([QueryKeys.DAOS]);
 
   return (daoAddress: string) => {
-    const daos = queryClient.getQueryData(queryKey) as any;
+    const daos = queryClient.getQueryData([QueryKeys.DAOS]) as any;
 
     if (!daos) return;
 
     daos.pages[0].daoAddresses.unshift(daoAddress);
-    queryClient.setQueryData(queryKey, daos);
+    queryClient.setQueryData([QueryKeys.DAOS], daos);
   };
 };
 
-export const useDaoRolesQuery = (daoAddress: string) => {
-  const isCustomEndpoint = useIsCustomEndpoint();
-  const queryKey = useGetQueryKey([QueryKeys.DAO_ROLES, daoAddress]);
-  const clientV2 = useClientsQuery()?.clientV2;
-
-  return useQuery(
-    queryKey,
-    async () => {
-      let roles = {} as DaoRoles;
-      if (isCustomEndpoint) {
-        roles = await TonVoteSDK.getDaoRoles(
-          clientV2!,
-          Address.parse(daoAddress)
-        );
-      } else {
-        roles = await server.getDaoRoles(daoAddress);
-      }
-
-      return {
-        owner: roles.owner.toString(),
-        proposalOwner: roles.proposalOwner.toString(),
-      };
-    },
-    {
-      staleTime: Infinity,
-      enabled: !!clientV2 && !!daoAddress,
-    }
-  );
-};
-
 export const useDaoProposalsQuery = (daoAddress: string) => {
-  const isCustomEndpoint = useIsCustomEndpoint();
-
-  const queryKey = useGetQueryKey([QueryKeys.PROPOSALS, daoAddress]);
-  const clientV2 = useClientsQuery()?.clientV2;
-
   return useInfiniteQuery({
-    queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryKey: [QueryKeys.PROPOSALS, daoAddress],
+    queryFn: async ({ pageParam, signal }) => {
       const nextPage = pageParam ? Number(pageParam) : undefined;
-      if (isCustomEndpoint) {
-        return TonVoteSDK.getDaoProposals(
-          clientV2!,
-          Address.parse(daoAddress),
-          nextPage,
-          PROPOSALS_LIMIT
-        );
-      }
-      return server.getDaoProposals(daoAddress);
+
+      return api.getProposals(daoAddress, nextPage, signal);
     },
-    enabled: !!clientV2 && !!daoAddress,
-    getNextPageParam: (lastPage) => lastPage.endProposalId,
+    enabled: !!daoAddress,
+    getNextPageParam: (lastPage) => lastPage.nextId,
   });
-};
-
-export const useProposalInfoQuery = (proposalAddress: string) => {
-  const isCustomEndpoint = useIsCustomEndpoint();
-  const queryKey = useGetQueryKey([QueryKeys.PROPOSAL_INFO, proposalAddress]);
-  const clients = useClientsQuery();
-
-  return useQuery(
-    queryKey,
-    () => {
-      if (isCustomEndpoint) {
-        return TonVoteSDK.getProposalInfo(
-          clients!.clientV2,
-          clients!.clientV4,
-          Address.parse(proposalAddress)
-        );
-      }
-      return server.getDaoProposalInfo(proposalAddress);
-    },
-    {
-      staleTime: Infinity,
-      enabled: !!clients?.clientV2 && !!clients.clientV4 && !!proposalAddress,
-    }
-  );
 };
 
 export const useProposalStatusQuery = (
   proposalAddress: string,
   refetchInterval?: number
 ) => {
-  const { data: proposalInfo } = useProposalInfoQuery(proposalAddress);
-  const queryKey = useGetQueryKey([
-    QueryKeys.PROPOSAL_TIMELINE,
-    proposalAddress,
-  ]);
-
   const query = useQuery(
-    queryKey,
+    [QueryKeys.PROPOSAL_TIMELINE, proposalAddress],
     async () => {
-      if (!proposalInfo) return null;
-      return getProposalStatus(proposalInfo);
+      return {} as any;
     },
     {
-      enabled: !!proposalInfo,
       refetchInterval: refetchInterval,
     }
   );
@@ -177,97 +139,27 @@ export const useProposalStatusQuery = (
   return query.data as ProposalStatus | null;
 };
 
-export const useProposalStateQuery = (
-  proposalAddress: string,
-  refetchInterval: number = STATE_REFETCH_INTERVAL
-) => {
-  console.log(Address.isAddress(proposalAddress));
-
-  const endpointModal = useEnpointModal();
-  const isCustomEndpoint = useIsCustomEndpoint();
-  const proposalStatus = useProposalStatusQuery(proposalAddress);
-  const queryKey = useGetQueryKey([QueryKeys.STATE, proposalAddress]);
-  const queryClient = useQueryClient();
-  const voteFinished = proposalStatus === ProposalStatus.CLOSED;
-  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx, latestMaxLtAfterTx } =
-    useAppPersistedStore();
-
-  const clients = useClientsQuery();
-
-  const { refetch: fetchProposalInfo } = useProposalInfoQuery(proposalAddress);
-
-  return useQuery(
-    queryKey,
-    async () => {
-      const { data: proposalInfo } = await fetchProposalInfo();
-
-      if (!proposalInfo) throw new Error("Missing proposal info");
-
-      const state = queryClient.getQueryData(queryKey) as ProposalState | null;
-
-      const _getContractState = () => {
-        return getContractState(
-          clients?.clientV2!,
-          clients?.clientV4!,
-          proposalAddress,
-          proposalInfo,
-          state,
-          getLatestMaxLtAfterTx(proposalAddress)
-        );
-      };
-
-      if (isCustomEndpoint) {
-        Logger("custom endpoint, fetching from contract");
-        return _getContractState() || null;
-      }
-      const serverState = await server.getState(
-        proposalAddress,
-        getLatestMaxLtAfterTx(proposalAddress)
-      );
-      if (serverState) {
-        setLatestMaxLtAfterTx(proposalAddress, undefined);
-      }
-      return serverState || _getContractState() || null;
-    },
-    {
-      onError: () => endpointModal.setError(true),
-      refetchInterval: !voteFinished ? refetchInterval : undefined,
-      staleTime: voteFinished ? Infinity : 2_000,
-      enabled: !!clients?.clientV2 && !!clients?.clientV4 && !!proposalAddress,
-    }
-  );
-};
-
 export const useServerLastFetchUpdateValidationQuery = () => {
-  const endpointModal = useEnpointModal();
   return useQuery(
     [QueryKeys.SERVER_VALIDATION],
-    () => server.validateServerLastUpdate(),
+    ({ signal }) => api.validateServerLastUpdate(signal),
     {
       refetchInterval: 20_000,
-      // TODO, maybe set custom endpoint
-      onError: () => endpointModal.setError(true),
-      onSuccess: (isValid) => {
-        if (!isValid) endpointModal.setError(true);
-      },
     }
   );
-};
-
-const useGetQueryKey = (key: string[]): QueryKey => {
-  const { clientV2Endpoint, clientV4Endpoint, apiKey } = useAppPersistedStore();
-  return [...key, clientV2Endpoint, clientV4Endpoint, apiKey];
 };
 
 export const useClientsQuery = () => {
-  const key = useGetQueryKey(["useGetQueryKey"]);
-  const { clientV2Endpoint, clientV4Endpoint, apiKey } = useAppPersistedStore();
-  const query = useQuery(key, async () => {
-    return {
-      clientV2: await TonVoteSDK.getClientV2(clientV2Endpoint, apiKey),
-      clientV4: await TonVoteSDK.getClientV4(clientV4Endpoint || ""),
-    };
-  });
+  const { clientV2Endpoint, clientV4Endpoint, apiKey } = useEnpointsStore();
+  const query = useQuery(
+    ["useClientsQuery", clientV2Endpoint, clientV4Endpoint],
+    async () => {
+      return {
+        clientV2: await getClientV2(clientV2Endpoint, apiKey),
+        clientV4: await getClientV4(clientV4Endpoint || ""),
+      };
+    }
+  );
 
   return query.data;
 };

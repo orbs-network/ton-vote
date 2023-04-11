@@ -1,7 +1,7 @@
 import { Page } from "components";
 import { APP_TITLE } from "config";
 import { useDaoAddress } from "hooks";
-import { useDaoMetadataQuery } from "query/queries";
+import {  useDaoQuery } from "query/queries";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 import { appNavigation } from "router";
@@ -10,7 +10,7 @@ import { useMemo } from "react";
 
 export function DaoPage() {
   const dapAddress = useDaoAddress();
-  const daoMetadata = useDaoMetadataQuery(dapAddress, true).data;
+  const dao = useDaoQuery(dapAddress, true).data;
   const currentRoute = useCurrentRoute();
 
   const back = useMemo(() => {
@@ -25,7 +25,7 @@ export function DaoPage() {
       <Helmet>
         <title>
           {APP_TITLE}
-          {daoMetadata ? ` - ${daoMetadata.name}` : ""}
+          {dao ? ` - ${dao.address}` : ""}
         </title>
       </Helmet>
       <Outlet />

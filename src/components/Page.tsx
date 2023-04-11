@@ -1,21 +1,26 @@
 import { Fade, styled } from "@mui/material";
 import React, { ReactNode } from "react";
-import { StyledFlexColumn } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Back } from "./Back";
 
 function Page({
   children,
   className = "",
   back,
+  headerComponent,
 }: {
   children: ReactNode;
   className?: string;
   back?: string;
+  headerComponent?: ReactNode;
 }) {
   return (
     <Fade in={true}>
       <StyledContainer className={className}>
-        <Back to={back} />
+        <StyledTop justifyContent="space-between">
+          <Back to={back} />
+          {headerComponent}
+        </StyledTop>
         {children}
       </StyledContainer>
     </Fade>
@@ -23,6 +28,10 @@ function Page({
 }
 
 export { Page };
+
+const StyledTop = styled(StyledFlexRow)({
+  marginBottom: 15,
+})
 
 const StyledContainer = styled(StyledFlexColumn)({
   flex: 1,

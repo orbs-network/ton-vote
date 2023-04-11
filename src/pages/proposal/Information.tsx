@@ -6,7 +6,7 @@ import moment from "moment";
 import { TONSCAN_ADDRESS_URL } from "config";
 import { makeElipsisAddress } from "utils";
 import { useProposalAddress } from "hooks";
-import { useProposalInfoQuery } from "query/queries";
+import { useProposalMetadataQuery } from "./hooks";
 
  const fromUnixToString = (
   time: number,
@@ -20,7 +20,7 @@ export const Information = () => {
     const proposalAddress = useProposalAddress()
     
   const { data: proposalInfo, isLoading } =
-    useProposalInfoQuery(proposalAddress);
+    useProposalMetadataQuery();
   
 
 

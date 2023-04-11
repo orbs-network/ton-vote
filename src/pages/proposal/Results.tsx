@@ -8,17 +8,11 @@ import { calculateTonAmount, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import { fromNano } from "ton";
 import _ from "lodash";
-import { useProposalVotesCount } from "./hooks";
+import { useProposalStateQuery, useProposalVotesCount, useVerifyProposalResults } from "./hooks";
 import { ProposalStatus } from "types";
-import {
-  useProposalStateQuery,
-  useProposalStatusQuery,
-} from "query/queries";
+import { useProposalStatusQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
-import { useLatestMaxLtAfterTx } from "store";
-import { useVerifyProposalResults } from "query/mutations";
-
-
+import { useLatestMaxLtAfterTx } from "./store";
 
 export const Results = () => {
   const proposalAddress = useProposalAddress();

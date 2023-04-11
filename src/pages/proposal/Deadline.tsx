@@ -2,19 +2,19 @@ import { styled } from "@mui/material";
 import { Container, Countdown } from "components";
 import { useProposalAddress } from "hooks";
 import moment from "moment";
-import { useProposalInfoQuery, useProposalStatusQuery } from "query/queries";
-import React, { useMemo } from "react";
+import { useProposalStatusQuery } from "query/queries";
 import { ProposalStatus } from "types";
+import { useProposalMetadataQuery } from "./hooks";
 
-const handleDate = (endDate?: bigint) => {
+const handleDate = (endDate?: number) => {
   if (!endDate) return 0;
 
-  return moment.unix(Number(endDate)).utc().valueOf();
+  return moment.unix(endDate).utc().valueOf();
 };
 
 export function Deadline() {
   const proposalAddress = useProposalAddress();
-  const data = useProposalInfoQuery(proposalAddress).data;
+  const data = useProposalMetadataQuery().data;
   const proposalStatus = useProposalStatusQuery(proposalAddress, 1_000);
 
   if (proposalStatus === ProposalStatus.CLOSED || !proposalStatus) return null;

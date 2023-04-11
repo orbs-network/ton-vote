@@ -1,12 +1,11 @@
 import { Box, styled } from "@mui/material";
-import { EndpointPopup, Footer, Navbar } from "./components";
-import React, { useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Footer, Navbar } from "./components";
+import { Outlet } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 import ScrollTop from "components/ScrollTop";
-import  { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 function Layout() {
   return (
@@ -19,8 +18,7 @@ function Layout() {
         <Footer />
       </StyledContainer>
       <ScrollTop />
-      <EndpointPopup />
-      <Toaster  />
+      <Toaster />
     </QueryParamProvider>
   );
 }

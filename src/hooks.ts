@@ -1,7 +1,6 @@
 import { useState, useLayoutEffect, useCallback } from "react";
 import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes } from "consts";
-import { useAppPersistedStore } from "store";
 import {
   Address,
   beginCell,
@@ -9,9 +8,9 @@ import {
   SenderArguments,
   storeStateInit,
 } from "ton-core";
-import { useDaoRolesQuery } from "query/queries";
 import { useConnection } from "ConnectionProvider";
 import { TON_CONNECTOR } from "config";
+import { useDaoQuery } from "query/queries";
 
 export const useDaoAddress = () => {
   return useParams().daoId as string;
@@ -19,7 +18,6 @@ export const useDaoAddress = () => {
 
 export const useProposalAddress = () => {
   return useParams().proposalId!;
-  // return "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS";
 };
 
 export const useCurrentRoute = () => {
@@ -46,20 +44,13 @@ export const useWindowResize = () => {
   return size;
 };
 
-export const useIsCustomEndpoint = () => {
-  const { clientV2Endpoint, clientV4Endpoint } = useAppPersistedStore();
-
-  // return !!clientV2Endpoint && !!clientV4Endpoint;
-  return  true
-};
-
 export const useIsOwner = (daoAddress: string) => {
   const address = useConnection().address;
-  const { data, isLoading } = useDaoRolesQuery(daoAddress);
+  const { data, isLoading } = useDaoQuery(daoAddress);
 
   return {
-    isDaoOwner: address && address === data?.owner,
-    isProposalOnwer: address && address === data?.proposalOwner,
+    isDaoOwner: address && address === data?.roles.owner,
+    isProposalOnwer: address && address === data?.roles.proposalOwner,
     isLoading,
   };
 };
@@ -104,7 +95,6 @@ export const useGetSender = () => {
     };
   }, [address]);
 };
-
 
 type CopiedValue = string | null;
 type CopyFn = (text: string) => Promise<boolean>; // Return success

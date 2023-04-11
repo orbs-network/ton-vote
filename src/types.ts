@@ -1,5 +1,5 @@
 import { Address, Transaction } from "ton";
-
+import { ProposalMetadata } from "ton-vote-sdk";
 
 export interface ProposalResults {
   yes: number;
@@ -7,7 +7,6 @@ export interface ProposalResults {
   abstain: number;
   totalWeight: string;
 }
-
 
 export interface Vote {
   address: string;
@@ -49,9 +48,22 @@ export interface DaoMetadata {
   website: string;
 }
 
-export interface GetDaos {
-  endDaoId: bigint;
-  daoAddresses: Address[];
+export interface Dao {
+  address: string;
+  daoId?: number;
+  daoMetadata: DaoMetadata;
+  roles: DaoRoles;
+}
+
+
+export interface DaoRoles {
+  owner: string;
+  proposalOwner: string;
+}
+
+export interface Proposal {
+  proposalAddr: string;
+  metadata: ProposalMetadata;
 }
 
 export interface DaoProposal {
@@ -66,22 +78,10 @@ export interface DaoProposal {
 }
 
 export interface GetDaoProposals {
-  endProposalId: bigint;
-  proposalAddresses?: Address[];
+  endProposalId: number;
+  proposalAddresses: string[] | undefined;
 }
 
-
-export interface ProposalMetadata {
-  title: string;
-  description: string;
-  owner: string;
-}
-
-export interface DaoRoles {
-  owner: Address;
-  proposalOwner: Address;
-  id: bigint;
-}
 
 
 export enum ProposalStatus {
@@ -95,8 +95,6 @@ export interface SelectOption {
   value: string;
 }
 
-
-
 export interface ProposalState {
   votingPower: VotingPower;
   votes: Vote[];
@@ -105,13 +103,19 @@ export interface ProposalState {
   transactions?: Transaction[];
 }
 
-export type InputType = "text" | "url" | 'textarea' | 'date' | 'upload' | 'editor';
+export type InputType =
+  | "text"
+  | "url"
+  | "textarea"
+  | "date"
+  | "upload"
+  | "editor";
 
 export interface InputInterface {
   label: string;
   type: InputType;
   name: string;
-  defaultValue?:  string;
+  defaultValue?: string;
   rows?: number;
   min?: number;
   max?: number;

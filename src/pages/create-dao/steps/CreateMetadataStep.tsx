@@ -50,6 +50,7 @@ export function CreateMetadataStep() {
       terms: formData.terms,
       ownerAddress: formData.ownerAddress,
       proposalOwner: formData.proposalOwner,
+      avatar: formData.avatar
     },
     validationSchema: FormSchema,
     validateOnChange: false,

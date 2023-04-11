@@ -59,8 +59,8 @@ export function nFormatter(num: number, digits = 2) {
     : "0";
 }
 
-export const getTimeDiff = (value: bigint) => {
-  var a = moment(unixToMilliseconds(Number(value)));
+export const getTimeDiff = (value: number) => {
+  var a = moment(unixToMilliseconds(value));
   var b = moment();
   const days = a.diff(b, "days");
   const hours = a.diff(b, "hours");
