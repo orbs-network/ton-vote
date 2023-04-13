@@ -1,13 +1,13 @@
 import { styled, Typography } from "@mui/material";
 import { routes } from "consts";
 import { HiOutlineArrowLeft } from "react-icons/hi";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useNavigation } from "react-router-dom";
 import { StyledFlexRow } from "styles";
 
 function Back({ to }: { to?: string }) {
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
-
+  
   const onClick = () => {
     if (to) {
       navigate(to);
@@ -33,4 +33,15 @@ const StyledContainer = styled(StyledFlexRow)({
   justifyContent: "flex-start",
   cursor: "pointer",
   width: "fit-content",
+   borderBottom:'1px solid transparent',
+   transition:'0.2s all',
+  p: {
+    color: "black",
+  },
+  svg: {
+    color: "black",
+  },
+  ":hover":{
+    borderBottom:'1px solid black'
+  }
 });

@@ -1,9 +1,9 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, List, Loader, LoadMore } from "components";
+import { Button, Container, List, LoadMore } from "components";
 import _ from "lodash";
 import {  useDaosQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import { StyledFlexColumn, textOverflow } from "styles";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 import {
@@ -19,7 +19,7 @@ import { makeElipsisAddress } from "utils";
 import { Dao } from "types";
 
 export function DaosList() {
-  const { data, isLoading } = useDaosQuery();  
+  const { data, isLoading, } = useDaosQuery();  
 
 
   const navigation = useAppNavigation();
@@ -65,7 +65,7 @@ const StyledEmptyList = styled(Typography)({
 });
 
 const LoadMoreDaos = () => {
-  const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage } =
+  const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage, } =
     useDaosQuery();
 
   const loadMoreOnScroll = _.size(data?.pages) > 1 && !isFetchingNextPage;
@@ -101,7 +101,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const { mutate } = useJoinDao();
   const { daoMetadata } = dao;
 
-  const navigate = () => daoPage.root(dao.address);
+  const navigate = () => daoPage.root((dao as any).daoAddress);
 
   const join = (e: any) => {
     e.stopPropagation();

@@ -4,7 +4,7 @@ import { useProposalAddress } from "hooks";
 import moment from "moment";
 import { useProposalStatusQuery } from "query/queries";
 import { ProposalStatus } from "types";
-import { useProposalMetadataQuery } from "./hooks";
+import { useProposalState } from "./hooks";
 
 const handleDate = (endDate?: number) => {
   if (!endDate) return 0;
@@ -14,8 +14,12 @@ const handleDate = (endDate?: number) => {
 
 export function Deadline() {
   const proposalAddress = useProposalAddress();
-  const data = useProposalMetadataQuery().data;
-  const proposalStatus = useProposalStatusQuery(proposalAddress, 1_000);
+  const proposalMetadata = useProposalState().data?.proposalMetadata;
+  
+  const proposalStatus = useProposalStatusQuery(
+    proposalMetadata,
+    proposalAddress
+  );
 
   if (proposalStatus === ProposalStatus.CLOSED || !proposalStatus) return null;
   
@@ -28,13 +32,13 @@ export function Deadline() {
           ? "Vote starts in"
           : "Time left to vote"
       }
-      loading={!data}
+      loading={!proposalMetadata}
       loaderAmount={1}
     >
       {proposalStatus === ProposalStatus.NOT_STARTED ? (
-        <Countdown date={handleDate(data?.proposalStartTime)} />
+        <Countdown date={handleDate(proposalMetadata?.proposalStartTime)} />
       ) : proposalStatus === ProposalStatus.ACTIVE ? (
-        <Countdown date={handleDate(data?.proposalEndTime)} />
+        <Countdown date={handleDate(proposalMetadata?.proposalEndTime)} />
       ) : null}
     </StyledContainer>
   );

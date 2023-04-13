@@ -1,15 +1,17 @@
 import { styled, Typography } from "@mui/material";
-import React from "react";
+import { Button, NumberDisplay, Popup } from "components";
+import { useConnection } from "ConnectionProvider";
+import React, { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Button } from "./Button";
-import { Popup } from "./Popup";
+import { VotingPower } from "ton-vote-sdk";
+
 
 interface Props {
   open: boolean;
   onClose: () => void;
   vote: string;
-  snapshot: number;
-  votingPower: number;
+  snapshot?: number;
+  votingPower?: VotingPower;
   onSubmit: () => void;
 }
 
@@ -18,27 +20,37 @@ export function VoteConfirmation({
   onClose,
   vote,
   snapshot,
-  votingPower,
+  votingPower = {} as VotingPower,
   onSubmit,
 }: Props) {
+  const { address } = useConnection();
+  
   return (
-    <Popup title="Cast your vote" open={open} onClose={onClose}>
+    <StyledPopup title="Cast your vote" open={open} onClose={onClose}>
       <StyledContainer gap={40}>
         <StyledFlexColumn>
           <Row label="Choice" value={vote} />
-          <Row label="Snapshot" value={snapshot} />
-          <Row label="Your voting power" value={votingPower} />
+          {snapshot && (
+            <Row label="Snapshot" value={<NumberDisplay value={snapshot} />} />
+          )}
+          {address && (
+            <Row label="Your voting power" value={votingPower[address]} />
+          )}
         </StyledFlexColumn>
         <StyledFlexRow>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={onSubmit}>Confirm</Button>
         </StyledFlexRow>
       </StyledContainer>
-    </Popup>
+    </StyledPopup>
   );
 }
 
-const Row = ({ label, value }: { label: string; value: string | number }) => {
+const StyledPopup = styled(Popup)({
+  maxWidth: 400
+});
+
+const Row = ({ label, value }: { label: string; value: ReactNode }) => {
   return (
     <StyledRow justifyContent='space-between'>
       <Typography className="label">{label}</Typography>
@@ -50,7 +62,6 @@ const Row = ({ label, value }: { label: string; value: string | number }) => {
 const StyledRow = styled(StyledFlexRow)({});
 
 const StyledContainer = styled(StyledFlexColumn)({
-    width:'calc(100vw - 40px)',
-    maxWidth: 400
+  
 });
 

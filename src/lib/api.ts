@@ -3,7 +3,6 @@ import _ from "lodash";
 import {
   Dao,
   DaoMetadata,
-  GetDaoProposals,
   Proposal,
   ProposalResults,
   ProposalState,
@@ -11,7 +10,6 @@ import {
   VotingPower,
 } from "types";
 import { Logger, parseVotes } from "utils";
-import * as mock from "mock";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT } from "config";
 import { ProposalMetadata } from "ton-vote-sdk";
@@ -26,26 +24,15 @@ const getDaos = async (
   page: number = 0,
   signal?: AbortSignal
 ): Promise<{ nextId: number; daos: Dao[] }> => {
-  Logger(`getDaos from server, ${page}`);
   return (await axiosInstance.get(`/daos/${page}`, { signal })).data;
 };
 
-const getDaoMetadata = async (
-  daoAddress: string,
-  signal?: AbortSignal
-): Promise<DaoMetadata> => {
-  Logger("getDAO from server");
-
-  return mock.createDaoMetadata(daoAddress);
-};
 
 const getProposals = async (
   daoAddress: string,
   page: number = 0,
   signal?: AbortSignal
 ): Promise<{ nextId: number; proposals: Proposal[] }> => {
-  Logger("getDaoProposals from server");
-
   return (
     await axiosInstance.get(`/proposals/${daoAddress}/${page}`, { signal })
   ).data;
@@ -94,12 +81,17 @@ const getState = async (
 };
 
 const getMaxLt = async (signal?: AbortSignal): Promise<string> => {
-  return (await axiosInstance.get("/maxLt")).data;
+  return (await axiosInstance.get("/maxLt", { signal })).data;
 };
 
-const getStateUpdateTime = async (signal?: AbortSignal): Promise<number> => {
-  return (await axiosInstance.get("/stateUpdateTime")).data;
+const getDao = async (daoAddress: string, signal?: AbortSignal): Promise<Dao | undefined> => {
+  return (await axiosInstance.get(`/dao/${daoAddress}`, { signal })).data;
+
 };
+
+// const getStateUpdateTime = async (signal?: AbortSignal): Promise<number> => {
+//   return (await axiosInstance.get("/stateUpdateTime")).data;
+// };
 
 const validateServerLastUpdate = async (
   signal?: AbortSignal
@@ -110,13 +102,12 @@ const validateServerLastUpdate = async (
 
 export const api = {
   getDaos,
-  getDaoMetadata,
   getProposals,
   getDaoProposalMetadata,
   getState,
   getMaxLt,
   validateServerLastUpdate,
-  getStateUpdateTime,
+  getDao,
 };
 
 export interface GetStateApiPayload {

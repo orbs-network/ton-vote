@@ -5,24 +5,19 @@ import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 
 export const StyledProposalsContainer = styled(Container)({
-  flex: 1,
-  gap: 0,
+  padding:'10px 20px',
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   ".container-header":{
-    alignItems:'center'
+    alignItems:'center',
+  },
+  ".container-body":{
+    
   }
 });
 
-export const StyledProposalContent = styled(BorderContainer)({
-  display:'flex',
-  flexDirection:'column',
-  ".title": {
-    fontSize: 18,
-    fontWeight: 700,
-  },
-})
+
 
 export const StyledProposalResultProgress = styled("div")(({ theme }) => ({
   height: "100%",
@@ -49,7 +44,11 @@ export const StyledProposalResult = styled(StyledFlexRow)({
 export const StyledProposalOwner = styled(Typography)({
 });
 
-export const StyledProposal = styled(Box)({
+export const StyledProposal = styled(Container)(({ theme }) => ({
+  ".title": {
+    fontSize: 18,
+  },
+  transition: "0.2s all",
   width: "100%",
   cursor: "pointer",
   ".description": {
@@ -58,7 +57,10 @@ export const StyledProposal = styled(Box)({
   ".time-left": {
     fontSize: 14,
   },
-});
+  "&:hover": {
+    border: `1px solid ${theme.palette.primary.main}`,
+  },
+}));
 
 
 export const StyledDescription = styled(Typography)({

@@ -15,17 +15,14 @@ import { fromNano } from "ton";
 import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
-import { useProposalStateQuery, useProposalVotes } from "./hooks";
-import { useProposalAddress } from "hooks";
+import { useProposalState } from "./hooks";
 import { useConnection } from "ConnectionProvider";
 
 const ContainerHeader = () => {
-  const { proposalVotes, isLoading } = useProposalVotes();
-  const proposalAddress = useProposalAddress();
-  const proposalResults = useProposalStateQuery(proposalAddress).data?.results;
+  const { data, isLoading } = useProposalState();
 
-  const totalTonAmount = proposalResults?.totalWeight || "0";
-  const votesLength = _.size(proposalVotes);
+  const totalTonAmount = data?.results?.totalWeight || "0";
+  const votesLength = _.size(data?.votes);
 
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
@@ -49,6 +46,17 @@ const ContainerHeader = () => {
   );
 };
 
+const ConnectedWalletVote = () => {
+  const { data, dataUpdatedAt } = useProposalState();
+  const { address } = useConnection();
+
+  const walletVote = useMemo(() => {
+    return _.find(data?.votes, (it) => it.address === address);
+  }, [dataUpdatedAt, address]);
+
+  return <VoteComponent data={walletVote} />;
+};
+
 const StyledContainerHeader = styled(StyledFlexRow)({
   flex: 1,
   justifyContent: "space-between",
@@ -60,7 +68,8 @@ const StyledContainerHeader = styled(StyledFlexRow)({
 });
 
 export function Votes() {
-  const { proposalVotes, isLoading, walletVote } = useProposalVotes();
+  const { data, isLoading } = useProposalState();
+  const connectedAddress = useConnection().address;
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const showMoreVotes = () => {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
@@ -75,20 +84,21 @@ export function Votes() {
     >
       <List
         isLoading={isLoading}
-        isEmpty={!isLoading && !_.size(proposalVotes)}
+        isEmpty={!isLoading && !_.size(data?.votes)}
         emptyComponent={<StyledNoVotes>No votes yet</StyledNoVotes>}
       >
         <StyledList gap={15}>
-          <VoteComponent data={walletVote} />
-          {proposalVotes?.map((vote, index) => {
-            if (index >= votesShowAmount) return null;
+          <ConnectedWalletVote />
+          {data?.votes?.map((vote, index) => {
+            if (index >= votesShowAmount || vote.address === connectedAddress)
+              return null;
             return <VoteComponent data={vote} key={vote.address} />;
           })}
         </StyledList>
       </List>
 
       <LoadMore
-        hide={isLoading || votesShowAmount >= proposalVotes?.length}
+        hide={isLoading || votesShowAmount >= _.size(data?.votes)}
         loadMoreOnScroll={votesShowAmount > PAGE_SIZE}
         showMore={showMoreVotes}
         isFetchingNextPage={false}

@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from "@mui/material";
+import { Box, Fade, styled, Typography } from "@mui/material";
 import {
   Button,
   ConnectButton,
@@ -11,14 +11,14 @@ import { useDaoAddress } from "hooks";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
 import moment from "moment";
 
 function CreateProposal() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
-  
+
   const daoAddress = useDaoAddress();
   const { formData, setFormData, preview } = useCreateProposalStore();
 
@@ -38,28 +38,40 @@ function CreateProposal() {
   });
 
   useEffect(() => {
-    return () => {
+    const event = () => {
       setFormData(formik.values);
+    };
+    window.addEventListener("beforeunload", event);
+    return () => {
+       setFormData(formik.values);
+      window.removeEventListener("beforeunload", event);
     };
   }, [formik.values]);
 
+
   return (
-    <StyledFlexRow alignItems="flex-start">
-      <StyledContainer title="Create Proposal">
-        {preview ? (
-          <Preview formik={formik} />
-        ) : (
-          <CreateForm formik={formik} />
-        )}
-      </StyledContainer>
-      <CreateProposalMenu isLoading={isLoading} onSubmit={formik.submitForm} />
-    </StyledFlexRow>
+    <Fade in={true}>
+      <StyledFlexRow alignItems="flex-start">
+        <StyledContainer title="Create Proposal">
+          {preview ? (
+            <Preview formik={formik} />
+          ) : (
+            <CreateForm formik={formik} />
+          )}
+        </StyledContainer>
+        <CreateProposalMenu
+          isLoading={isLoading}
+          onSubmit={formik.submitForm}
+        />
+      </StyledFlexRow>
+    </Fade>
   );
 }
 
 export { CreateProposal };
 
-const formatTime = (millis?: number) => moment(millis).format('DD/MM/YYYY HH:mm');
+const formatTime = (millis?: number) =>
+  moment(millis).format("DD/MM/YYYY HH:mm");
 
 const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
   return (
@@ -71,9 +83,7 @@ const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
       <Typography>
         Start: {formatTime(formik?.values.proposalStartTime)}
       </Typography>
-      <Typography>
-        End: {formatTime(formik?.values.proposalEndTime)}
-      </Typography>
+      <Typography>End: {formatTime(formik?.values.proposalEndTime)}</Typography>
       <Typography>
         Snapshot: {formatTime(formik?.values.proposalSnapshotTime)}
       </Typography>
@@ -82,17 +92,16 @@ const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
 };
 
 const StyledPreview = styled(Box)({
-  
   ".title": {
     fontSize: 22,
     fontWeight: 700,
     marginBottom: 20,
   },
-  img:{
-    maxWidth:'100%',
-    marginTop: 10
-  }
-})
+  img: {
+    maxWidth: "100%",
+    marginTop: 10,
+  },
+});
 
 function CreateForm({ formik }: { formik: FormikProps<FormData> }) {
   const inputs = useInputs(formik);
@@ -128,7 +137,11 @@ function CreateProposalMenu({
         {!address ? (
           <StyledConnect />
         ) : (
-          <StyledButton disabled={preview} isLoading={isLoading} onClick={onSubmit}>
+          <StyledButton
+            disabled={preview}
+            isLoading={isLoading}
+            onClick={onSubmit}
+          >
             Continue
           </StyledButton>
         )}
@@ -148,7 +161,7 @@ const StyledButton = styled(Button)({
 });
 
 const StyledContainer = styled(Container)({
-  paddingBottom:40,
+  paddingBottom: 40,
   flex: 1,
   ".date-input": {
     ".MuiFormControl-root": {

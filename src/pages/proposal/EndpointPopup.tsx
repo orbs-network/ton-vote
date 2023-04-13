@@ -1,4 +1,4 @@
-import { Box, Fade, IconButton, Radio, styled, Typography } from "@mui/material";
+import { Fade, Radio, styled, Typography } from "@mui/material";
 import {
   CLIENT_V2_API_KEY,
   DEFAULT_CLIENT_V2_ENDPOINT,
@@ -8,14 +8,12 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import AnimateHeight from "react-animate-height";
-import { useMutation } from "@tanstack/react-query";
-import { EndpointsArgs, InputInterface } from "types";
+import { InputInterface } from "types";
 import analytics from "analytics";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Button, MapInput, Popup } from "components";
 import { GoSettings } from "react-icons/go";
-import { useProposalPersistedStore } from "./store";
 import { useIsCustomEndpoint } from "./hooks";
 import { useEnpointsStore } from "store";
 
@@ -97,8 +95,8 @@ function EndpointPopup({
   };
 
   return (
-    <Popup open={open} onClose={onClose} title="RPC endpoint settings">
-      <StyledContent>
+    <StyledPopup open={open} onClose={onClose} title="RPC endpoint settings">
+      <StyledFlexColumn>
         <StyledFlexColumn gap={5} style={{ marginBottom: 20 }}>
           <StyledRadio>
             <Radio
@@ -136,16 +134,11 @@ function EndpointPopup({
           </Fade>
         </AnimateHeight>
         <StyledSaveButton onClick={onSubmit}>Save</StyledSaveButton>
-      </StyledContent>
-    </Popup>
+      </StyledFlexColumn>
+    </StyledPopup>
   );
 }
 
-export const useUpdateEndpoints = () => {
-  const setEndpoints = useEnpointsStore((store) => store.setEndpoints);
-
-  return useMutation(async (args?: EndpointsArgs) => setEndpoints(args));
-};
 
 export const CustomEndpointButton = () => {
   const [open, setOpen] = useState(false);
@@ -184,12 +177,12 @@ const StyledRadio = styled(StyledFlexRow)({
   },
 });
 
-const StyledContent = styled(StyledFlexColumn)({
-  width: "calc(100vw - 80px)",
-  maxWidth: 500,
+const StyledPopup = styled(Popup)({
+  maxWidth: 600,
 });
 
 const StyledSaveButton = styled(Button)({
   width: "100%",
   maxWidth: 200,
+ 
 });

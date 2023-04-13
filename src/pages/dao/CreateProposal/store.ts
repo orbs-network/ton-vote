@@ -1,14 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 import { useDaoAddress, useGetSender } from "hooks";
-import { useClientsQuery } from "query/queries";
 import { useAppNavigation } from "router";
 import { showErrorToast, showPromiseToast } from "toasts";
 import { Address } from "ton-core";
-import { ProposalMetadata } from "ton-vote-sdk";
+import { getClientV2, ProposalMetadata } from "ton-vote-sdk";
 import { create } from "zustand";
 import { FormData } from "./form";
 import * as TonVoteSDK from "ton-vote-sdk";
 import moment from "moment";
+import { persist } from "zustand/middleware";
 
 interface Store {
   preview: boolean;
@@ -16,17 +16,23 @@ interface Store {
   formData: FormData;
   setFormData: (value: FormData) => void;
 }
-export const useCreateProposalStore = create<Store>((set) => ({
-  preview: false,
-  setPreview: (preview) => set({ preview }),
-  formData: { title: "", description: "" } as FormData,
-  setFormData: (formData) => set({ formData }),
-}));
+export const useCreateProposalStore = create(
+  persist<Store>(
+    (set) => ({
+      preview: false,
+      setPreview: (preview) => set({ preview }),
+      formData: { title: "", description: "" } as FormData,
+      setFormData: (formData) => set({ formData }),
+    }),
+    {
+      name: "ton_vote_create_proposal",
+    }
+  )
+);
 
 export const useCreateProposal = () => {
   const daoAddress = useDaoAddress();
   const getSender = useGetSender();
-  const clientV2 = useClientsQuery()?.clientV2;
   const appNavigation = useAppNavigation();
 
   return useMutation(
@@ -52,10 +58,10 @@ export const useCreateProposal = () => {
       };
 
       const sender = getSender();
-
+      const clientV2 = await getClientV2()
       const promise = TonVoteSDK.newProposal(
         sender,
-        clientV2!,
+        clientV2,
         Address.parse(daoAddr),
         proposalMetadata
       );

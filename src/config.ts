@@ -61,14 +61,12 @@ export const PASSWORD = "ton-vote-14-02";
 
 export enum QueryKeys {
   STATE = "STATE",
-  PROPOSAL_METADATA = "PROPOSAL_METADATA",
   PROPOSAL_TIMELINE = "PROPOSAL_TIMELINE",
   DAO_METADATA = "DAO_METADATA",
   DAOS = "DAOS",
   PROPOSALS = "PROPOSALS",
   DAO_ROLES = "DAO_ROLES",
   PROPOSAL = "PROPOSAL",
-  SERVER_VALIDATION = "SERVER_VALIDATION",
 }
 
 export const APP_TITLE = "TON Vote";
@@ -82,4 +80,4 @@ export const TON_CONNECTOR = new TonConnect({
 export const DAOS_LIMIT = 8;
 
 
-export const PROPOSALS_LIMIT = 20;
+export const PROPOSALS_LIMIT = 10;

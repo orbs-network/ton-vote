@@ -8,9 +8,7 @@ import { FormData, useCreatDaoStore, useCreateDao } from "../store";
 import { Submit } from "./Submit";
 
 export function CreateDaoStep() {
-  const { mutate: createDao, isLoading, error } = useCreateDao();
-
-  console.log({ error });
+  const { mutate: createDao, isLoading } = useCreateDao();
   
   const { prevStep, formData } = useCreatDaoStore();
   const data = formData as any as FormData;

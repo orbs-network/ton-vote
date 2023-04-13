@@ -1,5 +1,5 @@
 import { Box, styled, Typography } from "@mui/material";
-import { List, FadeElement, Loader, LoadMore, Select } from "components";
+import { Container, List, LoadMore, Select } from "components";
 import { PROPOSALS_LIMIT } from "config";
 import { useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
@@ -32,20 +32,18 @@ export function ProposalsList() {
   const daoAddress = useDaoAddress();
 
   const { data, isLoading } = useDaoProposalsQuery(daoAddress);
-
-  console.log({ data });
   
   const [queryParamState] = useFilterValue();
 
   const emptyList = !isLoading && !_.size(_.first(data?.pages))
 
   return (
-    <FadeElement>
-      <StyledProposalsContainer
-        title="Proposals"
-        headerChildren={<DaoFilter />}
-      >
-        <StyledFlexColumn gap={20}>
+      <StyledFlexColumn gap={15}>
+        <StyledProposalsContainer
+          title="Proposals"
+          headerChildren={<DaoFilter />}
+        />
+        <StyledFlexColumn gap={15}>
           <List
             isEmpty={!!emptyList}
             isLoading={isLoading}
@@ -66,8 +64,7 @@ export function ProposalsList() {
           </List>
         </StyledFlexColumn>
         <LoadMoreProposals emptyList={emptyList} />
-      </StyledProposalsContainer>
-    </FadeElement>
+      </StyledFlexColumn>
   );
 }
 
@@ -78,12 +75,18 @@ const EmptyList = () => {
 
   return (
     <StyledEmptyList>
-      <Typography>No Proposals</Typography>
-      {isOwner && (
-        <Link color="primary" className="create" to={appNavigation.daoPage.create(daoAddress)}>
-          Create
-        </Link>
-      )}
+      <StyledFlexRow>
+        <Typography>No Proposals</Typography>
+        {isOwner && (
+          <Link
+            color="primary"
+            className="create"
+            to={appNavigation.daoPage.create(daoAddress)}
+          >
+            Create
+          </Link>
+        )}
+      </StyledFlexRow>
     </StyledEmptyList>
   );
 };
@@ -110,7 +113,7 @@ const LoadMoreProposals = ({ emptyList }: { emptyList: boolean }) => {
   const { data, isLoading, fetchNextPage, isFetchingNextPage } =
     useDaoProposalsQuery(daoAddress);
   const loadMoreOnScroll = _.size(data?.pages) > 1 && !isFetchingNextPage;
-  const hide = emptyList ||  isLoading;
+  const hide = emptyList || isLoading || _.size(_.last(data?.pages)?.proposals) < PROPOSALS_LIMIT
 
   return (
     <LoadMore
@@ -122,7 +125,7 @@ const LoadMoreProposals = ({ emptyList }: { emptyList: boolean }) => {
   );
 };
 
-const StyledEmptyList = styled(StyledFlexRow)({
+const StyledEmptyList = styled(Container)({
   p: {
     fontSize: 20,
     fontWeight: 700,

@@ -1,16 +1,17 @@
-import {  styled, useMediaQuery } from "@mui/material";
+import { Fade, styled, useMediaQuery } from "@mui/material";
 import { Page } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Hero } from "./Hero";
-import { Information } from "./Information";
+import { Metadata } from "./Metadata";
 import { Results } from "./Results";
-import { Confirmation, Vote } from "./Vote";
+import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
-import { useProposalAddress } from "hooks";
 import { CustomEndpointButton } from "./EndpointPopup";
+import { appNavigation } from "router";
+import { useDaoAddress } from "hooks";
 
 const Destop = () => {
   return (
@@ -22,7 +23,7 @@ const Destop = () => {
       </StyledLeft>
       <StyledRight>
         <Deadline />
-        <Information />
+        <Metadata />
         <Results />
       </StyledRight>
     </StyledWrapper>
@@ -36,7 +37,7 @@ const Mobile = () => {
       <Hero />
       <Vote />
       <Results />
-      <Information />
+      <Metadata />
       <Votes />
     </StyledWrapper>
   );
@@ -45,7 +46,6 @@ const Mobile = () => {
 const Meta = () => {
   return (
     <Helmet>
-      <Confirmation open={true} />
       <title>
         {APP_TITLE}
         {/* {data ? `- ${data.title}` : ""} */}
@@ -56,9 +56,13 @@ const Meta = () => {
 
 function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
+  const daoAddress = useDaoAddress();
 
   return (
-    <Page headerComponent={<CustomEndpointButton />}>
+    <Page
+      headerComponent={<CustomEndpointButton />}
+      back={appNavigation.daoPage.root(daoAddress)}
+    >
       <Meta />
       {mobile ? <Mobile /> : <Destop />}
     </Page>
@@ -66,8 +70,6 @@ function ProposalPage() {
 }
 
 export { ProposalPage };
-
-
 
 const StyledWrapper = styled(StyledFlexRow)({
   alignItems: "flex-start",

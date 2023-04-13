@@ -96,11 +96,12 @@ export interface SelectOption {
 }
 
 export interface ProposalState {
-  votingPower: VotingPower;
+  votingPower?: VotingPower;
   votes: Vote[];
   results: ProposalResults;
   maxLt?: string;
   transactions?: Transaction[];
+  proposalMetadata?: ProposalMetadata;
 }
 
 export type InputType =

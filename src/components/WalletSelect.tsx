@@ -85,7 +85,7 @@ const WalletList = () => {
     context.setSelectedWallet({ name: wallet.name, icon: wallet.imageUrl });
     const session = connect(wallet);
     console.log(session);
-    
+
     context.setSessionUrl(session);
   };
 
@@ -172,24 +172,22 @@ const QR = () => {
 
 const StyledWalletsList = styled(StyledFlexColumn)({
   gap: 0,
-  maxWidth: 350,
-  width: "calc(100vw - 40px)",
+  width: "100%",
   padding: "0px 10px 20px 10px",
 });
 
 const StyledPopup = styled(Popup)({
-  ".children": {
-    padding: 0,
-    ".container-header":{
-      padding: '20px 20px 0px 20px',
-      marginBottom: 10,
-    }
+  justifyContent: "center",
+  maxWidth: 400,
+  padding: 0,
+  ".container-header": {
+    padding: "20px 20px 0px 20px",
+    marginBottom: 10,
   },
 });
 
 const StyledQrBox = styled(Box)({
-  maxWidth: 350,
-  width: "calc(100vw - 40px)",
+  width: "100%",
   height: "100%",
   display: "flex",
   alignItems: "center",

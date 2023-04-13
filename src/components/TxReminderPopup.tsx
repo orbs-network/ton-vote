@@ -1,35 +1,33 @@
-import { CircularProgress, styled, Typography } from "@mui/material";
-import React from "react";
+import { styled, Typography } from "@mui/material";
+import { useTxReminderPopup } from "store";
 import { StyledFlexColumn } from "styles";
+import { Button } from "./Button";
 import { Popup } from "./Popup";
 
-export function TxReminderPopup({
-  open,
-  onClose,
-  text,
-}: {
-  open: boolean;
-  onClose: () => void;
-  text: string;
-}) {
-  if (!text) return null;
+export function TxReminderPopup() {
+  const { text, open, setOpen } = useTxReminderPopup();
+
   return (
-    <Popup open={open} onClose={onClose}>
-      <StyledContainer>
-        <Typography>{text}</Typography>
-        <CircularProgress />
-      </StyledContainer>
-    </Popup>
+    <StyledPoup hideCloseButton open={open} onClose={() => setOpen(false)}>
+      <StyledFlexColumn gap={30}>
+        <StyledText>{text}</StyledText>
+        <StyledBtn onClick={() => setOpen(false)}>Close</StyledBtn>
+      </StyledFlexColumn>
+    </StyledPoup>
   );
 }
 
-const StyledContainer = styled(StyledFlexColumn)({
-  gap: 30,
-  width:'calc(100vw - 50px)',
-  maxWidth: 300,
-  textAlign:'center',
-  "p":{
-    fontSize: 18,
-    fontWeight: 500
-  }
+const StyledBtn = styled(Button)({
+  minWidth: 160,
+});
+
+const StyledText = styled(Typography)({
+  fontSize: 17,
+  fontWeight: 600,
+});
+
+const StyledPoup = styled(Popup)({
+  padding: 20,
+  maxWidth: 400,
+  textAlign: "center",
 });

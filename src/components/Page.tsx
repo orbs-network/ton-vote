@@ -15,7 +15,6 @@ function Page({
   headerComponent?: ReactNode;
 }) {
   return (
-    <Fade in={true}>
       <StyledContainer className={className}>
         <StyledTop justifyContent="space-between">
           <Back to={back} />
@@ -23,7 +22,6 @@ function Page({
         </StyledTop>
         {children}
       </StyledContainer>
-    </Fade>
   );
 }
 

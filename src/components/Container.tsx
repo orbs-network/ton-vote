@@ -1,6 +1,6 @@
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import React, { forwardRef, ReactNode } from "react";
-import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
+import { StyledContainerTitle, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 const Container = React.forwardRef(
   (
@@ -11,34 +11,42 @@ const Container = React.forwardRef(
       loading,
       loaderAmount,
       headerChildren,
+      onClick,
     }: {
-      children: ReactNode;
+      children?: ReactNode;
       className?: string;
       title?: string;
       loading?: boolean;
       loaderAmount?: number;
       headerChildren?: ReactNode;
+      onClick?: () => void;
     },
     ref: any
   ) => {
     const showHeader = title || headerChildren;
 
     return (
-      <StyledContainer className={className} ref={ref}>
+      <StyledContainer onClick={onClick} className={className} ref={ref}>
         {showHeader && (
-          <StyledHeader className="container-header">
+          <StyledHeader style={{
+            marginBottom: children ? 20 : 0
+          }} className="container-header">
             {loading ? (
               <StyledHeaderLoader />
             ) : (
               <>
-                {title && <Title>{title}</Title>}
+                {title ?  <Title>{title}</Title> : <span></span>}
                 {headerChildren}
               </>
             )}
           </StyledHeader>
         )}
 
-        {loading ? <Loader loaderAmount={loaderAmount} /> : children}
+        {!children ? null : loading ? (
+          <Loader loaderAmount={loaderAmount} />
+        ) : (
+          <div className="container-children">{children}</div>
+        )}
       </StyledContainer>
     );
   }
@@ -84,27 +92,18 @@ const StyledContainer = styled(Box)({
   borderRadius: 20,
   padding: 20,
   width: "100%",
+ 
 });
 
 const StyledHeader = styled(StyledFlexRow)({
-  marginBottom: 20,
   alignItems: "flex-start",
+  justifyContent:'space-between'
 });
 
 const Title = ({ children }: { children: string }) => {
-  return <StyledTitle variant="h4">{children}</StyledTitle>;
+  return <StyledContainerTitle variant="h4">{children}</StyledContainerTitle>;
 };
 
-const StyledTitle = styled(Typography)({
-  width: "100%",
-  maxWidth: "90%",
-  textAlign: "left",
-  marginRight: "auto",
-  lineHeight: "28px",
-  "@media (max-width: 600px)": {
-    fontSize: 18,
-    lineHeight: "25px",
-  },
-});
+
 
 export { Container };

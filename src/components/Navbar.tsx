@@ -1,6 +1,4 @@
 import {
-
-  IconButton,
   Menu,
   MenuItem,
   styled,
@@ -17,13 +15,10 @@ import {StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
 import LogoImg from "assets/logo.svg";
-import { useEnpointModal } from "store";
-import analytics from "analytics";
 import { useAppNavigation } from "router";
 import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
 import useCopyToClipboard from "hooks";
-import { GoSettings } from "react-icons/go";
 import { showSuccessToast } from "toasts";
 
 export function Navbar() {
@@ -31,19 +26,16 @@ export function Navbar() {
   const { daosPage } = useAppNavigation();
   return (
     <StyledContainer>
-      <StyledGrid>
-        <StyledFlexRow justifyContent="space-between" width="100%">
-          <StyledLogo onClick={daosPage.root}>
-            <img src={LogoImg} />
-            <Typography>VOTE</Typography>
-          </StyledLogo>
-          <StyledFlexRow style={{ width: "fit-content" }}>
-           
-            <Wallet />
-            {!mobile && <Github />}
-          </StyledFlexRow>
+      <StyledNav>
+        <StyledLogo onClick={daosPage.root}>
+          <img src={LogoImg} />
+          <Typography>VOTE</Typography>
+        </StyledLogo>
+        <StyledFlexRow style={{ width: "fit-content" }}>
+          <Wallet />
+          {!mobile && <Github />}
         </StyledFlexRow>
-      </StyledGrid>
+      </StyledNav>
     </StyledContainer>
   );
 }
@@ -164,7 +156,6 @@ const StyledLogo = styled("button")(({ theme }) => ({
 }));
 
 const StyledContainer = styled(StyledFlexRow)({
-  width: "100%",
   background: "white",
   height: 70,
   position: "fixed",
@@ -174,7 +165,12 @@ const StyledContainer = styled(StyledFlexRow)({
   zIndex: 10,
 });
 
-/// setings component
 
 
 
+
+const StyledNav = styled(StyledGrid)({
+  display:'flex',
+  justifyContent:'space-between',
+  flexDirection:'row'
+});

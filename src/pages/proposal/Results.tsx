@@ -3,24 +3,30 @@ import { styled } from "@mui/material";
 import { Button, Container, Progress } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { calculateTonAmount, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
-import { fromNano } from "ton";
 import _ from "lodash";
-import { useProposalStateQuery, useProposalVotesCount, useVerifyProposalResults } from "./hooks";
+import { useProposalState, useVerifyProposalResults } from "./hooks";
 import { ProposalStatus } from "types";
 import { useProposalStatusQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "./store";
 
 export const Results = () => {
-  const proposalAddress = useProposalAddress();
-  const { data, isLoading } = useProposalStateQuery(proposalAddress);
+  const { data, isLoading, dataUpdatedAt } = useProposalState();
 
   const proposalResults = data?.results;
 
-  const votesCount = useProposalVotesCount();
+  const votesCount = useMemo(() => {
+    const grouped = _.groupBy(data?.votes, "vote");
+
+    return {
+      yes: nFormatter(_.size(grouped.Yes)),
+      no: nFormatter(_.size(grouped.No)),
+      abstain: nFormatter(_.size(grouped.Abstain)),
+    };
+  }, [dataUpdatedAt]);
 
   return (
     <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
@@ -123,8 +129,12 @@ export function VerifyResults() {
     isLoading,
     data: isVerified,
     reset,
-  } = useVerifyProposalResults(proposalAddress);
-  const proposalStatus = useProposalStatusQuery(proposalAddress);
+  } = useVerifyProposalResults();
+  const proposalMetadata = useProposalState().data?.proposalMetadata;
+  const proposalStatus = useProposalStatusQuery(
+    proposalMetadata,
+    proposalAddress
+  );
 
   const latestMaxLtAfterTx = useLatestMaxLtAfterTx(proposalAddress);
 

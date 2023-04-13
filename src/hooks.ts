@@ -47,10 +47,11 @@ export const useWindowResize = () => {
 export const useIsOwner = (daoAddress: string) => {
   const address = useConnection().address;
   const { data, isLoading } = useDaoQuery(daoAddress);
-
+  
   return {
-    isDaoOwner: address && address === data?.roles.owner,
-    isProposalOnwer: address && address === data?.roles.proposalOwner,
+    isDaoOwner: address && address === (data as any)?.daoRoles.owner,
+    isProposalOnwer:
+      address && address === (data as any)?.daoRoles.proposalOwner,
     isLoading,
   };
 };

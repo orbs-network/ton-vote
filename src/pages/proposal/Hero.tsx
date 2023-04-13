@@ -37,9 +37,8 @@ export function Hero() {
 }
 
 const VoteEndedChip = () => {
-    const proposalAddress = useProposalAddress();
 
-  const proposalStatus = useProposalStatusQuery(proposalAddress);
+  const proposalStatus = useProposalStatusQuery();
 
   const label = getProposalStatusText(proposalStatus);
 

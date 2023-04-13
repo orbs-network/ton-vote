@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, Fade, styled } from "@mui/material";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { StyledFlexRow } from "styles";
@@ -6,12 +6,14 @@ import { DaoMenu } from "./DaoMenu";
 
 function SpaceMenuLayout() {
   return (
-    <StyledContainer>
-      <DaoMenu />
-      <StyledOutlet>
-        <Outlet />
-      </StyledOutlet>
-    </StyledContainer>
+    <Fade in={true}>
+      <StyledContainer>
+        <DaoMenu />
+        <StyledOutlet>
+          <Outlet />
+        </StyledOutlet>
+      </StyledContainer>
+    </Fade>
   );
 }
 

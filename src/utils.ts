@@ -4,6 +4,9 @@ import moment from "moment";
 import { fromNano } from "ton";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
+import * as TonVoteSDK from 'ton-vote-sdk'
+
+
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
   return `${address.substring(0, padding)}...${address.substring(
@@ -17,7 +20,7 @@ export const Logger = (log: any) => {
   }
 };
 
-export const parseVotes = (rawVotes: RawVotes, votingPower: VotingPower) => {
+export const parseVotes = (rawVotes: TonVoteSDK.Votes, votingPower: VotingPower) => {
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
 

@@ -11,7 +11,6 @@ export function About() {
   const roles = useDaoQuery(daoAddress).data?.roles;
 
   return (
-    <FadeElement>
       <Container title="About">
         <StyledFlexColumn gap={20}>
           <StyledSection>
@@ -32,7 +31,6 @@ export function About() {
           </StyledSection>
         </StyledFlexColumn>
       </Container>
-    </FadeElement>
   );
 }
 

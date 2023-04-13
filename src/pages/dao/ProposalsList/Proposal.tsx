@@ -5,7 +5,6 @@ import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Address } from "ton-core";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { Proposal, ProposalStatus } from "types";
 import {
@@ -20,7 +19,6 @@ import {
   StyledDescription,
   StyledLoader,
   StyledProposal,
-  StyledProposalContent,
   StyledProposalOwner,
   StyledProposalResult,
   StyledProposalResultContent,
@@ -72,33 +70,31 @@ export const ProposalComponent = ({
       loader={<StyledLoader />}
       component={
         <StyledProposal
+          title="Title"
+          headerChildren={
+            <Chip
+              label={getProposalStatusText(status)}
+              className="status"
+              color="primary"
+            />
+          }
           onClick={() =>
             proposalPage.root(daoAddress, proposal.proposalAddr.toString())
           }
         >
-          <StyledProposalContent className="container">
-            <StyledFlexColumn alignItems="flex-start">
-              <StyledFlexRow justifyContent="space-between">
-                <Typography className="title">Title</Typography>
-                <Chip
-                  label={getProposalStatusText(status)}
-                  className="status"
-                  color="primary"
-                />
-              </StyledFlexRow>
-              <StyledProposalOwner>
-                Owner: {makeElipsisAddress(roles?.owner, 8)}
-              </StyledProposalOwner>
+          <StyledFlexColumn alignItems="flex-start">
+            <StyledProposalOwner>
+              Owner: {makeElipsisAddress(roles?.owner, 8)}
+            </StyledProposalOwner>
 
-              <StyledDescription>Description</StyledDescription>
+            <StyledDescription>Description</StyledDescription>
 
-              {status !== ProposalStatus.CLOSED && metadata && (
-                <Time proposalMetadata={metadata} status={status} />
-              )}
+            {status !== ProposalStatus.CLOSED && metadata && (
+              <Time proposalMetadata={metadata} status={status} />
+            )}
 
-              {status && <Results address={proposal.proposalAddr} />}
-            </StyledFlexColumn>
-          </StyledProposalContent>
+            {status && <Results address={proposal.proposalAddr} />}
+          </StyledFlexColumn>
         </StyledProposal>
       }
     />

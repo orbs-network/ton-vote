@@ -28,7 +28,7 @@ interface TextInputProps {
 }
 
 export function TextInput({
-  value = '',
+  value = "",
   onChange,
   label,
   error,
@@ -162,12 +162,13 @@ const StyledContainer = styled(StyledFlexColumn)({
 });
 
 const StyledError = styled(StyledFlexRow)({
-  position: "absolute",
-  top: "calc(100% + 2px)",
+  // position: "absolute",
+  // top: "calc(100% + 2px)",
   width: "100%",
   paddingLeft: 5,
   justifyContent: "flex-start",
   gap: 5,
+  marginTop:5,
   p: {
     fontSize: 13,
     color: "red",
@@ -182,6 +183,7 @@ const StyledInput = styled(TextField)({
     borderRadius: 10,
   },
   input: {
+    background:'transparent!important',
     padding: "12.5px 12px",
     fontSize: 16,
     fontWeight: 500,
@@ -196,6 +198,7 @@ interface DateRangeInput {
   onFocus?: () => void;
   min?: number;
   max?: number;
+  value?: number | string;
 }
 
 export const DateRangeInput = ({
@@ -206,7 +209,9 @@ export const DateRangeInput = ({
   onFocus,
   min,
   max,
+  value = '',
 }: DateRangeInput) => {
+  
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <StyledDatepicker className={`${className} date-input`}>
@@ -214,6 +219,7 @@ export const DateRangeInput = ({
         <DateTimePicker
           maxDate={max && dayjs(max)}
           minDate={min && dayjs(min)}
+          value={value && dayjs(value)}
           onOpen={onFocus}
           className="datepicker"
           onChange={(value: any) => onChange(dayjs(value).valueOf())}
@@ -262,6 +268,7 @@ export function MapInput<T>({
     formik.setFieldValue(name as string, value);
     clearError();
   };
+  
   if (input.type === "date") {
     return (
       <DateRangeInput
@@ -272,6 +279,7 @@ export function MapInput<T>({
         className={className}
         min={input.min}
         max={input.max}
+        value={value as any}
       />
     );
   }

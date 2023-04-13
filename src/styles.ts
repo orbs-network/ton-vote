@@ -74,7 +74,6 @@ export const textOverflow: CSSProperties = {
 export const StyledGrid = styled(StyledFlexColumn)({
   gap: 0,
   width: "calc(100% - 100px)",
-  flex: 1,
   maxWidth: 950,
   marginLeft: "auto",
   marginRight: "auto",
@@ -97,4 +96,20 @@ export const StyledOneLine = styled(Typography)({
   display: "inline-block",
   overflow: "hidden",
   whiteSpace: "nowrap",
+});
+
+
+export const StyledContainerTitle = styled(Typography)({
+  color:'black',
+  width: "100%",
+  maxWidth: "90%",
+  textAlign: "left",
+  marginRight: "auto",
+  fontWeight: 700,
+  lineHeight: "28px",
+  fontSize: 20,
+  "@media (max-width: 600px)": {
+    fontSize: 18,
+    lineHeight: "25px",
+  },
 });

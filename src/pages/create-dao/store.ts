@@ -3,11 +3,11 @@ import { Address } from "ton-core";
 import { create } from "zustand";
 import _ from "lodash";
 import { useGetSender } from "hooks";
-import { useAddDao, useClientsQuery } from "query/queries";
 import * as TonVoteContract from "ton-vote-sdk";
-import { MetadataArgs } from "ton-vote-sdk";
+import { getClientV2, MetadataArgs } from "ton-vote-sdk";
 import { showPromiseToast } from "toasts";
 import { useAppNavigation } from "router";
+import { useTxReminderPopup } from "store";
 
 const initialFormData: FormData = {
   name: "test",
@@ -57,8 +57,8 @@ export const useCreatDaoStore = create<State>((set, get) => ({
 
 export const useCreateDaoMetadata = () => {
   const getSender = useGetSender();
-  const clientV2 = useClientsQuery()?.clientV2;
   const { nextStep, setMetadataAddress, setFormData } = useCreatDaoStore();
+  const toggleTxReminder = useTxReminderPopup().setOpen;
 
   return useMutation(
     async (values: FormData) => {
@@ -74,9 +74,11 @@ export const useCreateDaoMetadata = () => {
         twitter: values.twitter,
         website: values.website,
       };
+      toggleTxReminder(true);
+      const clientV2 = await getClientV2();
       const promise = TonVoteContract.newMetdata(
         sender,
-        clientV2!,
+        clientV2,
         metadataArgs
       );
 
@@ -84,6 +86,7 @@ export const useCreateDaoMetadata = () => {
         promise,
         success: "Metadata created!",
       });
+
       const address = await promise;
       if (Address.isAddress(address)) {
         nextStep();
@@ -94,6 +97,7 @@ export const useCreateDaoMetadata = () => {
       }
     },
     {
+      onSettled: () => toggleTxReminder(false),
       onSuccess: () => {
         window.scrollTo(0, 0);
       },
@@ -103,36 +107,41 @@ export const useCreateDaoMetadata = () => {
 
 export const useCreateDao = () => {
   const getSender = useGetSender();
-  const clientV2 = useClientsQuery()?.clientV2;
   const appNavigation = useAppNavigation();
-  const unshiftDao = useAddDao();
   const {
     formData: { ownerAddress, proposalOwner },
     metadataAddress,
   } = useCreatDaoStore();
 
-  return useMutation(async () => {
-    const sender = getSender();
+  const toggleTxReminder = useTxReminderPopup().setOpen;
 
-    const promise = TonVoteContract.newDao(
-      sender,
-      clientV2!,
-      metadataAddress!,
-      Address.parse(ownerAddress),
-      Address.parse(proposalOwner)
-    );
+  return useMutation(
+    async () => {
+      const sender = getSender();
+      const clientV2 = await getClientV2();
+      const promise = TonVoteContract.newDao(
+        sender,
+        clientV2,
+        metadataAddress!,
+        Address.parse(ownerAddress),
+        Address.parse(proposalOwner)
+      );
 
-    showPromiseToast({
-      promise,
-      loading: "Transaction pending",
-      success: "Dao created!",
-    });
-    const address = await promise;
-    if (Address.isAddress(address)) {
-      unshiftDao(address.toString());
-      appNavigation.daoPage.root(address.toString());
-    } else {
-      throw new Error("Something went wrong");
+      showPromiseToast({
+        promise,
+        loading: "Transaction pending",
+        success: "Dao created!",
+      });
+      toggleTxReminder(true);
+      const address = await promise;
+      if (Address.isAddress(address)) {
+        appNavigation.daoPage.root(address.toString());
+      } else {
+        throw new Error("Something went wrong");
+      }
+    },
+    {
+      onSettled: () => toggleTxReminder(false),
     }
-  });
+  );
 };

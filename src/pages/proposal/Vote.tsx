@@ -17,12 +17,15 @@ import { useProposalStatusQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
 import { useVote } from "query/mutations";
 import { useConnection } from "ConnectionProvider";
+import { useProposalState } from "./hooks";
+import { VoteConfirmation } from "./VoteConfirmation";
 
 export function Vote() {
   const { vote, setVote } = useVoteStore();
   const [showModal, setShowModal] = useState(false);
   const proposalAddress = useProposalAddress();
-  const proposalStatus = useProposalStatusQuery(proposalAddress);
+  const state = useProposalState().data
+  const proposalStatus = useProposalStatusQuery(state?.proposalMetadata, proposalAddress);
   const { mutate, isLoading } = useVote(proposalAddress);
 
   useEffect(() => {
@@ -37,36 +40,41 @@ export function Vote() {
   if (proposalStatus !== ProposalStatus.ACTIVE) return null;
 
   return (
-    <StyledContainer title="Should the validators proceed with this proposal?">
-      <StyledFlexColumn>
-        {voteOptions.map((option) => {
-          return (
-            <StyledOption
-              selected={option.value === vote}
-              key={option.value}
-              onClick={() => setVote(option.value)}
-            >
-              <Fade in={option.value === vote}>
-                <StyledFlexRow className="icon">
-                  <FiCheck style={{ width: 20, height: 20 }} />
-                </StyledFlexRow>
-              </Fade>
-              <Typography>{option.name}</Typography>
-            </StyledOption>
-          );
-        })}
-      </StyledFlexColumn>
-      <VoteButton
-        isLoading={isLoading}
-        disabled={!vote || isLoading}
-        onSubmit={onSubmit}
-      />
-      <TxReminderPopup
-        text={TX_APPROVED_AND_PENDING}
-        open={showModal}
-        onClose={() => setShowModal(false)}
-      />
-    </StyledContainer>
+    <>
+      <StyledContainer title="Should the validators proceed with this proposal?">
+        <StyledFlexColumn>
+          {voteOptions.map((option) => {
+            return (
+              <StyledOption
+                selected={option.value === vote}
+                key={option.value}
+                onClick={() => setVote(option.value)}
+              >
+                <Fade in={option.value === vote}>
+                  <StyledFlexRow className="icon">
+                    <FiCheck style={{ width: 20, height: 20 }} />
+                  </StyledFlexRow>
+                </Fade>
+                <Typography>{option.name}</Typography>
+              </StyledOption>
+            );
+          })}
+        </StyledFlexColumn>
+        <VoteButton
+          isLoading={isLoading}
+          disabled={!vote || isLoading}
+          onSubmit={onSubmit}
+        />
+      </StyledContainer>
+      {/* <VoteConfirmation
+      open={true}
+        vote="Yes"
+        votingPower={state?.votingPower}
+        onClose={() => {}}
+        onSubmit={() => {}}
+        snapshot={state?.proposalMetadata?.mcSnapshotBlock}
+      /> */}
+    </>
   );
 }
 
@@ -135,12 +143,4 @@ const StyledOption = styled(StyledFlexRow)<{
 
 const StyledContainer = styled(Container)({});
 
-export const Confirmation = ({ open }: { open: boolean }) => {
-  return (
-    <Popup open={true}>
-      <StyledConfirmation></StyledConfirmation>
-    </Popup>
-  );
-};
 
-const StyledConfirmation = styled(StyledFlexColumn)({});
