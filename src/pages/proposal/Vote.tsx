@@ -3,30 +3,26 @@ import { styled, Typography } from "@mui/material";
 import {
   Container,
   Button,
-  TxReminderPopup,
   ConnectButton,
   Popup,
 } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { TX_APPROVED_AND_PENDING, voteOptions } from "config";
-import { useVoteStore } from "./store";
+import { voteOptions } from "config";
 import { ProposalStatus } from "types";
 import { useProposalStatusQuery } from "query/queries";
 import { useProposalAddress } from "hooks";
-import { useVote } from "query/mutations";
 import { useConnection } from "ConnectionProvider";
-import { useProposalState } from "./hooks";
-import { VoteConfirmation } from "./VoteConfirmation";
+import { useProposalState, useVote } from "./hooks";
 
 export function Vote() {
-  const { vote, setVote } = useVoteStore();
+  const [vote, setVote] = useState<string | undefined>();
   const [showModal, setShowModal] = useState(false);
   const proposalAddress = useProposalAddress();
   const state = useProposalState().data
   const proposalStatus = useProposalStatusQuery(state?.proposalMetadata, proposalAddress);
-  const { mutate, isLoading } = useVote(proposalAddress);
+  const { mutate, isLoading } = useVote();
 
   useEffect(() => {
     setShowModal(isLoading);
@@ -34,7 +30,7 @@ export function Vote() {
 
   const onSubmit = () => {
     if (!vote) return;
-    mutate(vote);
+    mutate();
   };
 
   if (proposalStatus !== ProposalStatus.ACTIVE) return null;

@@ -102,7 +102,6 @@ export const StyledOneLine = styled(Typography)({
 export const StyledContainerTitle = styled(Typography)({
   color:'black',
   width: "100%",
-  maxWidth: "90%",
   textAlign: "left",
   marginRight: "auto",
   fontWeight: 700,

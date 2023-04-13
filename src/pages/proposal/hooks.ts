@@ -3,16 +3,16 @@ import analytics from "analytics";
 import { useProposalAddress, useGetSender } from "hooks";
 import { getContractState } from "lib";
 import _ from "lodash";
-import { useEnpointsStore } from "store";
+import { useEnpointsStore, useTxReminderPopup } from "store";
 import { Logger } from "utils";
-import {useProposalStateQuery } from "./query";
+import { useProposalStateQuery } from "./query";
+import { useProposalPersistedStore } from "./store";
 
 export const useIsCustomEndpoint = () => {
   const { clientV2Endpoint, clientV4Endpoint } = useEnpointsStore();
 
   return !!clientV2Endpoint && !!clientV4Endpoint;
 };
-
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
@@ -48,16 +48,20 @@ export const useProposalState = () => {
 export const useVote = () => {
   const getSender = useGetSender();
   const { refetch } = useProposalStateQuery(true);
+  const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
+  const proposalAddress = useProposalAddress();
+  const toggleTxReminder = useTxReminderPopup().setOpen;
   return useMutation(
     async () => {
       const sender = getSender();
+      toggleTxReminder(true);
+      const { data } = await refetch();
+      console.log({ data });
 
-      // send tx,
-      refetch();
-      // update state from contract
-      // set setLatestMaxLtAfterTx
+      setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
     },
     {
+      onSettled: () => toggleTxReminder(false),
       onSuccess: () => {},
     }
   );

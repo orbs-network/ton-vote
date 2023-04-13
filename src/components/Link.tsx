@@ -1,7 +1,7 @@
 import { Link as MuiLink, styled, Typography, useTheme } from "@mui/material";
 import React, { HTMLAttributeAnchorTarget, ReactNode } from "react";
 import {BiLinkExternal} from 'react-icons/bi'
-import { StyledFlexRow, textOverflow } from "styles";
+import { textOverflow } from "styles";
 
 export function Link({
   children,
@@ -10,7 +10,7 @@ export function Link({
   className = "",
 }: {
   href: string;
-  children: string;
+  children: ReactNode;
   target?: HTMLAttributeAnchorTarget;
   className?: string;
 }) {
@@ -30,10 +30,13 @@ export function Link({
 }
 
 
-const StyledLink = styled('a')({
+const StyledLink = styled("a")({
   width: "100%",
   gap: 5,
   textDecoration: "unset",
-  display:'flex',
-  alignItems:'center'
+  display: "flex",
+  alignItems: "center",
+  ":hover": {
+    textDecoration:'underline',
+  },
 });

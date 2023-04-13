@@ -24,15 +24,11 @@ export const useDaosQuery = () => {
   });
 };
 
-export const useDaoQuery = (daoAddress: string, enabled?: boolean) => {
+export const useDaoQuery = (daoAddress: string) => {
   const queryClient = useQueryClient();
 
-  return useQuery(
-    [QueryKeys.DAO_METADATA, daoAddress],
-    ({ signal }) => getDao(queryClient, daoAddress, signal),
-    {
-      enabled: !!enabled,
-    }
+  return useQuery([QueryKeys.DAO_METADATA, daoAddress], ({ signal }) =>
+    getDao(queryClient, daoAddress, signal)
   );
 };
 

@@ -27,7 +27,6 @@ const getDaos = async (
   return (await axiosInstance.get(`/daos/${page}`, { signal })).data;
 };
 
-
 const getProposals = async (
   daoAddress: string,
   page: number = 0,
@@ -37,11 +36,16 @@ const getProposals = async (
     await axiosInstance.get(`/proposals/${daoAddress}/${page}`, { signal })
   ).data;
 };
-const getDaoProposalMetadata = async (
-  contractAddress: string,
+const getProposalMetadata = async (
+  daoAddress: string,
+  proposalAddress: string,
   signal?: AbortSignal
 ): Promise<ProposalMetadata> => {
-  return (await axiosInstance.get("/info")).data;
+  return (
+    await axiosInstance.get(`/proposal/${daoAddress}/${proposalAddress}`, {
+      signal,
+    })
+  ).data.metadata;
 };
 
 const getState = async (
@@ -84,9 +88,11 @@ const getMaxLt = async (signal?: AbortSignal): Promise<string> => {
   return (await axiosInstance.get("/maxLt", { signal })).data;
 };
 
-const getDao = async (daoAddress: string, signal?: AbortSignal): Promise<Dao | undefined> => {
+const getDao = async (
+  daoAddress: string,
+  signal?: AbortSignal
+): Promise<Dao | undefined> => {
   return (await axiosInstance.get(`/dao/${daoAddress}`, { signal })).data;
-
 };
 
 // const getStateUpdateTime = async (signal?: AbortSignal): Promise<number> => {
@@ -103,7 +109,7 @@ const validateServerLastUpdate = async (
 export const api = {
   getDaos,
   getProposals,
-  getDaoProposalMetadata,
+  getProposalMetadata,
   getState,
   getMaxLt,
   validateServerLastUpdate,

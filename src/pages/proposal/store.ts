@@ -1,5 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
-import { useGetSender } from "hooks";
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -8,19 +7,10 @@ interface ProposalStore {
   setTxLoading: (value: boolean) => void;
 }
 
-export interface VoteStore {
-  setVote: (vote?: string) => void;
-  vote?: string;
-}
 
 export const useProposalStore = create<ProposalStore>((set, get) => ({
   txLoading: false,
   setTxLoading: (txLoading) => set({ txLoading }),
-}));
-
-export const useVoteStore = create<VoteStore>((set, get) => ({
-  vote: undefined,
-  setVote: (vote) => set({ vote }),
 }));
 
 interface ProposalPersistedStore {

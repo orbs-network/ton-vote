@@ -87,6 +87,7 @@ export const getProposalState = async (
   const proposalPersistStore = useProposalPersistedStore.getState();
   const latestMaxLtAfterTx =
     proposalPersistStore.getLatestMaxLtAfterTx(proposalAddress);
+
   const contractState = () =>
     getContractState(proposalAddress, state, latestMaxLtAfterTx);
   const serverState = () => {
@@ -113,10 +114,10 @@ export const getProposalState = async (
   const serverMaxLt = await api.getMaxLt(signal);
 
   if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-    Logger(`server is outdated, fetching from contract`);
+    Logger(`server latestMaxLtAfterTx is outdated, fetching from contract`);
     return contractState();
   }
-
+  proposalPersistStore.setLatestMaxLtAfterTx(proposalAddress, undefined);
   return serverState();
 };
 

@@ -79,7 +79,7 @@ const StyledWrapper = styled(StyledFlexRow)({
 });
 
 const StyledLeft = styled(StyledFlexColumn)({
-  flex: 1,
+  width: "calc(100% - 370px - 10px)",
 });
 
 const StyledRight = styled(StyledFlexColumn)({

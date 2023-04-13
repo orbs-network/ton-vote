@@ -14,9 +14,9 @@ import {
   StyledJoinDao,
   StyledLoader,
 } from "./styles";
-import { useJoinDao } from "query/mutations";
 import { makeElipsisAddress } from "utils";
 import { Dao } from "types";
+import { useMutation } from "@tanstack/react-query";
 
 export function DaosList() {
   const { data, isLoading, } = useDaosQuery();  
@@ -93,6 +93,13 @@ const ListLoader = () => {
     </StyledDaosList>
   );
 };
+
+
+const useJoinDao = () => {
+  return useMutation(async () => {
+
+  })
+}
 
 export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();

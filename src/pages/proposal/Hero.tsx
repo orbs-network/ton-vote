@@ -1,22 +1,32 @@
-import { Container } from "components";
-import { Chip, Fade, Link, Typography } from "@mui/material";
+import { Container, Img } from "components";
+import { Chip, Fade, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { StyledFlexColumn } from "styles";
-import { useProposalAddress } from "hooks";
-import { getProposalStatusText } from "utils";
-import { useProposalStatusQuery } from "query/queries";
+import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import {
+  getProposalStatusText,
+  getTonScanContractUrl,
+  makeElipsisAddress,
+} from "utils";
+import { useDaoQuery, useProposalStatusQuery } from "query/queries";
+import { useProposalState } from "./hooks";
+import { useDaoAddress, useProposalAddress } from "hooks";
+import { Link } from "react-router-dom";
+import { appNavigation } from "router";
 
 export function Hero() {
+  const title = "Title";
+  const description = "Description";
+  const isLoading = useProposalState().isLoading;
 
-  const title = 'Title'
-  const description = 'Description'
   return (
     <StyledContainer
       title={title}
-      headerChildren={<VoteEndedChip />}
-      loading={false}
+      loading={isLoading}
+      loaderAmount={5}
+      headerChildren={<StatusChip />}
     >
       <StyledFlexColumn alignItems="flex-start">
+        <ProposalOwner />
         <Typography>{description}</Typography>
         {/* <Typography>
           Tokenomics proposal to achieve community consensus on circulating
@@ -36,20 +46,72 @@ export function Hero() {
   );
 }
 
-const VoteEndedChip = () => {
-
-  const proposalStatus = useProposalStatusQuery();
-
-  const label = getProposalStatusText(proposalStatus);
+const ProposalOwner = () => {
+  const daoAddress = useDaoAddress();
+  const proposalMetadata = useProposalState().data?.proposalMetadata;
+  const dao = useDaoQuery(daoAddress);
 
   return (
-    <Fade in={!!label}>
-      <StyledVoteEnded label={label} variant="filled" color="primary" />
-    </Fade>
+    <StyledProposalOwner justifyContent="flex-start">
+      <StyledDaoImg src={dao.data?.daoMetadata.avatar} />
+      <StyledFlexRow gap={0} justifyContent="flex-start" style={{ flex: 1 }}>
+        <Link to={appNavigation.daoPage.root(daoAddress)} className="dao-name">
+          {dao.data?.daoMetadata.name}
+        </Link>
+        {proposalMetadata?.owner && (
+          <StyledLink href={getTonScanContractUrl(proposalMetadata?.owner)}>
+            by {makeElipsisAddress(proposalMetadata?.owner, 6)}
+          </StyledLink>
+        )}
+      </StyledFlexRow>
+    </StyledProposalOwner>
   );
 };
 
-const StyledVoteEnded = styled(Chip)({
+const StatusChip = () => {
+  const proposalAddress = useProposalAddress();
+  const proposalMetadata = useProposalState().data?.proposalMetadata;
+
+  const proposalStatus = useProposalStatusQuery(
+    proposalMetadata,
+    proposalAddress
+  );
+
+  return (
+    <StyledVoteTimeline
+      label={getProposalStatusText(proposalStatus)}
+      variant="filled"
+      color="primary"
+    />
+  );
+};
+
+const StyledLink = styled("a")({
+  width: "unset",
+  marginLeft: 5,
+});
+
+const StyledDaoImg = styled(Img)({
+  width: 30,
+  height: 30,
+  borderRadius: "50%",
+});
+
+const StyledProposalOwner = styled(StyledFlexRow)({
+  "*": {
+    textDecoration: "unset",
+    color: "unset",
+    fontWeight: 600,
+  },
+  a: {
+    ...textOverflow,
+  },
+  ".dao-name": {
+   maxWidth: 200
+  },
+});
+
+const StyledVoteTimeline = styled(Chip)({
   fontWeight: 700,
   fontSize: 12,
 });
