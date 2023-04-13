@@ -10,7 +10,7 @@ import { useMemo } from "react";
 
 export function DaoPage() {
   const dapAddress = useDaoAddress();
-  const dao = useDaoQuery(dapAddress, true).data;
+  const dao = useDaoQuery(dapAddress).data;
   const currentRoute = useCurrentRoute();
 
   const back = useMemo(() => {

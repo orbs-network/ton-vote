@@ -1,5 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
-import { QueryKeys } from "config";
+
 import _ from "lodash";
 import { useProposalPersistedStore } from "pages/proposal/store";
 import { useEnpointsStore } from "store";
@@ -152,27 +151,9 @@ export const getDaos = async (nextPage?: number, signal?: AbortSignal) => {
 };
 
 export const getDao = async (
-  queryClient: QueryClient,
   daoAddress: string,
   signal?: AbortSignal
 ) => {
-  type DaosQueryType = {
-    pageParams: Array<number | undefined>;
-    pages: Array<{ daos: Dao[]; nextId: number }>;
-  };
-
-  console.log(daoAddress);
-
-  // return Dao from cache if exist
-  const daosQuery = queryClient.getQueryData([QueryKeys.DAOS]) as DaosQueryType;
-
-  const daos = _.flatten(daosQuery?.pages.map((it) => it.daos));
-  const cachedDao = _.find(daos, (it) => it.address === daoAddress);
-  if (cachedDao) {
-    Logger("getting dao from cache");
-    return cachedDao;
-  }
-
   // return Dao from api if exist
   try {
     Logger("getting dao from api");

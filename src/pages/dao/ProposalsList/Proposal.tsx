@@ -59,7 +59,7 @@ export const ProposalComponent = ({
   const daoAddress = useDaoAddress();
   // const status = useProposalStatusQuery(proposal.proposalAddr);
   const status = getProposalStatus(proposal.metadata);
-  const roles = useDaoQuery(proposal.proposalAddr).data?.roles;
+  const roles = useDaoQuery(daoAddress).data?.roles;
   const { metadata } = proposal;
 
   if (filterValue && status && status !== filterValue) return null;
@@ -84,7 +84,7 @@ export const ProposalComponent = ({
         >
           <StyledFlexColumn alignItems="flex-start">
             <StyledProposalOwner>
-              Owner: {makeElipsisAddress(roles?.owner, 8)}
+              Owner: {makeElipsisAddress(proposal.metadata.owner, 8)}
             </StyledProposalOwner>
 
             <StyledDescription>Description</StyledDescription>

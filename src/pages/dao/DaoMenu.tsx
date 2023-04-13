@@ -11,7 +11,7 @@ import Socials from "./Socials";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
-  const { data: dao, isLoading } = useDaoQuery(daoAddresses, true);
+  const { data: dao, isLoading } = useDaoQuery(daoAddresses);
 
   return (
     <StyledContainer>

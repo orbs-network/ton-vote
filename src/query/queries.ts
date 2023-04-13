@@ -5,10 +5,10 @@ import {
 } from "@tanstack/react-query";
 import { QueryKeys } from "config";
 import { api, getDao, getDaos } from "lib";
-import { ProposalStatus } from "types";
+import { Dao, ProposalStatus } from "types";
 import _ from "lodash";
 import { ProposalMetadata } from "ton-vote-sdk";
-import { getProposalStatus } from "utils";
+import { getProposalStatus, Logger } from "utils";
 
 export const useDaosQuery = () => {
   return useInfiniteQuery({
@@ -24,12 +24,30 @@ export const useDaosQuery = () => {
   });
 };
 
+type DaosQueryType = {
+  pageParams: Array<number | undefined>;
+  pages: Array<{ daos: Dao[]; nextId: number }>;
+};
+
 export const useDaoQuery = (daoAddress: string) => {
   const queryClient = useQueryClient();
 
-  return useQuery([QueryKeys.DAO_METADATA, daoAddress], ({ signal }) =>
-    getDao(queryClient, daoAddress, signal)
-  );
+  return useQuery([QueryKeys.DAO_METADATA, daoAddress], ({ signal }) => {
+    const daosQuery = queryClient.getQueryData([
+      QueryKeys.DAOS,
+    ]) as DaosQueryType;
+    console.log(daoAddress);
+    
+    const daos = _.flatten(daosQuery?.pages.map((it) => it.daos));
+    const cachedDao = _.find(daos, (it) => it.address === daoAddress);
+    if (cachedDao) {
+      Logger("getting dao from cache");
+      return cachedDao;
+    }
+    return getDao(daoAddress, signal);
+  }, {
+    staleTime: Infinity
+  });
 };
 
 export const useDaoProposalsQuery = (daoAddress: string) => {
