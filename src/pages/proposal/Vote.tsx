@@ -21,17 +21,14 @@ export function Vote() {
   const [showModal, setShowModal] = useState(false);
   const proposalAddress = useProposalAddress();
   const state = useProposalState().data
-  const proposalStatus = useProposalStatusQuery(state?.proposalMetadata, proposalAddress);
+  const proposalStatus = useProposalStatusQuery(state?.metadata, proposalAddress);
   const { mutate, isLoading } = useVote();
 
   useEffect(() => {
     setShowModal(isLoading);
   }, [isLoading]);
 
-  const onSubmit = () => {
-    if (!vote) return;
-    mutate();
-  };
+
 
   if (proposalStatus !== ProposalStatus.ACTIVE) return null;
 
@@ -59,7 +56,7 @@ export function Vote() {
         <VoteButton
           isLoading={isLoading}
           disabled={!vote || isLoading}
-          onSubmit={onSubmit}
+          onSubmit={() => mutate(vote!)}
         />
       </StyledContainer>
       {/* <VoteConfirmation

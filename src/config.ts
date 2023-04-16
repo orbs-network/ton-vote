@@ -60,13 +60,12 @@ export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 export const PASSWORD = "ton-vote-14-02";
 
 export enum QueryKeys {
-  STATE = "STATE",
   PROPOSAL_TIMELINE = "PROPOSAL_TIMELINE",
-  DAO_METADATA = "DAO_METADATA",
   DAOS = "DAOS",
   PROPOSALS = "PROPOSALS",
   DAO_ROLES = "DAO_ROLES",
   PROPOSAL = "PROPOSAL",
+  DAO = "DAO",
 }
 
 export const APP_TITLE = "TON Vote";
@@ -80,4 +79,3 @@ export const TON_CONNECTOR = new TonConnect({
 export const DAOS_LIMIT = 8;
 
 
-export const PROPOSALS_LIMIT = 10;

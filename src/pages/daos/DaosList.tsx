@@ -123,7 +123,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             <StyledDaoAvatar src={daoMetadata?.avatar} />
             <Typography className="title">{daoMetadata?.name}</Typography>
             <Typography className="address">
-              {makeElipsisAddress(dao.address, 6)}
+              {makeElipsisAddress(dao.daoAddress, 6)}
             </Typography>
             <StyledJoinDao onClick={join}>Join</StyledJoinDao>
           </StyledFlexColumn>

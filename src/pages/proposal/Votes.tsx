@@ -21,7 +21,7 @@ import { useConnection } from "ConnectionProvider";
 const ContainerHeader = () => {
   const { data, isLoading } = useProposalState();
 
-  const totalTonAmount = data?.results?.totalWeight || "0";
+  const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
 
   const tonAmount = useMemo(() => {

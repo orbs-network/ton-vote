@@ -4,8 +4,8 @@ import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 
 
-export const StyledProposalsContainer = styled(Container)({
-  padding:'10px 20px',
+export const StyledProposalsHeader = styled(Container)({
+  padding:'16px 20px',
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -71,7 +71,3 @@ export const StyledDescription = styled(Typography)({
 });
 
 
-export const StyledLoader = styled(StyledSkeletonLoader)({
-  width: "100%",
-  height: 100,
-});

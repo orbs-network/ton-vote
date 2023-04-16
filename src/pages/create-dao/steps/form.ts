@@ -8,15 +8,26 @@ export const useInputs = (): InputInterface[] => {
   return useMemo(() => {
     return [
       {
-        label: "Avatar",
-        type: "text",
-        name: "avatar",
-      },
-
-      {
         label: "Name",
         type: "text",
         name: "name",
+      },
+      {
+        label: "Owner Address",
+        type: "text",
+        name: "ownerAddress",
+        defaultValue: address,
+      },
+      {
+        label: "Proposal Owner Address",
+        type: "text",
+        name: "proposalOwner",
+        defaultValue: address,
+      },
+      {
+        label: "Avatar",
+        type: "text",
+        name: "avatar",
       },
       {
         label: "Github",
@@ -42,18 +53,6 @@ export const useInputs = (): InputInterface[] => {
         label: "Terms",
         type: "url",
         name: "terms",
-      },
-      {
-        label: "Owner Address",
-        type: "text",
-        name: "ownerAddress",
-        defaultValue: address,
-      },
-      {
-        label: "Proposal Owner Address",
-        type: "text",
-        name: "proposalOwner",
-        defaultValue: address,
       },
     ];
   }, [address]);

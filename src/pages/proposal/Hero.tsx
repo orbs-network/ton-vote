@@ -48,7 +48,7 @@ export function Hero() {
 
 const ProposalOwner = () => {
   const daoAddress = useDaoAddress();
-  const proposalMetadata = useProposalState().data?.proposalMetadata;
+  const proposalMetadata = useProposalState().data?.metadata;
   const dao = useDaoQuery(daoAddress);
 
   return (
@@ -70,7 +70,7 @@ const ProposalOwner = () => {
 
 const StatusChip = () => {
   const proposalAddress = useProposalAddress();
-  const proposalMetadata = useProposalState().data?.proposalMetadata;
+  const proposalMetadata = useProposalState().data?.metadata;
 
   const proposalStatus = useProposalStatusQuery(
     proposalMetadata,

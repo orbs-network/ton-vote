@@ -18,7 +18,7 @@ import LogoImg from "assets/logo.svg";
 import { useAppNavigation } from "router";
 import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
-import useCopyToClipboard from "hooks";
+import { useCopyToClipboard } from "hooks";
 import { showSuccessToast } from "toasts";
 
 export function Navbar() {

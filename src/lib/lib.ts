@@ -1,27 +1,24 @@
-
 import _ from "lodash";
-import { useProposalPersistedStore } from "pages/proposal/store";
 import { useEnpointsStore } from "store";
-import { Address } from "ton-core";
 import * as TonVoteSDK from "ton-vote-sdk";
-import { getClientV2, getClientV4, getProposalInfo } from "ton-vote-sdk";
-import { Dao, ProposalState } from "types";
+import { getClientV2, getClientV4, getProposalMetadata } from "ton-vote-sdk";
+import { Dao, Proposal } from "types";
 import { Logger, parseVotes } from "utils";
 import { api } from "./api";
 
-export const getContractState = async (
+export const getProposalFromContract = async (
   proposalAddress: string,
-  state?: ProposalState,
+  state?: Proposal,
   latestMaxLtAfterTx?: string
-): Promise<ProposalState | null> => {
+): Promise<Proposal | null> => {
   const { clientV2Endpoint, clientV4Endpoint, apiKey } =
     useEnpointsStore.getState();
   const clientV2 = await getClientV2(clientV2Endpoint, apiKey);
   const clientV4 = await getClientV4(clientV4Endpoint);
 
-  const proposalMetadata =
-    state?.proposalMetadata ||
-    (await getProposalInfo(clientV2, clientV4, proposalAddress));
+  const metadata =
+    state?.metadata ||
+    (await getProposalMetadata(clientV2, clientV4, proposalAddress));
 
   let _transactions = state?.transactions || [];
   let _maxLt = state?.maxLt;
@@ -30,17 +27,13 @@ export const getContractState = async (
     // filter transaction until specific maxLt
     const { allTxns } = await TonVoteSDK.getTransactions(
       clientV2,
-      Address.parse(proposalAddress)
+      proposalAddress
     );
     _transactions = TonVoteSDK.filterTxByTimestamp(allTxns, latestMaxLtAfterTx);
     _maxLt = latestMaxLtAfterTx;
   } else {
     const { allTxns: newTransactions, maxLt } =
-      await TonVoteSDK.getTransactions(
-        clientV2,
-        Address.parse(proposalAddress),
-        state?.maxLt
-      );
+      await TonVoteSDK.getTransactions(clientV2, proposalAddress, state?.maxLt);
 
     // if no more new transactions, return the current state
     if (_.size(newTransactions) === 0 && state) {
@@ -56,77 +49,34 @@ export const getContractState = async (
 
   const votingPower = await TonVoteSDK.getVotingPower(
     clientV4,
-    proposalMetadata,
+    metadata,
     _transactions,
     state?.votingPower
   );
 
-  const results = TonVoteSDK.getCurrentResults(
+  const proposalResult = TonVoteSDK.getCurrentResults(
     _transactions,
     votingPower,
-    proposalMetadata
+    metadata
   );
-  const votes = TonVoteSDK.getAllVotes(_transactions, proposalMetadata);
+  const votes = TonVoteSDK.getAllVotes(_transactions, metadata);
 
   return {
     votingPower,
-    results,
+    proposalResult,
     votes: parseVotes(votes, votingPower),
     maxLt: _maxLt,
-    proposalMetadata,
+    metadata,
   };
-};
-
-export const getProposalState = async (
-  proposalAddress: string,
-  isCustomEndpoint: boolean,
-  state?: ProposalState,
-  signal?: AbortSignal
-): Promise<ProposalState | null> => {
-  const proposalPersistStore = useProposalPersistedStore.getState();
-  const latestMaxLtAfterTx =
-    proposalPersistStore.getLatestMaxLtAfterTx(proposalAddress);
-
-  const contractState = () =>
-    getContractState(proposalAddress, state, latestMaxLtAfterTx);
-  const serverState = () => {
-    try {
-      return api.getState(proposalAddress, signal);
-    } catch (error) {
-      return contractState();
-    }
-  };
-
-  if (isCustomEndpoint) {
-    return contractState();
-  }
-
-  if (!(await api.validateServerLastUpdate())) {
-    Logger(`server is outdated, fetching from contract`);
-    return contractState();
-  }
-
-  if (!latestMaxLtAfterTx) {
-    return serverState();
-  }
-
-  const serverMaxLt = await api.getMaxLt(signal);
-
-  if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-    Logger(`server latestMaxLtAfterTx is outdated, fetching from contract`);
-    return contractState();
-  }
-  proposalPersistStore.setLatestMaxLtAfterTx(proposalAddress, undefined);
-  return serverState();
 };
 
 export const getDaos = async (nextPage?: number, signal?: AbortSignal) => {
   try {
-    Logger("getting daos from api");
+    Logger("Fetching daos from api");
     return api.getDaos(nextPage, signal);
   } catch (error) {
     // get daos from contract
-    Logger("server error, getting daos from contract");
+    Logger("server error, Fetching daos from contract");
     const client = await getClientV2();
     const { daoAddresses, endDaoId } = await TonVoteSDK.getDaos(
       client,
@@ -134,11 +84,14 @@ export const getDaos = async (nextPage?: number, signal?: AbortSignal) => {
       10
     );
     const daos: Dao[] = await Promise.all(
-      daoAddresses.map(async (address) => {
+      daoAddresses.map(async (address): Promise<Dao> => {
         return {
-          address,
+          daoAddress: address,
           daoMetadata: await TonVoteSDK.getDaoMetadata(client, address),
-          roles: await TonVoteSDK.getDaoRoles(client, address),
+          daoRoles: await TonVoteSDK.getDaoRoles(client, address),
+          daoProposals:
+            (await TonVoteSDK.getDaoProposals(client, address))
+              .proposalAddresses || [],
         };
       })
     );
@@ -153,10 +106,10 @@ export const getDaos = async (nextPage?: number, signal?: AbortSignal) => {
 export const getDao = async (
   daoAddress: string,
   signal?: AbortSignal
-) => {
+): Promise<Dao> => {
   // return Dao from api if exist
   try {
-    Logger("getting dao from api");
+    Logger(`Fetching dao from api  ${daoAddress}`);
     const daoFromApi = await api.getDao(daoAddress, signal);
     if (daoFromApi) return daoFromApi;
 
@@ -164,14 +117,17 @@ export const getDao = async (
   } catch (error) {
     // return Dao from contract
     Logger(
-      `Dao not found in server \n getting dao from contract \n address: ${daoAddress}`
+      `Dao not found in server \n Fetching dao from contract \n address: ${daoAddress}`
     );
 
     const client = await getClientV2();
-    const daoFromContract = {
-      address: daoAddress,
-      roles: await TonVoteSDK.getDaoRoles(client, daoAddress),
+    const daoFromContract: Dao = {
+      daoAddress: daoAddress,
+      daoRoles: await TonVoteSDK.getDaoRoles(client, daoAddress),
       daoMetadata: await TonVoteSDK.getDaoMetadata(client, daoAddress),
+      daoProposals:
+        (await TonVoteSDK.getDaoProposals(client, daoAddress))
+          .proposalAddresses || [],
     };
     return daoFromContract;
   }

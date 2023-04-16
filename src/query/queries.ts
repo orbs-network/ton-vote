@@ -32,16 +32,15 @@ type DaosQueryType = {
 export const useDaoQuery = (daoAddress: string) => {
   const queryClient = useQueryClient();
 
-  return useQuery([QueryKeys.DAO_METADATA, daoAddress], ({ signal }) => {
+  return useQuery([QueryKeys.DAO, daoAddress], ({ signal }) => {
     const daosQuery = queryClient.getQueryData([
       QueryKeys.DAOS,
     ]) as DaosQueryType;
-    console.log(daoAddress);
-    
+
     const daos = _.flatten(daosQuery?.pages.map((it) => it.daos));
-    const cachedDao = _.find(daos, (it) => it.address === daoAddress);
+    const cachedDao = _.find(daos, (it) => it.daoAddress === daoAddress);
     if (cachedDao) {
-      Logger("getting dao from cache");
+      Logger("Fetching dao from cache");
       return cachedDao;
     }
     return getDao(daoAddress, signal);
@@ -50,42 +49,20 @@ export const useDaoQuery = (daoAddress: string) => {
   });
 };
 
-export const useDaoProposalsQuery = (daoAddress: string) => {
-  return useInfiniteQuery({
-    queryKey: [QueryKeys.PROPOSALS, daoAddress],
-    queryFn: async ({ pageParam, signal }) => {
-      const nextPage = pageParam ? Number(pageParam) : undefined;
-      return api.getProposals(daoAddress, nextPage, signal);
-      // try {
-
-      // } catch (error) {
-      // const client = await getClientV2();
-      // const client4 = await getClientV4();
-      // const { proposalAddresses, endProposalId } =
-      //   await TonVoteSDK.getDaoProposals(client, daoAddress, nextPage, 10);
-
-      // const proposals: Proposal[] = await Promise.all(
-      //   proposalAddresses ||
-      //     [].map(async (address) => {
-      //       return {
-      //         proposalAddr: address,
-      //         metadata: await TonVoteSDK.getProposalInfo(
-      //           client,
-      //           client4,
-      //           address
-      //         ),
-      //       };
-      //     })
-      // );
-      // return {
-      //   proposals,
-      //   nextId: endProposalId,
-      // };
-      // }
+export const useProposalQuery = (
+  proposalAddress?: string,
+  enabled?: boolean
+) => {
+  return useQuery(
+    [QueryKeys.PROPOSAL, proposalAddress],
+    async ({ signal }) => {
+      
+      return api.getProposal(proposalAddress!, signal);
     },
-    enabled: !!daoAddress,
-    getNextPageParam: (lastPage) => lastPage.nextId,
-  });
+    {
+      enabled: !!proposalAddress && !!enabled,
+    }
+  );
 };
 
 export const useProposalStatusQuery = (

@@ -1,5 +1,5 @@
-import { Fade, styled, Typography } from "@mui/material";
-import { Container, FadeElement, Link } from "components";
+import { styled, Typography } from "@mui/material";
+import { Container, Link } from "components";
 import { useDaoAddress } from "hooks";
 import {  useDaoQuery } from "query/queries";
 import React from "react";
@@ -8,7 +8,7 @@ import { getTonScanContractUrl } from "utils";
 
 export function About() {
   const daoAddress = useDaoAddress();
-  const roles = useDaoQuery(daoAddress).data?.roles;
+  const roles = useDaoQuery(daoAddress).data?.daoRoles;
 
   return (
       <Container title="About">

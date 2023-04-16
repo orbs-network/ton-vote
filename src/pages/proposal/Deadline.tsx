@@ -14,7 +14,7 @@ const handleDate = (endDate?: number) => {
 
 export function Deadline() {
   const proposalAddress = useProposalAddress();
-  const proposalMetadata = useProposalState().data?.proposalMetadata;
+  const proposalMetadata = useProposalState().data?.metadata;
   
   const proposalStatus = useProposalStatusQuery(
     proposalMetadata,

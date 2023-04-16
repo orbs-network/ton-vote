@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useDaoAddress, useGetSender } from "hooks";
 import { useAppNavigation } from "router";
 import { showErrorToast, showPromiseToast } from "toasts";
-import { Address } from "ton-core";
 import { getClientV2, ProposalMetadata } from "ton-vote-sdk";
 import { create } from "zustand";
 import { FormData } from "./form";
@@ -34,6 +33,7 @@ export const useCreateProposal = () => {
   const daoAddress = useDaoAddress();
   const getSender = useGetSender();
   const appNavigation = useAppNavigation();
+  const setFormData = useCreateProposalStore((state) => state.setFormData);
 
   return useMutation(
     async ({
@@ -49,7 +49,7 @@ export const useCreateProposal = () => {
         return;
       }
 
-      const proposalMetadata: ProposalMetadata = {
+      const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: formValues.proposalStartTime! / 1_000,
         proposalEndTime: formValues.proposalEndTime! / 1_000,
         proposalSnapshotTime: formValues.proposalSnapshotTime! / 1_000,
@@ -62,8 +62,8 @@ export const useCreateProposal = () => {
       const promise = TonVoteSDK.newProposal(
         sender,
         clientV2,
-        Address.parse(daoAddr),
-        proposalMetadata
+        daoAddr,
+        proposalMetadata as ProposalMetadata
       );
 
       showPromiseToast({
@@ -74,8 +74,9 @@ export const useCreateProposal = () => {
 
       const address = await promise;
 
-      if (Address.isAddress(address)) {
-        appNavigation.proposalPage.root(daoAddress, address.toString());
+      if (typeof address === "string") {
+        appNavigation.proposalPage.root(daoAddress, address);
+        setFormData({} as FormData);
       } else {
         throw new Error("Something went wrong");
       }

@@ -24,7 +24,7 @@ export const Metadata = () => {
     isLoading,
   } = useProposalState();
 
-  const proposalMetadata = data?.proposalMetadata;
+  const proposalMetadata = data?.metadata;
 
   return (
     <StyledInformation title="Information" loaderAmount={3} loading={isLoading}>

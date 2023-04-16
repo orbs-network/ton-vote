@@ -1,5 +1,5 @@
 import { Address, Transaction } from "ton";
-import { ProposalMetadata } from "ton-vote-sdk";
+import { DaoRoles, ProposalMetadata, Votes } from "ton-vote-sdk";
 
 export interface ProposalResults {
   yes: number;
@@ -21,16 +21,6 @@ export type VotingPower = { [key: string]: string };
 export type RawVote = { timestamp: number; vote: string; hash: string };
 export type RawVotes = { [key: string]: RawVote };
 
-export interface ProposalInfo {
-  id: string;
-  owner: string;
-  mcSnapshotBlock: number;
-  proposalStartTime: number;
-  proposalEndTime: number;
-  proposalSnapshotTime: number;
-  proposalType: string;
-  votingPowerStrategy: string;
-}
 export type EndpointsArgs = {
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
@@ -49,22 +39,13 @@ export interface DaoMetadata {
 }
 
 export interface Dao {
-  address: string;
+  daoAddress: string;
   daoId?: number;
   daoMetadata: DaoMetadata;
-  roles: DaoRoles;
+  daoRoles: DaoRoles;
+  daoProposals: string[];
 }
 
-
-export interface DaoRoles {
-  owner: string;
-  proposalOwner: string;
-}
-
-export interface Proposal {
-  proposalAddr: string;
-  metadata: ProposalMetadata;
-}
 
 export interface DaoProposal {
   startDate: number;
@@ -77,13 +58,6 @@ export interface DaoProposal {
   id: string;
 }
 
-export interface GetDaoProposals {
-  endProposalId: number;
-  proposalAddresses: string[] | undefined;
-}
-
-
-
 export enum ProposalStatus {
   CLOSED = "CLOSED",
   NOT_STARTED = "NOT_STARTED",
@@ -95,13 +69,17 @@ export interface SelectOption {
   value: string;
 }
 
-export interface ProposalState {
+
+
+
+export interface Proposal {
   votingPower?: VotingPower;
   votes: Vote[];
-  results: ProposalResults;
+  proposalResult: ProposalResults;
   maxLt?: string;
   transactions?: Transaction[];
-  proposalMetadata?: ProposalMetadata;
+  metadata?: ProposalMetadata;
+  daoAddress?: string;
 }
 
 export type InputType =

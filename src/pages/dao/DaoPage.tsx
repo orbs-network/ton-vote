@@ -25,7 +25,7 @@ export function DaoPage() {
       <Helmet>
         <title>
           {APP_TITLE}
-          {dao ? ` - ${dao.address}` : ""}
+          {dao ? ` - ${dao.daoMetadata.name}` : ""}
         </title>
       </Helmet>
       <Outlet />

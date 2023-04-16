@@ -39,8 +39,8 @@ interface State {
   prevStep: () => void;
   setFormData: (value: FormData) => void;
   formData: FormData;
-  metadataAddress?: Address;
-  setMetadataAddress: (value: Address) => void;
+  metadataAddress?: string;
+  setMetadataAddress: (value: string) => void;
   reset: () => void;
 }
 
@@ -87,11 +87,11 @@ export const useCreateDaoMetadata = () => {
         success: "Metadata created!",
       });
 
-      const address = await promise;
-      if (Address.isAddress(address)) {
+      const address = await promise;      
+      if (typeof address === "string") {
         nextStep();
         setFormData(values);
-        setMetadataAddress(address);
+        setMetadataAddress(address.toString());
       } else {
         throw new Error("Something went wrong");
       }
@@ -123,8 +123,8 @@ export const useCreateDao = () => {
         sender,
         clientV2,
         metadataAddress!,
-        Address.parse(ownerAddress),
-        Address.parse(proposalOwner)
+        ownerAddress,
+        proposalOwner
       );
 
       showPromiseToast({

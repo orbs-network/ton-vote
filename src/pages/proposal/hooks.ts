@@ -1,13 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import analytics from "analytics";
 import { useProposalAddress, useGetSender } from "hooks";
-import { getContractState } from "lib";
 import _ from "lodash";
 import { useEnpointsStore, useTxReminderPopup } from "store";
 import { Logger } from "utils";
-import { useProposalStateQuery } from "./query";
+import { useProposalPageQuery } from "./query";
 import { useProposalPersistedStore } from "./store";
-
+import * as TonVoteSDK from "ton-vote-sdk";
+import { getClientV2 } from "ton-vote-sdk";
+import { TX_FEE } from "config";
+import { getProposalFromContract } from "lib";
 export const useIsCustomEndpoint = () => {
   const { clientV2Endpoint, clientV4Endpoint } = useEnpointsStore();
 
@@ -17,19 +19,19 @@ export const useIsCustomEndpoint = () => {
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
   const { data } = useProposalState();
-  const currentResults = data?.results;
+  const currentResults = data?.proposalResult;
   const maxLt = data?.maxLt;
 
   return useMutation(async () => {
     analytics.GA.verifyButtonClick();
 
-    const contractState = await getContractState(
+    const contractState = await getProposalFromContract(
       proposalAddress,
       undefined,
       maxLt
     );
 
-    const compareToResults = contractState?.results;
+    const compareToResults = contractState?.proposalResult;
 
     Logger({
       currentResults,
@@ -42,22 +44,29 @@ export const useVerifyProposalResults = () => {
 
 export const useProposalState = () => {
   const isCustomEndpoint = useIsCustomEndpoint();
-  return useProposalStateQuery(isCustomEndpoint);
+  return useProposalPageQuery(isCustomEndpoint);
 };
 
 export const useVote = () => {
   const getSender = useGetSender();
-  const { refetch } = useProposalStateQuery(true);
+  const { refetch } = useProposalPageQuery(true);
   const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
   const proposalAddress = useProposalAddress();
   const toggleTxReminder = useTxReminderPopup().setOpen;
   return useMutation(
-    async () => {
+    async (vote: string) => {
+      
       const sender = getSender();
       toggleTxReminder(true);
+      const client = await getClientV2();
+      await TonVoteSDK.proposalSendMessage(
+        sender,
+        client,
+        proposalAddress,
+        TX_FEE,
+        vote
+      );
       const { data } = await refetch();
-      console.log({ data });
-
       setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
     },
     {

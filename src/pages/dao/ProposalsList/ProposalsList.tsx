@@ -1,17 +1,16 @@
-import { Box, styled, Typography } from "@mui/material";
-import { Container, List, LoadMore, Select } from "components";
-import { PROPOSALS_LIMIT } from "config";
+import { Chip, styled, Typography } from "@mui/material";
+import { Container, List } from "components";
 import { useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
-import { useDaoProposalsQuery } from "query/queries";
-import { useState } from "react";
+import { useDaoQuery } from "query/queries";
 import { Link } from "react-router-dom";
-import { appNavigation, useAppNavigation } from "router";
+import { appNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { StringParam, useQueryParam } from "use-query-params";
+import { ProposalLoader } from "../ProposalLoader";
 import { ProposalComponent } from "./Proposal";
-import { StyledLoader, StyledProposalsContainer } from "./styles";
+import { StyledProposalsHeader } from "./styles";
 
 interface Option extends SelectOption {
   value: ProposalStatus | string;
@@ -21,50 +20,55 @@ const useFilterValue = () => {
   return useQueryParam("state", StringParam);
 };
 
-const options: Option[] = [
-  { text: "All", value: "all" },
-  { text: "Active", value: ProposalStatus.ACTIVE },
-  { text: "Closed", value: ProposalStatus.CLOSED },
-  { text: "Not started", value: ProposalStatus.NOT_STARTED },
-];
+// const options: Option[] = [
+//   { text: "All", value: "all" },
+//   { text: "Active", value: ProposalStatus.ACTIVE },
+//   { text: "Closed", value: ProposalStatus.CLOSED },
+//   { text: "Not started", value: ProposalStatus.NOT_STARTED },
+// ];
+
+const ProposalsCount = () => {
+  const daoAddress = useDaoAddress();
+  const { data } = useDaoQuery(daoAddress);
+
+  const size = _.size(data?.daoProposals);
+
+  return size ? <Chip label={_.size(data?.daoProposals)} /> : null;
+};
 
 export function ProposalsList() {
   const daoAddress = useDaoAddress();
 
-  const { data, isLoading } = useDaoProposalsQuery(daoAddress);
-  
+  const { data, isLoading } = useDaoQuery(daoAddress);
   const [queryParamState] = useFilterValue();
 
-  const emptyList = !isLoading && !_.size(_.first(data?.pages))
+  const isEmpty = !isLoading && !_.size(data?.daoProposals);
 
   return (
+    <StyledFlexColumn gap={15}>
+      <StyledProposalsHeader
+        title="Proposals"
+        headerChildren={<ProposalsCount />}
+      />
       <StyledFlexColumn gap={15}>
-        <StyledProposalsContainer
-          title="Proposals"
-          headerChildren={<DaoFilter />}
-        />
-        <StyledFlexColumn gap={15}>
-          <List
-            isEmpty={!!emptyList}
-            isLoading={isLoading}
-            loader={<ListLoader />}
-            emptyComponent={<EmptyList />}
-          >
-            {data?.pages?.map((page) => {
-              return page.proposals?.map((proposal, index) => {
-                return (
-                  <ProposalComponent
-                    filterValue={queryParamState as ProposalStatus | undefined}
-                    key={proposal.proposalAddr}
-                    proposal={proposal}
-                  />
-                );
-              });
-            })}
-          </List>
-        </StyledFlexColumn>
-        <LoadMoreProposals emptyList={emptyList} />
+        <List
+          isEmpty={isEmpty}
+          isLoading={isLoading}
+          loader={<ListLoader />}
+          emptyComponent={<EmptyList />}
+        >
+          {data?.daoProposals?.map((proposalAddress) => {
+            return (
+              <ProposalComponent
+                filterValue={queryParamState as ProposalStatus | undefined}
+                key={proposalAddress}
+                proposalAddress={proposalAddress}
+              />
+            );
+          })}
+        </List>
       </StyledFlexColumn>
+    </StyledFlexColumn>
   );
 }
 
@@ -91,39 +95,38 @@ const EmptyList = () => {
   );
 };
 
-const DaoFilter = () => {
-  const [queryParamState, setQueryParamState] = useFilterValue();
+// const DaoFilter = () => {
+//   const [queryParamState, setQueryParamState] = useFilterValue();
 
-  const [filterValue, setFilterValue] = useState<string>(
-    queryParamState || options[0].value
-  );
+//   const [filterValue, setFilterValue] = useState<string>(
+//     queryParamState || options[0].value
+//   );
 
-  const onSelect = (value: string) => {
-    setFilterValue(value);
-    setQueryParamState(value === "all" ? undefined : value);
-  };
+//   const onSelect = (value: string) => {
+//     setFilterValue(value);
+//     setQueryParamState(value === "all" ? undefined : value);
+//   };
 
-  return (
-    <Select options={options} selected={filterValue} onSelect={onSelect} />
-  );
-};
+//   return (
+//     <Select options={options} selected={filterValue} onSelect={onSelect} />
+//   );
+// };
 
-const LoadMoreProposals = ({ emptyList }: { emptyList: boolean }) => {
-  const daoAddress = useDaoAddress();
-  const { data, isLoading, fetchNextPage, isFetchingNextPage } =
-    useDaoProposalsQuery(daoAddress);
-  const loadMoreOnScroll = _.size(data?.pages) > 1 && !isFetchingNextPage;
-  const hide = emptyList || isLoading || _.size(_.last(data?.pages)?.proposals) < PROPOSALS_LIMIT
+// const LoadMoreProposals = ({ emptyList }: { emptyList: boolean }) => {
+//   const daoAddress = useDaoAddress();
 
-  return (
-    <LoadMore
-      hide={hide}
-      loadMoreOnScroll={loadMoreOnScroll}
-      showMore={fetchNextPage}
-      isFetchingNextPage={isFetchingNextPage}
-    />
-  );
-};
+//   const loadMoreOnScroll = false
+//   const hide = false
+
+//   return (
+//     <LoadMore
+//       hide={hide}
+//       loadMoreOnScroll={loadMoreOnScroll}
+//       showMore={() => {}}
+//       isFetchingNextPage={false}
+//     />
+//   );
+// };
 
 const StyledEmptyList = styled(Container)({
   p: {
@@ -134,10 +137,10 @@ const StyledEmptyList = styled(Container)({
 
 const ListLoader = () => {
   return (
-    <StyledFlexColumn gap={20}>
-      {_.range(0, 1).map((it, i) => {
-        return <StyledLoader key={i} />;
+    <>
+      {_.range(0, 2).map((it, i) => {
+        return <ProposalLoader key={i} />;
       })}
-    </StyledFlexColumn>
+    </>
   );
 };

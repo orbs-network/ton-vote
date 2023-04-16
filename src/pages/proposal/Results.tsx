@@ -16,7 +16,7 @@ import { useLatestMaxLtAfterTx } from "./store";
 export const Results = () => {
   const { data, isLoading, dataUpdatedAt } = useProposalState();
 
-  const proposalResults = data?.results;
+  const proposalResults = data?.proposalResult;
 
   const votesCount = useMemo(() => {
     const grouped = _.groupBy(data?.votes, "vote");
@@ -130,7 +130,7 @@ export function VerifyResults() {
     data: isVerified,
     reset,
   } = useVerifyProposalResults();
-  const proposalMetadata = useProposalState().data?.proposalMetadata;
+  const proposalMetadata = useProposalState().data?.metadata;
   const proposalStatus = useProposalStatusQuery(
     proposalMetadata,
     proposalAddress

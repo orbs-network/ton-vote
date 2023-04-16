@@ -11,6 +11,7 @@ import {
 import { useConnection } from "ConnectionProvider";
 import { TON_CONNECTOR } from "config";
 import { useDaoQuery } from "query/queries";
+import { MutationFunction, useMutation } from "@tanstack/react-query";
 
 export const useDaoAddress = () => {
   return useParams().daoId as string;
@@ -47,7 +48,7 @@ export const useWindowResize = () => {
 export const useIsOwner = (daoAddress: string) => {
   const address = useConnection().address;
   const { data, isLoading } = useDaoQuery(daoAddress);
-  
+
   return {
     isDaoOwner: address && address === (data as any)?.daoRoles.owner,
     isProposalOnwer:
@@ -100,7 +101,7 @@ export const useGetSender = () => {
 type CopiedValue = string | null;
 type CopyFn = (text: string) => Promise<boolean>; // Return success
 
-function useCopyToClipboard(): [CopiedValue, CopyFn] {
+export function useCopyToClipboard(): [CopiedValue, CopyFn] {
   const [copiedText, setCopiedText] = useState<CopiedValue>(null);
 
   const copy: CopyFn = async (text) => {
@@ -124,4 +125,4 @@ function useCopyToClipboard(): [CopiedValue, CopyFn] {
   return [copiedText, copy];
 }
 
-export default useCopyToClipboard;
+

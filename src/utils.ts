@@ -79,8 +79,10 @@ export const getTimeDiff = (value: number) => {
   return minutes === 1 ? "1 minute" : `${minutes} minutes`;
 };
 
-export const getProposalStatus = (proposalInfo: ProposalMetadata): ProposalStatus | null => {
-  const {proposalStartTime, proposalEndTime} = proposalInfo;
+export const getProposalStatus = (proposalMetadata?: ProposalMetadata): ProposalStatus | null => {
+  
+  if (!proposalMetadata) return null;
+    const { proposalStartTime, proposalEndTime } = proposalMetadata;
   
   const now = moment.utc().valueOf();
   const voteStarted = unixToMilliseconds(Number(proposalStartTime)) <= now;
