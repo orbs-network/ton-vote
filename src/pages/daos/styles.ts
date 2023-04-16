@@ -14,8 +14,8 @@ export const StyledJoinDao = styled(Button)({
 });
 
 export const StyledDaoAvatar = styled(Img)({
-  width: 80,
-  height: 80,
+  width: 65,
+  height: 65,
   borderRadius: "50%",
   overflow: "hidden",
   marginBottom: 20,

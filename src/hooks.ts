@@ -11,7 +11,6 @@ import {
 import { useConnection } from "ConnectionProvider";
 import { TON_CONNECTOR } from "config";
 import { useDaoQuery } from "query/queries";
-import { MutationFunction, useMutation } from "@tanstack/react-query";
 
 export const useDaoAddress = () => {
   return useParams().daoId as string;

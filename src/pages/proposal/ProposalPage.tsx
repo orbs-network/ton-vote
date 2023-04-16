@@ -9,7 +9,6 @@ import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
-import { CustomEndpointButton } from "./EndpointPopup";
 import { appNavigation } from "router";
 import { useDaoAddress } from "hooks";
 
@@ -60,7 +59,6 @@ function ProposalPage() {
 
   return (
     <Page
-      headerComponent={<CustomEndpointButton />}
       back={appNavigation.daoPage.root(daoAddress)}
     >
       <Meta />

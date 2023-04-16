@@ -1,24 +1,44 @@
 import { styled } from "@mui/material";
 import LogoImg from "assets/logo.svg";
 import { AppTooltip, Container } from "components";
-import { TOOLBAR_WIDTH } from "consts";
+import { routes, TOOLBAR_WIDTH } from "consts";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router";
 import { StyledFlexColumn, StyledHoverContainer } from "styles";
+import { GoSettings } from "react-icons/go";
+import { EndpointPopup } from "pages/proposal/EndpointPopup";
+import { useState } from "react";
+import { useCurrentRoute } from "hooks";
 
 export function Toolbar() {
   const navigation = useAppNavigation();
+  const [showCustomEndpoint, setCustomEndpoint] = useState(false);
+  const currentRoute = useCurrentRoute();
+
   return (
     <StyledToolbar>
       <Link to={appNavigation.spaces}>
         <StyledLogo src={LogoImg} />
       </Link>
-      <AppTooltip text='Create Dao' placement='right'>
+      <AppTooltip text="Create Dao" placement="right">
         <StyledButton onClick={navigation.createSpace.root}>
           <AiOutlinePlus />
         </StyledButton>
       </AppTooltip>
+      {currentRoute === routes.proposal && (
+        <>
+          <AppTooltip text="Set Custom endpoint" placement="right">
+            <StyledButton onClick={() => setCustomEndpoint(true)}>
+              <GoSettings />
+            </StyledButton>
+          </AppTooltip>
+          <EndpointPopup
+            open={showCustomEndpoint}
+            onClose={() => setCustomEndpoint(false)}
+          />
+        </>
+      )}
     </StyledToolbar>
   );
 }

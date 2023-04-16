@@ -47,7 +47,7 @@ interface FormData {
   clientV4Endpoint: string;
 }
 
-function EndpointPopup({
+export function EndpointPopup({
   open,
   onClose,
 }: {
@@ -140,30 +140,7 @@ function EndpointPopup({
 }
 
 
-export const CustomEndpointButton = () => {
-  const [open, setOpen] = useState(false);
 
-  const showPopup = () => {
-    analytics.GA.endpointSettingsClick();
-    setOpen(true);
-  };
-
-  return (
-    <>
-      <StyledSettingsButton onClick={showPopup}>
-        <GoSettings />
-      </StyledSettingsButton>
-      <EndpointPopup open={open} onClose={() => setOpen(false)} />
-    </>
-  );
-};
-
-const StyledSettingsButton = styled(Button)({
-  borderRadius:'50%',
-  width: 40,
-  height: 40,
-  padding: 0
-})
 
 const StyledCustomEndpoints = styled(StyledFlexColumn)({
   paddingBottom: 30,
