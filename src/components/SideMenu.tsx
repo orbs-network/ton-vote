@@ -20,7 +20,7 @@ export function SideMenu({
 
 
 const StyledContainer = styled(Container)({
-    top:130,
+    top:100,
     width: 350,
     position:'sticky',
 })

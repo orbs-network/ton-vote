@@ -59,7 +59,7 @@ const ProposalOwner = () => {
           {dao.data?.daoMetadata.name}
         </Link>
         {proposalMetadata?.owner && (
-          <StyledLink href={getTonScanContractUrl(proposalMetadata?.owner)}>
+          <StyledLink href={getTonScanContractUrl(proposalMetadata?.owner)} target='_blank'>
             by {makeElipsisAddress(proposalMetadata?.owner, 6)}
           </StyledLink>
         )}

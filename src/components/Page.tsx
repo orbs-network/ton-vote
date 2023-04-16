@@ -29,8 +29,7 @@ export { Page };
 
 const StyledTop = styled(StyledFlexRow)({
   marginBottom: 15,
-  position:'sticky',
-  top: 90
+
 })
 
 const StyledContainer = styled(StyledFlexColumn)({

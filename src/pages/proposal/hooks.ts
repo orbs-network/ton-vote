@@ -10,6 +10,7 @@ import * as TonVoteSDK from "ton-vote-sdk";
 import { getClientV2 } from "ton-vote-sdk";
 import { TX_FEE } from "config";
 import { getProposalFromContract } from "lib";
+import { showPromiseToast } from "toasts";
 export const useIsCustomEndpoint = () => {
   const { clientV2Endpoint, clientV4Endpoint } = useEnpointsStore();
 
@@ -55,18 +56,29 @@ export const useVote = () => {
   const toggleTxReminder = useTxReminderPopup().setOpen;
   return useMutation(
     async (vote: string) => {
-      
       const sender = getSender();
       toggleTxReminder(true);
       const client = await getClientV2();
-      await TonVoteSDK.proposalSendMessage(
-        sender,
-        client,
-        proposalAddress,
-        TX_FEE,
-        vote
-      );
-      const { data } = await refetch();
+
+      const voteFn = async () => {
+        await TonVoteSDK.proposalSendMessage(
+          sender,
+          client,
+          proposalAddress,
+          TX_FEE,
+          vote
+        );
+        return refetch();
+      };
+
+      const promise = voteFn();
+
+      showPromiseToast({
+        promise,
+        success: "Vote sent",
+      });
+
+      const { data } = await promise;
       setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
     },
     {

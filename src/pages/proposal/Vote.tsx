@@ -18,17 +18,10 @@ import { useProposalState, useVote } from "./hooks";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
-  const [showModal, setShowModal] = useState(false);
   const proposalAddress = useProposalAddress();
   const state = useProposalState().data
   const proposalStatus = useProposalStatusQuery(state?.metadata, proposalAddress);
   const { mutate, isLoading } = useVote();
-
-  useEffect(() => {
-    setShowModal(isLoading);
-  }, [isLoading]);
-
-
 
   if (proposalStatus !== ProposalStatus.ACTIVE) return null;
 

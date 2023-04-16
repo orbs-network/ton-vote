@@ -73,7 +73,7 @@ export const useProposalStatusQuery = (
     [QueryKeys.PROPOSAL_TIMELINE, proposalAddress],
     () => getProposalStatus(proposalMetadata!),
     {
-      refetchInterval: 2_000,
+      refetchInterval: 1_000,
       enabled: !!proposalMetadata && !!proposalAddress,
     }
   );
