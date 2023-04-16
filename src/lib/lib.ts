@@ -111,9 +111,10 @@ export const getDao = async (
   try {
     Logger(`Fetching dao from api  ${daoAddress}`);
     const daoFromApi = await api.getDao(daoAddress, signal);
-    if (daoFromApi) return daoFromApi;
-
-    throw new Error("dao not found");
+    if (_.isEmpty(daoFromApi)) {
+      throw new Error("dao not found");
+    }
+    return daoFromApi;
   } catch (error) {
     // return Dao from contract
     Logger(

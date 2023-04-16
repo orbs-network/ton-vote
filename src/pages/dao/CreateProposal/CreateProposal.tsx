@@ -15,6 +15,8 @@ import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
 import moment from "moment";
+import _ from "lodash";
+
 
 function CreateProposal() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
