@@ -28,7 +28,6 @@ export function Navbar() {
     <StyledContainer>
       <StyledNav>
         <StyledLogo onClick={daosPage.root}>
-          <img src={LogoImg} />
           <Typography>VOTE</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
@@ -128,8 +127,8 @@ const StyledConnected = styled(Button)({
 });
 
 const StyledSelectedWallet = styled("img")({
-  width: 25,
-  height: 25,
+  minWidth: 25,
+  minHeight: 25,
   borderRadius: "50%",
   overflow: "hidden",
 });
@@ -163,6 +162,7 @@ const StyledContainer = styled(StyledFlexRow)({
   transform: "translate(-50%)",
   top: 0,
   zIndex: 10,
+  borderBottom: "0.5px solid rgba(114, 138, 150, 0.24)",
 });
 
 

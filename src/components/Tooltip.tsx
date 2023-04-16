@@ -5,19 +5,31 @@ import { Box } from "@mui/system";
 export function AppTooltip({
   children,
   text,
+  placement = 'bottom',
 }: {
   children: React.ReactNode;
   text: React.ReactNode;
+  placement?:
+    | "bottom"
+    | "left"
+    | "right"
+    | "top"
+    | "bottom-end"
+    | "bottom-start"
+    | "left-end"
+    | "left-start"
+    | "right-end"
+    | "right-start"
+    | "top-end"
+    | "top-start"
 }) {
   return (
     <StyledTooltip
       arrow={true}
-      followCursor={true}
+      placement={placement}
       title={<StyledTitle>{text}</StyledTitle>}
     >
-      <Box className="tooltip-children">
-        {children}
-      </Box>
+      <Box className="tooltip-children">{children}</Box>
     </StyledTooltip>
   );
 }

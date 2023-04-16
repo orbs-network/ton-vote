@@ -1,9 +1,8 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, List, LoadMore } from "components";
-import _ from "lodash";
-import {  useDaosQuery } from "query/queries";
+import { List, LoadMore, Search } from "components";
+import { useDaosQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, textOverflow } from "styles";
+import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 import {
@@ -17,24 +16,53 @@ import {
 import { makeElipsisAddress } from "utils";
 import { Dao } from "types";
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import _ from "lodash";
+import { StringParam, useQueryParam } from "use-query-params";
+
+const DAOS_LIMIT = 10;
+
+const filterDaos = (daos: Dao[], searchValue: string) => {
+  if (!searchValue) return daos;
+  const nameFilter = _.filter(daos, (it) =>
+    it.daoMetadata.name.toLowerCase().includes(searchValue.toLowerCase())
+  );
+  const addressFilter = _.filter(daos, (it) =>
+    it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
+  );
+  return _.uniqBy([...nameFilter, ...addressFilter], "daoAddress");
+};
 
 export function DaosList() {
-  const { data, isLoading, } = useDaosQuery();  
+  const { data = [], isLoading } = useDaosQuery();
+  const [amount, setAmount] = useState(DAOS_LIMIT);
+  const [searchValue, setSearchValue] = useState("");
 
+  const [queryParam, setQueryParam] = useQueryParam("q", StringParam);
 
-  const navigation = useAppNavigation();
+  const showMore = () => {
+    setAmount((prevState) => prevState + DAOS_LIMIT);
+  };
 
-  // const emptyList = data && _.size(_.first(data.pages)?.daoAddresses) === 0;
-  const emptyList = false
+  const onSearchInputChange = (value: string) => {
+    setSearchValue(value);
+    setQueryParam(value  ||  undefined,'pushIn' );
+  };
+
+  const filteredDaos = filterDaos(data, searchValue);
+
+  const emptyList = !isLoading && !_.size(data);
   return (
-    <Container
-      title="Daos"
-      headerChildren={
-        <Button onClick={navigation.createSpace.root}>
-          <Typography style={textOverflow}>Create Dao</Typography>
-        </Button>
-      }
-    >
+    <StyledFlexColumn alignItems="flex-start" gap={24}>
+      <StyledFlexRow justifyContent="space-between">
+        <StyledSearch
+          initialValue={queryParam as string}
+          onChange={onSearchInputChange}
+        />
+        <StyledDaosAmount>
+          <Typography>{_.size(data)} Daos</Typography>
+        </StyledDaosAmount>
+      </StyledFlexRow>
       <StyledFlexColumn>
         <List
           isLoading={isLoading}
@@ -45,40 +73,42 @@ export function DaosList() {
           }
         >
           <StyledDaosList>
-            {data?.pages?.map((page) => {
-              return page.daos?.map((dao, index) => {
-                return <DaoListItem key={index} dao={dao} />;
-              });
+            {filteredDaos.map((dao, index) => {
+              if (index > amount) return null;
+              return <DaoListItem key={dao.daoAddress} dao={dao} />;
             })}
           </StyledDaosList>
         </List>
 
-        <LoadMoreDaos />
+        <LoadMore
+          totalItems={_.size(filteredDaos)}
+          amountToShow={amount}
+          showMore={showMore}
+          limit={DAOS_LIMIT}
+        />
       </StyledFlexColumn>
-    </Container>
+    </StyledFlexColumn>
   );
 }
+
+const StyledDaosAmount = styled(StyledContainer)({
+  padding: "10px 20px",
+  borderRadius: 20,
+  width: "unset",
+  p: {
+    fontSize: 13,
+  },
+});
 
 const StyledEmptyList = styled(Typography)({
   fontSize: 18,
   fontWeight: 700,
 });
 
-const LoadMoreDaos = () => {
-  const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage, } =
-    useDaosQuery();
-
-  const loadMoreOnScroll = _.size(data?.pages) > 1 && !isFetchingNextPage;
-  
-  return (
-    <LoadMore
-      showMore={fetchNextPage}
-      isFetchingNextPage={isFetchingNextPage}
-      loadMoreOnScroll={loadMoreOnScroll}
-      hide={false}
-    />
-  );
-};
+const StyledSearch = styled(Search)({
+  maxWidth: 400,
+  width: "100%",
+});
 
 const ListLoader = () => {
   return (
@@ -94,12 +124,9 @@ const ListLoader = () => {
   );
 };
 
-
 const useJoinDao = () => {
-  return useMutation(async () => {
-
-  })
-}
+  return useMutation(async () => {});
+};
 
 export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
@@ -108,15 +135,13 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const { mutate } = useJoinDao();
   const { daoMetadata } = dao;
 
-  const navigate = () => daoPage.root((dao as any).daoAddress);
-
   const join = (e: any) => {
     e.stopPropagation();
     mutate();
   };
 
   return (
-    <StyledDao ref={ref} onClick={navigate}>
+    <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
       <StyledDaoContent className="container">
         {isVisible ? (
           <StyledFlexColumn>

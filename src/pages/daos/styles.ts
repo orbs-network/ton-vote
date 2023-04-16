@@ -1,11 +1,12 @@
 import { Box, styled } from "@mui/material";
-import { BorderContainer, Button, Img } from "components";
-import { StyledFlexRow, StyledSkeletonLoader, textOverflow } from "styles";
+import { Button, Img } from "components";
+import { StyledFlexRow, StyledHoverContainer, StyledSkeletonLoader, textOverflow } from "styles";
 
 
-export const StyledDaoContent = styled(BorderContainer)({
+export const StyledDaoContent = styled(StyledHoverContainer)({
   display: "flex",
   flexDirection: "column",
+  borderRadius: 13,
 });
  
 export const StyledJoinDao = styled(Button)({

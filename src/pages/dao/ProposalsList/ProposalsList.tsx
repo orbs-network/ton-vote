@@ -1,16 +1,17 @@
 import { Chip, styled, Typography } from "@mui/material";
-import { Container, List } from "components";
+import { Container, List, LoadMore, Search } from "components";
 import { useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledTitle, StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { StringParam, useQueryParam } from "use-query-params";
 import { ProposalLoader } from "../ProposalLoader";
 import { ProposalComponent } from "./Proposal";
-import { StyledProposalsHeader } from "./styles";
+import { StyledProposalOwner, StyledProposalsHeader } from "./styles";
 
 interface Option extends SelectOption {
   value: ProposalStatus | string;
@@ -19,6 +20,8 @@ interface Option extends SelectOption {
 const useFilterValue = () => {
   return useQueryParam("state", StringParam);
 };
+
+const LIMIT = 2
 
 // const options: Option[] = [
 //   { text: "All", value: "all" },
@@ -38,6 +41,12 @@ const ProposalsCount = () => {
 
 export function ProposalsList() {
   const daoAddress = useDaoAddress();
+  const [amount, setAmount] = useState(LIMIT);
+  const [searchValue, setSearchValue] = useState('')
+
+  const showMore = () => {
+    setAmount((prev) => prev + LIMIT);
+  }
 
   const { data, isLoading } = useDaoQuery(daoAddress);
   const [queryParamState] = useFilterValue();
@@ -46,10 +55,12 @@ export function ProposalsList() {
 
   return (
     <StyledFlexColumn gap={15}>
-      <StyledProposalsHeader
-        title="Proposals"
-        headerChildren={<ProposalsCount />}
-      />
+      <StyledProposalsHeader>
+        <StyledFlexRow justifyContent='space-between'>
+          <StyledTitle>Proposals</StyledTitle>
+          <StyledSearch initialValue="" onChange={setSearchValue} />
+        </StyledFlexRow>
+      </StyledProposalsHeader>
       <StyledFlexColumn gap={15}>
         <List
           isEmpty={isEmpty}
@@ -57,7 +68,8 @@ export function ProposalsList() {
           loader={<ListLoader />}
           emptyComponent={<EmptyList />}
         >
-          {data?.daoProposals?.map((proposalAddress) => {
+          {data?.daoProposals?.map((proposalAddress, index) => {
+            if (index > amount) return null;
             return (
               <ProposalComponent
                 filterValue={queryParamState as ProposalStatus | undefined}
@@ -68,9 +80,20 @@ export function ProposalsList() {
           })}
         </List>
       </StyledFlexColumn>
+      <LoadMore
+        totalItems={_.size(data?.daoProposals)}
+        amountToShow={amount}
+        showMore={showMore}
+        limit={LIMIT}
+      />
     </StyledFlexColumn>
   );
 }
+
+const StyledSearch = styled(Search)({
+  maxWidth: 260,
+  width: '100%',
+})
 
 const EmptyList = () => {
   const daoAddress = useDaoAddress();

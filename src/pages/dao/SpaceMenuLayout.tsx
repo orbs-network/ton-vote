@@ -20,7 +20,8 @@ function SpaceMenuLayout() {
 export { SpaceMenuLayout };
 
 const StyledContainer = styled(StyledFlexRow)({
-    alignItems:'flex-start'
+    alignItems:'flex-start',
+    gap: 30
 })
 
 const StyledOutlet = styled(Box)({

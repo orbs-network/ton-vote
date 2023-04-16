@@ -1,6 +1,12 @@
-import { Box, Skeleton, styled, Typography } from "@mui/material";
-import React, { forwardRef, ReactNode } from "react";
-import { StyledContainerTitle, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
+import { Box, styled } from "@mui/material";
+import React, { ReactNode } from "react";
+import {
+  StyledContainer,
+  StyledTitle,
+  StyledFlexColumn,
+  StyledFlexRow,
+  StyledSkeletonLoader,
+} from "styles";
 
 const Container = React.forwardRef(
   (
@@ -26,7 +32,7 @@ const Container = React.forwardRef(
     const showHeader = title || headerChildren;
 
     return (
-      <StyledContainer onClick={onClick} className={className} ref={ref}>
+      <StyledContainer style={{width:'100%'}} onClick={onClick} className={className} ref={ref}>
         {showHeader && (
           <StyledHeader style={{
             marginBottom: children ? 20 : 0
@@ -85,15 +91,7 @@ const StyledLoaderContainer = styled(StyledFlexColumn)({
   alignItems: "flex-start",
 });
 
-const StyledContainer = styled(Box)({
-  background: "white",
-  border: "0.5px solid rgba(114, 138, 150, 0.24)",
-  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
-  borderRadius: 20,
-  padding: 20,
-  width: "100%",
- 
-});
+
 
 const StyledHeader = styled(StyledFlexRow)({
   alignItems: "flex-start",
@@ -101,8 +99,9 @@ const StyledHeader = styled(StyledFlexRow)({
 });
 
 const Title = ({ children }: { children: string }) => {
-  return <StyledContainerTitle variant="h4">{children}</StyledContainerTitle>;
+  return <StyledTitle variant="h4">{children}</StyledTitle>;
 };
+
 
 
 

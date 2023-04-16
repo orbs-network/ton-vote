@@ -12,3 +12,6 @@ export const routes = {
 export const flatRoutes = _.map(routes, (value) => {
   return { path: value };
 });
+
+
+export const TOOLBAR_WIDTH = 80;

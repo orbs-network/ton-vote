@@ -3,7 +3,7 @@ import { Container, Link } from "components";
 import { useDaoAddress } from "hooks";
 import {  useDaoQuery } from "query/queries";
 import React from "react";
-import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import { StyledContainer, StyledFlexColumn, StyledFlexRow, StyledTitle, textOverflow } from "styles";
 import { getTonScanContractUrl } from "utils";
 
 export function About() {
@@ -11,7 +11,9 @@ export function About() {
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
 
   return (
-      <Container title="About">
+    <StyledFlexColumn gap={20} alignItems='flex-start'>
+      <StyledTitle>About</StyledTitle>
+      <StyledContainer>
         <StyledFlexColumn gap={20}>
           <StyledSection>
             <Typography>Dao Owner:</Typography>
@@ -30,7 +32,8 @@ export function About() {
             )}
           </StyledSection>
         </StyledFlexColumn>
-      </Container>
+      </StyledContainer>
+    </StyledFlexColumn>
   );
 }
 

@@ -1,20 +1,18 @@
 import { Box, styled, Typography } from "@mui/material";
-import { BorderContainer, Container } from "components";
-import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
+import { Container } from "components";
+import { StyledContainer, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 
 
-export const StyledProposalsHeader = styled(Container)({
-  padding:'16px 20px',
+export const StyledProposalsHeader = styled(Box)({
+  width:'100%',
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   ".container-header":{
     alignItems:'center',
   },
-  ".container-body":{
-    
-  }
+ 
 });
 
 
@@ -44,7 +42,7 @@ export const StyledProposalResult = styled(StyledFlexRow)({
 export const StyledProposalOwner = styled(Typography)({
 });
 
-export const StyledProposal = styled(Container)(({ theme }) => ({
+export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
   ".title": {
     fontSize: 18,
   },

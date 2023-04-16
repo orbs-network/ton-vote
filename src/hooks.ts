@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useCallback } from "react";
+import { useState, useLayoutEffect, useCallback, useEffect } from "react";
 import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes } from "consts";
 import {
@@ -125,4 +125,20 @@ export function useCopyToClipboard(): [CopiedValue, CopyFn] {
   return [copiedText, copy];
 }
 
+
+
+
+export  function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 

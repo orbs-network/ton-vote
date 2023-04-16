@@ -1,5 +1,6 @@
 import { Skeleton, styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { TOOLBAR_WIDTH } from "consts";
 import { CSSProperties } from "react";
 import { theme } from "theme";
 
@@ -76,7 +77,9 @@ export const StyledGrid = styled(StyledFlexColumn)({
   width: "calc(100% - 100px)",
   maxWidth: 950,
   marginLeft: "auto",
+  paddingLeft: TOOLBAR_WIDTH,
   marginRight: "auto",
+
   "@media (max-width: 850px)": {
     width: "calc(100% - 30px)",
   },
@@ -98,17 +101,35 @@ export const StyledOneLine = styled(Typography)({
   whiteSpace: "nowrap",
 });
 
-
-export const StyledContainerTitle = styled(Typography)({
-  color:'black',
-  width: "100%",
+export const StyledTitle = styled(Typography)({
+  color: "black",
   textAlign: "left",
-  marginRight: "auto",
   fontWeight: 700,
   lineHeight: "28px",
   fontSize: 20,
   "@media (max-width: 600px)": {
     fontSize: 18,
     lineHeight: "25px",
+  },
+});
+
+export const StyledContainer = styled(Box)(({ theme }) => ({
+  background: "white",
+  border: "1px solid rgba(114, 138, 150, 0.24)",
+  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+  borderRadius: 20,
+  padding: 20,
+}));
+
+export const StyledHoverContainer = styled(StyledContainer)({
+  transition: "0.2s all",
+  svg: {
+    transition: "0.2s all",
+  },
+  "&:hover": {
+    border: `1px solid ${theme.palette.primary.main}`,
+    svg: {
+      color: `${theme.palette.primary.main}`,
+    }
   },
 });

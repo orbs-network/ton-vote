@@ -70,36 +70,36 @@ export const getProposalFromContract = async (
   };
 };
 
-export const getDaos = async (nextPage?: number, signal?: AbortSignal) => {
+export const getDaos = async (signal?: AbortSignal) => {
   try {
     Logger("Fetching daos from api");
-    return api.getDaos(nextPage, signal);
+    return api.getDaos(signal);
   } catch (error) {
     // get daos from contract
-    Logger("server error, Fetching daos from contract");
-    const client = await getClientV2();
-    const { daoAddresses, endDaoId } = await TonVoteSDK.getDaos(
-      client,
-      nextPage,
-      10
-    );
-    const daos: Dao[] = await Promise.all(
-      daoAddresses.map(async (address): Promise<Dao> => {
-        return {
-          daoAddress: address,
-          daoMetadata: await TonVoteSDK.getDaoMetadata(client, address),
-          daoRoles: await TonVoteSDK.getDaoRoles(client, address),
-          daoProposals:
-            (await TonVoteSDK.getDaoProposals(client, address))
-              .proposalAddresses || [],
-        };
-      })
-    );
+    // Logger("server error, Fetching daos from contract");
+    // const client = await getClientV2();
+    // const { daoAddresses, endDaoId } = await TonVoteSDK.getDaos(
+    //   client,
+    //   nextPage,
+    //   10
+    // );
+    // const daos: Dao[] = await Promise.all(
+    //   daoAddresses.map(async (address): Promise<Dao> => {
+    //     return {
+    //       daoAddress: address,
+    //       daoMetadata: await TonVoteSDK.getDaoMetadata(client, address),
+    //       daoRoles: await TonVoteSDK.getDaoRoles(client, address),
+    //       daoProposals:
+    //         (await TonVoteSDK.getDaoProposals(client, address))
+    //           .proposalAddresses || [],
+    //     };
+    //   })
+    // );
 
-    return {
-      daos,
-      nextId: endDaoId,
-    };
+    // return {
+    //   daos,
+    //   nextId: endDaoId,
+    // };
   }
 };
 
@@ -113,7 +113,7 @@ export const getDao = async (
     const daoFromApi = await api.getDao(daoAddress, signal);
     if (_.isEmpty(daoFromApi)) {
       throw new Error("dao not found");
-    }
+    }    
     return daoFromApi;
   } catch (error) {
     // return Dao from contract

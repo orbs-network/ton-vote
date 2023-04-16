@@ -1,6 +1,6 @@
 import { styled } from '@mui/material'
 import React from 'react'
-import { Container } from './Container'
+import { StyledContainer } from 'styles';
 
 export function SideMenu({
   children,
@@ -12,14 +12,14 @@ export function SideMenu({
   className?: string;
 }) {
   return (
-    <StyledContainer className={className} title={title}>
+    <StyledSideMenu className={className} title={title}>
       {children}
-    </StyledContainer>
+    </StyledSideMenu>
   );
 }
 
 
-const StyledContainer = styled(Container)({
+const StyledSideMenu = styled(StyledContainer)({
     top:100,
     width: 350,
     position:'sticky',

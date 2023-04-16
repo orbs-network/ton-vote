@@ -10,18 +10,14 @@ import {
 import { Logger, parseVotes } from "utils";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT } from "config";
-import { ProposalMetadata, Votes } from "ton-vote-sdk";
 const baseURL = import.meta.env.VITE_API_URL;
 
 const axiosInstance = axios.create({
   baseURL,
 });
 
-const getDaos = async (
-  page: number = 0,
-  signal?: AbortSignal
-): Promise<{ nextId: number; daos: Dao[] }> => {
-  return (await axiosInstance.get(`/daos/${page}`, { signal })).data;
+const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
+  return (await axiosInstance.get(`/daos/0`, { signal })).data.daos;
 };
 
 const getProposal = async (

@@ -98,11 +98,12 @@ export function Votes() {
       </List>
 
       <LoadMore
-        hide={isLoading || votesShowAmount >= _.size(data?.votes)}
-        loadMoreOnScroll={votesShowAmount > PAGE_SIZE}
+        totalItems={_.size(data?.votes)}
+        amountToShow={votesShowAmount}
         showMore={showMoreVotes}
-        isFetchingNextPage={false}
+        limit={PAGE_SIZE}
       />
+
     </StyledContainer>
   );
 }

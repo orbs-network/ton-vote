@@ -56,35 +56,34 @@ const Navigation = () => {
   const { isDaoOwner, isProposalOnwer, isLoading } = useIsOwner(daoAddress);
 
   const isOwner = isDaoOwner || isProposalOnwer;
-  return (
-    <Loader
-      isLoading={isLoading}
-      loader={
-        <StyledNavigation>
-          {_.range(0, 3).map((_, i) => {
-            return <StyledNavigationLoader key={i} />;
-          })}
-        </StyledNavigation>
-      }
-      component={
-        <StyledNavigation>
-          {navigation.map((navigation, index) => {
-            if (navigation.onlyOwner && !isOwner) return null;
-            const selected = route === navigation.path;
 
-            return (
-              <StyledNavigationLink
-                to={navigation.navigate(daoAddress)}
-                key={index}
-                selected={selected}
-              >
-                <Typography>{navigation.title}</Typography>
-              </StyledNavigationLink>
-            );
-          })}
-        </StyledNavigation>
-      }
-    />
+  if (isLoading) {
+    return (
+      <StyledNavigation>
+        {_.range(0, 3).map((_, i) => {
+          return <StyledNavigationLoader key={i} />;
+        })}
+      </StyledNavigation>
+    );
+  }
+
+  return (
+    <StyledNavigation>
+      {navigation.map((navigation, index) => {
+        if (navigation.onlyOwner && !isOwner) return null;
+        const selected = route === navigation.path;
+
+        return (
+          <StyledNavigationLink
+            to={navigation.navigate(daoAddress)}
+            key={index}
+            selected={selected}
+          >
+            <Typography>{navigation.title}</Typography>
+          </StyledNavigationLink>
+        );
+      })}
+    </StyledNavigation>
   );
 };
 
@@ -153,6 +152,7 @@ const StyledJoin = styled(Button)({
 
 const StyledContainer = styled(SideMenu)({
   padding: 0,
+  maxWidth: 300,
 });
 
 const StyledLogo = styled(Img)({

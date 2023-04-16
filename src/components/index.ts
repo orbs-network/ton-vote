@@ -18,8 +18,8 @@ export * from "./LoadMore";
 export * from "./FadeElement";
 export * from './Loader'
 export * from "./Img";
-export * from "./BorderContainer";
 export * from "./Select";
 export * from './SideMenu'
 export * from "./List";
 export * from "./Popup";
+export * from "./Search";

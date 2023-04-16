@@ -3,9 +3,8 @@ import { Loader } from "components";
 import { useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
-import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledTitle } from "styles";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { Proposal, ProposalStatus } from "types";
 import {
@@ -56,54 +55,48 @@ export const ProposalComponent = ({
 }) => {
   const { proposalPage } = useAppNavigation();
   const daoAddress = useDaoAddress();
-  const [ref, { entry }] = useIntersectionObserver();
-  const isVisible = entry && entry.isIntersecting;
-  const { data: proposal, isLoading } = useProposalQuery(proposalAddress, isVisible);
+
+  const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
 
   const status = useProposalStatusQuery(proposal?.metadata, proposalAddress);
 
+  if (isLoading) {
+    return <ProposalLoader />;
+  }
+
   return (
-    <span ref={ref} style={{ width: "100%" }}>
-      <StyledContainer
-        isLoading={isLoading}
-        loader={<ProposalLoader />}
-        component={
-          <StyledProposal
-            title="Title"
-            headerChildren={
-              <Chip
-                label={getProposalStatusText(status)}
-                className="status"
-                color="primary"
-              />
-            }
-            onClick={() => proposalPage.root(daoAddress, proposalAddress)}
-          >
-            <StyledFlexColumn alignItems="flex-start">
-              <StyledProposalOwner>
-                Owner: {makeElipsisAddress(proposal?.metadata?.owner, 8)}
-              </StyledProposalOwner>
+    <StyledProposal
+      onClick={() => proposalPage.root(daoAddress, proposalAddress)}
+    >
+      <StyledFlexColumn>
+        <StyledFlexRow justifyContent="space-between">
+          <StyledProposalOwner>
+            Owner: {makeElipsisAddress(proposal?.metadata?.owner, 8)}
+          </StyledProposalOwner>
+          <Chip
+            label={getProposalStatusText(status)}
+            className="status"
+            color="primary"
+          />
+        </StyledFlexRow>
+        <StyledFlexColumn gap={5} alignItems="flex-start">
+          <StyledProposalTitle>Title</StyledProposalTitle>
+          <StyledDescription>Description</StyledDescription>
 
-              <StyledDescription>Description</StyledDescription>
+          {status !== ProposalStatus.CLOSED && proposal?.metadata && (
+            <Time proposalMetadata={proposal.metadata} status={status} />
+          )}
 
-              {status !== ProposalStatus.CLOSED && proposal?.metadata && (
-                <Time proposalMetadata={proposal.metadata} status={status} />
-              )}
-
-              {status === ProposalStatus.CLOSED && proposal && (
-                <Results proposal={proposal} />
-              )}
-            </StyledFlexColumn>
-          </StyledProposal>
-        }
-      />
-    </span>
+          {status === ProposalStatus.CLOSED && proposal && (
+            <Results proposal={proposal} />
+          )}
+        </StyledFlexColumn>
+      </StyledFlexColumn>
+    </StyledProposal>
   );
 };
 
-const StyledContainer = styled(Loader)({
-  width: "100%",
-});
+const StyledProposalTitle = styled(Typography)({});
 
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;
