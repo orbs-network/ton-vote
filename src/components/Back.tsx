@@ -30,6 +30,7 @@ function Back({ to }: { to?: string }) {
 export { Back };
 
 const StyledContainer = styled(StyledFlexRow)({
+
   justifyContent: "flex-start",
   cursor: "pointer",
   width: "fit-content",

@@ -2,7 +2,7 @@ import { Box, styled } from "@mui/material";
 import { Page } from "components";
 import { routes } from "consts";
 import { StyledFlexRow } from "styles";
-import { CreateDaoMenu } from "./SideMenu";
+import { CreateDaoMenu } from "./CreateDaoMenu";
 import { steps } from "./steps";
 import { useCreatDaoStore } from "./store";
 
