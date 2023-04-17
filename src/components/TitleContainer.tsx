@@ -17,7 +17,7 @@ export function TitleContainer({
 }: Props) {
   return (
     <StyledTitleContainer className={className}>
-      <StyledHeader justifyContent="space-between">
+      <StyledHeader justifyContent="space-between" className="title-container-header">
         <StyledTitle className="title">{title}</StyledTitle>
         {headerComponent}
       </StyledHeader>

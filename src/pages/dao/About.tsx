@@ -1,5 +1,5 @@
-import { styled, Typography } from "@mui/material";
-import { Header, Link } from "components";
+import { Chip, styled, Typography } from "@mui/material";
+import { Header, Link, TitleContainer } from "components";
 import { useDaoAddress } from "hooks";
 import { useDaoQuery } from "query/queries";
 import {
@@ -8,7 +8,7 @@ import {
   StyledFlexRow,
   textOverflow,
 } from "styles";
-import { getTonScanContractUrl } from "utils";
+import { getTonScanContractUrl, makeElipsisAddress } from "utils";
 
 export function About() {
   const daoAddress = useDaoAddress();
@@ -17,33 +17,50 @@ export function About() {
   return (
     <StyledFlexColumn gap={0} alignItems="flex-start">
       <Header title="About" />
-      <StyledContainer style={{width:'100%'}}>
-        <StyledFlexColumn gap={20}>
+      <StyledTitleContainer
+        title="Members"
+        headerComponent={<Chip label={2} />}
+      >
+        <StyledFlexColumn gap={0}>
           <StyledSection>
-            <Typography>Dao Owner:</Typography>
             {roles && (
               <StyledLink href={getTonScanContractUrl(roles.owner)}>
-                {roles.owner}
+                {makeElipsisAddress(roles.owner)}
               </StyledLink>
             )}
+            <Chip label="Admin" />
           </StyledSection>
           <StyledSection>
-            <Typography>Proposal Owner:</Typography>
             {roles && (
               <StyledLink href={getTonScanContractUrl(roles?.proposalOwner)}>
-                {roles?.proposalOwner}
+                {makeElipsisAddress(roles?.proposalOwner)}
               </StyledLink>
             )}
+            <Chip label="Admin" />
           </StyledSection>
         </StyledFlexColumn>
-      </StyledContainer>
+      </StyledTitleContainer>
     </StyledFlexColumn>
   );
 }
 
+const StyledTitleContainer = styled(TitleContainer)({
+  ".title-container-header":{
+    justifyContent:'flex-start'
+  },
+  ".title-container-children":{
+    padding: 0
+  }
+});
+
 const StyledSection = styled(StyledFlexRow)({
   gap: 30,
-  justifyContent: "flex-start",
+  justifyContent: "space-between",
+  padding: "14px 25px",
+  borderBottom: "1px solid rgba(114, 138, 150, 0.24)",
+  "&:last-child": {
+    border:'unset'
+  }
 });
 
 const StyledLink = styled(Link)({
