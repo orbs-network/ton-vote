@@ -32,6 +32,11 @@ export const useInputs = (): InputInterface[] => {
         name: "jettonAddress",
       },
       {
+        label: "TON DNS",
+        type: "text",
+        name: "tonDns",
+      },
+      {
         label: "Description",
         type: "textarea",
         name: "description",
@@ -96,6 +101,7 @@ export const FormSchema = Yup.object().shape({
   twitter: Yup.string().url("invalid URL").required("Required"),
   about: Yup.string().url("invalid URL").required("Required"),
   terms: Yup.string().url("invalid URL").required("Required"),
+  // tonDns: Yup.string().required("Required"),
   ownerAddress: Yup.string()
     .test("address", "Invalid address", testAddress)
     .required("Required"),

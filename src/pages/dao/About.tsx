@@ -18,7 +18,7 @@ export function About() {
     <StyledFlexColumn gap={0} alignItems="flex-start">
       <Header title="About" />
       <StyledTitleContainer
-        title="Members"
+        title="Administrators"
         headerComponent={<Chip label={2} />}
       >
         <StyledFlexColumn gap={0}>

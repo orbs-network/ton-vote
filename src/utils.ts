@@ -123,8 +123,9 @@ export const getProposalStatusText = (status: ProposalStatus | null) => {
 
 
 
-export const getTonScanContractUrl = (address: string) => {
-  return `${TONSCAN_ADDRESS_URL}/${address}`;
+export const getTonScanContractUrl = (address?: string) => {
+  if (!address)  return ''
+   return `${TONSCAN_ADDRESS_URL}/${address}`;
 };
 
 export const calculateTonAmount = (percent?: number, total?: string) => {

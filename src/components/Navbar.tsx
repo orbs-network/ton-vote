@@ -83,12 +83,7 @@ const Wallet = () => {
           horizontal: "center",
         }}
       >
-        <StyledMenuItem
-          onClick={() => {
-            copy(address);
-            showSuccessToast("Copied to clipboard");
-          }}
-        >
+        <StyledMenuItem onClick={() => copy(address)}>
           <Typography>Copy Address</Typography>
           <MdContentCopy />
         </StyledMenuItem>

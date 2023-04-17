@@ -17,7 +17,7 @@ const axiosInstance = axios.create({
 });
 
 const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
-  return (await axiosInstance.get(`/daos/0`, { signal })).data.daos;
+  return (await axiosInstance.get(`/daos`, { signal })).data;
 };
 
 const getProposal = async (

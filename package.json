@@ -52,7 +52,7 @@
     "react-window": "^1.8.8",
     "ton": "^13.4.1",
     "ton-core": "^0.48.0",
-    "ton-vote-sdk": "3.0.4",
+    "ton-vote-sdk": "3.1.0",
     "tonweb": "^0.0.60",
     "use-query-params": "^2.2.0",
     "yup": "^1.0.2",

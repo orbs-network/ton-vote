@@ -1,5 +1,19 @@
 import { Address, Transaction } from "ton";
-import { DaoRoles, ProposalMetadata, Votes } from "ton-vote-sdk";
+import { DaoRoles, Votes } from "ton-vote-sdk";
+
+
+export interface ProposalMetadata {
+  id: number;
+  owner: string;
+  mcSnapshotBlock: number;
+  proposalStartTime: number;
+  proposalEndTime: number;
+  proposalSnapshotTime: number;
+  proposalType: number;
+  votingPowerStrategy: number;
+  title?: string;
+  description?: string
+}
 
 export interface ProposalResults {
   yes: number;
@@ -80,6 +94,8 @@ export interface Proposal {
   transactions?: Transaction[];
   metadata?: ProposalMetadata;
   daoAddress?: string;
+  hardcoded?: boolean;
+  url?: string
 }
 
 export type InputType =

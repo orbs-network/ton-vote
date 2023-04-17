@@ -37,6 +37,7 @@ const StyledLink = styled("a")({
   display: "flex",
   alignItems: "center",
   fontWeight: 600,
+  justifyContent:'center',
   "*": {
     fontWeight: 'inherit',
   },

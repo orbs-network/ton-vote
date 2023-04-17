@@ -9,7 +9,7 @@ import { Dao, ProposalStatus } from "types";
 import _ from "lodash";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { getProposalStatus, Logger } from "utils";
-import { OLD_DAO } from "data";
+import { OLD_DAO, proposals } from "data";
 
 export const useDaosQuery = () => {
   return useQuery(
@@ -32,7 +32,7 @@ export const useDaoQuery = (daoAddress: string) => {
       if (daoAddress === OLD_DAO.daoAddress) {
         return OLD_DAO;
       }
-        const daosQuery = queryClient.getQueryData([QueryKeys.DAOS]) as Dao[];
+      const daosQuery = queryClient.getQueryData([QueryKeys.DAOS]) as Dao[];
 
       const cachedDao = _.find(daosQuery, (it) => it.daoAddress === daoAddress);
       if (cachedDao) {
@@ -51,7 +51,8 @@ export const useProposalQuery = (proposalAddress?: string) => {
   return useQuery(
     [QueryKeys.PROPOSAL, proposalAddress],
     async ({ signal }) => {
-      return api.getProposal(proposalAddress!, signal);
+      const p = proposals[proposalAddress!];
+      return p || api.getProposal(proposalAddress!, signal);
     },
     {
       enabled: !!proposalAddress,

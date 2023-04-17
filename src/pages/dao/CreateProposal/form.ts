@@ -48,6 +48,7 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       type: "date",
       name: "proposalSnapshotTime",
       max: values.proposalStartTime,
+      min: moment().subtract('14', 'days').valueOf(),
     },
   ];
 };

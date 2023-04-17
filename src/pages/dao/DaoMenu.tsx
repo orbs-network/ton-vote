@@ -1,33 +1,50 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Loader, Img, SideMenu } from "components";
+import { Button, Loader, Img, SideMenu, Container, Link } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
+import { getTonScanContractUrl, makeElipsisAddress } from "utils";
 import Socials from "./Socials";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
   const { data: dao, isLoading } = useDaoQuery(daoAddresses);
 
+  if (isLoading) {
+    return (
+      <StyledContainer>
+        <StyledLoader>
+          <StyledSkeletonLoader
+            style={{ width: 70, height: 70, borderRadius: "50%" }}
+          />
+          <StyledFlexColumn>
+            <StyledSkeletonLoader style={{ width: "50%" }} />
+            <StyledSkeletonLoader style={{ width: "80%" }} />
+          </StyledFlexColumn>
+        </StyledLoader>
+      </StyledContainer>
+    );
+  }
   return (
     <StyledContainer>
       <StyledTop>
         <StyledLogo src={dao?.daoMetadata?.avatar} />
 
-        <StyledTitleLoader
-          isLoading={isLoading}
-          component={
-            <Typography variant="h2" className="title">
-              {dao?.daoMetadata?.name}
-            </Typography>
-          }
-        />
-
-        <StyledJoin disabled={isLoading}>Join</StyledJoin>
+        <StyledFlexColumn>
+          <Typography variant="h2" className="title">
+            {dao?.daoMetadata?.name}
+          </Typography>
+          <Link
+            href={getTonScanContractUrl(dao?.daoAddress)}
+            className="address"
+          >
+            {makeElipsisAddress(dao?.daoAddress, 6)}
+          </Link>
+        </StyledFlexColumn>
       </StyledTop>
       <Navigation />
       <StyledSocials
@@ -38,16 +55,14 @@ export function DaoMenu() {
     </StyledContainer>
   );
 }
-
-const StyledTitleLoader = styled(Loader)({
-  width: "70%",
-  height: 20,
-  marginTop: 5,
-});
-
 const StyledTop = styled(StyledFlexColumn)({
   padding: 20,
   paddingBottom: 0,
+  gap: 25,
+});
+
+const StyledLoader = styled(StyledTop)({
+  paddingBottom: 20,
 });
 
 const Navigation = () => {
@@ -122,7 +137,7 @@ const StyledNavigation = styled(StyledFlexColumn)({
   },
 });
 
-const StyledNavigationLink = styled(Link)<{ selected: boolean }>(
+const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
   ({ selected, theme }) => ({
     width: "100%",
     paddingLeft: 15,
@@ -146,13 +161,9 @@ const StyledSocials = styled(Socials)({
   padding: 20,
 });
 
-const StyledJoin = styled(Button)({
-  minWidth: 120,
-});
-
 const StyledContainer = styled(SideMenu)({
   padding: 0,
-  maxWidth: 300,
+  maxWidth: 280,
 });
 
 const StyledLogo = styled(Img)({
