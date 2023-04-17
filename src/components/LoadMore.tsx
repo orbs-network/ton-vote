@@ -26,6 +26,8 @@ function LoadMore({
     }
   }, [isVisible]);
 
+  
+
   if (amountToShow >= totalItems) {
     return null;
   }

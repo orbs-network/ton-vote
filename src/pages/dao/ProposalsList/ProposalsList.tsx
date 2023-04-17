@@ -20,7 +20,7 @@ const useFilterValue = () => {
   return useQueryParam("state", StringParam);
 };
 
-const LIMIT = 2;
+const LIMIT = 10;
 
 // const options: Option[] = [
 //   { text: "All", value: "all" },
@@ -76,13 +76,13 @@ export function ProposalsList() {
             );
           })}
         </List>
+        <LoadMore
+          totalItems={_.size(data?.daoProposals)}
+          amountToShow={amount}
+          showMore={showMore}
+          limit={LIMIT}
+        />
       </StyledFlexColumn>
-      <LoadMore
-        totalItems={_.size(data?.daoProposals)}
-        amountToShow={amount}
-        showMore={showMore}
-        limit={LIMIT}
-      />
     </StyledFlexColumn>
   );
 }

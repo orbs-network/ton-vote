@@ -3,11 +3,12 @@ import TonConnect from "@tonconnect/sdk";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
-export const BASE_ERROR_MESSAGE = "Oops, something went wrong";
 
 export const APPROVE_TX = "Please check wallet for pending transaction";
 export const TX_APPROVED_AND_PENDING = "Transaction pending";
 export const TX_FEE = "0.0075";
+
+export const APP_NAME = 'TON VOTE'
 
 export const voteOptions = [
   {
@@ -38,7 +39,6 @@ export const CLIENT_V2_API_KEY =
 
 export const STATE_REFETCH_INTERVAL = 30_000;
 
-export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 
 export const PAGE_SIZE = 20;

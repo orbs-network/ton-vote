@@ -88,7 +88,10 @@ export type InputType =
   | "textarea"
   | "date"
   | "upload"
-  | "editor";
+  | "editor"
+  | "checkbox"
+  | "address"
+  | "image"
 
 export interface InputInterface {
   label: string;
@@ -98,4 +101,5 @@ export interface InputInterface {
   rows?: number;
   min?: number;
   max?: number;
+  tooltip?: string;
 }

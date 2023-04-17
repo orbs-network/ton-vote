@@ -2,12 +2,16 @@ import * as React from "react";
 import Tooltip from "@mui/material/Tooltip";
 import { styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { AiOutlineInfoCircle } from "react-icons/ai";
+import { StyledFlexRow } from "styles";
 export function AppTooltip({
   children,
   text,
-  placement = 'bottom',
+  placement = "bottom",
+  info,
 }: {
-  children: React.ReactNode;
+  info?: boolean;
+  children?: React.ReactNode;
   text: React.ReactNode;
   placement?:
     | "bottom"
@@ -21,7 +25,7 @@ export function AppTooltip({
     | "right-end"
     | "right-start"
     | "top-end"
-    | "top-start"
+    | "top-start";
 }) {
   return (
     <StyledTooltip
@@ -29,11 +33,16 @@ export function AppTooltip({
       placement={placement}
       title={<StyledTitle>{text}</StyledTitle>}
     >
-      <Box className="tooltip-children">{children}</Box>
+      {!info ? (
+        <Box className="tooltip-children">{children}</Box>
+      ) : (
+        <StyledFlexRow style={{width:'unset'}}>
+          <AiOutlineInfoCircle />{" "}
+        </StyledFlexRow>
+      )}
     </StyledTooltip>
   );
 }
-
 
 const StyledTitle = styled(Typography)({
   fontSize: 14,
@@ -41,7 +50,4 @@ const StyledTitle = styled(Typography)({
   color: "rgb(114, 138, 150)",
 });
 
-
-const StyledTooltip = styled(Tooltip)({
- 
-});
+const StyledTooltip = styled(Tooltip)({});

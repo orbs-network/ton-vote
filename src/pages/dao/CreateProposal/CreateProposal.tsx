@@ -2,7 +2,6 @@ import { Box, Fade, styled, Typography } from "@mui/material";
 import {
   Button,
   ConnectButton,
-  Container,
   MapInput,
   SideMenu,
   TitleContainer,
@@ -12,7 +11,6 @@ import { useDaoAddress } from "hooks";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
-import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
 import moment from "moment";
@@ -40,16 +38,18 @@ function CreateProposal() {
     validateOnBlur: true,
   });
 
-  useEffect(() => {
-    const event = () => {
-      setFormData(formik.values);
-    };
-    window.addEventListener("beforeunload", event);
-    return () => {
-       setFormData(formik.values);
-      window.removeEventListener("beforeunload", event);
-    };
-  }, [formik.values]);
+  // useEffect(() => {
+  //   const event = () => {
+  //     setFormData(formik.values);
+  //   };
+  //   window.addEventListener("beforeunload", event);
+  //   return () => {
+  //      setFormData(formik.values);
+  //     window.removeEventListener("beforeunload", event);
+  //   };
+  // }, [formik.values]);
+
+
 
 
   return (

@@ -1,26 +1,27 @@
-import { styled, Typography } from "@mui/material";
-import { Button, Container, FadeElement, Header, Img } from "components";
+import { Box, styled, Typography } from "@mui/material";
+import { Button, Container, FadeElement, Header, Img, Link, TitleContainer } from "components";
 import moment from "moment";
 import { StyledFlexColumn } from "styles";
 import { InputInterface } from "types";
 import { useInputs } from "./form";
 import { FormData, useCreatDaoStore, useCreateDao } from "../store";
 import { Submit } from "./Submit";
+import { getTonScanContractUrl } from "utils";
+import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
-  
+
   const { prevStep, formData } = useCreatDaoStore();
   const data = formData as any as FormData;
 
   const inputs = useInputs();
   return (
     <FadeElement show={true}>
-      <StyledContainer>
-        <Header
-          title="Create Dao"
-          component={<StyledEdit onClick={prevStep}>Edit</StyledEdit>}
-        />
+      <StyledContainer
+        title="Create Dao"
+        headerComponent={<StyledEdit onClick={prevStep}>Edit</StyledEdit>}
+      >
         <StyledFlexColumn>
           <StyledInputs>
             {inputs.map((input) => {
@@ -45,7 +46,7 @@ export function CreateDaoStep() {
     </FadeElement>
   );
 }
-const StyledContainer = styled(Container)({});
+const StyledContainer = styled(TitleContainer)({});
 
 const StyledInputs = styled(StyledFlexColumn)({
   gap: 20,
@@ -58,15 +59,31 @@ const InputPreview = ({
   input: InputInterface;
   value: any;
 }) => {
-  const { type } = input;
+  console.log(input);
 
   const getValue = () => {
-    if (!value) return null;
-    if (type === "date") {
-      return <Typography>{moment(value).format("DD/MM/YY HH:mm")}</Typography>;
+    if (input.type === "url") {
+      return <Link href={value}>{value}</Link>;
     }
-    if (type === "upload") {
-      return <StyledImg src={URL.createObjectURL(value)} />;
+    if (input.type === "address") {
+      return <Link href={getTonScanContractUrl(value)}>{value}</Link>;
+    }
+    if (input.type === "image") {
+      return (
+        <StyledImgContainer>
+          <StyledImg src={value} />{" "}
+        </StyledImgContainer>
+      );
+    }
+    if (input.type === "checkbox") {
+      return <Typography>{value ? "Yes" : "No"}</Typography>;
+    }
+    if(input.type=== 'textarea') {
+      return (
+        <StyledMd>
+          <ReactMarkdown>{value || ""}</ReactMarkdown>
+        </StyledMd>
+      );
     }
     return <Typography>{value}</Typography>;
   };
@@ -79,10 +96,22 @@ const InputPreview = ({
   );
 };
 
-const StyledImg = styled(Img)({
-  width: 150,
-  height: 150,
+const StyledMd = styled(Box)({
+  p:{
+    margin: 0
+  }
+})
+
+const StyledImgContainer = styled(Box)({
+  width: 50,
+  height: 50,
   borderRadius: "50%",
+  background: "lightgray",
+  overflow:'hidden'
+});
+
+const StyledImg = styled(Img)({
+
 });
 
 const StyledInputPreview = styled(StyledFlexColumn)({

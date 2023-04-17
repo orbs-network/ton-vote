@@ -6,20 +6,16 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import {
-  Button,
-  ConnectButton,
-  Github,
-} from "components";
-import {StyledFlexRow, StyledGrid } from "styles";
+import { Button, ConnectButton, Github } from "components";
+import { StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
-import LogoImg from "assets/logo.svg";
 import { useAppNavigation } from "router";
 import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
 import { useCopyToClipboard } from "hooks";
 import { showSuccessToast } from "toasts";
+import { APP_NAME } from "config";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -28,7 +24,7 @@ export function Navbar() {
     <StyledContainer>
       <StyledNav>
         <StyledLogo onClick={daosPage.root}>
-          <Typography>VOTE</Typography>
+          <Typography>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
           <Wallet />
@@ -66,7 +62,9 @@ const Wallet = () => {
     <StyledWalletContainer>
       <StyledConnected onClick={handleClick}>
         <StyledFlexRow>
-          <Typography style={{flex:1}}>{makeElipsisAddress(address!, 5)}</Typography>
+          <Typography style={{ flex: 1 }}>
+            {makeElipsisAddress(address!, 5)}
+          </Typography>
           {/* <StyledSelectedWallet src={walletIcon} /> */}
         </StyledFlexRow>
       </StyledConnected>
@@ -165,12 +163,8 @@ const StyledContainer = styled(StyledFlexRow)({
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.24)",
 });
 
-
-
-
-
 const StyledNav = styled(StyledGrid)({
-  display:'flex',
-  justifyContent:'space-between',
-  flexDirection:'row'
+  display: "flex",
+  justifyContent: "space-between",
+  flexDirection: "row",
 });

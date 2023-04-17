@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, FadeElement, Header, MapInput } from "components";
+import { Button, Container, FadeElement, Header, MapInput, TitleContainer } from "components";
 import { StyledFlexColumn } from "styles";
 import { useFormik } from "formik";
 import { FormData, useCreatDaoStore, useCreateDaoMetadata } from "../store";
@@ -16,7 +16,7 @@ const EndAdornment = ({ onClick }: { onClick: () => void }) => {
 };
 
 const StyledEndAdornment = styled(Button)({
-  padding: "10px 10px",
+  padding: "5px 10px",
   height: "unset",
   p: {
     fontSize: 12,
@@ -50,7 +50,8 @@ export function CreateMetadataStep() {
       terms: formData.terms,
       ownerAddress: formData.ownerAddress,
       proposalOwner: formData.proposalOwner,
-      avatar: formData.avatar
+      avatar: formData.avatar,
+      hide: formData.hide
     },
     validationSchema: FormSchema,
     validateOnChange: false,
@@ -62,10 +63,8 @@ export function CreateMetadataStep() {
 
   return (
     <FadeElement show={true}>
-      <StyledContainer>
-        <Header
-          title="Create Metadata"
-        />
+      <StyledContainer title="Create Metadata">
+      
         <StyledFlexColumn>
           <StyledInputs>
             {inputs.map((input) => {
@@ -94,4 +93,4 @@ const StyledInputs = styled(StyledFlexColumn)({
   alignItems: "flex-start",
   gap: 20,
 });
-const StyledContainer = styled(Container)({});
+const StyledContainer = styled(TitleContainer)({});

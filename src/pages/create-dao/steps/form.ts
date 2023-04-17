@@ -1,5 +1,6 @@
 import { useConnection } from "ConnectionProvider";
 import { useMemo } from "react";
+import { Address } from "ton-core";
 import { InputInterface } from "types";
 import * as Yup from "yup";
 
@@ -11,22 +12,35 @@ export const useInputs = (): InputInterface[] => {
         label: "Name",
         type: "text",
         name: "name",
+        tooltip: "Name of the DAO",
       },
       {
         label: "Owner Address",
-        type: "text",
+        type: "address",
         name: "ownerAddress",
         defaultValue: address,
       },
       {
         label: "Proposal Owner Address",
-        type: "text",
+        type: "address",
         name: "proposalOwner",
         defaultValue: address,
       },
       {
+        label: "Jetton Address",
+        type: "address",
+        name: "jettonAddress",
+      },
+      {
+        label: "Description",
+        type: "textarea",
+        name: "description",
+        rows: 5,
+      },
+
+      {
         label: "Avatar",
-        type: "text",
+        type: "image",
         name: "avatar",
       },
       {
@@ -54,8 +68,24 @@ export const useInputs = (): InputInterface[] => {
         type: "url",
         name: "terms",
       },
+      {
+        label: "Hide Dao",
+        type: "checkbox",
+        name: "hide",
+      },
     ];
   }, [address]);
+};
+
+const testAddress = (value?: string) => {
+  if(!value) {
+    return true
+  }
+ try {
+   return Address.isAddress(Address.parse(value));
+ } catch (error) {
+   return false;
+ }
 };
 
 export const FormSchema = Yup.object().shape({
@@ -66,6 +96,11 @@ export const FormSchema = Yup.object().shape({
   twitter: Yup.string().url("invalid URL").required("Required"),
   about: Yup.string().url("invalid URL").required("Required"),
   terms: Yup.string().url("invalid URL").required("Required"),
-  ownerAddress: Yup.string().required("Required"),
-  proposalOwner: Yup.string().required("Required"),
+  ownerAddress: Yup.string()
+    .test("address", "Invalid address", testAddress)
+    .required("Required"),
+  proposalOwner: Yup.string()
+    .test("address", "Invalid address", testAddress)
+    .required("Required"),
+  jettonAddress: Yup.string().test("address", "Invalid address", testAddress),
 });

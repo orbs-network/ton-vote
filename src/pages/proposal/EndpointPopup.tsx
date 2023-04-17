@@ -156,6 +156,7 @@ const StyledRadio = styled(StyledFlexRow)({
 
 const StyledPopup = styled(Popup)({
   maxWidth: 600,
+  padding: 0,
 });
 
 const StyledSaveButton = styled(Button)({

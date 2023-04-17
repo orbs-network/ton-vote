@@ -19,6 +19,7 @@ const initialFormData: FormData = {
   ownerAddress: "",
   proposalOwner: "",
   avatar: "",
+  hide: false
 };
 
 export interface FormData {
@@ -31,6 +32,7 @@ export interface FormData {
   ownerAddress: string;
   proposalOwner: string;
   avatar: string;
+  hide: boolean
 }
 interface State {
   step: number;
@@ -68,7 +70,7 @@ export const useCreateDaoMetadata = () => {
         about: values.about,
         avatar: values.avatar || "",
         github: values.github,
-        hide: false,
+        hide: values.hide,
         name: values.name,
         terms: values.terms,
         twitter: values.twitter,

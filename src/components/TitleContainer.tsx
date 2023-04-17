@@ -15,12 +15,14 @@ export function TitleContainer({
   children,
   className = '',
 }: Props) {
+
+    const hideHeader = !title && !headerComponent;
   return (
     <StyledTitleContainer className={className}>
-      <StyledHeader justifyContent="space-between" className="title-container-header">
+      {!hideHeader && <StyledHeader justifyContent="space-between" className="title-container-header">
         <StyledTitle className="title">{title}</StyledTitle>
         {headerComponent}
-      </StyledHeader>
+      </StyledHeader>}
       <Box className="title-container-children">{children}</Box>
     </StyledTitleContainer>
   );

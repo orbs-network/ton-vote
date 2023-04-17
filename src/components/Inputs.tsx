@@ -1,4 +1,4 @@
-import { TextField, styled, Typography, Box } from "@mui/material";
+import { TextField, styled, Typography, Box, Checkbox } from "@mui/material";
 import React, { useCallback, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { InputInterface } from "types";
 import { FormikProps } from "formik";
 import { Img } from "./Img";
+import { AppTooltip } from "./Tooltip";
 
 interface TextInputProps {
   value?: string | number;
@@ -25,6 +26,7 @@ interface TextInputProps {
   name?: string;
   className?: string;
   endAdornment?: React.ReactNode;
+  tooltip?: string;
 }
 
 export function TextInput({
@@ -40,10 +42,14 @@ export function TextInput({
   name,
   endAdornment,
   className,
+  tooltip,
 }: TextInputProps) {
   return (
     <StyledContainer className={`${className} text-input`}>
-      {title && <StyledTitle>{title}</StyledTitle>}
+      <StyledInputHeader>
+        {title && <StyledTitle>{title}</StyledTitle>}
+        {tooltip && <AppTooltip info text={tooltip} />}
+      </StyledInputHeader>
       <StyledInput
         placeholder={placeholder}
         onBlur={onBlur}
@@ -67,6 +73,11 @@ export function TextInput({
     </StyledContainer>
   );
 }
+
+const StyledInputHeader = styled(StyledFlexRow)({
+  marginBottom: 5,
+  justifyContent:'flex-start'
+})
 
 interface UploadInputProps {
   onChange: (file: File) => void;
@@ -150,8 +161,6 @@ const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
 
 const StyledTitle = styled(Typography)({
   textAlign: "left",
-  width: "100%",
-  marginBottom: 3,
   fontSize: 14,
   fontWeight: 600,
 });
@@ -168,7 +177,7 @@ const StyledError = styled(StyledFlexRow)({
   paddingLeft: 5,
   justifyContent: "flex-start",
   gap: 5,
-  marginTop:5,
+  marginTop: 5,
   p: {
     fontSize: 13,
     color: "red",
@@ -183,7 +192,7 @@ const StyledInput = styled(TextField)({
     borderRadius: 10,
   },
   input: {
-    background:'transparent!important',
+    background: "transparent!important",
     padding: "12.5px 12px",
     fontSize: 16,
     fontWeight: 500,
@@ -209,9 +218,8 @@ export const DateRangeInput = ({
   onFocus,
   min,
   max,
-  value = '',
+  value = "",
 }: DateRangeInput) => {
-  
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <StyledDatepicker className={`${className} date-input`}>
@@ -219,7 +227,7 @@ export const DateRangeInput = ({
         <DateTimePicker
           maxDate={max && dayjs(max)}
           minDate={min && dayjs(min)}
-          value={value && dayjs(value)}
+          // value={value ? dayjs(value) : ''}
           onOpen={onFocus}
           className="datepicker"
           onChange={(value: any) => onChange(dayjs(value).valueOf())}
@@ -242,6 +250,7 @@ const StyledDatepicker = styled(StyledContainer)({
 
   fieldset: {
     borderRadius: 10,
+    borderColor: "rgba(0, 0, 0, 0.23)",
   },
   input: {
     fontSize: 14,
@@ -268,7 +277,7 @@ export function MapInput<T>({
     formik.setFieldValue(name as string, value);
     clearError();
   };
-  
+
   if (input.type === "date") {
     return (
       <DateRangeInput
@@ -288,8 +297,18 @@ export function MapInput<T>({
       <UploadInput title={label} onChange={onChange} value={value as File} />
     );
   }
+  if (input.type === "checkbox") {
+    return (
+      <CheckboxInput
+        title={label}
+        onChange={onChange}
+        value={value as boolean}
+      />
+    );
+  }
   return (
     <TextInput
+    tooltip={input.tooltip}
       onFocus={clearError}
       key={name}
       error={error}
@@ -306,3 +325,26 @@ export function MapInput<T>({
     />
   );
 }
+
+const CheckboxInput = ({
+  title,
+  onChange,
+  value = false,
+}: {
+  title: string;
+  onChange: (value: boolean) => void;
+  value: boolean;
+}) => {
+  return (
+    <StycheckBoxInput justifyContent="flex-start" gap={2}>
+      <Checkbox checked={value} onChange={() => onChange(!value)} />
+      {title && <StyledCheckBoxTitle>{title}</StyledCheckBoxTitle>}
+    </StycheckBoxInput>
+  );
+};
+
+const StyledCheckBoxTitle = styled(StyledTitle)({
+  width: "unset",
+});
+
+const StycheckBoxInput = styled(StyledFlexRow)({});

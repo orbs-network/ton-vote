@@ -36,7 +36,8 @@ const StyledLink = styled("a")({
   textDecoration: "unset",
   display: "flex",
   alignItems: "center",
-  ":hover": {
-    textDecoration:'underline',
+  fontWeight: 600,
+  "*": {
+    fontWeight: 'inherit',
   },
 });
