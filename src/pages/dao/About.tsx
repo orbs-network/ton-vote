@@ -1,9 +1,13 @@
 import { styled, Typography } from "@mui/material";
-import { Container, Link } from "components";
+import { Header, Link } from "components";
 import { useDaoAddress } from "hooks";
-import {  useDaoQuery } from "query/queries";
-import React from "react";
-import { StyledContainer, StyledFlexColumn, StyledFlexRow, StyledTitle, textOverflow } from "styles";
+import { useDaoQuery } from "query/queries";
+import {
+  StyledContainer,
+  StyledFlexColumn,
+  StyledFlexRow,
+  textOverflow,
+} from "styles";
 import { getTonScanContractUrl } from "utils";
 
 export function About() {
@@ -11,9 +15,9 @@ export function About() {
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
 
   return (
-    <StyledFlexColumn gap={20} alignItems='flex-start'>
-      <StyledTitle>About</StyledTitle>
-      <StyledContainer>
+    <StyledFlexColumn gap={0} alignItems="flex-start">
+      <Header title="About" />
+      <StyledContainer style={{width:'100%'}}>
         <StyledFlexColumn gap={20}>
           <StyledSection>
             <Typography>Dao Owner:</Typography>

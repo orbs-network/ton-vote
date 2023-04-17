@@ -180,8 +180,8 @@ const StyledPopup = styled(Popup)({
   justifyContent: "center",
   maxWidth: 400,
   padding: 0,
-  ".container-header": {
-    padding: "20px 20px 0px 20px",
+  ".title-container-children": {
+    padding: "20px 0px 0px 0px",
     marginBottom: 10,
   },
 });

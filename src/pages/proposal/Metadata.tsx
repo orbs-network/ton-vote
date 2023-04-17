@@ -1,5 +1,5 @@
 import { Box, styled, Typography } from "@mui/material";
-import { Container, Link } from "components";
+import { Container, Link, LoadingContainer, TitleContainer } from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import moment from "moment";
@@ -8,26 +8,23 @@ import { makeElipsisAddress } from "utils";
 import { useProposalAddress } from "hooks";
 import { useProposalState } from "./hooks";
 
- const fromUnixToString = (
-  time: number,
-  format = "MMM DD, YYYY HH:mm"
-) => {
+const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
 };
-
 
 export const Metadata = () => {
   const proposalAddress = useProposalAddress();
 
-  const {
-    data,
-    isLoading,
-  } = useProposalState();
+  const { data, isLoading } = useProposalState();
 
   const proposalMetadata = data?.metadata;
 
+  if (isLoading) {
+    return <LoadingContainer />;
+  }
+
   return (
-    <StyledInformation title="Information" loaderAmount={3} loading={isLoading}>
+    <StyledInformation title="Information">
       {proposalMetadata && (
         <StyledFlexColumn gap={12}>
           <InformationRow label="Start date">
@@ -65,29 +62,29 @@ const InformationRow = ({
   children: ReactNode;
 }) => {
   return (
-    <StyledFlexRow className="row" justifyContent="space-between">
+    <StyledRow justifyContent="space-between">
       <Typography className="row-label">{label}</Typography>
-      <Box className="row-children">{children}</Box>
-    </StyledFlexRow>
+      <div className="row-children">{children}</div>
+    </StyledRow>
   );
 };
 
-
-const StyledInformation = styled(Container)({
+const StyledRow = styled(StyledFlexRow)({
   width: "100%",
-  ".row": {
-    width: "100%",
-    ".row-label": {
+  ".row-label": {
+    fontSize: 14,
+    fontWeight: 700,
+  },
+  ".row-children": {
+    ...textOverflow,
+    maxWidth: "60%",
+    "*": {
       fontSize: 14,
-      fontWeight: 700,
-    },
-    ".row-children": {
-      ...textOverflow,
-      maxWidth: '60%',
-      "*": {
-        fontSize: 14,
-        fontWeight: 400,
-      },
+      fontWeight: 400,
     },
   },
+});
+
+const StyledInformation = styled(TitleContainer)({
+  width: "100%",
 });

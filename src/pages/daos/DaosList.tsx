@@ -1,8 +1,8 @@
 import { styled, Typography } from "@mui/material";
-import { List, LoadMore, Search } from "components";
+import { Container, List, LoadMore, Search } from "components";
 import { useDaosQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 import {
@@ -11,7 +11,6 @@ import {
   StyledDaoContent,
   StyledDaosList,
   StyledJoinDao,
-  StyledLoader,
 } from "./styles";
 import { makeElipsisAddress } from "utils";
 import { Dao } from "types";
@@ -63,7 +62,7 @@ export function DaosList() {
           <Typography>{_.size(data)} Daos</Typography>
         </StyledDaosAmount>
       </StyledFlexRow>
-      <StyledFlexColumn>
+      <StyledFlexColumn gap={25}>
         <List
           isLoading={isLoading}
           isEmpty={!!emptyList}
@@ -91,7 +90,7 @@ export function DaosList() {
   );
 }
 
-const StyledDaosAmount = styled(StyledContainer)({
+const StyledDaosAmount = styled(Container)({
   padding: "10px 20px",
   borderRadius: 20,
   width: "unset",
@@ -113,10 +112,16 @@ const StyledSearch = styled(Search)({
 const ListLoader = () => {
   return (
     <StyledDaosList>
-      {_.range(0, 4).map((it, i) => {
+      {_.range(0, 1).map((it, i) => {
         return (
           <StyledDao key={i}>
-            <StyledLoader />
+            <StyledDaoContent>
+              <StyledFlexColumn>
+                <StyledSkeletonLoader style={{borderRadius: '50%', width: 70, height: 70}} />
+                <StyledSkeletonLoader style={{width:'70%'}} />
+                <StyledSkeletonLoader />
+              </StyledFlexColumn>
+            </StyledDaoContent>
           </StyledDao>
         );
       })}
@@ -142,7 +147,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
 
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
-      <StyledDaoContent className="container">
+      <StyledDaoContent className="container" hover>
         {isVisible ? (
           <StyledFlexColumn>
             <StyledDaoAvatar src={daoMetadata?.avatar} />
@@ -150,7 +155,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             <Typography className="address">
               {makeElipsisAddress(dao.daoAddress, 6)}
             </Typography>
-            <StyledJoinDao onClick={join}>Join</StyledJoinDao>
+            {/* <StyledJoinDao onClick={join}>Join</StyledJoinDao> */}
           </StyledFlexColumn>
         ) : null}
       </StyledDaoContent>

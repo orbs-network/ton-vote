@@ -75,7 +75,7 @@ export const textOverflow: CSSProperties = {
 export const StyledGrid = styled(StyledFlexColumn)({
   gap: 0,
   width: "calc(100% - 100px)",
-  maxWidth: 950,
+  maxWidth: 1100,
   marginLeft: "auto",
   paddingLeft: TOOLBAR_WIDTH,
   marginRight: "auto",
@@ -113,23 +113,22 @@ export const StyledTitle = styled(Typography)({
   },
 });
 
-export const StyledContainer = styled(Box)(({ theme }) => ({
+export const StyledContainer = styled(Box)<{ hover?: number }>(({ theme, hover }) => ({
   background: "white",
-  border: "1px solid rgba(114, 138, 150, 0.24)",
+  border: "1px solid #e0e0e0",
   boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
-  borderRadius: 20,
+  borderRadius: 10,
   padding: 20,
-}));
-
-export const StyledHoverContainer = styled(StyledContainer)({
   transition: "0.2s all",
   svg: {
     transition: "0.2s all",
   },
   "&:hover": {
-    border: `1px solid ${theme.palette.primary.main}`,
+    border: hover
+      ? `1px solid ${theme.palette.primary.main}`
+      : "1px solid #e0e0e0",
     svg: {
-      color: `${theme.palette.primary.main}`,
-    }
+      color: hover ? `${theme.palette.primary.main}` : "",
+    },
   },
-});
+}));

@@ -156,7 +156,7 @@ const StyledContainer = styled(SideMenu)({
 });
 
 const StyledLogo = styled(Img)({
-  width: 90,
-  height: 90,
+  width: 70,
+  height: 70,
   borderRadius: "50%",
 });

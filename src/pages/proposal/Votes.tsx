@@ -1,11 +1,12 @@
 import { Chip, Fade, styled, Typography } from "@mui/material";
 import {
   AppTooltip,
-  Container,
   Link,
   List,
+  LoadingContainer,
   LoadMore,
   NumberDisplay,
+  TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { makeElipsisAddress, nFormatter } from "utils";
@@ -75,13 +76,12 @@ export function Votes() {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
   };
 
+  if (isLoading) {
+    return <LoadingContainer />;
+  }
+
   return (
-    <StyledContainer
-      title="Recent votes"
-      loading={isLoading}
-      loaderAmount={3}
-      headerChildren={<ContainerHeader />}
-    >
+    <StyledContainer title="Recent votes" headerComponent={<ContainerHeader />}>
       <List
         isLoading={isLoading}
         isEmpty={!isLoading && !_.size(data?.votes)}
@@ -103,7 +103,6 @@ export function Votes() {
         showMore={showMoreVotes}
         limit={PAGE_SIZE}
       />
-
     </StyledContainer>
   );
 }
@@ -184,16 +183,7 @@ const StyledVote = styled(StyledFlexRow)({
 
 const StyledList = styled(StyledFlexColumn)({});
 
-const StyledContainer = styled(Container)({
-  paddingBottom: 30,
-  ".container-header": {
-    alignItems: "center",
-    gap: 13,
-    h4: {
-      width: "fit-content",
-    },
-  },
-});
+const StyledContainer = styled(TitleContainer)({});
 
 const StyledChip = styled(Chip)({
   height: 28,

@@ -1,6 +1,6 @@
 import { Chip, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { Button, Container, Progress } from "components";
+import { Button, LoadingContainer, Progress, TitleContainer } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { useEffect, useMemo } from "react";
@@ -28,40 +28,43 @@ export const Results = () => {
     };
   }, [dataUpdatedAt]);
 
-  return (
-    <StyledResults title="Results" loaderAmount={3} loading={isLoading}>
-      <StyledFlexColumn gap={15}>
-        <ResultRow
-          name="Yes"
-          percent={proposalResults?.yes || 0}
-          tonAmount={calculateTonAmount(
-            proposalResults?.yes,
-            proposalResults?.totalWeight
-          )}
-          votes={votesCount.yes}
-        />
-        <ResultRow
-          name="No"
-          percent={proposalResults?.no || 0}
-          tonAmount={calculateTonAmount(
-            proposalResults?.no,
-            proposalResults?.totalWeight
-          )}
-          votes={votesCount.no}
-        />
-        <ResultRow
-          name="Abstain"
-          percent={proposalResults?.abstain || 0}
-          tonAmount={calculateTonAmount(
-            proposalResults?.abstain,
-            proposalResults?.totalWeight
-          )}
-          votes={votesCount.abstain}
-        />
-      </StyledFlexColumn>
-      <VerifyResults />
-    </StyledResults>
-  );
+  if (isLoading) {
+    return <LoadingContainer />
+  }
+    return (
+      <StyledResults title="Results">
+        <StyledFlexColumn gap={15}>
+          <ResultRow
+            name="Yes"
+            percent={proposalResults?.yes || 0}
+            tonAmount={calculateTonAmount(
+              proposalResults?.yes,
+              proposalResults?.totalWeight
+            )}
+            votes={votesCount.yes}
+          />
+          <ResultRow
+            name="No"
+            percent={proposalResults?.no || 0}
+            tonAmount={calculateTonAmount(
+              proposalResults?.no,
+              proposalResults?.totalWeight
+            )}
+            votes={votesCount.no}
+          />
+          <ResultRow
+            name="Abstain"
+            percent={proposalResults?.abstain || 0}
+            tonAmount={calculateTonAmount(
+              proposalResults?.abstain,
+              proposalResults?.totalWeight
+            )}
+            votes={votesCount.abstain}
+          />
+        </StyledFlexColumn>
+        <VerifyResults />
+      </StyledResults>
+    );
 };
 
 const ResultRow = ({
@@ -118,7 +121,7 @@ const StyledResultRow = styled(StyledFlexColumn)({
   },
 });
 
-const StyledResults = styled(Container)({
+const StyledResults = styled(TitleContainer)({
   width: "100%",
 });
 

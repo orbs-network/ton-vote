@@ -5,13 +5,15 @@ import { DialogContent, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton, Typography } from "@mui/material";
 import { Container } from "./Container";
+import { Header } from "./Header";
+import { TitleContainer } from "components";
 interface Props {
   children: ReactElement;
   onClose?: () => void;
   open: boolean;
   className?: string;
   title?: string;
-  hideCloseButton?: boolean
+  hideCloseButton?: boolean;
 }
 
 export const Popup = ({
@@ -26,9 +28,9 @@ export const Popup = ({
     <StyledModal open={open} onClose={onClose}>
       <StyledDialogContent>
         <StyledChildren
-          className={`children ${className}`}
-          title={title}
-          headerChildren={
+          title={title || ""}
+          className={`popup-children ${className}`}
+          headerComponent={
             onClose && !hideCloseButton && <CloseButton close={onClose} />
           }
         >
@@ -40,26 +42,22 @@ export const Popup = ({
 };
 
 const StyledDialogContent = styled(DialogContent)({
- display:'flex',
- alignItems:'center',
- justifyContent:'center',
- padding: 0,
- outline:'unset'
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  outline: "unset",
 });
 
-const StyledChildren = styled(Container)(({ theme }) => ({
- 
+const StyledChildren = styled(TitleContainer)(({ theme }) => ({
   ".container-header": {
     alignItems: "center",
   },
-  boxShadow: "0px 0px 25px 0px rgb(0 0 0 / 10%)",
   position: "relative",
   padding: "20px 20px 40px 20px",
   width: "100%",
   height: "fit-content",
   outline: "unset",
-  border: "unset",
-  borderRadius: 10,
   ".popup-title": {
     fontSize: 18,
     fontWeight: 600,

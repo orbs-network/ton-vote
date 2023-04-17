@@ -5,6 +5,7 @@ import {
   Container,
   MapInput,
   SideMenu,
+  TitleContainer,
 } from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress } from "hooks";
@@ -152,7 +153,9 @@ function CreateProposalMenu({
   );
 }
 
-const StyledMenu = styled(SideMenu)({});
+const StyledMenu = styled(SideMenu)({
+  width: 300
+});
 
 const StyledConnect = styled(ConnectButton)({
   width: "100%",
@@ -162,7 +165,7 @@ const StyledButton = styled(Button)({
   width: "100%",
 });
 
-const StyledContainer = styled(Container)({
+const StyledContainer = styled(TitleContainer)({
   paddingBottom: 40,
   flex: 1,
   ".date-input": {

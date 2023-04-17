@@ -1,11 +1,6 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
-import {
-  Container,
-  Button,
-  ConnectButton,
-  Popup,
-} from "components";
+import { Button, ConnectButton, Popup, TitleContainer } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
@@ -19,8 +14,11 @@ import { useProposalState, useVote } from "./hooks";
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const proposalAddress = useProposalAddress();
-  const state = useProposalState().data
-  const proposalStatus = useProposalStatusQuery(state?.metadata, proposalAddress);
+  const state = useProposalState().data;
+  const proposalStatus = useProposalStatusQuery(
+    state?.metadata,
+    proposalAddress
+  );
   const { mutate, isLoading } = useVote();
 
   if (proposalStatus !== ProposalStatus.ACTIVE) return null;
@@ -127,6 +125,4 @@ const StyledOption = styled(StyledFlexRow)<{
   },
 }));
 
-const StyledContainer = styled(Container)({});
-
-
+const StyledContainer = styled(TitleContainer)({});

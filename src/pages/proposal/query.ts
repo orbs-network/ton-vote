@@ -20,13 +20,18 @@ export const useGetProposal = () => {
     const proposalPersistStore = useProposalPersistedStore.getState();
     const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
 
-    const contractProposal = () =>
-      getProposalFromContract(proposalAddress, state, latestMaxLtAfterTx);
+    const contractProposal = () => {
+      return getProposalFromContract(
+        proposalAddress,
+        state,
+        latestMaxLtAfterTx
+      );
+    };
 
     const serverProposal = async (): Promise<Proposal | null> => {
       try {
         const state = await api.getProposal(proposalAddress, signal);
-        
+
         if (_.isEmpty(state.metadata)) {
           throw new Error("Proposal not found is server");
         }

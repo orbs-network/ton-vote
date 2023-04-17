@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, FadeElement, MapInput } from "components";
+import { Button, Container, FadeElement, Header, MapInput } from "components";
 import { StyledFlexColumn } from "styles";
 import { useFormik } from "formik";
 import { FormData, useCreatDaoStore, useCreateDaoMetadata } from "../store";
@@ -62,7 +62,10 @@ export function CreateMetadataStep() {
 
   return (
     <FadeElement show={true}>
-      <StyledContainer title="Create Dao Metadata">
+      <StyledContainer>
+        <Header
+          title="Create Metadata"
+        />
         <StyledFlexColumn>
           <StyledInputs>
             {inputs.map((input) => {

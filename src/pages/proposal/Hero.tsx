@@ -1,5 +1,5 @@
-import { Container, Img } from "components";
-import { Chip, Fade, Typography } from "@mui/material";
+import { Button, Container, Header, Img, LoadingContainer } from "components";
+import { Box, Chip, Fade, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import {
@@ -12,39 +12,65 @@ import { useProposalState } from "./hooks";
 import { useDaoAddress, useProposalAddress } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
+import AnimateHeight from "react-animate-height";
+import { useState } from "react";
 
 export function Hero() {
-  const title = "Title";
-  const description = "Description";
   const isLoading = useProposalState().isLoading;
+  const [showMore, setShowMore] = useState(false);
+
+  if (isLoading) {
+    return <LoadingContainer loaderAmount={4} />;
+  }
 
   return (
-    <StyledContainer
-      title={title}
-      loading={isLoading}
-      loaderAmount={5}
-      headerChildren={<StatusChip />}
-    >
-      <StyledFlexColumn alignItems="flex-start">
-        <ProposalOwner />
-        <Typography>{description}</Typography>
-        {/* <Typography>
-          Tokenomics proposal to achieve community consensus on circulating
-          supply of TON. Proposal for a 48 month temporary freeze of inactive
-          mining wallets, which have never been activated and do not have any
-          outgoing transfer in their history.
-        </Typography>
-
-        <AnimateHeight height={showMore ? "auto" : 0} duration={400}>
-          <ShowMorePart />
+    <StyledContainer>
+      <StyledFlexColumn gap={0}>
+        <StyledFlexColumn alignItems="flex-start" gap={20}>
+          <StyledHeader title="Title" />
+          <StyledFlexRow>
+            <StatusChip />
+            <ProposalOwner />
+          </StyledFlexRow>
+          <StyledDescription>
+            This document (“AIP-1.2”) proposes amendments to the Constitution,
+            and The Arbitrum Foundation Amended & Restated Memorandum & Articles
+            of Association (the “A&R M&A”) and Bylaws (the “Bylaws”) to (1)
+            remove references to AIP-1, and (2) make other changes reflecting
+            feedback from the community.
+          </StyledDescription>
+        </StyledFlexColumn>
+        <AnimateHeight height={showMore ? "auto" : 0} duration={200}>
+          <StyledDescription>
+            Motivation: AIP-1 set out critical aspects of governance and
+            included key governance documents for the ArbitrumDAO, and The
+            Arbitrum Foundation which referenced AIP-1 throughout: the
+            ArbitrumDAO Constitution (the “Constitution”), the Bylaws and the
+            A&R M&A. However, after vigorous community debate, AIP-1 did not
+            pass.
+          </StyledDescription>
         </AnimateHeight>
-        <StyledShowMore onClick={() => setShowMore(!showMore)}>
+        <StyledShowMore
+          onClick={() => setShowMore(!showMore)}
+          variant="transparent"
+        >
           <Typography>{showMore ? "Show less" : "Show more"}</Typography>
-        </StyledShowMore> */}
+        </StyledShowMore>
       </StyledFlexColumn>
     </StyledContainer>
   );
 }
+
+const StyledHeader = styled(Header)({
+  marginBottom:0
+})
+
+
+const StyledDescription = styled(Typography)({
+  fontWeight: 600,
+  fontSize: 17,
+  
+})
 
 const ProposalOwner = () => {
   const daoAddress = useDaoAddress();
@@ -59,7 +85,10 @@ const ProposalOwner = () => {
           {dao.data?.daoMetadata.name}
         </Link>
         {proposalMetadata?.owner && (
-          <StyledLink href={getTonScanContractUrl(proposalMetadata?.owner)} target='_blank'>
+          <StyledLink
+            href={getTonScanContractUrl(proposalMetadata?.owner)}
+            target="_blank"
+          >
             by {makeElipsisAddress(proposalMetadata?.owner, 6)}
           </StyledLink>
         )}
@@ -107,7 +136,7 @@ const StyledProposalOwner = styled(StyledFlexRow)({
     ...textOverflow,
   },
   ".dao-name": {
-   maxWidth: 200
+    maxWidth: 200,
   },
 });
 
@@ -116,25 +145,12 @@ const StyledVoteTimeline = styled(Chip)({
   fontSize: 12,
 });
 
-const StyledShowMoreText = styled(StyledFlexColumn)({
-  gap: 20,
-  alignItems: "flex-start",
-  p: {
-    textAlign: "left",
-  },
-  small: {
-    fontSize: 14,
-    fontStyle: "italic",
-  },
-});
-
-const StyledShowMore = styled("div")(({ theme }) => ({
-  cursor: "pointer",
-  p: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: theme.palette.primary.main,
-  },
+const StyledShowMore = styled(Button)(({ theme }) => ({
+  marginLeft: "auto",
+  marginRight: "auto",
+  marginTop: 20,
 }));
 
-const StyledContainer = styled(Container)({});
+const StyledContainer = styled(Container)({
+  width: "100%",
+});

@@ -67,7 +67,7 @@ const Wallet = () => {
       <StyledConnected onClick={handleClick}>
         <StyledFlexRow>
           <Typography style={{flex:1}}>{makeElipsisAddress(address!, 5)}</Typography>
-          <StyledSelectedWallet src={walletIcon} />
+          {/* <StyledSelectedWallet src={walletIcon} /> */}
         </StyledFlexRow>
       </StyledConnected>
 

@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, FadeElement, Img } from "components";
+import { Button, Container, FadeElement, Header, Img } from "components";
 import moment from "moment";
 import { StyledFlexColumn } from "styles";
 import { InputInterface } from "types";
@@ -16,10 +16,11 @@ export function CreateDaoStep() {
   const inputs = useInputs();
   return (
     <FadeElement show={true}>
-      <StyledContainer
-        title="Create Dao"
-        headerChildren={<StyledEdit onClick={prevStep}>Edit</StyledEdit>}
-      >
+      <StyledContainer>
+        <Header
+          title="Create Dao"
+          component={<StyledEdit onClick={prevStep}>Edit</StyledEdit>}
+        />
         <StyledFlexColumn>
           <StyledInputs>
             {inputs.map((input) => {

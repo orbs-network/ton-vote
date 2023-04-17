@@ -1,17 +1,16 @@
 import { Chip, styled, Typography } from "@mui/material";
-import { Container, List, LoadMore, Search } from "components";
+import { Button, Container, Header, List, LoadMore, Search } from "components";
 import { useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { appNavigation } from "router";
+import { appNavigation, useAppNavigation } from "router";
 import { StyledTitle, StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { StringParam, useQueryParam } from "use-query-params";
 import { ProposalLoader } from "../ProposalLoader";
 import { ProposalComponent } from "./Proposal";
-import { StyledProposalOwner, StyledProposalsHeader } from "./styles";
 
 interface Option extends SelectOption {
   value: ProposalStatus | string;
@@ -21,7 +20,7 @@ const useFilterValue = () => {
   return useQueryParam("state", StringParam);
 };
 
-const LIMIT = 2
+const LIMIT = 2;
 
 // const options: Option[] = [
 //   { text: "All", value: "all" },
@@ -42,11 +41,11 @@ const ProposalsCount = () => {
 export function ProposalsList() {
   const daoAddress = useDaoAddress();
   const [amount, setAmount] = useState(LIMIT);
-  const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState("");
 
   const showMore = () => {
     setAmount((prev) => prev + LIMIT);
-  }
+  };
 
   const { data, isLoading } = useDaoQuery(daoAddress);
   const [queryParamState] = useFilterValue();
@@ -54,13 +53,11 @@ export function ProposalsList() {
   const isEmpty = !isLoading && !_.size(data?.daoProposals);
 
   return (
-    <StyledFlexColumn gap={15}>
-      <StyledProposalsHeader>
-        <StyledFlexRow justifyContent='space-between'>
-          <StyledTitle>Proposals</StyledTitle>
-          <StyledSearch initialValue="" onChange={setSearchValue} />
-        </StyledFlexRow>
-      </StyledProposalsHeader>
+    <StyledFlexColumn gap={0}>
+      <Header
+        title="Proposals"
+        component={<StyledSearch initialValue="" onChange={setSearchValue} />}
+      />
       <StyledFlexColumn gap={15}>
         <List
           isEmpty={isEmpty}
@@ -92,31 +89,33 @@ export function ProposalsList() {
 
 const StyledSearch = styled(Search)({
   maxWidth: 260,
-  width: '100%',
-})
+  width: "100%",
+});
 
 const EmptyList = () => {
   const daoAddress = useDaoAddress();
+  const navigation = useAppNavigation();
   const { isDaoOwner, isProposalOnwer } = useIsOwner(daoAddress);
   const isOwner = isDaoOwner || isProposalOnwer;
 
   return (
     <StyledEmptyList>
-      <StyledFlexRow>
+      <StyledFlexColumn>
         <Typography>No Proposals</Typography>
         {isOwner && (
-          <Link
-            color="primary"
-            className="create"
-            to={appNavigation.daoPage.create(daoAddress)}
-          >
-            Create
-          </Link>
+          <StyledCreateDao onClick={() => navigation.daoPage.createProposal(daoAddress)}>
+            Create first proposal
+          </StyledCreateDao>
         )}
-      </StyledFlexRow>
+      </StyledFlexColumn>
     </StyledEmptyList>
   );
 };
+
+const StyledCreateDao = styled(Button)({
+  padding: '8px 20px',
+  height:'unset'
+})
 
 // const DaoFilter = () => {
 //   const [queryParamState, setQueryParamState] = useFilterValue();
@@ -152,6 +151,7 @@ const EmptyList = () => {
 // };
 
 const StyledEmptyList = styled(Container)({
+  width: "100%",
   p: {
     fontSize: 20,
     fontWeight: 700,

@@ -1,5 +1,10 @@
 import { styled } from "@mui/material";
-import { Container, Countdown } from "components";
+import {
+  Container,
+  Countdown,
+  LoadingContainer,
+  TitleContainer,
+} from "components";
 import { useProposalAddress } from "hooks";
 import moment from "moment";
 import { useProposalStatusQuery } from "query/queries";
@@ -15,14 +20,17 @@ const handleDate = (endDate?: number) => {
 export function Deadline() {
   const proposalAddress = useProposalAddress();
   const proposalMetadata = useProposalState().data?.metadata;
-  
+
   const proposalStatus = useProposalStatusQuery(
     proposalMetadata,
     proposalAddress
   );
 
   if (proposalStatus === ProposalStatus.CLOSED || !proposalStatus) return null;
-  
+
+  if (!proposalMetadata) {
+    return <LoadingContainer />;
+  }
   return (
     <StyledContainer
       title={
@@ -32,8 +40,6 @@ export function Deadline() {
           ? "Vote starts in"
           : "Time left to vote"
       }
-      loading={!proposalMetadata}
-      loaderAmount={1}
     >
       {proposalStatus === ProposalStatus.NOT_STARTED ? (
         <Countdown date={handleDate(proposalMetadata?.proposalStartTime)} />
@@ -44,4 +50,4 @@ export function Deadline() {
   );
 }
 
-const StyledContainer = styled(Container)({});
+const StyledContainer = styled(TitleContainer)({});

@@ -1,18 +1,13 @@
 import { Chip, Typography, styled } from "@mui/material";
-import { Loader } from "components";
+import { Loader, Status } from "components";
 import { useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow, StyledTitle } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { Proposal, ProposalStatus } from "types";
-import {
-  makeElipsisAddress,
-  getTimeDiff,
-  getProposalStatusText,
-  calculateTonAmount,
-} from "utils";
+import { makeElipsisAddress, getTimeDiff, calculateTonAmount } from "utils";
 import { ProposalLoader } from "../ProposalLoader";
 import {
   StyledDescription,
@@ -68,19 +63,15 @@ export const ProposalComponent = ({
     <StyledProposal
       onClick={() => proposalPage.root(daoAddress, proposalAddress)}
     >
-      <StyledFlexColumn>
+      <StyledFlexColumn alignItems='flex-start'>
         <StyledFlexRow justifyContent="space-between">
           <StyledProposalOwner>
             Owner: {makeElipsisAddress(proposal?.metadata?.owner, 8)}
           </StyledProposalOwner>
-          <Chip
-            label={getProposalStatusText(status)}
-            className="status"
-            color="primary"
-          />
+          <Status status={status} />
         </StyledFlexRow>
-        <StyledFlexColumn gap={5} alignItems="flex-start">
-          <StyledProposalTitle>Title</StyledProposalTitle>
+       
+          <StyledProposalTitle variant="h4">Title</StyledProposalTitle>
           <StyledDescription>Description</StyledDescription>
 
           {status !== ProposalStatus.CLOSED && proposal?.metadata && (
@@ -90,13 +81,16 @@ export const ProposalComponent = ({
           {status === ProposalStatus.CLOSED && proposal && (
             <Results proposal={proposal} />
           )}
-        </StyledFlexColumn>
+      
       </StyledFlexColumn>
     </StyledProposal>
   );
 };
 
-const StyledProposalTitle = styled(Typography)({});
+const StyledProposalTitle = styled(Typography)({
+  fontSize: 18,
+  fontWeight: 700,
+});
 
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;

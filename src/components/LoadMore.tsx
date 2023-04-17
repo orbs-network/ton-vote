@@ -35,7 +35,7 @@ function LoadMore({
   }
   return (
     <StyledContainer>
-      <StyledButton onClick={showMore}>Load more</StyledButton>
+      <StyledButton variant='transparent' onClick={showMore}>Load more</StyledButton>
     </StyledContainer>
   );
 }
@@ -43,11 +43,10 @@ function LoadMore({
 export { LoadMore };
 
 const StyledButton = styled(Button)({
-  minWidth: 170,
+  width:'100%',
 });
 
 const StyledContainer = styled(StyledFlexRow)({
-  marginTop: 50,
   marginBottom: 50,
 });
 

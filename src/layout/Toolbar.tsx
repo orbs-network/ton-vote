@@ -1,11 +1,11 @@
 import { styled } from "@mui/material";
 import LogoImg from "assets/logo.svg";
-import { AppTooltip, Container } from "components";
+import { AppTooltip, Button, Container } from "components";
 import { routes, TOOLBAR_WIDTH } from "consts";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router";
-import { StyledFlexColumn, StyledHoverContainer } from "styles";
+import { StyledFlexColumn } from "styles";
 import { GoSettings } from "react-icons/go";
 import { EndpointPopup } from "pages/proposal/EndpointPopup";
 import { useState } from "react";
@@ -22,14 +22,20 @@ export function Toolbar() {
         <StyledLogo src={LogoImg} />
       </Link>
       <AppTooltip text="Create Dao" placement="right">
-        <StyledButton onClick={navigation.createSpace.root}>
+        <StyledButton
+          onClick={navigation.createSpace.root}
+          variant="transparent"
+        >
           <AiOutlinePlus />
         </StyledButton>
       </AppTooltip>
       {currentRoute === routes.proposal && (
         <>
           <AppTooltip text="Set Custom endpoint" placement="right">
-            <StyledButton onClick={() => setCustomEndpoint(true)}>
+            <StyledButton
+              onClick={() => setCustomEndpoint(true)}
+              variant="transparent"
+            >
               <GoSettings />
             </StyledButton>
           </AppTooltip>
@@ -43,7 +49,7 @@ export function Toolbar() {
   );
 }
 
-const StyledButton = styled(StyledHoverContainer)({
+const StyledButton = styled(Button)({
   borderRadius: "50%",
   cursor: "pointer",
   padding: 10,
@@ -54,8 +60,7 @@ const StyledButton = styled(StyledHoverContainer)({
   justifyContent: "center",
   svg: {
     width: 20,
-    height: 20,
-    color: "rgba(114, 138, 150, 0.5)",
+    height: 20
   },
 });
 

@@ -1,13 +1,14 @@
 import { styled, useTheme } from "@mui/material";
 import { useDebounce } from "hooks";
-import  { useEffect, useState } from "react";
-import { StyledFlexRow, StyledHoverContainer } from "styles";
+import { useEffect, useState } from "react";
+import { StyledFlexRow } from "styles";
 import { HiMagnifyingGlass } from "react-icons/hi2";
+import { Container } from "./Container";
 
 export function Search({
   className = "",
   onChange,
-  initialValue = ""
+  initialValue = "",
 }: {
   className?: string;
   onChange: (value: string) => void;
@@ -23,12 +24,7 @@ export function Search({
   }, [debouncedValue]);
 
   return (
-    <StyledContainer
-      className={className}
-      style={{
-        border: focused ? `1px solid ${theme.palette.primary.main}` : "",
-      }}
-    >
+    <StyledContainer className={className} hover={true}>
       <StyledContent>
         <HiMagnifyingGlass />
         <StyledInput
@@ -48,7 +44,7 @@ const StyledContent = styled(StyledFlexRow)({
   paddingLeft: 12,
 });
 
-const StyledContainer = styled(StyledHoverContainer)({
+const StyledContainer = styled(Container)({
   height: 46,
   padding: 0,
   overflow: "hidden",

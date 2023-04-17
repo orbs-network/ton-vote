@@ -40,6 +40,8 @@ export const StyledProposalResult = styled(StyledFlexRow)({
 });
 
 export const StyledProposalOwner = styled(Typography)({
+  fontSize: 15,
+  fontWeight: 600
 });
 
 export const StyledProposal = styled(StyledContainer)(({ theme }) => ({

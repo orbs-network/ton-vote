@@ -1,6 +1,5 @@
 import { styled } from "@mui/material";
 import React, { ReactNode } from "react";
-import { Loader } from "./Loader";
 
 interface Props {
   isLoading: boolean;
@@ -10,18 +9,19 @@ interface Props {
   loader?: ReactNode;
 }
 
-export function List({ isLoading, isEmpty, children, emptyComponent, loader }: Props) {
+export function List({
+  isLoading,
+  isEmpty,
+  children,
+  emptyComponent,
+  loader,
+}: Props) {
   if (isEmpty) {
     return <>{emptyComponent}</>;
   }
-  return (
-    <StyledContainer
-      loader={loader}
-      component={children}
-      isLoading={isLoading}
-    />
-  );
+  if (isLoading) {
+    return <>{loader}</>;
+  }
+  return <>{children}</>;
 }
 
-
-const StyledContainer = styled(Loader)({});

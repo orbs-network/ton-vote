@@ -1,12 +1,13 @@
 import { Box, styled } from "@mui/material";
-import { Button, Img } from "components";
-import { StyledFlexRow, StyledHoverContainer, StyledSkeletonLoader, textOverflow } from "styles";
+import { Button, Container, Img } from "components";
+import { StyledFlexRow, StyledSkeletonLoader, textOverflow } from "styles";
 
 
-export const StyledDaoContent = styled(StyledHoverContainer)({
+export const StyledDaoContent = styled(Container)({
   display: "flex",
   flexDirection: "column",
   borderRadius: 13,
+  height:'100%'
 });
  
 export const StyledJoinDao = styled(Button)({
@@ -23,7 +24,7 @@ export const StyledDaoAvatar = styled(Img)({
 
 
 export const StyledDao = styled(Box)({
-  width: "calc(100% / 4 - 12px)",
+  width: "calc(100% / 4 - 15px)",
   height: 280,
 
   cursor: "pointer",
@@ -48,16 +49,12 @@ export const StyledDao = styled(Box)({
 });
 
 
-export const StyledLoader = styled(StyledSkeletonLoader)({
-  width: "100%",
-  height: "100%",
-});
 
 
 export const StyledDaosList = styled(StyledFlexRow)({
   marginLeft: "auto",
   marginRight: "auto",
   flexWrap: "wrap",
-  gap: 15,
+  gap: 20,
   justifyContent:'flex-start'
 });

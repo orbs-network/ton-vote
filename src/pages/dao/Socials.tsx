@@ -34,13 +34,13 @@ const Social = ({ url, icon }: { url?: string; icon: ReactElement }) => {
   );
 };
 
-const StyledSocial = styled('a')({
-  svg :{
-    width:25,
-    height:25,
-    color:'black'
-  }
-})
+const StyledSocial = styled("a")(({ theme }) => ({
+  svg: {
+    width: 25,
+    height: 25,
+    color: theme.palette.primary.main
+  },
+}));
 
 const StyledContainer = styled(StyledFlexRow)({
   gap:10
