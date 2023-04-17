@@ -18,6 +18,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import _ from "lodash";
 import { StringParam, useQueryParam } from "use-query-params";
+import { OLD_DAO } from "data";
 
 const DAOS_LIMIT = 10;
 
@@ -50,6 +51,9 @@ export function DaosList() {
 
   const filteredDaos = filterDaos(data, searchValue);
 
+  console.log(filteredDaos);
+  
+
   const emptyList = !isLoading && !_.size(data);
   return (
     <StyledFlexColumn alignItems="flex-start" gap={24}>
@@ -72,6 +76,7 @@ export function DaosList() {
           }
         >
           <StyledDaosList>
+            <DaoListItem dao={OLD_DAO} />
             {filteredDaos.map((dao, index) => {
               if (index > amount) return null;
               return <DaoListItem key={dao.daoAddress} dao={dao} />;

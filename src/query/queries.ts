@@ -9,6 +9,7 @@ import { Dao, ProposalStatus } from "types";
 import _ from "lodash";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { getProposalStatus, Logger } from "utils";
+import { OLD_DAO } from "data";
 
 export const useDaosQuery = () => {
   return useQuery(
@@ -28,7 +29,10 @@ export const useDaoQuery = (daoAddress: string) => {
   return useQuery(
     [QueryKeys.DAO, daoAddress],
     ({ signal }) => {
-      const daosQuery = queryClient.getQueryData([QueryKeys.DAOS]) as Dao[];
+      if (daoAddress === OLD_DAO.daoAddress) {
+        return OLD_DAO;
+      }
+        const daosQuery = queryClient.getQueryData([QueryKeys.DAOS]) as Dao[];
 
       const cachedDao = _.find(daosQuery, (it) => it.daoAddress === daoAddress);
       if (cachedDao) {
