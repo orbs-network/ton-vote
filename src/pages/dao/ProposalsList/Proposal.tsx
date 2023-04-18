@@ -1,5 +1,12 @@
 import { Chip, Typography, styled, Popper, Fade } from "@mui/material";
-import { AppTooltip, Button, Container, Loader, Status } from "components";
+import {
+  AppTooltip,
+  Button,
+  Container,
+  AddressDisplay,
+  Loader,
+  Status,
+} from "components";
 import { useCopyToClipboard, useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
@@ -7,12 +14,8 @@ import { useState } from "react";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Proposal, ProposalStatus, ProposalMetadata } from "types";
-import {
-  makeElipsisAddress,
-  getTimeDiff,
-  calculateTonAmount,
-  getTonScanContractUrl,
-} from "utils";
+import { makeElipsisAddress, getTimeDiff, calculateTonAmount } from "utils";
+
 import { ProposalLoader } from "../ProposalLoader";
 import {
   StyledDescription,
@@ -76,7 +79,10 @@ export const ProposalComponent = ({
     <StyledProposal onClick={onClick}>
       <StyledFlexColumn alignItems="flex-start">
         <StyledFlexRow justifyContent="space-between">
-          <Owner owner={proposal?.metadata?.owner || ""} />
+          <AddressDisplay
+            address={proposal?.metadata?.owner}
+            text={proposal?.metadata?.owner || ""}
+          />
           <Status status={status} />
         </StyledFlexRow>
 
@@ -97,64 +103,13 @@ export const ProposalComponent = ({
   );
 };
 
-const Owner = ({ owner }: { owner: string }) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [_, copy] = useCopyToClipboard();
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(anchorEl ? null : event.currentTarget);
-  };
-
-  const onCopy = (e: any) => {
-    e.stopPropagation();
-    copy(owner)
-  }
-
-  const open = Boolean(anchorEl);
-
-  return (
-    <StyledOwnerButton
-    onClick={(e: any) =>  e.stopPropagation() }
-      onMouseEnter={handleClick}
-      onMouseLeave={() => setAnchorEl(null)}
-    >
-      <StyledProposalOwner>
-        Owner: {makeElipsisAddress(owner, 8)}
-      </StyledProposalOwner>
-      <Popper open={open} anchorEl={anchorEl}>
-        <Fade in={open}>
-          <span>
-            <Container>
-              <StyledFlexColumn>
-                <Typography>{makeElipsisAddress(owner, 8)}</Typography>
-                <StyledFlexRow>
-                  <StyledTootlipBtn onClick={onCopy}>
-                    Copy Address
-                  </StyledTootlipBtn>
-                  <StyledTootlipBtn
-                    onClick={() => window.open(getTonScanContractUrl(owner))}
-                  >
-                    View Explorer
-                  </StyledTootlipBtn>
-                </StyledFlexRow>
-              </StyledFlexColumn>
-            </Container>
-          </span>
-        </Fade>
-      </Popper>
-    </StyledOwnerButton>
-  );
-};
-
 const StyledOwnerButton = styled("button")({
   background: "transparent",
   border: "unset",
   cursor: "pointer",
 });
 
-
-
-const StyledTootlipBtn = styled(Button)({});
+const StyledCopy = styled(Button)({});
 
 const StyledProposalTitle = styled(Typography)({
   fontSize: 18,

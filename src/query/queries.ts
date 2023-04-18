@@ -3,7 +3,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { QueryKeys } from "config";
+import { DAO_REFETCH_INTERVAL, QueryKeys } from "config";
 import { api, getDao, getDaos } from "lib";
 import { Dao, ProposalStatus } from "types";
 import _ from "lodash";
@@ -42,7 +42,8 @@ export const useDaoQuery = (daoAddress: string) => {
       return getDao(daoAddress, signal);
     },
     {
-      staleTime: Infinity,
+      staleTime: 5_000,
+      refetchInterval: DAO_REFETCH_INTERVAL
     }
   );
 };

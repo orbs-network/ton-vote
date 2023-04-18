@@ -12,9 +12,47 @@ export interface FormData {
 }
 
 export const FormSchema = Yup.object().shape({
-  proposalStartTime: Yup.number().required("Required"),
-  proposalEndTime: Yup.number().required("Required"),
-  proposalSnapshotTime: Yup.number().required("Required"),
+  proposalStartTime: Yup.number()
+    .required("Required")
+    .test(
+      "error",
+      "Proposal start time must be greater than current time",
+      (value = 0) => {
+        return value > moment().valueOf();
+      }
+    ),
+  proposalEndTime: Yup.number()
+    .required("Required")
+    .test(
+      "error",
+      "Proposal end time must be greater than proposal start time",
+      (value = 0, context) => {
+        return value > context.parent.proposalStartTime;
+      }
+    )
+    .test(
+      "error2",
+      "Proposal end time must be greater than proposal start time",
+      (value = 0, context) => {
+        return value > context.parent.proposalStartTime;
+      }
+    ),
+  proposalSnapshotTime: Yup.number()
+    .test(
+      "error",
+      "Proposal snapshot time must be smaller than proposal start time",
+      (value = 0, context) => {
+        return value < context.parent.proposalStartTime!;
+      }
+    )
+    .test(
+      "error2",
+      "Proposal snapshot time must be up to 14 days ago",
+      (value = 0, context) => {
+        return value >= moment().subtract('14', 'days').valueOf();
+      }
+    )
+    .required("Required"),
 });
 
 export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
@@ -48,7 +86,7 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       type: "date",
       name: "proposalSnapshotTime",
       max: values.proposalStartTime,
-      min: moment().subtract('14', 'days').valueOf(),
+      min: moment().subtract("14", "days").valueOf(),
     },
   ];
 };

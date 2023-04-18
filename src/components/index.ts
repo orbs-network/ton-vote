@@ -27,3 +27,4 @@ export * from "./Header";
 export * from "./TitleContainer";
 export * from './LoadingContainer'
 export * from "./Status";
+export * from "./AddressDisplay";

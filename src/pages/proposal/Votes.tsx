@@ -183,7 +183,11 @@ const StyledVote = styled(StyledFlexRow)({
 
 const StyledList = styled(StyledFlexColumn)({});
 
-const StyledContainer = styled(TitleContainer)({});
+const StyledContainer = styled(TitleContainer)({
+  ".title-container-children":{
+    padding: 0
+  }
+});
 
 const StyledChip = styled(Chip)({
   height: 28,

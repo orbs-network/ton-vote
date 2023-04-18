@@ -76,8 +76,8 @@ export function TextInput({
 
 const StyledInputHeader = styled(StyledFlexRow)({
   marginBottom: 5,
-  justifyContent:'flex-start'
-})
+  justifyContent: "flex-start",
+});
 
 interface UploadInputProps {
   onChange: (file: File) => void;
@@ -171,8 +171,6 @@ const StyledContainer = styled(StyledFlexColumn)({
 });
 
 const StyledError = styled(StyledFlexRow)({
-  // position: "absolute",
-  // top: "calc(100% + 2px)",
   width: "100%",
   paddingLeft: 5,
   justifyContent: "flex-start",
@@ -180,9 +178,12 @@ const StyledError = styled(StyledFlexRow)({
   marginTop: 5,
   p: {
     fontSize: 13,
-    color: "red",
+    color: "#d32f2f",
     textAlign: "left",
     fontWeight: 600,
+  },
+  svg: {
+    color: "#d32f2f",
   },
 });
 
@@ -222,12 +223,13 @@ export const DateRangeInput = ({
 }: DateRangeInput) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <StyledDatepicker className={`${className} date-input`}>
+      <StyledDatepicker className={`${className} date-input`} error={error ? 1 : 0}>
         {title && <StyledTitle>{title}</StyledTitle>}
         <DateTimePicker
-          maxDate={max && dayjs(max)}
-          minDate={min && dayjs(min)}
-          // value={value ? dayjs(value) : ''}
+
+          // maxDate={max && dayjs(max)}
+          // minDate={min && dayjs(min)}
+          value={value ? dayjs(value) : ''}
           onOpen={onFocus}
           className="datepicker"
           onChange={(value: any) => onChange(dayjs(value).valueOf())}
@@ -244,18 +246,19 @@ export const DateRangeInput = ({
   );
 };
 
-const StyledDatepicker = styled(StyledContainer)({
-  alignItems: "flex-start",
-  flex: 1,
-
-  fieldset: {
-    borderRadius: 10,
-    borderColor: "rgba(0, 0, 0, 0.23)",
-  },
-  input: {
-    fontSize: 14,
-  },
-});
+const StyledDatepicker = styled(StyledContainer)<{ error: number }>(
+  ({ error }) => ({
+    alignItems: "flex-start",
+    flex: 1,
+    fieldset: {
+      borderRadius: 10,
+      borderColor: error ? "#d32f2f" : "rgba(0, 0, 0, 0.23)",
+    },
+    input: {
+      fontSize: 14,
+    },
+  })
+);
 
 export function MapInput<T>({
   input,
@@ -308,7 +311,7 @@ export function MapInput<T>({
   }
   return (
     <TextInput
-    tooltip={input.tooltip}
+      tooltip={input.tooltip}
       onFocus={clearError}
       key={name}
       error={error}

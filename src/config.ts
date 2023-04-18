@@ -76,6 +76,6 @@ export const TON_CONNECTOR = new TonConnect({
 });
 
 
-export const DAOS_LIMIT = 8;
 
 
+export const DAO_REFETCH_INTERVAL = 10_000;

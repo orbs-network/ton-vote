@@ -15,7 +15,7 @@ import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
 import moment from "moment";
 import _ from "lodash";
-
+import { useEffect } from "react";
 
 function CreateProposal() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
@@ -38,19 +38,9 @@ function CreateProposal() {
     validateOnBlur: true,
   });
 
-  // useEffect(() => {
-  //   const event = () => {
-  //     setFormData(formik.values);
-  //   };
-  //   window.addEventListener("beforeunload", event);
-  //   return () => {
-  //      setFormData(formik.values);
-  //     window.removeEventListener("beforeunload", event);
-  //   };
-  // }, [formik.values]);
-
-
-
+  useEffect(() => {
+    setFormData(formik.values);
+  }, [formik.values]);
 
   return (
     <Fade in={true}>
@@ -154,7 +144,7 @@ function CreateProposalMenu({
 }
 
 const StyledMenu = styled(SideMenu)({
-  width: 300
+  width: 300,
 });
 
 const StyledConnect = styled(ConnectButton)({

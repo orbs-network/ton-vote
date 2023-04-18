@@ -64,6 +64,10 @@ export const globalStyles = {
   ".MuiTooltip-tooltip": {
     background: `#EEEEEE!important`,
   },
+  ".MuiDateCalendar-root .Mui-disabled": {
+    opacity: "0.4!important",
+    color:'gray!important'
+  },
 };
 
 export const textOverflow: CSSProperties = {

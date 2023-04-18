@@ -1,5 +1,5 @@
 import { Box, styled } from "@mui/material";
-import { Button, ConnectButton } from "components";
+import { ConnectButton } from "components";
 import { useConnection } from "ConnectionProvider";
 import React from "react";
 
@@ -19,6 +19,6 @@ export function Submit({ children }: { children: React.ReactNode }) {
 export const StyledContainer = styled(Box)({
   marginTop: 50,
   button: {
-    minWidth: 250,
+    minWidth: '120px',
   },
 });

@@ -54,3 +54,7 @@ export const useTxReminderPopup = create<useTxReminderPopup>((set, get) => ({
   setOpen: (open) => set({ open }),
   setText: (text) => set({ text }),
 }));
+
+
+
+

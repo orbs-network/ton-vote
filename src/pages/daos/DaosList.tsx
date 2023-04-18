@@ -19,8 +19,8 @@ import { useState } from "react";
 import _ from "lodash";
 import { StringParam, useQueryParam } from "use-query-params";
 import { OLD_DAO } from "data";
+import { DAOS_LIMIT, useDaosListLimit } from "./store";
 
-const DAOS_LIMIT = 10;
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
@@ -35,14 +35,12 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
 
 export function DaosList() {
   const { data = [], isLoading } = useDaosQuery();
-  const [amount, setAmount] = useState(DAOS_LIMIT);
+ const {limit, loadMore} = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
 
   const [queryParam, setQueryParam] = useQueryParam("q", StringParam);
 
-  const showMore = () => {
-    setAmount((prevState) => prevState + DAOS_LIMIT);
-  };
+
 
   const onSearchInputChange = (value: string) => {
     setSearchValue(value);
@@ -51,7 +49,6 @@ export function DaosList() {
 
   const filteredDaos = filterDaos(data, searchValue);
 
-  console.log(filteredDaos);
   
 
   const emptyList = !isLoading && !_.size(data);
@@ -63,7 +60,7 @@ export function DaosList() {
           onChange={onSearchInputChange}
         />
         <StyledDaosAmount>
-          <Typography>{_.size(data)} Daos</Typography>
+          <Typography>{_.size(data) + 1} Daos</Typography>
         </StyledDaosAmount>
       </StyledFlexRow>
       <StyledFlexColumn gap={25}>
@@ -78,7 +75,7 @@ export function DaosList() {
           <StyledDaosList>
             <DaoListItem dao={OLD_DAO} />
             {filteredDaos.map((dao, index) => {
-              if (index > amount) return null;
+              if (index > limit) return null;
               return <DaoListItem key={dao.daoAddress} dao={dao} />;
             })}
           </StyledDaosList>
@@ -86,8 +83,8 @@ export function DaosList() {
 
         <LoadMore
           totalItems={_.size(filteredDaos)}
-          amountToShow={amount}
-          showMore={showMore}
+          amountToShow={limit}
+          showMore={loadMore}
           limit={DAOS_LIMIT}
         />
       </StyledFlexColumn>

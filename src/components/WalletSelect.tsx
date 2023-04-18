@@ -84,7 +84,6 @@ const WalletList = () => {
     analytics.GA.walletSelectedClick(wallet.name);
     context.setSelectedWallet({ name: wallet.name, icon: wallet.imageUrl });
     const session = connect(wallet);
-    console.log(session);
 
     context.setSessionUrl(session);
   };

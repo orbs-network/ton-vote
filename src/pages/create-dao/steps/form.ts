@@ -15,13 +15,13 @@ export const useInputs = (): InputInterface[] => {
         tooltip: "Name of the DAO",
       },
       {
-        label: "Owner Address",
+        label: "Owner",
         type: "address",
         name: "ownerAddress",
         defaultValue: address,
       },
       {
-        label: "Proposal Owner Address",
+        label: "Proposal Owner",
         type: "address",
         name: "proposalOwner",
         defaultValue: address,
@@ -45,7 +45,7 @@ export const useInputs = (): InputInterface[] => {
 
       {
         label: "Avatar",
-        type: "image",
+        type: "text",
         name: "avatar",
       },
       {

@@ -28,7 +28,7 @@ export function About() {
                 {makeElipsisAddress(roles.owner)}
               </StyledLink>
             )}
-            <Chip label="Admin" />
+            <Chip label="Dao Owner" />
           </StyledSection>
           <StyledSection>
             {roles && (
@@ -36,7 +36,7 @@ export function About() {
                 {makeElipsisAddress(roles?.proposalOwner)}
               </StyledLink>
             )}
-            <Chip label="Admin" />
+            <Chip label="Proposal Owner" />
           </StyledSection>
         </StyledFlexColumn>
       </StyledTitleContainer>
