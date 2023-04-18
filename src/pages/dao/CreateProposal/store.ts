@@ -8,7 +8,7 @@ import { FormData } from "./form";
 import * as TonVoteSDK from "ton-vote-sdk";
 import { persist } from "zustand/middleware";
 import { ZERO_ADDRESS } from "consts";
-import { useTxReminderPopup } from "store";
+import { useProposlFromLocalStorage, useTxReminderPopup } from "store";
 
 interface Store {
   preview: boolean;
@@ -36,6 +36,7 @@ export const useCreateProposal = () => {
   const appNavigation = useAppNavigation();
   const setFormData = useCreateProposalStore((state) => state.setFormData);
   const toggleTxReminder = useTxReminderPopup().setOpen;
+  const {addProposal} = useProposlFromLocalStorage();
 
   return useMutation(
     async ({
@@ -72,11 +73,12 @@ export const useCreateProposal = () => {
         success: "Proposal Created",
       });
 
-      const address = await promise;
+      const proposalAddress = await promise;
 
-      if (typeof address === "string") {
-        appNavigation.proposalPage.root(daoAddress, address);
+      if (typeof proposalAddress === "string") {
+        appNavigation.proposalPage.root(daoAddress, proposalAddress);
         setFormData({} as FormData);
+        addProposal(daoAddress, proposalAddress);
       } else {
         throw new Error("Something went wrong");
       }

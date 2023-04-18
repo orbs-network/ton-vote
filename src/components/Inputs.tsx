@@ -246,7 +246,7 @@ export const DateRangeInput = ({
         <DateTimePicker
           // maxDate={max && dayjs(max)}
           // minDate={min && dayjs(min)}
-          value={value ? dayjs(value) : undefined}
+          value={value ? dayjs(value) : null}
           onOpen={onFocus}
           className="datepicker"
           onChange={(value: any) => onChange(dayjs(value).valueOf())}

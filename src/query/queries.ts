@@ -5,11 +5,18 @@ import {
 } from "@tanstack/react-query";
 import { DAO_REFETCH_INTERVAL, QueryKeys } from "config";
 import { api, getDao, getDaos } from "lib";
-import { Dao, ProposalStatus } from "types";
+import { Dao, Proposal, ProposalStatus } from "types";
 import _ from "lodash";
-import { ProposalMetadata } from "ton-vote-sdk";
+import {
+  getClientV2,
+  getClientV4,
+  getProposalMetadata,
+  ProposalMetadata,
+  ProposalResult,
+} from "ton-vote-sdk";
 import { getProposalStatus, Logger } from "utils";
 import { OLD_DAO, proposals } from "data";
+import { useProposlFromLocalStorage } from "store";
 
 export const useDaosQuery = () => {
   return useQuery(
@@ -23,15 +30,19 @@ export const useDaosQuery = () => {
   );
 };
 
-export const useDaoQuery = (
-  daoAddress: string,
-  refetchInterval?: number
-) => {
+const handleProposal = (proposals: string[], localStorageProposal?: string) => {
+  if (!localStorageProposal) return proposals;
+  if (proposals.includes(localStorageProposal)) return proposals;
+  return [localStorageProposal, ...proposals];
+};
+
+export const useDaoQuery = (daoAddress: string, refetchInterval?: number) => {
   const queryClient = useQueryClient();
+  const { proposals: localStorageProposals } = useProposlFromLocalStorage();
 
   return useQuery(
     [QueryKeys.DAO, daoAddress],
-    ({ signal }) => {
+    async ({ signal }) => {
       if (daoAddress === OLD_DAO.daoAddress) {
         return OLD_DAO;
       }
@@ -40,9 +51,18 @@ export const useDaoQuery = (
       const cachedDao = _.find(daosQuery, (it) => it.daoAddress === daoAddress);
       if (cachedDao) {
         Logger("Fetching dao from cache");
-        return cachedDao;
       }
-      return getDao(daoAddress, signal);
+      const dao = cachedDao || (await getDao(daoAddress, signal));
+      const daoProposals = handleProposal(
+        dao.daoProposals,
+        localStorageProposals[daoAddress]
+      );
+      console.log({ daoProposals });
+
+      return {
+        ...dao,
+        daoProposals,
+      };
     },
     {
       staleTime: 5_000,
@@ -52,11 +72,30 @@ export const useDaoQuery = (
 };
 
 export const useProposalQuery = (proposalAddress?: string) => {
-  return useQuery(
+  return useQuery<Proposal>(
     [QueryKeys.PROPOSAL, proposalAddress],
     async ({ signal }) => {
-      const p = proposals[proposalAddress!];
-      return p || api.getProposal(proposalAddress!, signal);
+      try {
+        const p = proposals[proposalAddress!];
+        const proposal = p || (await api.getProposal(proposalAddress!, signal));
+        if (_.isEmpty(proposal.metadata)) {
+          throw new Error("Proposal not found is server");
+        }
+        return proposal;
+      } catch (error) {
+        Logger("Proposal not found is server, fetching from contract");
+        const clientV2 = await getClientV2();
+        const clientV4 = await getClientV4();
+        return {
+          votes: [],
+          proposalResult: {} as ProposalResult,
+          metadata: await getProposalMetadata(
+            clientV2,
+            clientV4,
+            proposalAddress!
+          ),
+        };
+      }
     },
     {
       enabled: !!proposalAddress,

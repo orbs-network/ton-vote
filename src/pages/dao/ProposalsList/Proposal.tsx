@@ -81,7 +81,6 @@ export const ProposalComponent = ({
         <StyledFlexRow justifyContent="space-between">
           <AddressDisplay
             address={proposal?.metadata?.owner}
-            displayText={proposal?.metadata?.owner || ""}
           />
           <Status status={status} />
         </StyledFlexRow>
