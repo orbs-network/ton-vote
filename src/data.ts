@@ -1,7 +1,7 @@
 import { ProposalResult } from "ton-vote-sdk";
-import { Proposal } from "types";
+import { Dao, Proposal } from "types";
 
-export const OLD_DAO = {
+export const OLD_DAO: Dao = {
   daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
   daoId: 0,
   daoMetadata: {
@@ -11,14 +11,15 @@ export const OLD_DAO = {
     hide: false,
     name: "Take from ami",
     terms: "https://reactdatepicker.com/",
-    twitter: "https://reactdatepicker.com/",
+    telegram: "https://reactdatepicker.com/",
     website: "https://reactdatepicker.com/",
+    jetton:'',
+    nft:''
   },
   daoRoles: {
     owner: "",
     proposalOwner: "",
   },
-  nextProposalId: 2,
   daoProposals: [
     "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
     "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS",

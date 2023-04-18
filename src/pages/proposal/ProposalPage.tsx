@@ -1,8 +1,7 @@
-import { Fade, styled, useMediaQuery } from "@mui/material";
-import { Page } from "components";
+import { styled, useMediaQuery } from "@mui/material";
+import { Page, ProposalDescription } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
-import { Hero } from "./Hero";
 import { Metadata } from "./Metadata";
 import { Results } from "./Results";
 import { Vote } from "./Vote";
@@ -10,34 +9,79 @@ import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
 import { appNavigation } from "router";
-import { useDaoAddress } from "hooks";
+import { useDaoAddress, useProposalAddress } from "hooks";
+import { useProposalState } from "./hooks";
+import { useProposalStatusQuery } from "query/queries";
+import { ProposalStatus } from "types";
+
+const useComponents = () => {
+  const proposalAddress = useProposalAddress();
+  const { data, isLoading, dataUpdatedAt } = useProposalState();
+  const status = useProposalStatusQuery(data?.metadata, proposalAddress);
+
+  return {
+    proposalDescription: (
+      <ProposalDescription metadata={data?.metadata} isLoading={isLoading} />
+    ),
+    votes:
+      !status || status === ProposalStatus.NOT_STARTED ? null : (
+        <Votes votes={data?.votes} isLoading={isLoading} />
+      ),
+    vote: !status || status !== ProposalStatus.ACTIVE ? null : <Vote />,
+    deadline: !status ? null : (
+      <Deadline proposalStatus={status} proposalMetadata={data?.metadata} />
+    ),
+    metadata: (
+      <Metadata
+        proposalAddress={proposalAddress}
+        isLoading={isLoading}
+        proposalMetadata={data?.metadata}
+      />
+    ),
+    results:
+      !status || status === ProposalStatus.NOT_STARTED ? null : (
+        <Results
+          votes={data?.votes}
+          proposalResult={data?.proposalResult}
+          isLoading={isLoading}
+          dataUpdatedAt={dataUpdatedAt}
+        />
+      ),
+  };
+};
 
 const Destop = () => {
+  const { proposalDescription, votes, vote, deadline, metadata, results } =
+    useComponents();
+
   return (
     <StyledWrapper>
       <StyledLeft>
-        <Hero />
-        <Vote />
-        <Votes />
+        {proposalDescription}
+        {vote}
+        {votes}
       </StyledLeft>
       <StyledRight>
-        <Deadline />
-        <Metadata />
-        <Results />
+        {deadline}
+        {metadata}
+        {results}
       </StyledRight>
     </StyledWrapper>
   );
 };
 
 const Mobile = () => {
+  const { proposalDescription, votes, vote, deadline, metadata, results } =
+    useComponents();
+
   return (
     <StyledWrapper>
-      <Deadline />
-      <Hero />
-      <Vote />
-      <Results />
-      <Metadata />
-      <Votes />
+      {deadline}
+      {proposalDescription}
+      {vote}
+      {results}
+      {metadata}
+      {votes}
     </StyledWrapper>
   );
 };
@@ -58,9 +102,7 @@ function ProposalPage() {
   const daoAddress = useDaoAddress();
 
   return (
-    <Page
-      back={appNavigation.daoPage.root(daoAddress)}
-    >
+    <Page back={appNavigation.daoPage.root(daoAddress)}>
       <Meta />
       {mobile ? <Mobile /> : <Destop />}
     </Page>

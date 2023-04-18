@@ -1,19 +1,6 @@
 import { Address, Transaction } from "ton";
-import { DaoRoles, Votes } from "ton-vote-sdk";
+import { DaoRoles, MetadataArgs, ProposalMetadata, Votes } from "ton-vote-sdk";
 
-
-export interface ProposalMetadata {
-  id: number;
-  owner: string;
-  mcSnapshotBlock: number;
-  proposalStartTime: number;
-  proposalEndTime: number;
-  proposalSnapshotTime: number;
-  proposalType: number;
-  votingPowerStrategy: number;
-  title?: string;
-  description?: string
-}
 
 export interface ProposalResults {
   yes: number;
@@ -41,21 +28,11 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
-export interface DaoMetadata {
-  about: string;
-  avatar: string;
-  github: string;
-  hide: boolean;
-  name: string;
-  terms: string;
-  twitter: string;
-  website: string;
-}
 
 export interface Dao {
   daoAddress: string;
   daoId?: number;
-  daoMetadata: DaoMetadata;
+  daoMetadata: MetadataArgs;
   daoRoles: DaoRoles;
   daoProposals: string[];
 }
@@ -118,4 +95,11 @@ export interface InputInterface {
   min?: number;
   max?: number;
   tooltip?: string;
+}
+
+
+export interface Endpoints {
+  clientV2Endpoint?: string;
+  clientV4Endpoint?: string;
+  apiKey?: string;
 }

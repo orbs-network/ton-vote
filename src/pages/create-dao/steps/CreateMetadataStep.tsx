@@ -43,7 +43,7 @@ export function CreateMetadataStep() {
   const formik = useFormik({
     initialValues: {
       name: formData.name,
-      twitter: formData.twitter,
+      telegram: formData.telegram,
       website: formData.website,
       github: formData.github,
       about: formData.about,
@@ -51,7 +51,9 @@ export function CreateMetadataStep() {
       ownerAddress: formData.ownerAddress,
       proposalOwner: formData.proposalOwner,
       avatar: formData.avatar,
-      hide: formData.hide
+      hide: formData.hide,
+      jetton: formData.jetton,
+      nft: formData.nft,
     },
     validationSchema: FormSchema,
     validateOnChange: false,

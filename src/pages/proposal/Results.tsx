@@ -3,23 +3,31 @@ import { styled } from "@mui/material";
 import { Button, LoadingContainer, Progress, TitleContainer } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { useEffect, useMemo } from "react";
+import {AiFillCloseCircle} from 'react-icons/ai'
+import { useEffect, useMemo, useState } from "react";
 import { calculateTonAmount, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import _ from "lodash";
-import { useProposalState, useVerifyProposalResults } from "./hooks";
-import { ProposalStatus } from "types";
-import { useProposalStatusQuery } from "query/queries";
+import {  useVerifyProposalResults } from "./hooks";
+import {  Vote } from "types";
 import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "./store";
+import { ProposalResult } from "ton-vote-sdk";
+import { EndpointPopup } from "./EndpointPopup";
 
-export const Results = () => {
-  const { data, isLoading, dataUpdatedAt } = useProposalState();
-
-  const proposalResults = data?.proposalResult;
-
+export const Results = ({
+  proposalResult,
+  dataUpdatedAt,
+  isLoading,
+  votes,
+}: {
+  proposalResult?: ProposalResult;
+  dataUpdatedAt?: number;
+  isLoading: boolean;
+  votes?: Vote[];
+}) => {
   const votesCount = useMemo(() => {
-    const grouped = _.groupBy(data?.votes, "vote");
+    const grouped = _.groupBy(votes, "vote");
 
     return {
       yes: nFormatter(_.size(grouped.Yes)),
@@ -29,42 +37,42 @@ export const Results = () => {
   }, [dataUpdatedAt]);
 
   if (isLoading) {
-    return <LoadingContainer />
+    return <LoadingContainer />;
   }
-    return (
-      <StyledResults title="Results">
-        <StyledFlexColumn gap={15}>
-          <ResultRow
-            name="Yes"
-            percent={proposalResults?.yes || 0}
-            tonAmount={calculateTonAmount(
-              proposalResults?.yes,
-              proposalResults?.totalWeight
-            )}
-            votes={votesCount.yes}
-          />
-          <ResultRow
-            name="No"
-            percent={proposalResults?.no || 0}
-            tonAmount={calculateTonAmount(
-              proposalResults?.no,
-              proposalResults?.totalWeight
-            )}
-            votes={votesCount.no}
-          />
-          <ResultRow
-            name="Abstain"
-            percent={proposalResults?.abstain || 0}
-            tonAmount={calculateTonAmount(
-              proposalResults?.abstain,
-              proposalResults?.totalWeight
-            )}
-            votes={votesCount.abstain}
-          />
-        </StyledFlexColumn>
-        <VerifyResults />
-      </StyledResults>
-    );
+  return (
+    <StyledResults title="Results">
+      <StyledFlexColumn gap={15}>
+        <ResultRow
+          name="Yes"
+          percent={proposalResult?.yes || 0}
+          tonAmount={calculateTonAmount(
+            proposalResult?.yes,
+            proposalResult?.totalWeight
+          )}
+          votes={votesCount.yes}
+        />
+        <ResultRow
+          name="No"
+          percent={proposalResult?.no || 0}
+          tonAmount={calculateTonAmount(
+            proposalResult?.no,
+            proposalResult?.totalWeight
+          )}
+          votes={votesCount.no}
+        />
+        <ResultRow
+          name="Abstain"
+          percent={proposalResult?.abstain || 0}
+          tonAmount={calculateTonAmount(
+            proposalResult?.abstain,
+            proposalResult?.totalWeight
+          )}
+          votes={votesCount.abstain}
+        />
+      </StyledFlexColumn>
+      <VerifyResults />
+    </StyledResults>
+  );
 };
 
 const ResultRow = ({
@@ -130,41 +138,21 @@ export function VerifyResults() {
   const {
     mutate: verify,
     isLoading,
-    data: isVerified,
     reset,
+    error,
+    isSuccess,
   } = useVerifyProposalResults();
-  const proposalMetadata = useProposalState().data?.metadata;
-  const proposalStatus = useProposalStatusQuery(
-    proposalMetadata,
-    proposalAddress
-  );
+
+  const [open, setOpen] = useState(false);
 
   const latestMaxLtAfterTx = useLatestMaxLtAfterTx(proposalAddress);
 
   useEffect(() => {
-    if (isVerified && latestMaxLtAfterTx) {
+    if (isSuccess && latestMaxLtAfterTx) {
       reset();
     }
-  }, [latestMaxLtAfterTx]);
+  }, [latestMaxLtAfterTx, isSuccess]);
 
-  if (proposalStatus !== ProposalStatus.ACTIVE) return null;
-
-  const component = () => {
-    if (isVerified) {
-      return (
-        <StyledVerifiedButton>
-          <Typography>Verified</Typography>
-          <BsFillCheckCircleFill />
-        </StyledVerifiedButton>
-      );
-    }
-
-    return (
-      <StyledVerifyButton isLoading={isLoading} onClick={verify}>
-        <Typography>Verify</Typography>
-      </StyledVerifyButton>
-    );
-  };
   return (
     <StyledVerifyContainer>
       <StyledVerifyText>
@@ -173,7 +161,30 @@ export function VerifyResults() {
           Read more.
         </Link>
       </StyledVerifyText>
-      {component()}
+      <EndpointPopup
+        onSubmit={verify}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
+      {isSuccess ? (
+        <StyledButton>
+          <StyledFlexRow>
+            <Typography>Verified</Typography>
+            <BsFillCheckCircleFill />
+          </StyledFlexRow>
+        </StyledButton>
+      ) : error ? (
+        <StyledButton onClick={() => setOpen(true)}>
+          <StyledFlexRow>
+            <Typography>Not Verified</Typography>
+            <AiFillCloseCircle />
+          </StyledFlexRow>
+        </StyledButton>
+      ) : (
+        <StyledButton onClick={() => setOpen(true)} isLoading={isLoading}>
+          <Typography>Verify</Typography>
+        </StyledButton>
+      )}
     </StyledVerifyContainer>
   );
 }
@@ -189,11 +200,17 @@ const StyledVerifyText = styled(Typography)({
   fontWeight: 500,
 });
 
-const StyledVerifyButton = styled(Button)({
+const StyledButton = styled(Button)({
   height: 40,
   minWidth: 180,
   "*": {
     fontSize: 15,
+  },
+  svg: {
+    width:18,
+    height:18,
+    position:'relative',
+    top: -1
   },
   ".loader": {
     maxWidth: 20,
@@ -201,9 +218,3 @@ const StyledVerifyButton = styled(Button)({
   },
 });
 
-const StyledVerifiedButton = styled(StyledVerifyButton)({
-  cursor: "unset",
-  ".children": {
-    gap: 10,
-  },
-});

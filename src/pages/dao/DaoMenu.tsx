@@ -49,7 +49,7 @@ export function DaoMenu() {
       <Navigation />
       <StyledSocials
         github={dao?.daoMetadata?.github}
-        twitter={dao?.daoMetadata?.twitter}
+        telegram={dao?.daoMetadata?.telegram}
         website={dao?.daoMetadata?.website}
       />
     </StyledContainer>

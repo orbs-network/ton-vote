@@ -23,7 +23,10 @@ export const useDaosQuery = () => {
   );
 };
 
-export const useDaoQuery = (daoAddress: string) => {
+export const useDaoQuery = (
+  daoAddress: string,
+  refetchInterval?: number
+) => {
   const queryClient = useQueryClient();
 
   return useQuery(
@@ -43,7 +46,7 @@ export const useDaoQuery = (daoAddress: string) => {
     },
     {
       staleTime: 5_000,
-      refetchInterval: DAO_REFETCH_INTERVAL
+      refetchInterval,
     }
   );
 };

@@ -1,20 +1,21 @@
 import _ from "lodash";
-import { useEnpointsStore } from "store";
 import * as TonVoteSDK from "ton-vote-sdk";
 import { getClientV2, getClientV4, getProposalMetadata } from "ton-vote-sdk";
-import { Dao, Proposal } from "types";
+import { Endpoints, Dao, Proposal } from "types";
 import { Logger, parseVotes } from "utils";
 import { api } from "./api";
 
 export const getProposalFromContract = async (
   proposalAddress: string,
   state?: Proposal,
-  latestMaxLtAfterTx?: string
+  latestMaxLtAfterTx?: string,
+  customEndpoints?: Endpoints
 ): Promise<Proposal | null> => {
-  const { clientV2Endpoint, clientV4Endpoint, apiKey } =
-    useEnpointsStore.getState();
-  const clientV2 = await getClientV2(clientV2Endpoint, apiKey);
-  const clientV4 = await getClientV4(clientV4Endpoint);
+  const clientV2 = await getClientV2(
+    customEndpoints?.clientV2Endpoint,
+    customEndpoints?.apiKey
+  );
+  const clientV4 = await getClientV4(customEndpoints?.clientV4Endpoint);
 
   const metadata =
     state?.metadata ||
@@ -95,7 +96,6 @@ export const getDaos = async (signal?: AbortSignal) => {
     //     };
     //   })
     // );
-
     // return {
     //   daos,
     //   nextId: endDaoId,
@@ -113,7 +113,7 @@ export const getDao = async (
     const daoFromApi = await api.getDao(daoAddress, signal);
     if (_.isEmpty(daoFromApi)) {
       throw new Error("dao not found");
-    }    
+    }
     return daoFromApi;
   } catch (error) {
     // return Dao from contract

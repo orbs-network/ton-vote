@@ -4,7 +4,6 @@ import { useProposalAddress } from "hooks";
 import _ from "lodash";
 import { Proposal, ProposalStatus } from "types";
 import { getProposalStatus, Logger } from "utils";
-import { useEnpointsStore } from "store";
 import { api, getProposalFromContract } from "lib";
 import { useProposalPersistedStore } from "./store";
 
@@ -67,15 +66,8 @@ export const useGetProposal = () => {
 
 export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
   const proposalAddress = useProposalAddress();
-  const { clientV2Endpoint, clientV4Endpoint, apiKey } = useEnpointsStore();
   const getProposal = useGetProposal();
-  const queryKey = _.compact([
-    QueryKeys.PROPOSAL,
-    proposalAddress,
-    clientV2Endpoint,
-    clientV4Endpoint,
-    apiKey,
-  ]);
+  const queryKey = _.compact([QueryKeys.PROPOSAL, proposalAddress]);
   const queryClient = useQueryClient();
 
   return useQuery(

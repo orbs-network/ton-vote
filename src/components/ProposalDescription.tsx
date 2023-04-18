@@ -8,16 +8,34 @@ import {
   makeElipsisAddress,
 } from "utils";
 import { useDaoQuery, useProposalStatusQuery } from "query/queries";
-import { useProposalState } from "./hooks";
 import { useDaoAddress, useProposalAddress } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ProposalMetadata } from "ton-vote-sdk";
 
-export function Hero() {
-  const isLoading = useProposalState().isLoading;
+const MIN_DESCRIPTION_HEIGHT = 150;
+
+export function ProposalDescription({
+  metadata,
+  isLoading,
+}: {
+  metadata?: ProposalMetadata;
+  isLoading: boolean;
+}) {
   const [showMore, setShowMore] = useState(false);
+  const elRef = useRef<any>();
+  const [showMoreButton, setShowMoreButton] = useState(true);
+
+  useEffect(() => {
+    if (!elRef?.current?.clientHeight || isLoading) {
+      return;
+    }
+    setShowMoreButton(
+      elRef.current.clientHeight < MIN_DESCRIPTION_HEIGHT ? false : true
+    );
+  }, [elRef?.current?.clientHeight, isLoading]);
 
   if (isLoading) {
     return <LoadingContainer loaderAmount={4} />;
@@ -29,52 +47,64 @@ export function Hero() {
         <StyledFlexColumn alignItems="flex-start" gap={20}>
           <StyledHeader title="Title" />
           <StyledFlexRow>
-            <StatusChip />
-            <ProposalOwner />
+            <StatusChip proposalMetadata={metadata} />
+            <ProposalOwner proposalMetadata={metadata} />
           </StyledFlexRow>
-          <StyledDescription>
-            This document (“AIP-1.2”) proposes amendments to the Constitution,
-            and The Arbitrum Foundation Amended & Restated Memorandum & Articles
-            of Association (the “A&R M&A”) and Bylaws (the “Bylaws”) to (1)
-            remove references to AIP-1, and (2) make other changes reflecting
-            feedback from the community.
-          </StyledDescription>
+          <AnimateHeight
+            height={
+              !showMoreButton
+                ? "auto"
+                : showMore
+                ? "auto"
+                : MIN_DESCRIPTION_HEIGHT
+            }
+            duration={0}
+          >
+            <StyledDescription ref={elRef}>
+              This document (“AIP-1.2”) proposes amendments to the Constitution,
+              and The Arbitrum Foundation Amended & Restated Memorandum &
+              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
+              This document (“AIP-1.2”) proposes amendments to the Constitution,
+              and The Arbitrum Foundation Amended & Restated Memorandum &
+              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
+              This document (“AIP-1.2”) proposes amendments to the Constitution,
+              and The Arbitrum Foundation Amended & Restated Memorandum &
+              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
+              This document (“AIP-1.2”) proposes amendments to the Constitution,
+              and The Arbitrum Foundation Amended & Restated Memorandum &
+              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
+            </StyledDescription>
+          </AnimateHeight>
         </StyledFlexColumn>
-        <AnimateHeight height={showMore ? "auto" : 0} duration={200}>
-          <StyledDescription>
-            Motivation: AIP-1 set out critical aspects of governance and
-            included key governance documents for the ArbitrumDAO, and The
-            Arbitrum Foundation which referenced AIP-1 throughout: the
-            ArbitrumDAO Constitution (the “Constitution”), the Bylaws and the
-            A&R M&A. However, after vigorous community debate, AIP-1 did not
-            pass.
-          </StyledDescription>
-        </AnimateHeight>
-        <StyledShowMore
-          onClick={() => setShowMore(!showMore)}
-          variant="transparent"
-        >
-          <Typography>{showMore ? "Show less" : "Show more"}</Typography>
-        </StyledShowMore>
+
+        {showMoreButton && (
+          <StyledShowMore
+            onClick={() => setShowMore(!showMore)}
+            variant="transparent"
+          >
+            <Typography>{showMore ? "Show less" : "Show more"}</Typography>
+          </StyledShowMore>
+        )}
       </StyledFlexColumn>
     </StyledContainer>
   );
 }
 
 const StyledHeader = styled(Header)({
-  marginBottom:0
-})
-
+  marginBottom: 0,
+});
 
 const StyledDescription = styled(Typography)({
   fontWeight: 600,
   fontSize: 17,
-  
-})
+});
 
-const ProposalOwner = () => {
+const ProposalOwner = ({
+  proposalMetadata,
+}: {
+  proposalMetadata?: ProposalMetadata;
+}) => {
   const daoAddress = useDaoAddress();
-  const proposalMetadata = useProposalState().data?.metadata;
   const dao = useDaoQuery(daoAddress);
 
   return (
@@ -97,9 +127,8 @@ const ProposalOwner = () => {
   );
 };
 
-const StatusChip = () => {
+const StatusChip = ({ proposalMetadata }: { proposalMetadata?: ProposalMetadata }) => {
   const proposalAddress = useProposalAddress();
-  const proposalMetadata = useProposalState().data?.metadata;
 
   const proposalStatus = useProposalStatusQuery(
     proposalMetadata,
@@ -148,7 +177,7 @@ const StyledVoteTimeline = styled(Chip)({
 const StyledShowMore = styled(Button)(({ theme }) => ({
   marginLeft: "auto",
   marginRight: "auto",
-  marginTop: 20,
+  marginTop: 50,
 }));
 
 const StyledContainer = styled(Container)({

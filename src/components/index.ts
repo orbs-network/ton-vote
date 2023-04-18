@@ -28,3 +28,4 @@ export * from "./TitleContainer";
 export * from './LoadingContainer'
 export * from "./Status";
 export * from "./AddressDisplay";
+export * from "./ProposalDescription";

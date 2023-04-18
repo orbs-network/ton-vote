@@ -11,7 +11,7 @@ import { useTxReminderPopup } from "store";
 
 const initialFormData: FormData = {
   name: "test",
-  twitter: "https://reactdatepicker.com/",
+  telegram: "https://reactdatepicker.com/",
   website: "https://reactdatepicker.com/",
   github: "https://reactdatepicker.com/",
   about: "https://reactdatepicker.com/",
@@ -19,20 +19,24 @@ const initialFormData: FormData = {
   ownerAddress: "",
   proposalOwner: "",
   avatar: "",
-  hide: false
+  hide: false,
+  nft: "",
+  jetton: "",
 };
 
 export interface FormData {
   name: string;
   website: string;
   about: string;
-  twitter: string;
+  telegram: string;
   terms: string;
   github: string;
   ownerAddress: string;
   proposalOwner: string;
   avatar: string;
   hide: boolean
+  jetton: string;
+  nft: string;
 }
 interface State {
   step: number;
@@ -73,8 +77,10 @@ export const useCreateDaoMetadata = () => {
         hide: values.hide,
         name: values.name,
         terms: values.terms,
-        twitter: values.twitter,
+        telegram: values.telegram,
         website: values.website,
+        jetton: values.jetton,
+        nft: values.nft,
       };
       toggleTxReminder(true);
       const clientV2 = await getClientV2();

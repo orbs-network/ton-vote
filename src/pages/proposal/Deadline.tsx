@@ -1,15 +1,8 @@
 import { styled } from "@mui/material";
-import {
-  Container,
-  Countdown,
-  LoadingContainer,
-  TitleContainer,
-} from "components";
-import { useProposalAddress } from "hooks";
+import { Countdown, LoadingContainer, TitleContainer } from "components";
 import moment from "moment";
-import { useProposalStatusQuery } from "query/queries";
+import { ProposalMetadata } from "ton-vote-sdk";
 import { ProposalStatus } from "types";
-import { useProposalState } from "./hooks";
 
 const handleDate = (endDate?: number) => {
   if (!endDate) return 0;
@@ -17,17 +10,13 @@ const handleDate = (endDate?: number) => {
   return moment.unix(endDate).utc().valueOf();
 };
 
-export function Deadline() {
-  const proposalAddress = useProposalAddress();
-  const proposalMetadata = useProposalState().data?.metadata;
-
-  const proposalStatus = useProposalStatusQuery(
-    proposalMetadata,
-    proposalAddress
-  );
-
-  if (proposalStatus === ProposalStatus.CLOSED || !proposalStatus) return null;
-
+export function Deadline({
+  proposalStatus,
+  proposalMetadata,
+}: {
+  proposalStatus: ProposalStatus;
+  proposalMetadata?: ProposalMetadata;
+}) {
   if (!proposalMetadata) {
     return <LoadingContainer />;
   }

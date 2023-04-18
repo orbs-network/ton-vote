@@ -2,50 +2,63 @@ import { useMutation } from "@tanstack/react-query";
 import analytics from "analytics";
 import { useProposalAddress, useGetSender } from "hooks";
 import _ from "lodash";
-import { useEnpointsStore, useTxReminderPopup } from "store";
+import { useTxReminderPopup } from "store";
 import { Logger } from "utils";
 import { useProposalPageQuery } from "./query";
-import { useProposalPersistedStore } from "./store";
+import { useEnpointsStore, useProposalPersistedStore } from "./store";
 import * as TonVoteSDK from "ton-vote-sdk";
 import { getClientV2 } from "ton-vote-sdk";
 import { TX_FEE } from "config";
 import { getProposalFromContract } from "lib";
 import { showPromiseToast } from "toasts";
-export const useIsCustomEndpoint = () => {
-  const { clientV2Endpoint, clientV4Endpoint } = useEnpointsStore();
-
-  return !!clientV2Endpoint && !!clientV4Endpoint;
-};
+import { Endpoints } from "types";
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
   const { data } = useProposalState();
   const currentResults = data?.proposalResult;
   const maxLt = data?.maxLt;
+  const { setEndpoints } = useEnpointsStore();
 
-  return useMutation(async () => {
+  return useMutation(async (customEndpoints: Endpoints) => {
     analytics.GA.verifyButtonClick();
+    setEndpoints(customEndpoints);
+    const promiseFn = async () => {
+      const contractState = await getProposalFromContract(
+        proposalAddress,
+        undefined,
+        maxLt,
+        customEndpoints
+      );
+      const compareToResults = contractState?.proposalResult;
 
-    const contractState = await getProposalFromContract(
-      proposalAddress,
-      undefined,
-      maxLt
-    );
+      Logger({
+        currentResults,
+        compareToResults,
+      });
 
-    const compareToResults = contractState?.proposalResult;
+      const isEqual = _.isEqual(currentResults, compareToResults);
 
-    Logger({
-      currentResults,
-      compareToResults,
+      if (!isEqual) {
+        throw new Error("Not equal");
+      }
+      return isEqual;
+    };
+
+    const promise = promiseFn();
+
+    showPromiseToast({
+      promise,
+      success: "Results verified",
+      loading: "Verifying results",
+      error: "Failed to verify results",
     });
-
-    return _.isEqual(currentResults, compareToResults);
+    return promise;
   });
 };
 
 export const useProposalState = () => {
-  const isCustomEndpoint = useIsCustomEndpoint();
-  return useProposalPageQuery(isCustomEndpoint);
+  return useProposalPageQuery(false);
 };
 
 export const useVote = () => {

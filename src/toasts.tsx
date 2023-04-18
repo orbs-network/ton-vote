@@ -15,11 +15,13 @@ export function showPromiseToast<T>(args: {
     args.promise,
     {
       loading: args.loading || "Transaction pending",
-      success: () => <ToastContent message={args.success} />,
+      success: () => (
+        <ToastContent message={args.success} customClick={toast.dismiss} />
+      ),
       error: (err) => {
         const error = args.error || getErrorText(err);
 
-        return <ToastContent message={error} />;
+        return <ToastContent customClick={toast.dismiss} message={error} />;
       },
     },
     {
@@ -29,7 +31,7 @@ export function showPromiseToast<T>(args: {
       error: {
         duration: 125000,
       },
-      position: 'top-center',
+      position: "top-center",
     }
   );
 }
@@ -58,16 +60,27 @@ export const showToast = (message: string) => {
   });
 };
 
-const ToastContent = ({ message, id }: { message: string; id?: string }) => {
+const ToastContent = ({
+  message,
+  id,
+  customClick,
+}: {
+  message: string;
+  id?: string;
+  customClick?: () => void;
+}) => {
+  const showButton = customClick || id;
   return (
     <StyledPromiseContainer>
       {message}
-      <StyledIconButton>
-        <IoMdClose
-          style={{ width: 20, height: 20, cursor: "pointer" }}
-          onClick={() => toast.dismiss(id)}
-        />
-      </StyledIconButton>
+      {showButton && (
+        <StyledIconButton>
+          <IoMdClose
+            style={{ width: 20, height: 20, cursor: "pointer" }}
+            onClick={() => (customClick ? customClick() : toast.dismiss(id))}
+          />
+        </StyledIconButton>
+      )}
     </StyledPromiseContainer>
   );
 };

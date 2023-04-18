@@ -1,22 +1,29 @@
 import { Avatar, styled } from "@mui/material";
 import React from "react";
 import { StyledFlexRow } from "styles";
-import { AiOutlineTwitter, AiFillGithub } from "react-icons/ai";
+import {  AiFillGithub } from "react-icons/ai";
+import {BsTelegram} from 'react-icons/bs'
 import { ReactElement } from "react";
 import {BsGlobe} from 'react-icons/bs'
 
 interface Props {
-  twitter?: string;
+  telegram?: string;
   github?: string;
   website?: string;
   coingecko?: string;
-  className?: string
+  className?: string;
 }
 
-function Socials({ twitter, github, website, coingecko, className = '' }: Props) {
+function Socials({
+  telegram,
+  github,
+  website,
+  coingecko,
+  className = "",
+}: Props) {
   return (
     <StyledContainer className={className}>
-      <Social url={twitter} icon={<AiOutlineTwitter />} />
+      <Social url={telegram} icon={<BsTelegram />} />
       <Social url={github} icon={<AiFillGithub />} />
       <Social url={website} icon={<BsGlobe />} />
     </StyledContainer>

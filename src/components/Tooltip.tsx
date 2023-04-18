@@ -6,6 +6,7 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { StyledFlexRow } from "styles";
 export function AppTooltip({
   children,
+  className = "",
   text,
   placement = "bottom",
   info,
@@ -13,6 +14,7 @@ export function AppTooltip({
   info?: boolean;
   children?: React.ReactNode;
   text: React.ReactNode;
+  className?: string;
   placement?:
     | "bottom"
     | "left"
@@ -34,9 +36,9 @@ export function AppTooltip({
       title={<StyledTitle>{text}</StyledTitle>}
     >
       {!info ? (
-        <Box className="tooltip-children">{children}</Box>
+        <Box className={`tooltip-children ${className}`}>{children}</Box>
       ) : (
-        <StyledFlexRow style={{width:'unset'}}>
+        <StyledFlexRow style={{ width: "unset" }}>
           <AiOutlineInfoCircle />{" "}
         </StyledFlexRow>
       )}

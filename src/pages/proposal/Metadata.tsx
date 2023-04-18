@@ -1,23 +1,24 @@
 import { Box, styled, Typography } from "@mui/material";
-import { Container, Link, LoadingContainer, TitleContainer } from "components";
+import { AddressDisplay, Container, Link, LoadingContainer, TitleContainer } from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import moment from "moment";
-import { TONSCAN_ADDRESS_URL } from "config";
-import { makeElipsisAddress } from "utils";
-import { useProposalAddress } from "hooks";
-import { useProposalState } from "./hooks";
+import { ProposalMetadata } from "ton-vote-sdk";
+
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
 };
 
-export const Metadata = () => {
-  const proposalAddress = useProposalAddress();
-
-  const { data, isLoading } = useProposalState();
-
-  const proposalMetadata = data?.metadata;
+export const Metadata = ({
+  proposalMetadata,
+  isLoading,
+  proposalAddress,
+}: {
+  proposalMetadata?: ProposalMetadata;
+  isLoading: boolean;
+  proposalAddress?: string;
+}) => {
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -44,9 +45,7 @@ export const Metadata = () => {
             </Typography>
           </InformationRow>
           <InformationRow label="Contract">
-            <Link href={`${TONSCAN_ADDRESS_URL}/${proposalAddress}`}>
-              {makeElipsisAddress(proposalAddress, 8)}
-            </Link>
+            <AddressDisplay address={proposalAddress} />
           </InformationRow>
         </StyledFlexColumn>
       )}

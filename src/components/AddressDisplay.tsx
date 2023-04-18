@@ -6,12 +6,12 @@ import { IoCopyOutline } from "react-icons/io5";
 import { getTonScanContractUrl, makeElipsisAddress } from "utils";
 
 export function AddressDisplay({
-  text,
+  displayText,
   address,
   className = "",
   padding = 7,
 }: {
-  text?: string;
+  displayText?: string;
   address?: string;
   className?: string;
   padding?: number;
@@ -21,7 +21,7 @@ export function AddressDisplay({
 
   const onCopy = (e: any) => {
     e.stopPropagation();
-    copy(text || "");
+    copy(address || "");
   };
 
   const onLinkClick = (e: any) => {
@@ -30,9 +30,11 @@ export function AddressDisplay({
   };
 
   return (
-    <StyledFlexRow className={className} justifyContent="flex-start">
-      <StyledButton onClick={onLinkClick} className="address">
-        <Typography>{makeElipsisAddress(address, padding)}</Typography>
+    <StyledContainer className={className} justifyContent="flex-start">
+      <StyledButton onClick={onLinkClick} className="address-display-btn">
+        <Typography>
+          {displayText || makeElipsisAddress(address, padding)}
+        </Typography>
       </StyledButton>
       <StyledButton>
         <IoCopyOutline
@@ -40,11 +42,13 @@ export function AddressDisplay({
           onClick={onCopy}
         />
       </StyledButton>
-    </StyledFlexRow>
+    </StyledContainer>
   );
 }
 
-const StyledLink = styled("a")({});
+const StyledContainer = styled(StyledFlexRow)({
+  width:'auto'
+});
 
 const StyledButton = styled("button")(({ theme }) => ({
   padding: 0,

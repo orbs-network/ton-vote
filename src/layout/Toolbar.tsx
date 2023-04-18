@@ -1,20 +1,17 @@
 import { styled } from "@mui/material";
 import LogoImg from "assets/logo.svg";
-import { AppTooltip, Button, Container } from "components";
-import { routes, TOOLBAR_WIDTH } from "consts";
+import { AppTooltip, Button } from "components";
+import { TOOLBAR_WIDTH } from "consts";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";
-import { GoSettings } from "react-icons/go";
-import { EndpointPopup } from "pages/proposal/EndpointPopup";
 import { useState } from "react";
 import { useCurrentRoute } from "hooks";
 
 export function Toolbar() {
   const navigation = useAppNavigation();
-  const [showCustomEndpoint, setCustomEndpoint] = useState(false);
-  const currentRoute = useCurrentRoute();
+
 
   return (
     <StyledToolbar>
@@ -29,22 +26,6 @@ export function Toolbar() {
           <AiOutlinePlus />
         </StyledButton>
       </AppTooltip>
-      {currentRoute === routes.proposal && (
-        <>
-          <AppTooltip text="Set Custom endpoint" placement="right">
-            <StyledButton
-              onClick={() => setCustomEndpoint(true)}
-              variant="transparent"
-            >
-              <GoSettings />
-            </StyledButton>
-          </AppTooltip>
-          <EndpointPopup
-            open={showCustomEndpoint}
-            onClose={() => setCustomEndpoint(false)}
-          />
-        </>
-      )}
     </StyledToolbar>
   );
 }

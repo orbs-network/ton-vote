@@ -8,14 +8,11 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import AnimateHeight from "react-animate-height";
-import { InputInterface } from "types";
-import analytics from "analytics";
+import { Endpoints, InputInterface } from "types";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Button, MapInput, Popup } from "components";
-import { GoSettings } from "react-icons/go";
-import { useIsCustomEndpoint } from "./hooks";
-import { useEnpointsStore } from "store";
+import { useEnpointsStore } from "./store";
 
 const FormSchema = Yup.object().shape({
   clientV2Endpoint: Yup.string().required("Required"),
@@ -50,49 +47,41 @@ interface FormData {
 export function EndpointPopup({
   open,
   onClose,
+  onSubmit,
 }: {
   open: boolean;
   onClose: () => void;
+  onSubmit: ({ clientV2Endpoint, clientV4Endpoint, apiKey }: Endpoints) => void;
 }) {
-  const store = useEnpointsStore();
-  const isCustomEndpoint = useIsCustomEndpoint();
+  const { endpoints, setEndpoints } = useEnpointsStore();
 
   const formik = useFormik<FormData>({
     initialValues: {
-      apiKey: store.apiKey || CLIENT_V2_API_KEY,
-      clientV2Endpoint: store.clientV2Endpoint || DEFAULT_CLIENT_V2_ENDPOINT,
-      clientV4Endpoint: store.clientV4Endpoint || DEFAULT_CLIENT_V4_ENDPOINT,
+      apiKey: endpoints?.apiKey || CLIENT_V2_API_KEY,
+      clientV2Endpoint:
+        endpoints?.clientV2Endpoint || DEFAULT_CLIENT_V2_ENDPOINT,
+      clientV4Endpoint:
+        endpoints?.clientV4Endpoint || DEFAULT_CLIENT_V4_ENDPOINT,
     },
     validationSchema: FormSchema,
     validateOnChange: false,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      analytics.GA.selectCustomEndpointClick(
-        values.clientV2Endpoint,
-        values.clientV4Endpoint
-      );
-      store.setEndpoints({
+      onSubmit({
         clientV2Endpoint: values.clientV2Endpoint,
         clientV4Endpoint: values.clientV4Endpoint,
         apiKey: values.apiKey,
       });
+      onClose();
     },
   });
   const [customSelected, setCustomSelected] = useState(false);
 
   useEffect(() => {
-    setCustomSelected(!!isCustomEndpoint);
-  }, [isCustomEndpoint, open]);
-
-  const onSubmit = async () => {
-    if (!customSelected) {
-      analytics.GA.selectDefaultEndpointsClick();
-      store.setEndpoints(undefined);
-    } else {
-      formik.handleSubmit();
-    }
-    onClose();
-  };
+    setCustomSelected(
+      !!endpoints?.clientV2Endpoint && !!endpoints.clientV4Endpoint
+    );
+  }, [endpoints?.clientV2Endpoint, endpoints?.clientV4Endpoint, open]);
 
   return (
     <StyledPopup open={open} onClose={onClose} title="RPC endpoint settings">
@@ -133,14 +122,11 @@ export function EndpointPopup({
             </StyledCustomEndpoints>
           </Fade>
         </AnimateHeight>
-        <StyledSaveButton onClick={onSubmit}>Save</StyledSaveButton>
+        <StyledSaveButton onClick={formik.submitForm}>Verify</StyledSaveButton>
       </StyledFlexColumn>
     </StyledPopup>
   );
 }
-
-
-
 
 const StyledCustomEndpoints = styled(StyledFlexColumn)({
   paddingBottom: 30,
@@ -162,5 +148,4 @@ const StyledPopup = styled(Popup)({
 const StyledSaveButton = styled(Button)({
   width: "100%",
   maxWidth: 200,
- 
 });

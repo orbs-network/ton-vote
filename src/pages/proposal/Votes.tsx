@@ -1,7 +1,7 @@
 import { Chip, Fade, styled, Typography } from "@mui/material";
 import {
+  AddressDisplay,
   AppTooltip,
-  Link,
   List,
   LoadingContainer,
   LoadMore,
@@ -9,8 +9,8 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
-import { makeElipsisAddress, nFormatter } from "utils";
-import { PAGE_SIZE, TONSCAN } from "config";
+import { nFormatter } from "utils";
+import { PAGE_SIZE } from "config";
 import { Vote } from "types";
 import { fromNano } from "ton";
 import { useMemo, useState } from "react";
@@ -68,8 +68,13 @@ const StyledContainerHeader = styled(StyledFlexRow)({
   },
 });
 
-export function Votes() {
-  const { data, isLoading } = useProposalState();
+export function Votes({
+  votes,
+  isLoading,
+}: {
+  votes?: Vote[];
+  isLoading: boolean;
+}) {
   const connectedAddress = useConnection().address;
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const showMoreVotes = () => {
@@ -84,12 +89,12 @@ export function Votes() {
     <StyledContainer title="Recent votes" headerComponent={<ContainerHeader />}>
       <List
         isLoading={isLoading}
-        isEmpty={!isLoading && !_.size(data?.votes)}
+        isEmpty={!isLoading && !_.size(votes)}
         emptyComponent={<StyledNoVotes>No votes yet</StyledNoVotes>}
       >
         <StyledList gap={15}>
           <ConnectedWalletVote />
-          {data?.votes?.map((vote, index) => {
+          {votes?.map((vote, index) => {
             if (index >= votesShowAmount || vote.address === connectedAddress)
               return null;
             return <VoteComponent data={vote} key={vote.address} />;
@@ -98,7 +103,7 @@ export function Votes() {
       </List>
 
       <LoadMore
-        totalItems={_.size(data?.votes)}
+        totalItems={_.size(votes)}
         amountToShow={votesShowAmount}
         showMore={showMoreVotes}
         limit={PAGE_SIZE}
@@ -113,22 +118,32 @@ const VoteComponent = ({ data }: { data?: Vote }) => {
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
+  const isYou = connectedAddress === address;
+
   return (
-    <StyledVote justifyContent="flex-start">
-      <AppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
-        <Link className="address" href={`${TONSCAN}/tx/${hash}`}>
-          {connectedAddress === address
-            ? "You"
-            : makeElipsisAddress(address, 5)}
-        </Link>
-      </AppTooltip>
-      <Typography className="vote">{vote}</Typography>
-      <Typography className="voting-power">
-        {nFormatter(Number(votingPower))} TON
-      </Typography>
-    </StyledVote>
+    <StyledAppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
+      <StyledVote justifyContent="flex-start">
+        <StyledAddressDisplay
+          address={address}
+          displayText={isYou ? "You" : ""}
+        />
+        <Typography className="vote">{vote}</Typography>
+        <Typography className="voting-power">
+          {nFormatter(Number(votingPower))} TON
+        </Typography>
+      </StyledVote>
+    </StyledAppTooltip>
   );
 };
+
+const StyledAppTooltip = styled(AppTooltip)({
+  width: "100%",
+});
+
+const StyledAddressDisplay = styled(AddressDisplay)({
+  justifyContent: "flex-start",
+  width: 160,
+});
 
 const StyledNoVotes = styled(Typography)({
   textAlign: "center",
@@ -138,11 +153,8 @@ const StyledNoVotes = styled(Typography)({
 
 const StyledVote = styled(StyledFlexRow)({
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.16)",
-  paddingBottom: 10,
+  padding: "15px 25px",
   gap: 10,
-  ".address": {
-    width: 160,
-  },
   ".vote": {
     flex: 1,
     textAlign: "center",
@@ -184,9 +196,9 @@ const StyledVote = styled(StyledFlexRow)({
 const StyledList = styled(StyledFlexColumn)({});
 
 const StyledContainer = styled(TitleContainer)({
-  ".title-container-children":{
-    padding: 0
-  }
+  ".title-container-children": {
+    padding: 0,
+  },
 });
 
 const StyledChip = styled(Chip)({

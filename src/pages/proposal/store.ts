@@ -1,4 +1,4 @@
-
+import { Endpoints } from "types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -6,7 +6,6 @@ interface ProposalStore {
   txLoading: boolean;
   setTxLoading: (value: boolean) => void;
 }
-
 
 export const useProposalStore = create<ProposalStore>((set, get) => ({
   txLoading: false,
@@ -44,6 +43,25 @@ export const useProposalPersistedStore = create(
   )
 );
 
+interface EndpointsStore {
+  endpoints?: Endpoints;
+  setEndpoints: (endpoints?: Endpoints) => void;
+}
+
+export const useEnpointsStore = create(
+  persist<EndpointsStore>(
+    (set) => ({
+      endpoints: undefined,
+      setEndpoints: (endpoints) => {
+        set({ endpoints });
+      },
+    }),
+    {
+      name: "ton_vote_endpoints_verify_store",
+    }
+  )
+);
+
 export const useLatestMaxLtAfterTx = (address: string) => {
   const latestMaxLtAfterTx = useProposalPersistedStore(
     (store) => store.latestMaxLtAfterTx || {}
@@ -51,6 +69,3 @@ export const useLatestMaxLtAfterTx = (address: string) => {
 
   return latestMaxLtAfterTx[address];
 };
-
-
-

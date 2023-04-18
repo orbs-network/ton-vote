@@ -29,7 +29,12 @@ export const useInputs = (): InputInterface[] => {
       {
         label: "Jetton Address",
         type: "address",
-        name: "jettonAddress",
+        name: "jetton",
+      },
+      {
+        label: "NFT",
+        type: "address",
+        name: "nft",
       },
       {
         label: "TON DNS",
@@ -37,12 +42,10 @@ export const useInputs = (): InputInterface[] => {
         name: "tonDns",
       },
       {
-        label: "Description",
+        label: "About",
         type: "textarea",
-        name: "description",
-        rows: 5,
+        name: "about",
       },
-
       {
         label: "Avatar",
         type: "text",
@@ -54,20 +57,16 @@ export const useInputs = (): InputInterface[] => {
         name: "github",
       },
       {
-        label: "Twitter",
+        label: "Telegram",
         type: "url",
-        name: "twitter",
+        name: "telegram",
       },
       {
         label: "Website",
         type: "url",
         name: "website",
       },
-      {
-        label: "About",
-        type: "text",
-        name: "about",
-      },
+
       {
         label: "Terms",
         type: "url",

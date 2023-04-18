@@ -10,11 +10,11 @@ import {
 import { useCopyToClipboard, useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
-import { useState } from "react";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Proposal, ProposalStatus, ProposalMetadata } from "types";
-import { makeElipsisAddress, getTimeDiff, calculateTonAmount } from "utils";
+import { ProposalMetadata } from "ton-vote-sdk";
+import { Proposal, ProposalStatus } from "types";
+import { getTimeDiff, calculateTonAmount } from "utils";
 
 import { ProposalLoader } from "../ProposalLoader";
 import {
@@ -81,7 +81,7 @@ export const ProposalComponent = ({
         <StyledFlexRow justifyContent="space-between">
           <AddressDisplay
             address={proposal?.metadata?.owner}
-            text={proposal?.metadata?.owner || ""}
+            displayText={proposal?.metadata?.owner || ""}
           />
           <Status status={status} />
         </StyledFlexRow>

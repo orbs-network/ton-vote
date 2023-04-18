@@ -6,22 +6,12 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { voteOptions } from "config";
 import { ProposalStatus } from "types";
-import { useProposalStatusQuery } from "query/queries";
-import { useProposalAddress } from "hooks";
 import { useConnection } from "ConnectionProvider";
-import { useProposalState, useVote } from "./hooks";
+import { useVote } from "./hooks";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
-  const proposalAddress = useProposalAddress();
-  const state = useProposalState().data;
-  const proposalStatus = useProposalStatusQuery(
-    state?.metadata,
-    proposalAddress
-  );
   const { mutate, isLoading } = useVote();
-
-  if (proposalStatus !== ProposalStatus.ACTIVE) return null;
 
   return (
     <>
