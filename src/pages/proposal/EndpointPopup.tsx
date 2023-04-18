@@ -53,7 +53,8 @@ export function EndpointPopup({
   onClose: () => void;
   onSubmit: ({ clientV2Endpoint, clientV4Endpoint, apiKey }: Endpoints) => void;
 }) {
-  const { endpoints, setEndpoints } = useEnpointsStore();
+  const { endpoints } = useEnpointsStore();
+  const [customSelected, setCustomSelected] = useState(false);
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -72,11 +73,17 @@ export function EndpointPopup({
         clientV4Endpoint: values.clientV4Endpoint,
         apiKey: values.apiKey,
       });
-      onClose();
     },
   });
-  const [customSelected, setCustomSelected] = useState(false);
 
+  const _onSubmit = () => {
+    if (customSelected) {
+      formik.submitForm();
+    } else {
+      onSubmit({});
+    }
+    onClose();
+  };
   useEffect(() => {
     setCustomSelected(
       !!endpoints?.clientV2Endpoint && !!endpoints.clientV4Endpoint
@@ -122,7 +129,7 @@ export function EndpointPopup({
             </StyledCustomEndpoints>
           </Fade>
         </AnimateHeight>
-        <StyledSaveButton onClick={formik.submitForm}>Verify</StyledSaveButton>
+        <StyledSaveButton onClick={_onSubmit}>Verify</StyledSaveButton>
       </StyledFlexColumn>
     </StyledPopup>
   );

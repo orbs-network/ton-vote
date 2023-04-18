@@ -1,19 +1,23 @@
-import { Button, Container, Header, Img, LoadingContainer } from "components";
+import { AddressDisplay, Button, Container, Header, Img, LoadingContainer } from "components";
 import { Box, Chip, Fade, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import {
+  StyledFlexColumn,
+  StyledFlexRow,
+  StyledMarkdown,
+  textOverflow,
+} from "styles";
 import {
   getProposalStatusText,
-  getTonScanContractUrl,
-  makeElipsisAddress,
 } from "utils";
 import { useDaoQuery, useProposalStatusQuery } from "query/queries";
 import { useDaoAddress, useProposalAddress } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ProposalMetadata } from "ton-vote-sdk";
+import ReactMarkdown from "react-markdown";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
@@ -26,16 +30,6 @@ export function ProposalDescription({
 }) {
   const [showMore, setShowMore] = useState(false);
   const elRef = useRef<any>();
-  const [showMoreButton, setShowMoreButton] = useState(true);
-
-  useEffect(() => {
-    if (!elRef?.current?.clientHeight || isLoading) {
-      return;
-    }
-    setShowMoreButton(
-      elRef.current.clientHeight < MIN_DESCRIPTION_HEIGHT ? false : true
-    );
-  }, [elRef?.current?.clientHeight, isLoading]);
 
   if (isLoading) {
     return <LoadingContainer loaderAmount={4} />;
@@ -45,46 +39,27 @@ export function ProposalDescription({
     <StyledContainer>
       <StyledFlexColumn gap={0}>
         <StyledFlexColumn alignItems="flex-start" gap={20}>
-          <StyledHeader title="Title" />
-          <StyledFlexRow>
-            <StatusChip proposalMetadata={metadata} />
-            <ProposalOwner proposalMetadata={metadata} />
-          </StyledFlexRow>
+          <StyledHeader
+            title={metadata?.title || ""}
+            component={<StatusChip proposalMetadata={metadata} />}
+          />
+          <ProposalOwner proposalMetadata={metadata} />
           <AnimateHeight
-            height={
-              !showMoreButton
-                ? "auto"
-                : showMore
-                ? "auto"
-                : MIN_DESCRIPTION_HEIGHT
-            }
-            duration={0}
+            height={showMore ? "auto" : MIN_DESCRIPTION_HEIGHT}
+            duration={200}
           >
             <StyledDescription ref={elRef}>
-              This document (“AIP-1.2”) proposes amendments to the Constitution,
-              and The Arbitrum Foundation Amended & Restated Memorandum &
-              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
-              This document (“AIP-1.2”) proposes amendments to the Constitution,
-              and The Arbitrum Foundation Amended & Restated Memorandum &
-              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
-              This document (“AIP-1.2”) proposes amendments to the Constitution,
-              and The Arbitrum Foundation Amended & Restated Memorandum &
-              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
-              This document (“AIP-1.2”) proposes amendments to the Constitution,
-              and The Arbitrum Foundation Amended & Restated Memorandum &
-              Articles of Association (the “A&R M&A”) and Bylaws (the “Bylaws”)
+              <ReactMarkdown>{metadata?.description || ""}</ReactMarkdown>
             </StyledDescription>
           </AnimateHeight>
         </StyledFlexColumn>
 
-        {showMoreButton && (
-          <StyledShowMore
-            onClick={() => setShowMore(!showMore)}
-            variant="transparent"
-          >
-            <Typography>{showMore ? "Show less" : "Show more"}</Typography>
-          </StyledShowMore>
-        )}
+        <StyledShowMore
+          onClick={() => setShowMore(!showMore)}
+          variant="transparent"
+        >
+          <Typography>{showMore ? "Show less" : "Show more"}</Typography>
+        </StyledShowMore>
       </StyledFlexColumn>
     </StyledContainer>
   );
@@ -94,10 +69,7 @@ const StyledHeader = styled(Header)({
   marginBottom: 0,
 });
 
-const StyledDescription = styled(Typography)({
-  fontWeight: 600,
-  fontSize: 17,
-});
+const StyledDescription = styled(StyledMarkdown)({});
 
 const ProposalOwner = ({
   proposalMetadata,
@@ -114,20 +86,20 @@ const ProposalOwner = ({
         <Link to={appNavigation.daoPage.root(daoAddress)} className="dao-name">
           {dao.data?.daoMetadata.name}
         </Link>
+        <Typography style={{margin: '0px 5px 0px 5px'}}>by</Typography>
         {proposalMetadata?.owner && (
-          <StyledLink
-            href={getTonScanContractUrl(proposalMetadata?.owner)}
-            target="_blank"
-          >
-            by {makeElipsisAddress(proposalMetadata?.owner, 6)}
-          </StyledLink>
+          <AddressDisplay address={proposalMetadata?.owner} />
         )}
       </StyledFlexRow>
     </StyledProposalOwner>
   );
 };
 
-const StatusChip = ({ proposalMetadata }: { proposalMetadata?: ProposalMetadata }) => {
+const StatusChip = ({
+  proposalMetadata,
+}: {
+  proposalMetadata?: ProposalMetadata;
+}) => {
   const proposalAddress = useProposalAddress();
 
   const proposalStatus = useProposalStatusQuery(
@@ -150,8 +122,8 @@ const StyledLink = styled("a")({
 });
 
 const StyledDaoImg = styled(Img)({
-  width: 30,
-  height: 30,
+  width: 45,
+  height: 45,
   borderRadius: "50%",
 });
 
@@ -177,7 +149,8 @@ const StyledVoteTimeline = styled(Chip)({
 const StyledShowMore = styled(Button)(({ theme }) => ({
   marginLeft: "auto",
   marginRight: "auto",
-  marginTop: 50,
+  marginTop: 20,
+  width:'100%',
 }));
 
 const StyledContainer = styled(Container)({

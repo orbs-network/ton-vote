@@ -27,6 +27,7 @@ interface TextInputProps {
   className?: string;
   endAdornment?: React.ReactNode;
   tooltip?: string;
+  required?: boolean;
 }
 
 export function TextInput({
@@ -43,11 +44,12 @@ export function TextInput({
   endAdornment,
   className,
   tooltip,
+  required,
 }: TextInputProps) {
   return (
     <StyledContainer className={`${className} text-input`}>
       <StyledInputHeader>
-        {title && <StyledTitle>{title}</StyledTitle>}
+        {title && <Title title={title} required={required} />}
         {tooltip && <AppTooltip info text={tooltip} />}
       </StyledInputHeader>
       <StyledInput
@@ -159,6 +161,17 @@ const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
   },
 }));
 
+
+const Title = ({ title, required }: { title: string; required?: boolean }) => {
+  return (
+    <StyledTitle>
+      {title}
+      {required ? ' *' : ''}
+    </StyledTitle>
+  );
+};
+
+
 const StyledTitle = styled(Typography)({
   textAlign: "left",
   fontSize: 14,
@@ -209,6 +222,7 @@ interface DateRangeInput {
   min?: number;
   max?: number;
   value?: number | string;
+  required?: boolean
 }
 
 export const DateRangeInput = ({
@@ -220,16 +234,19 @@ export const DateRangeInput = ({
   min,
   max,
   value = "",
+  required,
 }: DateRangeInput) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <StyledDatepicker className={`${className} date-input`} error={error ? 1 : 0}>
-        {title && <StyledTitle>{title}</StyledTitle>}
+      <StyledDatepicker
+        className={`${className} date-input`}
+        error={error ? 1 : 0}
+      >
+        {title && <Title title={title} required={required} />}
         <DateTimePicker
-
           // maxDate={max && dayjs(max)}
           // minDate={min && dayjs(min)}
-          value={value ? dayjs(value) : ''}
+          value={value ? dayjs(value) : undefined}
           onOpen={onFocus}
           className="datepicker"
           onChange={(value: any) => onChange(dayjs(value).valueOf())}
@@ -292,6 +309,7 @@ export function MapInput<T>({
         min={input.min}
         max={input.max}
         value={value as any}
+        required={input.required}
       />
     );
   }
@@ -306,11 +324,13 @@ export function MapInput<T>({
         title={label}
         onChange={onChange}
         value={value as boolean}
+        required={input.required}
       />
     );
   }
   return (
     <TextInput
+      required={input.required}
       tooltip={input.tooltip}
       onFocus={clearError}
       key={name}
@@ -321,7 +341,7 @@ export function MapInput<T>({
       onChange={onChange}
       rows={input.rows}
       endAdornment={
-        input.defaultValue && !value ? (
+        input.defaultValue && !value && EndAdornment ? (
           <EndAdornment onClick={() => onChange(input.defaultValue)} />
         ) : undefined
       }
@@ -333,20 +353,22 @@ const CheckboxInput = ({
   title,
   onChange,
   value = false,
+  required,
 }: {
   title: string;
   onChange: (value: boolean) => void;
   value: boolean;
+  required?: boolean;
 }) => {
   return (
     <StycheckBoxInput justifyContent="flex-start" gap={2}>
       <Checkbox checked={value} onChange={() => onChange(!value)} />
-      {title && <StyledCheckBoxTitle>{title}</StyledCheckBoxTitle>}
+      {title && <StyledCheckBoxTitle title={title} required={required} />}
     </StycheckBoxInput>
   );
 };
 
-const StyledCheckBoxTitle = styled(StyledTitle)({
+const StyledCheckBoxTitle = styled(Title)({
   width: "unset",
 });
 

@@ -30,7 +30,8 @@ export const useGetProposal = () => {
     const serverProposal = async (): Promise<Proposal | null> => {
       try {
         const state = await api.getProposal(proposalAddress, signal);
-
+        console.log(state);
+        
         if (_.isEmpty(state.metadata)) {
           throw new Error("Proposal not found is server");
         }
@@ -44,10 +45,10 @@ export const useGetProposal = () => {
       return contractProposal();
     }
 
-    if (!(await api.validateServerLastUpdate(signal))) {
-      Logger(`server is outdated, fetching from contract ${proposalAddress}`);
-      return contractProposal();
-    }
+    // if (!(await api.validateServerLastUpdate(signal))) {
+    //   Logger(`server is outdated, fetching from contract ${proposalAddress}`);
+    //   return contractProposal();
+    // }
 
     if (!latestMaxLtAfterTx) {
       return serverProposal();
@@ -86,7 +87,7 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
     },
     {
       refetchInterval: STATE_REFETCH_INTERVAL,
-      staleTime: 5_000,
+      staleTime: 30_000,
       enabled: !!proposalAddress,
     }
   );

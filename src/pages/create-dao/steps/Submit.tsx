@@ -2,6 +2,7 @@ import { Box, styled } from "@mui/material";
 import { ConnectButton } from "components";
 import { useConnection } from "ConnectionProvider";
 import React from "react";
+import { StyledFlexRow } from "styles";
 
 export function Submit({ children }: { children: React.ReactNode }) {
   const address = useConnection().address;
@@ -16,9 +17,11 @@ export function Submit({ children }: { children: React.ReactNode }) {
   return <StyledContainer>{children}</StyledContainer>;
 }
 
-export const StyledContainer = styled(Box)({
+export const StyledContainer = styled(StyledFlexRow)({
+  width:'100%',
   marginTop: 50,
+  gap: 20,
   button: {
-    minWidth: '120px',
+    width:'100%'
   },
 });

@@ -2,13 +2,14 @@ import { Box, Fade, styled, Typography } from "@mui/material";
 import {
   Button,
   ConnectButton,
+  LoadingContainer,
   MapInput,
   SideMenu,
   TitleContainer,
 } from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress } from "hooks";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledMarkdown } from "styles";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
 import ReactMarkdown from "react-markdown";
@@ -16,11 +17,13 @@ import { useConnection } from "ConnectionProvider";
 import moment from "moment";
 import _ from "lodash";
 import { useEffect } from "react";
+import { useDaoQuery } from "query/queries";
 
-function CreateProposal() {
+function Content() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
 
   const daoAddress = useDaoAddress();
+  const { data: dao } = useDaoQuery(daoAddress);
   const { formData, setFormData, preview } = useCreateProposalStore();
 
   const formik = useFormik<FormData>({
@@ -30,6 +33,8 @@ function CreateProposal() {
       proposalSnapshotTime: formData.proposalSnapshotTime,
       description: formData.description,
       title: formData.title,
+      jetton: formData.jetton || dao?.daoMetadata?.jetton || "",
+      nft: formData.nft || dao?.daoMetadata?.nft || "",
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>
@@ -61,6 +66,25 @@ function CreateProposal() {
   );
 }
 
+const CreateProposal = () => {
+  const daoAddress = useDaoAddress();
+
+  const isLoading = useDaoQuery(daoAddress).isLoading;
+  if (isLoading) {
+    return (
+      <StyledFlexRow alignItems="flex-start">
+        <LoadingContainer loaderAmount={5} />
+        <StyledLoadingMenu />
+      </StyledFlexRow>
+    );
+  }
+  return <Content />;
+};
+
+const StyledLoadingMenu = styled(LoadingContainer)({
+  width: 300,
+});
+
 export { CreateProposal };
 
 const formatTime = (millis?: number) =>
@@ -72,7 +96,9 @@ const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
       <Typography variant="h2" className="title">
         {formik?.values.title}
       </Typography>
-      <ReactMarkdown>{formik?.values.description || ""}</ReactMarkdown>
+      <StyledMarkdown>
+        <ReactMarkdown>{formik?.values.description || ""}</ReactMarkdown>
+      </StyledMarkdown>
       <Typography>
         Start: {formatTime(formik?.values.proposalStartTime)}
       </Typography>
@@ -89,10 +115,6 @@ const StyledPreview = styled(Box)({
     fontSize: 22,
     fontWeight: 700,
     marginBottom: 20,
-  },
-  img: {
-    maxWidth: "100%",
-    marginTop: 10,
   },
 });
 
@@ -130,11 +152,7 @@ function CreateProposalMenu({
         {!address ? (
           <StyledConnect />
         ) : (
-          <StyledButton
-            disabled={preview}
-            isLoading={isLoading}
-            onClick={onSubmit}
-          >
+          <StyledButton isLoading={isLoading} onClick={onSubmit}>
             Continue
           </StyledButton>
         )}

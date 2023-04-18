@@ -95,6 +95,7 @@ export interface InputInterface {
   min?: number;
   max?: number;
   tooltip?: string;
+  required?: boolean;
 }
 
 

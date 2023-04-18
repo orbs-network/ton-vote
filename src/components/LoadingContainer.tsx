@@ -5,12 +5,14 @@ import { Container } from "./Container";
 
 export const LoadingContainer = ({
   loaderAmount = 4,
+  className = "",
 }: {
   loaderAmount?: number;
+  className?: string;
 }) => {
   return (
-    <StyledLoaderContainer>
-      <StyledFlexColumn alignItems='flex-start'>
+    <StyledLoaderContainer className={className}>
+      <StyledFlexColumn alignItems="flex-start">
         {[...Array(loaderAmount).keys()].map((i) => {
           const percent = (i + 1) * 20;
           return (

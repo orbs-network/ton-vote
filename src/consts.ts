@@ -15,3 +15,4 @@ export const flatRoutes = _.map(routes, (value) => {
 
 
 export const TOOLBAR_WIDTH = 80;
+export const ZERO_ADDRESS = "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";

@@ -136,3 +136,21 @@ export const StyledContainer = styled(Box)<{ hover?: number }>(({ theme, hover }
     },
   },
 }));
+
+
+export const StyledMarkdown = styled(Box)({
+  img: {
+    maxWidth: "100%",
+    marginTop: 10,
+  },
+  "*": {
+    margin: 0,
+    marginBottom: 10,
+    "&:last-child": {
+      marginBottom: 0,
+    },
+  },
+  h3: {
+    fontSize: 19,
+  },
+});

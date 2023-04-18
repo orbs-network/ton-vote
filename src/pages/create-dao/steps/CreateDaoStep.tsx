@@ -1,58 +1,59 @@
 import { Box, styled, Typography } from "@mui/material";
-import {
-  AppTooltip,
-  Button,
-  Container,
-  FadeElement,
-  Header,
-  Img,
-  Link,
-  TitleContainer,
-} from "components";
-import moment from "moment";
+import { AppTooltip, Button, Container, FadeElement, Link } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { InputInterface } from "types";
-import { useInputs } from "./form";
-import { FormData, useCreatDaoStore, useCreateDao } from "../store";
+import { createDaoMetadataInputs, useRolesInputs } from "./form";
+import {
+  DaoMetadataForm,
+  RolesForm,
+  useCreatDaoStore,
+  useCreateDao,
+} from "../store";
 import { Submit } from "./Submit";
 import { getTonScanContractUrl, makeElipsisAddress } from "utils";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
-import { StyledProposalOwner } from "pages/dao/ProposalsList/styles";
+import ReactMarkdown from "react-markdown";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
 
-  const { prevStep, formData } = useCreatDaoStore();
-  const data = formData as any as FormData;
+  const { setStep, daoMetadataForm, rolesForm } = useCreatDaoStore();
 
-  const inputs = useInputs();
+  const rolesInputs = useRolesInputs();
   return (
     <FadeElement show={true}>
-      <StyledContainer>
-        <StyledFlexColumn>
-          <StyledInputs>
-            {inputs.map((input) => {
-              const name = input.name as keyof FormData;
+      <StyledFlexColumn>
+        <StyledInputs>
+          {rolesInputs.map((input) => {
+            const name = input.name as keyof RolesForm;
+            return (
+              <InputPreview
+                key={input.name}
+                input={input}
+                value={rolesForm[name]}
+              />
+            );
+          })}
+          {createDaoMetadataInputs.map((input) => {
+            const name = input.name as keyof DaoMetadataForm;
 
-              return (
-                <InputPreview
-                  key={input.name}
-                  input={input}
-                  value={data[name]}
-                />
-              );
-            })}
-          </StyledInputs>
-          <Submit>
-            <StyledFlexRow gap={20}>
-              <Button onClick={prevStep}>Edit</Button>
-              <Button isLoading={isLoading} onClick={() => createDao()}>
-                Create Dao
-              </Button>
-            </StyledFlexRow>
-          </Submit>
-        </StyledFlexColumn>
-      </StyledContainer>
+            return (
+              <InputPreview
+                key={input.name}
+                input={input}
+                value={daoMetadataForm[name]}
+              />
+            );
+          })}
+        </StyledInputs>
+        <Submit>
+          <StyledFlexRow gap={20}>
+            <Button onClick={() => setStep(1)}>Edit</Button>
+            <Button isLoading={isLoading} onClick={() => createDao()}>
+              Create Dao
+            </Button>
+          </StyledFlexRow>
+        </Submit>
+      </StyledFlexColumn>
     </FadeElement>
   );
 }
@@ -113,6 +114,7 @@ const StyledLink = styled(Link)({
 });
 
 const StyledMd = styled(Box)({
+  width:'100%',
   p: {
     margin: 0,
   },

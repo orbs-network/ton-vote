@@ -1,6 +1,7 @@
 import { FormikProps } from "formik";
 import moment from "moment";
 import { InputInterface } from "types";
+import { validateAddress } from "utils";
 import * as Yup from "yup";
 
 export interface FormData {
@@ -9,9 +10,14 @@ export interface FormData {
   proposalSnapshotTime?: number;
   description: string;
   title: string;
+  jetton: string;
+  nft: string;
 }
 
 export const FormSchema = Yup.object().shape({
+  title: Yup.string().required("Required"),
+  jetton: Yup.string().test("test", "Invalid address", validateAddress),
+  nft: Yup.string().test("test", "Invalid address", validateAddress),
   proposalStartTime: Yup.number()
     .required("Required")
     .test(
@@ -49,7 +55,7 @@ export const FormSchema = Yup.object().shape({
       "error2",
       "Proposal snapshot time must be up to 14 days ago",
       (value = 0, context) => {
-        return value >= moment().subtract('14', 'days').valueOf();
+        return value >= moment().subtract("14", "days").valueOf();
       }
     )
     .required("Required"),
@@ -62,6 +68,7 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       label: "Title",
       type: "text",
       name: "title",
+      required: true,
     },
     {
       label: "Description",
@@ -70,23 +77,32 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       rows: 5,
     },
     {
+      label: "Jetton Address",
+      type: "address",
+      name: "jetton",
+    },
+    {
+      label: "NFT Address",
+      type: "address",
+      name: "nft",
+    },
+    {
       label: "Start time",
       type: "date",
       name: "proposalStartTime",
-      min: moment().valueOf(),
+      required: true,
     },
     {
       label: "End time",
       type: "date",
       name: "proposalEndTime",
-      min: values.proposalStartTime,
+      required: true,
     },
     {
       label: "Snapshot time",
       type: "date",
       name: "proposalSnapshotTime",
-      max: values.proposalStartTime,
-      min: moment().subtract("14", "days").valueOf(),
+      required: true,
     },
   ];
 };

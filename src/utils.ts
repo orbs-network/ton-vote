@@ -1,7 +1,7 @@
 import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import moment from "moment";
-import { fromNano } from "ton";
+import { Address, fromNano } from "ton";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
 import * as TonVoteSDK from 'ton-vote-sdk'
@@ -111,9 +111,9 @@ export const urlPatternValidation = (URL: string) => {
 export const getProposalStatusText = (status: ProposalStatus | null) => {
   switch (status) {
     case ProposalStatus.CLOSED:
-      return "Closed";
+      return "Ended";
     case ProposalStatus.ACTIVE:
-      return "Active";
+      return "Ongoing";
     case ProposalStatus.NOT_STARTED:
       return "Not started";
     default:
@@ -132,4 +132,16 @@ export const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return;
   const result = (Number(fromNano(total)) * percent) / 100;
   return nFormatter(result, 2);
+};
+
+
+export const validateAddress = (value?: string) => {
+  if (!value) {
+    return true;
+  }
+  try {
+    return Address.isAddress(Address.parse(value));
+  } catch (error) {
+    return false;
+  }
 };

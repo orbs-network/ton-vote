@@ -25,9 +25,13 @@ const useComponents = () => {
     ),
     votes:
       !status || status === ProposalStatus.NOT_STARTED ? null : (
-        <Votes votes={data?.votes} isLoading={isLoading} />
+        <Votes
+          state={data}
+          isLoading={isLoading}
+          dataUpdatedAt={dataUpdatedAt}
+        />
       ),
-    vote: !status || status !== ProposalStatus.ACTIVE ? null : <Vote />,
+    vote: !status ? null : <Vote proposalStatus={status} />,
     deadline: !status ? null : (
       <Deadline proposalStatus={status} proposalMetadata={data?.metadata} />
     ),
@@ -124,6 +128,5 @@ const StyledLeft = styled(StyledFlexColumn)({
 
 const StyledRight = styled(StyledFlexColumn)({
   width: 370,
-  position: "sticky",
-  top: 90,
+
 });

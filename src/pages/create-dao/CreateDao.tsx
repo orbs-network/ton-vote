@@ -1,5 +1,5 @@
 import { Box, styled } from "@mui/material";
-import { Page } from "components";
+import { Page, TitleContainer } from "components";
 import { routes } from "consts";
 import { StyledFlexRow } from "styles";
 import { CreateDaoMenu } from "./CreateDaoMenu";
@@ -10,7 +10,7 @@ const SelectedStep = () => {
   const step = useCreatDaoStore(store => store.step);
   const Component = steps[step].component;
   return (
-    <StyledStep>
+    <StyledStep title='Create dao'>
       <Component />
     </StyledStep>
   );
@@ -33,7 +33,7 @@ const StyledContainer = styled(StyledFlexRow)({
   width: "100%",
 });
 
-const StyledStep = styled(Box)({
+const StyledStep = styled(TitleContainer)({
   flex: 1,
 });
 

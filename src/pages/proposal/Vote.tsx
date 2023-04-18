@@ -9,7 +9,7 @@ import { ProposalStatus } from "types";
 import { useConnection } from "ConnectionProvider";
 import { useVote } from "./hooks";
 
-export function Vote() {
+export function Vote({ proposalStatus }: { proposalStatus: ProposalStatus }) {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
 
@@ -34,11 +34,11 @@ export function Vote() {
             );
           })}
         </StyledFlexColumn>
-        <VoteButton
+       {proposalStatus === ProposalStatus.ACTIVE &&  <VoteButton
           isLoading={isLoading}
           disabled={!vote || isLoading}
           onSubmit={() => mutate(vote!)}
-        />
+        />}
       </StyledContainer>
       {/* <VoteConfirmation
       open={true}

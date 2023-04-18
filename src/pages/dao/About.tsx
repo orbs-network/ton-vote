@@ -1,48 +1,54 @@
-import { Chip, styled, Typography } from "@mui/material";
-import { Header, Link, TitleContainer } from "components";
+import { Chip, styled } from "@mui/material";
+import { AddressDisplay, Container, Header, Link, TitleContainer } from "components";
 import { useDaoAddress } from "hooks";
 import { useDaoQuery } from "query/queries";
+import ReactMarkdown from "react-markdown";
 import {
-  StyledContainer,
   StyledFlexColumn,
   StyledFlexRow,
+  StyledMarkdown,
   textOverflow,
 } from "styles";
-import { getTonScanContractUrl, makeElipsisAddress } from "utils";
 
 export function About() {
   const daoAddress = useDaoAddress();
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
-
+  const metadata = useDaoQuery(daoAddress).data?.daoMetadata;
   return (
     <StyledFlexColumn gap={0} alignItems="flex-start">
       <Header title="About" />
-      <StyledTitleContainer
-        title="Administrators"
-        headerComponent={<Chip label={2} />}
-      >
-        <StyledFlexColumn gap={0}>
-          <StyledSection>
-            {roles && (
-              <StyledLink href={getTonScanContractUrl(roles.owner)}>
-                {makeElipsisAddress(roles.owner)}
-              </StyledLink>
-            )}
-            <Chip label="Dao Owner" />
-          </StyledSection>
-          <StyledSection>
-            {roles && (
-              <StyledLink href={getTonScanContractUrl(roles?.proposalOwner)}>
-                {makeElipsisAddress(roles?.proposalOwner)}
-              </StyledLink>
-            )}
-            <Chip label="Proposal Owner" />
-          </StyledSection>
-        </StyledFlexColumn>
-      </StyledTitleContainer>
+      <StyledFlexColumn>
+        {metadata?.about && (
+          <StyledDescription>
+            <StyledMarkdown>
+              <ReactMarkdown>{metadata?.about}</ReactMarkdown>
+            </StyledMarkdown>
+          </StyledDescription>
+        )}
+        <StyledTitleContainer
+          title="Administrators"
+          headerComponent={<Chip label={2} />}
+        >
+          <StyledFlexColumn gap={0}>
+            <StyledSection>
+              {roles && <AddressDisplay address={roles.owner} />}
+              <Chip label="Dao Owner" />
+            </StyledSection>
+            <StyledSection>
+              {roles && <AddressDisplay address={roles?.proposalOwner} />}
+              <Chip label="Proposal Owner" />
+            </StyledSection>
+          </StyledFlexColumn>
+        </StyledTitleContainer>
+      </StyledFlexColumn>
     </StyledFlexColumn>
   );
 }
+
+const StyledDescription = styled(Container)({
+  width:'100%',
+ 
+})
 
 const StyledTitleContainer = styled(TitleContainer)({
   ".title-container-header":{
