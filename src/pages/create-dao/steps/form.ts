@@ -94,15 +94,15 @@ export const useRolesInputs = (): InputInterface[] => {
 
 
 export const DaoMetadataFormSchema = Yup.object().shape({
-  avatar: Yup.string().url("invalid URL"),
-  name: Yup.string().required("Required"),
+  avatar: Yup.string().url("invalid Avatar URL"),
+  name: Yup.string().required("Name is Required"),
 });
 
 export const SetRolesFormSchema = Yup.object().shape({
   ownerAddress: Yup.string()
-    .test("address", "Invalid address", validateAddress)
-    .required("Required"),
+    .test("address", "Invalid owner address", validateAddress)
+    .required("Onwer address Required"),
   proposalOwner: Yup.string()
-    .test("address", "Invalid address", validateAddress)
-    .required("Required"),
+    .test("address", "Invalid proposal owner address", validateAddress)
+    .required("Proposal owner address Required"),
 });

@@ -1,8 +1,10 @@
 import { styled, Typography } from "@mui/material";
 import { Button, MapInput } from "components";
 import { useFormik } from "formik";
+import _ from "lodash";
 import { StyledFlexColumn } from "styles";
-import { showSuccessToast } from "toasts";
+import { showErrorToast, showSuccessToast } from "toasts";
+import { validateFormik } from "utils";
 import { RolesForm, useCreatDaoStore } from "../store";
 import { StyledInputs } from "../styles";
 import { SetRolesFormSchema, useRolesInputs } from "./form";
@@ -27,6 +29,9 @@ export function SetRolesStep() {
     },
   });
 
+
+
+
   return (
     <StyledFlexColumn>
       <StyledInputs>
@@ -42,7 +47,10 @@ export function SetRolesStep() {
         })}
       </StyledInputs>
       <Submit>
-        <Button onClick={formik.submitForm}>Set Roles</Button>
+        <Button onClick={() => {
+          formik.submitForm();
+          validateFormik(formik);
+        }}>Set Roles</Button>
       </Submit>
     </StyledFlexColumn>
   );

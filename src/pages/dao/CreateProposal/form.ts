@@ -18,19 +18,19 @@ export interface FormData {
 }
 
 export const FormSchema = Yup.object().shape({
-  title: Yup.string().required("Required"),
-  jetton: Yup.string().test("test", "Invalid address", (value, context) => {    
+  title: Yup.string().required("Title is Required"),
+  jetton: Yup.string().test("test", "Invalid jetton address", (value, context) => {    
     return context.parent.votingPowerStrategy === VotingPowerStrategy.JettonBalance
       ? validateAddress(value)
       : true;
   }),
-  nft: Yup.string().test("test", "Invalid address", (value, context) => {
+  nft: Yup.string().test("test", "Invalid NFT address", (value, context) => {
     return context.parent.votingPowerStrategy === VotingPowerStrategy.NftCcollection
       ? validateAddress(value)
       : true;
   }),
   proposalStartTime: Yup.number()
-    .required("Required")
+    .required("Proposal start time is required")
     .test(
       "error",
       "Proposal start time must be greater than current time",
@@ -39,7 +39,7 @@ export const FormSchema = Yup.object().shape({
       }
     ),
   proposalEndTime: Yup.number()
-    .required("Required")
+    .required("Proposal end time is required")
     .test(
       "error",
       "Proposal end time must be greater than proposal start time",
@@ -69,7 +69,7 @@ export const FormSchema = Yup.object().shape({
         return value >= moment().subtract("14", "days").valueOf();
       }
     )
-    .required("Required"),
+    .required("Proposal snapshot time is required"),
 });
 
 export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {

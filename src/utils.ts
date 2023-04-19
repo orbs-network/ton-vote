@@ -4,8 +4,9 @@ import moment from "moment";
 import { Address, fromNano } from "ton";
 import { DaoRoles, ProposalMetadata } from "ton-vote-sdk";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
-import * as TonVoteSDK from 'ton-vote-sdk'
-
+import * as TonVoteSDK from "ton-vote-sdk";
+import { FormikProps } from "formik";
+import { showErrorToast } from "toasts";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -20,7 +21,10 @@ export const Logger = (log: any) => {
   }
 };
 
-export const parseVotes = (rawVotes: TonVoteSDK.Votes, votingPower: VotingPower) => {
+export const parseVotes = (
+  rawVotes: TonVoteSDK.Votes,
+  votingPower: VotingPower
+) => {
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
 
@@ -79,11 +83,12 @@ export const getTimeDiff = (value: number) => {
   return minutes === 1 ? "1 minute" : `${minutes} minutes`;
 };
 
-export const getProposalStatus = (proposalMetadata?: ProposalMetadata): ProposalStatus | null => {
-  
+export const getProposalStatus = (
+  proposalMetadata?: ProposalMetadata
+): ProposalStatus | null => {
   if (!proposalMetadata) return null;
-    const { proposalStartTime, proposalEndTime } = proposalMetadata;
-  
+  const { proposalStartTime, proposalEndTime } = proposalMetadata;
+
   const now = moment.utc().valueOf();
   const voteStarted = unixToMilliseconds(Number(proposalStartTime)) <= now;
   const finished = unixToMilliseconds(Number(proposalEndTime)) <= now;
@@ -121,11 +126,9 @@ export const getProposalStatusText = (status: ProposalStatus | null) => {
   }
 };
 
-
-
 export const getTonScanContractUrl = (address?: string) => {
-  if (!address)  return ''
-   return `${TONSCAN_ADDRESS_URL}/${address}`;
+  if (!address) return "";
+  return `${TONSCAN_ADDRESS_URL}/${address}`;
 };
 
 export const calculateTonAmount = (percent?: number, total?: string) => {
@@ -133,7 +136,6 @@ export const calculateTonAmount = (percent?: number, total?: string) => {
   const result = (Number(fromNano(total)) * percent) / 100;
   return nFormatter(result, 2);
 };
-
 
 export const validateAddress = (value?: string) => {
   if (!value) {
@@ -146,8 +148,16 @@ export const validateAddress = (value?: string) => {
   }
 };
 
-
 export const isOwner = (address?: string, roles?: DaoRoles) => {
-  if(!address || !roles) return false
-  return address === roles.owner || address === roles.proposalOwner
+  if (!address || !roles) return false;
+  return address === roles.owner || address === roles.proposalOwner;
+};
+
+export function validateFormik(formik: FormikProps<any>) {
+  formik.validateForm().then((errors) => {
+    if (!_.isEmpty(errors)) {
+      const error = _.first(_.values(errors)) as string;
+      error && showErrorToast(error);
+    }
+  });
 }

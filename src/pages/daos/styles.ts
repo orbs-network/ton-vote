@@ -8,7 +8,7 @@ export const StyledDaoContent = styled(Container)({
   flexDirection: "column",
   borderRadius: 13,
   height:'100%',
-  padding: 10,
+  padding: 20,
   position:'relative'
 });
  

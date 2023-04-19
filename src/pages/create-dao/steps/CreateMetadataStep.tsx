@@ -20,6 +20,8 @@ import { Submit } from "./Submit";
 import { StyledInputs } from "../styles";
 import { useCallback, useEffect } from "react";
 import { useDebounce, useDebouncedCallback } from "hooks";
+import { showErrorToast } from "toasts";
+import { validateFormik } from "utils";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
@@ -56,6 +58,7 @@ export function CreateMetadataStep() {
     onSubmit,
   });
 
+
   const saveForm = useDebouncedCallback(() => {
     setDaoMetadataForm(formik.values);
   });
@@ -79,7 +82,13 @@ export function CreateMetadataStep() {
           })}
         </StyledInputs>
         <Submit>
-          <Button isLoading={isLoading} onClick={formik.submitForm}>
+          <Button
+            isLoading={isLoading}
+            onClick={() => {
+              formik.submitForm();
+               validateFormik(formik);
+            }}
+          >
             Create metadata
           </Button>
         </Submit>

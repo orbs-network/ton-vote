@@ -21,6 +21,7 @@ import _ from "lodash";
 import { useEffect, useMemo } from "react";
 import { useDaoQuery } from "query/queries";
 import { appNavigation } from "router";
+import { validateFormik } from "utils";
 
 function Content() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
@@ -58,7 +59,7 @@ function Content() {
 
 
   return (
-    <Page back={appNavigation.daoPage.root(daoAddress)}>
+   
       <Fade in={true}>
         <StyledFlexRow alignItems="flex-start">
           <StyledContainer title="Create Proposal">
@@ -70,11 +71,14 @@ function Content() {
           </StyledContainer>
           <CreateProposalMenu
             isLoading={isLoading}
-            onSubmit={formik.submitForm}
+            onSubmit={() => {
+              formik.submitForm();
+              validateFormik(formik)
+            }}
           />
         </StyledFlexRow>
       </Fade>
-    </Page>
+
   );
 }
 
@@ -84,13 +88,19 @@ export const CreateProposal = () => {
   const isLoading = useDaoQuery(daoAddress).isLoading;
   if (isLoading) {
     return (
-      <StyledFlexRow alignItems="flex-start">
-        <LoadingContainer loaderAmount={5} />
-        <StyledLoadingMenu />
-      </StyledFlexRow>
+      <Page back={appNavigation.daoPage.root(daoAddress)}>
+        <StyledFlexRow alignItems="flex-start">
+          <LoadingContainer loaderAmount={5} />
+          <StyledLoadingMenu />
+        </StyledFlexRow>
+      </Page>
     );
   }
-  return <Content />;
+  return (
+    <Page back={appNavigation.daoPage.root(daoAddress)}>
+      <Content />
+    </Page>
+  );
 };
 
 const StyledLoadingMenu = styled(LoadingContainer)({

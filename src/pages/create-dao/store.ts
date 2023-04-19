@@ -13,12 +13,12 @@ import { persist } from "zustand/middleware";
 import { Logger } from "utils";
 
 const initialCreateMetadataForm: DaoMetadataForm = {
-  name: "test",
-  telegram: "https://reactdatepicker.com/",
-  website: "https://reactdatepicker.com/",
-  github: "https://reactdatepicker.com/",
-  about: "[Link](https://reactdatepicker.com)",
-  terms: "https://reactdatepicker.com/",
+  name: "",
+  telegram: "",
+  website: "",
+  github: "",
+  about: "",
+  terms: "",
   avatar: "",
   hide: false,
   nft: "",

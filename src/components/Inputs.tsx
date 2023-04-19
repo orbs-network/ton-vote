@@ -7,7 +7,7 @@ import {
   RadioGroup,
   Radio,
 } from "@mui/material";
-import React, { ReactNode, useCallback, useState } from "react";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
@@ -53,7 +53,8 @@ export function TextInput({
   className,
   tooltip,
   required,
-}: TextInputProps) {
+}: TextInputProps) {  
+
   return (
     <StyledContainer className={`${className} text-input`}>
       <StyledInputHeader>

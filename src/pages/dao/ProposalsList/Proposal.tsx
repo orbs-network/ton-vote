@@ -84,7 +84,14 @@ export const ProposalComponent = ({
         <StyledProposalTitle variant="h4">
           {proposal?.metadata?.title}
         </StyledProposalTitle>
-        <StyledMarkdown>
+        <StyledMarkdown
+          sx={{
+            display: "-webkit-box",
+            overflow: "hidden",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 3,
+          }}
+        >
           {removeMd(proposal?.metadata?.description || "", {
             useImgAltText: true,
           })}
