@@ -1,23 +1,14 @@
 import { Box, styled } from "@mui/material";
-import React from "react";
+import React, { forwardRef } from "react";
 import ReactMarkdown from "react-markdown";
 
-export function Markdown({
-  children = "",
-  className = "",
-}: {
-  children?: string;
-  className?: string;
-}) {
-  return (
-    <StyledMarkdown className={className}>
-      <ReactMarkdown linkTarget="_blank">
-        {children}
-      </ReactMarkdown>
+ export const Markdown = React.forwardRef(
+  ({ children = '', className }: { children?: string; className?: string }, ref: any) => (
+    <StyledMarkdown className={className} ref={ref}>
+      <ReactMarkdown linkTarget="_blank">{children}</ReactMarkdown>
     </StyledMarkdown>
-  );
-}
-
+  )
+);
 
 
 export const StyledMarkdown = styled(Box)({
@@ -33,7 +24,7 @@ export const StyledMarkdown = styled(Box)({
     },
   },
   p: {
-    fontSize: 16
+    fontSize: 16,
   },
   h2: {
     fontSize: 20,

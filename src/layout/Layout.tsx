@@ -1,5 +1,5 @@
 import { Fade, styled } from "@mui/material";
-import { Footer, Navbar, TxReminderPopup } from "../components";
+import {  TxReminderPopup } from "../components";
 import { Outlet } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
@@ -11,6 +11,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
 import { Toolbar } from "./Toolbar";
 import { ReactNode, Suspense } from "react";
+import { Footer } from "./Footer";
+import { Navbar } from "./Navbar";
 
 function Layout({children}:{children?: ReactNode}) {
   return (

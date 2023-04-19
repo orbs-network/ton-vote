@@ -5,11 +5,12 @@ import {
   LoadingContainer,
   MapInput,
   Markdown,
+  Page,
   SideMenu,
   TitleContainer,
 } from "components";
 import { FormikProps, useFormik } from "formik";
-import { useDaoAddress, useDebouncedCallback } from "hooks";
+import { useCurrentRoute, useDaoAddress, useDebouncedCallback } from "hooks";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
@@ -17,8 +18,9 @@ import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
 import moment from "moment";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDaoQuery } from "query/queries";
+import { appNavigation } from "router";
 
 function Content() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
@@ -53,26 +55,30 @@ function Content() {
     saveForm();
   }, [formik.values]);
 
+
+
   return (
-    <Fade in={true}>
-      <StyledFlexRow alignItems="flex-start">
-        <StyledContainer title="Create Proposal">
-          {preview ? (
-            <Preview formik={formik} />
-          ) : (
-            <CreateForm formik={formik} />
-          )}
-        </StyledContainer>
-        <CreateProposalMenu
-          isLoading={isLoading}
-          onSubmit={formik.submitForm}
-        />
-      </StyledFlexRow>
-    </Fade>
+    <Page back={appNavigation.daoPage.root(daoAddress)}>
+      <Fade in={true}>
+        <StyledFlexRow alignItems="flex-start">
+          <StyledContainer title="Create Proposal">
+            {preview ? (
+              <Preview formik={formik} />
+            ) : (
+              <CreateForm formik={formik} />
+            )}
+          </StyledContainer>
+          <CreateProposalMenu
+            isLoading={isLoading}
+            onSubmit={formik.submitForm}
+          />
+        </StyledFlexRow>
+      </Fade>
+    </Page>
   );
 }
 
-const CreateProposal = () => {
+export const CreateProposal = () => {
   const daoAddress = useDaoAddress();
 
   const isLoading = useDaoQuery(daoAddress).isLoading;
@@ -91,7 +97,6 @@ const StyledLoadingMenu = styled(LoadingContainer)({
   width: 300,
 });
 
-export default CreateProposal;
 
 const formatTime = (millis?: number) =>
   moment(millis).format("DD/MM/YYYY HH:mm");

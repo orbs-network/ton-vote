@@ -101,7 +101,7 @@ const Meta = () => {
   );
 };
 
-function ProposalPage() {
+export function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
   const daoAddress = useDaoAddress();
 
@@ -113,7 +113,6 @@ function ProposalPage() {
   );
 }
 
-export default ProposalPage;
 
 const StyledWrapper = styled(StyledFlexRow)({
   alignItems: "flex-start",

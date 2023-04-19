@@ -1,23 +1,25 @@
 import { Box, Fade, styled } from "@mui/material";
+import { Page } from "components";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { StyledFlexRow } from "styles";
 import { DaoMenu } from "./DaoMenu";
 
-function SpaceMenuLayout() {
+export function SpaceMenuLayout() {
   return (
-    <Fade in={true}>
-      <StyledContainer>
-        <DaoMenu />
-        <StyledOutlet>
-          <Outlet />
-        </StyledOutlet>
-      </StyledContainer>
-    </Fade>
+    <Page hideBack={true}>
+      <Fade in={true}>
+        <StyledContainer>
+          <DaoMenu />
+          <StyledOutlet>
+            <Outlet />
+          </StyledOutlet>
+        </StyledContainer>
+      </Fade>
+    </Page>
   );
 }
 
-export default SpaceMenuLayout;
 
 const StyledContainer = styled(StyledFlexRow)({
     alignItems:'flex-start',

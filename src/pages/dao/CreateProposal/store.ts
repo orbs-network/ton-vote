@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useDaoAddress, useGetSender } from "hooks";
 import { useAppNavigation } from "router";
-import { showPromiseToast } from "toasts";
+import { showErrorToast, showPromiseToast } from "toasts";
 import {
   getClientV2,
   newProposal,
@@ -14,6 +14,9 @@ import { persist } from "zustand/middleware";
 import { ZERO_ADDRESS } from "consts";
 import { useNewDataStore, useTxReminderPopup } from "store";
 import { Address } from "ton-core";
+import { useConnection } from "ConnectionProvider";
+import { isOwner } from "utils";
+import { useDaoQuery } from "query/queries";
 
 interface Store {
   preview: boolean;
@@ -37,11 +40,13 @@ export const useCreateProposalStore = create(
 
 export const useCreateProposal = () => {
   const daoAddress = useDaoAddress();
+  const daoRoles = useDaoQuery(daoAddress).data?.daoRoles
   const getSender = useGetSender();
   const appNavigation = useAppNavigation();
   const setFormData = useCreateProposalStore((state) => state.setFormData);
   const toggleTxReminder = useTxReminderPopup().setOpen;
   const { addProposal } = useNewDataStore();
+  const connectedWallet = useConnection().address
 
   return useMutation(
     async ({
@@ -51,10 +56,15 @@ export const useCreateProposal = () => {
       daoAddr: string;
       formValues: FormData;
     }) => {
-      const jetton = formValues.votingPowerStrategy === VotingPowerStrategy
-        .JettonBalance
-        ? formValues.jetton
-        : ZERO_ADDRESS;
+
+      if (!isOwner(connectedWallet, daoRoles)) {
+        showErrorToast("Only Dao owner can create proposal");
+        return 
+      }
+        const jetton =
+          formValues.votingPowerStrategy === VotingPowerStrategy.JettonBalance
+            ? formValues.jetton
+            : ZERO_ADDRESS;
       const nft = formValues.votingPowerStrategy === VotingPowerStrategy
         .NftCcollection
         ? formValues.nft
@@ -66,6 +76,8 @@ export const useCreateProposal = () => {
       } catch (error) {
         throw new Error("Invalid address");
       }
+
+
 
       const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: formValues.proposalStartTime! / 1_000,
@@ -95,7 +107,7 @@ export const useCreateProposal = () => {
       });
 
       const proposalAddress = await promise;
-
+      
       if (typeof proposalAddress === "string") {
         appNavigation.proposalPage.root(daoAddress, proposalAddress);
         setFormData({} as FormData);

@@ -96,12 +96,6 @@ export const useRolesInputs = (): InputInterface[] => {
 export const DaoMetadataFormSchema = Yup.object().shape({
   avatar: Yup.string().url("invalid URL"),
   name: Yup.string().required("Required"),
-  github: Yup.string().url("invalid URL").required("Required"),
-  website: Yup.string().url("invalid URL").required("Required"),
-  telegram: Yup.string().url("invalid URL").required("Required"),
-  about: Yup.string().required("Required"),
-  terms: Yup.string().url("invalid URL").required("Required"),
-  jetton: Yup.string().test("address", "Invalid address", validateAddress),
 });
 
 export const SetRolesFormSchema = Yup.object().shape({

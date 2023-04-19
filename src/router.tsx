@@ -1,17 +1,14 @@
-import { routes } from "consts";
+import { styled, Typography } from "@mui/material";
 import Layout from "layout/Layout";
+import { Button, Container } from "components";
+
 import _ from "lodash";
 
-import BadRoute from "pages/BadRoute";
-import CreateDao from "pages/create-dao/CreateDao";
-import About from "pages/dao/About";
-import CreateProposal from "pages/dao/CreateProposal/CreateProposal";
-import DaoPage from "pages/dao/DaoPage";
-import ProposalsList from "pages/dao/ProposalsList/ProposalsList";
-import SpaceMenuLayout from "pages/dao/SpaceMenuLayout";
-import DaosPage from "pages/daos/DaosPage";
-import ProposalPage from "pages/proposal/ProposalPage";
+import { routes } from "consts";
+
 import { createBrowserRouter, useNavigate } from "react-router-dom";
+import { StyledFlexColumn } from "styles";
+import { DaosPage, CreateDaoPage, DaoPage, CreateProposal, SpaceMenuLayout, ProposalsList, DaoPageAbout, ProposalPage } from "pages";
 
 export const appNavigation = {
   spaces: routes.spaces,
@@ -63,7 +60,7 @@ export const router = createBrowserRouter([
       },
       {
         path: routes.createSpace,
-        element: <CreateDao />,
+        element: <CreateDaoPage />,
       },
 
       {
@@ -84,7 +81,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: routes.spaceAbout,
-                element: <About />,
+                element: <DaoPageAbout />,
               },
             ],
           },
@@ -98,3 +95,33 @@ export const router = createBrowserRouter([
     errorElement: <BadRoute />,
   },
 ]);
+
+
+ function BadRoute() {
+   const navigate = useAppNavigation();
+   return (
+     <Layout>
+       <StyledContainer>
+         <StyledFlexColumn gap={20}>
+           <Typography className="title">Page doesn't exist</Typography>
+           <Button onClick={() => navigate.daosPage.root()}>
+             <Typography>Go Home</Typography>
+           </Button>
+         </StyledFlexColumn>
+       </StyledContainer>
+     </Layout>
+   );
+ }
+
+
+ const StyledContainer = styled(Container)({
+   width: "100%",
+   maxWidth: 500,
+   ".title": {
+     fontSize: 20,
+     fontWeight: 600,
+   },
+   button: {
+     width: "70%",
+   },
+ });

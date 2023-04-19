@@ -8,7 +8,7 @@ import {
   textOverflow,
 } from "styles";
 
- function About() {
+ export function DaoPageAbout() {
   const daoAddress = useDaoAddress();
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
   const metadata = useDaoQuery(daoAddress).data?.daoMetadata;
@@ -41,7 +41,6 @@ import {
   );
 }
 
-export default About;
 
 const StyledDescription = styled(Container)({
   width: "100%",

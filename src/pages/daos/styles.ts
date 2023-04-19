@@ -7,7 +7,9 @@ export const StyledDaoContent = styled(Container)({
   display: "flex",
   flexDirection: "column",
   borderRadius: 13,
-  height:'100%'
+  height:'100%',
+  padding: 10,
+  position:'relative'
 });
  
 export const StyledJoinDao = styled(Button)({

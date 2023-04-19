@@ -15,7 +15,9 @@ export function Vote({ proposalStatus }: { proposalStatus: ProposalStatus }) {
 
   return (
     <>
-      <StyledContainer title="Should the validators proceed with this proposal?">
+      <StyledContainer
+        title="Cast your vote"
+      >
         <StyledFlexColumn>
           {voteOptions.map((option) => {
             return (
@@ -34,11 +36,13 @@ export function Vote({ proposalStatus }: { proposalStatus: ProposalStatus }) {
             );
           })}
         </StyledFlexColumn>
-       {proposalStatus === ProposalStatus.ACTIVE &&  <VoteButton
-          isLoading={isLoading}
-          disabled={!vote || isLoading}
-          onSubmit={() => mutate(vote!)}
-        />}
+        {proposalStatus === ProposalStatus.ACTIVE && (
+          <VoteButton
+            isLoading={isLoading}
+            disabled={!vote || isLoading}
+            onSubmit={() => mutate(vote!)}
+          />
+        )}
       </StyledContainer>
       {/* <VoteConfirmation
       open={true}

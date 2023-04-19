@@ -8,20 +8,20 @@ import { appNavigation } from "router";
 import { useCurrentRoute } from "hooks";
 import { useMemo } from "react";
 
- function DaoPage() {
+ export function DaoPage() {
   const dapAddress = useDaoAddress();
   const dao = useDaoQuery(dapAddress).data;
   const currentRoute = useCurrentRoute();
 
-  const back = useMemo(() => {
-    if (currentRoute && currentRoute!.indexOf("create") > -1) {
-      return;
-    }
-    return appNavigation.spaces;
-  }, [currentRoute]);
+  // const back = useMemo(() => {
+  //   if (currentRoute && currentRoute!.indexOf("create") > -1) {
+  //     return;
+  //   }
+  //   return appNavigation.spaces;
+  // }, [currentRoute]);
 
   return (
-    <Page back={back}>
+    <>
       <Helmet>
         <title>
           {APP_TITLE}
@@ -29,9 +29,8 @@ import { useMemo } from "react";
         </title>
       </Helmet>
       <Outlet />
-    </Page>
+    </>
   );
 }
 
 
-export default DaoPage;

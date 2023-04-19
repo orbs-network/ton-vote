@@ -2,7 +2,7 @@ import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
-import { ProposalMetadata } from "ton-vote-sdk";
+import { DaoRoles, ProposalMetadata } from "ton-vote-sdk";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
 import * as TonVoteSDK from 'ton-vote-sdk'
 
@@ -145,3 +145,9 @@ export const validateAddress = (value?: string) => {
     return false;
   }
 };
+
+
+export const isOwner = (address?: string, roles?: DaoRoles) => {
+  if(!address || !roles) return false
+  return address === roles.owner || address === roles.proposalOwner
+}
