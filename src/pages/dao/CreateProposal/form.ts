@@ -1,8 +1,10 @@
 import { FormikProps } from "formik";
 import moment from "moment";
+import { VotingPowerStrategy } from "ton-vote-sdk";
 import { InputInterface } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
+
 
 export interface FormData {
   proposalStartTime?: number;
@@ -12,12 +14,21 @@ export interface FormData {
   title: string;
   jetton: string;
   nft: string;
+  votingPowerStrategy: number;
 }
 
 export const FormSchema = Yup.object().shape({
   title: Yup.string().required("Required"),
-  jetton: Yup.string().test("test", "Invalid address", validateAddress),
-  nft: Yup.string().test("test", "Invalid address", validateAddress),
+  jetton: Yup.string().test("test", "Invalid address", (value, context) => {    
+    return context.parent.votingPowerStrategy === VotingPowerStrategy.JettonBalance
+      ? validateAddress(value)
+      : true;
+  }),
+  nft: Yup.string().test("test", "Invalid address", (value, context) => {
+    return context.parent.votingPowerStrategy === VotingPowerStrategy.NftCcollection
+      ? validateAddress(value)
+      : true;
+  }),
   proposalStartTime: Yup.number()
     .required("Required")
     .test(
@@ -77,15 +88,36 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       rows: 5,
     },
     {
-      label: "Jetton Address",
-      type: "address",
-      name: "jetton",
+      label: "Select Strategy",
+      type: "radio",
+      name: "votingPowerStrategy",
+      required: true,
+      radioOptions: [
+        {
+          label: "Ton",
+          value: 0,
+        },
+        {
+          label: "Jetton",
+          value: 1,
+          input: {
+            label: "Jetton Address",
+            type: "address",
+            name: "jetton",
+          },
+        },
+        {
+          label: "NFT",
+          value: 2,
+          input: {
+            label: "NFT Address",
+            type: "address",
+            name: "nft",
+          },
+        },
+      ],
     },
-    {
-      label: "NFT Address",
-      type: "address",
-      name: "nft",
-    },
+
     {
       label: "Start time",
       type: "date",

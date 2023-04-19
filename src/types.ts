@@ -1,6 +1,5 @@
 import { Address, Transaction } from "ton";
-import { DaoRoles, MetadataArgs, ProposalMetadata, Votes } from "ton-vote-sdk";
-
+import { DaoRoles, MetadataArgs, ProposalMetadata, ProposalResult } from "ton-vote-sdk";
 
 export interface ProposalResults {
   yes: number;
@@ -28,7 +27,6 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
-
 export interface Dao {
   daoAddress: string;
   daoId?: number;
@@ -36,7 +34,6 @@ export interface Dao {
   daoRoles: DaoRoles;
   daoProposals: string[];
 }
-
 
 export interface DaoProposal {
   startDate: number;
@@ -60,9 +57,6 @@ export interface SelectOption {
   value: string;
 }
 
-
-
-
 export interface Proposal {
   votingPower?: VotingPower;
   votes: Vote[];
@@ -72,7 +66,7 @@ export interface Proposal {
   metadata?: ProposalMetadata;
   daoAddress?: string;
   hardcoded?: boolean;
-  url?: string
+  url?: string;
 }
 
 export type InputType =
@@ -85,7 +79,13 @@ export type InputType =
   | "checkbox"
   | "address"
   | "image"
+  | "radio";
 
+export type RadioOption = {
+  label: string;
+  value: string | number;
+  input?: InputInterface;
+}
 export interface InputInterface {
   label: string;
   type: InputType;
@@ -96,8 +96,8 @@ export interface InputInterface {
   max?: number;
   tooltip?: string;
   required?: boolean;
+  radioOptions?: RadioOption[];
 }
-
 
 export interface Endpoints {
   clientV2Endpoint?: string;

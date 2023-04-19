@@ -11,10 +11,11 @@ import { useCopyToClipboard, useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledMarkdown } from "styles";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { Proposal, ProposalStatus } from "types";
 import { getTimeDiff, calculateTonAmount } from "utils";
+import ReactMarkdown from 'react-markdown'
 
 import { ProposalLoader } from "../ProposalLoader";
 import {
@@ -79,16 +80,16 @@ export const ProposalComponent = ({
     <StyledProposal onClick={onClick}>
       <StyledFlexColumn alignItems="flex-start">
         <StyledFlexRow justifyContent="space-between">
-          <AddressDisplay
-            address={proposal?.metadata?.owner}
-          />
+          <AddressDisplay address={proposal?.metadata?.owner} />
           <Status status={status} />
         </StyledFlexRow>
 
         <StyledProposalTitle variant="h4">
           {proposal?.metadata?.title}
         </StyledProposalTitle>
-        <StyledDescription>{proposal?.metadata?.description}</StyledDescription>
+        <StyledMarkdown>
+          <ReactMarkdown>{proposal?.metadata?.description || ''}</ReactMarkdown>
+        </StyledMarkdown>
 
         {status !== ProposalStatus.CLOSED && proposal?.metadata && (
           <Time proposalMetadata={proposal.metadata} status={status} />

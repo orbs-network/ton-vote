@@ -35,6 +35,7 @@ function Content() {
       title: formData.title,
       jetton: formData.jetton || dao?.daoMetadata?.jetton || "",
       nft: formData.nft || dao?.daoMetadata?.nft || "",
+      votingPowerStrategy: formData.votingPowerStrategy || 0,
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>

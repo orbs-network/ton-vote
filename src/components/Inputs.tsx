@@ -1,5 +1,13 @@
-import { TextField, styled, Typography, Box, Checkbox } from "@mui/material";
-import React, { useCallback, useState } from "react";
+import {
+  TextField,
+  styled,
+  Typography,
+  Box,
+  Checkbox,
+  RadioGroup,
+  Radio,
+} from "@mui/material";
+import React, { ReactNode, useCallback, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
@@ -8,7 +16,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { InputInterface } from "types";
+import { InputInterface, RadioOption } from "types";
 import { FormikProps } from "formik";
 import { Img } from "./Img";
 import { AppTooltip } from "./Tooltip";
@@ -161,16 +169,14 @@ const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
   },
 }));
 
-
 const Title = ({ title, required }: { title: string; required?: boolean }) => {
   return (
     <StyledTitle>
       {title}
-      {required ? ' *' : ''}
+      {required ? " *" : ""}
     </StyledTitle>
   );
 };
-
 
 const StyledTitle = styled(Typography)({
   textAlign: "left",
@@ -222,7 +228,7 @@ interface DateRangeInput {
   min?: number;
   max?: number;
   value?: number | string;
-  required?: boolean
+  required?: boolean;
 }
 
 export const DateRangeInput = ({
@@ -318,6 +324,18 @@ export function MapInput<T>({
       <UploadInput title={label} onChange={onChange} value={value as File} />
     );
   }
+  if (input.type === "radio") {
+    return (
+      <RadioInput
+        onChange={onChange}
+        value={value as string | number}
+        label={input.label}
+        formik={formik}
+        options={input.radioOptions || []}
+        required={input.required}
+      />
+    );
+  }
   if (input.type === "checkbox") {
     return (
       <CheckboxInput
@@ -367,6 +385,53 @@ const CheckboxInput = ({
     </StycheckBoxInput>
   );
 };
+
+interface RadioInputProps<T> {
+  value?: string | number;
+  label: string;
+  options: RadioOption[];
+  formik: FormikProps<T>;
+  onChange: (value: string | number) => void;
+  required?: boolean;
+}
+
+export function RadioInput<T>({
+  value,
+  options,
+  label,
+  formik,
+  onChange,
+  required,
+}: RadioInputProps<T>) {
+  return (
+    <StyledRadioContainer>
+      <Title title={label} required={required} />
+        <StyledFlexColumn alignItems="flex-start">
+          {options.map((it) => {
+            const checked = it.value === value;
+            return (
+              <StyledFlexColumn key={it.value}>
+                <StyledFlexRow justifyContent="flex-start">
+                  <Radio
+                    onChange={() => onChange(it.value)}
+                    checked={checked}
+                  />
+                  <Typography>{it.label}</Typography>
+                </StyledFlexRow>
+                {it.input && checked && (
+                  <MapInput input={it.input} formik={formik} />
+                )}
+              </StyledFlexColumn>
+            );
+          })}
+        </StyledFlexColumn>
+    </StyledRadioContainer>
+  );
+}
+
+const StyledRadioContainer = styled(StyledFlexColumn)({
+  alignItems:'flex-start'
+})
 
 const StyledCheckBoxTitle = styled(Title)({
   width: "unset",

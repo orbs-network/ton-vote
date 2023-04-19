@@ -2,13 +2,18 @@ import { useMutation } from "@tanstack/react-query";
 import { useDaoAddress, useGetSender } from "hooks";
 import { useAppNavigation } from "router";
 import { showPromiseToast } from "toasts";
-import { getClientV2, ProposalMetadata } from "ton-vote-sdk";
+import {
+  getClientV2,
+  newProposal,
+  ProposalMetadata,
+  VotingPowerStrategy,
+} from "ton-vote-sdk";
 import { create } from "zustand";
 import { FormData } from "./form";
-import * as TonVoteSDK from "ton-vote-sdk";
 import { persist } from "zustand/middleware";
 import { ZERO_ADDRESS } from "consts";
 import { useProposlFromLocalStorage, useTxReminderPopup } from "store";
+import { Address } from "ton-core";
 
 interface Store {
   preview: boolean;
@@ -36,7 +41,7 @@ export const useCreateProposal = () => {
   const appNavigation = useAppNavigation();
   const setFormData = useCreateProposalStore((state) => state.setFormData);
   const toggleTxReminder = useTxReminderPopup().setOpen;
-  const {addProposal} = useProposlFromLocalStorage();
+  const { addProposal } = useProposlFromLocalStorage();
 
   return useMutation(
     async ({
@@ -46,21 +51,40 @@ export const useCreateProposal = () => {
       daoAddr: string;
       formValues: FormData;
     }) => {
+      const jetton = formValues.votingPowerStrategy === VotingPowerStrategy
+        .JettonBalance
+        ? formValues.jetton
+        : ZERO_ADDRESS;
+      const nft = formValues.votingPowerStrategy === VotingPowerStrategy
+        .NftCcollection
+        ? formValues.nft
+        : ZERO_ADDRESS;
+
+        console.log(jetton, nft);
+        
+
+      try {
+        Address.isAddress(jetton);
+        Address.isAddress(nft);
+      } catch (error) {
+        throw new Error("Invalid address");
+      }
+
       const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: formValues.proposalStartTime! / 1_000,
         proposalEndTime: formValues.proposalEndTime! / 1_000,
         proposalSnapshotTime: formValues.proposalSnapshotTime! / 1_000,
-        votingPowerStrategy: 1,
         proposalType: 1,
-        jetton: formValues.jetton || ZERO_ADDRESS,
-        nft: formValues.nft || ZERO_ADDRESS,
+        jetton,
+        nft,
         title: formValues.title,
         description: formValues.description,
+        votingPowerStrategy: formValues.votingPowerStrategy,
       };
 
       const sender = getSender();
       const clientV2 = await getClientV2();
-      const promise = TonVoteSDK.newProposal(
+      const promise = newProposal(
         sender,
         clientV2,
         daoAddr,
