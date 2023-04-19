@@ -29,3 +29,5 @@ export * from './LoadingContainer'
 export * from "./Status";
 export * from "./AddressDisplay";
 export * from "./ProposalDescription";
+export * from "./Markdown";
+export * from "./PageLoader";

@@ -38,7 +38,7 @@ const ProposalsCount = () => {
   return size ? <Chip label={_.size(data?.daoProposals)} /> : null;
 };
 
-export function ProposalsList() {
+ function ProposalsList() {
   const daoAddress = useDaoAddress();
   const [amount, setAmount] = useState(LIMIT);
   const [searchValue, setSearchValue] = useState("");
@@ -86,6 +86,8 @@ export function ProposalsList() {
     </StyledFlexColumn>
   );
 }
+
+export default ProposalsList;
 
 const StyledSearch = styled(Search)({
   maxWidth: 260,

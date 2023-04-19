@@ -7,9 +7,9 @@ import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
 import { theme } from "theme";
 import { globalStyles } from "styles";
 import analytics from "analytics";
-import { RouterProvider } from "react-router-dom";
-import { router } from "router";
 import {ConnectionProvider} from "ConnectionProvider";
+import './i18n/index'
+import App from "App";
 
 analytics.GA.init();
 
@@ -27,9 +27,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalStyles styles={globalStyles} />
-      <ConnectionProvider>
-        <RouterProvider router={router} />
-      </ConnectionProvider>
+      
+        <ConnectionProvider>
+          <App />
+        </ConnectionProvider>
+
     </ThemeProvider>
 
     <ReactQueryDevtools />

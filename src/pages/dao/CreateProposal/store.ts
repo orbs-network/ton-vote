@@ -12,7 +12,7 @@ import { create } from "zustand";
 import { FormData } from "./form";
 import { persist } from "zustand/middleware";
 import { ZERO_ADDRESS } from "consts";
-import { useProposlFromLocalStorage, useTxReminderPopup } from "store";
+import { useNewDataStore, useTxReminderPopup } from "store";
 import { Address } from "ton-core";
 
 interface Store {
@@ -41,7 +41,7 @@ export const useCreateProposal = () => {
   const appNavigation = useAppNavigation();
   const setFormData = useCreateProposalStore((state) => state.setFormData);
   const toggleTxReminder = useTxReminderPopup().setOpen;
-  const { addProposal } = useProposlFromLocalStorage();
+  const { addProposal } = useNewDataStore();
 
   return useMutation(
     async ({
@@ -58,10 +58,7 @@ export const useCreateProposal = () => {
       const nft = formValues.votingPowerStrategy === VotingPowerStrategy
         .NftCcollection
         ? formValues.nft
-        : ZERO_ADDRESS;
-
-        console.log(jetton, nft);
-        
+        : ZERO_ADDRESS;        
 
       try {
         Address.isAddress(jetton);

@@ -7,15 +7,17 @@ import * as TonVoteContract from "ton-vote-sdk";
 import { getClientV2, MetadataArgs } from "ton-vote-sdk";
 import { showPromiseToast } from "toasts";
 import { useAppNavigation } from "router";
-import { useTxReminderPopup } from "store";
+import { useNewDataStore, useTxReminderPopup } from "store";
 import { ZERO_ADDRESS } from "consts";
+import { persist } from "zustand/middleware";
+import { Logger } from "utils";
 
 const initialCreateMetadataForm: DaoMetadataForm = {
   name: "test",
   telegram: "https://reactdatepicker.com/",
   website: "https://reactdatepicker.com/",
   github: "https://reactdatepicker.com/",
-  about: "https://reactdatepicker.com/",
+  about: "[Link](https://reactdatepicker.com)",
   terms: "https://reactdatepicker.com/",
   avatar: "",
   hide: false,
@@ -54,22 +56,38 @@ interface State {
   reset: () => void;
 }
 
-export const useCreatDaoStore = create<State>((set, get) => ({
-  rolesForm: {} as RolesForm,
-  daoMetadataForm: initialCreateMetadataForm,
-  step: 0,
-  setStep: (step) => set({ step }),
-  nextStep: () => set((state) => ({ step: state.step + 1 })),
-  prevStep: () => set((state) => ({ step: state.step - 1 })),
-  setDaoMetadataForm: (daoMetadataForm) => set({ daoMetadataForm }),
-  setMetadataAddress: (metadataAddress) => set({ metadataAddress }),
-  setRolesForm: (rolesForm) => set({ rolesForm }),
-  reset: () => set({ daoMetadataForm: {} as DaoMetadataForm, step: 0 }),
-}));
+export const useCreatDaoStore = create(
+  persist<State>(
+    (set) => ({
+      rolesForm: {} as RolesForm,
+      daoMetadataForm: initialCreateMetadataForm,
+      step: 0,
+      setStep: (step) => set({ step }),
+      nextStep: () => set((state) => ({ step: state.step + 1 })),
+      prevStep: () => set((state) => ({ step: state.step - 1 })),
+      setDaoMetadataForm: (daoMetadataForm) =>{
+         set({ daoMetadataForm });
+        
+      },
+      setMetadataAddress: (metadataAddress) => set({ metadataAddress }),
+      setRolesForm: (rolesForm) => set({ rolesForm }),
+      reset: () =>
+        set({
+          daoMetadataForm: {} as DaoMetadataForm,
+          step: 0,
+          rolesForm: {} as RolesForm,
+        }),
+    }),
+    {
+      name: "ton_vote_create_dao_store",
+    }
+  )
+);
 
 export const useCreateDaoMetadata = () => {
   const getSender = useGetSender();
-  const { nextStep, setMetadataAddress, setDaoMetadataForm } = useCreatDaoStore();
+  const { nextStep, setMetadataAddress, setDaoMetadataForm } =
+    useCreatDaoStore();
   const toggleTxReminder = useTxReminderPopup().setOpen;
 
   return useMutation(
@@ -88,8 +106,8 @@ export const useCreateDaoMetadata = () => {
         jetton: values.jetton || ZERO_ADDRESS,
         nft: values.nft || ZERO_ADDRESS,
       };
-      console.log({ metadataArgs });
-      
+      Logger(metadataArgs);
+
       toggleTxReminder(true);
       const clientV2 = await getClientV2();
       const promise = TonVoteContract.newMetdata(
@@ -124,9 +142,11 @@ export const useCreateDaoMetadata = () => {
 export const useCreateDao = () => {
   const getSender = useGetSender();
   const appNavigation = useAppNavigation();
+  const { addDao } = useNewDataStore();
   const {
     rolesForm: { ownerAddress, proposalOwner },
     metadataAddress,
+    reset,
   } = useCreatDaoStore();
 
   const toggleTxReminder = useTxReminderPopup().setOpen;
@@ -151,7 +171,9 @@ export const useCreateDao = () => {
       toggleTxReminder(true);
       const address = await promise;
       if (typeof address === "string") {
-        appNavigation.daoPage.root(address.toString());
+        appNavigation.daoPage.root(address);
+        addDao(address);
+        reset();
       } else {
         throw new Error("Something went wrong");
       }

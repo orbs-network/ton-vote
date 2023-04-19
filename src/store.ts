@@ -1,49 +1,42 @@
 import { APPROVE_TX } from "config";
-import { Dao, EndpointsArgs } from "types";
+import _ from "lodash";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface DaoStore {
+interface NewDataStore {
   daos: string[];
   addDao: (value: string) => void;
   removeDao: (value: string) => void;
+  proposals: { [key: string]: string[] };
+  addProposal: (dao: string, proposal: string) => void;
+  removeProposal: (dao: string, proposal: string) => void;
 }
 
-export const useDaoFromLocalStorage = create(
-  persist<DaoStore>(
+export const useNewDataStore = create(
+  persist<NewDataStore>(
     (set) => ({
       daos: [],
-      addDao: (dao) => set((state) => ({ daos: [...state.daos, dao] })),
+      proposals: {},
+      addDao: (dao) => set((state) => ({ daos: _.uniq([...state.daos, dao]) })),
       removeDao: (dao) =>
         set((state) => ({ daos: state.daos.filter((d) => d !== dao) })),
-    }),
-    {
-      name: "ton_vote_dao_from_contract_store",
-    }
-  )
-);
-
-interface ProposalStore {
-  proposals: { [key: string]: string };
-  addProposal: (dao: string, proposal: string) => void;
-  removeProposal: (dao:string, proposal: string) => void;
-}
-
-export const useProposlFromLocalStorage = create(
-  persist<ProposalStore>(
-    (set) => ({
-      proposals: {},
       addProposal: (dao, proposal) =>
-        set((state) => ({
-          proposals: { ...state.proposals, [dao]: proposal }
-        })),
-      removeProposal: (dao) =>
-        set((state) => ({
-          proposals: { ...state.proposals, [dao]: '' },
-        })),
+        set((state) => {
+          const proposals = state.proposals[dao] || [];
+          return {
+            proposals: { ...state.proposals, [dao]: _.uniq([proposal, ...proposals]) },
+          };
+        }),
+      removeProposal: (dao, proposal) =>
+        set((state) => {
+          const proposals = state.proposals[dao] || [];
+          return {
+            proposals: { ...state.proposals, [dao]: proposals.filter((p) => p !== proposal) },
+          };
+        }),
     }),
     {
-      name: "ton_vote_proposal_from_contract_store",
+      name: "ton_vote_new_data_store",
     }
   )
 );

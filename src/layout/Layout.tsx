@@ -10,8 +10,9 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import { ErrorFallback } from "./ErrorBoundary";
 import { Toolbar } from "./Toolbar";
+import { ReactNode, Suspense } from "react";
 
-function Layout() {
+function Layout({children}:{children?: ReactNode}) {
   return (
     <QueryParamProvider adapter={ReactRouter6Adapter}>
       <Fade in={true} timeout={500}>
@@ -22,7 +23,10 @@ function Layout() {
             fallbackRender={(props) => <ErrorFallback {...props} />}
           >
             <StyledContent>
-              <Outlet />
+              {children}
+              <Suspense>
+                <Outlet />
+              </Suspense>
             </StyledContent>
             <Footer />
           </ErrorBoundary>

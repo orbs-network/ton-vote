@@ -74,11 +74,10 @@ const ToastContent = ({
     <StyledPromiseContainer>
       {message}
       {showButton && (
-        <StyledIconButton>
-          <IoMdClose
-            style={{ width: 20, height: 20, cursor: "pointer" }}
-            onClick={() => (customClick ? customClick() : toast.dismiss(id))}
-          />
+        <StyledIconButton
+          onClick={() => (customClick ? customClick() : toast.dismiss(id))}
+        >
+          <IoMdClose style={{ width: 20, height: 20, cursor: "pointer" }} />
         </StyledIconButton>
       )}
     </StyledPromiseContainer>

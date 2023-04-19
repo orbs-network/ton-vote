@@ -113,7 +113,7 @@ function ProposalPage() {
   );
 }
 
-export { ProposalPage };
+export default ProposalPage;
 
 const StyledWrapper = styled(StyledFlexRow)({
   alignItems: "flex-start",

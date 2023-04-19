@@ -1,16 +1,16 @@
 import { routes } from "consts";
 import Layout from "layout/Layout";
 import _ from "lodash";
-import {
-  ProposalPage,
-  DaoPage,
-  About as DaoAbout,
-  ProposalsList,
-  CreateProposal,
-  DaosPage,
-  CreateDao,
-} from "pages";
-import { SpaceMenuLayout } from "pages/dao/SpaceMenuLayout";
+
+import BadRoute from "pages/BadRoute";
+import CreateDao from "pages/create-dao/CreateDao";
+import About from "pages/dao/About";
+import CreateProposal from "pages/dao/CreateProposal/CreateProposal";
+import DaoPage from "pages/dao/DaoPage";
+import ProposalsList from "pages/dao/ProposalsList/ProposalsList";
+import SpaceMenuLayout from "pages/dao/SpaceMenuLayout";
+import DaosPage from "pages/daos/DaosPage";
+import ProposalPage from "pages/proposal/ProposalPage";
 import { createBrowserRouter, useNavigate } from "react-router-dom";
 
 export const appNavigation = {
@@ -84,7 +84,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: routes.spaceAbout,
-                element: <DaoAbout />,
+                element: <About />,
               },
             ],
           },
@@ -95,5 +95,6 @@ export const router = createBrowserRouter([
         element: <ProposalPage />,
       },
     ],
+    errorElement: <BadRoute />,
   },
 ]);

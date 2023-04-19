@@ -1,6 +1,5 @@
 import { styled, Typography, useTheme } from "@mui/material";
 import { useCopyToClipboard } from "hooks";
-import React, { ReactNode } from "react";
 import { StyledFlexRow } from "styles";
 import { IoCopyOutline } from "react-icons/io5";
 import { getTonScanContractUrl, makeElipsisAddress } from "utils";
@@ -36,11 +35,8 @@ export function AddressDisplay({
           {displayText || makeElipsisAddress(address, padding)}
         </Typography>
       </StyledButton>
-      <StyledButton>
-        <IoCopyOutline
-          style={{ color: theme.palette.text.primary }}
-          onClick={onCopy}
-        />
+      <StyledButton onClick={onCopy}>
+        <IoCopyOutline style={{ color: theme.palette.text.primary }} />
       </StyledButton>
     </StyledContainer>
   );

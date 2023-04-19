@@ -1,31 +1,28 @@
-import { Chip, Typography, styled, Popper, Fade } from "@mui/material";
+import { Typography, styled, Box } from "@mui/material";
 import {
-  AppTooltip,
   Button,
-  Container,
   AddressDisplay,
-  Loader,
   Status,
+  Markdown,
 } from "components";
-import { useCopyToClipboard, useDaoAddress } from "hooks";
+import {  useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow, StyledMarkdown } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { Proposal, ProposalStatus } from "types";
 import { getTimeDiff, calculateTonAmount } from "utils";
-import ReactMarkdown from 'react-markdown'
-
 import { ProposalLoader } from "../ProposalLoader";
+import removeMd from "remove-markdown"
+
 import {
-  StyledDescription,
   StyledProposal,
-  StyledProposalOwner,
   StyledProposalResult,
   StyledProposalResultContent,
   StyledProposalResultProgress,
 } from "./styles";
+import { typography } from "@mui/system";
 
 const Time = ({
   proposalMetadata,
@@ -88,7 +85,9 @@ export const ProposalComponent = ({
           {proposal?.metadata?.title}
         </StyledProposalTitle>
         <StyledMarkdown>
-          <ReactMarkdown>{proposal?.metadata?.description || ''}</ReactMarkdown>
+          {removeMd(proposal?.metadata?.description || "", {
+            useImgAltText: true,
+          })}
         </StyledMarkdown>
 
         {status !== ProposalStatus.CLOSED && proposal?.metadata && (
@@ -103,17 +102,15 @@ export const ProposalComponent = ({
   );
 };
 
-const StyledOwnerButton = styled("button")({
-  background: "transparent",
-  border: "unset",
-  cursor: "pointer",
+
+const StyledMarkdown = styled(Typography)({
+  fontWeight: 700,
+  fontSize: 17
 });
 
-const StyledCopy = styled(Button)({});
-
 const StyledProposalTitle = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 700,
+  fontSize: 20,
+  fontWeight: 800,
 });
 
 const Results = ({ proposal }: { proposal: Proposal }) => {

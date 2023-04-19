@@ -8,7 +8,7 @@ import { appNavigation } from "router";
 import { useCurrentRoute } from "hooks";
 import { useMemo } from "react";
 
-export function DaoPage() {
+ function DaoPage() {
   const dapAddress = useDaoAddress();
   const dao = useDaoQuery(dapAddress).data;
   const currentRoute = useCurrentRoute();
@@ -32,3 +32,6 @@ export function DaoPage() {
     </Page>
   );
 }
+
+
+export default DaoPage;

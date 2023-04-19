@@ -4,12 +4,13 @@ import {
   ConnectButton,
   LoadingContainer,
   MapInput,
+  Markdown,
   SideMenu,
   TitleContainer,
 } from "components";
 import { FormikProps, useFormik } from "formik";
-import { useDaoAddress } from "hooks";
-import { StyledFlexColumn, StyledFlexRow, StyledMarkdown } from "styles";
+import { useDaoAddress, useDebouncedCallback } from "hooks";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
 import ReactMarkdown from "react-markdown";
@@ -44,8 +45,12 @@ function Content() {
     validateOnBlur: true,
   });
 
-  useEffect(() => {
+  const saveForm = useDebouncedCallback(() => {
     setFormData(formik.values);
+  });
+
+  useEffect(() => {
+    saveForm();
   }, [formik.values]);
 
   return (
@@ -86,7 +91,7 @@ const StyledLoadingMenu = styled(LoadingContainer)({
   width: 300,
 });
 
-export { CreateProposal };
+export default CreateProposal;
 
 const formatTime = (millis?: number) =>
   moment(millis).format("DD/MM/YYYY HH:mm");
@@ -97,9 +102,7 @@ const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
       <Typography variant="h2" className="title">
         {formik?.values.title}
       </Typography>
-      <StyledMarkdown>
-        <ReactMarkdown>{formik?.values.description || ""}</ReactMarkdown>
-      </StyledMarkdown>
+      <Markdown>{formik?.values.description}</Markdown>
       <Typography>
         Start: {formatTime(formik?.values.proposalStartTime)}
       </Typography>

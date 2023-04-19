@@ -1,16 +1,14 @@
 import { Chip, styled } from "@mui/material";
-import { AddressDisplay, Container, Header, Link, TitleContainer } from "components";
+import { AddressDisplay, Container, Header, Link, Markdown, TitleContainer } from "components";
 import { useDaoAddress } from "hooks";
 import { useDaoQuery } from "query/queries";
-import ReactMarkdown from "react-markdown";
 import {
   StyledFlexColumn,
   StyledFlexRow,
-  StyledMarkdown,
   textOverflow,
 } from "styles";
 
-export function About() {
+ function About() {
   const daoAddress = useDaoAddress();
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
   const metadata = useDaoQuery(daoAddress).data?.daoMetadata;
@@ -20,9 +18,7 @@ export function About() {
       <StyledFlexColumn>
         {metadata?.about && (
           <StyledDescription>
-            <StyledMarkdown>
-              <ReactMarkdown>{metadata?.about}</ReactMarkdown>
-            </StyledMarkdown>
+            <Markdown>{metadata?.about}</Markdown>
           </StyledDescription>
         )}
         <StyledTitleContainer
@@ -45,10 +41,11 @@ export function About() {
   );
 }
 
+export default About;
+
 const StyledDescription = styled(Container)({
-  width:'100%',
- 
-})
+  width: "100%",
+});
 
 const StyledTitleContainer = styled(TitleContainer)({
   ".title-container-header":{

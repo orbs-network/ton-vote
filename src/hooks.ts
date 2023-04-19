@@ -1,4 +1,10 @@
-import { useState, useLayoutEffect, useCallback, useEffect } from "react";
+import {
+  useState,
+  useLayoutEffect,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes } from "consts";
 import {
@@ -102,7 +108,6 @@ type CopiedValue = string | null;
 type CopyFn = (text: string) => Promise<boolean>; // Return success
 
 export function useCopyToClipboard(): [CopiedValue, CopyFn] {
-
   const copy: CopyFn = async (text) => {
     if (!navigator?.clipboard) {
       console.warn("Clipboard not supported");
@@ -112,11 +117,11 @@ export function useCopyToClipboard(): [CopiedValue, CopyFn] {
     // Try to save to clipboard then save it in the state if worked
     try {
       await navigator.clipboard.writeText(text);
-      showSuccessToast("Copied to clipboard")
+      showSuccessToast("Copied to clipboard");
       return true;
     } catch (error) {
       console.warn("Copy failed", error);
-     
+
       return false;
     }
   };
@@ -124,10 +129,7 @@ export function useCopyToClipboard(): [CopiedValue, CopyFn] {
   return [null, copy];
 }
 
-
-
-
-export  function useDebounce<T>(value: T, delay?: number): T {
+export function useDebounce<T>(value: T, delay?: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
@@ -141,5 +143,21 @@ export  function useDebounce<T>(value: T, delay?: number): T {
   return debouncedValue;
 }
 
+export const useDebouncedCallback = (func: any, wait: number = 300) => {
+  // Use a ref to store the timeout between renders
+  // and prevent changes to it from causing re-renders
+  const timeout = useRef<any>();
 
+  return useCallback(
+    (...args: any) => {
+      const later = () => {
+        clearTimeout(timeout.current);
+        func(...args);
+      };
 
+      clearTimeout(timeout.current);
+      timeout.current = setTimeout(later, wait);
+    },
+    [func, wait]
+  );
+};

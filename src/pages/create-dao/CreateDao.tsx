@@ -16,7 +16,7 @@ const SelectedStep = () => {
   );
 };
 
-export function CreateDao() {
+ function CreateDao() {
   return (
     <Page back={routes.spaces}>
       <StyledContainer>
@@ -27,6 +27,8 @@ export function CreateDao() {
   );
 }
 
+
+export default CreateDao;
 const StyledContainer = styled(StyledFlexRow)({
   gap: 20,
   alignItems: "flex-start",

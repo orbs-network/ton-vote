@@ -2,6 +2,7 @@ import { styled, Typography } from "@mui/material";
 import { Button, MapInput } from "components";
 import { useFormik } from "formik";
 import { StyledFlexColumn } from "styles";
+import { showSuccessToast } from "toasts";
 import { RolesForm, useCreatDaoStore } from "../store";
 import { StyledInputs } from "../styles";
 import { SetRolesFormSchema, useRolesInputs } from "./form";
@@ -20,8 +21,9 @@ export function SetRolesStep() {
     validateOnChange: false,
     validateOnBlur: true,
     onSubmit: (values) => {
-        setRolesForm(values);
-        nextStep();
+      showSuccessToast("Roles setted")
+      setRolesForm(values);
+      nextStep();
     },
   });
 

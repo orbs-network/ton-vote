@@ -14,8 +14,8 @@ import { useAppNavigation } from "router";
 import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
 import { useCopyToClipboard } from "hooks";
-import { showSuccessToast } from "toasts";
 import { APP_NAME } from "config";
+import { useTranslation } from "react-i18next";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -36,8 +36,9 @@ export function Navbar() {
 }
 
 const Wallet = () => {
-  const { address, walletIcon, disconnect } = useConnection();
+  const { address, disconnect } = useConnection();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const {t} = useTranslation()
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -84,7 +85,7 @@ const Wallet = () => {
         }}
       >
         <StyledMenuItem onClick={() => copy(address)}>
-          <Typography>Copy Address</Typography>
+          <Typography>{t("copyAddress")}</Typography>
           <MdContentCopy />
         </StyledMenuItem>
         <StyledMenuItem
@@ -93,7 +94,7 @@ const Wallet = () => {
             handleClose();
           }}
         >
-          <Typography>Logout</Typography>
+          <Typography>{t("logout")}</Typography>
           <MdLogout />
         </StyledMenuItem>
       </Menu>

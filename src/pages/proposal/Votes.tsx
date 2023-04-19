@@ -1,4 +1,4 @@
-import { Chip, Fade, styled, Typography, useTheme } from "@mui/material";
+import { Box, Chip, Fade, styled, Typography, useTheme } from "@mui/material";
 import {
   AddressDisplay,
   AppTooltip,
@@ -193,7 +193,7 @@ const StyledAddressDisplay = styled(AddressDisplay)({
   width: 160,
 });
 
-const StyledNoVotes = styled(Typography)({
+const StyledNoVotes = styled(Box)({
   padding: "20px",
   p: {
     textAlign: "center",

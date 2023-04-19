@@ -1,10 +1,9 @@
-import { AddressDisplay, Button, Container, Header, Img, LoadingContainer } from "components";
+import { AddressDisplay, Button, Container, Header, Img, LoadingContainer, Markdown } from "components";
 import { Box, Chip, Fade, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import {
   StyledFlexColumn,
   StyledFlexRow,
-  StyledMarkdown,
   textOverflow,
 } from "styles";
 import {
@@ -48,9 +47,7 @@ export function ProposalDescription({
             height={showMore ? "auto" : MIN_DESCRIPTION_HEIGHT}
             duration={200}
           >
-            <StyledDescription ref={elRef}>
-              <ReactMarkdown>{metadata?.description || ""}</ReactMarkdown>
-            </StyledDescription>
+            <Markdown>{metadata?.description}</Markdown>
           </AnimateHeight>
         </StyledFlexColumn>
 
@@ -69,7 +66,6 @@ const StyledHeader = styled(Header)({
   marginBottom: 0,
 });
 
-const StyledDescription = styled(StyledMarkdown)({});
 
 const ProposalOwner = ({
   proposalMetadata,

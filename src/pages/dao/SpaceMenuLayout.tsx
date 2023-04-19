@@ -17,7 +17,7 @@ function SpaceMenuLayout() {
   );
 }
 
-export { SpaceMenuLayout };
+export default SpaceMenuLayout;
 
 const StyledContainer = styled(StyledFlexRow)({
     alignItems:'flex-start',

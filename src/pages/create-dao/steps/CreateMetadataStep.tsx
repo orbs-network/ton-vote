@@ -1,18 +1,30 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Container, FadeElement, Header, MapInput, TitleContainer } from "components";
+import {
+  Button,
+  Container,
+  FadeElement,
+  Header,
+  MapInput,
+  TitleContainer,
+} from "components";
 import { StyledFlexColumn } from "styles";
 import { FormikValues, useFormik } from "formik";
-import {  DaoMetadataForm, useCreatDaoStore, useCreateDaoMetadata } from "../store";
+import {
+  DaoMetadataForm,
+  useCreatDaoStore,
+  useCreateDaoMetadata,
+} from "../store";
 import _ from "lodash";
 import { createDaoMetadataInputs, DaoMetadataFormSchema } from "./form";
 import { Submit } from "./Submit";
 import { StyledInputs } from "../styles";
-
-
+import { useCallback, useEffect } from "react";
+import { useDebounce, useDebouncedCallback } from "hooks";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
-  const { daoMetadataForm, nextStep, metadataAddress } = useCreatDaoStore();
+  const { daoMetadataForm, nextStep, metadataAddress, setDaoMetadataForm } =
+    useCreatDaoStore();
 
   const onSubmit = async (_formData: DaoMetadataForm) => {
     const valuesChanged =
@@ -44,29 +56,34 @@ export function CreateMetadataStep() {
     onSubmit,
   });
 
+  const saveForm = useDebouncedCallback(() => {
+    setDaoMetadataForm(formik.values);
+  });
+
+  useEffect(() => {
+    saveForm();
+  }, [formik.values]);
 
   return (
     <FadeElement show={true}>
-        <StyledFlexColumn>
-          <StyledInputs>
-            {createDaoMetadataInputs.map((input) => {
-              return (
-                <MapInput<DaoMetadataForm>
-                  key={input.name}
-                  input={input}
-                  formik={formik}
-                />
-              );
-            })}
-          </StyledInputs>
-          <Submit>
-            <Button isLoading={isLoading} onClick={formik.submitForm}>
-              Create metadata
-            </Button>
-          </Submit>
-        </StyledFlexColumn>
+      <StyledFlexColumn>
+        <StyledInputs>
+          {createDaoMetadataInputs.map((input) => {
+            return (
+              <MapInput<DaoMetadataForm>
+                key={input.name}
+                input={input}
+                formik={formik}
+              />
+            );
+          })}
+        </StyledInputs>
+        <Submit>
+          <Button isLoading={isLoading} onClick={formik.submitForm}>
+            Create metadata
+          </Button>
+        </Submit>
+      </StyledFlexColumn>
     </FadeElement>
   );
 }
-
-

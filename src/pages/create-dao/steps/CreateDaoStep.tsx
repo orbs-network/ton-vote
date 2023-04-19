@@ -1,5 +1,5 @@
 import { Box, styled, Typography } from "@mui/material";
-import { AppTooltip, Button, Container, FadeElement, Link } from "components";
+import { AppTooltip, Button, Container, FadeElement, Link, Markdown } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { InputInterface } from "types";
 import { createDaoMetadataInputs, useRolesInputs } from "./form";
@@ -11,7 +11,6 @@ import {
 } from "../store";
 import { Submit } from "./Submit";
 import { getTonScanContractUrl, makeElipsisAddress } from "utils";
-import ReactMarkdown from "react-markdown";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
@@ -90,11 +89,7 @@ const InputPreview = ({
     }
 
     if (input.type === "textarea") {
-      return (
-        <StyledMd>
-          <ReactMarkdown>{value || ""}</ReactMarkdown>
-        </StyledMd>
-      );
+      return <StyledMd>{value}</StyledMd>;
     }
     return <Typography>{value}</Typography>;
   };
@@ -113,11 +108,9 @@ const StyledLink = styled(Link)({
   width: "auto",
 });
 
-const StyledMd = styled(Box)({
+const StyledMd = styled(Markdown)({
   width:'100%',
-  p: {
-    margin: 0,
-  },
+ 
 });
 
 const StyledInputPreview = styled(StyledFlexRow)({
