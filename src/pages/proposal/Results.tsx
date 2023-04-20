@@ -182,7 +182,7 @@ export function VerifyResults() {
         </StyledButton>
       ) : (
         <StyledButton onClick={() => setOpen(true)} isLoading={isLoading}>
-          <Typography>Verify</Typography>
+          <Typography>Verify results</Typography>
         </StyledButton>
       )}
     </StyledVerifyContainer>

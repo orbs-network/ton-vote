@@ -1,12 +1,12 @@
 import { Chip, styled, Typography } from "@mui/material";
 import { Button, Container, Header, List, LoadMore, Search } from "components";
+import { DAO_REFETCH_INTERVAL } from "config";
 import { useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { appNavigation, useAppNavigation } from "router";
-import { StyledTitle, StyledFlexColumn, StyledFlexRow } from "styles";
+import { useAppNavigation } from "router";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { StringParam, useQueryParam } from "use-query-params";
 import { ProposalLoader } from "../ProposalLoader";
@@ -47,7 +47,11 @@ const ProposalsCount = () => {
     setAmount((prev) => prev + LIMIT);
   };
 
-  const { data, isLoading } = useDaoQuery(daoAddress);
+  const { data, isLoading } = useDaoQuery(
+    daoAddress,
+    DAO_REFETCH_INTERVAL,
+    5_000
+  );
   const [queryParamState] = useFilterValue();
 
   const isEmpty = !isLoading && !_.size(data?.daoProposals);

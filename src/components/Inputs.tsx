@@ -6,6 +6,9 @@ import {
   Checkbox,
   RadioGroup,
   Radio,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
 } from "@mui/material";
 import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -53,13 +56,12 @@ export function TextInput({
   className,
   tooltip,
   required,
-}: TextInputProps) {  
-
+}: TextInputProps) {
   return (
     <StyledContainer className={`${className} text-input`}>
       <StyledInputHeader>
         {title && <Title title={title} required={required} />}
-        {tooltip && <AppTooltip info text={tooltip} />}
+        {tooltip && <AppTooltip info markdown={tooltip} />}
       </StyledInputHeader>
       <StyledInput
         placeholder={placeholder}
@@ -220,7 +222,7 @@ const StyledInput = styled(TextField)({
   },
 });
 
-interface DateRangeInput {
+interface DateRangeInputProps {
   className?: string;
   onChange: (value: number) => void;
   title?: string;
@@ -230,6 +232,7 @@ interface DateRangeInput {
   max?: number;
   value?: number | string;
   required?: boolean;
+  tooltip?: string;
 }
 
 export const DateRangeInput = ({
@@ -242,14 +245,19 @@ export const DateRangeInput = ({
   max,
   value = "",
   required,
-}: DateRangeInput) => {
+  tooltip,
+}: DateRangeInputProps) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <StyledDatepicker
         className={`${className} date-input`}
         error={error ? 1 : 0}
       >
-        {title && <Title title={title} required={required} />}
+        <StyledInputHeader>
+          {title && <Title title={title} required={required} />}
+          {tooltip && <AppTooltip info markdown={tooltip} />}
+        </StyledInputHeader>
+
         <DateTimePicker
           // maxDate={max && dayjs(max)}
           // minDate={min && dayjs(min)}
@@ -317,6 +325,7 @@ export function MapInput<T>({
         max={input.max}
         value={value as any}
         required={input.required}
+        tooltip={input.tooltip}
       />
     );
   }
@@ -332,8 +341,21 @@ export function MapInput<T>({
         value={value as string | number}
         label={input.label}
         formik={formik}
-        options={input.radioOptions || []}
+        options={input.options || []}
         required={input.required}
+      />
+    );
+  }
+  if (input.type === "select") {
+    return (
+      <SelectBoxInput
+        onChange={onChange}
+        value={value as string}
+        label={input.label}
+        formik={formik}
+        options={input.options || []}
+        required={input.required}
+        tooltip={input.tooltip}
       />
     );
   }
@@ -407,35 +429,92 @@ export function RadioInput<T>({
   return (
     <StyledRadioContainer>
       <Title title={label} required={required} />
-        <StyledFlexColumn alignItems="flex-start">
-          {options.map((it) => {
-            const checked = it.value === value;
-            return (
-              <StyledFlexColumn key={it.value}>
-                <StyledFlexRow justifyContent="flex-start">
-                  <Radio
-                    onChange={() => onChange(it.value)}
-                    checked={checked}
-                  />
-                  <Typography>{it.label}</Typography>
-                </StyledFlexRow>
-                {it.input && checked && (
-                  <MapInput input={it.input} formik={formik} />
-                )}
-              </StyledFlexColumn>
-            );
-          })}
-        </StyledFlexColumn>
+      <StyledFlexColumn alignItems="flex-start">
+        {options.map((it) => {
+          const checked = it.value === value;
+          return (
+            <StyledFlexColumn key={it.value}>
+              <StyledFlexRow justifyContent="flex-start">
+                <Radio onChange={() => onChange(it.value)} checked={checked} />
+                <Typography>{it.label}</Typography>
+              </StyledFlexRow>
+              {it.input && checked && (
+                <MapInput input={it.input} formik={formik} />
+              )}
+            </StyledFlexColumn>
+          );
+        })}
+      </StyledFlexColumn>
     </StyledRadioContainer>
   );
 }
 
 const StyledRadioContainer = styled(StyledFlexColumn)({
-  alignItems:'flex-start'
-})
+  alignItems: "flex-start",
+});
 
 const StyledCheckBoxTitle = styled(Title)({
   width: "unset",
 });
 
 const StycheckBoxInput = styled(StyledFlexRow)({});
+
+interface SelectboxInputProps<T> {
+  value?: string | number;
+  label: string;
+  options: RadioOption[];
+  formik: FormikProps<T>;
+  onChange: (value: string | number) => void;
+  required?: boolean;
+  tooltip?: string;
+}
+
+function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
+  const { value, options, label, formik, onChange, required, tooltip } = props;
+
+  const handleChange = (event: SelectChangeEvent) => {
+    console.log("tst");
+
+    onChange(event.target.value);
+  };
+
+  return (
+    <StyledSelectBoxInput>
+      <StyledInputHeader>
+        {label && <Title title={label} required={required} />}
+        {tooltip && <AppTooltip info markdown={tooltip} />}
+      </StyledInputHeader>
+      <StyledFlexColumn alignItems="flex-start" gap={20}>
+        <Select
+          labelId="demo-simple-select-helper-label"
+          id="demo-simple-select-helper"
+          value={value?.toString() || ""}
+          onChange={handleChange}
+        >
+          {options.map((it) => {
+            return (
+              <MenuItem key={it.value} value={it.value}>
+                {it.label}
+              </MenuItem>
+            );
+          })}
+        </Select>
+        <div style={{maxWidth:'600px', width:'100%'}}>
+          {options.map((it) => {
+            if (!it.input || it.value !== value) return null;
+
+            return <MapInput key={it.value} input={it.input} formik={formik} />;
+          })}
+        </div>
+      </StyledFlexColumn>
+    </StyledSelectBoxInput>
+  );
+}
+
+
+
+
+const StyledSelectBoxInput = styled(StyledContainer)({
+  alignItems:'flex-start',
+
+});

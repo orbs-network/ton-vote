@@ -4,17 +4,20 @@ import { styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { StyledFlexRow } from "styles";
+import { Markdown } from "./Markdown";
 export function AppTooltip({
   children,
   className = "",
-  text,
+  text = '',
   placement = "bottom",
   info,
+  markdown = "",
 }: {
   info?: boolean;
   children?: React.ReactNode;
-  text: React.ReactNode;
+  text?: React.ReactNode;
   className?: string;
+  markdown?: string;
   placement?:
     | "bottom"
     | "left"
@@ -33,7 +36,7 @@ export function AppTooltip({
     <StyledTooltip
       arrow={true}
       placement={placement}
-      title={<StyledTitle>{text}</StyledTitle>}
+      title={markdown ? <StyledMarkdown>{markdown}</StyledMarkdown> : <StyledTitle>{text}</StyledTitle>}
     >
       {!info ? (
         <Box className={`tooltip-children ${className}`}>{children}</Box>
@@ -52,4 +55,19 @@ const StyledTitle = styled(Typography)({
   color: "rgb(114, 138, 150)",
 });
 
-const StyledTooltip = styled(Tooltip)({});
+const StyledMarkdown = styled(Markdown)({
+  "p": {
+    fontSize: 14,
+    fontWeight: 600,
+    color: "rgb(114, 138, 150)",
+  },
+  a: {
+    
+  }
+});
+
+const StyledTooltip = styled(Tooltip)({
+  "& .MuiTooltip-tooltip": {
+    color:'black'
+  }
+});

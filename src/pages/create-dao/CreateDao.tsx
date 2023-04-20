@@ -4,17 +4,15 @@ import { CreateDaoMenu } from "./CreateDaoMenu";
 
 import { routes } from "consts";
 import { StyledFlexRow } from "styles";
-import { steps } from "./steps";
+import { useSteps } from "./steps";
 import { useCreatDaoStore } from "./store";
+import { useTranslation } from "react-i18next";
 
 const SelectedStep = () => {
+  const steps = useSteps()
   const step = useCreatDaoStore((store) => store.step);
   const Component = steps[step].component;
-  return (
-    <StyledStep title="Create dao">
-      <Component />
-    </StyledStep>
-  );
+  return <Component />;
 };
 
 export function CreateDaoPage() {
@@ -33,6 +31,3 @@ const StyledContainer = styled(StyledFlexRow)({
   width: "100%",
 });
 
-const StyledStep = styled(TitleContainer)({
-  flex: 1,
-});

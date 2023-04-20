@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { Fade, styled, Typography } from "@mui/material";
 import {
   Button,
   Container,
@@ -10,36 +10,31 @@ import {
 import { StyledFlexColumn } from "styles";
 import { FormikValues, useFormik } from "formik";
 import {
-  DaoMetadataForm,
+  DaoMetadata,
   useCreatDaoStore,
   useCreateDaoMetadata,
 } from "../store";
 import _ from "lodash";
-import { createDaoMetadataInputs, DaoMetadataFormSchema } from "./form";
+import {  DaoMetadataFormSchema, createDaoMetadataInputs } from "./form";
 import { Submit } from "./Submit";
 import { StyledInputs } from "../styles";
-import { useCallback, useEffect } from "react";
-import { useDebounce, useDebouncedCallback } from "hooks";
-import { showErrorToast } from "toasts";
+import {  useEffect } from "react";
+import { useDebouncedCallback } from "hooks";
 import { validateFormik } from "utils";
+import { useTranslation } from "react-i18next";
+import { Step } from "./Step";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
-  const { daoMetadataForm, nextStep, metadataAddress, setDaoMetadataForm } =
+  const { daoMetadataForm, nextStep, metadataAddress, setDaoMetadataForm, editMode } =
     useCreatDaoStore();
 
-  const onSubmit = async (_formData: DaoMetadataForm) => {
-    const valuesChanged =
-      metadataAddress && !_.isEqual(_formData, daoMetadataForm);
-
-    if (!metadataAddress || valuesChanged) {
-      createMetadata(_formData);
-    } else {
-      nextStep();
-    }
+  const onSubmit = async (_formData: DaoMetadata) => {
+    createMetadata(_formData);
+    // nextStep();
   };
 
-  const formik = useFormik<DaoMetadataForm>({
+  const formik = useFormik<DaoMetadata>({
     initialValues: {
       name: daoMetadataForm.name,
       telegram: daoMetadataForm.telegram,
@@ -51,6 +46,7 @@ export function CreateMetadataStep() {
       hide: daoMetadataForm.hide,
       jetton: daoMetadataForm.jetton,
       nft: daoMetadataForm.nft,
+      dns: daoMetadataForm.dns,
     },
     validationSchema: DaoMetadataFormSchema,
     validateOnChange: false,
@@ -58,6 +54,7 @@ export function CreateMetadataStep() {
     onSubmit,
   });
 
+  const { t } = useTranslation();
 
   const saveForm = useDebouncedCallback(() => {
     setDaoMetadataForm(formik.values);
@@ -68,15 +65,19 @@ export function CreateMetadataStep() {
   }, [formik.values]);
 
   return (
-    <FadeElement show={true}>
+    <Step
+      warning={editMode ? t("editForumDetailsWarning") : ''}
+      title={editMode ? t("editForumDetails") : t("createForumDetails")}
+    >
       <StyledFlexColumn>
         <StyledInputs>
           {createDaoMetadataInputs.map((input) => {
             return (
-              <MapInput<DaoMetadataForm>
+              <MapInput<DaoMetadata>
                 key={input.name}
                 input={input}
                 formik={formik}
+                EndAdornment={EndAdornment}
               />
             );
           })}
@@ -86,13 +87,34 @@ export function CreateMetadataStep() {
             isLoading={isLoading}
             onClick={() => {
               formik.submitForm();
-               validateFormik(formik);
+              validateFormik(formik);
             }}
           >
-            Create metadata
+            {editMode ? t("editDetails") : t("approveDetails")}
           </Button>
         </Submit>
       </StyledFlexColumn>
-    </FadeElement>
+    </Step>
   );
 }
+
+
+const EndAdornment = ({ onClick }: { onClick: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <StyledEndAdornment onClick={onClick}>
+      <Typography>{t("connectedWallet")}</Typography>
+    </StyledEndAdornment>
+  );
+};
+
+const StyledEndAdornment = styled(Button)({
+  padding: "5px 10px",
+  height: "unset",
+  p: {
+    fontSize: 12,
+    display: "inline-block",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+  },
+});

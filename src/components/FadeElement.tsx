@@ -10,7 +10,7 @@ function FadeElement({
 }) {
   return (
     <Fade in={show}>
-      <span>{children}</span>
+      <span style={{width:'100%'}}>{children}</span>
     </Fade>
   );
 }

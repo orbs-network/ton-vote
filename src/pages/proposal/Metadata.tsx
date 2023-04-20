@@ -1,10 +1,16 @@
 import { Box, styled, Typography } from "@mui/material";
-import { AddressDisplay, Container, Link, LoadingContainer, TitleContainer } from "components";
+import {
+  AddressDisplay,
+  Container,
+  Link,
+  LoadingContainer,
+  TitleContainer,
+} from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import moment from "moment";
-import { ProposalMetadata } from "ton-vote-sdk";
-
+import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-sdk";
+import { useTranslation } from "react-i18next";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -19,7 +25,6 @@ export const Metadata = ({
   isLoading: boolean;
   proposalAddress?: string;
 }) => {
-
   if (isLoading) {
     return <LoadingContainer />;
   }
@@ -47,10 +52,49 @@ export const Metadata = ({
           <InformationRow label="Contract">
             <AddressDisplay address={proposalAddress} />
           </InformationRow>
+          <InformationRow label="Voting strategy">
+            <ProposalStrategyLabel
+              strategy={proposalMetadata.votingPowerStrategy}
+            />
+          </InformationRow>
+          {proposalMetadata.votingPowerStrategy ===
+            VotingPowerStrategy.JettonBalance && (
+            <InformationRow label="Jetton">
+              <AddressDisplay address={proposalMetadata.jetton} />
+            </InformationRow>
+          )}
+          {proposalMetadata.votingPowerStrategy ===
+            VotingPowerStrategy.NftCcollection && (
+            <InformationRow label="NFT collection">
+              <AddressDisplay address={proposalMetadata.nft} />
+            </InformationRow>
+          )}
         </StyledFlexColumn>
       )}
     </StyledInformation>
   );
+};
+
+const ProposalStrategyLabel = ({
+  strategy,
+}: {
+  strategy: VotingPowerStrategy;
+}) => {
+  const { t } = useTranslation();
+
+  switch (strategy) {
+    case VotingPowerStrategy.TonBalance:
+      return <Typography>{t("tonBalance")}</Typography>;
+
+    case VotingPowerStrategy.JettonBalance:
+      return <Typography>{t("jettonBalance")}</Typography>;
+
+    case VotingPowerStrategy.NftCcollection:
+      return <Typography>{t("nftCollection")}</Typography>;
+
+    default:
+      return null;
+  }
 };
 
 const InformationRow = ({

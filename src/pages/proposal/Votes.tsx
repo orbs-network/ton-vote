@@ -165,6 +165,7 @@ const VoteComponent = ({ data }: { data?: Vote }) => {
 
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
+  
 
   const isYou = connectedAddress === address;
 

@@ -1,27 +1,31 @@
+import { useTranslation } from "react-i18next";
 import { CreateDaoStep } from "./CreateDaoStep";
 import { CreateMetadataStep } from "./CreateMetadataStep";
 import { GettingStartedStep } from "./GettingStartedStep";
 import { SetRolesStep } from "./SetRolesStep";
 
 
-export const steps = [
-  {
-    title: "Getting Started",
-    component: GettingStartedStep,
-  },
-  {
-    title: "Create Metadata",
-    component: CreateMetadataStep,
-  },
-  {
-    title: "Set Dao Roles",
-    component: SetRolesStep,
-  },
-  {
-    title: "Create Dao",
-    component: CreateDaoStep,
-  },
-];
+export const useSteps = () => {
+  const {t} = useTranslation()
+  return [
+    {
+      title: t("getStarted"),
+      component: GettingStartedStep,
+    },
+    {
+      title: t("forumDetails"),
+      component: CreateMetadataStep,
+    },
+    {
+      title: t("forumStage"),
+      component: SetRolesStep,
+    },
+    {
+      title: t("createForum"),
+      component: CreateDaoStep,
+    },
+  ];
+};
 
 
 

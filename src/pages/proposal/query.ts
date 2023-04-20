@@ -30,8 +30,8 @@ export const useGetProposal = () => {
     const serverProposal = async (): Promise<Proposal | null> => {
       try {
         const state = await api.getProposal(proposalAddress, signal);
-       Logger(state);
-        
+        Logger(state);
+
         if (_.isEmpty(state.metadata)) {
           throw new Error("Proposal not found is server");
         }
@@ -41,27 +41,35 @@ export const useGetProposal = () => {
       }
     };
 
-    if (isCustomEndpoint) {
-      return contractProposal();
-    }
+    const getWithConditions = async () => {
+      if (isCustomEndpoint) {
+        return contractProposal();
+      }
 
-    // if (!(await api.validateServerLastUpdate(signal))) {
-    //   Logger(`server is outdated, fetching from contract ${proposalAddress}`);
-    //   return contractProposal();
-    // }
+      // if (!(await api.validateServerLastUpdate(signal))) {
+      //   Logger(`server is outdated, fetching from contract ${proposalAddress}`);
+      //   return contractProposal();
+      // }
 
-    if (!latestMaxLtAfterTx) {
+      if (!latestMaxLtAfterTx) {
+        return serverProposal();
+      }
+
+      const serverMaxLt = await api.getMaxLt(proposalAddress, signal);
+
+      if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
+        Logger(`server latestMaxLtAfterTx is outdated, fetching from contract`);
+        return contractProposal();
+      }
+      proposalPersistStore.setLatestMaxLtAfterTx(proposalAddress, undefined);
       return serverProposal();
-    }
+    };
 
-    const serverMaxLt = await api.getMaxLt(signal);
-
-    if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-      Logger(`server latestMaxLtAfterTx is outdated, fetching from contract`);
+    try {
+      return await getWithConditions();
+    } catch (error) {
       return contractProposal();
     }
-    proposalPersistStore.setLatestMaxLtAfterTx(proposalAddress, undefined);
-    return serverProposal();
   };
 };
 

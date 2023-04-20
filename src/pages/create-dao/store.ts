@@ -11,8 +11,13 @@ import { useNewDataStore, useTxReminderPopup } from "store";
 import { ZERO_ADDRESS } from "consts";
 import { persist } from "zustand/middleware";
 import { Logger } from "utils";
+import { useTranslation } from "react-i18next";
 
-const initialCreateMetadataForm: DaoMetadataForm = {
+export interface DaoMetadata extends MetadataArgs {
+  dns: string;
+}
+
+const initialCreateMetadataForm: DaoMetadata = {
   name: "",
   telegram: "",
   website: "",
@@ -23,20 +28,9 @@ const initialCreateMetadataForm: DaoMetadataForm = {
   hide: false,
   nft: "",
   jetton: "",
+  dns: "",
 };
 
-export interface DaoMetadataForm {
-  name: string;
-  website: string;
-  about: string;
-  telegram: string;
-  terms: string;
-  github: string;
-  avatar: string;
-  hide: boolean;
-  jetton: string;
-  nft: string;
-}
 
 export interface RolesForm {
   ownerAddress: string;
@@ -47,10 +41,12 @@ interface State {
   setStep: (value: number) => void;
   nextStep: () => void;
   prevStep: () => void;
-  daoMetadataForm: DaoMetadataForm;
+  daoMetadataForm: DaoMetadata;
   rolesForm: RolesForm;
   metadataAddress?: string;
-  setDaoMetadataForm: (value: DaoMetadataForm) => void;
+  editMode: boolean;
+  setEditMode: (value: boolean) => void;
+  setDaoMetadataForm: (value: DaoMetadata) => void;
   setMetadataAddress: (value: string) => void;
   setRolesForm: (rolesForm?: RolesForm) => void;
   reset: () => void;
@@ -59,21 +55,22 @@ interface State {
 export const useCreatDaoStore = create(
   persist<State>(
     (set) => ({
+      editMode: false,
       rolesForm: {} as RolesForm,
       daoMetadataForm: initialCreateMetadataForm,
       step: 0,
       setStep: (step) => set({ step }),
       nextStep: () => set((state) => ({ step: state.step + 1 })),
       prevStep: () => set((state) => ({ step: state.step - 1 })),
-      setDaoMetadataForm: (daoMetadataForm) =>{
-         set({ daoMetadataForm });
-        
+      setEditMode: (editMode) => set({ editMode }),
+      setDaoMetadataForm: (daoMetadataForm) => {
+        set({ daoMetadataForm });
       },
       setMetadataAddress: (metadataAddress) => set({ metadataAddress }),
       setRolesForm: (rolesForm) => set({ rolesForm }),
       reset: () =>
         set({
-          daoMetadataForm: {} as DaoMetadataForm,
+          daoMetadataForm: {} as DaoMetadata,
           step: 0,
           rolesForm: {} as RolesForm,
         }),
@@ -89,12 +86,13 @@ export const useCreateDaoMetadata = () => {
   const { nextStep, setMetadataAddress, setDaoMetadataForm } =
     useCreatDaoStore();
   const toggleTxReminder = useTxReminderPopup().setOpen;
-
+const { t } = useTranslation();
   return useMutation(
-    async (values: DaoMetadataForm) => {
+    async (values: DaoMetadata) => {
       const sender = getSender();
+      
 
-      const metadataArgs: MetadataArgs = {
+      const metadataArgs: DaoMetadata = {
         about: values.about,
         avatar: values.avatar || "",
         github: values.github,
@@ -105,6 +103,7 @@ export const useCreateDaoMetadata = () => {
         website: values.website,
         jetton: values.jetton || ZERO_ADDRESS,
         nft: values.nft || ZERO_ADDRESS,
+        dns: values.dns,
       };
       Logger(metadataArgs);
 
@@ -118,7 +117,7 @@ export const useCreateDaoMetadata = () => {
 
       showPromiseToast({
         promise,
-        success: "Metadata created!",
+        success: t("forumDetailsCreated"),
       });
 
       const address = await promise;

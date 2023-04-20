@@ -1,6 +1,5 @@
 import { useConnection } from "ConnectionProvider";
 import { useMemo } from "react";
-import { Address } from "ton-core";
 import { InputInterface } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
@@ -10,7 +9,7 @@ export const createDaoMetadataInputs: InputInterface[] = [
     label: "Name",
     type: "text",
     name: "name",
-    tooltip: "Name of the DAO",
+    tooltip: "Your Forum’s name",
     required: true,
   },
 
@@ -18,6 +17,8 @@ export const createDaoMetadataInputs: InputInterface[] = [
     label: "Jetton Address",
     type: "address",
     name: "jetton",
+    tooltip: "Your project’s Jetton smart contract on TON",
+    required: true,
   },
   {
     label: "NFT",
@@ -27,18 +28,24 @@ export const createDaoMetadataInputs: InputInterface[] = [
   {
     label: "TON DNS",
     type: "text",
-    name: "tonDns",
+    name: "dns",
+    required: true,
+    tooltip:
+      "Enter your project’s DNS domain or follow the instructions on [https://dns.ton.org/](https://dns.ton.org/)",
   },
   {
     label: "About",
     type: "textarea",
     name: "about",
     rows: 5,
+    tooltip: "What is your project about?",
   },
   {
     label: "Avatar",
-    type: "text",
+    type: 'image',
     name: "avatar",
+    tooltip: "Your project’s logo, 512*512 Pixel PNG image URL",
+    required: true,
   },
   {
     label: "Github",
@@ -55,17 +62,11 @@ export const createDaoMetadataInputs: InputInterface[] = [
     type: "url",
     name: "website",
   },
-
-  {
-    label: "Terms",
-    type: "url",
-    name: "terms",
-  },
-  {
-    label: "Hide Dao",
-    type: "checkbox",
-    name: "hide",
-  },
+  // {
+  //   label: "Hide Dao",
+  //   type: "checkbox",
+  //   name: "hide",
+  // },
 ];
 
 export const useRolesInputs = (): InputInterface[] => {
@@ -94,8 +95,10 @@ export const useRolesInputs = (): InputInterface[] => {
 
 
 export const DaoMetadataFormSchema = Yup.object().shape({
-  avatar: Yup.string().url("invalid Avatar URL"),
   name: Yup.string().required("Name is Required"),
+  avatar: Yup.string().url("invalid Avatar URL").required('Avatar is Required'),
+  dns: Yup.string().required("TON DNS is Required"),
+  about: Yup.string().required("About is Required"),
 });
 
 export const SetRolesFormSchema = Yup.object().shape({

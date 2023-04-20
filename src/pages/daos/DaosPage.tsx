@@ -22,6 +22,9 @@ import { OLD_DAO } from "data";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { useConnection } from "ConnectionProvider";
 import { Box } from "@mui/system";
+import { useTranslation } from "react-i18next";
+import { Translation } from "i18n";
+import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
@@ -35,7 +38,7 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
 };
 
 export function DaosPage() {
-  const { data = [], isLoading } = useDaosQuery();
+  const { data = [], isLoading } = useDaosQuery(DAOS_PAGE_REFETCH_INTERVAL);
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
 
@@ -45,6 +48,7 @@ export function DaosPage() {
     setSearchValue(value);
     setQueryParam(value || undefined, "pushIn");
   };
+  const { t } = useTranslation();
 
   const filteredDaos = filterDaos(data, searchValue);
 
@@ -58,7 +62,9 @@ export function DaosPage() {
             onChange={onSearchInputChange}
           />
           <StyledDaosAmount>
-            <Typography>{_.size(data) + 1} Daos</Typography>
+            <Typography>
+              {_.size(data) + 1} {t("forums")}
+            </Typography>
           </StyledDaosAmount>
         </StyledFlexRow>
         <StyledFlexColumn gap={25}>
@@ -171,7 +177,6 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             <Typography className="address">
               {makeElipsisAddress(dao.daoAddress, 6)}
             </Typography>
-            {/* <StyledJoinDao onClick={join}>Join</StyledJoinDao> */}
           </StyledFlexColumn>
         ) : null}
       </StyledDaoContent>

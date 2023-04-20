@@ -31,7 +31,10 @@ const useComponents = () => {
           dataUpdatedAt={dataUpdatedAt}
         />
       ),
-    vote: !status ? null : <Vote proposalStatus={status} />,
+    vote:
+      !status || status !== ProposalStatus.ACTIVE ? null : (
+        <Vote proposalStatus={status} />
+      ),
     deadline: !status ? null : (
       <Deadline proposalStatus={status} proposalMetadata={data?.metadata} />
     ),

@@ -1,7 +1,4 @@
-import {
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "config";
 import { api, getDao, getDaos } from "lib";
 import { Dao, Proposal, ProposalStatus } from "types";
@@ -20,46 +17,46 @@ import { getProposalStatus, Logger } from "utils";
 import { OLD_DAO, proposals } from "data";
 import { useNewDataStore } from "store";
 
-export const useDaosQuery = () => {
+export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
 
+  return useQuery(
+    [QueryKeys.DAOS],
+    async ({ signal }) => {
+      const daos = (await getDaos(signal)) || [];
 
-  return useQuery([QueryKeys.DAOS], async ({ signal }) => {
-    const daos = (await getDaos(signal)) || [];    
+      if (!_.size(newDaosAddresses)) {
+        return daos;
+      }
+      const addresses = _.map(daos, (it) => it.daoAddress);
+      const client = await getClientV2();
 
-  
+      let newDaosMap: Array<Dao | undefined> = await Promise.all(
+        _.map(newDaosAddresses, async (newDaoAddress) => {
+          if (addresses.includes(newDaoAddress)) {
+            removeDao(newDaoAddress);
+          } else {
+            Logger(`New DAO: ${newDaoAddress}`);
+            return {
+              daoAddress: newDaoAddress,
+              daoMetadata: await getDaoMetadata(client, newDaoAddress),
+              daoRoles: await getDaoRoles(client, newDaoAddress),
+              daoProposals:
+                (await getDaoProposals(client, newDaoAddress))
+                  .proposalAddresses || [],
+            };
+          }
+        })
+      );
 
-    if (!_.size(newDaosAddresses)) {
-      return daos;
+      const newDaos = _.compact(newDaosMap);
+
+      return [...newDaos, ...daos];
+    },
+    {
+      refetchInterval,
     }
-    const addresses = _.map(daos, (it) => it.daoAddress);
-    const client = await getClientV2();
-
-    let newDaosMap: Array<Dao | undefined> = await Promise.all(
-      _.map(newDaosAddresses, async (newDaoAddress) => {
-        if (addresses.includes(newDaoAddress)) {
-          
-          removeDao(newDaoAddress);
-        } else {
-          Logger(`New DAO: ${newDaoAddress}`)
-          return {
-            daoAddress: newDaoAddress,
-            daoMetadata: await getDaoMetadata(client, newDaoAddress),
-            daoRoles: await getDaoRoles(client, newDaoAddress),
-            daoProposals:
-              (await getDaoProposals(client, newDaoAddress))
-                .proposalAddresses || [],
-          };
-        }
-      })
-    );
-
-    const newDaos = _.compact(newDaosMap);
-
-    return [...newDaos, ...daos];
-  }, {
-    refetchInterval: 10_000
-  });
+  );
 };
 
 const useHandleNewProposals = () => {
@@ -84,9 +81,7 @@ const useHandleNewProposals = () => {
   };
 };
 
-export const useDaoQuery = (daoAddress: string, refetchInterval?: number) => {
-  const queryClient = useQueryClient();
-
+export const useDaoQuery = (daoAddress: string, refetchInterval?: number, staleTime: number = Infinity) => {
   const handleProposal = useHandleNewProposals();
 
   return useQuery(
@@ -95,13 +90,8 @@ export const useDaoQuery = (daoAddress: string, refetchInterval?: number) => {
       if (daoAddress === OLD_DAO.daoAddress) {
         return OLD_DAO;
       }
-      const daosQuery = queryClient.getQueryData([QueryKeys.DAOS]) as Dao[];
 
-      const cachedDao = _.find(daosQuery, (it) => it.daoAddress === daoAddress);
-      if (cachedDao) {
-        Logger("Fetching dao from cache");
-      }
-      const dao = cachedDao || (await getDao(daoAddress, signal));
+      const dao = await getDao(daoAddress, signal);
       const daoProposals = handleProposal(daoAddress, dao.daoProposals);
 
       return {
@@ -110,7 +100,7 @@ export const useDaoQuery = (daoAddress: string, refetchInterval?: number) => {
       };
     },
     {
-      staleTime: 5_000,
+      staleTime,
       refetchInterval,
     }
   );

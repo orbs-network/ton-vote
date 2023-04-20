@@ -1,5 +1,5 @@
 import { Box, Fade, Skeleton, styled, Typography } from "@mui/material";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { Popup } from "./Popup";
 import { QRCodeSVG } from "qrcode.react";
 import { createContext, useContext, useMemo, useState } from "react";
@@ -88,19 +88,30 @@ const WalletList = () => {
     context.setSessionUrl(session);
   };
 
-  return (
-    <StyledWalletsList>
-      {wallets?.map((wallet: any) => {
-        return (
-          <Wallet
-            key={wallet.name}
-            wallet={wallet}
-            onConnect={() => onConnect(wallet)}
-          />
-        );
-      })}
-    </StyledWalletsList>
-  );
+  if (!_.size(wallets)) {
+    return (
+      <StyledWalletsList>
+        <StyledFlexColumn gap={15} alignItems='flex-start'>
+          <StyledSkeletonLoader height={30} />
+          <StyledSkeletonLoader height={30} />
+
+        </StyledFlexColumn>
+      </StyledWalletsList>
+    );
+  }
+    return (
+      <StyledWalletsList>
+        {wallets?.map((wallet: any) => {
+          return (
+            <Wallet
+              key={wallet.name}
+              wallet={wallet}
+              onConnect={() => onConnect(wallet)}
+            />
+          );
+        })}
+      </StyledWalletsList>
+    );
 };
 
 const Wallet = ({

@@ -79,7 +79,8 @@ export type InputType =
   | "checkbox"
   | "address"
   | "image"
-  | "radio";
+  | "radio"
+  | "select"
 
 export type RadioOption = {
   label: string;
@@ -96,7 +97,7 @@ export interface InputInterface {
   max?: number;
   tooltip?: string;
   required?: boolean;
-  radioOptions?: RadioOption[];
+  options?: RadioOption[];
 }
 
 export interface Endpoints {

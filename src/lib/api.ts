@@ -1,12 +1,6 @@
 import axios from "axios";
 import _ from "lodash";
-import {
-  Dao,
-  Proposal,
-  ProposalResults,
-  RawVotes,
-  VotingPower,
-} from "types";
+import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT } from "config";
@@ -24,7 +18,7 @@ const getProposal = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<Proposal> => {
-     Logger(`Fetching proposal from api ${proposalAddress}`);
+  Logger(`Fetching proposal from api ${proposalAddress}`);
   const result = await (
     await axiosInstance.get(`/proposal/${proposalAddress}`, {
       signal,
@@ -36,8 +30,12 @@ const getProposal = async (
   };
 };
 
-const getMaxLt = async (signal?: AbortSignal): Promise<string> => {
-  return (await axiosInstance.get("/maxLt", { signal })).data;
+const getMaxLt = async (
+  proposalAddress: string,
+  signal?: AbortSignal
+): Promise<string> => {
+  return (await axiosInstance.get(`/maxLt/${proposalAddress}`, { signal }))
+    .data;
 };
 
 const getDao = async (

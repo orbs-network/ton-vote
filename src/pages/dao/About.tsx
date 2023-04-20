@@ -1,5 +1,5 @@
 import { Chip, styled } from "@mui/material";
-import { AddressDisplay, Container, Header, Link, Markdown, TitleContainer } from "components";
+import { AddressDisplay, Button, Container, Header, Link, Markdown, TitleContainer } from "components";
 import { useDaoAddress } from "hooks";
 import { useDaoQuery } from "query/queries";
 import {
@@ -14,7 +14,7 @@ import {
   const metadata = useDaoQuery(daoAddress).data?.daoMetadata;
   return (
     <StyledFlexColumn gap={0} alignItems="flex-start">
-      <Header title="About" />
+      <Header title="About"  />
       <StyledFlexColumn>
         {metadata?.about && (
           <StyledDescription>
@@ -40,6 +40,10 @@ import {
     </StyledFlexColumn>
   );
 }
+
+const StyledEditButton = styled(Button)({
+
+})
 
 
 const StyledDescription = styled(Container)({

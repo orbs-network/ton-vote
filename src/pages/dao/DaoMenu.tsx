@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, Loader, Img, SideMenu, Container, Link } from "components";
+import {  Img, SideMenu, Link } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";

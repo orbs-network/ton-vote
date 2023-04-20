@@ -143,7 +143,7 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
       />
       <Result
         title="Abstain"
-        percent={proposalResult?.abstain}
+        percent={10}
         tonAmount={calculateTonAmount(
           proposalResult?.abstain,
           proposalResult?.totalWeight

@@ -79,3 +79,4 @@ export const TON_CONNECTOR = new TonConnect({
 
 
 export const DAO_REFETCH_INTERVAL = 20_000;
+export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;

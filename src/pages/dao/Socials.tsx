@@ -5,6 +5,7 @@ import {  AiFillGithub } from "react-icons/ai";
 import {BsTelegram} from 'react-icons/bs'
 import { ReactElement } from "react";
 import {BsGlobe} from 'react-icons/bs'
+import { IoNewspaperOutline } from "react-icons/io5";
 
 interface Props {
   telegram?: string;
@@ -12,6 +13,8 @@ interface Props {
   website?: string;
   coingecko?: string;
   className?: string;
+  whitepaper?: string
+  about?: string;
 }
 
 function Socials({
@@ -20,12 +23,16 @@ function Socials({
   website,
   coingecko,
   className = "",
+  whitepaper,
+  about,
 }: Props) {
   return (
     <StyledContainer className={className}>
       <Social url={telegram} icon={<BsTelegram />} />
       <Social url={github} icon={<AiFillGithub />} />
       <Social url={website} icon={<BsGlobe />} />
+      <Social url={whitepaper} icon={<IoNewspaperOutline />} />
+      <Social url={about} icon={<BsGlobe />} />
     </StyledContainer>
   );
 }

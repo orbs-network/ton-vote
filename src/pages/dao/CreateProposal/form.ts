@@ -19,13 +19,19 @@ export interface FormData {
 
 export const FormSchema = Yup.object().shape({
   title: Yup.string().required("Title is Required"),
-  jetton: Yup.string().test("test", "Invalid jetton address", (value, context) => {    
-    return context.parent.votingPowerStrategy === VotingPowerStrategy.JettonBalance
-      ? validateAddress(value)
-      : true;
-  }),
+  jetton: Yup.string().test(
+    "test",
+    "Invalid jetton address",
+    (value, context) => {
+      return context.parent.votingPowerStrategy ===
+        VotingPowerStrategy.JettonBalance
+        ? validateAddress(value)
+        : true;
+    }
+  ),
   nft: Yup.string().test("test", "Invalid NFT address", (value, context) => {
-    return context.parent.votingPowerStrategy === VotingPowerStrategy.NftCcollection
+    return context.parent.votingPowerStrategy ===
+      VotingPowerStrategy.NftCcollection
       ? validateAddress(value)
       : true;
   }),
@@ -64,7 +70,7 @@ export const FormSchema = Yup.object().shape({
     )
     .test(
       "error2",
-      "Proposal snapshot time must be up to 14 days ago",
+      "Snapshot time can be up to 14 days before specified start time",
       (value = 0, context) => {
         return value >= moment().subtract("14", "days").valueOf();
       }
@@ -86,19 +92,20 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       type: "textarea",
       name: "description",
       rows: 5,
+      tooltip: "Supports Markdown for editing, adding images, etc.",
     },
     {
-      label: "Select Strategy",
-      type: "radio",
+      label: "Select voting Strategy",
+      type: "select",
       name: "votingPowerStrategy",
       required: true,
-      radioOptions: [
+      options: [
         {
-          label: "Ton",
+          label: "Ton Balance",
           value: 0,
         },
         {
-          label: "Jetton",
+          label: "Jetton Balance",
           value: 1,
           input: {
             label: "Jetton Address",
@@ -107,7 +114,7 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
           },
         },
         {
-          label: "NFT",
+          label: "NFT Collection" ,
           value: 2,
           input: {
             label: "NFT Address",
@@ -117,7 +124,13 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
         },
       ],
     },
-
+    {
+      label: "Snapshot time",
+      type: "date",
+      name: "proposalSnapshotTime",
+      required: true,
+      tooltip: "Snapshot time can be up to 14 days before specified start time",
+    },
     {
       label: "Start time",
       type: "date",
@@ -128,12 +141,6 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       label: "End time",
       type: "date",
       name: "proposalEndTime",
-      required: true,
-    },
-    {
-      label: "Snapshot time",
-      type: "date",
-      name: "proposalSnapshotTime",
       required: true,
     },
   ];

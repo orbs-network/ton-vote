@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import { Button } from "components";
+import { Button, TitleContainer } from "components";
 import { StyledFlexColumn } from "styles";
 
 export const StyledStepButton = styled(Button)({

@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from "@mui/material";
+import { Box, Fade, styled, Typography } from "@mui/material";
 import React from "react";
 import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
 
@@ -18,13 +18,20 @@ export function TitleContainer({
 
     const hideHeader = !title && !headerComponent;
   return (
-    <StyledTitleContainer className={className}>
-      {!hideHeader && <StyledHeader justifyContent="space-between" className="title-container-header">
-        <StyledTitle className="title">{title}</StyledTitle>
-        {headerComponent}
-      </StyledHeader>}
-      <Box className="title-container-children">{children}</Box>
-    </StyledTitleContainer>
+    <Fade in={true}>
+      <StyledTitleContainer className={className}>
+        {!hideHeader && (
+          <StyledHeader
+            justifyContent="space-between"
+            className="title-container-header"
+          >
+            <StyledTitle className="title">{title}</StyledTitle>
+            {headerComponent}
+          </StyledHeader>
+        )}
+        <Box className="title-container-children">{children}</Box>
+      </StyledTitleContainer>
+    </Fade>
   );
 }
 
