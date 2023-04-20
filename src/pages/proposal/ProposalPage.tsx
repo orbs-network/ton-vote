@@ -17,6 +17,7 @@ import { ProposalStatus } from "types";
 const useComponents = () => {
   const proposalAddress = useProposalAddress();
   const { data, isLoading, dataUpdatedAt } = useProposalState();
+  
   const status = useProposalStatusQuery(data?.metadata, proposalAddress);
 
   return {

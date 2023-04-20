@@ -71,8 +71,15 @@ export const FormSchema = Yup.object().shape({
     .test(
       "error2",
       "Snapshot time can be up to 14 days before specified start time",
-      (value = 0, context) => {
+      (value = 0) => {
         return value >= moment().subtract("14", "days").valueOf();
+      }
+    )
+    .test(
+      "error3",
+      "Snaphot time must be smaller than current time",
+      (value = 0) => {
+        return value <= moment().valueOf();
       }
     )
     .required("Proposal snapshot time is required"),

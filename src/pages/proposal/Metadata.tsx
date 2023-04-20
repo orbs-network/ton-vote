@@ -59,7 +59,7 @@ export const Metadata = ({
           </InformationRow>
           {proposalMetadata.votingPowerStrategy ===
             VotingPowerStrategy.JettonBalance && (
-            <InformationRow label="Jetton">
+            <InformationRow label="Jetton Address">
               <AddressDisplay address={proposalMetadata.jetton} />
             </InformationRow>
           )}

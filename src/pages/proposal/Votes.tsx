@@ -20,6 +20,22 @@ import _ from "lodash";
 import { useConnection } from "ConnectionProvider";
 import {  CSVLink } from "react-csv";
 import { BsFiletypeCsv } from "react-icons/bs";
+import { VotingPowerStrategy } from "ton-vote-sdk";
+
+
+  const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
+    switch (votingPowerStrategy) {
+      case VotingPowerStrategy.TonBalance:
+        return "TON";
+      case VotingPowerStrategy.JettonBalance:
+        return "Jetton";
+      case VotingPowerStrategy.NftCcollection:
+        return "";
+      default:
+        return null;
+    }
+  }; 
+
 
 interface Props {
   state?: Proposal | null;
@@ -45,9 +61,9 @@ const ContainerHeader = (props: Props) => {
             </>
           }
         />
-        <StyledFlexRow style={{width:'unset'}} gap={10}>
+        <StyledFlexRow style={{ width: "unset" }} gap={10}>
           <Typography className="total" style={{ fontWeight: 600 }}>
-            {tonAmount} TON
+            {tonAmount} {getSymbol(props.state?.metadata?.votingPowerStrategy)}
           </Typography>
           <DownloadCSV {...props} />
         </StyledFlexRow>
@@ -63,7 +79,7 @@ const ConnectedWalletVote = (props: Props) => {
     return _.find(props.state?.votes, (it) => it.address === address);
   }, [props.dataUpdatedAt, address]);
 
-  return <VoteComponent data={walletVote} />;
+  return <VoteComponent votingPowerStrategy={props.state?.metadata?.votingPowerStrategy} data={walletVote} />;
 };
 
 const StyledContainerHeader = styled(StyledFlexRow)({
@@ -80,6 +96,7 @@ const StyledContainerHeader = styled(StyledFlexRow)({
 });
 
 export function Votes(props: Props) {
+
   const connectedAddress = useConnection().address;
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const showMoreVotes = () => {
@@ -102,10 +119,16 @@ export function Votes(props: Props) {
       >
         <StyledList gap={15}>
           <ConnectedWalletVote {...props} />
-          {props.state?.votes?.map((vote, index) => {
+          {props.state?.votes?.map((vote, index) => {            
             if (index >= votesShowAmount || vote.address === connectedAddress)
               return null;
-            return <VoteComponent data={vote} key={vote.address} />;
+            return (
+              <VoteComponent
+                votingPowerStrategy={props.state?.metadata?.votingPowerStrategy}
+                data={vote}
+                key={vote.address}
+              />
+            );
           })}
         </StyledList>
       </List>
@@ -160,14 +183,22 @@ const StyledCsv = styled(Button)({
   }
 });
 
-const VoteComponent = ({ data }: { data?: Vote }) => {
+const VoteComponent = ({
+  data,
+  votingPowerStrategy,
+}: {
+  data?: Vote;
+  votingPowerStrategy?: VotingPowerStrategy;
+}) => {
   const connectedAddress = useConnection().address;
+  
 
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
-  
 
   const isYou = connectedAddress === address;
+  
+
 
   return (
     <StyledAppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
@@ -178,7 +209,7 @@ const VoteComponent = ({ data }: { data?: Vote }) => {
         />
         <Typography className="vote">{vote}</Typography>
         <Typography className="voting-power">
-          {nFormatter(Number(votingPower))} TON
+          {nFormatter(Number(votingPower))} {getSymbol(votingPowerStrategy)}
         </Typography>
       </StyledVote>
     </StyledAppTooltip>
