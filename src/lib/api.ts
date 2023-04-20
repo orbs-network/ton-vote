@@ -45,15 +45,12 @@ const getDao = async (
   return (await axiosInstance.get(`/dao/${daoAddress}`, { signal })).data;
 };
 
-// const getStateUpdateTime = async (signal?: AbortSignal): Promise<number> => {
-//   return (await axiosInstance.get("/stateUpdateTime")).data;
-// };
 
 const validateServerLastUpdate = async (
   signal?: AbortSignal
 ): Promise<boolean> => {
   const serverLastUpdate = (
-    await axiosInstance.get("/fetchUpdateTime", { signal })
+    await axiosInstance.get("/updateTime", { signal })
   ).data;
   return moment().valueOf() - serverLastUpdate < LAST_FETCH_UPDATE_LIMIT;
 };

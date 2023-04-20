@@ -59,7 +59,6 @@ export const getProposalFromContract = async (
     _maxLt = maxLt;
     _transactions.unshift(...newTransactions);
   }
-
   const votingPower = await TonVoteSDK.getVotingPower(
     clientV4,
     metadata,
@@ -68,7 +67,7 @@ export const getProposalFromContract = async (
     votingPowerStrategy,
     nftItemsHolders
   );
-
+  
   const proposalResult = TonVoteSDK.getCurrentResults(
     _transactions,
     votingPower,

@@ -98,6 +98,7 @@ export interface InputInterface {
   tooltip?: string;
   required?: boolean;
   options?: RadioOption[];
+  limit?: number;
 }
 
 export interface Endpoints {

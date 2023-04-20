@@ -23,6 +23,8 @@ import { InputInterface, RadioOption } from "types";
 import { FormikProps } from "formik";
 import { Img } from "./Img";
 import { AppTooltip } from "./Tooltip";
+import _ from "lodash";
+import { PROPOSAL_ABOUT_CHARS_LIMIT } from "consts";
 
 interface TextInputProps {
   value?: string | number;
@@ -39,6 +41,7 @@ interface TextInputProps {
   endAdornment?: React.ReactNode;
   tooltip?: string;
   required?: boolean;
+  limit?: number;
 }
 
 export function TextInput({
@@ -56,13 +59,27 @@ export function TextInput({
   className,
   tooltip,
   required,
+  limit,
 }: TextInputProps) {
+  const _onChange = (_value: string) => {
+    if (!limit) {
+      onChange(_value);
+    } else if (_.size(value.toString()) <= limit) {
+      onChange(_value);
+    } else if (_.size(_value) < _.size(value.toString())) {
+      onChange(_value);
+    }
+  };
+
   return (
     <StyledContainer className={`${className} text-input`}>
-      <StyledInputHeader>
-        {title && <Title title={title} required={required} />}
-        {tooltip && <AppTooltip info markdown={tooltip} />}
-      </StyledInputHeader>
+      <Header
+        value={value.toString()}
+        limit={limit}
+        title={title}
+        required={required}
+        tooltip={tooltip}
+      />
       <StyledInput
         placeholder={placeholder}
         onBlur={onBlur}
@@ -74,7 +91,7 @@ export function TextInput({
         value={value}
         error={!!error}
         label={label}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => _onChange(e.target.value)}
         InputProps={{ endAdornment }}
       />
       {error && (
@@ -86,6 +103,40 @@ export function TextInput({
     </StyledContainer>
   );
 }
+
+const Header = ({
+  title,
+  tooltip,
+  limit,
+  required,
+  value,
+}: {
+  title?: string;
+  tooltip?: string;
+  limit?: number;
+  required?: boolean;
+  value?: string;
+}) => {
+  const charsAmount = _.size(value || "");
+
+  return (
+    <StyledInputHeader>
+      <StyledFlexRow justifyContent="flex-start" width="auto">
+        {title && <Title title={title} required={required} />}
+        {tooltip && <AppTooltip info markdown={tooltip} />}
+      </StyledFlexRow>
+      {limit && (
+        <StyledChars>
+          {charsAmount}/{limit}
+        </StyledChars>
+      )}
+    </StyledInputHeader>
+  );
+};
+
+const StyledChars = styled(Typography)({
+  fontSize: 14,
+});
 
 const StyledInputHeader = styled(StyledFlexRow)({
   marginBottom: 5,
@@ -371,6 +422,7 @@ export function MapInput<T>({
   }
   return (
     <TextInput
+      limit={input.limit}
       required={input.required}
       tooltip={input.tooltip}
       onFocus={clearError}
@@ -499,7 +551,7 @@ function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
             );
           })}
         </Select>
-        <div style={{maxWidth:'600px', width:'100%'}}>
+        <div style={{ maxWidth: "600px", width: "100%" }}>
           {options.map((it) => {
             if (!it.input || it.value !== value) return null;
 
@@ -511,10 +563,6 @@ function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
   );
 }
 
-
-
-
 const StyledSelectBoxInput = styled(StyledContainer)({
-  alignItems:'flex-start',
-
+  alignItems: "flex-start",
 });

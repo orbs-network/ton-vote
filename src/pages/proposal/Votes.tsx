@@ -10,7 +10,7 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
-import { nFormatter } from "utils";
+import { getSymbol, nFormatter } from "utils";
 import { PAGE_SIZE } from "config";
 import { Proposal, Vote } from "types";
 import { fromNano } from "ton";
@@ -18,23 +18,10 @@ import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
 import { useConnection } from "ConnectionProvider";
-import {  CSVLink } from "react-csv";
+import { CSVLink } from "react-csv";
 import { BsFiletypeCsv } from "react-icons/bs";
 import { VotingPowerStrategy } from "ton-vote-sdk";
 
-
-  const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
-    switch (votingPowerStrategy) {
-      case VotingPowerStrategy.TonBalance:
-        return "TON";
-      case VotingPowerStrategy.JettonBalance:
-        return "Jetton";
-      case VotingPowerStrategy.NftCcollection:
-        return "";
-      default:
-        return null;
-    }
-  }; 
 
 
 interface Props {
@@ -50,6 +37,9 @@ const ContainerHeader = (props: Props) => {
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
+  const isNFT =
+    props.state?.metadata?.votingPowerStrategy ===
+    VotingPowerStrategy.NftCcollection;
 
   return (
     <Fade in={!props.isLoading}>
@@ -62,9 +52,12 @@ const ContainerHeader = (props: Props) => {
           }
         />
         <StyledFlexRow style={{ width: "unset" }} gap={10}>
-          <Typography className="total" style={{ fontWeight: 600 }}>
-            {tonAmount} {getSymbol(props.state?.metadata?.votingPowerStrategy)}
-          </Typography>
+          {!isNFT && (
+            <Typography className="total" style={{ fontWeight: 600 }}>
+              {tonAmount}{" "}
+              {getSymbol(props.state?.metadata?.votingPowerStrategy)}
+            </Typography>
+          )}
           <DownloadCSV {...props} />
         </StyledFlexRow>
       </StyledContainerHeader>
@@ -79,7 +72,12 @@ const ConnectedWalletVote = (props: Props) => {
     return _.find(props.state?.votes, (it) => it.address === address);
   }, [props.dataUpdatedAt, address]);
 
-  return <VoteComponent votingPowerStrategy={props.state?.metadata?.votingPowerStrategy} data={walletVote} />;
+  return (
+    <VoteComponent
+      votingPowerStrategy={props.state?.metadata?.votingPowerStrategy}
+      data={walletVote}
+    />
+  );
 };
 
 const StyledContainerHeader = styled(StyledFlexRow)({
@@ -96,7 +94,6 @@ const StyledContainerHeader = styled(StyledFlexRow)({
 });
 
 export function Votes(props: Props) {
-
   const connectedAddress = useConnection().address;
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const showMoreVotes = () => {
@@ -117,9 +114,9 @@ export function Votes(props: Props) {
         isEmpty={!props.isLoading && !_.size(props.state?.votes)}
         emptyComponent={<Empty />}
       >
-        <StyledList gap={15}>
+        <StyledList gap={0}>
           <ConnectedWalletVote {...props} />
-          {props.state?.votes?.map((vote, index) => {            
+          {props.state?.votes?.map((vote, index) => {
             if (index >= votesShowAmount || vote.address === connectedAddress)
               return null;
             return (
@@ -158,16 +155,23 @@ const DownloadCSV = (props: Props) => {
 
   const csvData = useMemo(() => {
     const values = _.map(votes, (vote) => {
-      return [vote.address, vote.vote, vote.votingPower, moment(vote.timestamp).format('DD/MM/YY HH:mm:ss')];
+      return [
+        vote.address,
+        vote.vote,
+        vote.votingPower,
+        moment.unix(vote.timestamp).format("DD/MM/YY HH:mm:ss"),
+      ];
     });
     values.unshift(["Address", "Vote", "Voting Power", "Date"]);
     return values;
   }, [size]);
 
   return (
-    <CSVLink data={csvData} filename="Ton-vote-votes">
+    <CSVLink data={csvData} filename={props.state?.metadata?.title}>
       <AppTooltip text="Download CSV" placement="top">
-        <BsFiletypeCsv style={{ width: 18, height: 18, color: theme.palette.text.primary}} />
+        <BsFiletypeCsv
+          style={{ width: 18, height: 18, color: theme.palette.text.primary }}
+        />
       </AppTooltip>
     </CSVLink>
   );
@@ -177,10 +181,10 @@ const StyledCsv = styled(Button)({
   width: 36,
   height: 36,
   padding: 0,
-  svg:{
-    width: 15, 
-    height: 15
-  }
+  svg: {
+    width: 15,
+    height: 15,
+  },
 });
 
 const VoteComponent = ({
@@ -191,14 +195,13 @@ const VoteComponent = ({
   votingPowerStrategy?: VotingPowerStrategy;
 }) => {
   const connectedAddress = useConnection().address;
-  
 
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
   const isYou = connectedAddress === address;
-  
 
+  const isNFT = votingPowerStrategy === VotingPowerStrategy.NftCcollection;
 
   return (
     <StyledAppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
@@ -207,10 +210,19 @@ const VoteComponent = ({
           address={address}
           displayText={isYou ? "You" : ""}
         />
-        <Typography className="vote">{vote}</Typography>
-        <Typography className="voting-power">
-          {nFormatter(Number(votingPower))} {getSymbol(votingPowerStrategy)}
+        <Typography
+          style={{
+            textAlign: isNFT ? "right" : "center",
+          }}
+          className="vote"
+        >
+          {vote}
         </Typography>
+        {!isNFT && (
+          <Typography className="voting-power">
+            {nFormatter(Number(votingPower))} {getSymbol(votingPowerStrategy)}
+          </Typography>
+        )}
       </StyledVote>
     </StyledAppTooltip>
   );

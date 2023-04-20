@@ -3,16 +3,16 @@ import { styled } from "@mui/material";
 import { Button, LoadingContainer, Progress, TitleContainer } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import {AiFillCloseCircle} from 'react-icons/ai'
+import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useMemo, useState } from "react";
-import { calculateTonAmount, nFormatter } from "utils";
+import { calculateTonAmount, getSymbol, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import _ from "lodash";
-import {  useVerifyProposalResults } from "./hooks";
-import {  Vote } from "types";
+import { useVerifyProposalResults } from "./hooks";
+import { Vote } from "types";
 import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "./store";
-import { ProposalResult } from "ton-vote-sdk";
+import { ProposalResult, VotingPowerStrategy } from "ton-vote-sdk";
 import { EndpointPopup } from "./EndpointPopup";
 
 export const Results = ({
@@ -20,12 +20,16 @@ export const Results = ({
   dataUpdatedAt,
   isLoading,
   votes,
+  votingPowerStrategy,
 }: {
   proposalResult?: ProposalResult;
   dataUpdatedAt?: number;
   isLoading: boolean;
   votes?: Vote[];
+  votingPowerStrategy?: VotingPowerStrategy;
 }) => {
+  const symbol = getSymbol(votingPowerStrategy);
+
   const votesCount = useMemo(() => {
     const grouped = _.groupBy(votes, "vote");
 
@@ -43,6 +47,7 @@ export const Results = ({
     <StyledResults title="Results">
       <StyledFlexColumn gap={15}>
         <ResultRow
+          symbol={symbol}
           name="Yes"
           percent={proposalResult?.yes || 0}
           tonAmount={calculateTonAmount(
@@ -52,6 +57,7 @@ export const Results = ({
           votes={votesCount.yes}
         />
         <ResultRow
+          symbol={symbol}
           name="No"
           percent={proposalResult?.no || 0}
           tonAmount={calculateTonAmount(
@@ -61,6 +67,7 @@ export const Results = ({
           votes={votesCount.no}
         />
         <ResultRow
+          symbol={symbol}
           name="Abstain"
           percent={proposalResult?.abstain || 0}
           tonAmount={calculateTonAmount(
@@ -80,11 +87,13 @@ const ResultRow = ({
   percent = 0,
   tonAmount = "0",
   votes,
+  symbol,
 }: {
   name: string;
   percent?: number;
   tonAmount?: string;
   votes: string;
+  symbol?: string | null;
 }) => {
   return (
     <StyledResultRow>
@@ -95,7 +104,11 @@ const ResultRow = ({
         </StyledFlexRow>
 
         <StyledResultRowRight justifyContent="flex-end">
-          <Typography fontSize={13}>{tonAmount} TON</Typography>
+          {symbol && (
+            <Typography fontSize={13}>
+              {tonAmount} {symbol}
+            </Typography>
+          )}
 
           <Typography className="percent">{percent}%</Typography>
         </StyledResultRowRight>
@@ -181,7 +194,7 @@ export function VerifyResults() {
           </StyledFlexRow>
         </StyledButton>
       ) : (
-        <StyledButton onClick={() => setOpen(true)} isLoading={isLoading}>
+        <StyledButton onClick={() => setOpen(true)} isLoading={true}>
           <Typography>Verify results</Typography>
         </StyledButton>
       )}
@@ -207,14 +220,13 @@ const StyledButton = styled(Button)({
     fontSize: 15,
   },
   svg: {
-    width:18,
-    height:18,
-    position:'relative',
-    top: -1
+    width: 18,
+    height: 18,
+    position: "relative",
+    top: -1,
   },
   ".loader": {
     maxWidth: 20,
     maxHeight: 20,
   },
 });
-

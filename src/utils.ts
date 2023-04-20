@@ -2,7 +2,7 @@ import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
-import { DaoRoles, ProposalMetadata } from "ton-vote-sdk";
+import { DaoRoles, ProposalMetadata, VotingPowerStrategy } from "ton-vote-sdk";
 import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
 import * as TonVoteSDK from "ton-vote-sdk";
 import { FormikProps } from "formik";
@@ -161,3 +161,16 @@ export function validateFormik(formik: FormikProps<any>) {
     }
   });
 }
+
+export const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
+  switch (votingPowerStrategy) {
+    case VotingPowerStrategy.TonBalance:
+      return "TON";
+    case VotingPowerStrategy.JettonBalance:
+      return "Jetton";
+    case VotingPowerStrategy.NftCcollection:
+      return "";
+    default:
+      return null;
+  }
+};

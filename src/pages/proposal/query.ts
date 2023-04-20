@@ -30,7 +30,6 @@ export const useGetProposal = () => {
     const serverProposal = async (): Promise<Proposal | null> => {
       try {
         const state = await api.getProposal(proposalAddress, signal);
-        Logger(state);
 
         if (_.isEmpty(state.metadata)) {
           throw new Error("Proposal not found is server");

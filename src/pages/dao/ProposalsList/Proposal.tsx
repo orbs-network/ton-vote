@@ -123,6 +123,8 @@ const StyledProposalTitle = styled(Typography)({
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;
 
+  
+
   return (
     <StyledFlexColumn gap={5}>
       <Result
@@ -143,7 +145,7 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
       />
       <Result
         title="Abstain"
-        percent={10}
+        percent={proposalResult.abstain}
         tonAmount={calculateTonAmount(
           proposalResult?.abstain,
           proposalResult?.totalWeight
@@ -162,7 +164,11 @@ const Result = ({
   percent?: number;
   tonAmount?: string;
 }) => {
+  
+  
   percent = isNaN(percent) ? 0 : percent;
+  
+
   return (
     <StyledProposalResult>
       <StyledProposalResultProgress style={{ width: `${percent}%` }} />

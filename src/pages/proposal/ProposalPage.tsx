@@ -36,9 +36,10 @@ const useComponents = () => {
       !status || status !== ProposalStatus.ACTIVE ? null : (
         <Vote proposalStatus={status} />
       ),
-    deadline: !status ? null : (
-      <Deadline proposalStatus={status} proposalMetadata={data?.metadata} />
-    ),
+    deadline:
+      !status || status === ProposalStatus.CLOSED ? null : (
+        <Deadline proposalStatus={status} proposalMetadata={data?.metadata} />
+      ),
     metadata: (
       <Metadata
         proposalAddress={proposalAddress}
@@ -49,6 +50,7 @@ const useComponents = () => {
     results:
       !status || status === ProposalStatus.NOT_STARTED ? null : (
         <Results
+          votingPowerStrategy={data?.metadata?.votingPowerStrategy}
           votes={data?.votes}
           proposalResult={data?.proposalResult}
           isLoading={isLoading}

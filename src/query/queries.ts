@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "config";
 import { api, getDao, getDaos } from "lib";
 import { Dao, Proposal, ProposalStatus } from "types";
@@ -81,7 +81,11 @@ const useHandleNewProposals = () => {
   };
 };
 
-export const useDaoQuery = (daoAddress: string, refetchInterval?: number, staleTime: number = Infinity) => {
+export const useDaoQuery = (
+  daoAddress: string,
+  refetchInterval?: number,
+  staleTime: number = Infinity
+) => {
   const handleProposal = useHandleNewProposals();
 
   return useQuery(

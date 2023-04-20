@@ -1,4 +1,6 @@
+import { PROPOSAL_ABOUT_CHARS_LIMIT } from "consts";
 import { FormikProps } from "formik";
+import _ from "lodash";
 import moment from "moment";
 import { VotingPowerStrategy } from "ton-vote-sdk";
 import { InputInterface } from "types";
@@ -18,6 +20,13 @@ export interface FormData {
 }
 
 export const FormSchema = Yup.object().shape({
+  description: Yup.string().test(
+    "test",
+    `About must be less than or equal to ${PROPOSAL_ABOUT_CHARS_LIMIT} characters`,
+    (value, context) => {
+      return _.size(value) <= PROPOSAL_ABOUT_CHARS_LIMIT;
+    }
+  ),
   title: Yup.string().required("Title is Required"),
   jetton: Yup.string().test(
     "test",
@@ -98,8 +107,9 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       label: "Description",
       type: "textarea",
       name: "description",
-      rows: 5,
+      rows: 9,
       tooltip: "Supports Markdown for editing, adding images, etc.",
+      limit: PROPOSAL_ABOUT_CHARS_LIMIT
     },
     {
       label: "Select voting Strategy",
