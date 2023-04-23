@@ -194,7 +194,7 @@ export function VerifyResults() {
           </StyledFlexRow>
         </StyledButton>
       ) : (
-        <StyledButton onClick={() => setOpen(true)} isLoading={true}>
+        <StyledButton onClick={() => setOpen(true)} isLoading={isLoading}>
           <Typography>Verify results</Typography>
         </StyledButton>
       )}
