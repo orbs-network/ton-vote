@@ -29,7 +29,7 @@ export const useCreateProposalStore = create(
     (set) => ({
       preview: false,
       setPreview: (preview) => set({ preview }),
-      formData: { title: "", description: "" } as FormData,
+      formData: { votingChoices: ['Yes', 'No', 'Abstain'] } as FormData,
       setFormData: (formData) => set({ formData }),
     }),
     {

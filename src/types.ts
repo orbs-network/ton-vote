@@ -77,6 +77,7 @@ export type InputType =
   | "image"
   | "radio"
   | "select"
+  | "list"
 
 export type RadioOption = {
   label: string;

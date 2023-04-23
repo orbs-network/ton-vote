@@ -7,7 +7,6 @@ import { InputInterface } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
 
-
 export interface FormData {
   proposalStartTime?: number;
   proposalEndTime?: number;
@@ -17,6 +16,7 @@ export interface FormData {
   jetton: string;
   nft: string;
   votingPowerStrategy: number;
+  votingChoices: string[];
 }
 
 export const FormSchema = Yup.object().shape({
@@ -113,7 +113,6 @@ export const FormSchema = Yup.object().shape({
 });
 
 export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
-
   return [
     {
       label: "Title",
@@ -165,6 +164,11 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
           },
         },
       ],
+    },
+    {
+      label: "Voting choices",
+      type: "list",
+      name: "votingChoices",
     },
     {
       label: "Snapshot time",

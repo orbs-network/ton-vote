@@ -2,6 +2,7 @@ import { Box, Fade, styled, Typography } from "@mui/material";
 import {
   Button,
   ConnectButton,
+  Container,
   LoadingContainer,
   MapInput,
   Markdown,
@@ -14,15 +15,12 @@ import { useCurrentRoute, useDaoAddress, useDebouncedCallback } from "hooks";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
-import ReactMarkdown from "react-markdown";
 import { useConnection } from "ConnectionProvider";
-import moment from "moment";
 import _ from "lodash";
 import { useEffect, useMemo } from "react";
 import { useDaoQuery } from "query/queries";
 import { appNavigation } from "router";
 import { validateFormik } from "utils";
-import { Address } from "ton-core";
 import { ZERO_ADDRESS } from "consts";
 
 function Content() {
@@ -32,8 +30,8 @@ function Content() {
   const { data: dao } = useDaoQuery(daoAddress);
   const { formData, setFormData, preview } = useCreateProposalStore();
 
-  const initialNFT = formData.nft || dao?.daoMetadata?.nft || '';
-  const initialJetton = formData.jetton || dao?.daoMetadata?.jetton || '';
+  const initialNFT = formData.nft || dao?.daoMetadata?.nft || "";
+  const initialJetton = formData.jetton || dao?.daoMetadata?.jetton || "";
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -45,6 +43,7 @@ function Content() {
       jetton: initialJetton === ZERO_ADDRESS ? "" : initialJetton,
       nft: initialNFT === ZERO_ADDRESS ? "" : initialNFT,
       votingPowerStrategy: formData.votingPowerStrategy || 0,
+      votingChoices: formData.votingChoices || [],
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>
@@ -52,6 +51,9 @@ function Content() {
     validateOnChange: false,
     validateOnBlur: true,
   });
+
+
+console.log(formData);
 
   const saveForm = useDebouncedCallback(() => {
     setFormData(formik.values);
@@ -61,31 +63,41 @@ function Content() {
     saveForm();
   }, [formik.values]);
 
-
-
   return (
-   
-      <Fade in={true}>
-        <StyledFlexRow alignItems="flex-start">
-          <StyledContainer title="Create Proposal">
-            {preview ? (
-              <Preview formik={formik} />
-            ) : (
-              <CreateForm formik={formik} />
-            )}
-          </StyledContainer>
-          <CreateProposalMenu
-            isLoading={isLoading}
-            onSubmit={() => {
-              formik.submitForm();
-              validateFormik(formik)
-            }}
-          />
-        </StyledFlexRow>
-      </Fade>
-
+    <Fade in={true}>
+      <StyledContainer alignItems="flex-start">
+        <StyledLeft>
+          {preview ? (
+            <Preview formik={formik} />
+          ) : (
+            <CreateForm formik={formik} />
+          )}
+        </StyledLeft>
+        <CreateProposalMenu
+          isLoading={isLoading}
+          onSubmit={() => {
+            formik.submitForm();
+            validateFormik(formik);
+          }}
+        />
+      </StyledContainer>
+    </Fade>
   );
 }
+
+const StyledLeft = styled(Box)({
+  flex: 1,
+});
+
+const StyledContainer = styled(StyledFlexRow)({
+  flex: 1,
+  ".date-input": {
+    ".MuiFormControl-root": {
+      maxWidth: 350,
+      width: "100%",
+    },
+  },
+});
 
 export const CreateProposal = () => {
   const daoAddress = useDaoAddress();
@@ -112,29 +124,19 @@ const StyledLoadingMenu = styled(LoadingContainer)({
   width: 300,
 });
 
-
-const formatTime = (millis?: number) =>
-  moment(millis).format("DD/MM/YYYY HH:mm");
-
 const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
   return (
     <StyledPreview>
       <Typography variant="h2" className="title">
-        {formik?.values.title}
+        {formik?.values.title || "Untitled"}
       </Typography>
       <Markdown>{formik?.values.description}</Markdown>
-      {/* <Typography>
-        Start: {formatTime(formik?.values.proposalStartTime)}
-      </Typography>
-      <Typography>End: {formatTime(formik?.values.proposalEndTime)}</Typography>
-      <Typography>
-        Snapshot: {formatTime(formik?.values.proposalSnapshotTime)}
-      </Typography> */}
     </StyledPreview>
   );
 };
 
-const StyledPreview = styled(Box)({
+const StyledPreview = styled(Container)({
+  width: "100%",
   ".title": {
     fontSize: 22,
     fontWeight: 700,
@@ -146,15 +148,64 @@ function CreateForm({ formik }: { formik: FormikProps<FormData> }) {
   const inputs = useInputs(formik);
 
   return (
-    <StyledFlexColumn gap={30}>
-      {inputs.map((input) => {
-        return (
-          <MapInput<FormData> key={input.name} input={input} formik={formik} />
-        );
-      })}
+    <StyledFlexColumn gap={15}>
+      <StyledDescription>
+        <StyledFlexColumn gap={20}>
+          {inputs.map((input, index) => {
+            if (index > 1) return null;
+            return (
+              <MapInput<FormData>
+                key={input.name}
+                input={input}
+                formik={formik}
+              />
+            );
+          })}
+        </StyledFlexColumn>
+      </StyledDescription>
+      <TitleContainer title="Voting">
+        <StyledFlexColumn gap={15}>
+          {inputs.map((input, index) => {
+            if (index !== 2 && index !== 3) return null;
+            return (
+              <MapInput<FormData>
+                key={input.name}
+                input={input}
+                formik={formik}
+              />
+            );
+          })}
+        </StyledFlexColumn>
+      </TitleContainer>
+      <TitleContainer title="Voting period">
+        <StyledVotingPeriod>
+          {inputs.map((input, index) => {
+            if (index < 4) return null;
+            return (
+              <StyledVotingPeriodInput key={input.name}>
+                <MapInput<FormData> input={input} formik={formik} />
+              </StyledVotingPeriodInput>
+            );
+          })}
+        </StyledVotingPeriod>
+      </TitleContainer>
     </StyledFlexColumn>
   );
 }
+
+const StyledVotingPeriod = styled(StyledFlexRow)({
+  flexWrap:'wrap',
+  justifyContent:'flex-start',
+  gap:20
+})
+
+const StyledVotingPeriodInput = styled(Box)({
+  width:'calc(50% - 10px)',
+})
+
+const StyledDescription = styled(Container)({
+  width:'100%'
+});
 
 function CreateProposalMenu({
   onSubmit,
@@ -169,9 +220,13 @@ function CreateProposalMenu({
     <StyledMenu>
       <StyledFlexColumn>
         {preview ? (
-          <StyledButton onClick={() => setPreview(false)}>Edit</StyledButton>
+          <StyledButton disabled={isLoading} onClick={() => setPreview(false)}>
+            Edit
+          </StyledButton>
         ) : (
-          <StyledButton onClick={() => setPreview(true)}>Preview</StyledButton>
+          <StyledButton disabled={isLoading} onClick={() => setPreview(true)}>
+            Preview
+          </StyledButton>
         )}
         {!address ? (
           <StyledConnect />
@@ -195,15 +250,4 @@ const StyledConnect = styled(ConnectButton)({
 
 const StyledButton = styled(Button)({
   width: "100%",
-});
-
-const StyledContainer = styled(TitleContainer)({
-  paddingBottom: 40,
-  flex: 1,
-  ".date-input": {
-    ".MuiFormControl-root": {
-      maxWidth: 350,
-      width: "100%",
-    },
-  },
 });

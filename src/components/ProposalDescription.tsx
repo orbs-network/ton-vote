@@ -45,6 +45,9 @@ export function ProposalDescription({
 
   const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
 
+
+  const HEIGHT = descriptionHeight > 200 ? 200 : descriptionHeight;
+
   return (
     <StyledContainer>
       <StyledPlaceholder ref={elRef}>
@@ -56,10 +59,7 @@ export function ProposalDescription({
             <StyledFlexColumn alignItems="flex-start" gap={20}>
               <StyledHeader title={metadata?.title || ""} />
               <ProposalOwner />
-              <AnimateHeight
-                height={showMore ? "auto" : descriptionHeight}
-                duration={0}
-              >
+              <AnimateHeight height={showMore ? "auto" : HEIGHT} duration={0}>
                 <StyledMarkdown open={showMore ? 1 : 0}>
                   {metadata?.description}
                 </StyledMarkdown>

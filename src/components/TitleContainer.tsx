@@ -45,12 +45,12 @@ const StyledTitleContainer = styled(StyledContainer)({
   width: "100%",
   padding: 0,
   ".title-container-children": {
-    padding: "25px",
+    padding: "20px",
     width:'100%'
   },
 });
 
 const StyledHeader = styled(StyledFlexRow)({
   borderBottom: "1px solid rgba(114, 138, 150, 0.24)",
-  padding: "15px 25px",
+  padding: "15px 20px",
 });

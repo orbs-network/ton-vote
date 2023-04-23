@@ -11,7 +11,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import React, { ReactNode, useCallback, useRef, useState } from "react";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
 import { BsUpload } from "react-icons/bs";
@@ -42,6 +42,8 @@ interface TextInputProps {
   tooltip?: string;
   required?: boolean;
   limit?: number;
+  startAdornment?: ReactNode;
+  disabled?: boolean;
 }
 
 export function TextInput({
@@ -56,10 +58,12 @@ export function TextInput({
   title,
   name,
   endAdornment,
-  className,
+  className = "",
   tooltip,
   required,
   limit,
+  startAdornment,
+  disabled,
 }: TextInputProps) {
   const _onChange = (_value: string) => {
     if (!limit) {
@@ -85,6 +89,7 @@ export function TextInput({
         onBlur={onBlur}
         name={name}
         rows={rows}
+        disabled={disabled}
         multiline={rows && rows > 1 ? true : false}
         onFocus={onFocus}
         variant="outlined"
@@ -92,7 +97,7 @@ export function TextInput({
         error={!!error}
         label={label}
         onChange={(e) => _onChange(e.target.value)}
-        InputProps={{ endAdornment }}
+        InputProps={{ endAdornment, startAdornment }}
       />
       {error && (
         <StyledError>
@@ -119,19 +124,21 @@ const Header = ({
 }) => {
   const charsAmount = _.size(value || "");
 
-  return (
-    <StyledInputHeader>
-      <StyledFlexRow justifyContent="flex-start" width="auto">
-        {title && <Title title={title} required={required} />}
-        {tooltip && <AppTooltip info markdown={tooltip} />}
-      </StyledFlexRow>
-      {limit && (
-        <StyledChars>
-          {charsAmount}/{limit}
-        </StyledChars>
-      )}
-    </StyledInputHeader>
-  );
+  if (!title) return null
+    return (
+      <StyledInputHeader>
+        <StyledFlexRow justifyContent="flex-start" width="auto">
+          <Title title={title} required={required} />
+          {tooltip && <AppTooltip info markdown={tooltip} />}
+        </StyledFlexRow>
+
+        {limit && (
+          <StyledChars>
+            {charsAmount}/{limit}
+          </StyledChars>
+        )}
+      </StyledInputHeader>
+    );
 };
 
 const StyledChars = styled(Typography)({
@@ -139,7 +146,7 @@ const StyledChars = styled(Typography)({
 });
 
 const StyledInputHeader = styled(StyledFlexRow)({
-  marginBottom: 5,
+  marginBottom: 10,
   justifyContent: "flex-start",
 });
 
@@ -420,6 +427,16 @@ export function MapInput<T>({
       />
     );
   }
+  if (input.type === "list") {
+    return (
+      <ListInputs
+        title={label}
+        onChange={onChange}
+        value={value as string[]}
+        required={input.required}
+      />
+    );
+  }
   return (
     <TextInput
       limit={input.limit}
@@ -551,13 +568,15 @@ function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
             );
           })}
         </Select>
-        <div style={{ maxWidth: "600px", width: "100%" }}>
-          {options.map((it) => {
-            if (!it.input || it.value !== value) return null;
 
-            return <MapInput key={it.value} input={it.input} formik={formik} />;
-          })}
-        </div>
+        {options.map((it) => {
+          if (!it.input || it.value !== value) return null;
+          return (
+            <div style={{ maxWidth: "600px", width: "100%" }}>
+              <MapInput key={it.value} input={it.input} formik={formik} />{" "}
+            </div>
+          );
+        })}
       </StyledFlexColumn>
     </StyledSelectBoxInput>
   );
@@ -565,4 +584,53 @@ function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
 
 const StyledSelectBoxInput = styled(StyledContainer)({
   alignItems: "flex-start",
+  ".MuiSelect-select": {
+    minWidth: 200,
+    padding: "15px 15px",
+  },
+  fieldset: {
+    borderRadius: 10,
+  },
+});
+
+interface ListProps {
+  value: string[];
+  onChange: (value: string) => void;
+  title: string;
+  required?: boolean;
+}
+
+export const ListInputs = ({ value, title, required }: ListProps) => {
+  console.log(value);
+
+  return (
+    <StyledContainer>
+      <Header title={title} required={required} />
+      <StyledFlexColumn gap={15}>
+        {value.map((it, index) => {
+          return (
+            <TextInput
+              key={it}
+              startAdornment={
+                <StyledListInputPrefix>
+                  Option {index + 1}
+                </StyledListInputPrefix>
+              }
+              onChange={() => {}}
+              value={it}
+              disabled={true}
+            />
+          );
+        })}
+      </StyledFlexColumn>
+    </StyledContainer>
+  );
+};
+
+
+
+
+const StyledListInputPrefix = styled(Typography)({
+  whiteSpace: "nowrap",
+  opacity: 0.6,
 });

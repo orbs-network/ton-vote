@@ -42,12 +42,13 @@ export function Select({ options, selected, onSelect, className = '' }: Props) {
 const StyledContainer = styled(Box)(({ theme }) => ({
   position: "relative",
   ".MuiInputBase-root": {
-    borderRadius: 20,
+    borderRadius: 30,
   },
   ".MuiOutlinedInput-notchedOutline": {
     display: "none",
   },
   ".MuiSelect-select": {
+    minWidth: 200,
     padding: "8px 15px 8px 15px",
     border: `1px solid rgba(211, 211, 211, 0.5)`,
     borderRadius: `30px!important`,
