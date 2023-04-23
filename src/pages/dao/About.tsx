@@ -7,20 +7,17 @@ import {
   StyledFlexRow,
   textOverflow,
 } from "styles";
+import {DaoDescription} from "./DaoDescription";
 
  export function DaoPageAbout() {
   const daoAddress = useDaoAddress();
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
-  const metadata = useDaoQuery(daoAddress).data?.daoMetadata;
+
   return (
     <StyledFlexColumn gap={0} alignItems="flex-start">
       <Header title="About"  />
       <StyledFlexColumn>
-        {metadata?.about && (
-          <StyledDescription>
-            <Markdown>{metadata?.about}</Markdown>
-          </StyledDescription>
-        )}
+        <DaoDescription />
         <StyledTitleContainer
           title="Administrators"
           headerComponent={<Chip label={2} />}
@@ -41,14 +38,6 @@ import {
   );
 }
 
-const StyledEditButton = styled(Button)({
-
-})
-
-
-const StyledDescription = styled(Container)({
-  width: "100%",
-});
 
 const StyledTitleContainer = styled(TitleContainer)({
   ".title-container-header":{

@@ -5,14 +5,19 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useMemo, useState } from "react";
-import { calculateTonAmount, getSymbol, nFormatter } from "utils";
+import {
+  calculateTonAmount,
+  getSymbol,
+  nFormatter,
+  normalizeResults,
+} from "utils";
 import { VERIFY_LINK } from "config";
 import _ from "lodash";
 import { useVerifyProposalResults } from "./hooks";
-import { Vote } from "types";
+import { ProposalResults, Vote } from "types";
 import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "./store";
-import { ProposalResult, VotingPowerStrategy } from "ton-vote-sdk";
+import { VotingPowerStrategy } from "ton-vote-sdk";
 import { EndpointPopup } from "./EndpointPopup";
 
 export const Results = ({
@@ -22,7 +27,7 @@ export const Results = ({
   votes,
   votingPowerStrategy,
 }: {
-  proposalResult?: ProposalResult;
+  proposalResult?: ProposalResults;
   dataUpdatedAt?: number;
   isLoading: boolean;
   votes?: Vote[];
@@ -33,8 +38,6 @@ export const Results = ({
   const votesCount = useMemo(() => {
     const grouped = _.groupBy(votes, "vote");
 
-  
-
     return {
       yes: nFormatter(_.size(grouped.Yes)),
       no: nFormatter(_.size(grouped.No)),
@@ -42,8 +45,8 @@ export const Results = ({
     };
   }, [dataUpdatedAt]);
 
-    const hideVerify =
-      !proposalResult?.totalWeight || Number(proposalResult?.totalWeight) === 0;
+  const hideVerify =
+    !proposalResult?.totalWeight || Number(proposalResult?.totalWeight) === 0;
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -51,36 +54,24 @@ export const Results = ({
   return (
     <StyledResults title="Results">
       <StyledFlexColumn gap={15}>
-        <ResultRow
-          symbol={symbol}
-          name="Yes"
-          percent={proposalResult?.yes || 0}
-          tonAmount={calculateTonAmount(
-            proposalResult?.yes,
-            proposalResult?.totalWeight
-          )}
-          votes={votesCount.yes}
-        />
-        <ResultRow
-          symbol={symbol}
-          name="No"
-          percent={proposalResult?.no || 0}
-          tonAmount={calculateTonAmount(
-            proposalResult?.no,
-            proposalResult?.totalWeight
-          )}
-          votes={votesCount.no}
-        />
-        <ResultRow
-          symbol={symbol}
-          name="Abstain"
-          percent={proposalResult?.abstain || 0}
-          tonAmount={calculateTonAmount(
-            proposalResult?.abstain,
-            proposalResult?.totalWeight
-          )}
-          votes={votesCount.abstain}
-        />
+        {proposalResult &&
+          normalizeResults(proposalResult).map((item) => {
+            const { title, percent } = item;
+
+            return (
+              <ResultRow
+                symbol={symbol}
+                name={title}
+                percent={percent}
+                tonAmount={calculateTonAmount(
+                  percent,
+                  proposalResult?.totalWeight as string
+                )}
+                votes={votesCount.yes}
+              />
+            );
+          })}
+
       </StyledFlexColumn>
       {!hideVerify && <VerifyResults />}
     </StyledResults>
@@ -104,7 +95,7 @@ const ResultRow = ({
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <StyledFlexRow style={{ width: "fit-content" }}>
-          <Typography>{name}</Typography>
+          <Typography style={{textTransform:'capitalize'}}>{name}</Typography>
           <StyledChip label={`${votes} votes`} />
         </StyledFlexRow>
 

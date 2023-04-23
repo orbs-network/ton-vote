@@ -12,19 +12,32 @@ export const createDaoMetadataInputs: InputInterface[] = [
     tooltip: "Your Forum’s name",
     required: true,
   },
-
   {
-    label: "Jetton Address",
-    type: "address",
-    name: "jetton",
-    tooltip: "Your project’s Jetton smart contract on TON",
+    label: "About",
+    type: "textarea",
+    name: "about",
+    rows: 5,
+    tooltip: "What is your project about?",
     required: true,
   },
   {
-    label: "NFT",
-    type: "address",
-    name: "nft",
+    label: "Avatar",
+    type: "image",
+    name: "avatar",
+    tooltip: "Your project’s logo, 512*512 Pixel PNG image URL",
+    required: true,
   },
+  // {
+  //   label: "Jetton Address",
+  //   type: "address",
+  //   name: "jetton",
+  //   tooltip: "Your project’s Jetton smart contract on TON",
+  // },
+  // {
+  //   label: "NFT Collection Address",
+  //   type: "address",
+  //   name: "nft",
+  // },
   {
     label: "TON DNS",
     type: "text",
@@ -33,20 +46,7 @@ export const createDaoMetadataInputs: InputInterface[] = [
     tooltip:
       "Enter your project’s DNS domain or follow the instructions on [https://dns.ton.org/](https://dns.ton.org/)",
   },
-  {
-    label: "About",
-    type: "textarea",
-    name: "about",
-    rows: 5,
-    tooltip: "What is your project about?",
-  },
-  {
-    label: "Avatar",
-    type: 'image',
-    name: "avatar",
-    tooltip: "Your project’s logo, 512*512 Pixel PNG image URL",
-    required: true,
-  },
+
   {
     label: "Github",
     type: "url",
@@ -104,7 +104,7 @@ export const DaoMetadataFormSchema = Yup.object().shape({
 export const SetRolesFormSchema = Yup.object().shape({
   ownerAddress: Yup.string()
     .test("address", "Invalid owner address", validateAddress)
-    .required("Onwer address Required"),
+    .required("Owner address Required"),
   proposalOwner: Yup.string()
     .test("address", "Invalid proposal owner address", validateAddress)
     .required("Proposal owner address Required"),

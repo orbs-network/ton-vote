@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "config";
 import { api, getDao, getDaos } from "lib";
-import { Dao, Proposal, ProposalStatus } from "types";
+import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
 import _ from "lodash";
 import {
   getClientV2,
@@ -11,10 +11,9 @@ import {
   getDaoRoles,
   getProposalMetadata,
   ProposalMetadata,
-  ProposalResult,
 } from "ton-vote-sdk";
 import { getProposalStatus, Logger } from "utils";
-import { OLD_DAO, proposals } from "data";
+import { OLD_DAO, proposals } from "data/data";
 import { useNewDataStore } from "store";
 
 export const useDaosQuery = (refetchInterval?: number) => {
@@ -127,7 +126,7 @@ export const useProposalQuery = (proposalAddress?: string) => {
         const clientV4 = await getClientV4();
         return {
           votes: [],
-          proposalResult: {} as ProposalResult,
+          proposalResult: {} as ProposalResults,
           metadata: await getProposalMetadata(
             clientV2,
             clientV4,

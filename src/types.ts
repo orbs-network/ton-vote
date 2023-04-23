@@ -1,12 +1,8 @@
 import { Address, Transaction } from "ton";
 import { DaoRoles, MetadataArgs, ProposalMetadata, ProposalResult } from "ton-vote-sdk";
 
-export interface ProposalResults {
-  yes: number;
-  no: number;
-  abstain: number;
-  totalWeight: string;
-}
+
+export type ProposalResults = {[key: string]: number | string}
 
 export interface Vote {
   address: string;

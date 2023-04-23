@@ -22,6 +22,8 @@ import { useEffect, useMemo } from "react";
 import { useDaoQuery } from "query/queries";
 import { appNavigation } from "router";
 import { validateFormik } from "utils";
+import { Address } from "ton-core";
+import { ZERO_ADDRESS } from "consts";
 
 function Content() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
@@ -30,6 +32,9 @@ function Content() {
   const { data: dao } = useDaoQuery(daoAddress);
   const { formData, setFormData, preview } = useCreateProposalStore();
 
+  const initialNFT = formData.nft || dao?.daoMetadata?.nft || '';
+  const initialJetton = formData.jetton || dao?.daoMetadata?.jetton || '';
+
   const formik = useFormik<FormData>({
     initialValues: {
       proposalStartTime: formData.proposalStartTime,
@@ -37,8 +42,8 @@ function Content() {
       proposalSnapshotTime: formData.proposalSnapshotTime,
       description: formData.description,
       title: formData.title,
-      jetton: formData.jetton || dao?.daoMetadata?.jetton || "",
-      nft: formData.nft || dao?.daoMetadata?.nft || "",
+      jetton: initialJetton === ZERO_ADDRESS ? "" : initialJetton,
+      nft: initialNFT === ZERO_ADDRESS ? "" : initialNFT,
       votingPowerStrategy: formData.votingPowerStrategy || 0,
     },
     validationSchema: FormSchema,
@@ -118,13 +123,13 @@ const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
         {formik?.values.title}
       </Typography>
       <Markdown>{formik?.values.description}</Markdown>
-      <Typography>
+      {/* <Typography>
         Start: {formatTime(formik?.values.proposalStartTime)}
       </Typography>
       <Typography>End: {formatTime(formik?.values.proposalEndTime)}</Typography>
       <Typography>
         Snapshot: {formatTime(formik?.values.proposalSnapshotTime)}
-      </Typography>
+      </Typography> */}
     </StyledPreview>
   );
 };

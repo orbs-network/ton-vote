@@ -6,7 +6,6 @@ import { routes } from "consts";
 import { StyledFlexRow } from "styles";
 import { useSteps } from "./steps";
 import { useCreatDaoStore } from "./store";
-import { useTranslation } from "react-i18next";
 
 const SelectedStep = () => {
   const steps = useSteps()

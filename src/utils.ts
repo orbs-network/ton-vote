@@ -3,7 +3,7 @@ import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
 import { DaoRoles, ProposalMetadata, VotingPowerStrategy } from "ton-vote-sdk";
-import { ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
+import { ProposalResults, ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
 import * as TonVoteSDK from "ton-vote-sdk";
 import { FormikProps } from "formik";
 import { showErrorToast } from "toasts";
@@ -161,4 +161,16 @@ export const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
     default:
       return null;
   }
+};
+
+
+export const normalizeResults = (
+  proposalResult: ProposalResults
+): { title: string; percent: number }[] => {
+  return _.map(proposalResult, (value, key) => {
+    return {
+      title: key,
+      percent: value ? Number(value) : 0,
+    };
+  }).filter((it) => it.title !== "totalWeight");
 };

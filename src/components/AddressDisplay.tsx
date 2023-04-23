@@ -42,9 +42,15 @@ export function AddressDisplay({
   );
 }
 
-const StyledContainer = styled(StyledFlexRow)({
-  width:'auto'
-});
+const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
+  width: "auto",
+  ".address-display-btn": {
+    "&:hover": {
+      textDecoration: "underline",
+      textDecorationColor: theme.palette.text.primary,
+    },
+  },
+}));
 
 const StyledButton = styled("button")(({ theme }) => ({
   padding: 0,

@@ -26,6 +26,7 @@ export function ProposalDescription({
   metadata?: ProposalMetadata;
   isLoading: boolean;
 }) {
+  const proposalAddress = useProposalAddress()
   const [showMore, setShowMore] = useState(false);
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const [ready, setReady] = useState(false);
@@ -98,6 +99,8 @@ const StyledHeader = styled(Header)({
 
 const ProposalOwner = () => {
   const daoAddress = useDaoAddress();
+    const proposalAddress = useProposalAddress();
+
   const proposalMetadata  = useProposalPageQuery(false).data?.metadata
   const dao = useDaoQuery(daoAddress);
 
@@ -110,9 +113,7 @@ const ProposalOwner = () => {
           {dao.data?.daoMetadata.name}
         </Link>
         <Typography style={{ margin: "0px 5px 0px 5px" }}>by</Typography>
-        {proposalMetadata?.owner && (
-          <AddressDisplay address={proposalMetadata?.owner} />
-        )}
+        <AddressDisplay address={proposalAddress} />
       </StyledFlexRow>
     </StyledProposalOwner>
   );

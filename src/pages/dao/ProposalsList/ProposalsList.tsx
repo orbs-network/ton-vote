@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
+import { DaoDescription } from "../DaoDescription";
 import { ProposalLoader } from "../ProposalLoader";
 import { useFilterValueByState, useFilterValueByText } from "./hooks";
 import { ProposalComponent } from "./Proposal";
@@ -74,7 +75,8 @@ export function ProposalsList() {
   const isEmpty = !isLoading && !_.size(data?.daoProposals);
 
   return (
-    <StyledFlexColumn gap={0}>
+    <StyledFlexColumn gap={20}>
+      <DaoDescription />
       <Header title="Proposals" component={<ProposalsSearch />} />
       <StyledFlexColumn gap={15}>
         <List
@@ -110,22 +112,10 @@ const StyledSearch = styled(Search)({
 });
 
 const EmptyList = () => {
-  const daoAddress = useDaoAddress();
-  const navigation = useAppNavigation();
-  const { isDaoOwner, isProposalOnwer } = useIsOwner(daoAddress);
-  const isOwner = isDaoOwner || isProposalOnwer;
-
   return (
     <StyledEmptyList>
       <StyledFlexColumn>
         <Typography>No Proposals</Typography>
-        {isOwner && (
-          <StyledCreateDao
-            onClick={() => navigation.daoPage.createProposal(daoAddress)}
-          >
-            Create first proposal
-          </StyledCreateDao>
-        )}
       </StyledFlexColumn>
     </StyledEmptyList>
   );

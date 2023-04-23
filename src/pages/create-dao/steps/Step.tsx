@@ -32,7 +32,7 @@ export function Step({
 }
 
 const StyledWarning = styled(Typography)(({ theme }) => ({
-  color: theme.palette.error.main,
+  color: theme.palette.text.primary,
   svg: {
     position: "relative",
     top: 2,

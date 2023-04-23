@@ -1,11 +1,11 @@
-import { ProposalResult } from "ton-vote-sdk";
 import { Dao, Proposal } from "types";
+
 
 export const OLD_DAO: Dao = {
   daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
   daoId: 0,
   daoMetadata: {
-    about: "https://reactdatepicker.com/",
+    about: "Some description",
     avatar: "https://www.orbs.com/assets/img/common/logo.svg",
     github: "https://reactdatepicker.com/",
     hide: false,
@@ -46,8 +46,20 @@ export const proposals: { [key: string]: Proposal } = {
     },
     votingPower: {},
     votes: [],
-    proposalResult: {} as ProposalResult,
-    hardcoded: true,
+    proposalResult: {
+      "Tsunami Exchange": 8.81,
+      "1ton": 10.63,
+      Genlock: 8.16,
+      "Tonic Lounge": 8.81,
+      DeDust: 13.69,
+      "Nujan IDE": 9.76,
+      TonEase: 8.47,
+      Evaa: 11.22,
+      "re:doubt": 9.14,
+      "Punk City": 11.3,
+      totalWeight: "765328780229858",
+    },
+
     url: "https://ton.vote",
   },
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS": {
@@ -69,8 +81,12 @@ export const proposals: { [key: string]: Proposal } = {
     },
     votingPower: {},
     votes: [],
-    proposalResult: {} as ProposalResult,
-    hardcoded: true,
+    proposalResult: {
+      yes: 91.75,
+      no: 8.09,
+      abstain: 0.16,
+      totalWeight: "1824494647320919",
+    },
     url: "https://ton.vote/frozen",
   },
 };
