@@ -33,12 +33,17 @@ export const Results = ({
   const votesCount = useMemo(() => {
     const grouped = _.groupBy(votes, "vote");
 
+  
+
     return {
       yes: nFormatter(_.size(grouped.Yes)),
       no: nFormatter(_.size(grouped.No)),
       abstain: nFormatter(_.size(grouped.Abstain)),
     };
   }, [dataUpdatedAt]);
+
+    const hideVerify =
+      !proposalResult?.totalWeight || Number(proposalResult?.totalWeight) === 0;
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -77,7 +82,7 @@ export const Results = ({
           votes={votesCount.abstain}
         />
       </StyledFlexColumn>
-      <VerifyResults />
+      {!hideVerify && <VerifyResults />}
     </StyledResults>
   );
 };

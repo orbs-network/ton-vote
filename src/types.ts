@@ -47,7 +47,7 @@ export interface DaoProposal {
 }
 
 export enum ProposalStatus {
-  CLOSED = "CLOSED",
+  CLOSED = "ENDED",
   NOT_STARTED = "NOT_STARTED",
   ACTIVE = "ACTIVE",
 }

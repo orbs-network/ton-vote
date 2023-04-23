@@ -18,6 +18,9 @@ import { useConnection } from "ConnectionProvider";
 import { TON_CONNECTOR } from "config";
 import { useDaoQuery } from "query/queries";
 import { showSuccessToast } from "toasts";
+import { ProposalStatus } from "types";
+import { useTranslation } from "react-i18next";
+import { StringParam, useQueryParams } from "use-query-params";
 
 export const useDaoAddress = () => {
   return useParams().daoId as string;
@@ -104,8 +107,6 @@ export const useGetSender = () => {
   }, [address]);
 };
 
-
-
 type CopiedValue = string | null;
 type CopyFn = (text: string) => Promise<boolean>; // Return success
 
@@ -163,3 +164,18 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
     [func, wait]
   );
 };
+
+export const useProposalStatusText = (status?: ProposalStatus | null) => {
+  const { t } = useTranslation();
+  switch (status) {
+    case ProposalStatus.CLOSED:
+      return t("ended");
+    case ProposalStatus.ACTIVE:
+      return t("active");
+    case ProposalStatus.NOT_STARTED:
+      return t("notStarted");
+    default:
+      break;
+  }
+};
+

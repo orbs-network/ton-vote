@@ -23,8 +23,8 @@ export const useDaosQuery = (refetchInterval?: number) => {
   return useQuery(
     [QueryKeys.DAOS],
     async ({ signal }) => {
-      const daos = (await getDaos(signal)) || [];
-
+      const res = (await getDaos(signal)) || [];
+      const daos = [OLD_DAO, ...res]
       if (!_.size(newDaosAddresses)) {
         return daos;
       }

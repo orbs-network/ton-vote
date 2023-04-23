@@ -26,6 +26,7 @@ function Socials({
   whitepaper,
   about,
 }: Props) {
+
   return (
     <StyledContainer className={className}>
       <Social url={telegram} icon={<BsTelegram />} />

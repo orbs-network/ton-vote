@@ -18,12 +18,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import _ from "lodash";
 import { StringParam, useQueryParam } from "use-query-params";
-import { OLD_DAO } from "data";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { useConnection } from "ConnectionProvider";
 import { Box } from "@mui/system";
 import { useTranslation } from "react-i18next";
-import { Translation } from "i18n";
 import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
@@ -63,7 +61,7 @@ export function DaosPage() {
           />
           <StyledDaosAmount>
             <Typography>
-              {_.size(data) + 1} {t("forums")}
+              {_.size(data)} {t("forums")}
             </Typography>
           </StyledDaosAmount>
         </StyledFlexRow>
@@ -77,9 +75,8 @@ export function DaosPage() {
             }
           >
             <StyledDaosList>
-              <DaoListItem dao={OLD_DAO} />
               {filteredDaos.map((dao, index) => {
-                if (index > limit) return null;
+                if (index >= limit) return null;
                 return <DaoListItem key={dao.daoAddress} dao={dao} />;
               })}
             </StyledDaosList>
@@ -184,9 +181,8 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   );
 };
 
-
 const StyledHiddenIcon = styled(Box)({
-  position:'absolute',
+  position: "absolute",
   left: 10,
-  top: 10
-})
+  top: 10,
+});

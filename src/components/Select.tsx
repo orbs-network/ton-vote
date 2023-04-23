@@ -11,19 +11,18 @@ interface Props {
   options: SelectOption[];
   selected: string;
   onSelect: (value: string) => void;
+  className?: string;
 }
 
-export function Select({ options, selected, onSelect }: Props) {
-
+export function Select({ options, selected, onSelect, className = '' }: Props) {
   const handleChange = (event: SelectChangeEvent) => {
     onSelect(event.target.value);
   };
 
   return (
-    <StyledContainer>
+    <StyledContainer className={className}>
       <MuiSelect
         IconComponent={MdKeyboardArrowDown}
-        
         value={selected}
         onChange={handleChange}
       >

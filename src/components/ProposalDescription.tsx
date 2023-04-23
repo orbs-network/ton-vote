@@ -1,13 +1,12 @@
 import { Box, Chip, Fade, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
-import { getProposalStatusText } from "utils";
 import { useDaoQuery, useProposalStatusQuery } from "query/queries";
-import { useDaoAddress, useProposalAddress } from "hooks";
+import { useDaoAddress, useProposalAddress, useProposalStatusText } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
-import { lazy, useEffect, useRef, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
 import { ProposalMetadata } from "ton-vote-sdk";
 import { AddressDisplay } from "./AddressDisplay";
 import { Header } from "./Header";
@@ -16,6 +15,7 @@ import { LoadingContainer } from "./LoadingContainer";
 import { Markdown } from "./Markdown";
 import { Button } from "./Button";
 import { Container } from "./Container";
+import { useProposalPageQuery } from "pages/proposal/query";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
@@ -53,11 +53,8 @@ export function ProposalDescription({
         <span>
           <StyledFlexColumn gap={0}>
             <StyledFlexColumn alignItems="flex-start" gap={20}>
-              <StyledHeader
-                title={metadata?.title || ""}
-                component={<StatusChip proposalMetadata={metadata} />}
-              />
-              <ProposalOwner proposalMetadata={metadata} />
+              <StyledHeader title={metadata?.title || ""} />
+              <ProposalOwner />
               <AnimateHeight
                 height={showMore ? "auto" : descriptionHeight}
                 duration={0}
@@ -99,16 +96,14 @@ const StyledHeader = styled(Header)({
   marginBottom: 0,
 });
 
-const ProposalOwner = ({
-  proposalMetadata,
-}: {
-  proposalMetadata?: ProposalMetadata;
-}) => {
+const ProposalOwner = () => {
   const daoAddress = useDaoAddress();
+  const proposalMetadata  = useProposalPageQuery(false).data?.metadata
   const dao = useDaoQuery(daoAddress);
 
   return (
     <StyledProposalOwner justifyContent="flex-start">
+      <StatusChip proposalMetadata={proposalMetadata} />
       <StyledDaoImg src={dao.data?.daoMetadata.avatar} />
       <StyledFlexRow gap={0} justifyContent="flex-start" style={{ flex: 1 }}>
         <Link to={appNavigation.daoPage.root(daoAddress)} className="dao-name">
@@ -134,14 +129,9 @@ const StatusChip = ({
     proposalMetadata,
     proposalAddress
   );
+  const label = useProposalStatusText(proposalStatus);
 
-  return (
-    <StyledVoteTimeline
-      label={getProposalStatusText(proposalStatus)}
-      variant="filled"
-      color="primary"
-    />
-  );
+  return <StyledVoteTimeline label={label} variant="filled" color="primary" />;
 };
 
 const StyledLink = styled("a")({
@@ -150,8 +140,8 @@ const StyledLink = styled("a")({
 });
 
 const StyledDaoImg = styled(Img)({
-  width: 45,
-  height: 45,
+  width: 30,
+  height: 30,
   borderRadius: "50%",
 });
 

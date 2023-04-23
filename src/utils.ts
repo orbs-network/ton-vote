@@ -113,18 +113,6 @@ export const urlPatternValidation = (URL: string) => {
   return regex.test(URL);
 };
 
-export const getProposalStatusText = (status: ProposalStatus | null) => {
-  switch (status) {
-    case ProposalStatus.CLOSED:
-      return "Ended";
-    case ProposalStatus.ACTIVE:
-      return "Ongoing";
-    case ProposalStatus.NOT_STARTED:
-      return "Not started";
-    default:
-      break;
-  }
-};
 
 export const getTonScanContractUrl = (address?: string) => {
   if (!address) return "";

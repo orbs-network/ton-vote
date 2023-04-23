@@ -37,6 +37,7 @@ export const StyledProposalResult = styled(StyledFlexRow)({
   justifyContent: "flex-start",
   height: 40,
   paddingLeft: 10,
+  paddingRight:10
 });
 
 export const StyledProposalOwner = styled(Typography)({

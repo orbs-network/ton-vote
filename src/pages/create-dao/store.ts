@@ -31,7 +31,6 @@ const initialCreateMetadataForm: DaoMetadata = {
   dns: "",
 };
 
-
 export interface RolesForm {
   ownerAddress: string;
   proposalOwner: string;
@@ -81,30 +80,54 @@ export const useCreatDaoStore = create(
   )
 );
 
+interface UseCompareDaoMetadataForm {
+  form: DaoMetadata;
+  setForm: (value: DaoMetadata) => void;
+  formChanged: (value: DaoMetadata) => boolean;
+}
+
+export const useCompareDaoMetadataForm = create<UseCompareDaoMetadataForm>(
+  (set, get) => ({
+    form: {} as DaoMetadata,
+    setForm: (form) => set({ form }),
+    formChanged: (value) => {
+      if (_.isEmpty(value)) return false;
+      return !_.isEqual(value, get().form);
+    },
+  })
+);
+
 export const useCreateDaoMetadata = () => {
   const getSender = useGetSender();
-  const { nextStep, setMetadataAddress, setDaoMetadataForm } =
+  const { nextStep, setMetadataAddress, setDaoMetadataForm, editMode } =
     useCreatDaoStore();
   const toggleTxReminder = useTxReminderPopup().setOpen;
-const { t } = useTranslation();
+  const { t } = useTranslation();
+    const {formChanged, setForm: setCompareForm} = useCompareDaoMetadataForm();
+
   return useMutation(
     async (values: DaoMetadata) => {
       const sender = getSender();
-      
 
-      const metadataArgs: DaoMetadata = {
-        about: values.about,
-        avatar: values.avatar || "",
-        github: values.github,
-        hide: values.hide,
-        name: values.name,
-        terms: values.terms,
-        telegram: values.telegram,
-        website: values.website,
-        jetton: values.jetton || ZERO_ADDRESS,
-        nft: values.nft || ZERO_ADDRESS,
-        dns: values.dns,
-      };
+      const isFormChanged = formChanged(values);
+
+      if (!isFormChanged) {
+        nextStep();
+        return;
+      }
+        const metadataArgs: DaoMetadata = {
+          about: values.about,
+          avatar: values.avatar || "",
+          github: values.github,
+          hide: values.hide,
+          name: values.name,
+          terms: values.terms,
+          telegram: values.telegram,
+          website: values.website,
+          jetton: values.jetton || ZERO_ADDRESS,
+          nft: values.nft || ZERO_ADDRESS,
+          dns: values.dns,
+        };
       Logger(metadataArgs);
 
       toggleTxReminder(true);
@@ -117,7 +140,7 @@ const { t } = useTranslation();
 
       showPromiseToast({
         promise,
-        success: t("forumDetailsCreated"),
+        success: editMode ? t("forumDetailsUpdated") : t("forumDetailsCreated"),
       });
 
       const address = await promise;
@@ -125,6 +148,7 @@ const { t } = useTranslation();
         nextStep();
         setDaoMetadataForm(values);
         setMetadataAddress(address.toString());
+        setCompareForm(values);
       } else {
         throw new Error("Something went wrong");
       }

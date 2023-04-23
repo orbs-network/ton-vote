@@ -1,11 +1,12 @@
-import { Typography, styled, Box } from "@mui/material";
+import { Typography, styled, Box, Alert } from "@mui/material";
 import {
   Button,
   AddressDisplay,
   Status,
   Markdown,
+  AppTooltip,
 } from "components";
-import {  useDaoAddress } from "hooks";
+import { useDaoAddress, useProposalAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
@@ -14,7 +15,8 @@ import { ProposalMetadata } from "ton-vote-sdk";
 import { Proposal, ProposalStatus } from "types";
 import { getTimeDiff, calculateTonAmount } from "utils";
 import { ProposalLoader } from "../ProposalLoader";
-import removeMd from "remove-markdown"
+import removeMd from "remove-markdown";
+import { useFilterValueByState, useFilterValueByText } from "./hooks";
 
 import {
   StyledProposal,
@@ -47,12 +49,35 @@ const Time = ({
   );
 };
 
+const useHideProposal = (proposal?: Proposal, status?: ProposalStatus | null) => {
+  const [queryParamState] = useFilterValueByState();
+  const [queryParamText] = useFilterValueByText();
+
+  const title = proposal?.metadata?.title.toLowerCase();
+  const description = proposal?.metadata?.description.toLowerCase();
+
+  if (queryParamState && queryParamState !== status) {
+    return true;
+  }
+
+  if (!queryParamText) {
+    return false;
+  }
+
+  if (
+    !title?.includes(queryParamText.toLowerCase()) &&
+    !description?.includes(queryParamText.toLowerCase())
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export const ProposalComponent = ({
   proposalAddress,
-  filterValue,
 }: {
   proposalAddress: string;
-  filterValue?: ProposalStatus;
 }) => {
   const { proposalPage } = useAppNavigation();
   const daoAddress = useDaoAddress();
@@ -60,6 +85,7 @@ export const ProposalComponent = ({
   const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
 
   const status = useProposalStatusQuery(proposal?.metadata, proposalAddress);
+  const hideProposal = useHideProposal(proposal, status);
 
   const onClick = () => {
     if (proposal?.url) {
@@ -73,11 +99,16 @@ export const ProposalComponent = ({
     return <ProposalLoader />;
   }
 
+  if (hideProposal) {
+    return null;
+  }
   return (
     <StyledProposal onClick={onClick}>
       <StyledFlexColumn alignItems="flex-start">
         <StyledFlexRow justifyContent="space-between">
-          <AddressDisplay address={proposal?.metadata?.owner} />
+          <AppTooltip text="Proposal address" placement="right">
+            <AddressDisplay address={proposal?.metadata?.owner} />
+          </AppTooltip>
           <Status status={status} />
         </StyledFlexRow>
 
@@ -109,27 +140,33 @@ export const ProposalComponent = ({
   );
 };
 
-
 const StyledMarkdown = styled(Typography)({
   fontWeight: 700,
-  fontSize: 17
+  fontSize: 17,
 });
 
 const StyledProposalTitle = styled(Typography)({
-  fontSize: 20,
+  fontSize: 23,
   fontWeight: 800,
 });
 
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;
 
-  
-
+  if (Number(proposalResult.totalWeight) === 0) {
+    return (
+      <StyledAlet severity="warning">
+        <Typography>
+          Proposal ended and didnt passed the minimim quorum
+        </Typography>
+      </StyledAlet>
+    );
+  }
   return (
     <StyledFlexColumn gap={5}>
       <Result
         title="Yes"
-        percent={proposalResult?.yes}
+        percent={proposalResult?.yes || 0}
         tonAmount={calculateTonAmount(
           proposalResult?.yes,
           proposalResult?.totalWeight
@@ -137,7 +174,7 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
       />
       <Result
         title="No"
-        percent={proposalResult?.no}
+        percent={proposalResult?.no || 0}
         tonAmount={calculateTonAmount(
           proposalResult?.no,
           proposalResult?.totalWeight
@@ -145,7 +182,7 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
       />
       <Result
         title="Abstain"
-        percent={proposalResult.abstain}
+        percent={proposalResult.abstain || 0}
         tonAmount={calculateTonAmount(
           proposalResult?.abstain,
           proposalResult?.totalWeight
@@ -154,6 +191,11 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
     </StyledFlexColumn>
   );
 };
+
+const StyledAlet = styled(Alert)({
+  width: "100%",
+  marginTop: 10,
+});
 
 const Result = ({
   title,
@@ -164,10 +206,7 @@ const Result = ({
   percent?: number;
   tonAmount?: string;
 }) => {
-  
-  
   percent = isNaN(percent) ? 0 : percent;
-  
 
   return (
     <StyledProposalResult>

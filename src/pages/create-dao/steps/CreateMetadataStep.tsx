@@ -11,14 +11,15 @@ import { StyledFlexColumn } from "styles";
 import { FormikValues, useFormik } from "formik";
 import {
   DaoMetadata,
+  useCompareDaoMetadataForm,
   useCreatDaoStore,
   useCreateDaoMetadata,
 } from "../store";
 import _ from "lodash";
-import {  DaoMetadataFormSchema, createDaoMetadataInputs } from "./form";
+import { DaoMetadataFormSchema, createDaoMetadataInputs } from "./form";
 import { Submit } from "./Submit";
 import { StyledInputs } from "../styles";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 import { useDebouncedCallback } from "hooks";
 import { validateFormik } from "utils";
 import { useTranslation } from "react-i18next";
@@ -26,12 +27,10 @@ import { Step } from "./Step";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
-  const { daoMetadataForm, nextStep, metadataAddress, setDaoMetadataForm, editMode } =
-    useCreatDaoStore();
+  const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
 
   const onSubmit = async (_formData: DaoMetadata) => {
     createMetadata(_formData);
-    // nextStep();
   };
 
   const formik = useFormik<DaoMetadata>({
@@ -60,13 +59,15 @@ export function CreateMetadataStep() {
     setDaoMetadataForm(formik.values);
   });
 
+
+
   useEffect(() => {
     saveForm();
   }, [formik.values]);
 
   return (
     <Step
-      warning={editMode ? t("editForumDetailsWarning") : ''}
+      warning={editMode ? t("editForumDetailsWarning") : ""}
       title={editMode ? t("editForumDetails") : t("createForumDetails")}
     >
       <StyledFlexColumn>
@@ -97,7 +98,6 @@ export function CreateMetadataStep() {
     </Step>
   );
 }
-
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();

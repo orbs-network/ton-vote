@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import {  Img, SideMenu, Link } from "components";
+import { Img, SideMenu, Link, AddressDisplay } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
@@ -38,12 +38,7 @@ export function DaoMenu() {
           <Typography variant="h2" className="title">
             {dao?.daoMetadata?.name}
           </Typography>
-          <Link
-            href={getTonScanContractUrl(dao?.daoAddress)}
-            className="address"
-          >
-            {makeElipsisAddress(dao?.daoAddress, 6)}
-          </Link>
+          <AddressDisplay address={dao?.daoAddress} />
         </StyledFlexColumn>
       </StyledTop>
       <Navigation />

@@ -6,7 +6,7 @@ interface Store {
 }
 
 
-export const DAOS_LIMIT = 10
+export const DAOS_LIMIT = 12
 
 export const useDaosListLimit = create<Store>((set, get) => ({
   limit: DAOS_LIMIT,

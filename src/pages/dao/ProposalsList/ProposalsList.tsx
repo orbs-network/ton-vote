@@ -1,47 +1,65 @@
-import { Chip, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { Button, Container, Header, List, LoadMore, Search } from "components";
 import { DAO_REFETCH_INTERVAL } from "config";
 import { useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
-import { StringParam, useQueryParam } from "use-query-params";
 import { ProposalLoader } from "../ProposalLoader";
+import { useFilterValueByState, useFilterValueByText } from "./hooks";
 import { ProposalComponent } from "./Proposal";
+const LIMIT = 10;
 
 interface Option extends SelectOption {
   value: ProposalStatus | string;
 }
 
-const useFilterValue = () => {
-  return useQueryParam("state", StringParam);
+const useOptions = (): Option[] => {
+  const { t } = useTranslation();
+
+  return [
+    { text: t("all"), value: "all" },
+    { text: t("active"), value: ProposalStatus.ACTIVE },
+    { text: t("ended"), value: ProposalStatus.CLOSED },
+    { text: t("notStarted"), value: ProposalStatus.NOT_STARTED },
+  ];
 };
 
-const LIMIT = 10;
+const ProposalsSearch = () => {
+  const options = useOptions();
+  const [queryParamByText, setQueryParamByText] = useFilterValueByText();
+  const [queryParamByState, setQueryParamByState] = useFilterValueByState();
 
-// const options: Option[] = [
-//   { text: "All", value: "all" },
-//   { text: "Active", value: ProposalStatus.ACTIVE },
-//   { text: "Closed", value: ProposalStatus.CLOSED },
-//   { text: "Not started", value: ProposalStatus.NOT_STARTED },
-// ];
+  const onSearchInputChange = (value: string) => {
+    setQueryParamByText(value || undefined, "pushIn");
+  };
+  const [filterValue, setFilterValue] = useState<string>(
+    queryParamByState || options[0].value
+  );
 
-const ProposalsCount = () => {
-  const daoAddress = useDaoAddress();
-  const { data } = useDaoQuery(daoAddress);
+  const onSelect = (value: string) => {
+    setFilterValue(value);
+    setQueryParamByState(value === "all" ? undefined : value);
+  };
 
-  const size = _.size(data?.daoProposals);
-
-  return size ? <Chip label={_.size(data?.daoProposals)} /> : null;
+  return (
+    <StyledSearch
+      filterOptions={options}
+      filterValue={filterValue}
+      onFilterSelect={onSelect}
+      initialValue={queryParamByText || ""}
+      onChange={onSearchInputChange}
+    />
+  );
 };
 
- export function ProposalsList() {
+export function ProposalsList() {
   const daoAddress = useDaoAddress();
   const [amount, setAmount] = useState(LIMIT);
-  const [searchValue, setSearchValue] = useState("");
 
   const showMore = () => {
     setAmount((prev) => prev + LIMIT);
@@ -50,18 +68,14 @@ const ProposalsCount = () => {
   const { data, isLoading } = useDaoQuery(
     daoAddress,
     DAO_REFETCH_INTERVAL,
-    5_000
+    10_000
   );
-  const [queryParamState] = useFilterValue();
 
   const isEmpty = !isLoading && !_.size(data?.daoProposals);
 
   return (
     <StyledFlexColumn gap={0}>
-      <Header
-        title="Proposals"
-        component={<StyledSearch initialValue="" onChange={setSearchValue} />}
-      />
+      <Header title="Proposals" component={<ProposalsSearch />} />
       <StyledFlexColumn gap={15}>
         <List
           isEmpty={isEmpty}
@@ -73,7 +87,6 @@ const ProposalsCount = () => {
             if (index > amount) return null;
             return (
               <ProposalComponent
-                filterValue={queryParamState as ProposalStatus | undefined}
                 key={proposalAddress}
                 proposalAddress={proposalAddress}
               />
@@ -92,7 +105,7 @@ const ProposalsCount = () => {
 }
 
 const StyledSearch = styled(Search)({
-  maxWidth: 260,
+  maxWidth: 360,
   width: "100%",
 });
 
@@ -107,7 +120,9 @@ const EmptyList = () => {
       <StyledFlexColumn>
         <Typography>No Proposals</Typography>
         {isOwner && (
-          <StyledCreateDao onClick={() => navigation.daoPage.createProposal(daoAddress)}>
+          <StyledCreateDao
+            onClick={() => navigation.daoPage.createProposal(daoAddress)}
+          >
             Create first proposal
           </StyledCreateDao>
         )}
@@ -117,42 +132,9 @@ const EmptyList = () => {
 };
 
 const StyledCreateDao = styled(Button)({
-  padding: '8px 20px',
-  height:'unset'
-})
-
-// const DaoFilter = () => {
-//   const [queryParamState, setQueryParamState] = useFilterValue();
-
-//   const [filterValue, setFilterValue] = useState<string>(
-//     queryParamState || options[0].value
-//   );
-
-//   const onSelect = (value: string) => {
-//     setFilterValue(value);
-//     setQueryParamState(value === "all" ? undefined : value);
-//   };
-
-//   return (
-//     <Select options={options} selected={filterValue} onSelect={onSelect} />
-//   );
-// };
-
-// const LoadMoreProposals = ({ emptyList }: { emptyList: boolean }) => {
-//   const daoAddress = useDaoAddress();
-
-//   const loadMoreOnScroll = false
-//   const hide = false
-
-//   return (
-//     <LoadMore
-//       hide={hide}
-//       loadMoreOnScroll={loadMoreOnScroll}
-//       showMore={() => {}}
-//       isFetchingNextPage={false}
-//     />
-//   );
-// };
+  padding: "8px 20px",
+  height: "unset",
+});
 
 const StyledEmptyList = styled(Container)({
   width: "100%",

@@ -56,7 +56,7 @@ export function SetRolesStep() {
               validateFormik(formik);
             }}
           >
-            {editMode ? t("editForum") : t("Register Forum")}
+            {t("registerForum")}
           </Button>
         </Submit>
       </StyledFlexColumn>
