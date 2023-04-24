@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Img, SideMenu, Link, AddressDisplay } from "components";
+import { Img, SideMenu, AddressDisplay, OverflowText } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
@@ -7,7 +7,6 @@ import { useDaoQuery } from "query/queries";
 import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
-import { getTonScanContractUrl, makeElipsisAddress } from "utils";
 import Socials from "./Socials";
 
 export function DaoMenu() {
@@ -35,9 +34,11 @@ export function DaoMenu() {
         <StyledLogo src={dao?.daoMetadata?.avatar} />
 
         <StyledFlexColumn>
-          <Typography variant="h2" className="title">
-            {dao?.daoMetadata?.name}
-          </Typography>
+          <StyledOverflowText
+            limit={20}
+            className="title"
+            value={dao?.daoMetadata?.name}
+          />
           <AddressDisplay address={dao?.daoAddress} />
         </StyledFlexColumn>
       </StyledTop>
@@ -50,6 +51,13 @@ export function DaoMenu() {
     </StyledContainer>
   );
 }
+
+const StyledOverflowText = styled(OverflowText)({
+  color:'black',
+  fontWeight: 700,
+  fontSize: 20
+});
+
 const StyledTop = styled(StyledFlexColumn)({
   padding: 20,
   paddingBottom: 0,

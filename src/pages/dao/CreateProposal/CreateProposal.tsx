@@ -3,27 +3,33 @@ import {
   Button,
   ConnectButton,
   Container,
+  InputsForm,
   LoadingContainer,
-  MapInput,
   Markdown,
   Page,
   SideMenu,
   TitleContainer,
 } from "components";
 import { FormikProps, useFormik } from "formik";
-import { useCurrentRoute, useDaoAddress, useDebouncedCallback } from "hooks";
+import { useDaoAddress, useDebouncedCallback } from "hooks";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FormData, FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
 import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useDaoQuery } from "query/queries";
 import { appNavigation } from "router";
 import { validateFormik } from "utils";
 import { ZERO_ADDRESS } from "consts";
 
-function Content() {
+const initialChoices = [
+  { key: crypto.randomUUID(), value: "Yes" },
+  { key: crypto.randomUUID(), value: "No" },
+  { key: crypto.randomUUID(), value: "Abstain" },
+];
+
+function Form() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
 
   const daoAddress = useDaoAddress();
@@ -43,7 +49,7 @@ function Content() {
       jetton: initialJetton === ZERO_ADDRESS ? "" : initialJetton,
       nft: initialNFT === ZERO_ADDRESS ? "" : initialNFT,
       votingPowerStrategy: formData.votingPowerStrategy || 0,
-      votingChoices: ["Yes", "No", "Abstain"],
+      votingChoices: formData.votingChoices || initialChoices,
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>
@@ -98,7 +104,6 @@ const StyledContainer = styled(StyledFlexRow)({
 
 export const CreateProposal = () => {
   const daoAddress = useDaoAddress();
-
   const isLoading = useDaoQuery(daoAddress).isLoading;
   if (isLoading) {
     return (
@@ -112,7 +117,7 @@ export const CreateProposal = () => {
   }
   return (
     <Page back={appNavigation.daoPage.root(daoAddress)}>
-      <Content />
+      <Form />
     </Page>
   );
 };
@@ -142,48 +147,23 @@ const StyledPreview = styled(Container)({
 });
 
 function CreateForm({ formik }: { formik: FormikProps<FormData> }) {
-  const inputs = useInputs(formik);
+  const { firstSection, secondSection, thirdSection } = useInputs(formik);
 
   return (
     <StyledFlexColumn gap={15}>
       <StyledDescription>
         <StyledFlexColumn gap={20}>
-          {inputs.map((input, index) => {
-            if (index > 1) return null;
-            return (
-              <MapInput<FormData>
-                key={input.name}
-                input={input}
-                formik={formik}
-              />
-            );
-          })}
+          <InputsForm formik={formik} inputs={firstSection} />
         </StyledFlexColumn>
       </StyledDescription>
       <TitleContainer title="Voting configurations">
-        <StyledFlexColumn gap={15}>
-          {inputs.map((input, index) => {
-            if (index !== 2 && index !== 3) return null;
-            return (
-              <MapInput<FormData>
-                key={input.name}
-                input={input}
-                formik={formik}
-              />
-            );
-          })}
+        <StyledFlexColumn gap={20}>
+          <InputsForm formik={formik} inputs={secondSection} />
         </StyledFlexColumn>
       </TitleContainer>
       <TitleContainer title="Voting period">
         <StyledVotingPeriod>
-          {inputs.map((input, index) => {
-            if (index < 4) return null;
-            return (
-              <StyledVotingPeriodInput key={input.name}>
-                <MapInput<FormData> input={input} formik={formik} />
-              </StyledVotingPeriodInput>
-            );
-          })}
+          <InputsForm formik={formik} inputs={thirdSection} />
         </StyledVotingPeriod>
       </TitleContainer>
     </StyledFlexColumn>
@@ -191,17 +171,16 @@ function CreateForm({ formik }: { formik: FormikProps<FormData> }) {
 }
 
 const StyledVotingPeriod = styled(StyledFlexRow)({
-  flexWrap:'wrap',
-  justifyContent:'flex-start',
-  gap:20
-})
-
-const StyledVotingPeriodInput = styled(Box)({
-  width:'calc(50% - 10px)',
-})
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
+  gap: 20,
+  ".form-input": {
+    width: "calc(50% - 10px)",
+  },
+});
 
 const StyledDescription = styled(Container)({
-  width:'100%'
+  width: "100%",
 });
 
 function CreateProposalMenu({

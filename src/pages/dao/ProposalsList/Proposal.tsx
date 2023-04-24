@@ -1,18 +1,12 @@
 import { Typography, styled, Box, Alert } from "@mui/material";
-import {
-  Button,
-  AddressDisplay,
-  Status,
-  Markdown,
-  AppTooltip,
-} from "components";
+import { AddressDisplay, Status, AppTooltip } from "components";
 import { useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
-import { Proposal, ProposalResults, ProposalStatus } from "types";
+import { Proposal, ProposalStatus } from "types";
 import {
   getTimeDiff,
   calculateTonAmount,
@@ -30,6 +24,7 @@ import {
   StyledProposalResultProgress,
 } from "./styles";
 import { typography } from "@mui/system";
+import { useTranslation } from "react-i18next";
 
 const Time = ({
   proposalMetadata,
@@ -38,18 +33,21 @@ const Time = ({
   proposalMetadata: ProposalMetadata;
   status: ProposalStatus | null;
 }) => {
+  const { t } = useTranslation();
   if (!status) return null;
 
   if (status === ProposalStatus.NOT_STARTED) {
     return (
       <Typography className="time-left">
-        Start in {getTimeDiff(proposalMetadata.proposalStartTime)}
+        {t("startIn", {
+          value: getTimeDiff(proposalMetadata.proposalStartTime),
+        })}
       </Typography>
     );
   }
   return (
     <Typography className="time-left">
-      {getTimeDiff(proposalMetadata.proposalEndTime)} Left
+      {t("endIn", { value: getTimeDiff(proposalMetadata.proposalEndTime) })}
     </Typography>
   );
 };
@@ -65,18 +63,17 @@ const useHideProposal = (
   const title = proposal?.metadata?.title.toLowerCase();
   const description = proposal?.metadata?.description.toLowerCase();
 
+  const filters = [title, description, proposalAddress];
+
   if (queryParamState && queryParamState !== status) {
     return true;
   }
 
-  if (!queryParamText) {
-    return false;
-  }
-
   if (
-    !title?.includes(queryParamText.toLowerCase()) &&
-    !description?.includes(queryParamText.toLowerCase()) &&
-    !proposalAddress?.toLowerCase().includes(queryParamText.toLowerCase())
+    queryParamText &&
+    !filters.some((it) => {
+      return it?.toLowerCase().includes(queryParamText.toLowerCase());
+    })
   ) {
     return true;
   }
@@ -163,14 +160,14 @@ const StyledProposalTitle = styled(Typography)({
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;
 
+  const { t } = useTranslation();
+
   const { totalWeight } = proposalResult;
 
   if (Number(totalWeight) === 0) {
     return (
       <StyledAlet severity="warning">
-        <Typography>
-          Proposal ended and didnt passed the minimim quorum
-        </Typography>
+        <Typography>{t('endedAndDidntPassedQuorum')}</Typography>
       </StyledAlet>
     );
   }

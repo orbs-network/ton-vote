@@ -2,7 +2,7 @@ import { styled, Typography, useTheme } from "@mui/material";
 import { Container, List, LoadMore, Page, Search } from "components";
 import { useDaosQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
+import { StyledEmptyText, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import {
@@ -59,7 +59,7 @@ export function DaosPage() {
 
   const filteredDaos = filterDaos(data, searchValue);
 
-  const emptyList = !isLoading && !_.size(data);
+  const emptyList = !isLoading && !_.size(filteredDaos);
   return (
     <Page hideBack={true}>
       <StyledFlexColumn alignItems="flex-start" gap={24}>
@@ -78,7 +78,11 @@ export function DaosPage() {
             isEmpty={!!emptyList}
             loader={<ListLoader />}
             emptyComponent={
-              <StyledEmptyList>There are no Daos yet</StyledEmptyList>
+              <StyledEmptyList>
+                <StyledFlexRow>
+                  <StyledEmptyText>{t("noSpaces")}</StyledEmptyText>
+                </StyledFlexRow>
+              </StyledEmptyList>
             }
           >
             <StyledDaosList>
@@ -101,15 +105,18 @@ export function DaosPage() {
   );
 }
 
+const StyledEmptyList = styled(Container)({
+  width: "100%",
+
+});
+
+
 const StyledDaosAmount = styled(Typography)({
   fontSize: 15,
   fontWeight: 700
 });
 
-const StyledEmptyList = styled(Typography)({
-  fontSize: 18,
-  fontWeight: 700,
-});
+
 
 const StyledSearch = styled(Search)({
   maxWidth: 400,

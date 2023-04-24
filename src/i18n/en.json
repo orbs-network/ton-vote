@@ -33,6 +33,13 @@
     "spaceNameTooltip":"Your Space's name",
     "projectAboutTooltip":"What is your project about? \n Supports Markdown for editing, adding images, etc. [Read more](https://www.markdownguide.org/basic-syntax/)",
     "spaceAvatarTootlip":"Your project’s logo, 512*512 Pixel PNG image URL",
-    "tonDnsTooltip":"Enter your project’s DNS domain or follow the instructions on [https://dns.ton.org/](https://dns.ton.org/)"
+    "tonDnsTooltip":"Enter your project’s DNS domain or follow the instructions on [https://dns.ton.org/](https://dns.ton.org/)",
+    "stylingWithMarkdown":" Styling with Markdown is supported",
+    "startIn": "Starts in {{value}}",
+    "endIn": "Ends in {{value}}",
+    "emptyProposals":"No proposals found",
+  "noSpaces":"No spaces found",
+  "endedAndDidntPassedQuorum":"Proposal ended and didnt passed the minimim quorum"
+
   }
 }

@@ -4,6 +4,7 @@ import {
   Container,
   FadeElement,
   Header,
+  InputsForm,
   MapInput,
   TitleContainer,
 } from "components";
@@ -11,7 +12,7 @@ import { StyledFlexColumn } from "styles";
 import { FormikValues, useFormik } from "formik";
 import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
 import _ from "lodash";
-import { DaoMetadataFormSchema, useCreateDaoMetadataInputs } from "./form";
+import { DaoMetadataFormSchema, useInputs } from "./form";
 import { Submit } from "./Submit";
 import { StyledInputs } from "../styles";
 import { useEffect } from "react";
@@ -24,7 +25,7 @@ export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
   const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
 
-  const inputs = useCreateDaoMetadataInputs();
+  const { createMetadataInputs } = useInputs();
 
   const onSubmit = async (_formData: DaoMetadata) => {
     createMetadata(_formData);
@@ -67,16 +68,11 @@ export function CreateMetadataStep() {
     >
       <StyledFlexColumn>
         <StyledInputs>
-          {inputs.map((input) => {
-            return (
-              <MapInput<DaoMetadata>
-                key={input.name}
-                input={input}
-                formik={formik}
-                EndAdornment={EndAdornment}
-              />
-            );
-          })}
+          <InputsForm
+            inputs={createMetadataInputs}
+            formik={formik}
+            EndAdornment={EndAdornment}
+          />
         </StyledInputs>
         <Submit>
           <Button

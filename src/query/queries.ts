@@ -11,10 +11,12 @@ import {
   getDaoRoles,
   getProposalMetadata,
   ProposalMetadata,
+  getSingleVoterPower
 } from "ton-vote-contracts-sdk";
 import { getProposalStatus, Logger } from "utils";
 import { OLD_DAO, proposals } from "data/data";
 import { useNewDataStore } from "store";
+import { showPromiseToast } from "toasts";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -23,19 +25,20 @@ export const useDaosQuery = (refetchInterval?: number) => {
     [QueryKeys.DAOS],
     async ({ signal }) => {
       const res = (await getDaos(signal)) || [];
-      const daos = [OLD_DAO, ...res]
+      const daos = [OLD_DAO, ...res];
       if (!_.size(newDaosAddresses)) {
         return daos;
       }
       const addresses = _.map(daos, (it) => it.daoAddress);
       const client = await getClientV2();
 
-      let newDaosMap: Array<Dao | undefined> = await Promise.all(
+      let promise: Promise<Array<Dao | undefined>> = Promise.all(
         _.map(newDaosAddresses, async (newDaoAddress) => {
           if (addresses.includes(newDaoAddress)) {
             removeDao(newDaoAddress);
           } else {
             Logger(`New DAO: ${newDaoAddress}`);
+
             return {
               daoAddress: newDaoAddress,
               daoMetadata: await getDaoMetadata(client, newDaoAddress),
@@ -48,13 +51,22 @@ export const useDaosQuery = (refetchInterval?: number) => {
         })
       );
 
+      showPromiseToast({
+        promise: promise,
+        loading: "Updating Spaces",
+        success: "Spaces updated",
+      });
+
+      const newDaosMap = await promise;
+
       const newDaos = _.compact(newDaosMap);
 
-      return [...newDaos, ...daos];
+      daos.splice(1, 0, ...newDaos);
+
+      return daos;
     },
     {
       refetchInterval,
-     
     }
   );
 };
@@ -87,7 +99,7 @@ export const useDaoQuery = (
   staleTime: number = Infinity
 ) => {
   const handleProposal = useHandleNewProposals();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useQuery(
     [QueryKeys.DAO, daoAddress],
@@ -163,8 +175,4 @@ export const useProposalStatusQuery = (
 
   return query.data as ProposalStatus | null;
 };
-
-
-
-
 

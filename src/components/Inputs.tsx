@@ -9,9 +9,10 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  IconButton,
 } from "@mui/material";
-import React, { ReactNode, useCallback, useRef, useState } from "react";
-import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import React, { ReactNode, useCallback } from "react";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
 import { BsUpload } from "react-icons/bs";
@@ -19,12 +20,15 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { InputInterface, RadioOption } from "types";
+import { InputInterface, InputOption } from "types";
 import { FormikProps } from "formik";
 import { Img } from "./Img";
 import { AppTooltip } from "./Tooltip";
 import _ from "lodash";
-import { PROPOSAL_ABOUT_CHARS_LIMIT } from "consts";
+import { FaMarkdown } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import { t } from "i18next";
+import { Button } from "./Button";
 
 interface TextInputProps {
   value?: string | number;
@@ -44,6 +48,7 @@ interface TextInputProps {
   limit?: number;
   startAdornment?: ReactNode;
   disabled?: boolean;
+  isMarkdown?: boolean;
 }
 
 export function TextInput({
@@ -64,7 +69,10 @@ export function TextInput({
   limit,
   startAdornment,
   disabled,
+  isMarkdown,
 }: TextInputProps) {
+  const { t } = useTranslation();
+
   const _onChange = (_value: string) => {
     if (!limit) {
       onChange(_value);
@@ -84,21 +92,32 @@ export function TextInput({
         required={required}
         tooltip={tooltip}
       />
-      <StyledInput
-        placeholder={placeholder}
-        onBlur={onBlur}
-        name={name}
-        rows={rows}
-        disabled={disabled}
-        multiline={rows && rows > 1 ? true : false}
-        onFocus={onFocus}
-        variant="outlined"
-        value={value}
-        error={!!error}
-        label={label}
-        onChange={(e) => _onChange(e.target.value)}
-        InputProps={{ endAdornment, startAdornment }}
-      />
+      <div style={{ position: "relative", width: "100%" }}>
+        <StyledInput
+          markdown={isMarkdown ? 1 : 0}
+          placeholder={placeholder}
+          onBlur={onBlur}
+          name={name}
+          rows={rows}
+          disabled={disabled}
+          multiline={rows ? true : false}
+          onFocus={onFocus}
+          variant="outlined"
+          value={value}
+          error={!!error}
+          label={label}
+          onChange={(e) => _onChange(e.target.value)}
+          InputProps={{ endAdornment, startAdornment }}
+        />
+        {isMarkdown && (
+          <StyledMdIcon>
+            <AppTooltip text={t("stylingWithMarkdown")} placement="top">
+              <FaMarkdown style={{ width: 20, height: 20 }} />
+            </AppTooltip>
+          </StyledMdIcon>
+        )}
+      </div>
+
       {error && (
         <StyledError>
           <RiErrorWarningLine />
@@ -108,6 +127,12 @@ export function TextInput({
     </StyledContainer>
   );
 }
+
+const StyledMdIcon = styled(Box)({
+  position: "absolute",
+  right: 10,
+  bottom: 0,
+});
 
 const Header = ({
   title,
@@ -124,21 +149,21 @@ const Header = ({
 }) => {
   const charsAmount = _.size(value || "");
 
-  if (!title) return null
-    return (
-      <StyledInputHeader>
-        <StyledFlexRow justifyContent="flex-start" width="auto">
-          <Title title={title} required={required} />
-          {tooltip && <AppTooltip info markdown={tooltip} />}
-        </StyledFlexRow>
+  if (!title) return null;
+  return (
+    <StyledInputHeader>
+      <StyledFlexRow justifyContent="flex-start" width="auto">
+        <Title title={title} required={required} />
+        {tooltip && <AppTooltip info markdown={tooltip} />}
+      </StyledFlexRow>
 
-        {limit && (
-          <StyledChars>
-            {charsAmount}/{limit}
-          </StyledChars>
-        )}
-      </StyledInputHeader>
-    );
+      {limit && (
+        <StyledChars>
+          {charsAmount}/{limit}
+        </StyledChars>
+      )}
+    </StyledInputHeader>
+  );
 };
 
 const StyledChars = styled(Typography)({
@@ -267,10 +292,13 @@ const StyledError = styled(StyledFlexRow)({
   },
 });
 
-const StyledInput = styled(TextField)({
+const StyledInput = styled(TextField)<{ markdown: number }>(({ markdown }) => ({
   width: "100%",
   fieldset: {
     borderRadius: 10,
+  },
+  ".MuiInputBase-root": {
+    paddingBottom: markdown ? "30px" : "unset",
   },
   input: {
     background: "transparent!important",
@@ -280,9 +308,8 @@ const StyledInput = styled(TextField)({
     "::placeholder": {
       opacity: 1,
     },
- 
   },
-});
+}));
 
 interface DateRangeInputProps {
   className?: string;
@@ -436,7 +463,7 @@ export function MapInput<T>({
       <ListInputs
         title={label}
         onChange={onChange}
-        value={value as string[]}
+        values={value as InputOption[]}
         required={input.required}
       />
     );
@@ -455,6 +482,7 @@ export function MapInput<T>({
       name={name}
       onChange={onChange}
       rows={input.rows}
+      isMarkdown={input.isMarkdown}
       endAdornment={
         input.defaultValue && !value && EndAdornment ? (
           <EndAdornment onClick={() => onChange(input.defaultValue)} />
@@ -486,7 +514,7 @@ const CheckboxInput = ({
 interface RadioInputProps<T> {
   value?: string | number;
   label: string;
-  options: RadioOption[];
+  options: InputOption[];
   formik: FormikProps<T>;
   onChange: (value: string | number) => void;
   required?: boolean;
@@ -510,7 +538,7 @@ export function RadioInput<T>({
             <StyledFlexColumn key={it.value}>
               <StyledFlexRow justifyContent="flex-start">
                 <Radio onChange={() => onChange(it.value)} checked={checked} />
-                <Typography>{it.label}</Typography>
+                <Typography>{it.key}</Typography>
               </StyledFlexRow>
               {it.input && checked && (
                 <MapInput input={it.input} formik={formik} />
@@ -536,7 +564,7 @@ const StycheckBoxInput = styled(StyledFlexRow)({});
 interface SelectboxInputProps<T> {
   value?: string | number;
   label: string;
-  options: RadioOption[];
+  options: InputOption[];
   formik: FormikProps<T>;
   onChange: (value: string | number) => void;
   required?: boolean;
@@ -566,7 +594,7 @@ function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
           {options.map((it) => {
             return (
               <MenuItem key={it.value} value={it.value}>
-                {it.label}
+                {it.key}
               </MenuItem>
             );
           })}
@@ -597,30 +625,80 @@ const StyledSelectBoxInput = styled(StyledContainer)({
 });
 
 interface ListProps {
-  value: string[];
-  onChange: (value: string) => void;
+  values: InputOption[];
+  onChange: (value: InputOption[]) => void;
   title: string;
   required?: boolean;
 }
 
-export const ListInputs = ({ value, title, required }: ListProps) => {
+export const ListInputs = ({
+  values,
+  title,
+  required,
+  onChange,
+}: ListProps) => {
+  const onInputChange = (key: string, _value: string) => {
+    const newValue = values.map((it) => {
+      if (it.key === key) {
+        return { ...it, value: _value };
+      }
+      return it;
+    });
+    onChange(newValue);
+  };
+
+  const addOption = () => {
+    const newValue = [...values, { key: crypto.randomUUID(), value: "" }];
+    onChange(newValue);
+  };
+
+  const deleteOption = (key: string) => {
+    const newValue = values.filter((it) => it.key !== key);
+    onChange(newValue);
+  };
+
   return (
     <StyledContainer>
       <Header title={title} required={required} />
-      <StyledFlexColumn gap={15} alignItems='flex-start'>
-        {value.map((it, index) => {
+      <StyledFlexColumn gap={15} alignItems="flex-start">
+        {values.map((it, index) => {
+          const isLast = index === values.length - 1;
           return (
-            <StyledListTextInput
-              key={it}
-              startAdornment={
-                <StyledListInputPrefix>
-                  Option {index + 1}
-                </StyledListInputPrefix>
-              }
-              onChange={() => {}}
-              value={it}
-              disabled={true}
-            />
+            <StyledFlexRow justifyContent="flex-start" key={it.key}>
+              <StyledListTextInput>
+                <TextInput
+                  // endAdornment={
+                  //   index > 0 && (
+                  //     <AppTooltip text="Delete choice">
+                  //       <IconButton onClick={() => deleteOption(it.key)}>
+                  //         <BsFillTrash3Fill
+                  //           style={{
+                  //             width: 17,
+                  //             height: 17,
+                  //             cursor: "pointer",
+                  //           }}
+                  //         />
+                  //       </IconButton>
+                  //     </AppTooltip>
+                  //   )
+                  // }
+                  startAdornment={
+                    <StyledListInputPrefix>
+                      Option {index + 1}
+                    </StyledListInputPrefix>
+                  }
+                  onChange={(value) => onInputChange(it.key, value)}
+                  value={it.value}
+                />
+              </StyledListTextInput>
+              {/* {isLast && (
+                <AppTooltip text="Add option">
+                  <StyledAddMoreButton onClick={addOption}>
+                    <AiOutlinePlus style={{ width: 17, height: 17 }} />
+                  </StyledAddMoreButton>
+                </AppTooltip>
+              )} */}
+            </StyledFlexRow>
           );
         })}
       </StyledFlexColumn>
@@ -628,14 +706,47 @@ export const ListInputs = ({ value, title, required }: ListProps) => {
   );
 };
 
-
-const StyledListTextInput = styled(TextInput)({
-  maxWidth: 400
+const StyledAddMoreButton = styled(Button)({
+  width: "auto",
+  height: "auto",
+  borderRadius: "50%",
+  padding: 10,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 });
 
-
+const StyledListTextInput = styled(StyledFlexRow)({
+  maxWidth: 400,
+});
 
 const StyledListInputPrefix = styled(Typography)({
   whiteSpace: "nowrap",
   opacity: 0.6,
+});
+
+interface InputsFormProps<T> {
+  inputs: InputInterface[];
+  formik: FormikProps<T>;
+  EndAdornment?: any;
+}
+
+export function InputsForm<T>({
+  inputs,
+  formik,
+  EndAdornment,
+}: InputsFormProps<T>) {
+  return (
+    <>
+      {inputs.map((it) => (
+        <StyledFormInput key={it.name} className="form-input">
+          <MapInput EndAdornment={EndAdornment} input={it} formik={formik} />
+        </StyledFormInput>
+      ))}
+    </>
+  );
+}
+
+const StyledFormInput = styled(Box)({
+  width: "100%",
 });

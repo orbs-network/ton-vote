@@ -1,4 +1,4 @@
-import { PROPOSAL_ABOUT_CHARS_LIMIT, PROPOSAL_TITLE_LIMIT } from "consts";
+import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { FormikProps } from "formik";
 import _ from "lodash";
 import moment from "moment";
@@ -16,24 +16,24 @@ export interface FormData {
   jetton: string;
   nft: string;
   votingPowerStrategy: number;
-  votingChoices: string[];
+  votingChoices: { key: string; value: string }[];
 }
 
 export const FormSchema = Yup.object().shape({
   description: Yup.string().test(
     "test",
-    `About must be less than or equal to ${PROPOSAL_ABOUT_CHARS_LIMIT} characters`,
+    `About must be less than or equal to ${ABOUT_CHARS_LIMIT} characters`,
     (value, context) => {
-      return _.size(value) <= PROPOSAL_ABOUT_CHARS_LIMIT;
+      return _.size(value) <= ABOUT_CHARS_LIMIT;
     }
   ),
   title: Yup.string()
     .required("Title is Required")
     .test(
       "test",
-      `Title must be less than or equal to ${PROPOSAL_TITLE_LIMIT} characters`,
+      `Title must be less than or equal to ${TITLE_LIMIT} characters`,
       (value, context) => {
-        return _.size(value) <= PROPOSAL_TITLE_LIMIT;
+        return _.size(value) <= TITLE_LIMIT;
       }
     ),
   jetton: Yup.string()
@@ -112,14 +112,14 @@ export const FormSchema = Yup.object().shape({
     .required("Proposal snapshot time is required"),
 });
 
-export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
-  return [
+export const useInputs = (formik: FormikProps<FormData>) => {
+  const firstSection: InputInterface[] = [
     {
       label: "Title",
       type: "text",
       name: "title",
       required: true,
-      limit: PROPOSAL_TITLE_LIMIT,
+      limit: TITLE_LIMIT,
     },
     {
       label: "Description",
@@ -128,20 +128,23 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       rows: 9,
       tooltip:
         "Supports Markdown for editing, adding images, etc. [Read more](https://www.markdownguide.org/basic-syntax/)",
-      limit: PROPOSAL_ABOUT_CHARS_LIMIT,
-      placeholder: "Describe your proposal (Supports Markdown for editing)",
+      limit: ABOUT_CHARS_LIMIT,
+      isMarkdown: true,
     },
+  ];
+
+  const secondSection: InputInterface[] = [
     {
       label: "Select Voting Strategy",
       type: "select",
       name: "votingPowerStrategy",
       options: [
         {
-          label: "Ton Balance",
+          key: "Ton Balance",
           value: 0,
         },
         {
-          label: "Jetton Balance",
+          key: "Jetton Balance",
           value: 1,
           input: {
             label: "Jetton Address",
@@ -153,7 +156,7 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
           },
         },
         {
-          label: "NFT Collection",
+          key: "NFT Collection",
           value: 2,
           input: {
             label: "NFT Address",
@@ -171,6 +174,9 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       type: "list",
       name: "votingChoices",
     },
+  ];
+
+  const thirdSection: InputInterface[] = [
     {
       label: "Snapshot time",
       type: "date",
@@ -191,4 +197,10 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       required: true,
     },
   ];
+
+  return {
+    firstSection,
+    secondSection,
+    thirdSection,
+  };
 };

@@ -67,6 +67,7 @@ export enum QueryKeys {
   PROPOSAL = "PROPOSAL",
   PROPOSAL_PAGE = "PROPOSAL_PAGE",
   DAO = "DAO",
+  SIGNLE_VOTING_POWER = "SIGNLE_VOTING_POWER",
 }
 
 export const APP_TITLE = "TON Vote";

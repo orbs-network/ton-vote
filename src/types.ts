@@ -79,11 +79,11 @@ export type InputType =
   | "select"
   | "list"
 
-export type RadioOption = {
-  label: string;
+export type InputOption = {
+  key: string;
   value: string | number;
   input?: InputInterface;
-}
+};
 export interface InputInterface {
   label: string;
   type: InputType;
@@ -94,9 +94,10 @@ export interface InputInterface {
   max?: number;
   tooltip?: string;
   required?: boolean;
-  options?: RadioOption[];
+  options?: InputOption[];
   limit?: number;
   placeholder?: string;
+  isMarkdown?: boolean;
 }
 
 export interface Endpoints {

@@ -1,32 +1,26 @@
 import { Box, styled, Typography } from "@mui/material";
-import { AddressDisplay, AppTooltip, Button, Container, FadeElement, Img, Link, Markdown } from "components";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { AddressDisplay, Button, Img, Link, Markdown } from "components";
+import { StyledFlexColumn } from "styles";
 import { InputInterface } from "types";
-import { useCreateDaoMetadataInputs, useRolesInputs } from "./form";
-import {
-  RolesForm,
-  useCreatDaoStore,
-  useCreateDao,
-} from "../store";
+import { useInputs } from "./form";
+import { RolesForm, useCreatDaoStore, useCreateDao } from "../store";
 import { Submit } from "./Submit";
-import { getTonScanContractUrl, makeElipsisAddress } from "utils";
 import { MetadataArgs } from "ton-vote-contracts-sdk";
 import { Step } from "./Step";
 import { useTranslation } from "react-i18next";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
-  const { setStep, daoMetadataForm, rolesForm } = useCreatDaoStore();
+  const { daoMetadataForm, rolesForm } = useCreatDaoStore();
 
-  const rolesInputs = useRolesInputs();
-  const metadataInputs = useCreateDaoMetadataInputs();
+  const { setRolesInputs, createMetadataInputs } = useInputs();
   return (
     <Step title={t("createForum")}>
       <StyledFlexColumn>
         <StyledInputs>
-          {rolesInputs.map((input) => {
+          {setRolesInputs.map((input) => {
             const name = input.name as keyof RolesForm;
             return (
               <InputPreview
@@ -36,7 +30,7 @@ export function CreateDaoStep() {
               />
             );
           })}
-          {metadataInputs.map((input) => {
+          {createMetadataInputs.map((input) => {
             const name = input.name as keyof MetadataArgs;
 
             return (
@@ -77,9 +71,9 @@ const InputPreview = ({
     if (input.type === "url") {
       return <StyledLink href={value}>{value}</StyledLink>;
     }
-     if (input.type === "image") {
-       return <StyledImage src={value} />
-     }
+    if (input.type === "image") {
+      return <StyledImage src={value} />;
+    }
     if (input.type === "address") {
       return <AddressDisplay padding={10} address={value} />;
     }
@@ -103,24 +97,23 @@ const InputPreview = ({
 const StyledInputPreviewComponent = styled(Box)({
   borderRadius: 10,
   border: "1px solid rgba(0, 0, 0, 0.23)",
-  width:'100%',
-  padding: 10
+  width: "100%",
+  padding: 10,
 });
 
 const StyledImage = styled(Img)({
-  width:45,
-  height:45,
-  borderRadius:'50%',
-  overflow:'hidden',
-})
+  width: 45,
+  height: 45,
+  borderRadius: "50%",
+  overflow: "hidden",
+});
 
 const StyledLink = styled(Link)({
   width: "auto",
 });
 
 const StyledMd = styled(Markdown)({
-  width:'100%',
- 
+  width: "100%",
 });
 
 const StyledInputPreview = styled(StyledFlexColumn)({

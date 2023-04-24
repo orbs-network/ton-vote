@@ -1,11 +1,19 @@
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { STATE_REFETCH_INTERVAL, QueryKeys } from "config";
 import { useProposalAddress } from "hooks";
-import _ from "lodash";
+import _, { set } from "lodash";
 import { Proposal, ProposalStatus } from "types";
 import { getProposalStatus, Logger } from "utils";
 import { api, getProposalFromContract } from "lib";
 import { useProposalPersistedStore } from "./store";
+import {
+  getAllNftHolders,
+  getClientV2,
+  getClientV4,
+  getSingleVoterPower,
+  ProposalMetadata,
+  VotingPowerStrategy,
+} from "ton-vote-contracts-sdk";
 
 export const useGetProposal = () => {
   const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
@@ -111,6 +119,35 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
           ]);
         }
       },
+    }
+  );
+};
+
+export const useWalletVotingPower = (account?: string, proposal?: Proposal | null) => {
+  return useQuery(
+    [QueryKeys.SIGNLE_VOTING_POWER, account],
+    async () => {
+      const clientV4 = await getClientV4();
+      let allNftHolders = new Set<string>();
+      if (
+        proposal?.metadata?.votingPowerStrategy ===
+        VotingPowerStrategy.NftCcollection
+      ) {
+        allNftHolders = await getAllNftHolders(clientV4, proposal?.metadata!);
+      }
+
+    Logger(`Fetching voting power for account: ${account}`);
+
+      return getSingleVoterPower(
+        clientV4,
+        account!,
+        proposal?.metadata!,
+        proposal?.metadata?.votingPowerStrategy!,
+        allNftHolders
+      );
+    },
+    {
+      enabled: !!account && !!proposal,
     }
   );
 };

@@ -1,27 +1,33 @@
 import { useConnection } from "ConnectionProvider";
-import { useMemo } from "react";
+import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { useTranslation } from "react-i18next";
 import { InputInterface } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
 
-export const useCreateDaoMetadataInputs = (): InputInterface[] => {
+export const useInputs = () => {
   const { t } = useTranslation();
-  return [
+  const address = useConnection().address;
+
+
+  const createMetadataInputs: InputInterface[] = [
     {
       label: "Name",
       type: "text",
       name: "name",
       tooltip: t("spaceNameTooltip") as string,
       required: true,
+      limit: TITLE_LIMIT
     },
     {
       label: "About",
       type: "textarea",
       name: "about",
-      rows: 5,
+      rows: 6,
       tooltip: t("projectAboutTooltip") as string,
       required: true,
+      isMarkdown: true,
+      limit: ABOUT_CHARS_LIMIT,
     },
     {
       label: "Avatar",
@@ -30,17 +36,6 @@ export const useCreateDaoMetadataInputs = (): InputInterface[] => {
       tooltip: t("spaceAvatarTootlip") as string,
       required: true,
     },
-    // {
-    //   label: "Jetton Address",
-    //   type: "address",
-    //   name: "jetton",
-    //   tooltip: "Your project’s Jetton smart contract on TON",
-    // },
-    // {
-    //   label: "NFT Collection Address",
-    //   type: "address",
-    //   name: "nft",
-    // },
     {
       label: "TON DNS",
       type: "text",
@@ -64,36 +59,31 @@ export const useCreateDaoMetadataInputs = (): InputInterface[] => {
       type: "url",
       name: "website",
     },
-    // {
-    //   label: "Hide Dao",
-    //   type: "checkbox",
-    //   name: "hide",
-    // },
   ];
+
+
+   const setRolesInputs: InputInterface[] =  [
+     {
+       label: "Owner",
+       type: "address",
+       name: "ownerAddress",
+       defaultValue: address,
+       required: true,
+     },
+     {
+       label: "Proposal Owner",
+       type: "address",
+       name: "proposalOwner",
+       defaultValue: address,
+       required: true,
+     },
+   ];
+
+   return { createMetadataInputs, setRolesInputs };
+
 };
 
-export const useRolesInputs = (): InputInterface[] => {
-  const address = useConnection().address;
 
-  return useMemo(() => {
-    return [
-      {
-        label: "Owner",
-        type: "address",
-        name: "ownerAddress",
-        defaultValue: address,
-        required: true,
-      },
-      {
-        label: "Proposal Owner",
-        type: "address",
-        name: "proposalOwner",
-        defaultValue: address,
-        required: true,
-      },
-    ];
-  }, [address]);
-};
 
 export const DaoMetadataFormSchema = Yup.object().shape({
   name: Yup.string().required("Name is Required"),

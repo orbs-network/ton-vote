@@ -36,7 +36,7 @@ const ContainerHeader = () => {
     data?.metadata?.votingPowerStrategy === VotingPowerStrategy.NftCcollection;
 
   return (
-    <Fade in={!isLoading}>
+    
       <StyledContainerHeader>
         <StyledChip
           label={
@@ -54,7 +54,6 @@ const ContainerHeader = () => {
           <DownloadCSV />
         </StyledFlexRow>
       </StyledContainerHeader>
-    </Fade>
   );
 };
 

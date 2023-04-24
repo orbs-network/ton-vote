@@ -1,7 +1,6 @@
 import { Box, styled } from "@mui/material";
 import React, { forwardRef } from "react";
 import ReactMarkdown from "react-markdown";
-import { Link } from "./Link";
 
  export const Markdown = React.forwardRef(
    (

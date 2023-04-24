@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 
 interface Props {
   isLoading: boolean;
-  isEmpty: boolean;
+  isEmpty?: boolean;
   children?: ReactNode;
   emptyComponent?: ReactNode;
   loader?: ReactNode;

@@ -1,12 +1,13 @@
-import { styled, Typography } from "@mui/material";
-import { Button, Container, Header, List, LoadMore, Search } from "components";
+import { Box, styled, Typography } from "@mui/material";
+import {Container, Header, List, LoadMore, Search } from "components";
 import { DAO_REFETCH_INTERVAL } from "config";
 import { useDaoAddress } from "hooks";
+import { t } from "i18next";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { StyledFlexColumn } from "styles";
+import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { DaoDescription } from "../DaoDescription";
 import { ProposalLoader } from "../ProposalLoader";
@@ -71,36 +72,32 @@ export function ProposalsList() {
     10_000
   );
 
-  const isEmpty = !isLoading && !_.size(data?.daoProposals);
-
   return (
     <StyledFlexColumn gap={20}>
       <DaoDescription />
       <StyledHeader title="Proposals" component={<ProposalsSearch />} />
-      <StyledFlexColumn gap={15}>
-        <List
-          isEmpty={isEmpty}
-          isLoading={isLoading}
-          loader={<ListLoader />}
-          emptyComponent={<EmptyList />}
-        >
-          {data?.daoProposals?.map((proposalAddress, index) => {
-            if (index > amount) return null;
-            return (
-              <ProposalComponent
-                key={proposalAddress}
-                proposalAddress={proposalAddress}
-              />
-            );
-          })}
-        </List>
+      <Box style={{ position: "relative", width:'100%' }}>
+       {!isLoading &&  <EmptyList />}
+        <StyledFlexColumn gap={15} style={{zIndex: 10, position:'relative'}}>
+          <List  isLoading={isLoading} loader={<ListLoader />}>
+            {data?.daoProposals?.map((proposalAddress, index) => {
+              if (index > amount) return null;
+              return (
+                <ProposalComponent
+                  key={proposalAddress}
+                  proposalAddress={proposalAddress}
+                />
+              );
+            })}
+          </List>
+        </StyledFlexColumn>
         <LoadMore
           totalItems={_.size(data?.daoProposals)}
           amountToShow={amount}
           showMore={showMore}
           limit={LIMIT}
         />
-      </StyledFlexColumn>
+      </Box>
     </StyledFlexColumn>
   );
 }
@@ -115,26 +112,21 @@ const StyledSearch = styled(Search)({
 });
 
 const EmptyList = () => {
+  const {t} = useTranslation()
   return (
     <StyledEmptyList>
       <StyledFlexColumn>
-        <Typography>No Proposals</Typography>
+        <StyledEmptyText>{t("emptyProposals")}</StyledEmptyText>
       </StyledFlexColumn>
     </StyledEmptyList>
   );
 };
 
-const StyledCreateDao = styled(Button)({
-  padding: "8px 20px",
-  height: "unset",
-});
-
 const StyledEmptyList = styled(Container)({
+  position:'absolute',
   width: "100%",
-  p: {
-    fontSize: 20,
-    fontWeight: 700,
-  },
+  top: 0,
+ 
 });
 
 const ListLoader = () => {

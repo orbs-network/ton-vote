@@ -1,23 +1,23 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
-import { Button, ConnectButton, Popup, TitleContainer } from "components";
-import { useEffect, useState } from "react";
+import { Button, ConnectButton, TitleContainer } from "components";
+import { useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { voteOptions } from "config";
 import { ProposalStatus } from "types";
 import { useConnection } from "ConnectionProvider";
 import { useVote } from "./hooks";
+import { VoteConfirmation } from "./VoteConfirmation";
 
 export function Vote({ proposalStatus }: { proposalStatus: ProposalStatus }) {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
+  const [confirmation, setConfirmation] = useState(false);
 
   return (
     <>
-      <StyledContainer
-        title="Cast your vote"
-      >
+      <StyledContainer title="Cast your vote">
         <StyledFlexColumn>
           {voteOptions.map((option) => {
             return (
@@ -40,18 +40,17 @@ export function Vote({ proposalStatus }: { proposalStatus: ProposalStatus }) {
           <VoteButton
             isLoading={isLoading}
             disabled={!vote || isLoading}
-            onSubmit={() => mutate(vote!)}
+            onSubmit={() => setConfirmation(true)}
           />
         )}
       </StyledContainer>
-      {/* <VoteConfirmation
-      open={true}
-        vote="Yes"
-        votingPower={state?.votingPower}
-        onClose={() => {}}
-        onSubmit={() => {}}
-        snapshot={state?.proposalMetadata?.mcSnapshotBlock}
-      /> */}
+      <VoteConfirmation
+        open={confirmation}
+        vote={voteOptions.find((option) => option.value === vote)?.name}
+        onClose={() => setConfirmation(false)}
+        onSubmit={() => mutate(vote!)}
+        isLoading={isLoading}
+      />
     </>
   );
 }

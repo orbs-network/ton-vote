@@ -1,21 +1,20 @@
 import { styled, Typography } from "@mui/material";
-import { Button, MapInput } from "components";
+import { Button, InputsForm, MapInput } from "components";
 import { useFormik } from "formik";
 import _ from "lodash";
 import { useTranslation } from "react-i18next";
 import { StyledFlexColumn } from "styles";
-import { showErrorToast, showSuccessToast } from "toasts";
 import { validateFormik } from "utils";
 import { RolesForm, useCreatDaoStore } from "../store";
 import { StyledInputs } from "../styles";
-import { SetRolesFormSchema, useRolesInputs } from "./form";
+import { SetRolesFormSchema, useInputs } from "./form";
 import { Step } from "./Step";
 import { Submit } from "./Submit";
 
 export function SetRolesStep() {
   const { setRolesForm, rolesForm, nextStep, editMode } = useCreatDaoStore();
-  const {t} = useTranslation()
-  const inputs = useRolesInputs();
+  const { t } = useTranslation();
+  const { setRolesInputs } = useInputs();
 
   const formik = useFormik<RolesForm>({
     initialValues: {
@@ -31,23 +30,15 @@ export function SetRolesStep() {
     },
   });
 
-
-
-
   return (
     <Step title={editMode ? t("editForumStage") : t("createForumStage")}>
       <StyledFlexColumn>
         <StyledInputs>
-          {inputs.map((input) => {
-            return (
-              <MapInput<RolesForm>
-                EndAdornment={EndAdornment}
-                key={input.name}
-                input={input}
-                formik={formik}
-              />
-            );
-          })}
+          <InputsForm
+            inputs={setRolesInputs}
+            EndAdornment={EndAdornment}
+            formik={formik}
+          />
         </StyledInputs>
         <Submit>
           <Button
@@ -65,7 +56,7 @@ export function SetRolesStep() {
 }
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   return (
     <StyledEndAdornment onClick={onClick}>
       <Typography>{t("connectedWallet")}</Typography>

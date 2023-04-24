@@ -1,67 +1,131 @@
-import { styled, Typography } from "@mui/material";
-import { Button, NumberDisplay, Popup } from "components";
+import { Box, CircularProgress, styled, Typography } from "@mui/material";
+import { Button, InfoMessage, NumberDisplay, Popup } from "components";
 import { useConnection } from "ConnectionProvider";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { VotingPower } from "ton-vote-contracts-sdk";
-
+import { fromNano } from "ton-core";
+import { getSymbol, nFormatter } from "utils";
+import { useProposalPageQuery, useWalletVotingPower } from "./query";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  vote: string;
-  snapshot?: number;
-  votingPower?: VotingPower;
+  vote?: string;
   onSubmit: () => void;
+  isLoading: boolean;
 }
 
 export function VoteConfirmation({
   open,
   onClose,
   vote,
-  snapshot,
-  votingPower = {} as VotingPower,
   onSubmit,
+  isLoading,
 }: Props) {
   const { address } = useConnection();
-  
+
+  const { data } = useProposalPageQuery(false);
+
+  const {
+    data: votingData,
+    isLoading: votingDataLoading,
+    refetch,
+  } = useWalletVotingPower(address, data);
+
+  useEffect(() => {
+    if (open) {
+      refetch();
+    }
+  }, [open]);
+
+  const NoVotingPower = votingData && Number(votingData) === 0 ? true : false;
+
+  const pasredVotingPower = votingData
+    ? nFormatter(Number(fromNano(votingData)))
+    : 0;
+
   return (
     <StyledPopup title="Cast your vote" open={open} onClose={onClose}>
-      <StyledContainer gap={40}>
+      <StyledContainer gap={30}>
         <StyledFlexColumn>
           <Row label="Choice" value={vote} />
-          {snapshot && (
-            <Row label="Snapshot" value={<NumberDisplay value={snapshot} />} />
+          {data?.metadata?.mcSnapshotBlock && (
+            <Row
+              label="Snapshot"
+              value={<NumberDisplay value={data?.metadata?.mcSnapshotBlock} />}
+            />
           )}
-          {address && (
-            <Row label="Your voting power" value={votingPower[address]} />
-          )}
+          <Row
+            isLoading={votingDataLoading}
+            label="Your voting power"
+            value={`${pasredVotingPower} ${getSymbol(
+              data?.metadata?.votingPowerStrategy
+            )}`}
+          />
         </StyledFlexColumn>
-        <StyledFlexRow>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onSubmit}>Confirm</Button>
-        </StyledFlexRow>
+        {NoVotingPower && (
+          <InfoMessage
+            message={`Oops, it seems you don't have any voting power at block ${data?.metadata?.mcSnapshotBlock.toLocaleString()}. `}
+          />
+        )}
+        <StyledButtons>
+          <Button variant="transparent" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            isLoading={isLoading}
+            disabled={NoVotingPower}
+            onClick={onSubmit}
+          >
+            Confirm
+          </Button>
+        </StyledButtons>
       </StyledContainer>
     </StyledPopup>
   );
 }
 
-const StyledPopup = styled(Popup)({
-  maxWidth: 400
+const StyledMessage = styled(Box)({});
+
+const StyledButtons = styled(StyledFlexRow)({
+  button: {
+    width: "50%",
+  },
 });
 
-const Row = ({ label, value }: { label: string; value: ReactNode }) => {
+const StyledPopup = styled(Popup)({
+  maxWidth: 400,
+  padding: 0,
+});
+
+const Row = ({
+  label,
+  value,
+  isLoading,
+}: {
+  label: string;
+  value: ReactNode;
+  isLoading?: boolean;
+}) => {
   return (
-    <StyledRow justifyContent='space-between'>
+    <StyledRow justifyContent="space-between">
       <Typography className="label">{label}</Typography>
-      <Typography className="value">{value}</Typography>
+      {isLoading ? (
+        <CircularProgress style={{ width: 20, height: 20 }} />
+      ) : (
+        <Typography className="value">{value}</Typography>
+      )}
     </StyledRow>
   );
 };
 
-const StyledRow = styled(StyledFlexRow)({});
-
-const StyledContainer = styled(StyledFlexColumn)({
-  
+const StyledRow = styled(StyledFlexRow)({
+  ".label": {
+    fontWeight: 700,
+  },
+  ".value": {
+    fontWeight: 600,
+  },
 });
 
+const StyledContainer = styled(StyledFlexColumn)({});

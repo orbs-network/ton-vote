@@ -28,3 +28,5 @@ export * from "./Status";
 export * from "./AddressDisplay";
 export * from "./Markdown";
 export * from "./PageLoader";
+export * from "./OverflowText";
+export * from "./InfoMessage";
