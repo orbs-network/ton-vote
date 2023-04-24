@@ -37,7 +37,7 @@ export const CLIENT_V2_API_KEY =
 
 
 
-export const STATE_REFETCH_INTERVAL = 30_000;
+export const STATE_REFETCH_INTERVAL = 15_000;
 
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 

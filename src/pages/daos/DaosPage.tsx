@@ -12,7 +12,7 @@ import {
   StyledDaosList,
   StyledJoinDao,
 } from "./styles";
-import { isOwner, makeElipsisAddress } from "utils";
+import { isOwner, makeElipsisAddress, nFormatter } from "utils";
 import { Dao } from "types";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -32,7 +32,16 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
   const addressFilter = _.filter(daos, (it) =>
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
   );
-  return _.uniqBy([...nameFilter, ...addressFilter], "daoAddress");
+  // const proposalAddressFilter = _.filter(daos, (it) =>
+  //   it.daoProposals.find((proposal) => {
+  //     return proposal.toLowerCase().includes(searchValue.toLowerCase());
+  //   })
+  // );
+
+  return _.uniqBy(
+    [...nameFilter, ...addressFilter],
+    "daoAddress"
+  );
 };
 
 export function DaosPage() {
@@ -52,7 +61,7 @@ export function DaosPage() {
 
   const emptyList = !isLoading && !_.size(data);
   return (
-    <Page>
+    <Page hideBack={true}>
       <StyledFlexColumn alignItems="flex-start" gap={24}>
         <StyledFlexRow justifyContent="space-between">
           <StyledSearch
@@ -60,9 +69,7 @@ export function DaosPage() {
             onChange={onSearchInputChange}
           />
           <StyledDaosAmount>
-            <Typography>
-              {_.size(data)} {t("forums")}
-            </Typography>
+            {nFormatter(_.size(data))} {t("forums")}
           </StyledDaosAmount>
         </StyledFlexRow>
         <StyledFlexColumn gap={25}>
@@ -94,13 +101,9 @@ export function DaosPage() {
   );
 }
 
-const StyledDaosAmount = styled(Container)({
-  padding: "10px 20px",
-  borderRadius: 20,
-  width: "unset",
-  p: {
-    fontSize: 13,
-  },
+const StyledDaosAmount = styled(Typography)({
+  fontSize: 15,
+  fontWeight: 700
 });
 
 const StyledEmptyList = styled(Typography)({

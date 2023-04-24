@@ -6,7 +6,7 @@ import { validateAddress } from "utils";
 import * as Yup from "yup";
 
 export const useCreateDaoMetadataInputs = (): InputInterface[] => {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   return [
     {
       label: "Name",
@@ -97,9 +97,8 @@ export const useRolesInputs = (): InputInterface[] => {
 
 export const DaoMetadataFormSchema = Yup.object().shape({
   name: Yup.string().required("Name is Required"),
-  avatar: Yup.string()
-    .url("invalid Avatar URL")
-    .required("Avatar is Required"),
+  avatar: Yup.string().url("invalid Avatar URL").required("Avatar is Required"),
+
   dns: Yup.string()
     .required("TON DNS is Required")
     .test("", "Invalid TON DNS", (value) => {

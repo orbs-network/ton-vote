@@ -25,9 +25,10 @@ function ScrollTop() {
 export default ScrollTop;
 
 const StyledContainer = styled("button")(({ theme }) => ({
+  zIndex:100,
   position: "fixed",
   bottom: 40,
-  left: 40,
+  right: 20,
   background: theme.palette.primary.main,
   borderRadius: "50%",
   border: "unset",
