@@ -76,7 +76,7 @@ export function DaosPage() {
           >
             <StyledDaosList>
               {filteredDaos.map((dao, index) => {
-                if (index >= limit) return null;
+                if (index > limit) return null;
                 return <DaoListItem key={dao.daoAddress} dao={dao} />;
               })}
             </StyledDaosList>
