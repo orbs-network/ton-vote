@@ -10,7 +10,7 @@ import {  useEffect, useRef, useState } from "react";
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
 
 import { useProposalPageQuery } from "pages/proposal/query";
-import { LoadingContainer, Markdown, Header, AddressDisplay, Img, Container, Button } from "components";
+import { LoadingContainer, Markdown, Header, AddressDisplay, Img, Container, Button, OverflowText } from "components";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
@@ -102,15 +102,22 @@ const ProposalOwner = () => {
       <StatusChip proposalMetadata={proposalMetadata} />
       <StyledDaoImg src={dao.data?.daoMetadata.avatar} />
       <StyledFlexRow gap={0} justifyContent="flex-start" style={{ flex: 1 }}>
-        <Link to={appNavigation.daoPage.root(daoAddress)} className="dao-name">
-          {dao.data?.daoMetadata.name}
-        </Link>
+        <StyledLink to={appNavigation.daoPage.root(daoAddress)} className="dao-name">
+          <OverflowText value={dao.data?.daoMetadata.name} limit={10} />
+        </StyledLink>
         <Typography style={{ margin: "0px 5px 0px 5px" }}>by</Typography>
         <AddressDisplay address={proposalAddress} />
       </StyledFlexRow>
     </StyledProposalOwner>
   );
 };
+
+
+const StyledLink = styled(Link)({
+  display: "flex",
+  maxWidth: 200
+})
+
 
 const StatusChip = ({
   proposalMetadata,
@@ -128,10 +135,7 @@ const StatusChip = ({
   return <StyledVoteTimeline label={label} variant="filled" color="primary" />;
 };
 
-const StyledLink = styled("a")({
-  width: "unset",
-  marginLeft: 5,
-});
+
 
 const StyledDaoImg = styled(Img)({
   width: 30,
@@ -145,11 +149,9 @@ const StyledProposalOwner = styled(StyledFlexRow)({
     color: "unset",
     fontWeight: 600,
   },
-  a: {
-    ...textOverflow,
-  },
+
   ".dao-name": {
-    maxWidth: 200,
+    // maxWidth: 200,
   },
 });
 
