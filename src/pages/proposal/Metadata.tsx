@@ -9,7 +9,7 @@ import {
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import moment from "moment";
-import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-sdk";
+import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { useTranslation } from "react-i18next";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {

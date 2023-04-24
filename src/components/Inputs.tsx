@@ -542,8 +542,6 @@ function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
   const { value, options, label, formik, onChange, required, tooltip } = props;
 
   const handleChange = (event: SelectChangeEvent) => {
-    console.log("tst");
-
     onChange(event.target.value);
   };
 
@@ -572,8 +570,8 @@ function SelectBoxInput<T>(props: SelectboxInputProps<T>) {
         {options.map((it) => {
           if (!it.input || it.value !== value) return null;
           return (
-            <div style={{ maxWidth: "600px", width: "100%" }}>
-              <MapInput key={it.value} input={it.input} formik={formik} />{" "}
+            <div key={it.value} style={{ maxWidth: "600px", width: "100%" }}>
+              <MapInput input={it.input} formik={formik} />{" "}
             </div>
           );
         })}
@@ -586,7 +584,7 @@ const StyledSelectBoxInput = styled(StyledContainer)({
   alignItems: "flex-start",
   ".MuiSelect-select": {
     minWidth: 200,
-    padding: "15px 15px",
+    padding: "12.2px 15px",
   },
   fieldset: {
     borderRadius: 10,
@@ -601,15 +599,13 @@ interface ListProps {
 }
 
 export const ListInputs = ({ value, title, required }: ListProps) => {
-  console.log(value);
-
   return (
     <StyledContainer>
       <Header title={title} required={required} />
-      <StyledFlexColumn gap={15}>
+      <StyledFlexColumn gap={15} alignItems='flex-start'>
         {value.map((it, index) => {
           return (
-            <TextInput
+            <StyledListTextInput
               key={it}
               startAdornment={
                 <StyledListInputPrefix>
@@ -627,6 +623,10 @@ export const ListInputs = ({ value, title, required }: ListProps) => {
   );
 };
 
+
+const StyledListTextInput = styled(TextInput)({
+  maxWidth: 400
+});
 
 
 

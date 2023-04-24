@@ -1,8 +1,8 @@
 import { Box, styled, Typography } from "@mui/material";
-import { AppTooltip, Button, Container, FadeElement, Img, Link, Markdown } from "components";
+import { AddressDisplay, AppTooltip, Button, Container, FadeElement, Img, Link, Markdown } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { InputInterface } from "types";
-import { createDaoMetadataInputs, useRolesInputs } from "./form";
+import { useCreateDaoMetadataInputs, useRolesInputs } from "./form";
 import {
   RolesForm,
   useCreatDaoStore,
@@ -10,7 +10,7 @@ import {
 } from "../store";
 import { Submit } from "./Submit";
 import { getTonScanContractUrl, makeElipsisAddress } from "utils";
-import { MetadataArgs } from "ton-vote-sdk";
+import { MetadataArgs } from "ton-vote-contracts-sdk";
 import { Step } from "./Step";
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +21,7 @@ export function CreateDaoStep() {
   const { setStep, daoMetadataForm, rolesForm } = useCreatDaoStore();
 
   const rolesInputs = useRolesInputs();
+  const metadataInputs = useCreateDaoMetadataInputs();
   return (
     <Step title={t("createForum")}>
       <StyledFlexColumn>
@@ -35,7 +36,7 @@ export function CreateDaoStep() {
               />
             );
           })}
-          {createDaoMetadataInputs.map((input) => {
+          {metadataInputs.map((input) => {
             const name = input.name as keyof MetadataArgs;
 
             return (
@@ -80,13 +81,7 @@ const InputPreview = ({
        return <StyledImage src={value} />
      }
     if (input.type === "address") {
-      return (
-        <AppTooltip text={value}>
-          <StyledLink href={getTonScanContractUrl(value)}>
-            {makeElipsisAddress(value, 7)}
-          </StyledLink>
-        </AppTooltip>
-      );
+      return <AddressDisplay padding={10} address={value} />;
     }
 
     if (input.type === "textarea") {
@@ -99,11 +94,18 @@ const InputPreview = ({
   if (!component) return null;
   return (
     <StyledInputPreview>
-      <Typography className="label">{`${input.label}:`}</Typography>
-      {component}
+      <Typography className="label">{`${input.label}`}</Typography>
+      <StyledInputPreviewComponent>{component}</StyledInputPreviewComponent>
     </StyledInputPreview>
   );
 };
+
+const StyledInputPreviewComponent = styled(Box)({
+  borderRadius: 10,
+  border: "1px solid rgba(0, 0, 0, 0.23)",
+  width:'100%',
+  padding: 10
+});
 
 const StyledImage = styled(Img)({
   width:45,
@@ -121,14 +123,14 @@ const StyledMd = styled(Markdown)({
  
 });
 
-const StyledInputPreview = styled(StyledFlexRow)({
+const StyledInputPreview = styled(StyledFlexColumn)({
   flexWrap: "wrap",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "flex-start",
-  gap: 15,
+  gap: 5,
   fontSize: 16,
   ".label": {
+    fontSize: 14,
     fontWeight: 600,
-    fontSize: "inherit",
   },
 });

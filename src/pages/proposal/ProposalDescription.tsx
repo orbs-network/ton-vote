@@ -1,4 +1,4 @@
-import { Box, Chip, Fade, Typography } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import { useDaoQuery, useProposalStatusQuery } from "query/queries";
@@ -7,30 +7,23 @@ import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
 import {  useEffect, useRef, useState } from "react";
-import { ProposalMetadata } from "ton-vote-sdk";
-import { AddressDisplay } from "./AddressDisplay";
-import { Header } from "./Header";
-import { Img } from "./Img";
-import { LoadingContainer } from "./LoadingContainer";
-import { Markdown } from "./Markdown";
-import { Button } from "./Button";
-import { Container } from "./Container";
+import { ProposalMetadata } from "ton-vote-contracts-sdk";
+
 import { useProposalPageQuery } from "pages/proposal/query";
+import { LoadingContainer, Markdown, Header, AddressDisplay, Img, Container, Button } from "components";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
-export function ProposalDescription({
-  metadata,
-  isLoading,
-}: {
-  metadata?: ProposalMetadata;
-  isLoading: boolean;
-}) {
-  const proposalAddress = useProposalAddress()
+export function ProposalDescription() {
   const [showMore, setShowMore] = useState(false);
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const [ready, setReady] = useState(false);
   const elRef = useRef<any>();
+
+
+  const {isLoading, data} = useProposalPageQuery(false)
+
+  const metadata = data?.metadata
 
   useEffect(() => {
     if (elRef.current && !isLoading) {

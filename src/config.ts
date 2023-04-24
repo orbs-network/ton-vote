@@ -65,6 +65,7 @@ export enum QueryKeys {
   PROPOSALS = "PROPOSALS",
   DAO_ROLES = "DAO_ROLES",
   PROPOSAL = "PROPOSAL",
+  PROPOSAL_PAGE = "PROPOSAL_PAGE",
   DAO = "DAO",
 }
 

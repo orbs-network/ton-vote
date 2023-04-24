@@ -11,7 +11,7 @@ import {
   getDaoRoles,
   getProposalMetadata,
   ProposalMetadata,
-} from "ton-vote-sdk";
+} from "ton-vote-contracts-sdk";
 import { getProposalStatus, Logger } from "utils";
 import { OLD_DAO, proposals } from "data/data";
 import { useNewDataStore } from "store";
@@ -156,3 +156,8 @@ export const useProposalStatusQuery = (
 
   return query.data as ProposalStatus | null;
 };
+
+
+
+
+

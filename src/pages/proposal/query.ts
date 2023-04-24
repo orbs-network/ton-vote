@@ -20,6 +20,8 @@ export const useGetProposal = () => {
     const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
 
     const contractProposal = () => {
+      Logger("getting state from contract");
+      
       return getProposalFromContract(
         proposalAddress,
         state,
@@ -34,6 +36,7 @@ export const useGetProposal = () => {
         if (_.isEmpty(state.metadata)) {
           throw new Error("Proposal not found is server");
         }
+        Logger("getting state from server");
         return state;
       } catch (error) {
         return contractProposal();
@@ -75,14 +78,17 @@ export const useGetProposal = () => {
 export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
   const proposalAddress = useProposalAddress();
   const getProposal = useGetProposal();
-  const queryKey = _.compact([QueryKeys.PROPOSAL, proposalAddress]);
+  const queryKey = [QueryKeys.PROPOSAL_PAGE, proposalAddress];
   const queryClient = useQueryClient();
+  const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
 
   return useQuery(
     queryKey,
     async ({ signal }) => {
+            const state = queryClient.getQueryData<Proposal>(queryKey);
+
       // when we have state already and vote finished, we return the cached state
-      const state = queryClient.getQueryData<Proposal>(queryKey);
+   
 
       const voteStatus = state?.metadata && getProposalStatus(state?.metadata);
       const closed = voteStatus === ProposalStatus.CLOSED;
@@ -96,6 +102,12 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
       refetchInterval: STATE_REFETCH_INTERVAL,
       staleTime: 30_000,
       enabled: !!proposalAddress,
+      initialData: () => {
+        const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
+        if (!latestMaxLtAfterTx) {
+          return queryClient.getQueryData<Proposal>([QueryKeys.PROPOSAL, proposalAddress]);
+        }
+      }
     }
   );
 };

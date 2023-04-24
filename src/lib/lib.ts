@@ -1,7 +1,12 @@
 import _ from "lodash";
-import * as TonVoteSDK from "ton-vote-sdk";
-import { getClientV2, getClientV4, getProposalMetadata, VotingPowerStrategy } from "ton-vote-sdk";
-import { Endpoints, Dao, Proposal } from "types";
+import * as TonVoteSDK from "ton-vote-contracts-sdk";
+import {
+  getClientV2,
+  getClientV4,
+  getProposalMetadata,
+  VotingPowerStrategy,
+} from "ton-vote-contracts-sdk";
+import { Endpoints, Dao, Proposal, ProposalResults } from "types";
 import { Logger, parseVotes } from "utils";
 import { api } from "./api";
 
@@ -9,29 +14,31 @@ export const getProposalFromContract = async (
   proposalAddress: string,
   state?: Proposal,
   latestMaxLtAfterTx?: string,
-  customEndpoints?: Endpoints,
- 
+  customEndpoints?: Endpoints
 ): Promise<Proposal | null> => {
   const clientV2 = await getClientV2(
     customEndpoints?.clientV2Endpoint,
     customEndpoints?.apiKey
   );
 
-
-    const clientV4 = await getClientV4(customEndpoints?.clientV4Endpoint);
+  const clientV4 = await getClientV4(customEndpoints?.clientV4Endpoint);
 
   const metadata =
     state?.metadata ||
     (await getProposalMetadata(clientV2, clientV4, proposalAddress));
-    
 
-      let nftItemsHolders = new Set<string>();
-      const votingPowerStrategy = metadata.votingPowerStrategy;
-      if (votingPowerStrategy === VotingPowerStrategy.NftCcollection) {
-        const clientV4 = await getClientV4(customEndpoints?.clientV4Endpoint);
-        nftItemsHolders = await TonVoteSDK.getAllNftHolders(clientV4, metadata);
-      }
+  let nftItemsHolders = new Set<string>();
+  const votingPowerStrategy = metadata.votingPowerStrategy;
+  if (votingPowerStrategy === VotingPowerStrategy.NftCcollection) {
+    const clientV4 = await getClientV4(customEndpoints?.clientV4Endpoint);
+    Logger("fetching nft holders");
 
+    try {
+      nftItemsHolders = await TonVoteSDK.getAllNftHolders(clientV4, metadata);
+    } catch (error) {
+      Logger("error fetching nft holders");
+    }
+  }
 
   let _transactions = state?.transactions || [];
   let _maxLt = state?.maxLt;
@@ -67,7 +74,7 @@ export const getProposalFromContract = async (
     votingPowerStrategy,
     nftItemsHolders
   );
-  
+
   const proposalResult = TonVoteSDK.getCurrentResults(
     _transactions,
     votingPower,
@@ -77,7 +84,7 @@ export const getProposalFromContract = async (
 
   return {
     votingPower,
-    proposalResult,
+    proposalResult: proposalResult as any,
     votes: parseVotes(votes, votingPower),
     maxLt: _maxLt,
     metadata,

@@ -1,7 +1,7 @@
 import { styled } from "@mui/material";
 import { Countdown, LoadingContainer, TitleContainer } from "components";
 import moment from "moment";
-import { ProposalMetadata } from "ton-vote-sdk";
+import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import { ProposalStatus } from "types";
 
 const handleDate = (endDate?: number) => {

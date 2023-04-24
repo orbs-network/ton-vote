@@ -2,9 +2,9 @@ import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
-import { DaoRoles, ProposalMetadata, VotingPowerStrategy } from "ton-vote-sdk";
+import { DaoRoles, ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { ProposalResults, ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
-import * as TonVoteSDK from "ton-vote-sdk";
+import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
 import { showErrorToast } from "toasts";
 

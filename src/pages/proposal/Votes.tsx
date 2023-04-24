@@ -20,7 +20,7 @@ import _ from "lodash";
 import { useConnection } from "ConnectionProvider";
 import { CSVLink } from "react-csv";
 import { BsFiletypeCsv } from "react-icons/bs";
-import { VotingPowerStrategy } from "ton-vote-sdk";
+import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 
 
 

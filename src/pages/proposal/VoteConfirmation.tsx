@@ -3,7 +3,7 @@ import { Button, NumberDisplay, Popup } from "components";
 import { useConnection } from "ConnectionProvider";
 import React, { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { VotingPower } from "ton-vote-sdk";
+import { VotingPower } from "ton-vote-contracts-sdk";
 
 
 interface Props {

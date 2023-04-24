@@ -1,12 +1,11 @@
 import { styled, Typography } from "@mui/material";
 import { Button, Container, Header, List, LoadMore, Search } from "components";
 import { DAO_REFETCH_INTERVAL } from "config";
-import { useDaoAddress, useIsOwner } from "hooks";
+import { useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { DaoDescription } from "../DaoDescription";
@@ -77,7 +76,7 @@ export function ProposalsList() {
   return (
     <StyledFlexColumn gap={20}>
       <DaoDescription />
-      <Header title="Proposals" component={<ProposalsSearch />} />
+      <StyledHeader title="Proposals" component={<ProposalsSearch />} />
       <StyledFlexColumn gap={15}>
         <List
           isEmpty={isEmpty}
@@ -105,6 +104,10 @@ export function ProposalsList() {
     </StyledFlexColumn>
   );
 }
+
+const StyledHeader = styled(Header)({
+  marginBottom: 0
+});
 
 const StyledSearch = styled(Search)({
   maxWidth: 360,

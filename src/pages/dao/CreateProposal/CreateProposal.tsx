@@ -43,7 +43,7 @@ function Content() {
       jetton: initialJetton === ZERO_ADDRESS ? "" : initialJetton,
       nft: initialNFT === ZERO_ADDRESS ? "" : initialNFT,
       votingPowerStrategy: formData.votingPowerStrategy || 0,
-      votingChoices: formData.votingChoices || [],
+      votingChoices: ["Yes", "No", "Abstain"],
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>
@@ -51,9 +51,6 @@ function Content() {
     validateOnChange: false,
     validateOnBlur: true,
   });
-
-
-console.log(formData);
 
   const saveForm = useDebouncedCallback(() => {
     setFormData(formik.values);
@@ -163,7 +160,7 @@ function CreateForm({ formik }: { formik: FormikProps<FormData> }) {
           })}
         </StyledFlexColumn>
       </StyledDescription>
-      <TitleContainer title="Voting">
+      <TitleContainer title="Voting configurations">
         <StyledFlexColumn gap={15}>
           {inputs.map((input, index) => {
             if (index !== 2 && index !== 3) return null;

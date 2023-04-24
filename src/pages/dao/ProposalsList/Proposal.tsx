@@ -11,7 +11,7 @@ import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { ProposalMetadata } from "ton-vote-sdk";
+import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import { Proposal, ProposalResults, ProposalStatus } from "types";
 import { getTimeDiff, calculateTonAmount, normalizeResults } from "utils";
 import { ProposalLoader } from "../ProposalLoader";
@@ -88,6 +88,7 @@ export const ProposalComponent = ({
   const daoAddress = useDaoAddress();
 
   const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
+  
 
   const status = useProposalStatusQuery(proposal?.metadata, proposalAddress);
   const hideProposal = useHideProposal(proposalAddress, proposal, status);

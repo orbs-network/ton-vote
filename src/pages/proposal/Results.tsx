@@ -17,7 +17,7 @@ import { useVerifyProposalResults } from "./hooks";
 import { ProposalResults, Vote } from "types";
 import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "./store";
-import { VotingPowerStrategy } from "ton-vote-sdk";
+import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { EndpointPopup } from "./EndpointPopup";
 
 export const Results = ({
@@ -35,6 +35,9 @@ export const Results = ({
 }) => {
   const symbol = getSymbol(votingPowerStrategy);
 
+  console.log(votes);
+  
+
   const votesCount = useMemo(() => {
     const grouped = _.groupBy(votes, "vote");
 
@@ -45,8 +48,9 @@ export const Results = ({
     };
   }, [dataUpdatedAt]);
 
-  const hideVerify =
-    !proposalResult?.totalWeight || Number(proposalResult?.totalWeight) === 0;
+
+    const results = proposalResult as any || {} as any
+
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -54,7 +58,39 @@ export const Results = ({
   return (
     <StyledResults title="Results">
       <StyledFlexColumn gap={15}>
-        {proposalResult &&
+        <ResultRow
+          symbol={symbol}
+          name={"Yes"}
+          percent={results.yes || 0}
+          tonAmount={calculateTonAmount(
+            results.yes || 0,
+            results?.totalWeight as string
+          )}
+          votes={votesCount.yes}
+        />
+
+        <ResultRow
+          symbol={symbol}
+          name={"No"}
+          percent={results.no || 0}
+          tonAmount={calculateTonAmount(
+            results.no || 0,
+            results?.totalWeight as string
+          )}
+          votes={votesCount.no}
+        />
+        <ResultRow
+          symbol={symbol}
+          name={"Abstain"}
+          percent={results.abstain || 0}
+          tonAmount={calculateTonAmount(
+            results.abstain || 0,
+            results?.totalWeight as string
+          )}
+          votes={votesCount.abstain}
+        />
+
+        {/* {proposalResult &&
           normalizeResults(proposalResult).map((item) => {
             const { title, percent } = item;
 
@@ -70,10 +106,9 @@ export const Results = ({
                 votes={votesCount.yes}
               />
             );
-          })}
-
+          })} */}
       </StyledFlexColumn>
-      {!hideVerify && <VerifyResults />}
+      <VerifyResults />
     </StyledResults>
   );
 };

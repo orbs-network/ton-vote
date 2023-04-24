@@ -9,14 +9,9 @@ import {
 } from "components";
 import { StyledFlexColumn } from "styles";
 import { FormikValues, useFormik } from "formik";
-import {
-  DaoMetadata,
-  useCompareDaoMetadataForm,
-  useCreatDaoStore,
-  useCreateDaoMetadata,
-} from "../store";
+import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
 import _ from "lodash";
-import { DaoMetadataFormSchema, createDaoMetadataInputs } from "./form";
+import { DaoMetadataFormSchema, useCreateDaoMetadataInputs } from "./form";
 import { Submit } from "./Submit";
 import { StyledInputs } from "../styles";
 import { useEffect } from "react";
@@ -28,6 +23,8 @@ import { Step } from "./Step";
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
   const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
+
+  const inputs = useCreateDaoMetadataInputs();
 
   const onSubmit = async (_formData: DaoMetadata) => {
     createMetadata(_formData);
@@ -59,8 +56,6 @@ export function CreateMetadataStep() {
     setDaoMetadataForm(formik.values);
   });
 
-
-
   useEffect(() => {
     saveForm();
   }, [formik.values]);
@@ -72,7 +67,7 @@ export function CreateMetadataStep() {
     >
       <StyledFlexColumn>
         <StyledInputs>
-          {createDaoMetadataInputs.map((input) => {
+          {inputs.map((input) => {
             return (
               <MapInput<DaoMetadata>
                 key={input.name}

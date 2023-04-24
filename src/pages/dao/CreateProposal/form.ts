@@ -2,7 +2,7 @@ import { PROPOSAL_ABOUT_CHARS_LIMIT, PROPOSAL_TITLE_LIMIT } from "consts";
 import { FormikProps } from "formik";
 import _ from "lodash";
 import moment from "moment";
-import { VotingPowerStrategy } from "ton-vote-sdk";
+import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { InputInterface } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";

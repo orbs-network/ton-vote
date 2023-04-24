@@ -7,7 +7,6 @@ import { Container } from "./Container";
 import { Select } from "./Select";
 import { SelectOption } from "types";
 import _ from "lodash";
-import { StyledProposalOwner } from "pages/dao/ProposalsList/styles";
 
 export function Search({
   className = "",
@@ -64,6 +63,7 @@ const StyledSelect = styled(Select)({
     outline: "unset!imporatnt",
   },
   ".MuiSelect-select": {
+    minWidth: 'unset',
     border: "unset",
     paddingLeft: 12,
     "&:hover": {

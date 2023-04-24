@@ -1,5 +1,5 @@
 import { styled, useMediaQuery } from "@mui/material";
-import { Page, ProposalDescription } from "components";
+import { Page } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
@@ -10,20 +10,19 @@ import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
 import { appNavigation } from "router";
 import { useDaoAddress, useProposalAddress } from "hooks";
-import { useProposalState } from "./hooks";
 import { useProposalStatusQuery } from "query/queries";
 import { ProposalStatus } from "types";
+import { useProposalPageQuery } from "./query";
+import { ProposalDescription } from "./ProposalDescription";
 
 const useComponents = () => {
   const proposalAddress = useProposalAddress();
-  const { data, isLoading, dataUpdatedAt } = useProposalState();
-  
+  const { data, isLoading, dataUpdatedAt } = useProposalPageQuery(false);
+
   const status = useProposalStatusQuery(data?.metadata, proposalAddress);
 
   return {
-    proposalDescription: (
-      <ProposalDescription metadata={data?.metadata} isLoading={isLoading} />
-    ),
+    proposalDescription: <ProposalDescription />,
     votes:
       !status || status === ProposalStatus.NOT_STARTED ? null : (
         <Votes
@@ -33,7 +32,7 @@ const useComponents = () => {
         />
       ),
     vote:
-      !status || status !== ProposalStatus.ACTIVE ? null : (
+      !status || status !== ProposalStatus.ACTIVE || isLoading ? null : (
         <Vote proposalStatus={status} />
       ),
     deadline:
@@ -119,7 +118,6 @@ export function ProposalPage() {
   );
 }
 
-
 const StyledWrapper = styled(StyledFlexRow)({
   alignItems: "flex-start",
   "@media (max-width: 850px)": {
@@ -133,5 +131,4 @@ const StyledLeft = styled(StyledFlexColumn)({
 
 const StyledRight = styled(StyledFlexColumn)({
   width: 370,
-
 });

@@ -6,8 +6,8 @@ import { useTxReminderPopup } from "store";
 import { Logger } from "utils";
 import { useProposalPageQuery } from "./query";
 import { useEnpointsStore, useProposalPersistedStore } from "./store";
-import * as TonVoteSDK from "ton-vote-sdk";
-import { getClientV2 } from "ton-vote-sdk";
+import * as TonVoteSDK from "ton-vote-contracts-sdk";
+import { getClientV2 } from "ton-vote-contracts-sdk";
 import { TX_FEE } from "config";
 import { getProposalFromContract } from "lib";
 import { showPromiseToast } from "toasts";
@@ -15,7 +15,7 @@ import { Endpoints } from "types";
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
-  const { data } = useProposalState();
+  const { data } = useProposalPageQuery(false);
   const currentResults = data?.proposalResult;
   const maxLt = data?.maxLt;
   const { setEndpoints } = useEnpointsStore();
@@ -57,9 +57,7 @@ export const useVerifyProposalResults = () => {
   });
 };
 
-export const useProposalState = () => {
-  return useProposalPageQuery(false);
-};
+
 
 export const useVote = () => {
   const getSender = useGetSender();

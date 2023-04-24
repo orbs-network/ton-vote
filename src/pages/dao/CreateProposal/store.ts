@@ -7,7 +7,7 @@ import {
   newProposal,
   ProposalMetadata,
   VotingPowerStrategy,
-} from "ton-vote-sdk";
+} from "ton-vote-contracts-sdk";
 import { create } from "zustand";
 import { FormData } from "./form";
 import { persist } from "zustand/middleware";
@@ -29,7 +29,7 @@ export const useCreateProposalStore = create(
     (set) => ({
       preview: false,
       setPreview: (preview) => set({ preview }),
-      formData: { votingChoices: ['Yes', 'No', 'Abstain'] } as FormData,
+      formData: {  } as FormData,
       setFormData: (formData) => set({ formData }),
     }),
     {

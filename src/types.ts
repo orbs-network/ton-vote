@@ -1,5 +1,5 @@
 import { Address, Transaction } from "ton";
-import { DaoRoles, MetadataArgs, ProposalMetadata, ProposalResult } from "ton-vote-sdk";
+import { DaoRoles, MetadataArgs, ProposalMetadata, ProposalResult } from "ton-vote-contracts-sdk";
 
 
 export type ProposalResults = {[key: string]: number | string}
