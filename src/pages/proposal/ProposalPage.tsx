@@ -75,11 +75,13 @@ const Mobile = () => {
 };
 
 const Meta = () => {
+  const title = useProposalPageQuery(false).data?.metadata?.title;
+
   return (
     <Helmet>
       <title>
         {APP_TITLE}
-        {/* {data ? `- ${data.title}` : ""} */}
+        {title ? ` - ${title}` : ""}
       </title>
     </Helmet>
   );
