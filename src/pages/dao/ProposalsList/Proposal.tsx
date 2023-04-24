@@ -11,9 +11,14 @@ import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { ProposalMetadata } from "ton-vote-contracts-sdk";
+import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { Proposal, ProposalResults, ProposalStatus } from "types";
-import { getTimeDiff, calculateTonAmount, normalizeResults } from "utils";
+import {
+  getTimeDiff,
+  calculateTonAmount,
+  normalizeResults,
+  getSymbol,
+} from "utils";
 import { ProposalLoader } from "../ProposalLoader";
 import removeMd from "remove-markdown";
 import { useFilterValueByState, useFilterValueByText } from "./hooks";
@@ -88,7 +93,6 @@ export const ProposalComponent = ({
   const daoAddress = useDaoAddress();
 
   const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
-  
 
   const status = useProposalStatusQuery(proposal?.metadata, proposalAddress);
   const hideProposal = useHideProposal(proposalAddress, proposal, status);
@@ -156,7 +160,6 @@ const StyledProposalTitle = styled(Typography)({
   fontWeight: 800,
 });
 
-
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;
 
@@ -181,6 +184,7 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
 
           return (
             <Result
+              votingPowerStrategy={proposal.metadata?.votingPowerStrategy}
               key={title}
               title={title}
               percent={percent}
@@ -201,10 +205,12 @@ const Result = ({
   title,
   percent = 0,
   tonAmount = "0",
+  votingPowerStrategy,
 }: {
   title: string;
   percent?: number;
   tonAmount?: string;
+  votingPowerStrategy?: VotingPowerStrategy;
 }) => {
   return (
     <StyledProposalResult>
@@ -214,7 +220,9 @@ const Result = ({
           <Typography style={{ fontWeight: 700, textTransform: "capitalize" }}>
             {title}
           </Typography>
-          <Typography fontSize={13}>{tonAmount} TON</Typography>
+          <Typography fontSize={13}>
+            {tonAmount} {getSymbol(votingPowerStrategy)}
+          </Typography>
         </StyledFlexRow>
         <Typography style={{ fontWeight: 700 }}>{percent}%</Typography>
       </StyledProposalResultContent>

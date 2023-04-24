@@ -17,45 +17,24 @@ import { ProposalDescription } from "./ProposalDescription";
 
 const useComponents = () => {
   const proposalAddress = useProposalAddress();
-  const { data, isLoading, dataUpdatedAt } = useProposalPageQuery(false);
+  const { data, isLoading } = useProposalPageQuery(false);
 
   const status = useProposalStatusQuery(data?.metadata, proposalAddress);
 
   return {
     proposalDescription: <ProposalDescription />,
-    votes:
-      !status || status === ProposalStatus.NOT_STARTED ? null : (
-        <Votes
-          state={data}
-          isLoading={isLoading}
-          dataUpdatedAt={dataUpdatedAt}
-        />
-      ),
+    votes: !status || status === ProposalStatus.NOT_STARTED ? null : <Votes />,
     vote:
       !status || status !== ProposalStatus.ACTIVE || isLoading ? null : (
         <Vote proposalStatus={status} />
       ),
     deadline:
       !status || status === ProposalStatus.CLOSED ? null : (
-        <Deadline proposalStatus={status} proposalMetadata={data?.metadata} />
+        <Deadline proposalStatus={status} />
       ),
-    metadata: (
-      <Metadata
-        proposalAddress={proposalAddress}
-        isLoading={isLoading}
-        proposalMetadata={data?.metadata}
-      />
-    ),
+    metadata: <Metadata />,
     results:
-      !status || status === ProposalStatus.NOT_STARTED ? null : (
-        <Results
-          votingPowerStrategy={data?.metadata?.votingPowerStrategy}
-          votes={data?.votes}
-          proposalResult={data?.proposalResult}
-          isLoading={isLoading}
-          dataUpdatedAt={dataUpdatedAt}
-        />
-      ),
+      !status || status === ProposalStatus.NOT_STARTED ? null : <Results />,
   };
 };
 

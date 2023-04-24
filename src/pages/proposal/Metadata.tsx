@@ -11,20 +11,19 @@ import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
 import moment from "moment";
 import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { useTranslation } from "react-i18next";
+import { useProposalPageQuery } from "./query";
+import { useProposalAddress } from "hooks";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
 };
 
-export const Metadata = ({
-  proposalMetadata,
-  isLoading,
-  proposalAddress,
-}: {
-  proposalMetadata?: ProposalMetadata;
-  isLoading: boolean;
-  proposalAddress?: string;
-}) => {
+export const Metadata = () => {
+  const proposalAddress = useProposalAddress()
+  const {isLoading, data} = useProposalPageQuery(false)
+
+  const proposalMetadata = data?.metadata
+
   if (isLoading) {
     return <LoadingContainer />;
   }

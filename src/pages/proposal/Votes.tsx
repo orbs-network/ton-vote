@@ -21,28 +21,22 @@ import { useConnection } from "ConnectionProvider";
 import { CSVLink } from "react-csv";
 import { BsFiletypeCsv } from "react-icons/bs";
 import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
+import { useProposalPageQuery } from "./query";
 
+const ContainerHeader = () => {
+  const { data, isLoading } = useProposalPageQuery(false);
 
-
-interface Props {
-  state?: Proposal | null;
-  isLoading: boolean;
-  dataUpdatedAt?: number;
-}
-
-const ContainerHeader = (props: Props) => {
-  const totalTonAmount = props.state?.proposalResult?.totalWeight || "0";
-  const votesLength = _.size(props.state?.votes);
+  const totalTonAmount = data?.proposalResult?.totalWeight || "0";
+  const votesLength = _.size(data?.votes);
 
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
   const isNFT =
-    props.state?.metadata?.votingPowerStrategy ===
-    VotingPowerStrategy.NftCcollection;
+    data?.metadata?.votingPowerStrategy === VotingPowerStrategy.NftCcollection;
 
   return (
-    <Fade in={!props.isLoading}>
+    <Fade in={!isLoading}>
       <StyledContainerHeader>
         <StyledChip
           label={
@@ -54,27 +48,28 @@ const ContainerHeader = (props: Props) => {
         <StyledFlexRow style={{ width: "unset" }} gap={10}>
           {!isNFT && (
             <Typography className="total" style={{ fontWeight: 600 }}>
-              {tonAmount}{" "}
-              {getSymbol(props.state?.metadata?.votingPowerStrategy)}
+              {tonAmount} {getSymbol(data?.metadata?.votingPowerStrategy)}
             </Typography>
           )}
-          <DownloadCSV {...props} />
+          <DownloadCSV />
         </StyledFlexRow>
       </StyledContainerHeader>
     </Fade>
   );
 };
 
-const ConnectedWalletVote = (props: Props) => {
+const ConnectedWalletVote = () => {
   const { address } = useConnection();
 
+  const { data, dataUpdatedAt } = useProposalPageQuery(false);
+
   const walletVote = useMemo(() => {
-    return _.find(props.state?.votes, (it) => it.address === address);
-  }, [props.dataUpdatedAt, address]);
+    return _.find(data?.votes, (it) => it.address === address);
+  }, [dataUpdatedAt, address]);
 
   return (
     <VoteComponent
-      votingPowerStrategy={props.state?.metadata?.votingPowerStrategy}
+      votingPowerStrategy={data?.metadata?.votingPowerStrategy}
       data={walletVote}
     />
   );
@@ -93,35 +88,36 @@ const StyledContainerHeader = styled(StyledFlexRow)({
   },
 });
 
-export function Votes(props: Props) {
+export function Votes() {
   const connectedAddress = useConnection().address;
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
+
+  const { data, isLoading } = useProposalPageQuery(false);
+
+  const votingPowerStrategy = data?.metadata?.votingPowerStrategy;
   const showMoreVotes = () => {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
   };
 
-  if (props.isLoading) {
+  if (isLoading) {
     return <LoadingContainer />;
   }
 
   return (
-    <StyledContainer
-      title="Recent votes"
-      headerComponent={<ContainerHeader {...props} />}
-    >
+    <StyledContainer title="Recent votes" headerComponent={<ContainerHeader />}>
       <List
-        isLoading={props.isLoading}
-        isEmpty={!props.isLoading && !_.size(props.state?.votes)}
+        isLoading={isLoading}
+        isEmpty={!isLoading && !_.size(data?.votes)}
         emptyComponent={<Empty />}
       >
         <StyledList gap={0}>
-          <ConnectedWalletVote {...props} />
-          {props.state?.votes?.map((vote, index) => {
+          <ConnectedWalletVote />
+          {data?.votes?.map((vote, index) => {
             if (index >= votesShowAmount || vote.address === connectedAddress)
               return null;
             return (
               <VoteComponent
-                votingPowerStrategy={props.state?.metadata?.votingPowerStrategy}
+                votingPowerStrategy={votingPowerStrategy}
                 data={vote}
                 key={vote.address}
               />
@@ -131,7 +127,7 @@ export function Votes(props: Props) {
       </List>
 
       <LoadMore
-        totalItems={_.size(props.state?.votes)}
+        totalItems={_.size(data?.votes)}
         amountToShow={votesShowAmount}
         showMore={showMoreVotes}
         limit={PAGE_SIZE}
@@ -148,13 +144,13 @@ const Empty = () => {
   );
 };
 
-const DownloadCSV = (props: Props) => {
+const DownloadCSV = () => {
   const theme = useTheme();
-  const votes = props.state?.votes;
-  const size = _.size(votes);
+  const data = useProposalPageQuery(false).data;
+  const size = _.size(data?.votes);
 
   const csvData = useMemo(() => {
-    const values = _.map(votes, (vote) => {
+    const values = _.map(data?.votes, (vote) => {
       return [
         vote.address,
         vote.vote,
@@ -167,7 +163,7 @@ const DownloadCSV = (props: Props) => {
   }, [size]);
 
   return (
-    <CSVLink data={csvData} filename={props.state?.metadata?.title}>
+    <CSVLink data={csvData} filename={data?.metadata?.title}>
       <AppTooltip text="Download CSV" placement="top">
         <BsFiletypeCsv
           style={{ width: 18, height: 18, color: theme.palette.text.primary }}

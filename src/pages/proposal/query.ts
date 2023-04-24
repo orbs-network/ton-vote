@@ -21,7 +21,7 @@ export const useGetProposal = () => {
 
     const contractProposal = () => {
       Logger("getting state from contract");
-      
+
       return getProposalFromContract(
         proposalAddress,
         state,
@@ -85,10 +85,9 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
   return useQuery(
     queryKey,
     async ({ signal }) => {
-            const state = queryClient.getQueryData<Proposal>(queryKey);
+      const state = queryClient.getQueryData<Proposal>(queryKey);
 
       // when we have state already and vote finished, we return the cached state
-   
 
       const voteStatus = state?.metadata && getProposalStatus(state?.metadata);
       const closed = voteStatus === ProposalStatus.CLOSED;
@@ -104,10 +103,14 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
       enabled: !!proposalAddress,
       initialData: () => {
         const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
+
         if (!latestMaxLtAfterTx) {
-          return queryClient.getQueryData<Proposal>([QueryKeys.PROPOSAL, proposalAddress]);
+          return queryClient.getQueryData<Proposal>([
+            QueryKeys.PROPOSAL,
+            proposalAddress,
+          ]);
         }
-      }
+      },
     }
   );
 };

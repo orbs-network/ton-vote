@@ -9,34 +9,23 @@ import {
   calculateTonAmount,
   getSymbol,
   nFormatter,
-  normalizeResults,
 } from "utils";
 import { VERIFY_LINK } from "config";
 import _ from "lodash";
 import { useVerifyProposalResults } from "./hooks";
-import { ProposalResults, Vote } from "types";
 import { useProposalAddress } from "hooks";
 import { useLatestMaxLtAfterTx } from "./store";
-import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { EndpointPopup } from "./EndpointPopup";
+import { useProposalPageQuery } from "./query";
 
-export const Results = ({
-  proposalResult,
-  dataUpdatedAt,
-  isLoading,
-  votes,
-  votingPowerStrategy,
-}: {
-  proposalResult?: ProposalResults;
-  dataUpdatedAt?: number;
-  isLoading: boolean;
-  votes?: Vote[];
-  votingPowerStrategy?: VotingPowerStrategy;
-}) => {
+export const Results = () => {
+  const { data, dataUpdatedAt, isLoading } = useProposalPageQuery(false);
+
+  const proposalResult = data?.proposalResult;
+  const votes = data?.votes;
+
+  const votingPowerStrategy = data?.metadata?.votingPowerStrategy;
   const symbol = getSymbol(votingPowerStrategy);
-
-  console.log(votes);
-  
 
   const votesCount = useMemo(() => {
     const grouped = _.groupBy(votes, "vote");
@@ -48,9 +37,7 @@ export const Results = ({
     };
   }, [dataUpdatedAt]);
 
-
-    const results = proposalResult as any || {} as any
-
+  const results = (proposalResult as any) || ({} as any);
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -130,7 +117,9 @@ const ResultRow = ({
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <StyledFlexRow style={{ width: "fit-content" }}>
-          <Typography style={{textTransform:'capitalize'}}>{name}</Typography>
+          <Typography style={{ textTransform: "capitalize" }}>
+            {name}
+          </Typography>
           <StyledChip label={`${votes} votes`} />
         </StyledFlexRow>
 
@@ -190,12 +179,15 @@ export function VerifyResults() {
   const [open, setOpen] = useState(false);
 
   const latestMaxLtAfterTx = useLatestMaxLtAfterTx(proposalAddress);
+  
 
-  useEffect(() => {
-    if (isSuccess && latestMaxLtAfterTx) {
-      reset();
-    }
-  }, [latestMaxLtAfterTx, isSuccess]);
+  // useEffect(() => {
+  //   if (latestMaxLtAfterTx) {
+  //     setTimeout(() => {
+  //       reset();
+  //     }, 5000);
+  //   }
+  // }, [latestMaxLtAfterTx]);
 
   return (
     <StyledVerifyContainer>
@@ -214,14 +206,14 @@ export function VerifyResults() {
         <StyledButton>
           <StyledFlexRow>
             <Typography>Verified</Typography>
-            <BsFillCheckCircleFill />
+            <BsFillCheckCircleFill className="icon" />
           </StyledFlexRow>
         </StyledButton>
       ) : error ? (
         <StyledButton onClick={() => setOpen(true)}>
           <StyledFlexRow>
             <Typography>Not Verified</Typography>
-            <AiFillCloseCircle />
+            <AiFillCloseCircle className="icon" />
           </StyledFlexRow>
         </StyledButton>
       ) : (
@@ -250,7 +242,7 @@ const StyledButton = styled(Button)({
   "*": {
     fontSize: 15,
   },
-  svg: {
+  ".icon": {
     width: 18,
     height: 18,
     position: "relative",

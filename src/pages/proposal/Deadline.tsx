@@ -3,6 +3,7 @@ import { Countdown, LoadingContainer, TitleContainer } from "components";
 import moment from "moment";
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import { ProposalStatus } from "types";
+import { useProposalPageQuery } from "./query";
 
 const handleDate = (endDate?: number) => {
   if (!endDate) return 0;
@@ -12,11 +13,13 @@ const handleDate = (endDate?: number) => {
 
 export function Deadline({
   proposalStatus,
-  proposalMetadata,
 }: {
   proposalStatus: ProposalStatus;
-  proposalMetadata?: ProposalMetadata;
 }) {
+  const { data } = useProposalPageQuery(false);
+
+  const proposalMetadata = data?.metadata;
+
   if (!proposalMetadata) {
     return <LoadingContainer />;
   }

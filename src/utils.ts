@@ -157,7 +157,7 @@ export const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
     case VotingPowerStrategy.JettonBalance:
       return "Jetton";
     case VotingPowerStrategy.NftCcollection:
-      return "";
+      return "NFT";
     default:
       return null;
   }
