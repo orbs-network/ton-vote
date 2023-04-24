@@ -51,34 +51,27 @@ interface State {
   reset: () => void;
 }
 
-export const useCreatDaoStore = create(
-  persist<State>(
-    (set) => ({
-      editMode: false,
-      rolesForm: {} as RolesForm,
-      daoMetadataForm: initialCreateMetadataForm,
+export const useCreatDaoStore = create<State>((set) => ({
+  editMode: false,
+  rolesForm: {} as RolesForm,
+  daoMetadataForm: initialCreateMetadataForm,
+  step: 0,
+  setStep: (step) => set({ step }),
+  nextStep: () => set((state) => ({ step: state.step + 1 })),
+  prevStep: () => set((state) => ({ step: state.step - 1 })),
+  setEditMode: (editMode) => set({ editMode }),
+  setDaoMetadataForm: (daoMetadataForm) => {
+    set({ daoMetadataForm });
+  },
+  setMetadataAddress: (metadataAddress) => set({ metadataAddress }),
+  setRolesForm: (rolesForm) => set({ rolesForm }),
+  reset: () =>
+    set({
+      daoMetadataForm: {} as DaoMetadata,
       step: 0,
-      setStep: (step) => set({ step }),
-      nextStep: () => set((state) => ({ step: state.step + 1 })),
-      prevStep: () => set((state) => ({ step: state.step - 1 })),
-      setEditMode: (editMode) => set({ editMode }),
-      setDaoMetadataForm: (daoMetadataForm) => {
-        set({ daoMetadataForm });
-      },
-      setMetadataAddress: (metadataAddress) => set({ metadataAddress }),
-      setRolesForm: (rolesForm) => set({ rolesForm }),
-      reset: () =>
-        set({
-          daoMetadataForm: {} as DaoMetadata,
-          step: 0,
-          rolesForm: {} as RolesForm,
-        }),
+      rolesForm: {} as RolesForm,
     }),
-    {
-      name: "ton_vote_create_dao_store",
-    }
-  )
-);
+}));
 
 interface UseCompareDaoMetadataForm {
   form: DaoMetadata;
@@ -103,7 +96,7 @@ export const useCreateDaoMetadata = () => {
     useCreatDaoStore();
   const toggleTxReminder = useTxReminderPopup().setOpen;
   const { t } = useTranslation();
-    const {formChanged, setForm: setCompareForm} = useCompareDaoMetadataForm();
+  const { formChanged, setForm: setCompareForm } = useCompareDaoMetadataForm();
 
   return useMutation(
     async (values: DaoMetadata) => {
@@ -115,19 +108,19 @@ export const useCreateDaoMetadata = () => {
         nextStep();
         return;
       }
-        const metadataArgs: DaoMetadata = {
-          about: values.about,
-          avatar: values.avatar || "",
-          github: values.github,
-          hide: values.hide,
-          name: values.name,
-          terms: values.terms,
-          telegram: values.telegram,
-          website: values.website,
-          jetton: values.jetton || ZERO_ADDRESS,
-          nft: values.nft || ZERO_ADDRESS,
-          dns: values.dns,
-        };
+      const metadataArgs: DaoMetadata = {
+        about: values.about,
+        avatar: values.avatar || "",
+        github: values.github,
+        hide: values.hide,
+        name: values.name,
+        terms: values.terms,
+        telegram: values.telegram,
+        website: values.website,
+        jetton: values.jetton || ZERO_ADDRESS,
+        nft: values.nft || ZERO_ADDRESS,
+        dns: values.dns,
+      };
       Logger(metadataArgs);
 
       toggleTxReminder(true);

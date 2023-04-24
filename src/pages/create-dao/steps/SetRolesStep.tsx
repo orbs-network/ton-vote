@@ -65,9 +65,10 @@ export function SetRolesStep() {
 }
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
+  const {t} = useTranslation()
   return (
     <StyledEndAdornment onClick={onClick}>
-      <Typography>Conneted wallet</Typography>
+      <Typography>{t("connectedWallet")}</Typography>
     </StyledEndAdornment>
   );
 };

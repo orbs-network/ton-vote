@@ -277,6 +277,10 @@ const StyledInput = styled(TextField)({
     padding: "12.5px 12px",
     fontSize: 16,
     fontWeight: 500,
+    "::placeholder": {
+      opacity: 1,
+    },
+ 
   },
 });
 
@@ -443,6 +447,7 @@ export function MapInput<T>({
       required={input.required}
       tooltip={input.tooltip}
       onFocus={clearError}
+      placeholder={input.placeholder}
       key={name}
       error={error}
       title={label}

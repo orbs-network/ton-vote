@@ -96,6 +96,7 @@ export interface InputInterface {
   required?: boolean;
   options?: RadioOption[];
   limit?: number;
+  placeholder?: string;
 }
 
 export interface Endpoints {

@@ -129,6 +129,7 @@ export const useInputs = (formik: FormikProps<FormData>): InputInterface[] => {
       tooltip:
         "Supports Markdown for editing, adding images, etc. [Read more](https://www.markdownguide.org/basic-syntax/)",
       limit: PROPOSAL_ABOUT_CHARS_LIMIT,
+      placeholder: "Describe your proposal (Supports Markdown for editing)",
     },
     {
       label: "Select Voting Strategy",
