@@ -10,65 +10,60 @@ import {
   getDaoRoles,
   getProposalMetadata,
   ProposalMetadata,
-  getSingleVoterPower
 } from "ton-vote-contracts-sdk";
 import { getProposalStatus, Logger } from "utils";
 import { OLD_DAO, proposals } from "data/data";
 import { useNewDataStore } from "store";
-import { showPromiseToast } from "toasts";
 import { lib } from "lib/lib";
 import { api } from "api";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
+  const whitelistedDaos = useDaosWhitelistQuery().data;
 
   return useQuery(
     [QueryKeys.DAOS],
     async ({ signal }) => {
       const res = (await lib.getDaos(signal)) || [];
       const daos = [OLD_DAO, ...res];
-      
-      if (!_.size(newDaosAddresses)) {
-        return daos;
+
+      if (_.size(newDaosAddresses)) {
+        const addresses = _.map(daos, (it) => it.daoAddress);
+        const client = await getClientV2();
+
+        let promise: Promise<Array<Dao | undefined>> = Promise.all(
+          _.map(newDaosAddresses, async (newDaoAddress) => {
+            if (addresses.includes(newDaoAddress)) {
+              removeDao(newDaoAddress);
+            } else {
+              Logger(`New DAO: ${newDaoAddress}`);
+
+              return {
+                daoAddress: newDaoAddress,
+                daoMetadata: await getDaoMetadata(client, newDaoAddress),
+                daoRoles: await getDaoRoles(client, newDaoAddress),
+                daoProposals:
+                  (await getDaoProposals(client, newDaoAddress))
+                    .proposalAddresses || [],
+              };
+            }
+          })
+        );
+
+        const newDaosMap = await promise;
+        const newDaos = _.compact(newDaosMap);
+        daos.splice(1, 0, ...newDaos);
       }
-      const addresses = _.map(daos, (it) => it.daoAddress);
-      const client = await getClientV2();
 
-      let promise: Promise<Array<Dao | undefined>> = Promise.all(
-        _.map(newDaosAddresses, async (newDaoAddress) => {
-          if (addresses.includes(newDaoAddress)) {
-            removeDao(newDaoAddress);
-          } else {
-            Logger(`New DAO: ${newDaoAddress}`);
-
-            return {
-              daoAddress: newDaoAddress,
-              daoMetadata: await getDaoMetadata(client, newDaoAddress),
-              daoRoles: await getDaoRoles(client, newDaoAddress),
-              daoProposals:
-                (await getDaoProposals(client, newDaoAddress))
-                  .proposalAddresses || [],
-            };
-          }
-        })
-      );
-
-      // showPromiseToast({
-      //   promise: promise,
-      //   loading: "Updating Spaces",
-      //   success: "Spaces updated",
-      // });
-
-      const newDaosMap = await promise;
-
-      const newDaos = _.compact(newDaosMap);
-
-      daos.splice(1, 0, ...newDaos);
-
-      return daos;
+        
+      if (!_.size(whitelistedDaos)) return daos;
+        return _.filter(daos, (it) =>
+          _.includes(whitelistedDaos, it.daoAddress)
+        );
     },
     {
       refetchInterval,
+      enabled: !!whitelistedDaos,
     }
   );
 };
@@ -102,10 +97,20 @@ export const useDaoQuery = (
 ) => {
   const handleProposal = useHandleNewProposals();
   const queryClient = useQueryClient();
+  const whitelistedDaos = useDaosWhitelistQuery().data;
+
+  const isWhitelisted = !_.size(whitelistedDaos)
+    ? true
+    : _.includes(whitelistedDaos, daoAddress);
+  
 
   return useQuery(
     [QueryKeys.DAO, daoAddress],
     async ({ signal }) => {
+
+      if (!isWhitelisted) {
+        throw new Error("DAO not whitelisted");
+      }
       if (daoAddress === OLD_DAO.daoAddress) {
         return OLD_DAO;
       }
@@ -119,8 +124,10 @@ export const useDaoQuery = (
       };
     },
     {
+      retry: isWhitelisted ? 3 : false,
       staleTime,
-      refetchInterval,
+      refetchInterval: isWhitelisted ? refetchInterval : undefined,
+      enabled: !!whitelistedDaos && !!daoAddress,
       initialData: () => {
         const daos = queryClient.getQueryData<Dao[]>([QueryKeys.DAOS]);
         if (!daos) return;
@@ -138,7 +145,7 @@ export const useProposalQuery = (proposalAddress?: string) => {
         const p = proposals[proposalAddress!];
         const proposal = p || (await api.getProposal(proposalAddress!, signal));
         if (_.isEmpty(proposal.metadata)) {
-          throw new Error("Proposal not found is server");
+          throw new Error("Proposal not found in server");
         }
         return proposal;
       } catch (error) {
@@ -178,3 +185,14 @@ export const useProposalStatusQuery = (
   return query.data as ProposalStatus | null;
 };
 
+export const useDaosWhitelistQuery = () => {
+  return useQuery([QueryKeys.DAOS_WHITELIST], async ({ signal }) => {
+    return [] as string[];
+  });
+};
+
+export const useProposalsWhitelistQuery = () => {
+  return useQuery([QueryKeys.PROPOSALS_WHITELIST], async ({ signal }) => {
+    return [] as string[];
+  });
+};

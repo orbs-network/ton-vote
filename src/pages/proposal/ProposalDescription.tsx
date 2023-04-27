@@ -105,8 +105,14 @@ const ProposalOwner = () => {
       <StatusChip proposalMetadata={proposalMetadata} />
       <StyledDaoImg src={dao.data?.daoMetadata.avatar} />
       <StyledFlexRow gap={0} justifyContent="flex-start" style={{ flex: 1 }}>
-        <StyledLink to={appNavigation.daoPage.root(daoAddress)} className="dao-name">
-          <OverflowText value={dao.data?.daoMetadata.name} limit={10} />
+        <StyledLink
+          to={appNavigation.daoPage.root(daoAddress)}
+          className="dao-name"
+        >
+          <OverflowText
+            value={parseLanguage(dao.data?.daoMetadata.name)}
+            limit={10}
+          />
         </StyledLink>
         <Typography style={{ margin: "0px 5px 0px 5px" }}>by</Typography>
         <AddressDisplay address={proposalAddress} />

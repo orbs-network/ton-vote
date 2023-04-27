@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
+import { parseLanguage } from "utils";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
@@ -43,7 +44,7 @@ export function DaoMenu() {
           <StyledOverflowText
             limit={20}
             className="title"
-            value={dao?.daoMetadata?.name}
+            value={parseLanguage(dao?.daoMetadata?.name)}
           />
           <AddressDisplay address={dao?.daoAddress} />
         </StyledFlexColumn>

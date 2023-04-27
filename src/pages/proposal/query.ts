@@ -11,6 +11,7 @@ import {
   getSingleVoterPower,
 } from "ton-vote-contracts-sdk";
 import { api } from "api";
+import { useProposalsWhitelistQuery } from "query/queries";
 
 export const useGetProposal = () => {
   const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
@@ -87,10 +88,17 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   const queryClient = useQueryClient();
   const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
 
+  const whitelistedProposals = useProposalsWhitelistQuery().data;
+
+  const isWhitelisted =  !_.size(whitelistedProposals) ? true :  whitelistedProposals?.includes(proposalAddress);
+
   return useQuery(
     queryKey,
     async ({ signal }) => {
-      const state = queryClient.getQueryData<Proposal>(queryKey);
+      if (!isWhitelisted) {
+        throw new Error("Proposal not whitelisted")
+      }
+        const state = queryClient.getQueryData<Proposal>(queryKey);
 
       // when we have state already and vote finished, we return the cached state
 
@@ -103,12 +111,12 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       return getProposal(proposalAddress, isCustomEndpoint, state, signal);
     },
     {
+      retry: isWhitelisted ? 3 : false,
       refetchInterval: STATE_REFETCH_INTERVAL,
       staleTime: 30_000,
-      enabled: !!proposalAddress,
+      enabled: !!proposalAddress && !!whitelistedProposals,
       initialData: () => {
         const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
-
         if (!latestMaxLtAfterTx) {
           return queryClient.getQueryData<Proposal>([
             QueryKeys.PROPOSAL,

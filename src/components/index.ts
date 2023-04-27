@@ -33,3 +33,4 @@ export * from "./InfoMessage";
 export * from './Menu'
 export * from "./Socials";
 export * from './AppSocials'
+export * from "./ErrorContainer";

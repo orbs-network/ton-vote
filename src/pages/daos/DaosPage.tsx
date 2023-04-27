@@ -12,7 +12,7 @@ import {
   StyledDaosList,
   StyledJoinDao,
 } from "./styles";
-import { isOwner, makeElipsisAddress, nFormatter } from "utils";
+import { isOwner, makeElipsisAddress, nFormatter, parseLanguage } from "utils";
 import { Dao } from "types";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -32,11 +32,7 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
   const addressFilter = _.filter(daos, (it) =>
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
   );
-  // const proposalAddressFilter = _.filter(daos, (it) =>
-  //   it.daoProposals.find((proposal) => {
-  //     return proposal.toLowerCase().includes(searchValue.toLowerCase());
-  //   })
-  // );
+
 
   return _.uniqBy(
     [...nameFilter, ...addressFilter],
@@ -180,7 +176,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
         {isVisible ? (
           <StyledFlexColumn>
             <StyledDaoAvatar src={daoMetadata?.avatar} />
-            <Typography className="title">{daoMetadata?.name}</Typography>
+            <Typography className="title">{parseLanguage(daoMetadata?.name)}</Typography>
             <Typography className="address">
               {makeElipsisAddress(dao.daoAddress, 6)}
             </Typography>

@@ -1,5 +1,5 @@
 import { styled, useMediaQuery } from "@mui/material";
-import { Page } from "components";
+import { ErrorContainer, Page } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
@@ -15,6 +15,7 @@ import { useProposalPageQuery } from "./query";
 import { ProposalDescription } from "./ProposalDescription";
 import { useProposalPageStatus } from "./hooks";
 import { parseLanguage } from "utils";
+import { useEffect, useState } from "react";
 
 const useComponents = () => {
   const isLoading = useProposalPageQuery().isLoading;
@@ -28,10 +29,7 @@ const useComponents = () => {
       !status || status !== ProposalStatus.ACTIVE || isLoading ? null : (
         <Vote />
       ),
-    deadline:
-      !status || status === ProposalStatus.CLOSED ? null : (
-        <Deadline />
-      ),
+    deadline: !status || status === ProposalStatus.CLOSED ? null : <Deadline />,
     metadata: <Metadata />,
     results:
       !status || status === ProposalStatus.NOT_STARTED ? null : <Results />,
@@ -90,11 +88,20 @@ const Meta = () => {
 export function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
   const daoAddress = useDaoAddress();
+  const [showError, setShowError] = useState(false)
+  const error = useProposalPageQuery().error;
+
+  useEffect(() => {
+    if(error) {
+      setShowError(true);
+    }
+  }, [error]);
+  
 
   return (
     <Page back={appNavigation.daoPage.root(daoAddress)}>
       <Meta />
-      {mobile ? <Mobile /> : <Destop />}
+      {showError ? <ErrorContainer text="Proposal not found" /> : mobile ? <Mobile /> : <Destop />}
     </Page>
   );
 }
