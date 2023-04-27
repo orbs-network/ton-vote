@@ -38,7 +38,7 @@ const inputs: InputInterface[] = [
   },
 ];
 
-interface FormData {
+interface EndpointForm {
   clientV2Endpoint: string;
   apiKey: string;
   clientV4Endpoint: string;
@@ -56,7 +56,7 @@ export function EndpointPopup({
   const { endpoints } = useEnpointsStore();
   const [customSelected, setCustomSelected] = useState(false);
 
-  const formik = useFormik<FormData>({
+  const formik = useFormik<EndpointForm>({
     initialValues: {
       apiKey: endpoints?.apiKey || CLIENT_V2_API_KEY,
       clientV2Endpoint:
@@ -119,7 +119,7 @@ export function EndpointPopup({
             <StyledCustomEndpoints gap={20}>
               {inputs.map((input) => {
                 return (
-                  <MapInput<FormData>
+                  <MapInput<EndpointForm>
                     key={input.name}
                     input={input}
                     formik={formik}

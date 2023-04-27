@@ -83,7 +83,7 @@ export const useGetProposal = () => {
   };
 };
 
-export const useProposalPageQuery = (isCustomEndpoint: boolean) => {
+export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   const proposalAddress = useProposalAddress();
   const getProposal = useGetProposal();
   const queryKey = [QueryKeys.PROPOSAL_PAGE, proposalAddress];

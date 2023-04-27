@@ -24,7 +24,7 @@ import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { useProposalPageQuery } from "./query";
 
 const ContainerHeader = () => {
-  const { data, isLoading } = useProposalPageQuery(false);
+  const { data, isLoading } = useProposalPageQuery();
 
   const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
@@ -60,7 +60,7 @@ const ContainerHeader = () => {
 const ConnectedWalletVote = () => {
   const { address } = useConnection();
 
-  const { data, dataUpdatedAt } = useProposalPageQuery(false);
+  const { data, dataUpdatedAt } = useProposalPageQuery();
 
   const walletVote = useMemo(() => {
     return _.find(data?.votes, (it) => it.address === address);
@@ -91,7 +91,7 @@ export function Votes() {
   const connectedAddress = useConnection().address;
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
 
-  const { data, isLoading } = useProposalPageQuery(false);
+  const { data, isLoading } = useProposalPageQuery();
 
   const votingPowerStrategy = data?.metadata?.votingPowerStrategy;
   const showMoreVotes = () => {

@@ -9,28 +9,27 @@ import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_TITLE } from "config";
 import { appNavigation } from "router";
-import { useDaoAddress, useProposalAddress } from "hooks";
-import { useProposalStatusQuery } from "query/queries";
+import { useDaoAddress } from "hooks";
 import { ProposalStatus } from "types";
 import { useProposalPageQuery } from "./query";
 import { ProposalDescription } from "./ProposalDescription";
+import { useProposalPageStatus } from "./hooks";
 
 const useComponents = () => {
-  const proposalAddress = useProposalAddress();
-  const { data, isLoading } = useProposalPageQuery(false);
+  const isLoading = useProposalPageQuery().isLoading;
 
-  const status = useProposalStatusQuery(data?.metadata, proposalAddress);
+  const status = useProposalPageStatus();
 
   return {
     proposalDescription: <ProposalDescription />,
     votes: !status || status === ProposalStatus.NOT_STARTED ? null : <Votes />,
     vote:
       !status || status !== ProposalStatus.ACTIVE || isLoading ? null : (
-        <Vote proposalStatus={status} />
+        <Vote />
       ),
     deadline:
       !status || status === ProposalStatus.CLOSED ? null : (
-        <Deadline proposalStatus={status} />
+        <Deadline />
       ),
     metadata: <Metadata />,
     results:

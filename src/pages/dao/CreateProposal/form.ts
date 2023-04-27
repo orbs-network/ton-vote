@@ -6,19 +6,9 @@ import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { InputInterface } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
+import { CreateProposalForm } from "./types";
 
-export interface FormData {
-  proposalStartTime?: number;
-  proposalEndTime?: number;
-  proposalSnapshotTime?: number;
-  description: string;
-  title: string;
-  jetton: string;
-  nft: string;
-  votingPowerStrategy: number;
-  votingChoices: { key: string; value: string }[];
-  description_en?: string;
-}
+
 
 export const FormSchema = Yup.object().shape({
   description: Yup.string().test(
@@ -113,7 +103,7 @@ export const FormSchema = Yup.object().shape({
     .required("Proposal snapshot time is required"),
 });
 
-export const useInputs = (formik: FormikProps<FormData>) => {
+export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
   const firstSection: InputInterface[] = [
     {
       label: "Title",

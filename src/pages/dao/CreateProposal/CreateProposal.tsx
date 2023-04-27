@@ -13,7 +13,7 @@ import {
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress, useDebouncedCallback } from "hooks";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { FormData, FormSchema, useInputs } from "./form";
+import { FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
 import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
@@ -22,6 +22,7 @@ import { useDaoQuery } from "query/queries";
 import { appNavigation } from "router";
 import { validateFormik } from "utils";
 import { ZERO_ADDRESS } from "consts";
+import { CreateProposalForm } from "./types";
 
 const initialChoices = [
   { key: crypto.randomUUID(), value: "Yes" },
@@ -39,7 +40,7 @@ function Form() {
   const initialNFT = formData.nft || dao?.daoMetadata?.nft || "";
   const initialJetton = formData.jetton || dao?.daoMetadata?.jetton || "";
 
-  const formik = useFormik<FormData>({
+  const formik = useFormik<CreateProposalForm>({
     initialValues: {
       proposalStartTime: formData.proposalStartTime,
       proposalEndTime: formData.proposalEndTime,
@@ -127,7 +128,7 @@ const StyledLoadingMenu = styled(LoadingContainer)({
   width: 300,
 });
 
-const Preview = ({ formik }: { formik?: FormikProps<FormData> }) => {
+const Preview = ({ formik }: { formik?: FormikProps<CreateProposalForm> }) => {
   return (
     <StyledPreview>
       <Typography variant="h2" className="title">
@@ -147,7 +148,7 @@ const StyledPreview = styled(Container)({
   },
 });
 
-function CreateForm({ formik }: { formik: FormikProps<FormData> }) {
+function CreateForm({ formik }: { formik: FormikProps<CreateProposalForm> }) {
   const { firstSection, secondSection, thirdSection } = useInputs(formik);
 
   return (

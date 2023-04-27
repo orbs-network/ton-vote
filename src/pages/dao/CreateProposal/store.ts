@@ -9,7 +9,6 @@ import {
   VotingPowerStrategy,
 } from "ton-vote-contracts-sdk";
 import { create } from "zustand";
-import { FormData } from "./form";
 import { persist } from "zustand/middleware";
 import { ZERO_ADDRESS } from "consts";
 import { useNewDataStore, useTxReminderPopup } from "store";
@@ -17,19 +16,15 @@ import { Address } from "ton-core";
 import { useConnection } from "ConnectionProvider";
 import { isOwner } from "utils";
 import { useDaoQuery } from "query/queries";
+import { CreateProposalForm, CreateProposalStore } from "./types";
 
-interface Store {
-  preview: boolean;
-  setPreview: (value: boolean) => void;
-  formData: FormData;
-  setFormData: (value: FormData) => void;
-}
+
 export const useCreateProposalStore = create(
-  persist<Store>(
+  persist<CreateProposalStore>(
     (set) => ({
       preview: false,
       setPreview: (preview) => set({ preview }),
-      formData: {} as FormData,
+      formData: {} as CreateProposalForm,
       setFormData: (formData) => set({ formData }),
     }),
     {
@@ -54,7 +49,7 @@ export const useCreateProposal = () => {
       formValues,
     }: {
       daoAddr: string;
-      formValues: FormData;
+      formValues: CreateProposalForm;
     }) => {
       if (!isOwner(connectedWallet, daoRoles)) {
         showErrorToast("Only Dao owner can create proposal");
@@ -107,7 +102,7 @@ export const useCreateProposal = () => {
 
       if (typeof proposalAddress === "string") {
         appNavigation.proposalPage.root(daoAddress, proposalAddress);
-        setFormData({} as FormData);
+        setFormData({} as CreateProposalForm);
         addProposal(daoAddress, proposalAddress);
       } else {
         throw new Error("Something went wrong");

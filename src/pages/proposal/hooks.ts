@@ -12,6 +12,7 @@ import { TX_FEE } from "config";
 import { getProposalFromContract } from "lib";
 import { showPromiseToast } from "toasts";
 import { Endpoints } from "types";
+import { useProposalStatusQuery } from "query/queries";
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
@@ -57,8 +58,6 @@ export const useVerifyProposalResults = () => {
   });
 };
 
-
-
 export const useVote = () => {
   const getSender = useGetSender();
   const { refetch } = useProposalPageQuery(true);
@@ -97,4 +96,10 @@ export const useVote = () => {
       onSuccess: () => {},
     }
   );
+};
+
+export const useProposalPageStatus = () => {
+  const { data } = useProposalPageQuery();
+  const proposalAddress = useProposalAddress();
+  return useProposalStatusQuery(data?.metadata, proposalAddress);
 };

@@ -1,8 +1,7 @@
-import { Box, styled, Typography } from "@mui/material";
-import {Container, Header, List, LoadMore, Search } from "components";
+import { Box } from "@mui/material";
+import { List, LoadMore } from "components";
 import { DAO_REFETCH_INTERVAL } from "config";
-import { useDaoAddress } from "hooks";
-import { t } from "i18next";
+import { useAppQueryParams, useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useState } from "react";
@@ -11,8 +10,8 @@ import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { DaoDescription } from "../DaoDescription";
 import { ProposalLoader } from "../ProposalLoader";
-import { useFilterValueByState, useFilterValueByText } from "./hooks";
-import { ProposalComponent } from "./Proposal";
+import { ProposalComponent as Proposal } from "./Proposal";
+import { StyledEmptyList, StyledHeader, StyledSearch } from "./styles";
 const LIMIT = 10;
 
 interface Option extends SelectOption {
@@ -32,19 +31,18 @@ const useOptions = (): Option[] => {
 
 const ProposalsSearch = () => {
   const options = useOptions();
-  const [queryParamByText, setQueryParamByText] = useFilterValueByText();
-  const [queryParamByState, setQueryParamByState] = useFilterValueByState();
+  const { query, setProposalState, setSearch } = useAppQueryParams();
 
   const onSearchInputChange = (value: string) => {
-    setQueryParamByText(value || undefined, "pushIn");
+    setSearch(value);
   };
   const [filterValue, setFilterValue] = useState<string>(
-    queryParamByState || options[0].value
+    query.proposalState || options[0].value
   );
 
   const onSelect = (value: string) => {
     setFilterValue(value);
-    setQueryParamByState(value === "all" ? undefined : value);
+    setProposalState(value === "all" ? undefined : value);
   };
 
   return (
@@ -52,7 +50,7 @@ const ProposalsSearch = () => {
       filterOptions={options}
       filterValue={filterValue}
       onFilterSelect={onSelect}
-      initialValue={queryParamByText || ""}
+      initialValue={query.search || ""}
       onChange={onSearchInputChange}
     />
   );
@@ -76,14 +74,14 @@ export function ProposalsList() {
     <StyledFlexColumn gap={20}>
       <DaoDescription />
       <StyledHeader title="Proposals" component={<ProposalsSearch />} />
-      <Box style={{ position: "relative", width:'100%' }}>
-       {!isLoading &&  <EmptyList />}
-        <StyledFlexColumn gap={15} style={{zIndex: 10, position:'relative'}}>
-          <List  isLoading={isLoading} loader={<ListLoader />}>
+      <Box style={{ position: "relative", width: "100%" }}>
+        {!isLoading && <EmptyList />}
+        <StyledFlexColumn gap={15} style={{ zIndex: 10, position: "relative" }}>
+          <List isLoading={isLoading} loader={<ListLoader />}>
             {data?.daoProposals?.map((proposalAddress, index) => {
               if (index > amount) return null;
               return (
-                <ProposalComponent
+                <Proposal
                   key={proposalAddress}
                   proposalAddress={proposalAddress}
                 />
@@ -102,17 +100,8 @@ export function ProposalsList() {
   );
 }
 
-const StyledHeader = styled(Header)({
-  marginBottom: 0
-});
-
-const StyledSearch = styled(Search)({
-  maxWidth: 360,
-  width: "100%",
-});
-
 const EmptyList = () => {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   return (
     <StyledEmptyList>
       <StyledFlexColumn>
@@ -121,13 +110,6 @@ const EmptyList = () => {
     </StyledEmptyList>
   );
 };
-
-const StyledEmptyList = styled(Container)({
-  position:'absolute',
-  width: "100%",
-  top: 0,
- 
-});
 
 const ListLoader = () => {
   return (

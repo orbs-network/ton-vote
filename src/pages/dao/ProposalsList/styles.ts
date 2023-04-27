@@ -1,5 +1,5 @@
-import { Box, styled, Typography } from "@mui/material";
-import { Container } from "components";
+import { Alert, Box, styled, Typography } from "@mui/material";
+import { Container, Header, Search } from "components";
 import { StyledContainer, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 
@@ -72,3 +72,37 @@ export const StyledDescription = styled(Typography)({
 });
 
 
+
+
+export const StyledMarkdown = styled(Typography)({
+  fontWeight: 700,
+  fontSize: 17,
+});
+
+export const StyledProposalTitle = styled(Typography)({
+  fontSize: 23,
+  fontWeight: 800,
+});
+
+
+export const StyledAlert = styled(Alert)({
+  width: "100%",
+  marginTop: 10,
+});
+
+export const StyledHeader = styled(Header)({
+  marginBottom: 0,
+});
+
+export const StyledSearch = styled(Search)({
+  maxWidth: 360,
+  width: "100%",
+});
+
+
+
+export const StyledEmptyList = styled(Container)({
+  position: "absolute",
+  width: "100%",
+  top: 0,
+});

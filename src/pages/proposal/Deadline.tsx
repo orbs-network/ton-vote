@@ -1,8 +1,8 @@
 import { styled } from "@mui/material";
 import { Countdown, LoadingContainer, TitleContainer } from "components";
 import moment from "moment";
-import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import { ProposalStatus } from "types";
+import { useProposalPageStatus } from "./hooks";
 import { useProposalPageQuery } from "./query";
 
 const handleDate = (endDate?: number) => {
@@ -11,12 +11,9 @@ const handleDate = (endDate?: number) => {
   return moment.unix(endDate).utc().valueOf();
 };
 
-export function Deadline({
-  proposalStatus,
-}: {
-  proposalStatus: ProposalStatus;
-}) {
-  const { data } = useProposalPageQuery(false);
+export function Deadline() {
+  const { data } = useProposalPageQuery();
+  const proposalStatus = useProposalPageStatus();
 
   const proposalMetadata = data?.metadata;
 
@@ -24,7 +21,7 @@ export function Deadline({
     return <LoadingContainer />;
   }
   return (
-    <StyledContainer
+    <TitleContainer
       title={
         !proposalStatus
           ? ""
@@ -38,8 +35,6 @@ export function Deadline({
       ) : proposalStatus === ProposalStatus.ACTIVE ? (
         <Countdown date={handleDate(proposalMetadata?.proposalEndTime)} />
       ) : null}
-    </StyledContainer>
+    </TitleContainer>
   );
 }
-
-const StyledContainer = styled(TitleContainer)({});

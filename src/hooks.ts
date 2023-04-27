@@ -179,3 +179,29 @@ export const useProposalStatusText = (status?: ProposalStatus | null) => {
   }
 };
 
+
+
+enum Params {
+  PROPOSAL_STATE = "proposal-state",
+  SEARCH = "search",
+}
+
+export const useAppQueryParams = () => {
+  const [query, setQuery] = useQueryParams({
+    [Params.PROPOSAL_STATE]: StringParam,
+    [Params.SEARCH]: StringParam,
+  });
+
+  return {
+    query: {
+      proposalState: query[Params.PROPOSAL_STATE] as string | undefined,
+      search: query.search as string | undefined,
+    },
+    setProposalState: (state: string | undefined) => {
+      setQuery({ [Params.PROPOSAL_STATE]: state }, "pushIn");
+    },
+    setSearch: (search: string | undefined) => {
+      setQuery({ [Params.SEARCH]: search || undefined }, "pushIn");
+    },
+  };
+};

@@ -7,17 +7,20 @@ import { FiCheck } from "react-icons/fi";
 import { voteOptions } from "config";
 import { ProposalStatus } from "types";
 import { useConnection } from "ConnectionProvider";
-import { useVote } from "./hooks";
+import { useProposalPageStatus, useVote } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
+import { useTranslation } from "react-i18next";
 
-export function Vote({ proposalStatus }: { proposalStatus: ProposalStatus }) {
+export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
+  const proposalStatus = useProposalPageStatus()
+  const {t} = useTranslation()
 
   return (
     <>
-      <StyledContainer title="Cast your vote">
+      <StyledContainer title={t("castVote")}>
         <StyledFlexColumn>
           {voteOptions.map((option) => {
             return (

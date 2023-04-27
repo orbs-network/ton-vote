@@ -1,6 +1,6 @@
-import { Typography, styled, Box, Alert } from "@mui/material";
+import { Typography } from "@mui/material";
 import { AddressDisplay, Status, AppTooltip } from "components";
-import { useDaoAddress } from "hooks";
+import { useAppQueryParams, useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router";
@@ -16,15 +16,16 @@ import {
 } from "utils";
 import { ProposalLoader } from "../ProposalLoader";
 import removeMd from "remove-markdown";
-import { useFilterValueByState, useFilterValueByText } from "./hooks";
 
 import {
+  StyledAlert,
+  StyledMarkdown,
   StyledProposal,
   StyledProposalResult,
   StyledProposalResultContent,
   StyledProposalResultProgress,
+  StyledProposalTitle,
 } from "./styles";
-import { typography } from "@mui/system";
 import { useTranslation } from "react-i18next";
 
 const Time = ({
@@ -58,22 +59,21 @@ const useHideProposal = (
   proposal?: Proposal,
   status?: ProposalStatus | null
 ) => {
-  const [queryParamState] = useFilterValueByState();
-  const [queryParamText] = useFilterValueByText();
+  const { query } = useAppQueryParams();
 
   const title = proposal?.metadata?.title.toLowerCase();
   const description = proposal?.metadata?.description.toLowerCase();
 
   const filters = [title, description, proposalAddress];
 
-  if (queryParamState && queryParamState !== status) {
+  if (query.proposalState && query.proposalState !== status) {
     return true;
   }
 
   if (
-    queryParamText &&
+    query.search &&
     !filters.some((it) => {
-      return it?.toLowerCase().includes(queryParamText.toLowerCase());
+      return it?.toLowerCase().includes(query.search!.toLowerCase());
     })
   ) {
     return true;
@@ -111,8 +111,7 @@ export const ProposalComponent = ({
     return null;
   }
 
-
-  const description = parseLanguage(proposal?.metadata?.description, 'en');
+  const description = parseLanguage(proposal?.metadata?.description, "en");
   return (
     <StyledProposal onClick={onClick}>
       <StyledFlexColumn alignItems="flex-start">
@@ -151,16 +150,6 @@ export const ProposalComponent = ({
   );
 };
 
-const StyledMarkdown = styled(Typography)({
-  fontWeight: 700,
-  fontSize: 17,
-});
-
-const StyledProposalTitle = styled(Typography)({
-  fontSize: 23,
-  fontWeight: 800,
-});
-
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;
 
@@ -170,9 +159,9 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
 
   if (Number(totalWeight) === 0) {
     return (
-      <StyledAlet severity="warning">
-        <Typography>{t('endedAndDidntPassedQuorum')}</Typography>
-      </StyledAlet>
+      <StyledAlert severity="warning">
+        <Typography>{t("endedAndDidntPassedQuorum")}</Typography>
+      </StyledAlert>
     );
   }
 
@@ -196,11 +185,6 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
     </StyledFlexColumn>
   );
 };
-
-const StyledAlet = styled(Alert)({
-  width: "100%",
-  marginTop: 10,
-});
 
 const Result = ({
   title,

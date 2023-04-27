@@ -17,12 +17,12 @@ import { Dao } from "types";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import _ from "lodash";
-import { StringParam, useQueryParam } from "use-query-params";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { useConnection } from "ConnectionProvider";
 import { Box } from "@mui/system";
 import { useTranslation } from "react-i18next";
 import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
+import { useAppQueryParams } from "hooks";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
@@ -49,11 +49,11 @@ export function DaosPage() {
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
 
-  const [queryParam, setQueryParam] = useQueryParam("q", StringParam);
+  const {query, setSearch} = useAppQueryParams();
 
   const onSearchInputChange = (value: string) => {
     setSearchValue(value);
-    setQueryParam(value || undefined, "pushIn");
+    setSearch(value);
   };
   const { t } = useTranslation();
 
@@ -65,7 +65,7 @@ export function DaosPage() {
       <StyledFlexColumn alignItems="flex-start" gap={24}>
         <StyledFlexRow justifyContent="space-between">
           <StyledSearch
-            initialValue={queryParam as string}
+            initialValue={query.search || ""}
             onChange={onSearchInputChange}
           />
           <StyledDaosAmount>

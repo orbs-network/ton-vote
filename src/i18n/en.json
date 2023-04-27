@@ -39,7 +39,8 @@
     "endIn": "Ends in {{value}}",
     "emptyProposals":"No proposals found",
   "noSpaces":"No spaces found",
-  "endedAndDidntPassedQuorum":"Proposal ended and didnt passed the minimim quorum"
+  "endedAndDidntPassedQuorum":"Proposal ended and didnt passed the minimim quorum",
+  "castVote":"Cast your vote"
 
   }
 }
