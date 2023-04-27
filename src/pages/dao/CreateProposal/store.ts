@@ -84,7 +84,7 @@ export const useCreateProposal = () => {
         jetton,
         nft,
         title: formValues.title,
-        description: formValues.description,
+        description: JSON.stringify({ en: formValues.description }),
         votingPowerStrategy: formValues.votingPowerStrategy,
       };
 

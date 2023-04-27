@@ -26,6 +26,8 @@ export const useDaosQuery = (refetchInterval?: number) => {
     async ({ signal }) => {
       const res = (await getDaos(signal)) || [];
       const daos = [OLD_DAO, ...res];
+      console.log(newDaosAddresses);
+      
       if (!_.size(newDaosAddresses)) {
         return daos;
       }
@@ -51,11 +53,11 @@ export const useDaosQuery = (refetchInterval?: number) => {
         })
       );
 
-      showPromiseToast({
-        promise: promise,
-        loading: "Updating Spaces",
-        success: "Spaces updated",
-      });
+      // showPromiseToast({
+      //   promise: promise,
+      //   loading: "Updating Spaces",
+      //   success: "Spaces updated",
+      // });
 
       const newDaosMap = await promise;
 

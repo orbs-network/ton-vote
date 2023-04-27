@@ -2,8 +2,19 @@ import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
-import { DaoRoles, ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
-import { ProposalResults, ProposalStatus, RawVote, RawVotes, Vote, VotingPower } from "types";
+import {
+  DaoRoles,
+  ProposalMetadata,
+  VotingPowerStrategy,
+} from "ton-vote-contracts-sdk";
+import {
+  ProposalResults,
+  ProposalStatus,
+  RawVote,
+  RawVotes,
+  Vote,
+  VotingPower,
+} from "types";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
 import { showErrorToast } from "toasts";
@@ -113,7 +124,6 @@ export const urlPatternValidation = (URL: string) => {
   return regex.test(URL);
 };
 
-
 export const getTonScanContractUrl = (address?: string) => {
   if (!address) return "";
   return `${TONSCAN_ADDRESS_URL}/${address}`;
@@ -163,7 +173,6 @@ export const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
   }
 };
 
-
 export const normalizeResults = (
   proposalResult: ProposalResults
 ): { title: string; percent: number }[] => {
@@ -173,4 +182,18 @@ export const normalizeResults = (
       percent: value ? Number(value) : 0,
     };
   }).filter((it) => it.title !== "totalWeight");
+};
+
+export const parseLanguage = (json?: string, lang?: string) => {
+  if (!json || !lang) return json;
+  try {
+    const parsed = JSON.parse(json);
+    const value = parsed[lang];
+    if (!value) {
+      throw new Error("No value");
+    }
+    return parsed[lang];
+  } catch (error) {
+    return json;
+  }
 };

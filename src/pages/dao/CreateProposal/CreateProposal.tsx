@@ -50,6 +50,7 @@ function Form() {
       nft: initialNFT === ZERO_ADDRESS ? "" : initialNFT,
       votingPowerStrategy: formData.votingPowerStrategy || 0,
       votingChoices: formData.votingChoices || initialChoices,
+      description_en: formData.description_en,
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>

@@ -12,6 +12,7 @@ import {
   calculateTonAmount,
   normalizeResults,
   getSymbol,
+  parseLanguage,
 } from "utils";
 import { ProposalLoader } from "../ProposalLoader";
 import removeMd from "remove-markdown";
@@ -109,6 +110,9 @@ export const ProposalComponent = ({
   if (hideProposal) {
     return null;
   }
+
+
+  const description = parseLanguage(proposal?.metadata?.description, 'en');
   return (
     <StyledProposal onClick={onClick}>
       <StyledFlexColumn alignItems="flex-start">
@@ -130,7 +134,7 @@ export const ProposalComponent = ({
             WebkitLineClamp: 3,
           }}
         >
-          {removeMd(proposal?.metadata?.description || "", {
+          {removeMd(description || "", {
             useImgAltText: true,
           })}
         </StyledMarkdown>

@@ -44,6 +44,7 @@ export function CreateMetadataStep() {
       jetton: daoMetadataForm.jetton,
       nft: daoMetadataForm.nft,
       dns: daoMetadataForm.dns,
+      about_en: daoMetadataForm.about_en,
     },
     validationSchema: DaoMetadataFormSchema,
     validateOnChange: false,

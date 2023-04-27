@@ -17,6 +17,7 @@ export interface FormData {
   nft: string;
   votingPowerStrategy: number;
   votingChoices: { key: string; value: string }[];
+  description_en?: string;
 }
 
 export const FormSchema = Yup.object().shape({

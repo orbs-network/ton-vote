@@ -11,6 +11,7 @@ import { ProposalMetadata } from "ton-vote-contracts-sdk";
 
 import { useProposalPageQuery } from "pages/proposal/query";
 import { LoadingContainer, Markdown, Header, AddressDisplay, Img, Container, Button, OverflowText } from "components";
+import { parseLanguage } from "utils";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
@@ -41,10 +42,12 @@ export function ProposalDescription() {
 
   const HEIGHT = descriptionHeight > 200 ? 200 : descriptionHeight;
 
+  const description = parseLanguage(metadata?.description, 'en');
+
   return (
     <StyledContainer>
       <StyledPlaceholder ref={elRef}>
-        <StyledMarkdown open={0}>{metadata?.description}</StyledMarkdown>
+        <StyledMarkdown open={0}>{description}</StyledMarkdown>
       </StyledPlaceholder>
       {ready && (
         <span>
@@ -54,7 +57,7 @@ export function ProposalDescription() {
               <ProposalOwner />
               <AnimateHeight height={showMore ? "auto" : HEIGHT} duration={0}>
                 <StyledMarkdown open={showMore ? 1 : 0}>
-                  {metadata?.description}
+                  {description}
                 </StyledMarkdown>
               </AnimateHeight>
             </StyledFlexColumn>

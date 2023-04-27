@@ -11,10 +11,10 @@ import { ZERO_ADDRESS } from "consts";
 import { Logger } from "utils";
 import { useTranslation } from "react-i18next";
 import { persist } from "zustand/middleware";
-import { useDaosQuery } from "query/queries";
 
 export interface DaoMetadata extends MetadataArgs {
   dns: string;
+  about_en?: string;
 }
 
 const initialCreateMetadataForm: DaoMetadata = {
@@ -23,6 +23,7 @@ const initialCreateMetadataForm: DaoMetadata = {
   website: "",
   github: "",
   about: "",
+  about_en: "",
   terms: "",
   avatar: "",
   hide: false,
@@ -92,7 +93,7 @@ export const useCreateDaoMetadata = () => {
       const sender = getSender();
 
       const metadataArgs: DaoMetadata = {
-        about: values.about,
+        about: JSON.stringify({en: values.about_en}),
         avatar: values.avatar || "",
         github: values.github || "",
         hide: values.hide,

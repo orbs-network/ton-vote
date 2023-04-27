@@ -22,7 +22,7 @@ export const useInputs = () => {
     {
       label: "About",
       type: "textarea",
-      name: "about",
+      name: "about_en",
       rows: 6,
       tooltip: t("projectAboutTooltip") as string,
       required: true,
@@ -94,7 +94,12 @@ export const DaoMetadataFormSchema = Yup.object().shape({
     .test("", "Invalid TON DNS", (value) => {
       return value?.endsWith(".ton") && value?.length > 4;
     }),
-  about: Yup.string().required("About is Required"),
+  about: Yup.string().test('', "About is Required", (value, context) => {
+    if(!value && !context.parent.about_en) {
+      return false;
+    }
+    return true
+  }),
   github: Yup.string().test("", "Invalid Github URL", (value) => {
     return value ? value.includes("github") : true;
   }),

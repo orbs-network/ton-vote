@@ -2,12 +2,15 @@ import { styled } from "@mui/material";
 import { Container, Markdown } from "components";
 import { useDaoAddress } from "hooks";
 import { useDaoQuery } from "query/queries";
-import React from "react";
+import React, { useMemo } from "react";
+import { parseLanguage } from "utils";
 
 export function DaoDescription() {
   const daoAddress = useDaoAddress();
-  const about = useDaoQuery(daoAddress).data?.daoMetadata.about;
+  const rawAbout = useDaoQuery(daoAddress).data?.daoMetadata.about;
 
+    const about = useMemo(() => parseLanguage(rawAbout, 'en'), [rawAbout]);
+  
     if (!about) return null
       return (
         <StyledDescription>
