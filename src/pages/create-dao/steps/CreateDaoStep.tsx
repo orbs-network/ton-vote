@@ -17,7 +17,7 @@ export function CreateDaoStep() {
 
   const { setRolesInputs, createMetadataInputs } = useInputs();
   return (
-    <Step title={t("createForum")}>
+    <Step title={t("createSpace")}>
       <StyledFlexColumn>
         <StyledInputs>
           {setRolesInputs.map((input) => {
@@ -44,7 +44,7 @@ export function CreateDaoStep() {
         </StyledInputs>
         <Submit>
           <Button isLoading={isLoading} onClick={() => createDao()}>
-            {t("createForum")}
+            {t("createSpace")}
           </Button>
         </Submit>
       </StyledFlexColumn>

@@ -1,19 +1,16 @@
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { STATE_REFETCH_INTERVAL, QueryKeys } from "config";
 import { useProposalAddress } from "hooks";
-import _, { set } from "lodash";
+import _ from "lodash";
 import { Proposal, ProposalStatus } from "types";
 import { getProposalStatus, Logger } from "utils";
-import { api, getProposalFromContract } from "lib";
+import { lib } from "lib/lib";
 import { useProposalPersistedStore } from "./store";
 import {
-  getAllNftHolders,
-  getClientV2,
   getClientV4,
   getSingleVoterPower,
-  ProposalMetadata,
-  VotingPowerStrategy,
 } from "ton-vote-contracts-sdk";
+import { api } from "api";
 
 export const useGetProposal = () => {
   const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
@@ -30,7 +27,7 @@ export const useGetProposal = () => {
     const contractProposal = () => {
       Logger("getting state from contract");
 
-      return getProposalFromContract(
+      return lib.getProposalFromContract(
         proposalAddress,
         state,
         latestMaxLtAfterTx
@@ -123,20 +120,23 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   );
 };
 
-export const useWalletVotingPower = (account?: string, proposal?: Proposal | null) => {
+export const useWalletVotingPower = (
+  account?: string,
+  proposal?: Proposal | null
+) => {
+  const proposalAddress = useProposalAddress();
+
   return useQuery(
     [QueryKeys.SIGNLE_VOTING_POWER, account],
-    async () => {
+    async ({ signal }) => {
       const clientV4 = await getClientV4();
-      let allNftHolders = new Set<string>();
-      if (
-        proposal?.metadata?.votingPowerStrategy ===
-        VotingPowerStrategy.NftCcollection
-      ) {
-        allNftHolders = await getAllNftHolders(clientV4, proposal?.metadata!);
-      }
-
-    Logger(`Fetching voting power for account: ${account}`);
+      const allNftHolders = await lib.getAllNftHolders(
+        proposalAddress,
+        clientV4,
+        proposal!.metadata!,
+        signal
+      );
+      Logger(`Fetching voting power for account: ${account}`);
 
       return getSingleVoterPower(
         clientV4,

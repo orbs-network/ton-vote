@@ -1,13 +1,19 @@
 import { styled, Typography } from "@mui/material";
-import { Img, SideMenu, AddressDisplay, OverflowText } from "components";
+import {
+  Img,
+  SideMenu,
+  AddressDisplay,
+  OverflowText,
+  Socials,
+} from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
+import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
-import Socials from "./Socials";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
@@ -53,9 +59,9 @@ export function DaoMenu() {
 }
 
 const StyledOverflowText = styled(OverflowText)({
-  color:'black',
+  color: "black",
   fontWeight: 700,
-  fontSize: 20
+  fontSize: 20,
 });
 
 const StyledTop = styled(StyledFlexColumn)({
@@ -74,6 +80,8 @@ const Navigation = () => {
   const { isDaoOwner, isProposalOnwer, isLoading } = useIsOwner(daoAddress);
 
   const isOwner = isDaoOwner || isProposalOnwer;
+
+  const navigation = useNavigationLinks();
 
   if (isLoading) {
     return (
@@ -105,25 +113,28 @@ const Navigation = () => {
   );
 };
 
-const navigation = [
-  {
-    title: "Proposals",
-    navigate: (daoId: string) => appNavigation.daoPage.root(daoId),
-    path: routes.space,
-  },
+const useNavigationLinks = () => {
+  const {t} = useTranslation()
+  return [
+    {
+      title: t("proposals"),
+      navigate: (daoId: string) => appNavigation.daoPage.root(daoId),
+      path: routes.space,
+    },
 
-  {
-    title: "About",
-    navigate: (daoId: string) => appNavigation.daoPage.about(daoId),
-    path: routes.spaceAbout,
-  },
-  {
-    title: "New proposal",
-    navigate: (daoId: string) => appNavigation.daoPage.create(daoId),
-    path: routes.createProposal,
-    onlyOwner: true,
-  },
-];
+    {
+      title: t("about"),
+      navigate: (daoId: string) => appNavigation.daoPage.about(daoId),
+      path: routes.spaceAbout,
+    },
+    {
+      title: t("newProposal"),
+      navigate: (daoId: string) => appNavigation.daoPage.create(daoId),
+      path: routes.createProposal,
+      onlyOwner: true,
+    },
+  ];
+};
 
 const StyledNavigationLoader = styled(StyledSkeletonLoader)({
   width: "calc(100% - 30px)",

@@ -1,15 +1,10 @@
 import { Fade, styled, Typography } from "@mui/material";
 import {
   Button,
-  Container,
-  FadeElement,
-  Header,
   InputsForm,
-  MapInput,
-  TitleContainer,
 } from "components";
 import { StyledFlexColumn } from "styles";
-import { FormikValues, useFormik } from "formik";
+import { FormikProps, useFormik } from "formik";
 import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
 import _ from "lodash";
 import { DaoMetadataFormSchema, useInputs } from "./form";
@@ -20,6 +15,23 @@ import { useDebouncedCallback } from "hooks";
 import { validateFormik } from "utils";
 import { useTranslation } from "react-i18next";
 import { Step } from "./Step";
+
+const useFormLanguageListeners = (formik: FormikProps<DaoMetadata>) => {
+  useEffect(() => {
+    formik.setFieldValue(
+      "name",
+      JSON.stringify({ en: formik.values.name_en })
+    );
+    formik.setFieldValue(
+      "about",
+      JSON.stringify({
+        en: formik.values.about_en,
+      })
+    );
+  }, [formik.values]);
+};
+
+
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
@@ -45,6 +57,7 @@ export function CreateMetadataStep() {
       nft: daoMetadataForm.nft,
       dns: daoMetadataForm.dns,
       about_en: daoMetadataForm.about_en,
+      name_en: daoMetadataForm.name_en,
     },
     validationSchema: DaoMetadataFormSchema,
     validateOnChange: false,
@@ -53,6 +66,7 @@ export function CreateMetadataStep() {
   });
 
   const { t } = useTranslation();
+  useFormLanguageListeners(formik);
 
   const saveForm = useDebouncedCallback(() => {
     setDaoMetadataForm(formik.values);
@@ -64,8 +78,8 @@ export function CreateMetadataStep() {
 
   return (
     <Step
-      warning={editMode ? t("editForumDetailsWarning") : ""}
-      title={editMode ? t("editForumDetails") : t("createForumDetails")}
+      warning={editMode ? t("editSpaceDetailsWarning") : ""}
+      title={editMode ? t("editspaceDetails") : t("createSpaceDetails")}
     >
       <StyledFlexColumn>
         <StyledInputs>

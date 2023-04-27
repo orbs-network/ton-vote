@@ -13,15 +13,15 @@ export const useSteps = () => {
       component: GettingStartedStep,
     },
     {
-      title: t("forumDetails"),
+      title: t("spaceDetails"),
       component: CreateMetadataStep,
     },
     {
-      title: t("forumStage"),
+      title: t("spacestage"),
       component: SetRolesStep,
     },
     {
-      title: t("createForum"),
+      title: t("createSpace"),
       component: CreateDaoStep,
     },
   ];

@@ -15,6 +15,7 @@ import { persist } from "zustand/middleware";
 export interface DaoMetadata extends MetadataArgs {
   dns: string;
   about_en?: string;
+  name_en?: string;
 }
 
 const initialCreateMetadataForm: DaoMetadata = {
@@ -93,7 +94,7 @@ export const useCreateDaoMetadata = () => {
       const sender = getSender();
 
       const metadataArgs: DaoMetadata = {
-        about: JSON.stringify({en: values.about_en}),
+        about: values.about,
         avatar: values.avatar || "",
         github: values.github || "",
         hide: values.hide,
@@ -123,8 +124,8 @@ export const useCreateDaoMetadata = () => {
         showPromiseToast({
           promise,
           success: editMode
-            ? t("forumDetailsUpdated")
-            : t("forumDetailsCreated"),
+            ? t("spaceDetailsUpdated")
+            : t("spaceDetailsCreated"),
         });
       }
 

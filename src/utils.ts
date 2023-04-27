@@ -184,7 +184,7 @@ export const normalizeResults = (
   }).filter((it) => it.title !== "totalWeight");
 };
 
-export const parseLanguage = (json?: string, lang?: string) => {
+export const parseLanguage = (json?: string, lang: string = 'en') => {
   if (!json || !lang) return json;
   try {
     const parsed = JSON.parse(json);
@@ -197,3 +197,5 @@ export const parseLanguage = (json?: string, lang?: string) => {
     return json;
   }
 };
+
+

@@ -14,6 +14,21 @@ const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
   return (await axiosInstance.get(`/daos`, { signal })).data;
 };
 
+const getAllNftHolders = async (
+  proposalAddress: string,
+  signal?: AbortSignal
+): Promise<Set<string>> => {
+  const result = await axiosInstance.get(
+    `/proposalNftHolders/${proposalAddress}`,
+    {
+      signal,
+    }
+  );
+
+  const arr = result.data as string[];
+  return new Set(arr);
+};
+
 const getProposal = async (
   proposalAddress: string,
   signal?: AbortSignal
@@ -45,13 +60,11 @@ const getDao = async (
   return (await axiosInstance.get(`/dao/${daoAddress}`, { signal })).data;
 };
 
-
 const validateServerLastUpdate = async (
   signal?: AbortSignal
 ): Promise<boolean> => {
-  const serverLastUpdate = (
-    await axiosInstance.get("/updateTime", { signal })
-  ).data;
+  const serverLastUpdate = (await axiosInstance.get("/updateTime", { signal }))
+    .data;
   return moment().valueOf() - serverLastUpdate < LAST_FETCH_UPDATE_LIMIT;
 };
 
@@ -61,6 +74,7 @@ export const api = {
   getMaxLt,
   validateServerLastUpdate,
   getDao,
+  getAllNftHolders,
 };
 
 export interface GetStateApiPayload {

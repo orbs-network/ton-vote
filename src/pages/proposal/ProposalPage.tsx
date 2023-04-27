@@ -14,6 +14,7 @@ import { ProposalStatus } from "types";
 import { useProposalPageQuery } from "./query";
 import { ProposalDescription } from "./ProposalDescription";
 import { useProposalPageStatus } from "./hooks";
+import { parseLanguage } from "utils";
 
 const useComponents = () => {
   const isLoading = useProposalPageQuery().isLoading;
@@ -80,7 +81,7 @@ const Meta = () => {
     <Helmet>
       <title>
         {APP_TITLE}
-        {title ? ` - ${title}` : ""}
+        {title ? ` - ${parseLanguage(title)}` : ""}
       </title>
     </Helmet>
   );

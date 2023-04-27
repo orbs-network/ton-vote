@@ -20,15 +20,32 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { useDaoQuery } from "query/queries";
 import { appNavigation } from "router";
-import { validateFormik } from "utils";
+import { parseLanguage, validateFormik } from "utils";
 import { ZERO_ADDRESS } from "consts";
 import { CreateProposalForm } from "./types";
+import { useTranslation } from "react-i18next";
 
 const initialChoices = [
   { key: crypto.randomUUID(), value: "Yes" },
   { key: crypto.randomUUID(), value: "No" },
   { key: crypto.randomUUID(), value: "Abstain" },
 ];
+
+const useFormLanguageListeners = (formik: FormikProps<CreateProposalForm>) => {
+  useEffect(() => {
+    formik.setFieldValue(
+      "title",
+      JSON.stringify({ en: formik.values.title_en })
+    );
+    formik.setFieldValue(
+      "description",
+      JSON.stringify({
+        en: formik.values.description_en,
+        ru: formik.values.description_ru,
+      })
+    );
+  }, [formik.values]);
+};
 
 function Form() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
@@ -52,6 +69,9 @@ function Form() {
       votingPowerStrategy: formData.votingPowerStrategy || 0,
       votingChoices: formData.votingChoices || initialChoices,
       description_en: formData.description_en,
+      description_ru: formData.description_ru,
+      votingSystemType: formData.votingSystemType || 0,
+      title_en: formData.title_en,
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>
@@ -59,6 +79,8 @@ function Form() {
     validateOnChange: false,
     validateOnBlur: true,
   });
+
+  useFormLanguageListeners(formik);
 
   const saveForm = useDebouncedCallback(() => {
     setFormData(formik.values);
@@ -132,9 +154,9 @@ const Preview = ({ formik }: { formik?: FormikProps<CreateProposalForm> }) => {
   return (
     <StyledPreview>
       <Typography variant="h2" className="title">
-        {formik?.values.title || "Untitled"}
+        {parseLanguage(formik?.values.title) || "Untitled"}
       </Typography>
-      <Markdown>{formik?.values.description}</Markdown>
+      <Markdown>{parseLanguage(formik?.values.description)}</Markdown>
     </StyledPreview>
   );
 };
@@ -150,6 +172,7 @@ const StyledPreview = styled(Container)({
 
 function CreateForm({ formik }: { formik: FormikProps<CreateProposalForm> }) {
   const { firstSection, secondSection, thirdSection } = useInputs(formik);
+  const { t } = useTranslation();
 
   return (
     <StyledFlexColumn gap={15}>
@@ -158,7 +181,7 @@ function CreateForm({ formik }: { formik: FormikProps<CreateProposalForm> }) {
           <InputsForm formik={formik} inputs={firstSection} />
         </StyledFlexColumn>
       </StyledDescription>
-      <TitleContainer title="Voting configurations">
+      <TitleContainer title={t("votingConfigurations")}>
         <StyledFlexColumn gap={20}>
           <InputsForm formik={formik} inputs={secondSection} />
         </StyledFlexColumn>

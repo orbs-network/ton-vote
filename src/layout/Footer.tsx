@@ -3,8 +3,7 @@ import React from 'react'
 import { StyledFlexColumn, StyledFlexRow } from 'styles'
 import OrbsLogo from 'assets/orbs.svg'
 import HearLogo from "assets/heart.svg";
-import { Github } from 'components';
-import Socials from 'pages/dao/Socials';
+import { AppSocials, Github } from 'components';
 import { ABOUT_URL, TELETGRAM_URL, WHITEPAPER_URL } from 'consts';
 
 export function Footer() {
@@ -18,11 +17,7 @@ export function Footer() {
           <Typography>Orbs</Typography> <img src={OrbsLogo} />
         </a>
       </StyledWithLove>
-      <Socials
-        telegram={TELETGRAM_URL}
-        whitepaper={WHITEPAPER_URL}
-        about={ABOUT_URL}
-      />
+     <AppSocials />
       <Github />
     </StyledContainer>
   );

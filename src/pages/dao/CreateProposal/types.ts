@@ -10,6 +10,9 @@ export interface CreateProposalForm {
   votingPowerStrategy: number;
   votingChoices: { key: string; value: string }[];
   description_en?: string;
+  description_ru?: string;
+  title_en?: string;
+  votingSystemType: number;
 }
 
 export interface CreateProposalStore {

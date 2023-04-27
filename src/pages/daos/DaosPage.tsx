@@ -69,7 +69,7 @@ export function DaosPage() {
             onChange={onSearchInputChange}
           />
           <StyledDaosAmount>
-            {nFormatter(_.size(data))} {t("forums")}
+            {nFormatter(_.size(data))} {t("spaces")}
           </StyledDaosAmount>
         </StyledFlexRow>
         <StyledFlexColumn gap={25}>

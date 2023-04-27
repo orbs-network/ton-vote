@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "config";
-import { api, getDao, getDaos } from "lib";
 import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
 import _ from "lodash";
 import {
@@ -17,6 +16,8 @@ import { getProposalStatus, Logger } from "utils";
 import { OLD_DAO, proposals } from "data/data";
 import { useNewDataStore } from "store";
 import { showPromiseToast } from "toasts";
+import { lib } from "lib/lib";
+import { api } from "api";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -24,9 +25,8 @@ export const useDaosQuery = (refetchInterval?: number) => {
   return useQuery(
     [QueryKeys.DAOS],
     async ({ signal }) => {
-      const res = (await getDaos(signal)) || [];
+      const res = (await lib.getDaos(signal)) || [];
       const daos = [OLD_DAO, ...res];
-      console.log(newDaosAddresses);
       
       if (!_.size(newDaosAddresses)) {
         return daos;
@@ -110,7 +110,7 @@ export const useDaoQuery = (
         return OLD_DAO;
       }
 
-      const dao = await getDao(daoAddress, signal);
+      const dao = await lib.getDao(daoAddress, signal);
       const daoProposals = handleProposal(daoAddress, dao.daoProposals);
 
       return {

@@ -208,7 +208,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.19.0"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.6", "@babel/runtime@^7.21.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.19.4", "@babel/runtime@^7.20.6", "@babel/runtime@^7.21.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
   version "7.21.0"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.21.0.tgz#5b55c9d394e5fcf304909a8b00c07dc217b56673"
   integrity sha512-xwII0//EObnq89Ji5AKYQaRYiW/nZ3llSv29d49IuxPhKbtJoLP+9QUUZ4nVragQVtaVGeZrpB+ZtG/Pdy/POw==
@@ -1347,7 +1347,7 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-cross-fetch@^3.0.4:
+cross-fetch@3.1.5, cross-fetch@^3.0.4:
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.5.tgz#e1389f44d9e7ba767907f7af8454787952ab534f"
   integrity sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==
@@ -1709,6 +1709,34 @@ html-parse-stringify@^3.0.1:
   integrity sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==
   dependencies:
     void-elements "3.1.0"
+
+i18next-browser-languagedetector@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-7.0.1.tgz#ead34592edc96c6c3a618a51cb57ad027c5b5d87"
+  integrity sha512-Pa5kFwaczXJAeHE56CHG2aWzFBMJNUNghf0Pm4SwSrEMps/PTKqW90EYWlIvhuYStf3Sn1K0vw+gH3+TLdkH1g==
+  dependencies:
+    "@babel/runtime" "^7.19.4"
+
+i18next-chained-backend@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/i18next-chained-backend/-/i18next-chained-backend-4.2.0.tgz#8d2ccba6f2faca14d2bc5023ba61c759215b99a9"
+  integrity sha512-p3qhv6GMouhpcFPnOBqSDsQyVrwZu+PKr+kXaEAGE+w9O39t4pbpBsFYjxh4Nvhn8MUEXstaDx4ZuQvsNlI5fg==
+  dependencies:
+    "@babel/runtime" "^7.19.4"
+
+i18next-http-backend@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/i18next-http-backend/-/i18next-http-backend-2.2.0.tgz#f77c06dc8e766c7588bb38da2f5fa0614ba67b3f"
+  integrity sha512-Z4sM7R6tzdLknSPER9GisEBxKPg5FkI07UrQniuroZmS15PHQrcCPLyuGKj8SS68tf+O2aEDYSUnmy1TZqZSbw==
+  dependencies:
+    cross-fetch "3.1.5"
+
+i18next-localstorage-backend@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/i18next-localstorage-backend/-/i18next-localstorage-backend-4.1.1.tgz#a27d38b3e933f911c03bfabc03ebd889b90eaf2b"
+  integrity sha512-gz3OP6m0jygF2SAzarDSFpaziYzF8mS8DP/pEUze+kDquzHTz2sy/eshcSkmFEYyGXMC037xUtlT97bNGlpZPA==
+  dependencies:
+    "@babel/runtime" "^7.20.6"
 
 i18next@^22.4.14:
   version "22.4.15"
@@ -2832,10 +2860,10 @@ ton-crypto@^3.0.0, ton-crypto@^3.1.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton-vote-contracts-sdk@1.0.0-beta.4:
-  version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/ton-vote-contracts-sdk/-/ton-vote-contracts-sdk-1.0.0-beta.4.tgz#322bcc689d3d7d35d40ca59b0a96dd6a8c7000c7"
-  integrity sha512-vQ+bve7tFLDOI7G7EvSqnp/EvQ0gaoWPFRSqTRO+8jZYJA6J7NdSevtclCS68d1IoRLoQdvuJSfmUjTzp/3i1A==
+ton-vote-contracts-sdk@^1.0.0-beta.6:
+  version "1.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/ton-vote-contracts-sdk/-/ton-vote-contracts-sdk-1.0.0-beta.6.tgz#322965760118b796ce588d95c7d7d2193d5c3793"
+  integrity sha512-K4gSGWLDXtnI6kkkOCqhd60Iin9xEjax6RLgouu4+vUGe9WDk1vNzrulj/PeWuQq+oAE850FCEAn8Vv4z6twDQ==
   dependencies:
     "@orbs-network/ton-access" "^2.2.2"
     bignumber.js "^9.1.1"

@@ -40,20 +40,22 @@ export function Vote() {
           })}
         </StyledFlexColumn>
         {proposalStatus === ProposalStatus.ACTIVE && (
-          <VoteButton
-            isLoading={isLoading}
-            disabled={!vote || isLoading}
-            onSubmit={() => setConfirmation(true)}
-          />
+          <>
+            <VoteButton
+              isLoading={isLoading}
+              disabled={!vote || isLoading}
+              onSubmit={() => setConfirmation(true)}
+            />
+            <VoteConfirmation
+              open={confirmation}
+              vote={voteOptions.find((option) => option.value === vote)?.name}
+              onClose={() => setConfirmation(false)}
+              onSubmit={() => mutate(vote!)}
+              isLoading={isLoading}
+            />
+          </>
         )}
       </StyledContainer>
-      <VoteConfirmation
-        open={confirmation}
-        vote={voteOptions.find((option) => option.value === vote)?.name}
-        onClose={() => setConfirmation(false)}
-        onSubmit={() => mutate(vote!)}
-        isLoading={isLoading}
-      />
     </>
   );
 }

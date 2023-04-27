@@ -42,7 +42,7 @@ export function ProposalDescription() {
 
   const HEIGHT = descriptionHeight > 200 ? 200 : descriptionHeight;
 
-  const description = parseLanguage(metadata?.description, 'en');
+  const description = parseLanguage(metadata?.description);
 
   return (
     <StyledContainer>
@@ -53,7 +53,7 @@ export function ProposalDescription() {
         <span>
           <StyledFlexColumn gap={0}>
             <StyledFlexColumn alignItems="flex-start" gap={20}>
-              <StyledHeader title={metadata?.title || ""} />
+              <StyledHeader title={parseLanguage(metadata?.title)} />
               <ProposalOwner />
               <AnimateHeight height={showMore ? "auto" : HEIGHT} duration={0}>
                 <StyledMarkdown open={showMore ? 1 : 0}>

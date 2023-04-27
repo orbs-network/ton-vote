@@ -14,10 +14,10 @@ export const useInputs = () => {
     {
       label: "Name",
       type: "text",
-      name: "name",
+      name: "name_en",
       tooltip: t("spaceNameTooltip") as string,
       required: true,
-      limit: TITLE_LIMIT
+      limit: TITLE_LIMIT,
     },
     {
       label: "About",
@@ -86,7 +86,12 @@ export const useInputs = () => {
 
 
 export const DaoMetadataFormSchema = Yup.object().shape({
-  name: Yup.string().required("Name is Required"),
+  name: Yup.string().test("", "Name is Required", (value, context) => {
+    if (!context.parent.name_en) {
+      return false;
+    }
+    return true;
+  }),
   avatar: Yup.string().url("invalid Avatar URL").required("Avatar is Required"),
 
   dns: Yup.string()
@@ -94,11 +99,11 @@ export const DaoMetadataFormSchema = Yup.object().shape({
     .test("", "Invalid TON DNS", (value) => {
       return value?.endsWith(".ton") && value?.length > 4;
     }),
-  about: Yup.string().test('', "About is Required", (value, context) => {
-    if(!value && !context.parent.about_en) {
+  about: Yup.string().test("", "About is Required", (value, context) => {
+    if (!context.parent.about_en) {
       return false;
     }
-    return true
+    return true;
   }),
   github: Yup.string().test("", "Invalid Github URL", (value) => {
     return value ? value.includes("github") : true;

@@ -18,7 +18,6 @@ import { isOwner } from "utils";
 import { useDaoQuery } from "query/queries";
 import { CreateProposalForm, CreateProposalStore } from "./types";
 
-
 export const useCreateProposalStore = create(
   persist<CreateProposalStore>(
     (set) => ({
@@ -75,11 +74,14 @@ export const useCreateProposal = () => {
         proposalStartTime: formValues.proposalStartTime! / 1_000,
         proposalEndTime: formValues.proposalEndTime! / 1_000,
         proposalSnapshotTime: formValues.proposalSnapshotTime! / 1_000,
-        proposalType: 1,
+        votingSystem: {
+          votingSystemType: formValues.votingSystemType,
+          choices: formValues.votingChoices.map((it) => it.value),
+        },
         jetton,
         nft,
         title: formValues.title,
-        description: JSON.stringify({ en: formValues.description }),
+        description: formValues.description,
         votingPowerStrategy: formValues.votingPowerStrategy,
       };
 

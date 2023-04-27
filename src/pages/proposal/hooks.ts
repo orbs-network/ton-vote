@@ -9,10 +9,10 @@ import { useEnpointsStore, useProposalPersistedStore } from "./store";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { getClientV2 } from "ton-vote-contracts-sdk";
 import { TX_FEE } from "config";
-import { getProposalFromContract } from "lib";
 import { showPromiseToast } from "toasts";
 import { Endpoints } from "types";
 import { useProposalStatusQuery } from "query/queries";
+import { lib } from "lib/lib";
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
@@ -25,7 +25,7 @@ export const useVerifyProposalResults = () => {
     analytics.GA.verifyButtonClick();
     setEndpoints(customEndpoints);
     const promiseFn = async () => {
-      const contractState = await getProposalFromContract(
+      const contractState = await lib.getProposalFromContract(
         proposalAddress,
         undefined,
         maxLt,

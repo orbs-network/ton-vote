@@ -3,12 +3,11 @@ import TonConnect from "@tonconnect/sdk";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
-
 export const APPROVE_TX = "Please check wallet for pending transaction";
 export const TX_APPROVED_AND_PENDING = "Transaction pending";
 export const TX_FEE = "0.0075";
 
-export const APP_NAME = 'TON VOTE'
+export const APP_NAME = "TON VOTE";
 
 export const voteOptions = [
   {
@@ -31,11 +30,8 @@ export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";
 export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 
-
 export const CLIENT_V2_API_KEY =
   "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
-
-
 
 export const STATE_REFETCH_INTERVAL = 15_000;
 
@@ -77,10 +73,12 @@ export const TON_CONNECTOR = new TonConnect({
   manifestUrl,
 });
 
-
-
-
 export const DAO_REFETCH_INTERVAL = 20_000;
 export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
 
+export const LANGUAGES1 = [
+  { text: "English", value: "en" },
+  { text: "Русский", value: "ru" },
+];
 
+export const LANGUAGES = { en: "English", ru: "Русский" };

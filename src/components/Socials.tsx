@@ -17,7 +17,7 @@ interface Props {
   about?: string;
 }
 
-function Socials({
+export function Socials({
   telegram,
   github,
   website,
@@ -38,7 +38,6 @@ function Socials({
   );
 }
 
-export default Socials;
 
 const Social = ({ url, icon }: { url?: string; icon: ReactElement }) => {
   if (!url) return null;

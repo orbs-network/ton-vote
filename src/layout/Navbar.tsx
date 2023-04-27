@@ -1,21 +1,24 @@
 import {
-  Menu,
+  IconButton,
   MenuItem,
   styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, ConnectButton, Github } from "components";
-import { StyledFlexRow, StyledGrid } from "styles";
+import { AppSocials, Button, ConnectButton, Github, Menu } from "components";
+import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
 import { useAppNavigation } from "router";
 import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
 import { useCopyToClipboard } from "hooks";
-import { APP_NAME } from "config";
+import { APP_NAME, LANGUAGES } from "config";
 import { useTranslation } from "react-i18next";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import { BsGlobeAmericas } from "react-icons/bs";
+import _ from "lodash";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -27,7 +30,9 @@ export function Navbar() {
           <Typography>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
+          <LanuageSelect />
           <Wallet />
+
           {!mobile && <Github />}
         </StyledFlexRow>
       </StyledNav>
@@ -38,13 +43,12 @@ export function Navbar() {
 const Wallet = () => {
   const { address, disconnect } = useConnection();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const open = Boolean(anchorEl);
   const [_, copy] = useCopyToClipboard();
 
   const handleClose = () => {
@@ -70,20 +74,7 @@ const Wallet = () => {
         </StyledFlexRow>
       </StyledConnected>
 
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-      >
+      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
         <StyledMenuItem onClick={() => copy(address)}>
           <Typography>{t("copyAddress")}</Typography>
           <MdContentCopy />
@@ -102,6 +93,105 @@ const Wallet = () => {
   );
 };
 
+const SideMenu = () => {
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  return (
+    <>
+      <StyledDotsButton onClick={handleClick}>
+        <HiOutlineDotsHorizontal />
+      </StyledDotsButton>
+      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
+        <StyledMenuContent>
+            <LanuageSelect />
+            <StyledSocials>
+              <AppSocials />
+            </StyledSocials>
+        </StyledMenuContent>
+      </Menu>
+    </>
+  );
+};
+
+const StyledSocials = styled(Box)({
+  width:'100%',
+  borderTop:'1px solid #E0E0E0',
+  marginTop: 40,
+  paddingTop:20
+})
+
+const StyledMenuContent = styled(StyledFlexColumn)({
+  padding: '20px 0px 10px 0px',
+  minWidth: 200,
+  gap: 0
+ 
+});
+
+const StyledDotsButton = styled(Button)({
+  width: "unset",
+  height: "unset",
+  borderRadius: "50%",
+  padding: 10,
+});
+
+const LanuageSelect = () => {
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { i18n } = useTranslation();
+
+  const currentLanguage =
+    LANGUAGES[i18n.language as keyof typeof LANGUAGES] || LANGUAGES.en;
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  return (
+    <>
+      <StyledLanguageSelectButton onClick={handleClick} variant="transparent">
+        <StyledFlexRow>
+          <BsGlobeAmericas />
+          <Typography>{currentLanguage}</Typography>
+        </StyledFlexRow>
+      </StyledLanguageSelectButton>
+      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
+        <StyledLanguages>
+          {_.map(LANGUAGES, (value, key) => {
+            return (
+              <MenuItem
+                onClick={() => {
+                  i18n.changeLanguage(key);
+                  setAnchorEl(null);
+                }}
+                selected={currentLanguage === value}
+                key={key}
+              >
+                {value}
+              </MenuItem>
+            );
+          })}
+        </StyledLanguages>
+      </Menu>
+    </>
+  );
+};
+
+const StyledLanguages = styled(Box)({
+  width:'100%'
+})
+
+const StyledLanguageSelectButton = styled(Button)({
+  height: "unset",
+  padding: "10px 20px",
+  "*": { fontSize: 14 },
+  svg: {
+    width: 17,
+    height: 17,
+  },
+});
+
 const StyledMenuItem = styled(MenuItem)({
   gap: 20,
   justifyContent: "space-between",
@@ -118,13 +208,6 @@ const StyledConnected = styled(Button)({
   "*": {
     fontSize: 14,
   },
-});
-
-const StyledSelectedWallet = styled("img")({
-  minWidth: 25,
-  minHeight: 25,
-  borderRadius: "50%",
-  overflow: "hidden",
 });
 
 const StyledLogo = styled("button")(({ theme }) => ({

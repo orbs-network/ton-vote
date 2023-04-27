@@ -31,7 +31,7 @@ export function SetRolesStep() {
   });
 
   return (
-    <Step title={editMode ? t("editForumStage") : t("createForumStage")}>
+    <Step title={editMode ? t("editSpaceStage") : t("createSpaceStage")}>
       <StyledFlexColumn>
         <StyledInputs>
           <InputsForm
@@ -47,7 +47,7 @@ export function SetRolesStep() {
               validateFormik(formik);
             }}
           >
-            {t("registerForum")}
+            {t("registerSpace")}
           </Button>
         </Submit>
       </StyledFlexColumn>

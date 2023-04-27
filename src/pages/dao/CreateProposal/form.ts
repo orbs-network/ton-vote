@@ -2,6 +2,7 @@ import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { FormikProps } from "formik";
 import _ from "lodash";
 import moment from "moment";
+import { useTranslation } from "react-i18next";
 import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { InputInterface } from "types";
 import { validateAddress } from "utils";
@@ -19,7 +20,12 @@ export const FormSchema = Yup.object().shape({
     }
   ),
   title: Yup.string()
-    .required("Title is Required")
+    .test("", "Title is Required", (value, context) => {      
+      if (!context.parent.title_en) {
+        return false;
+      }
+      return true;
+    })
     .test(
       "test",
       `Title must be less than or equal to ${TITLE_LIMIT} characters`,
@@ -104,24 +110,25 @@ export const FormSchema = Yup.object().shape({
 });
 
 export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
+  const {t} = useTranslation()
   const firstSection: InputInterface[] = [
     {
-      label: "Title",
+      label: t("title"),
       type: "text",
-      name: "title",
+      name: "title_en",
       required: true,
       limit: TITLE_LIMIT,
     },
     {
-      label: "Description",
+      label: t("description"),
       type: "textarea",
-      name: "description",
+      name: "description_en",
       rows: 9,
-      tooltip:
-        "Supports Markdown for editing, adding images, etc. [Read more](https://www.markdownguide.org/basic-syntax/)",
+      tooltip: t("createProposalDescriptionTooltip") as string,
       limit: ABOUT_CHARS_LIMIT,
       isMarkdown: true,
     },
+    
   ];
 
   const secondSection: InputInterface[] = [

@@ -1,16 +1,18 @@
 import _ from "lodash";
+import { TonClient4 } from "ton";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import {
   getClientV2,
   getClientV4,
   getProposalMetadata,
+  ProposalMetadata,
   VotingPowerStrategy,
 } from "ton-vote-contracts-sdk";
-import { Endpoints, Dao, Proposal, ProposalResults } from "types";
+import { Endpoints, Dao, Proposal } from "types";
 import { Logger, parseVotes } from "utils";
-import { api } from "./api";
+import { api } from "api";
 
-export const getProposalFromContract = async (
+const getProposalFromContract = async (
   proposalAddress: string,
   state?: Proposal,
   latestMaxLtAfterTx?: string,
@@ -27,19 +29,12 @@ export const getProposalFromContract = async (
     state?.metadata ||
     (await getProposalMetadata(clientV2, clientV4, proposalAddress));
 
-  let nftItemsHolders = new Set<string>();
   const votingPowerStrategy = metadata.votingPowerStrategy;
-  if (votingPowerStrategy === VotingPowerStrategy.NftCcollection) {
-    const clientV4 = await getClientV4(customEndpoints?.clientV4Endpoint);
-    Logger("fetching nft holders");
-
-    try {
-      nftItemsHolders = await TonVoteSDK.getAllNftHolders(clientV4, metadata);
-    } catch (error) {
-      Logger("error fetching nft holders");
-    }
-  }
-
+  const nftItemsHolders = await getAllNftHolders(
+    proposalAddress,
+    clientV4,
+    metadata
+  );
   let _transactions = state?.transactions || [];
   let _maxLt = state?.maxLt;
 
@@ -91,19 +86,21 @@ export const getProposalFromContract = async (
   };
 };
 
-export const getDaos = async (signal?: AbortSignal) => {
+const getDaos = async (signal?: AbortSignal) => {
   try {
     Logger("Fetching daos from api");
-    return api.getDaos(signal);
+    const apiResult = await api.getDaos(signal);
+
+    if (!_.isArray(apiResult)) {
+      return []
+    }
+    return apiResult;
   } catch (error) {
     // get daos from contract
     // Logger("server error, Fetching daos from contract");
     // const client = await getClientV2();
-    // const { daoAddresses, endDaoId } = await TonVoteSDK.getDaos(
-    //   client,
-    //   nextPage,
-    //   10
-    // );
+    // const { daoAddresses, endDaoId } = await TonVoteSDK.getDaos(client, 10);
+    
     // const daos: Dao[] = await Promise.all(
     //   daoAddresses.map(async (address): Promise<Dao> => {
     //     return {
@@ -123,7 +120,7 @@ export const getDaos = async (signal?: AbortSignal) => {
   }
 };
 
-export const getDao = async (
+const getDao = async (
   daoAddress: string,
   signal?: AbortSignal
 ): Promise<Dao> => {
@@ -152,4 +149,31 @@ export const getDao = async (
     };
     return daoFromContract;
   }
+};
+
+const getAllNftHolders = async (
+  proposalAddress: string,
+  clientV4: TonClient4,
+  metadata: ProposalMetadata,
+  signal?: AbortSignal
+) => {
+  if (metadata.votingPowerStrategy !== VotingPowerStrategy.NftCcollection) {
+    return new Set<string>();
+  }
+  try {
+    const res = await api.getAllNftHolders(proposalAddress, signal);
+    if (!res) {
+      throw new Error("nft holders not found");
+    }
+    return res;
+  } catch (error) {
+    return TonVoteSDK.getAllNftHolders(clientV4, metadata);
+  }
+};
+
+export const lib = {
+  getAllNftHolders,
+  getProposalFromContract,
+  getDaos,
+  getDao,
 };

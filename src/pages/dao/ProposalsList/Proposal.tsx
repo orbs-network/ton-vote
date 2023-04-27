@@ -123,7 +123,7 @@ export const ProposalComponent = ({
         </StyledFlexRow>
 
         <StyledProposalTitle variant="h4">
-          {proposal?.metadata?.title}
+          {parseLanguage(proposal?.metadata?.title)}
         </StyledProposalTitle>
         <StyledMarkdown
           sx={{
