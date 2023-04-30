@@ -1,7 +1,7 @@
 import { ErrorContainer } from "components";
 import { APP_TITLE } from "config";
 import { useDaoAddress } from "hooks";
-import { useDaoQuery, useDaosWhitelistQuery } from "query/queries";
+import { useDaoQuery } from "query/queries";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";

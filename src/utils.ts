@@ -18,6 +18,7 @@ import {
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
 import { showErrorToast } from "toasts";
+import { WHITELISTED_DAOS, WHITELISTED_PROPOSALS } from "whitelisted";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -184,7 +185,7 @@ export const normalizeResults = (
   }).filter((it) => it.title !== "totalWeight");
 };
 
-export const parseLanguage = (json?: string, lang: string = 'en') => {
+export const parseLanguage = (json?: string, lang: string = "en") => {
   if (!json || !lang) return json;
   try {
     const parsed = JSON.parse(json);
@@ -198,4 +199,14 @@ export const parseLanguage = (json?: string, lang: string = 'en') => {
   }
 };
 
+export const isDaoWhitelisted = (address?: string) => {
+  if (!address) return false;
+  if (!_.size(WHITELISTED_DAOS)) return true
+   return WHITELISTED_DAOS.includes(address);
+};
 
+export const isProposalWhitelisted = (address?: string) => {
+  if (!address) return false;
+  if (!_.size(WHITELISTED_PROPOSALS)) return true
+  return WHITELISTED_PROPOSALS.includes(address);
+};

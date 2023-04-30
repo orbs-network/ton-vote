@@ -112,7 +112,7 @@ export function TextInput({
         {isMarkdown && (
           <StyledMdIcon>
             <AppTooltip text={t("stylingWithMarkdown")} placement="top">
-              <FaMarkdown style={{ width: 20, height: 20 }} />
+              <StyledFaMarkdown />
             </AppTooltip>
           </StyledMdIcon>
         )}
@@ -127,6 +127,11 @@ export function TextInput({
     </StyledContainer>
   );
 }
+
+const StyledFaMarkdown = styled(FaMarkdown)({
+  width: 20,
+  height: 20,
+});
 
 const StyledMdIcon = styled(Box)({
   position: "absolute",

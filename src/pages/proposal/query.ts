@@ -3,15 +3,11 @@ import { STATE_REFETCH_INTERVAL, QueryKeys } from "config";
 import { useProposalAddress } from "hooks";
 import _ from "lodash";
 import { Proposal, ProposalStatus } from "types";
-import { getProposalStatus, Logger } from "utils";
+import { getProposalStatus, isProposalWhitelisted, Logger } from "utils";
 import { lib } from "lib/lib";
 import { useProposalPersistedStore } from "./store";
-import {
-  getClientV4,
-  getSingleVoterPower,
-} from "ton-vote-contracts-sdk";
+import { getClientV4, getSingleVoterPower } from "ton-vote-contracts-sdk";
 import { api } from "api";
-import { useProposalsWhitelistQuery } from "query/queries";
 
 export const useGetProposal = () => {
   const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
@@ -88,17 +84,15 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   const queryClient = useQueryClient();
   const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
 
-  const whitelistedProposals = useProposalsWhitelistQuery().data;
-
-  const isWhitelisted =  !_.size(whitelistedProposals) ? true :  whitelistedProposals?.includes(proposalAddress);
+  const isWhitelisted = isProposalWhitelisted(proposalAddress);
 
   return useQuery(
     queryKey,
     async ({ signal }) => {
       if (!isWhitelisted) {
-        throw new Error("Proposal not whitelisted")
+        throw new Error("Proposal not whitelisted");
       }
-        const state = queryClient.getQueryData<Proposal>(queryKey);
+      const state = queryClient.getQueryData<Proposal>(queryKey);
 
       // when we have state already and vote finished, we return the cached state
 
@@ -114,7 +108,7 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       retry: isWhitelisted ? 3 : false,
       refetchInterval: STATE_REFETCH_INTERVAL,
       staleTime: 30_000,
-      enabled: !!proposalAddress && !!whitelistedProposals,
+      enabled: !!proposalAddress,
       initialData: () => {
         const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
         if (!latestMaxLtAfterTx) {
