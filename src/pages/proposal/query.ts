@@ -16,88 +16,49 @@ import {
 import { api } from "api";
 import { Transaction } from "ton-core";
 
-export const useGetProposal = () => {
-  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
-    useProposalPersistedStore();
+const contractProposal = async (
+  proposalAddress: string,
+  latestMaxLtAfterTx?: string
+) => {
+  Logger("getting state from contract");
+  const clientV2 = await getClientV2();
+  const clientV4 = await getClientV4();
+  let transactions: Transaction[] | undefined;
 
-  return async (
-    proposalAddress: string,
-    isCustomEndpoint: boolean,
-    state?: Proposal,
-    signal?: AbortSignal
-  ): Promise<Proposal | null> => {
-    const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
+  if (latestMaxLtAfterTx) {
+    const result = await getTransactions(clientV2, proposalAddress);
+    transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
+  }
 
-    const contractProposal = async () => {
-      Logger("getting state from contract");
-      const clientV2 = await getClientV2();
-      const clientV4 = await getClientV4();
-      let transactions: Transaction[] | undefined;
+  return lib.getProposalFromContract(
+    clientV2,
+    clientV4,
+    proposalAddress,
+    undefined,
+    transactions
+  );
+};
 
-      if (latestMaxLtAfterTx) {
-        const result = await getTransactions(clientV2, proposalAddress);
-        transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
-      }
+const serverProposal = async (
+  proposalAddress: string,
+  signal?: AbortSignal
+): Promise<Proposal | null> => {
+  const state = await api.getProposal(proposalAddress, signal);
 
-      return lib.getProposalFromContract(
-        clientV2,
-        clientV4,
-        proposalAddress,
-        undefined,
-        transactions
-      );
-    };
-
-    const serverProposal = async (): Promise<Proposal | null> => {
-      try {
-        const state = await api.getProposal(proposalAddress, signal);
-
-        if (_.isEmpty(state.metadata)) {
-          throw new Error("Proposal not found is server");
-        }
-        Logger("getting state from server");
-        return state;
-      } catch (error) {
-        if (error instanceof Error) {
-          Logger(error.message);
-        }
-        return contractProposal();
-      }
-    };
-
-    try {
-      if (isCustomEndpoint) {
-        throw new Error("getting state from contract after transaction");
-      }
-
-      if (!latestMaxLtAfterTx) {
-        return serverProposal();
-      }
-
-      const serverMaxLt = await api.getMaxLt(proposalAddress, signal);
-
-      if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-        throw new Error(
-          `server latestMaxLtAfterTx is outdated, fetching from contract, latestMaxLtAfterTx: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
-        );
-      }
-      setLatestMaxLtAfterTx(proposalAddress, undefined);
-      return serverProposal();
-    } catch (error) {
-      if (error instanceof Error) {
-        Logger(error.message);
-      }
-      return contractProposal();
-    }
-  };
+  if (_.isEmpty(state.metadata)) {
+    throw new Error("Proposal not found is server");
+  }
+  Logger("getting state from server");
+  return state;
 };
 
 export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   const proposalAddress = useProposalAddress();
-  const getProposal = useGetProposal();
   const queryKey = [QueryKeys.PROPOSAL_PAGE, proposalAddress];
   const queryClient = useQueryClient();
-  const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
+  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
+    useProposalPersistedStore();
+  const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
 
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
 
@@ -110,7 +71,6 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       const state = queryClient.getQueryData<Proposal>(queryKey);
 
       // when we have state already and vote finished, we return the cached state
-
       const voteStatus = state?.metadata && getProposalStatus(state?.metadata);
       const preventRefetch =
         voteStatus === ProposalStatus.CLOSED ||
@@ -119,7 +79,30 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       // vote finished or not started, no need to refetch to get new data
       if (preventRefetch) return state;
 
-      return getProposal(proposalAddress, isCustomEndpoint, state, signal);
+      try {
+        if (isCustomEndpoint) {
+          throw new Error("getting state from contract after transaction");
+        }
+
+        if (!latestMaxLtAfterTx) {
+          return serverProposal(proposalAddress, signal);
+        }
+
+        const serverMaxLt = await api.getMaxLt(proposalAddress, signal);
+
+        if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
+          throw new Error(
+            `server latestMaxLtAfterTx is outdated, fetching from contract, latestMaxLtAfterTx: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
+          );
+        }
+        setLatestMaxLtAfterTx(proposalAddress, undefined);
+        return serverProposal(proposalAddress, signal);
+      } catch (error) {
+        if (error instanceof Error) {
+          Logger(error.message);
+        }
+        return contractProposal(proposalAddress, latestMaxLtAfterTx);
+      }
     },
     {
       retry: isWhitelisted ? 3 : false,

@@ -44,13 +44,9 @@ export const useNewDataStore = create(
 interface useTxReminderPopup {
   open: boolean;
   setOpen: (value: boolean) => void;
-  setText: (value?: string) => void;
-  text?: string;
 }
 
 export const useTxReminderPopup = create<useTxReminderPopup>((set, get) => ({
   open: false,
-  text: APPROVE_TX,
   setOpen: (open) => set({ open }),
-  setText: (text) => set({ text }),
 }));

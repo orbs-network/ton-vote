@@ -30,7 +30,7 @@ export function Navbar() {
           <Typography>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
-          <LanuageSelect />
+          {/* <LanuageSelect /> */}
           <Wallet />
 
           {!mobile && <Github />}

@@ -39,7 +39,7 @@ export function AppTooltip({
       title={markdown ? <StyledMarkdown>{markdown}</StyledMarkdown> : <StyledTitle>{text}</StyledTitle>}
     >
       {!info ? (
-        <Box className={`tooltip-children ${className}`}>{children}</Box>
+        <div className={`tooltip-children ${className}`} style={{display:'flex', alignItems:'center'}}>{children}</div>
       ) : (
         <StyledFlexRow style={{ width: "unset" }}>
           <AiOutlineInfoCircle />{" "}
@@ -69,5 +69,5 @@ const StyledMarkdown = styled(Markdown)({
 const StyledTooltip = styled(Tooltip)({
   "& .MuiTooltip-tooltip": {
     color:'black'
-  }
+  },
 });

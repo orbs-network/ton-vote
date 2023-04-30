@@ -131,7 +131,6 @@ export const useVote = () => {
     },
     {
       onSettled: () => toggleTxReminder(false),
-      onSuccess: () => {},
     }
   );
 };

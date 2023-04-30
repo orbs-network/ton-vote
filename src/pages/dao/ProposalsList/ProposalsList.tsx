@@ -72,7 +72,6 @@ export function ProposalsList() {
 
   return (
     <StyledFlexColumn gap={20}>
-      <DaoDescription />
       <StyledHeader title="Proposals" component={<ProposalsSearch />} />
       <Box style={{ position: "relative", width: "100%" }}>
         {!isLoading && <EmptyList />}

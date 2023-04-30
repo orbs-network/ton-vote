@@ -37,7 +37,6 @@ export const StyledDao = styled(Box)({
     fontSize: 18,
     fontWeight: 700,
     width: "100%",
-    ...textOverflow,
     textAlign: "center",
   },
   ".members": {

@@ -48,6 +48,7 @@
     "title": "Title",
     "description": "Description",
     "createProposalDescriptionTooltip": "Supports Markdown for editing, adding images, etc. [Read more](https://www.markdownguide.org/basic-syntax/)",
-    "votingConfigurations":"Voting Configurations"
+    "votingConfigurations":"Voting Configurations",
+    "checkWallet":"Please check wallet for pending transaction"
   }
 }

@@ -187,6 +187,7 @@ export const normalizeResults = (
 
 export const parseLanguage = (json?: string, lang: string = "en") => {
   if (!json || !lang) return '';
+  
   try {
     const parsed = JSON.parse(json);
     const value = parsed[lang];
@@ -194,8 +195,8 @@ export const parseLanguage = (json?: string, lang: string = "en") => {
       throw new Error("No value");
     }    
     return parsed[lang];
-  } catch (error) {
-    return '';
+  } catch (error) {    
+    return json;
   }
 };
 

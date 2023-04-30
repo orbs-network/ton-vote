@@ -1,17 +1,12 @@
-import { Box, Chip, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useDaoQuery, useProposalStatusQuery } from "query/queries";
-import {
-  useDaoAddress,
-  useProposalAddress,
-  useProposalStatusText,
-} from "hooks";
+import { useDaoQuery } from "query/queries";
+import { useDaoAddress, useProposalAddress } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
 import { useEffect, useRef, useState } from "react";
-import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import TextOverflow from "react-text-overflow";
 
 import { useProposalPageQuery } from "pages/proposal/query";
@@ -23,10 +18,11 @@ import {
   Img,
   Container,
   Button,
-  OverflowText,
   ShareButton,
+  Status,
 } from "components";
 import { parseLanguage } from "utils";
+import { useProposalPageStatus } from "./hooks";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
@@ -110,12 +106,12 @@ const ProposalOwner = () => {
   const daoAddress = useDaoAddress();
   const proposalAddress = useProposalAddress();
 
-  const proposalMetadata = useProposalPageQuery(false).data?.metadata;
   const dao = useDaoQuery(daoAddress);
+  const status = useProposalPageStatus();
 
   return (
     <StyledProposalOwner justifyContent="flex-start">
-      <StatusChip proposalMetadata={proposalMetadata} />
+      <Status status={status} />
 
       <StyledFlexRow>
         <StyledDaoImg src={dao.data?.daoMetadata.avatar} />
@@ -127,7 +123,7 @@ const ProposalOwner = () => {
             <TextOverflow text={parseLanguage(dao.data?.daoMetadata.name)} />
           </StyledLink>
 
-          <Typography>by</Typography>
+          <Typography className="by">by</Typography>
           <AddressDisplay address={proposalAddress} padding={5} />
         </StyledFlexRow>
         <ShareButton url={window.location.href} />
@@ -140,22 +136,6 @@ const StyledLink = styled(Link)({
   display: "flex",
 });
 
-const StatusChip = ({
-  proposalMetadata,
-}: {
-  proposalMetadata?: ProposalMetadata;
-}) => {
-  const proposalAddress = useProposalAddress();
-
-  const proposalStatus = useProposalStatusQuery(
-    proposalMetadata,
-    proposalAddress
-  );
-  const label = useProposalStatusText(proposalStatus);
-
-  return <StyledVoteTimeline label={label} variant="filled" color="primary" />;
-};
-
 const StyledDaoImg = styled(Img)({
   width: 30,
   height: 30,
@@ -163,22 +143,23 @@ const StyledDaoImg = styled(Img)({
 });
 
 const StyledProposalOwner = styled(StyledFlexRow)({
+  ".dao-name": {
+    fontSize: 15,
+    fontWeight: 600,
+    color: "unset",
+  },
+  ".by": {
+    fontSize: 15,
+    fontWeight: 600,
+  },
+  ".address-display-btn": {
+    p: {
+      fontSize: 15,
+      fontWeight: 600,
+    },
+  },
   "*": {
     textDecoration: "unset",
-    color: "unset",
-    fontWeight: 600,
-    fontSize: 15
-  },
-
-  ".dao-name": {
-    // maxWidth: 200,
-  },
-});
-
-const StyledVoteTimeline = styled(Chip)({
-  fontWeight: 700,
-  "*": {
-    fontSize: 13,
   },
 });
 

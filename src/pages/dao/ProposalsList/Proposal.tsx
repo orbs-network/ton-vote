@@ -25,6 +25,7 @@ import {
   StyledProposalResultContent,
   StyledProposalResultProgress,
   StyledProposalTitle,
+  StyledTime,
 } from "./styles";
 import { useTranslation } from "react-i18next";
 
@@ -40,17 +41,17 @@ const Time = ({
 
   if (status === ProposalStatus.NOT_STARTED) {
     return (
-      <Typography className="time-left">
+      <StyledTime>
         {t("startIn", {
           value: getTimeDiff(proposalMetadata.proposalStartTime),
         })}
-      </Typography>
+      </StyledTime>
     );
   }
   return (
-    <Typography className="time-left">
+    <StyledTime>
       {t("endIn", { value: getTimeDiff(proposalMetadata.proposalEndTime) })}
-    </Typography>
+    </StyledTime>
   );
 };
 

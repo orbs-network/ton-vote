@@ -23,6 +23,7 @@ import { Box } from "@mui/system";
 import { useTranslation } from "react-i18next";
 import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
 import { useAppQueryParams } from "hooks";
+import TextOverflow from "react-text-overflow";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
@@ -162,6 +163,9 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   if (dao.daoMetadata.hide && !isOwner(walletAddress, dao.daoRoles))
     return null;
 
+
+    
+
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
       <StyledDaoContent className="container" hover>
@@ -176,7 +180,9 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
         {isVisible ? (
           <StyledFlexColumn>
             <StyledDaoAvatar src={daoMetadata?.avatar} />
-            <Typography className="title">{parseLanguage(daoMetadata?.name)}</Typography>
+            <Typography className="title">
+              <TextOverflow text={parseLanguage(daoMetadata?.name) || ""} />
+            </Typography>
             <Typography className="address">
               {makeElipsisAddress(dao.daoAddress, 6)}
             </Typography>

@@ -1,5 +1,5 @@
 import { ErrorContainer } from "components";
-import { APP_TITLE } from "config";
+import { APP_NAME } from "config";
 import { useDaoAddress } from "hooks";
 import { useDaoQuery } from "query/queries";
 import { useEffect, useState } from "react";
@@ -22,7 +22,7 @@ export function DaoPage() {
     <>
       <Helmet>
         <title>
-          {APP_TITLE}
+          {APP_NAME}
           {data ? ` - ${parseLanguage(data.daoMetadata.name)}` : ""}
         </title>
       </Helmet>

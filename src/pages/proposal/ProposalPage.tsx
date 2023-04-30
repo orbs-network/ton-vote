@@ -7,7 +7,7 @@ import { Results } from "./Results";
 import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
-import { APP_TITLE } from "config";
+import { APP_NAME } from "config";
 import { appNavigation } from "router";
 import { useDaoAddress } from "hooks";
 import { ProposalStatus } from "types";
@@ -78,7 +78,7 @@ const Meta = () => {
   return (
     <Helmet>
       <title>
-        {APP_TITLE}
+        {APP_NAME}
         {title ? ` - ${parseLanguage(title)}` : ""}
       </title>
     </Helmet>

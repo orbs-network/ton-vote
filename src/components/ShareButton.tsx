@@ -82,9 +82,13 @@ const StyledMenuItem = styled(MenuItem)({
     width: 16,
     height: 16,
   },
+  p:{
+    fontSize: 14,
+    fontWeight: 600
+  }
 });
 
-const StyledShareButton = styled("button")({
+const StyledShareButton = styled("button")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -94,13 +98,14 @@ const StyledShareButton = styled("button")({
   cursor: "pointer",
   p: {
     fontSize: 15,
-    fontWeight: 600
+    fontWeight: 600,
   },
   svg: {
     width: 20,
     height: 20,
+    color: theme.palette.text.primary,
   },
-});
+}));
 
 const StyledBtnContent = styled(StyledFlexRow)(({ theme }) => ({
   height: 25,

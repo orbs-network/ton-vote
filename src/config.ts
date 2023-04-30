@@ -3,8 +3,6 @@ import TonConnect from "@tonconnect/sdk";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
-export const APPROVE_TX = "Please check wallet for pending transaction";
-export const TX_APPROVED_AND_PENDING = "Transaction pending";
 export const TX_FEE = "0.0075";
 
 export const APP_NAME = "TON VOTE";
@@ -64,11 +62,8 @@ export enum QueryKeys {
   PROPOSAL_PAGE = "PROPOSAL_PAGE",
   DAO = "DAO",
   SIGNLE_VOTING_POWER = "SIGNLE_VOTING_POWER",
-  DAOS_WHITELIST='DAOS_WHITELIST',
-  PROPOSALS_WHITELIST='PROPOSALS_WHITELIST'
 }
 
-export const APP_TITLE = "TON Vote";
 export const FETCH_PROPOSALS_INTERVAL = 30_000;
 
 export const TON_CONNECTOR = new TonConnect({
@@ -77,10 +72,5 @@ export const TON_CONNECTOR = new TonConnect({
 
 export const DAO_REFETCH_INTERVAL = 20_000;
 export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
-
-export const LANGUAGES1 = [
-  { text: "English", value: "en" },
-  { text: "Русский", value: "ru" },
-];
 
 export const LANGUAGES = { en: "English", ru: "Русский" };

@@ -55,14 +55,16 @@ export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
   ".description": {
     fontSize: 16,
   },
-  ".time-left": {
-    fontSize: 14,
-  },
+
   "&:hover": {
     border: `1px solid ${theme.palette.primary.main}`,
   },
 }));
 
+export const StyledTime = styled(Typography)({
+  fontSize: 14,
+  fontWeight: 700
+});
 
 export const StyledDescription = styled(Typography)({
   display: "-webkit-box",
@@ -75,12 +77,12 @@ export const StyledDescription = styled(Typography)({
 
 
 export const StyledMarkdown = styled(Typography)({
-  fontWeight: 700,
-  fontSize: 17,
+  fontWeight: 600,
+  fontSize: 16,
 });
 
 export const StyledProposalTitle = styled(Typography)({
-  fontSize: 23,
+  fontSize: 20,
   fontWeight: 800,
 });
 
