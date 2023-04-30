@@ -29,7 +29,7 @@ export function showPromiseToast<T>(args: {
         duration: 10000,
       },
       error: {
-        duration: 125000,
+        duration: 10000,
       },
       position: "top-center",
     }
@@ -44,7 +44,7 @@ export const showErrorToast = (message: string) => {
   toast.dismiss();
 
   toast.error((t) => <ToastContent message={message} id={t.id} />, {
-    duration: 5000,
+    duration: 500000,
   });
 };
 
@@ -84,7 +84,9 @@ const ToastContent = ({
   );
 };
 
-const StyledIconButton = styled(IconButton)({});
+const StyledIconButton = styled(IconButton)({
+  padding: 5
+});
 
 const StyledPromiseContainer = styled(StyledFlexRow)({});
 

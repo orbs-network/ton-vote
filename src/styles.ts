@@ -68,6 +68,7 @@ export const globalStyles = {
     opacity: "0.4!important",
     color:'gray!important'
   },
+
 };
 
 export const StyledGrid = styled(StyledFlexColumn)({

@@ -154,6 +154,7 @@ export const useProposalQuery = (proposalAddress?: string) => {
     },
     {
       enabled: !!proposalAddress,
+      staleTime: 30_000
     }
   );
 };

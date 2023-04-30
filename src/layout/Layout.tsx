@@ -42,7 +42,7 @@ function Layout({children}:{children?: ReactNode}) {
 }
 
 const StyledContent = styled(StyledGrid)({
-  paddingTop: 100,
+  paddingTop: 90,
   flex: 1,
 });
 
