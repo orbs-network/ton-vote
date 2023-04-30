@@ -106,3 +106,19 @@ export interface Endpoints {
   clientV4Endpoint?: string;
   apiKey?: string;
 }
+
+
+
+export type TooltipPlacement =
+  | "bottom"
+  | "left"
+  | "right"
+  | "top"
+  | "bottom-end"
+  | "bottom-start"
+  | "left-end"
+  | "left-start"
+  | "right-end"
+  | "right-start"
+  | "top-end"
+  | "top-start";

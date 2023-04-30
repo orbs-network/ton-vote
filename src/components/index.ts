@@ -28,10 +28,10 @@ export * from "./Status";
 export * from "./AddressDisplay";
 export * from "./Markdown";
 export * from "./PageLoader";
-export * from "./OverflowText";
 export * from "./InfoMessage";
 export * from './Menu'
 export * from "./Socials";
 export * from './AppSocials'
 export * from "./ErrorContainer";
 export * from "./ShareButton";
+export * from "./OverflowWithTooltip";

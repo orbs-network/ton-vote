@@ -1,4 +1,3 @@
-import { APPROVE_TX } from "config";
 import _ from "lodash";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";

@@ -1,6 +1,6 @@
 import { Box, styled } from "@mui/material";
 import { Button, Container, Img } from "components";
-import { StyledFlexRow, StyledSkeletonLoader, textOverflow } from "styles";
+import { StyledFlexRow } from "styles";
 
 
 export const StyledDaoContent = styled(Container)({

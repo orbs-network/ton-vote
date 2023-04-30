@@ -18,6 +18,7 @@ import { ProposalLoader } from "../ProposalLoader";
 import removeMd from "remove-markdown";
 
 import {
+  StyledAddressDisplay,
   StyledAlert,
   StyledMarkdown,
   StyledProposal,
@@ -118,7 +119,7 @@ export const ProposalComponent = ({
       <StyledFlexColumn alignItems="flex-start">
         <StyledFlexRow justifyContent="space-between">
           <AppTooltip text="Proposal address" placement="right">
-            <AddressDisplay address={proposalAddress} />
+            <StyledAddressDisplay address={proposalAddress} padding={10} />
           </AppTooltip>
           <Status status={status} />
         </StyledFlexRow>
@@ -150,6 +151,8 @@ export const ProposalComponent = ({
     </StyledProposal>
   );
 };
+
+
 
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult } = proposal;

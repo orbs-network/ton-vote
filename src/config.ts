@@ -31,7 +31,7 @@ export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const CLIENT_V2_API_KEY =
   "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
 
-export const STATE_REFETCH_INTERVAL = 15_000;
+export const STATE_REFETCH_INTERVAL = 30_000;
 
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 
@@ -42,8 +42,6 @@ export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
 export const CLIENT_V4_ENDPOINT = "htyarn dtps://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
-export const TX_SUBMIT_ERROR_TEXT = "Transaction failed";
-export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
 
 export const VERIFY_LINK =
   "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";

@@ -2,7 +2,7 @@ import { Chip, styled } from "@mui/material";
 import { AddressDisplay, Header, Link, TitleContainer } from "components";
 import { useDaoAddress } from "hooks";
 import { useDaoQuery } from "query/queries";
-import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { DaoDescription } from "./DaoDescription";
 
 export function DaoPageAbout() {
@@ -20,12 +20,19 @@ export function DaoPageAbout() {
         >
           <StyledFlexColumn gap={0}>
             <StyledSection>
-              {roles && <AddressDisplay address={roles.owner} />}
-              <Chip label="Dao Owner" />
+              {roles && (
+                <StyledAddressDisplay address={roles.owner} padding={10} />
+              )}
+              <Chip label="Dao Owner" color="primary" />
             </StyledSection>
             <StyledSection>
-              {roles && <AddressDisplay address={roles?.proposalOwner} />}
-              <Chip label="Proposal Owner" />
+              {roles && (
+                <StyledAddressDisplay
+                  address={roles?.proposalOwner}
+                  padding={10}
+                />
+              )}
+              <Chip label="Proposal Owner" color="primary" />
             </StyledSection>
           </StyledFlexColumn>
         </StyledTitleContainer>
@@ -33,6 +40,12 @@ export function DaoPageAbout() {
     </StyledFlexColumn>
   );
 }
+
+const StyledAddressDisplay = styled(AddressDisplay)({
+  P: {
+    fontWeight: 600,
+  },
+});
 
 const StyledTitleContainer = styled(TitleContainer)({
   ".title-container-header": {

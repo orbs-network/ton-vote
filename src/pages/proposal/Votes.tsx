@@ -9,7 +9,7 @@ import {
   NumberDisplay,
   TitleContainer,
 } from "components";
-import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getSymbol, nFormatter } from "utils";
 import { PAGE_SIZE } from "config";
 import { Proposal, Vote } from "types";
@@ -254,7 +254,6 @@ const StyledVote = styled(StyledFlexRow)({
     textAlign: "right",
     gap: 5,
     ".number-display": {
-      ...textOverflow,
       flex: 1,
     },
   },

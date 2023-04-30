@@ -3,8 +3,8 @@ import {
   Img,
   SideMenu,
   AddressDisplay,
-  OverflowText,
   Socials,
+  OverflowWithTooltip,
 } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
@@ -15,6 +15,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
 import { parseLanguage } from "utils";
+import TextOverflow from "react-text-overflow";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
@@ -40,13 +41,9 @@ export function DaoMenu() {
       <StyledTop>
         <StyledLogo src={dao?.daoMetadata?.avatar} />
 
-        <StyledFlexColumn>
-          <StyledOverflowText
-            limit={20}
-            className="title"
-            value={parseLanguage(dao?.daoMetadata?.name)}
-          />
-          <AddressDisplay address={dao?.daoAddress} />
+        <StyledFlexColumn gap={10}>
+          <StyledTitle placement='top' text={parseLanguage(dao?.daoMetadata?.name)} />
+          <StyledAddressDisplay address={dao?.daoAddress} padding={8} />
         </StyledFlexColumn>
       </StyledTop>
       <Navigation />
@@ -59,11 +56,18 @@ export function DaoMenu() {
   );
 }
 
-const StyledOverflowText = styled(OverflowText)({
-  color: "black",
-  fontWeight: 700,
-  fontSize: 20,
+const StyledAddressDisplay = styled(AddressDisplay)({
+  p: {
+    fontSize: 15,
+    fontWeight: 700,
+  },
 });
+
+const StyledTitle = styled(OverflowWithTooltip)(({ theme }) => ({
+  color: theme.typography.h2.color,
+  fontWeight: 800,
+  fontSize: 21,
+}));
 
 const StyledTop = styled(StyledFlexColumn)({
   padding: 20,
@@ -179,6 +183,7 @@ const StyledSocials = styled(Socials)({
 const StyledContainer = styled(SideMenu)({
   padding: 0,
   maxWidth: 280,
+  width:'100%'
 });
 
 const StyledLogo = styled(Img)({

@@ -41,15 +41,20 @@ const contractProposal = async (
 
 const serverProposal = async (
   proposalAddress: string,
+  latestMaxLtAfterTx?: string,
   signal?: AbortSignal
 ): Promise<Proposal | null> => {
   const state = await api.getProposal(proposalAddress, signal);
 
-  if (_.isEmpty(state.metadata)) {
-    throw new Error("Proposal not found is server");
+  try {
+    if (_.isEmpty(state.metadata)) {
+      throw new Error("Proposal not found is server");
+    }
+    Logger("getting state from server");
+    return state;
+  } catch (error) {
+    return contractProposal(proposalAddress, latestMaxLtAfterTx);
   }
-  Logger("getting state from server");
-  return state;
 };
 
 export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
@@ -85,7 +90,7 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
         }
 
         if (!latestMaxLtAfterTx) {
-          return serverProposal(proposalAddress, signal);
+          return serverProposal(proposalAddress, latestMaxLtAfterTx, signal);
         }
 
         const serverMaxLt = await api.getMaxLt(proposalAddress, signal);
@@ -96,7 +101,7 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
           );
         }
         setLatestMaxLtAfterTx(proposalAddress, undefined);
-        return serverProposal(proposalAddress, signal);
+        return serverProposal(proposalAddress, latestMaxLtAfterTx, signal);
       } catch (error) {
         if (error instanceof Error) {
           Logger(error.message);

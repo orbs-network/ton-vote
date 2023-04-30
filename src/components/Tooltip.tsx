@@ -5,10 +5,11 @@ import { Box } from "@mui/system";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { StyledFlexRow } from "styles";
 import { Markdown } from "./Markdown";
+import { TooltipPlacement } from "types";
 export function AppTooltip({
   children,
   className = "",
-  text = '',
+  text = "",
   placement = "bottom",
   info,
   markdown = "",
@@ -18,28 +19,30 @@ export function AppTooltip({
   text?: React.ReactNode;
   className?: string;
   markdown?: string;
-  placement?:
-    | "bottom"
-    | "left"
-    | "right"
-    | "top"
-    | "bottom-end"
-    | "bottom-start"
-    | "left-end"
-    | "left-start"
-    | "right-end"
-    | "right-start"
-    | "top-end"
-    | "top-start";
+  placement?: TooltipPlacement;
 }) {
+  if (!text) {
+    return <>{children}</>;
+  }
   return (
     <StyledTooltip
       arrow={true}
       placement={placement}
-      title={markdown ? <StyledMarkdown>{markdown}</StyledMarkdown> : <StyledTitle>{text}</StyledTitle>}
+      title={
+        markdown ? (
+          <StyledMarkdown>{markdown}</StyledMarkdown>
+        ) : (
+          <StyledTitle>{text}</StyledTitle>
+        )
+      }
     >
       {!info ? (
-        <div className={`tooltip-children ${className}`} style={{display:'flex', alignItems:'center'}}>{children}</div>
+        <div
+          className={`tooltip-children ${className}`}
+          style={{ display: "flex", alignItems: "center" }}
+        >
+          {children}
+        </div>
       ) : (
         <StyledFlexRow style={{ width: "unset" }}>
           <AiOutlineInfoCircle />{" "}

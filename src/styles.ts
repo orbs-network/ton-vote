@@ -70,12 +70,6 @@ export const globalStyles = {
   },
 };
 
-export const textOverflow: CSSProperties = {
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-
 export const StyledGrid = styled(StyledFlexColumn)({
   gap: 0,
   width: "calc(100% - 100px)",

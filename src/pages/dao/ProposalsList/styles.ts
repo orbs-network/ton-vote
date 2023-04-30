@@ -1,5 +1,5 @@
 import { Alert, Box, styled, Typography } from "@mui/material";
-import { Container, Header, Search } from "components";
+import { AddressDisplay, Container, Header, Search } from "components";
 import { StyledContainer, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 
@@ -19,12 +19,12 @@ export const StyledProposalsHeader = styled(Box)({
 
 export const StyledProposalResultProgress = styled("div")(({ theme }) => ({
   height: "100%",
-  background: "black",
+  background: theme.palette.primary.main,
   position: "absolute",
   top: 0,
   left: 0,
   borderRadius: 5,
-  opacity: 0.05,
+  opacity: 0.07,
 }));
 
 export const StyledProposalResultContent = styled(StyledFlexRow)({
@@ -107,4 +107,10 @@ export const StyledEmptyList = styled(Container)({
   position: "absolute",
   width: "100%",
   top: 0,
+});
+
+export const StyledAddressDisplay = styled(AddressDisplay)({
+  p: {
+    fontWeight: 600,
+  },
 });

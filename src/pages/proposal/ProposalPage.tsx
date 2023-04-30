@@ -12,7 +12,7 @@ import { appNavigation } from "router";
 import { useDaoAddress } from "hooks";
 import { ProposalStatus } from "types";
 import { useProposalPageQuery } from "./query";
-import { ProposalDescription } from "./ProposalDescription";
+import { ProposalAbout } from "./ProposalAbout";
 import { useProposalPageStatus } from "./hooks";
 import { parseLanguage } from "utils";
 import { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ const useComponents = () => {
   const status = useProposalPageStatus();
 
   return {
-    proposalDescription: <ProposalDescription />,
+    proposalDescription: <ProposalAbout />,
     votes: !status || status === ProposalStatus.NOT_STARTED ? null : <Votes />,
     vote:
       !status || status !== ProposalStatus.ACTIVE || isLoading ? null : (

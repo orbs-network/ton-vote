@@ -20,13 +20,14 @@ import {
   Button,
   ShareButton,
   Status,
+  OverflowWithTooltip,
 } from "components";
 import { parseLanguage } from "utils";
 import { useProposalPageStatus } from "./hooks";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
-export function ProposalDescription() {
+export function ProposalAbout() {
   const [showMore, setShowMore] = useState(false);
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const [ready, setReady] = useState(false);
@@ -120,7 +121,7 @@ const ProposalOwner = () => {
             to={appNavigation.daoPage.root(daoAddress)}
             className="dao-name"
           >
-            <TextOverflow text={parseLanguage(dao.data?.daoMetadata.name)} />
+            <OverflowWithTooltip text={parseLanguage(dao.data?.daoMetadata.name)} />
           </StyledLink>
 
           <Typography className="by">by</Typography>
@@ -144,9 +145,10 @@ const StyledDaoImg = styled(Img)({
 
 const StyledProposalOwner = styled(StyledFlexRow)({
   ".dao-name": {
-    fontSize: 15,
-    fontWeight: 600,
-    color: "unset",
+    p: {
+      fontSize: 15,
+      fontWeight: 600,
+    },
   },
   ".by": {
     fontSize: 15,
