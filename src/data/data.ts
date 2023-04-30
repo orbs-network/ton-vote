@@ -36,7 +36,10 @@ export const proposals: { [key: string]: Proposal } = {
       proposalStartTime: 1680098400,
       proposalEndTime: 1680195600,
       proposalSnapshotTime: 1680012000,
-      proposalType: 1,
+      votingSystem: {
+        choices: [],
+        votingSystemType: 0,
+      },
       votingPowerStrategy: 1,
       title: "Hack-a-TONx: Choose your winners!",
       description:
@@ -71,7 +74,10 @@ export const proposals: { [key: string]: Proposal } = {
       proposalStartTime: 1676379600,
       proposalEndTime: 1676984400,
       proposalSnapshotTime: 1676160000,
-      proposalType: 1,
+      votingSystem: {
+        choices: [],
+        votingSystemType: 0,
+      },
       votingPowerStrategy: 1,
       title: "Proposal of TON Tokenomics Optimization",
       description:
