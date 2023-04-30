@@ -5,13 +5,15 @@ import { HiOutlineArrowLeft } from "react-icons/hi";
 import { useLocation, useNavigate, useNavigation } from "react-router-dom";
 import { StyledFlexRow } from "styles";
 
-function Back({ to }: { to?: string }) {
+function Back({ to, func }: { to?: string; func?: () => void }) {
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
   const { t } = useTranslation();
 
   const onClick = () => {
-    if (to) {
+    if (func) {
+      func();
+    } else if (to) {
       navigate(to);
     } else if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);

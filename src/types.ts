@@ -98,6 +98,7 @@ export interface InputInterface {
   limit?: number;
   placeholder?: string;
   isMarkdown?: boolean;
+  disabled?: boolean;
 }
 
 export interface Endpoints {

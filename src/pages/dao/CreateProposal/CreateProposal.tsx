@@ -56,6 +56,7 @@ function Form() {
 
   const initialNFT = formData.nft || dao?.daoMetadata?.nft || "";
   const initialJetton = formData.jetton || dao?.daoMetadata?.jetton || "";
+  
 
   const formik = useFormik<CreateProposalForm>({
     initialValues: {
@@ -129,19 +130,21 @@ const StyledContainer = styled(StyledFlexRow)({
 export const CreateProposal = () => {
   const daoAddress = useDaoAddress();
   const isLoading = useDaoQuery(daoAddress).isLoading;
-  if (isLoading) {
-    return (
-      <Page back={appNavigation.daoPage.root(daoAddress)}>
+  const { preview, setPreview } = useCreateProposalStore();
+
+
+  const backFunc = preview ? () => setPreview(false) : undefined;
+
+  return (
+    <Page back={appNavigation.daoPage.root(daoAddress)} backFunc={backFunc}>
+      {isLoading ? (
         <StyledFlexRow alignItems="flex-start">
           <LoadingContainer loaderAmount={5} />
           <StyledLoadingMenu />
         </StyledFlexRow>
-      </Page>
-    );
-  }
-  return (
-    <Page back={appNavigation.daoPage.root(daoAddress)}>
-      <Form />
+      ) : (
+        <Form />
+      )}
     </Page>
   );
 };

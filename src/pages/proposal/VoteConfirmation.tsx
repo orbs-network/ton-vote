@@ -12,7 +12,6 @@ interface Props {
   onClose: () => void;
   vote?: string;
   onSubmit: () => void;
-  isLoading: boolean;
 }
 
 export function VoteConfirmation({
@@ -20,7 +19,6 @@ export function VoteConfirmation({
   onClose,
   vote,
   onSubmit,
-  isLoading,
 }: Props) {
   const { address } = useConnection();
 
@@ -44,8 +42,14 @@ export function VoteConfirmation({
     ? nFormatter(Number(fromNano(votingData)))
     : 0;
 
+
+
   return (
-    <StyledPopup title="Cast your vote" open={open} onClose={onClose}>
+    <StyledPopup
+      title="Cast your vote"
+      open={open}
+      onClose={onClose}
+    >
       <StyledContainer gap={30}>
         <StyledFlexColumn>
           <Row label="Choice" value={vote} />
@@ -73,9 +77,11 @@ export function VoteConfirmation({
             Cancel
           </Button>
           <Button
-            isLoading={isLoading}
             disabled={NoVotingPower}
-            onClick={onSubmit}
+            onClick={()  =>{
+              onSubmit();
+              onClose();
+            }}
           >
             Confirm
           </Button>

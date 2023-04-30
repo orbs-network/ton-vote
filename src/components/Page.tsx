@@ -10,6 +10,7 @@ function Page({
   back,
   headerComponent,
   hideBack = false,
+  backFunc,
 }: {
   children: ReactNode;
   className?: string;
@@ -17,14 +18,13 @@ function Page({
   headerComponent?: ReactNode;
   hideBack?: boolean;
   isProtected?: boolean;
+  backFunc?: () => void;
 }) {
-
-
   return (
     <StyledContainer className={className}>
       {!hideBack && (
         <StyledTop justifyContent="space-between">
-          <Back to={back} />
+          <Back func={backFunc} to={back} />
           {headerComponent}
         </StyledTop>
       )}

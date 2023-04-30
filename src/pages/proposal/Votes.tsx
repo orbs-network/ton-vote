@@ -138,7 +138,7 @@ export function Votes() {
 const Empty = () => {
   return (
     <StyledNoVotes>
-      <Typography>No votes yet</Typography>
+      <Typography>No votes</Typography>
     </StyledNoVotes>
   );
 };

@@ -4,19 +4,15 @@ import { Button, LoadingContainer, Progress, TitleContainer } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { useEffect, useMemo, useState } from "react";
-import {
-  calculateTonAmount,
-  getSymbol,
-  nFormatter,
-} from "utils";
+import { useMemo, useState } from "react";
+import { calculateTonAmount, getSymbol, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import _ from "lodash";
-import { useVerifyProposalResults } from "./hooks";
+import { useProposalPageStatus, useVerifyProposalResults } from "./hooks";
 import { useProposalAddress } from "hooks";
-import { useLatestMaxLtAfterTx } from "./store";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageQuery } from "./query";
+import { ProposalStatus } from "types";
 
 export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery(false);
@@ -38,46 +34,52 @@ export const Results = () => {
   }, [dataUpdatedAt]);
 
   const results = (proposalResult as any) || ({} as any);
+  const status = useProposalPageStatus()
 
   if (isLoading) {
     return <LoadingContainer />;
   }
-  return (
-    <StyledResults title="Results">
-      <StyledFlexColumn gap={15}>
-        <ResultRow
-          symbol={symbol}
-          name={"Yes"}
-          percent={results.yes || 0}
-          tonAmount={calculateTonAmount(
-            results.yes || 0,
-            results?.totalWeight as string
-          )}
-          votes={votesCount.yes}
-        />
 
-        <ResultRow
-          symbol={symbol}
-          name={"No"}
-          percent={results.no || 0}
-          tonAmount={calculateTonAmount(
-            results.no || 0,
-            results?.totalWeight as string
-          )}
-          votes={votesCount.no}
-        />
-        <ResultRow
-          symbol={symbol}
-          name={"Abstain"}
-          percent={results.abstain || 0}
-          tonAmount={calculateTonAmount(
-            results.abstain || 0,
-            results?.totalWeight as string
-          )}
-          votes={votesCount.abstain}
-        />
 
-        {/* {proposalResult &&
+  if (results.totalWeight == "0" && status === ProposalStatus.CLOSED) {
+    return null;
+  }
+    return (
+      <StyledResults title="Results">
+        <StyledFlexColumn gap={15}>
+          <ResultRow
+            symbol={symbol}
+            name={"Yes"}
+            percent={results.yes || 0}
+            tonAmount={calculateTonAmount(
+              results.yes || 0,
+              results?.totalWeight as string
+            )}
+            votes={votesCount.yes}
+          />
+
+          <ResultRow
+            symbol={symbol}
+            name={"No"}
+            percent={results.no || 0}
+            tonAmount={calculateTonAmount(
+              results.no || 0,
+              results?.totalWeight as string
+            )}
+            votes={votesCount.no}
+          />
+          <ResultRow
+            symbol={symbol}
+            name={"Abstain"}
+            percent={results.abstain || 0}
+            tonAmount={calculateTonAmount(
+              results.abstain || 0,
+              results?.totalWeight as string
+            )}
+            votes={votesCount.abstain}
+          />
+
+          {/* {proposalResult &&
           normalizeResults(proposalResult).map((item) => {
             const { title, percent } = item;
 
@@ -94,10 +96,10 @@ export const Results = () => {
               />
             );
           })} */}
-      </StyledFlexColumn>
-      <VerifyResults />
-    </StyledResults>
-  );
+        </StyledFlexColumn>
+        <VerifyResults />
+      </StyledResults>
+    );
 };
 
 const ResultRow = ({
@@ -171,23 +173,13 @@ export function VerifyResults() {
   const {
     mutate: verify,
     isLoading,
-    reset,
     error,
     isSuccess,
   } = useVerifyProposalResults();
 
   const [open, setOpen] = useState(false);
 
-  const latestMaxLtAfterTx = useLatestMaxLtAfterTx(proposalAddress);
-  
-
-  // useEffect(() => {
-  //   if (latestMaxLtAfterTx) {
-  //     setTimeout(() => {
-  //       reset();
-  //     }, 5000);
-  //   }
-  // }, [latestMaxLtAfterTx]);
+  const onClick = () => setOpen(true);
 
   return (
     <StyledVerifyContainer>
@@ -203,21 +195,21 @@ export function VerifyResults() {
         onClose={() => setOpen(false)}
       />
       {isSuccess ? (
-        <StyledButton>
+        <StyledButton onClick={onClick}>
           <StyledFlexRow>
             <Typography>Verified</Typography>
             <BsFillCheckCircleFill className="icon" />
           </StyledFlexRow>
         </StyledButton>
       ) : error ? (
-        <StyledButton onClick={() => setOpen(true)}>
+        <StyledButton onClick={onClick}>
           <StyledFlexRow>
             <Typography>Not Verified</Typography>
             <AiFillCloseCircle className="icon" />
           </StyledFlexRow>
         </StyledButton>
       ) : (
-        <StyledButton onClick={() => setOpen(true)} isLoading={isLoading}>
+        <StyledButton onClick={onClick} isLoading={isLoading}>
           <Typography>Verify results</Typography>
         </StyledButton>
       )}

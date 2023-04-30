@@ -6,11 +6,19 @@ import { Proposal, ProposalStatus } from "types";
 import { getProposalStatus, isProposalWhitelisted, Logger } from "utils";
 import { lib } from "lib/lib";
 import { useProposalPersistedStore } from "./store";
-import { getClientV4, getSingleVoterPower } from "ton-vote-contracts-sdk";
+import {
+  filterTxByTimestamp,
+  getClientV2,
+  getClientV4,
+  getSingleVoterPower,
+  getTransactions,
+} from "ton-vote-contracts-sdk";
 import { api } from "api";
+import { Transaction } from "ton-core";
 
 export const useGetProposal = () => {
-  const { getLatestMaxLtAfterTx } = useProposalPersistedStore();
+  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
+    useProposalPersistedStore();
 
   return async (
     proposalAddress: string,
@@ -18,16 +26,25 @@ export const useGetProposal = () => {
     state?: Proposal,
     signal?: AbortSignal
   ): Promise<Proposal | null> => {
-    const proposalPersistStore = useProposalPersistedStore.getState();
     const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress);
 
-    const contractProposal = () => {
+    const contractProposal = async () => {
       Logger("getting state from contract");
+      const clientV2 = await getClientV2();
+      const clientV4 = await getClientV4();
+      let transactions: Transaction[] | undefined;
+
+      if (latestMaxLtAfterTx) {
+        const result = await getTransactions(clientV2, proposalAddress);
+        transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
+      }
 
       return lib.getProposalFromContract(
+        clientV2,
+        clientV4,
         proposalAddress,
-        state,
-        latestMaxLtAfterTx
+        undefined,
+        transactions
       );
     };
 
@@ -41,19 +58,17 @@ export const useGetProposal = () => {
         Logger("getting state from server");
         return state;
       } catch (error) {
+        if (error instanceof Error) {
+          Logger(error.message);
+        }
         return contractProposal();
       }
     };
 
-    const getWithConditions = async () => {
+    try {
       if (isCustomEndpoint) {
-        return contractProposal();
+        throw new Error("getting state from contract after transaction");
       }
-
-      // if (!(await api.validateServerLastUpdate(signal))) {
-      //   Logger(`server is outdated, fetching from contract ${proposalAddress}`);
-      //   return contractProposal();
-      // }
 
       if (!latestMaxLtAfterTx) {
         return serverProposal();
@@ -62,16 +77,16 @@ export const useGetProposal = () => {
       const serverMaxLt = await api.getMaxLt(proposalAddress, signal);
 
       if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-        Logger(`server latestMaxLtAfterTx is outdated, fetching from contract`);
-        return contractProposal();
+        throw new Error(
+          `server latestMaxLtAfterTx is outdated, fetching from contract, latestMaxLtAfterTx: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
+        );
       }
-      proposalPersistStore.setLatestMaxLtAfterTx(proposalAddress, undefined);
+      setLatestMaxLtAfterTx(proposalAddress, undefined);
       return serverProposal();
-    };
-
-    try {
-      return await getWithConditions();
     } catch (error) {
+      if (error instanceof Error) {
+        Logger(error.message);
+      }
       return contractProposal();
     }
   };
@@ -97,10 +112,12 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       // when we have state already and vote finished, we return the cached state
 
       const voteStatus = state?.metadata && getProposalStatus(state?.metadata);
-      const closed = voteStatus === ProposalStatus.CLOSED;
+      const preventRefetch =
+        voteStatus === ProposalStatus.CLOSED ||
+        voteStatus === ProposalStatus.NOT_STARTED;
 
-      // vote finished, we no longer need to refetch to get new data
-      if (closed) return state;
+      // vote finished or not started, no need to refetch to get new data
+      if (preventRefetch) return state;
 
       return getProposal(proposalAddress, isCustomEndpoint, state, signal);
     },

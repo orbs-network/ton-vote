@@ -51,7 +51,6 @@ export function Vote() {
               vote={voteOptions.find((option) => option.value === vote)?.name}
               onClose={() => setConfirmation(false)}
               onSubmit={() => mutate(vote!)}
-              isLoading={isLoading}
             />
           </>
         )}

@@ -171,6 +171,7 @@ export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
       label: "Voting choices",
       type: "list",
       name: "votingChoices",
+      disabled: true
     },
   ];
 

@@ -14,6 +14,7 @@ interface Props {
   className?: string;
   title?: string;
   hideCloseButton?: boolean;
+  transparent?: boolean;
 }
 
 export const Popup = ({
@@ -23,9 +24,16 @@ export const Popup = ({
   open,
   className = "",
   title,
+  transparent,
 }: Props) => {
   return (
-    <StyledModal open={open} onClose={onClose}>
+    <StyledModal open={open} onClose={onClose} componentsProps={{
+      backdrop: {
+        style: {
+         opacity: transparent ?  0 : 1
+        }
+      }
+    }}>
       <StyledDialogContent>
         <StyledChildren
           title={title || ""}

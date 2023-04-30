@@ -29,6 +29,7 @@ import { FaMarkdown } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { t } from "i18next";
 import { Button } from "./Button";
+import { useDebouncedCallback } from "hooks";
 
 interface TextInputProps {
   value?: string | number;
@@ -470,6 +471,7 @@ export function MapInput<T>({
         onChange={onChange}
         values={value as InputOption[]}
         required={input.required}
+        disabled={input.disabled}
       />
     );
   }
@@ -488,6 +490,7 @@ export function MapInput<T>({
       onChange={onChange}
       rows={input.rows}
       isMarkdown={input.isMarkdown}
+      disabled={input.disabled}
       endAdornment={
         input.defaultValue && !value && EndAdornment ? (
           <EndAdornment onClick={() => onChange(input.defaultValue)} />
@@ -634,6 +637,7 @@ interface ListProps {
   onChange: (value: InputOption[]) => void;
   title: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 export const ListInputs = ({
@@ -641,6 +645,7 @@ export const ListInputs = ({
   title,
   required,
   onChange,
+  disabled,
 }: ListProps) => {
   const onInputChange = (key: string, _value: string) => {
     const newValue = values.map((it) => {
@@ -672,6 +677,7 @@ export const ListInputs = ({
             <StyledFlexRow justifyContent="flex-start" key={it.key}>
               <StyledListTextInput>
                 <TextInput
+                  disabled={disabled}
                   // endAdornment={
                   //   index > 0 && (
                   //     <AppTooltip text="Delete choice">

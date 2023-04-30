@@ -39,6 +39,7 @@ const getProposal = async (
       signal,
     })
   ).data;
+
   return {
     ...result,
     votes: parseVotes(result.votes, result.votingPower),

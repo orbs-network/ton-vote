@@ -34,3 +34,4 @@ export * from './Menu'
 export * from "./Socials";
 export * from './AppSocials'
 export * from "./ErrorContainer";
+export * from "./ShareButton";

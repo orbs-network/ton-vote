@@ -1,88 +1,70 @@
 import _ from "lodash";
-import { TonClient4 } from "ton";
+import { TonClient, TonClient4, Transaction } from "ton";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import {
   getClientV2,
   getClientV4,
   getProposalMetadata,
+  getTransactions,
   ProposalMetadata,
   VotingPowerStrategy,
 } from "ton-vote-contracts-sdk";
-import { Endpoints, Dao, Proposal } from "types";
+import { Dao, Proposal } from "types";
 import { Logger, parseVotes } from "utils";
 import { api } from "api";
 
 const getProposalFromContract = async (
+  clientV2: TonClient,
+  clientV4: TonClient4,
   proposalAddress: string,
-  state?: Proposal,
-  latestMaxLtAfterTx?: string,
-  customEndpoints?: Endpoints
+  _metadata?: ProposalMetadata,
+  _transactions?: Transaction[]
 ): Promise<Proposal | null> => {
-  const clientV2 = await getClientV2(
-    customEndpoints?.clientV2Endpoint,
-    customEndpoints?.apiKey
-  );
-
-  const clientV4 = await getClientV4(customEndpoints?.clientV4Endpoint);
-
   const metadata =
-    state?.metadata ||
+    _metadata ||
     (await getProposalMetadata(clientV2, clientV4, proposalAddress));
 
-  const votingPowerStrategy = metadata.votingPowerStrategy;
+  let transactions: Transaction[];
+  let maxLt: undefined | string = "";
+
+  if (!_transactions || _.isEmpty(_transactions)) {
+    const result = await getTransactions(clientV2, proposalAddress);
+    maxLt = result.maxLt;
+    transactions = result.allTxns;
+  } else {
+    transactions = _transactions;
+  }
+
+  const { votingPowerStrategy } = metadata;
+
   const nftItemsHolders = await getAllNftHolders(
     proposalAddress,
     clientV4,
     metadata
   );
-  let _transactions = state?.transactions || [];
-  let _maxLt = state?.maxLt;
 
-  if (latestMaxLtAfterTx) {
-    // filter transaction until specific maxLt
-    const { allTxns } = await TonVoteSDK.getTransactions(
-      clientV2,
-      proposalAddress
-    );
-    _transactions = TonVoteSDK.filterTxByTimestamp(allTxns, latestMaxLtAfterTx);
-    _maxLt = latestMaxLtAfterTx;
-  } else {
-    const { allTxns: newTransactions, maxLt } =
-      await TonVoteSDK.getTransactions(clientV2, proposalAddress, state?.maxLt);
-
-    // if no more new transactions, return the current state
-    if (_.size(newTransactions) === 0 && state) {
-      return {
-        ...state,
-        maxLt,
-      };
-    }
-
-    _maxLt = maxLt;
-    _transactions.unshift(...newTransactions);
-  }
   const votingPower = await TonVoteSDK.getVotingPower(
     clientV4,
     metadata,
-    _transactions,
-    state?.votingPower,
+    transactions,
+    {},
     votingPowerStrategy,
     nftItemsHolders
   );
 
   const proposalResult = TonVoteSDK.getCurrentResults(
-    _transactions,
+    transactions,
     votingPower,
     metadata
   );
-  const votes = TonVoteSDK.getAllVotes(_transactions, metadata);
+  const votes = TonVoteSDK.getAllVotes(transactions, metadata);
 
   return {
     votingPower,
     proposalResult: proposalResult as any,
     votes: parseVotes(votes, votingPower),
-    maxLt: _maxLt,
     metadata,
+    maxLt,
   };
 };
 
@@ -92,7 +74,7 @@ const getDaos = async (signal?: AbortSignal) => {
     const apiResult = await api.getDaos(signal);
 
     if (!_.isArray(apiResult)) {
-      return []
+      return [];
     }
     return apiResult;
   } catch (error) {
@@ -100,7 +82,6 @@ const getDaos = async (signal?: AbortSignal) => {
     // Logger("server error, Fetching daos from contract");
     // const client = await getClientV2();
     // const { daoAddresses, endDaoId } = await TonVoteSDK.getDaos(client, 10);
-    
     // const daos: Dao[] = await Promise.all(
     //   daoAddresses.map(async (address): Promise<Dao> => {
     //     return {

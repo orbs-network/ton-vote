@@ -1,16 +1,31 @@
 import { Box, Chip, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { StyledFlexColumn, StyledFlexRow, textOverflow } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useDaoQuery, useProposalStatusQuery } from "query/queries";
-import { useDaoAddress, useProposalAddress, useProposalStatusText } from "hooks";
+import {
+  useDaoAddress,
+  useProposalAddress,
+  useProposalStatusText,
+} from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
-import {  useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
+import TextOverflow from "react-text-overflow";
 
 import { useProposalPageQuery } from "pages/proposal/query";
-import { LoadingContainer, Markdown, Header, AddressDisplay, Img, Container, Button, OverflowText } from "components";
+import {
+  LoadingContainer,
+  Markdown,
+  Header,
+  AddressDisplay,
+  Img,
+  Container,
+  Button,
+  OverflowText,
+  ShareButton,
+} from "components";
 import { parseLanguage } from "utils";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
@@ -21,10 +36,9 @@ export function ProposalDescription() {
   const [ready, setReady] = useState(false);
   const elRef = useRef<any>();
 
+  const { isLoading, data } = useProposalPageQuery(false);
 
-  const {isLoading, data} = useProposalPageQuery(false)
-
-  const metadata = data?.metadata
+  const metadata = data?.metadata;
 
   useEffect(() => {
     if (elRef.current && !isLoading) {
@@ -38,7 +52,6 @@ export function ProposalDescription() {
   }
 
   const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
-
 
   const HEIGHT = descriptionHeight > 200 ? 200 : descriptionHeight;
 
@@ -95,38 +108,37 @@ const StyledHeader = styled(Header)({
 
 const ProposalOwner = () => {
   const daoAddress = useDaoAddress();
-    const proposalAddress = useProposalAddress();
+  const proposalAddress = useProposalAddress();
 
-  const proposalMetadata  = useProposalPageQuery(false).data?.metadata
+  const proposalMetadata = useProposalPageQuery(false).data?.metadata;
   const dao = useDaoQuery(daoAddress);
 
   return (
     <StyledProposalOwner justifyContent="flex-start">
       <StatusChip proposalMetadata={proposalMetadata} />
-      <StyledDaoImg src={dao.data?.daoMetadata.avatar} />
-      <StyledFlexRow gap={0} justifyContent="flex-start" style={{ flex: 1 }}>
-        <StyledLink
-          to={appNavigation.daoPage.root(daoAddress)}
-          className="dao-name"
-        >
-          <OverflowText
-            value={parseLanguage(dao.data?.daoMetadata.name)}
-            limit={10}
-          />
-        </StyledLink>
-        <Typography style={{ margin: "0px 5px 0px 5px" }}>by</Typography>
-        <AddressDisplay address={proposalAddress} />
+
+      <StyledFlexRow>
+        <StyledDaoImg src={dao.data?.daoMetadata.avatar} />
+        <StyledFlexRow gap={5} justifyContent="flex-start" style={{ flex: 1 }}>
+          <StyledLink
+            to={appNavigation.daoPage.root(daoAddress)}
+            className="dao-name"
+          >
+            <TextOverflow text={parseLanguage(dao.data?.daoMetadata.name)} />
+          </StyledLink>
+
+          <Typography>by</Typography>
+          <AddressDisplay address={proposalAddress} padding={5} />
+        </StyledFlexRow>
+        <ShareButton url={window.location.href} />
       </StyledFlexRow>
     </StyledProposalOwner>
   );
 };
 
-
 const StyledLink = styled(Link)({
   display: "flex",
-  maxWidth: 200
-})
-
+});
 
 const StatusChip = ({
   proposalMetadata,
@@ -144,8 +156,6 @@ const StatusChip = ({
   return <StyledVoteTimeline label={label} variant="filled" color="primary" />;
 };
 
-
-
 const StyledDaoImg = styled(Img)({
   width: 30,
   height: 30,
@@ -157,6 +167,7 @@ const StyledProposalOwner = styled(StyledFlexRow)({
     textDecoration: "unset",
     color: "unset",
     fontWeight: 600,
+    fontSize: 15
   },
 
   ".dao-name": {
@@ -166,7 +177,9 @@ const StyledProposalOwner = styled(StyledFlexRow)({
 
 const StyledVoteTimeline = styled(Chip)({
   fontWeight: 700,
-  fontSize: 12,
+  "*": {
+    fontSize: 13,
+  },
 });
 
 const StyledShowMore = styled(Button)(({ theme }) => ({

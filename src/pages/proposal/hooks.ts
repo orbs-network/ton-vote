@@ -7,31 +7,69 @@ import { Logger } from "utils";
 import { useProposalPageQuery } from "./query";
 import { useEnpointsStore, useProposalPersistedStore } from "./store";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
-import { getClientV2 } from "ton-vote-contracts-sdk";
+import {
+  filterTxByTimestamp,
+  getClientV2,
+  getClientV4,
+  getTransactions,
+  ProposalResult,
+} from "ton-vote-contracts-sdk";
 import { TX_FEE } from "config";
 import { showPromiseToast } from "toasts";
-import { Endpoints } from "types";
+import { Endpoints, ProposalResults } from "types";
 import { useProposalStatusQuery } from "query/queries";
 import { lib } from "lib/lib";
+import { Transaction } from "ton-core";
+import { api } from "api";
+
+const handleNulls = (result?: ProposalResults) => {
+  const getValue = (value: any) => {
+    if (_.isNull(value) || _.isNaN(value)) return 0;
+    if (_.isString(value)) return Number(value);
+    return value;
+  };
+
+  if (!result) return;
+  _.forEach(result, (value, key) => {
+    result[key] = getValue(value);
+  });
+
+  return result;
+};
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
   const { data } = useProposalPageQuery(false);
-  const currentResults = data?.proposalResult;
-  const maxLt = data?.maxLt;
-  const { setEndpoints } = useEnpointsStore();
+  const { setEndpoints, endpoints } = useEnpointsStore();
 
   return useMutation(async (customEndpoints: Endpoints) => {
     analytics.GA.verifyButtonClick();
     setEndpoints(customEndpoints);
     const promiseFn = async () => {
-      const contractState = await lib.getProposalFromContract(
-        proposalAddress,
-        undefined,
-        maxLt,
-        customEndpoints
+      const clientV2 = await getClientV2(
+        endpoints?.clientV2Endpoint,
+        endpoints?.apiKey
       );
-      const compareToResults = contractState?.proposalResult;
+      const clientV4 = await getClientV4(endpoints?.clientV4Endpoint);
+
+      let transactions: Transaction[] = [];
+
+      const maxLt = await api.getMaxLt(proposalAddress);
+
+      const result = await getTransactions(clientV2, proposalAddress);
+
+      transactions = filterTxByTimestamp(result.allTxns, maxLt);
+
+      const contractState = await lib.getProposalFromContract(
+        clientV2,
+        clientV4,
+        proposalAddress,
+        data?.metadata,
+        transactions
+      );
+      const currentResults = handleNulls(data?.proposalResult);
+
+      const compareToResults = handleNulls(contractState?.proposalResult);
 
       Logger({
         currentResults,
