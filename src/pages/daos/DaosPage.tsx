@@ -1,8 +1,13 @@
 import { styled, Typography, useTheme } from "@mui/material";
-import { Container, List, LoadMore, Page, Search } from "components";
+import { AppTooltip, Container, List, LoadMore, OverflowWithTooltip, Page, Search, VerifiedDao } from "components";
 import { useDaosQuery } from "query/queries";
 import { useAppNavigation } from "router";
-import { StyledEmptyText, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
+import {
+  StyledEmptyText,
+  StyledFlexColumn,
+  StyledFlexRow,
+  StyledSkeletonLoader,
+} from "styles";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import {
@@ -21,7 +26,7 @@ import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { useConnection } from "ConnectionProvider";
 import { Box } from "@mui/system";
 import { useTranslation } from "react-i18next";
-import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
+import { DAOS_PAGE_REFETCH_INTERVAL, VERIFIED_DAOS } from "config";
 import { useAppQueryParams } from "hooks";
 import TextOverflow from "react-text-overflow";
 
@@ -34,11 +39,7 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-
-  return _.uniqBy(
-    [...nameFilter, ...addressFilter],
-    "daoAddress"
-  );
+  return _.uniqBy([...nameFilter, ...addressFilter], "daoAddress");
 };
 
 export function DaosPage() {
@@ -46,7 +47,7 @@ export function DaosPage() {
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
 
-  const {query, setSearch} = useAppQueryParams();
+  const { query, setSearch } = useAppQueryParams();
 
   const onSearchInputChange = (value: string) => {
     setSearchValue(value);
@@ -105,16 +106,12 @@ export function DaosPage() {
 
 const StyledEmptyList = styled(Container)({
   width: "100%",
-
 });
-
 
 const StyledDaosAmount = styled(Typography)({
   fontSize: 15,
-  fontWeight: 700
+  fontWeight: 700,
 });
-
-
 
 const StyledSearch = styled(Search)({
   maxWidth: 400,
@@ -164,9 +161,6 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   if (dao.daoMetadata.hide && !isOwner(walletAddress, dao.daoRoles))
     return null;
 
-
-    
-
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
       <StyledDaoContent className="container" hover>
@@ -184,9 +178,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             <Typography className="title">
               <TextOverflow text={parseLanguage(daoMetadata?.name) || ""} />
             </Typography>
-            <Typography className="address">
-              {makeElipsisAddress(dao.daoAddress, 6)}
-            </Typography>
+            <Address dao={dao} />
             <Container className="members">
               <Typography>{nFormatter(100000)} members</Typography>
             </Container>
@@ -194,6 +186,25 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
         ) : null}
       </StyledDaoContent>
     </StyledDao>
+  );
+};
+
+
+const Address = ({ dao }: { dao: Dao }) => {
+  return (
+    <StyledFlexRow className="address">
+      {dao.daoMetadata.dns ? (
+        <OverflowWithTooltip
+          className="address-value"
+          text={dao.daoMetadata.dns}
+        />
+      ) : (
+        <Typography className="address-value">
+          {makeElipsisAddress(dao.daoAddress, 6)}
+        </Typography>
+      )}
+      <VerifiedDao daoAddress={dao.daoAddress} />
+    </StyledFlexRow>
   );
 };
 

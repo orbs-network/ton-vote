@@ -40,10 +40,9 @@ export const StyledDao = styled(Box)({
     width: "100%",
     textAlign: "center",
   },
-  ".address": {
-    width: "100%",
+  ".address-value": {
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 16,
     opacity: 0.6,
   },
   ".members": {

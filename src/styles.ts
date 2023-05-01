@@ -63,12 +63,12 @@ export const globalStyles = {
   },
   ".MuiTooltip-tooltip": {
     background: `#EEEEEE!important`,
+    boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
   },
   ".MuiDateCalendar-root .Mui-disabled": {
     opacity: "0.4!important",
-    color:'gray!important'
+    color: "gray!important",
   },
-
 };
 
 export const StyledGrid = styled(StyledFlexColumn)({

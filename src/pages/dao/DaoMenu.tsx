@@ -5,6 +5,7 @@ import {
   AddressDisplay,
   Socials,
   OverflowWithTooltip,
+  VerifiedDao,
 } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
@@ -13,7 +14,7 @@ import { useDaoQuery } from "query/queries";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router";
-import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { parseLanguage } from "utils";
 
 export function DaoMenu() {
@@ -45,24 +46,36 @@ export function DaoMenu() {
             text={parseLanguage(dao?.daoMetadata?.name)}
           />
           <StyledFlexColumn>
-            <StyledDNS>aave.ton</StyledDNS>
+            {dao?.daoMetadata.dns && (
+              <StyledDNS>
+                <a href={"/"} target="_blank">
+                  <Typography>{dao?.daoMetadata.dns}</Typography>
+                </a>
+                <VerifiedDao daoAddress={dao.daoAddress} />
+              </StyledDNS>
+            )}
             <StyledAddressDisplay address={dao?.daoAddress} padding={8} />
           </StyledFlexColumn>
         </StyledFlexColumn>
       </StyledTop>
       <Navigation />
       <StyledSocials
-        github={dao?.daoMetadata?.github || '/'}
-        telegram={dao?.daoMetadata?.telegram || '/'}
-        website={dao?.daoMetadata?.website || '/'}
+        github={dao?.daoMetadata?.github || "/"}
+        telegram={dao?.daoMetadata?.telegram || "/"}
+        website={dao?.daoMetadata?.website || "/"}
       />
     </StyledContainer>
   );
 }
 
-const StyledDNS = styled(Typography)({
-  fontSize: 15,
-  fontWeight: 700,
+const StyledDNS = styled(StyledFlexRow)({
+  a: {
+    textDecoration:'unset'
+  },
+  p: {
+    fontSize: 16,
+    fontWeight: 700,
+  },
 });
 
 const StyledAddressDisplay = styled(AddressDisplay)({

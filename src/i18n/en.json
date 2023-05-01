@@ -48,11 +48,12 @@
     "title": "Title",
     "description": "Description",
     "createProposalDescriptionTooltip": "Supports Markdown for editing, adding images, etc. [Read more](https://www.markdownguide.org/basic-syntax/)",
-    "votingConfigurations":"Voting Configurations",
-    "checkWallet":"Please check wallet for pending transaction",
-    "createDaoSpace":"Create DAO Space",
-    "onTon":"on TON",
-    "searchForDAO":"Search for DAO",
-    "start":"Start"
+    "votingConfigurations": "Voting Configurations",
+    "checkWallet": "Please check wallet for pending transaction",
+    "createDaoSpace": "Create DAO Space",
+    "onTon": "on TON",
+    "searchForDAO": "Search for DAO",
+    "start": "Start",
+    "proposalEnded": "Ended {{value}} ago"
   }
 }

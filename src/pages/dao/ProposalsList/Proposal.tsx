@@ -34,11 +34,13 @@ const Time = ({
   proposalMetadata,
   status,
 }: {
-  proposalMetadata: ProposalMetadata;
+  proposalMetadata?: ProposalMetadata;
   status: ProposalStatus | null;
 }) => {
   const { t } = useTranslation();
-  if (!status) return null;
+  if (!status || !proposalMetadata) return null;
+
+
 
   if (status === ProposalStatus.NOT_STARTED) {
     return (
@@ -49,6 +51,17 @@ const Time = ({
       </StyledTime>
     );
   }
+
+    if (status === ProposalStatus.CLOSED) {
+      return (
+        <StyledTime>
+          {t("proposalEnded", {
+            value: getTimeDiff(proposalMetadata.proposalEndTime, true),
+          })}
+        </StyledTime>
+      );
+    }
+
   return (
     <StyledTime>
       {t("endIn", { value: getTimeDiff(proposalMetadata.proposalEndTime) })}
@@ -145,7 +158,7 @@ export const ProposalComponent = ({
         {!proposal?.hardcoded &&
           status === ProposalStatus.CLOSED &&
           proposal && <Results proposal={proposal} />}
-        {proposal?.metadata && <Time proposalMetadata={proposal.metadata} status={status} />}
+        <Time proposalMetadata={proposal?.metadata} status={status} />
       </StyledFlexColumn>
     </StyledProposal>
   );

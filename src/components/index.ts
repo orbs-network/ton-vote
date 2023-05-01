@@ -35,3 +35,4 @@ export * from './AppSocials'
 export * from "./ErrorContainer";
 export * from "./ShareButton";
 export * from "./OverflowWithTooltip";
+export * from "./VerifiedDao";

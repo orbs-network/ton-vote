@@ -78,12 +78,16 @@ export function nFormatter(num: number, digits = 2) {
     : "0";
 }
 
-export const getTimeDiff = (value: number) => {
+export const getTimeDiff = (value: number, reverse?: boolean) => {
   var a = moment(unixToMilliseconds(value));
   var b = moment();
-  const days = a.diff(b, "days");
-  const hours = a.diff(b, "hours");
-  const minutes = a.diff(b, "minutes");
+
+  const from = reverse ? b : a;
+  const to = reverse ? a : b;
+
+  const days = from.diff(to, "days");
+  const hours = from.diff(to, "hours");
+  const minutes = from.diff(to, "minutes");
 
   if (days > 0) {
     return days === 1 ? "1 day" : `${days} days`;
@@ -211,3 +215,4 @@ export const isProposalWhitelisted = (address?: string) => {
   if (!_.size(WHITELISTED_PROPOSALS)) return true
   return WHITELISTED_PROPOSALS.includes(address);
 };
+

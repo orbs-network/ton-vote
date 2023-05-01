@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
 import { useEffect, useRef, useState } from "react";
+import TransparentImg from "assets/tr.png";
 
 import { useProposalPageQuery } from "./query";
 import {
@@ -47,25 +48,26 @@ export function ProposalAbout() {
     return <LoadingContainer loaderAmount={4} />;
   }
 
-  // const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
-  const showMoreButton = true
-  const HEIGHT = descriptionHeight > 200 ? 200 : descriptionHeight;
+  console.log(descriptionHeight);
+
+  const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
+  const HEIGHT = descriptionHeight > 120 ? 120 : descriptionHeight;
 
   const description = parseLanguage(metadata?.description);
 
   return (
     <>
-      <StyledPlaceholder ref={elRef}>
-        <StyledMarkdown open={0}>{description}</StyledMarkdown>
-      </StyledPlaceholder>
       <StyledContainer>
+        <StyledPlaceholder ref={elRef}>
+          <StyledMarkdown open={0}>{description}</StyledMarkdown>
+        </StyledPlaceholder>
         {ready && (
           <span>
             <StyledFlexColumn gap={0}>
               <StyledFlexColumn alignItems="flex-start" gap={20}>
                 <StyledHeader title={parseLanguage(metadata?.title)} />
                 <ProposalOwner />
-                <AnimateHeight height={showMore ? "auto" : 110} duration={0}>
+                <AnimateHeight height={showMore ? "auto" : HEIGHT} duration={0}>
                   <StyledMarkdown open={showMore ? 1 : 0}>
                     {description}
                   </StyledMarkdown>
@@ -73,14 +75,18 @@ export function ProposalAbout() {
               </StyledFlexColumn>
 
               {showMoreButton && (
-                <StyledShowMore
-                  onClick={() => setShowMore(!showMore)}
-                  variant="transparent"
-                >
-                  <Typography>
-                    {showMore ? "Show less" : "Show more"}
-                  </Typography>
-                </StyledShowMore>
+                <>
+                  <StyledShowMore open={showMore ? 1 : 0}>
+                    <StyledShowMoreButton
+                      onClick={() => setShowMore(!showMore)}
+                      variant="transparent"
+                    >
+                      <Typography>
+                        {showMore ? "Show less" : "Show more"}
+                      </Typography>
+                    </StyledShowMoreButton>
+                  </StyledShowMore>
+                </>
               )}
             </StyledFlexColumn>
           </span>
@@ -91,7 +97,7 @@ export function ProposalAbout() {
 }
 
 const StyledPlaceholder = styled(Box)({
-  position: "fixed",
+  position: "absolute",
   visibility: "hidden",
   pointerEvents: "none",
 });
@@ -104,7 +110,7 @@ const StyledMarkdown = styled(Markdown)<{ open: number }>(({ open }) => ({
 
 const StyledHeader = styled(Header)({
   marginBottom: 0,
-  marginTop: 0
+  marginTop: 0,
 });
 
 const ProposalOwner = () => {
@@ -129,7 +135,10 @@ const ProposalOwner = () => {
           </StyledLink>
 
           <Typography className="by">by</Typography>
-          <AddressDisplay address={dao?.data?.daoRoles.proposalOwner} padding={5} />
+          <AddressDisplay
+            address={dao?.data?.daoRoles.proposalOwner}
+            padding={5}
+          />
         </StyledFlexRow>
         <ShareButton url={window.location.href} />
       </StyledFlexRow>
@@ -169,14 +178,24 @@ const StyledProposalOwner = styled(StyledFlexRow)({
   },
 });
 
-const StyledShowMore = styled(Button)(({ theme }) => ({
+const StyledShowMoreButton = styled(Button)(({ theme }) => ({
   marginLeft: "auto",
   marginRight: "auto",
-  marginTop: 20,
   width: "100%",
+}));
+
+
+const StyledShowMore = styled(Box)<{ open: number }>(({ open }) => ({
+  width: "100%",
+  position: "relative",
+  boxShadow: open === 1 ? "unset" : "0px -22px 50px 16px #FFFFFF",
+  background: "white",
+  paddingTop: 20,
+  transition:'0.2s all'
 }));
 
 const StyledContainer = styled(Container)({
   width: "100%",
-  padding: 30
+  padding: 30,
+  position: "relative",
 });
