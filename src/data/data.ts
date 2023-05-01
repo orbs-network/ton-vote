@@ -6,15 +6,16 @@ export const OLD_DAO: Dao = {
   daoId: 0,
   daoMetadata: {
     about: "Some description",
-    avatar: "https://www.orbs.com/assets/img/common/logo.svg",
+    avatar: "/public/foundation.png",
     github: "https://reactdatepicker.com/",
     hide: false,
-    name: "Take from ami",
+    name: "TON Foundation",
     terms: "https://reactdatepicker.com/",
     telegram: "https://reactdatepicker.com/",
-    website: "https://reactdatepicker.com/",
-    jetton:'',
-    nft:''
+    website: "https://ton.org/",
+    jetton: "",
+    nft: "",
+    dns: "foundation.ton",
   },
   daoRoles: {
     owner: "",
@@ -40,7 +41,7 @@ export const proposals: { [key: string]: Proposal } = {
         choices: [],
         votingSystemType: 0,
       },
-      votingPowerStrategy: 1,
+      votingPowerStrategy: 0,
       title: "Hack-a-TONx: Choose your winners!",
       description:
         "The grand finale of the Hack-a-TONx w/ DoraHacks is finally here - It is now time for the community to vote on the winning projects and distribute the $300,000 pool prize!",
@@ -78,7 +79,7 @@ export const proposals: { [key: string]: Proposal } = {
         choices: [],
         votingSystemType: 0,
       },
-      votingPowerStrategy: 1,
+      votingPowerStrategy: 0,
       title: "Proposal of TON Tokenomics Optimization",
       description:
         "Tokenomics proposal to achieve community consensus on circulating supply of TON. Proposal for a 48 month temporary freeze of inactive mining wallets, which have never been activated and do not have any outgoing transfer in their history.",

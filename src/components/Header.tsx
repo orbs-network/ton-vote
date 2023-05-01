@@ -19,5 +19,7 @@ export function Header({ title, component, className = '' }: Props) {
 
 
 const StyledHeader = styled(StyledFlexRow)({
-    marginBottom:20
+    marginBottom:20,
+    marginTop: 20,
+    alignItems:'flex-start'
 });

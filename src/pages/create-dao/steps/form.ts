@@ -9,10 +9,9 @@ export const useInputs = () => {
   const { t } = useTranslation();
   const address = useConnection().address;
 
-
   const createMetadataInputs: InputInterface[] = [
     {
-      label: "Name",
+      label: "DAO Name",
       type: "text",
       name: "name_en",
       tooltip: t("spaceNameTooltip") as string,
@@ -20,7 +19,7 @@ export const useInputs = () => {
       limit: TITLE_LIMIT,
     },
     {
-      label: "About",
+      label: "About the DAO",
       type: "textarea",
       name: "about_en",
       rows: 6,
@@ -30,84 +29,96 @@ export const useInputs = () => {
       limit: ABOUT_CHARS_LIMIT,
     },
     {
-      label: "Avatar",
+      label: "Logo URL",
       type: "image",
       name: "avatar",
       tooltip: t("spaceAvatarTootlip") as string,
       required: true,
     },
     {
-      label: "TON DNS",
+      label: "TON DNS name",
       type: "text",
       name: "dns",
-      required: true,
       tooltip: t("tonDnsTooltip") as string,
     },
-
     {
-      label: "Github",
+      label: "Project website URL",
       type: "url",
-      name: "github",
+      name: "website",
     },
     {
-      label: "Telegram",
+      label: "Project Telegram group",
       type: "url",
       name: "telegram",
     },
     {
-      label: "Website",
+      label: "Project GitHub URL",
       type: "url",
-      name: "website",
+      name: "github",
     },
   ];
 
+  const setRolesInputs: InputInterface[] = [
+    {
+      label: "Space owner",
+      type: "address",
+      name: "ownerAddress",
+      defaultValue: address,
+      required: true,
+      tooltip:
+        "The owner of the space, can change metadata and update admins. Can be a multi-sig contract.",
+    },
+    {
+      label: "Proposal publisher",
+      type: "address",
+      name: "proposalOwner",
+      defaultValue: address,
+      required: true,
+      tooltip:
+        "The address that can publish new proposals for vote. Can be a multi-sig contract or a multi-owner contract.",
+    },
+  ];
 
-   const setRolesInputs: InputInterface[] =  [
-     {
-       label: "Owner",
-       type: "address",
-       name: "ownerAddress",
-       defaultValue: address,
-       required: true,
-     },
-     {
-       label: "Proposal Owner",
-       type: "address",
-       name: "proposalOwner",
-       defaultValue: address,
-       required: true,
-     },
-   ];
-
-   return { createMetadataInputs, setRolesInputs };
-
+  return { createMetadataInputs, setRolesInputs };
 };
 
-
-
 export const DaoMetadataFormSchema = Yup.object().shape({
-  name: Yup.string().test("", "Name is Required", (value, context) => {
+  name: Yup.string().test("", "DAO Name is Required", (value, context) => {
     if (!context.parent.name_en) {
       return false;
     }
     return true;
   }),
-  avatar: Yup.string().url("invalid Avatar URL").required("Avatar is Required"),
-
-  dns: Yup.string()
-    .required("TON DNS is Required")
-    .test("", "Invalid TON DNS", (value) => {
-      return value?.endsWith(".ton") && value?.length > 4;
+  avatar: Yup.string()
+    .url("invalid Logo URL")
+    .required("Logo URL is Required")
+    .test("", "Logo URL must be https", (value) => {
+      return !value ? true :  value.startsWith("https://");
+    })
+    .test("", "Logo URL must be png format", (value) => {
+      return !value ? true : value.endsWith(".png");
     }),
-  about: Yup.string().test("", "About is Required", (value, context) => {
-    if (!context.parent.about_en) {
-      return false;
-    }
-    return true;
+
+  dns: Yup.string().test("", "TON DNS must end with .ton", (value) => {
+    return !value ? true : value?.endsWith(".ton") && value?.length > 4;
   }),
+  about: Yup.string().test(
+    "",
+    "About the DAO is Required",
+    (value, context) => {
+      if (!context.parent.about_en) {
+        return false;
+      }
+      return true;
+    }
+  ),
   github: Yup.string().test("", "Invalid Github URL", (value) => {
     return value ? value.includes("github") : true;
   }),
+  telegram: Yup.string().test('', 'Telegram group should start with https://t.me', (value) => {
+    return !value ? true : value.startsWith("https://t.me");
+  }),
+  website: Yup.string().url("invalid Website URL"),
 });
 
 export const SetRolesFormSchema = Yup.object().shape({
@@ -116,5 +127,5 @@ export const SetRolesFormSchema = Yup.object().shape({
     .required("Owner address Required"),
   proposalOwner: Yup.string()
     .test("address", "Invalid proposal owner address", validateAddress)
-    .required("Proposal owner address Required"),
+    .required("Proposal publisher address Required"),
 });

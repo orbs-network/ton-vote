@@ -26,7 +26,7 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
   },
   "*": {
     margin: 0,
-    marginBottom: 5,
+    marginBottom: 15,
     "&:last-child": {
       marginBottom: 0,
     },
@@ -34,14 +34,17 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
   p: {
     fontSize: 16,
   },
-  h2: {
+  h1:{
     fontSize: 20,
   },
+  h2: {
+    fontSize: 18,
+  },
   h3: {
-    fontSize: 19,
+    fontSize: 16,
   },
   h4: {
-    fontSize: 17,
+    fontSize: 16,
   },
   a: {
     color: theme.palette.primary.main,

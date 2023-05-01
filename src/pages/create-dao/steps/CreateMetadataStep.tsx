@@ -1,8 +1,5 @@
 import { Fade, styled, Typography } from "@mui/material";
-import {
-  Button,
-  InputsForm,
-} from "components";
+import { Button, InputsForm } from "components";
 import { StyledFlexColumn } from "styles";
 import { FormikProps, useFormik } from "formik";
 import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
@@ -18,10 +15,7 @@ import { Step } from "./Step";
 
 const useFormLanguageListeners = (formik: FormikProps<DaoMetadata>) => {
   useEffect(() => {
-    formik.setFieldValue(
-      "name",
-      JSON.stringify({ en: formik.values.name_en })
-    );
+    formik.setFieldValue("name", JSON.stringify({ en: formik.values.name_en }));
     formik.setFieldValue(
       "about",
       JSON.stringify({
@@ -30,8 +24,6 @@ const useFormLanguageListeners = (formik: FormikProps<DaoMetadata>) => {
     );
   }, [formik.values]);
 };
-
-
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
@@ -81,29 +73,40 @@ export function CreateMetadataStep() {
       warning={editMode ? t("editSpaceDetailsWarning") : ""}
       title={editMode ? t("editspaceDetails") : t("createSpaceDetails")}
     >
-      <StyledFlexColumn>
-        <StyledInputs>
-          <InputsForm
-            inputs={createMetadataInputs}
-            formik={formik}
-            EndAdornment={EndAdornment}
-          />
-        </StyledInputs>
-        <Submit>
-          <Button
-            isLoading={isLoading}
-            onClick={() => {
-              formik.submitForm();
-              validateFormik(formik);
-            }}
-          >
-            {editMode ? t("editDetails") : t("approveDetails")}
-          </Button>
-        </Submit>
+      <StyledFlexColumn alignItems="flex-start" gap={30}>
+        <StyledAbout>
+          Enter all fields in English. Future versions will support adding
+          translations in multiple languages. You can update these fields later.
+        </StyledAbout>
+        <StyledFlexColumn>
+          <StyledInputs>
+            <InputsForm
+              inputs={createMetadataInputs}
+              formik={formik}
+              EndAdornment={EndAdornment}
+            />
+          </StyledInputs>
+          <Submit>
+            <Button
+              isLoading={isLoading}
+              onClick={() => {
+                formik.submitForm();
+                validateFormik(formik);
+              }}
+            >
+              {editMode ? t("editDetails") : t("approveDetails")}
+            </Button>
+          </Submit>
+        </StyledFlexColumn>
       </StyledFlexColumn>
     </Step>
   );
 }
+
+const StyledAbout = styled(Typography)({
+  fontSize: 14,
+  opacity: 0.7,
+});
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();

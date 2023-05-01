@@ -29,11 +29,11 @@ export function Socials({
 
   return (
     <StyledContainer className={className}>
-      <Social url={telegram} icon={<BsTelegram />} />
-      <Social url={github} icon={<AiFillGithub />} />
-      <Social url={website} icon={<BsGlobe />} />
-      <Social url={whitepaper} icon={<IoNewspaperOutline />} />
-      <Social url={about} icon={<BsGlobe />} />
+      <Social url={telegram} icon={<BsTelegram size={20} />} />
+      <Social url={github} icon={<AiFillGithub size={23} />} />
+      <Social url={website} icon={<BsGlobe size={20} />} />
+      <Social url={whitepaper} icon={<IoNewspaperOutline size={20} />} />
+      <Social url={about} icon={<BsGlobe size={20} />} />
     </StyledContainer>
   );
 }
@@ -50,8 +50,7 @@ const Social = ({ url, icon }: { url?: string; icon: ReactElement }) => {
 
 const StyledSocial = styled("a")(({ theme }) => ({
   svg: {
-    width: 25,
-    height: 25,
+   
     color: theme.palette.primary.main
   },
 }));

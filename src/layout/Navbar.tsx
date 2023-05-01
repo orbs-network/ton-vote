@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
+import LogoImg from "assets/logo.svg";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -27,7 +28,9 @@ export function Navbar() {
     <StyledContainer>
       <StyledNav>
         <StyledLogo onClick={daosPage.root}>
-          <Typography>{APP_NAME}</Typography>
+            <img src={LogoImg} />
+            <Typography style={{marginTop: 5}}>{APP_NAME}</Typography>
+         
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
           {/* <LanuageSelect /> */}
@@ -39,6 +42,8 @@ export function Navbar() {
     </StyledContainer>
   );
 }
+
+
 
 const Wallet = () => {
   const { address, disconnect } = useConnection();
@@ -215,19 +220,19 @@ const StyledLogo = styled("button")(({ theme }) => ({
   border: "unset",
   cursor: "pointer",
   display: "flex",
-  alignItems: "flex-end",
+  alignItems: "center",
   margin: 0,
   padding: 0,
-  gap: 7,
+  gap: 10,
   p: {
-    fontWeight: 700,
+    fontWeight: 800,
     position: "relative",
     color: theme.palette.text.secondary,
-    fontSize: 17,
+    fontSize: 20,
     top: -3,
   },
   img: {
-    height: 33,
+    height: 30,
   },
 }));
 
@@ -238,7 +243,7 @@ const StyledContainer = styled(StyledFlexRow)({
   left: "50%",
   transform: "translate(-50%)",
   top: 0,
-  zIndex: 10,
+  zIndex: 20,
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.24)",
 });
 

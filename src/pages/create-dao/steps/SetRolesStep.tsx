@@ -47,7 +47,7 @@ export function SetRolesStep() {
               validateFormik(formik);
             }}
           >
-            {t("registerSpace")}
+           Next
           </Button>
         </Submit>
       </StyledFlexColumn>

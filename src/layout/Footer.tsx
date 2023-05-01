@@ -17,11 +17,17 @@ export function Footer() {
           <Typography>Orbs</Typography> <img src={OrbsLogo} />
         </a>
       </StyledWithLove>
-     <AppSocials />
-      <Github />
+      <StyledFlexRow gap={0}>
+        <StyledSocials />
+        <Github />
+      </StyledFlexRow>
     </StyledContainer>
   );
 }
+
+const StyledSocials = styled(AppSocials)({
+  width:'auto'
+});
 
 
 const StyledContainer = styled(StyledFlexColumn)(({ theme }) => ({

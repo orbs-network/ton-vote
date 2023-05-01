@@ -1,5 +1,5 @@
-import { Typography } from "@mui/material";
-import { AddressDisplay, Status, AppTooltip } from "components";
+import { styled, Typography } from "@mui/material";
+import { AddressDisplay, Status, AppTooltip, Container } from "components";
 import { useAppQueryParams, useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
@@ -116,42 +116,49 @@ export const ProposalComponent = ({
   const description = parseLanguage(proposal?.metadata?.description, "en");
   return (
     <StyledProposal onClick={onClick}>
-      <StyledFlexColumn alignItems="flex-start">
+      <StyledFlexColumn alignItems="flex-start" gap={20}>
         <StyledFlexRow justifyContent="space-between">
           <AppTooltip text="Proposal address" placement="right">
-            <StyledAddressDisplay address={proposalAddress} padding={10} />
+            <StyledProposalAddress address={proposalAddress} padding={10} />
           </AppTooltip>
           <Status status={status} />
         </StyledFlexRow>
 
-        <StyledProposalTitle variant="h4">
-          {parseLanguage(proposal?.metadata?.title)}
-        </StyledProposalTitle>
-        <StyledMarkdown
-          sx={{
-            display: "-webkit-box",
-            overflow: "hidden",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: 3,
-          }}
-        >
-          {removeMd(description || "", {
-            useImgAltText: true,
-          })}
-        </StyledMarkdown>
-
-        {status !== ProposalStatus.CLOSED && proposal?.metadata && (
-          <Time proposalMetadata={proposal.metadata} status={status} />
-        )}
+        <StyledFlexColumn alignItems="flex-start">
+          <StyledProposalTitle variant="h4">
+            {parseLanguage(proposal?.metadata?.title)}
+          </StyledProposalTitle>
+          <StyledMarkdown
+            sx={{
+              display: "-webkit-box",
+              overflow: "hidden",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 3,
+            }}
+          >
+            {removeMd(description || "", {
+              useImgAltText: true,
+            })}
+          </StyledMarkdown>
+        </StyledFlexColumn>
 
         {!proposal?.hardcoded &&
           status === ProposalStatus.CLOSED &&
           proposal && <Results proposal={proposal} />}
+        {proposal?.metadata && <Time proposalMetadata={proposal.metadata} status={status} />}
       </StyledFlexColumn>
     </StyledProposal>
   );
 };
 
+
+const StyledProposalAddress = styled(StyledAddressDisplay)({
+   opacity: 0.7,
+  p:{
+    fontSize: 14,
+   
+  }
+});
 
 
 const Results = ({ proposal }: { proposal: Proposal }) => {
@@ -170,25 +177,33 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
   }
 
   return (
-    <StyledFlexColumn gap={5}>
-      {normalizeResults(proposalResult)
-        .filter((it) => it.title !== "totalWeight")
-        .map((item) => {
-          const { title, percent } = item;
+    <StyledResults gap={5}>
+        {normalizeResults(proposalResult)
+          .filter((it) => it.title !== "totalWeight")
+          .map((item) => {
+            const { title, percent } = item;
 
-          return (
-            <Result
-              votingPowerStrategy={proposal.metadata?.votingPowerStrategy}
-              key={title}
-              title={title}
-              percent={percent}
-              tonAmount={calculateTonAmount(percent, totalWeight as string)}
-            />
-          );
-        })}
-    </StyledFlexColumn>
+            return (
+              <Result
+                votingPowerStrategy={proposal.metadata?.votingPowerStrategy}
+                key={title}
+                title={title}
+                percent={percent}
+                tonAmount={calculateTonAmount(percent, totalWeight as string)}
+              />
+            );
+          })}
+    </StyledResults>
   );
 };
+
+const StyledResults = styled(StyledFlexColumn)({
+  width: "100%",
+  padding: 10,
+  background: "#F8F9FB",
+  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+  borderRadius: 10,
+});
 
 const Result = ({
   title,

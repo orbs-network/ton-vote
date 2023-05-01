@@ -15,7 +15,6 @@ import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
 import { parseLanguage } from "utils";
-import TextOverflow from "react-text-overflow";
 
 export function DaoMenu() {
   const daoAddresses = useDaoAddress();
@@ -39,22 +38,32 @@ export function DaoMenu() {
   return (
     <StyledContainer>
       <StyledTop>
-        <StyledLogo src={dao?.daoMetadata?.avatar} />
-
-        <StyledFlexColumn gap={10}>
-          <StyledTitle placement='top' text={parseLanguage(dao?.daoMetadata?.name)} />
-          <StyledAddressDisplay address={dao?.daoAddress} padding={8} />
+        <StyledFlexColumn gap={30}>
+          <StyledLogo src={dao?.daoMetadata?.avatar} />
+          <StyledTitle
+            placement="top"
+            text={parseLanguage(dao?.daoMetadata?.name)}
+          />
+          <StyledFlexColumn>
+            <StyledDNS>aave.ton</StyledDNS>
+            <StyledAddressDisplay address={dao?.daoAddress} padding={8} />
+          </StyledFlexColumn>
         </StyledFlexColumn>
       </StyledTop>
       <Navigation />
       <StyledSocials
-        github={dao?.daoMetadata?.github}
-        telegram={dao?.daoMetadata?.telegram}
-        website={dao?.daoMetadata?.website}
+        github={dao?.daoMetadata?.github || '/'}
+        telegram={dao?.daoMetadata?.telegram || '/'}
+        website={dao?.daoMetadata?.website || '/'}
       />
     </StyledContainer>
   );
 }
+
+const StyledDNS = styled(Typography)({
+  fontSize: 15,
+  fontWeight: 700,
+});
 
 const StyledAddressDisplay = styled(AddressDisplay)({
   p: {
@@ -73,6 +82,7 @@ const StyledTop = styled(StyledFlexColumn)({
   padding: 20,
   paddingBottom: 0,
   gap: 25,
+  paddingTop: 40
 });
 
 const StyledLoader = styled(StyledTop)({
@@ -110,7 +120,7 @@ const Navigation = () => {
             key={index}
             selected={selected}
           >
-            <Typography>{navigation.title}</Typography>
+            {navigation.title}
           </StyledNavigationLink>
         );
       })}
@@ -165,6 +175,8 @@ const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
     height: 43,
     display: "flex",
     alignItems: "center",
+    color: theme.palette.primary.main,
+    fontWeight: 700,
     borderLeft: selected
       ? `5px solid ${theme.palette.primary.main}`
       : "5px solid transparent",
@@ -176,14 +188,14 @@ const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
 
 const StyledSocials = styled(Socials)({
   marginTop: 20,
-  justifyContent: "flex-start",
+  justifyContent: "center",
   padding: 20,
 });
 
 const StyledContainer = styled(SideMenu)({
   padding: 0,
   maxWidth: 280,
-  width:'100%'
+  width:'100%',
 });
 
 const StyledLogo = styled(Img)({

@@ -11,7 +11,7 @@ import AnimateHeight from "react-animate-height";
 import { Endpoints, InputInterface } from "types";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { Button, MapInput, Popup } from "components";
+import { Button, MapInput, Markdown, Popup } from "components";
 import { useEnpointsStore } from "./store";
 
 const FormSchema = Yup.object().shape({
@@ -99,7 +99,7 @@ export function EndpointPopup({
               checked={!customSelected}
               onChange={() => setCustomSelected(false)}
             />
-            <Typography>Default endpoint {`(Orbs Ton Access)`}</Typography>
+            <Markdown>{`Default endpoint [(Orbs Ton Access)](https://www.orbs.com/ton-access/)`}</Markdown>
           </StyledRadio>
           <StyledRadio>
             <Radio
@@ -140,6 +140,11 @@ const StyledCustomEndpoints = styled(StyledFlexColumn)({
 });
 
 const StyledRadio = styled(StyledFlexRow)({
+  a: {
+    textDecoration: "unset",
+    fontWeight: 500,
+    fontSize: 17,
+  },
   justifyContent: "flex-start",
   p: {
     fontWeight: 500,

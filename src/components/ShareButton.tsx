@@ -96,6 +96,10 @@ const StyledShareButton = styled("button")(({ theme }) => ({
   background: "transparent",
   border: "unset",
   cursor: "pointer",
+  color: theme.palette.primary.main,
+  "*": {
+    color: theme.palette.primary.main,
+  },
   p: {
     fontSize: 15,
     fontWeight: 600,
@@ -103,10 +107,11 @@ const StyledShareButton = styled("button")(({ theme }) => ({
   svg: {
     width: 20,
     height: 20,
-    color: theme.palette.text.primary,
+    color: theme.palette.primary.main,
   },
 }));
 
 const StyledBtnContent = styled(StyledFlexRow)(({ theme }) => ({
   height: 25,
+ 
 }));

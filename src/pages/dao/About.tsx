@@ -11,8 +11,8 @@ export function DaoPageAbout() {
 
   return (
     <StyledFlexColumn gap={0} alignItems="flex-start">
-      <Header title="About" />
-      <StyledFlexColumn>
+      <StyledHeader title="About" />
+      <StyledFlexColumn gap={30}>
         <DaoDescription />
         <StyledTitleContainer
           title="Administrators"
@@ -23,7 +23,7 @@ export function DaoPageAbout() {
               {roles && (
                 <StyledAddressDisplay address={roles.owner} padding={10} />
               )}
-              <Chip label="Dao Owner" color="primary" />
+              <Chip label="DAO space owner" color="primary" />
             </StyledSection>
             <StyledSection>
               {roles && (
@@ -32,7 +32,7 @@ export function DaoPageAbout() {
                   padding={10}
                 />
               )}
-              <Chip label="Proposal Owner" color="primary" />
+              <Chip label="Proposal publisher" color="primary" />
             </StyledSection>
           </StyledFlexColumn>
         </StyledTitleContainer>
@@ -40,6 +40,10 @@ export function DaoPageAbout() {
     </StyledFlexColumn>
   );
 }
+
+const StyledHeader = styled(Header)({
+  marginBottom: 38
+});
 
 const StyledAddressDisplay = styled(AddressDisplay)({
   P: {

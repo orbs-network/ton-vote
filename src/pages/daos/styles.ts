@@ -32,20 +32,29 @@ export const StyledDao = styled(Box)({
   cursor: "pointer",
   ".container": {
     height: "100%",
+    paddingTop: 30,
   },
   ".title": {
     fontSize: 18,
-    fontWeight: 700,
+    fontWeight: 800,
     width: "100%",
     textAlign: "center",
-  },
-  ".members": {
-    fontWeight: 700,
   },
   ".address": {
     width: "100%",
     textAlign: "center",
-    fontSize: 14
+    fontSize: 14,
+    opacity: 0.6,
+  },
+  ".members": {
+    fontSize: 14,
+    fontWeight: 700,
+    padding: "5px 20px",
+    borderRadius: 20,
+    marginTop: 20,
+    p: {
+      fontSize: 12,
+    },
   },
 });
 

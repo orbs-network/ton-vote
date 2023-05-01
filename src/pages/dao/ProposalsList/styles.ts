@@ -63,7 +63,9 @@ export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
 
 export const StyledTime = styled(Typography)({
   fontSize: 14,
-  fontWeight: 700
+  fontWeight: 600,
+  opacity: 0.7,
+  marginTop:10
 });
 
 export const StyledDescription = styled(Typography)({
@@ -79,6 +81,7 @@ export const StyledDescription = styled(Typography)({
 export const StyledMarkdown = styled(Typography)({
   fontWeight: 600,
   fontSize: 16,
+  marginBottom: 10
 });
 
 export const StyledProposalTitle = styled(Typography)({
@@ -89,7 +92,7 @@ export const StyledProposalTitle = styled(Typography)({
 
 export const StyledAlert = styled(Alert)({
   width: "100%",
-  marginTop: 10,
+  borderRadius: 10
 });
 
 export const StyledHeader = styled(Header)({

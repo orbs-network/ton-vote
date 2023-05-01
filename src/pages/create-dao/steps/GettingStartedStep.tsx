@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import { Button, Markdown } from "components";
 import { useTranslation } from "react-i18next";
 import { StyledFlexColumn } from "styles";
@@ -11,8 +12,8 @@ export function GettingStartedStep() {
 
   return (
     <Step title={t("getStarted")}>
-      <StyledFlexColumn>
-        <StyledFlexColumn alignItems="flex-start">
+      <StyledContainer>
+        <StyledFlexColumn alignItems="flex-start" gap={15}>
           {t("gettingStartedBody")
             .split("/n")
             .map((it, index) => {
@@ -20,9 +21,16 @@ export function GettingStartedStep() {
             }) || ""}
         </StyledFlexColumn>
         <Submit>
-          <Button onClick={nextStep}>{t("getStarted")}</Button>
+          <Button onClick={nextStep}>{t("start")}</Button>
         </Submit>
-      </StyledFlexColumn>
+      </StyledContainer>
     </Step>
   );
 }
+
+
+const StyledContainer = styled(StyledFlexColumn)({
+  a:{
+    textDecoration:'unset'
+  }
+});

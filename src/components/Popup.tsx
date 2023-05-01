@@ -1,11 +1,8 @@
-import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import { ReactElement } from "react";
 import { DialogContent, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
-import { IconButton, Typography } from "@mui/material";
-import { Container } from "./Container";
-import { Header } from "./Header";
+import { IconButton } from "@mui/material";
 import { TitleContainer } from "components";
 interface Props {
   children: ReactElement;

@@ -137,7 +137,7 @@ const StyledFaMarkdown = styled(FaMarkdown)({
 const StyledMdIcon = styled(Box)({
   position: "absolute",
   right: 10,
-  bottom: 0,
+  bottom: 5,
 });
 
 const Header = ({
@@ -160,7 +160,7 @@ const Header = ({
     <StyledInputHeader>
       <StyledFlexRow justifyContent="flex-start" width="auto">
         <Title title={title} required={required} />
-        {tooltip && <AppTooltip info markdown={tooltip} />}
+        {tooltip && <AppTooltip placement='right' info markdown={tooltip} />}
       </StyledFlexRow>
 
       {limit && (
@@ -265,7 +265,7 @@ const Title = ({ title, required }: { title: string; required?: boolean }) => {
   return (
     <StyledTitle>
       {title}
-      {required ? " *" : ""}
+      {required ? " (required)" : " (optional)"}
     </StyledTitle>
   );
 };

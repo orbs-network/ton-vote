@@ -47,42 +47,46 @@ export function ProposalAbout() {
     return <LoadingContainer loaderAmount={4} />;
   }
 
-  const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
-
+  // const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
+  const showMoreButton = true
   const HEIGHT = descriptionHeight > 200 ? 200 : descriptionHeight;
 
   const description = parseLanguage(metadata?.description);
 
   return (
-    <StyledContainer>
+    <>
       <StyledPlaceholder ref={elRef}>
         <StyledMarkdown open={0}>{description}</StyledMarkdown>
       </StyledPlaceholder>
-      {ready && (
-        <span>
-          <StyledFlexColumn gap={0}>
-            <StyledFlexColumn alignItems="flex-start" gap={20}>
-              <StyledHeader title={parseLanguage(metadata?.title)} />
-              <ProposalOwner />
-              <AnimateHeight height={showMore ? "auto" : HEIGHT} duration={0}>
-                <StyledMarkdown open={showMore ? 1 : 0}>
-                  {description}
-                </StyledMarkdown>
-              </AnimateHeight>
-            </StyledFlexColumn>
+      <StyledContainer>
+        {ready && (
+          <span>
+            <StyledFlexColumn gap={0}>
+              <StyledFlexColumn alignItems="flex-start" gap={20}>
+                <StyledHeader title={parseLanguage(metadata?.title)} />
+                <ProposalOwner />
+                <AnimateHeight height={showMore ? "auto" : 110} duration={0}>
+                  <StyledMarkdown open={showMore ? 1 : 0}>
+                    {description}
+                  </StyledMarkdown>
+                </AnimateHeight>
+              </StyledFlexColumn>
 
-            {showMoreButton && (
-              <StyledShowMore
-                onClick={() => setShowMore(!showMore)}
-                variant="transparent"
-              >
-                <Typography>{showMore ? "Show less" : "Show more"}</Typography>
-              </StyledShowMore>
-            )}
-          </StyledFlexColumn>
-        </span>
-      )}
-    </StyledContainer>
+              {showMoreButton && (
+                <StyledShowMore
+                  onClick={() => setShowMore(!showMore)}
+                  variant="transparent"
+                >
+                  <Typography>
+                    {showMore ? "Show less" : "Show more"}
+                  </Typography>
+                </StyledShowMore>
+              )}
+            </StyledFlexColumn>
+          </span>
+        )}
+      </StyledContainer>
+    </>
   );
 }
 
@@ -100,6 +104,7 @@ const StyledMarkdown = styled(Markdown)<{ open: number }>(({ open }) => ({
 
 const StyledHeader = styled(Header)({
   marginBottom: 0,
+  marginTop: 0
 });
 
 const ProposalOwner = () => {
@@ -173,4 +178,5 @@ const StyledShowMore = styled(Button)(({ theme }) => ({
 
 const StyledContainer = styled(Container)({
   width: "100%",
+  padding: 30
 });

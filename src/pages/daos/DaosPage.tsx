@@ -64,9 +64,10 @@ export function DaosPage() {
           <StyledSearch
             initialValue={query.search || ""}
             onChange={onSearchInputChange}
+            placeholder={t("searchForDAO") as string}
           />
           <StyledDaosAmount>
-            {nFormatter(_.size(data))} {t("spaces")}
+            {nFormatter(_.size(data))} {t("spaces")} {t("onTon")}
           </StyledDaosAmount>
         </StyledFlexRow>
         <StyledFlexColumn gap={25}>
@@ -186,6 +187,9 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             <Typography className="address">
               {makeElipsisAddress(dao.daoAddress, 6)}
             </Typography>
+            <Container className="members">
+              <Typography>{nFormatter(100000)} members</Typography>
+            </Container>
           </StyledFlexColumn>
         ) : null}
       </StyledDaoContent>

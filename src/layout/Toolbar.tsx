@@ -4,6 +4,7 @@ import { AppTooltip, Button, Img } from "components";
 import { useConnection } from "ConnectionProvider";
 import { TOOLBAR_WIDTH } from "consts";
 import { useDaosQuery } from "query/queries";
+import { useTranslation } from "react-i18next";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router";
@@ -12,14 +13,13 @@ import { isOwner } from "utils";
 
 export function Toolbar() {
   const navigation = useAppNavigation();
+  const {t} = useTranslation()
 
   return (
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
-        <Link to={appNavigation.spaces}>
-          <StyledLogo src={LogoImg} />
-        </Link>
-        <AppTooltip text="Create Dao" placement="right">
+        
+        <AppTooltip text={t("createDaoSpace")} placement="right">
           <StyledButton
             onClick={navigation.createSpace.root}
             variant="transparent"
@@ -48,10 +48,6 @@ const StyledButton = styled(Button)({
   },
 });
 
-const StyledLogo = styled("img")({
-  width: 40,
-  height: 40,
-});
 
 const StyledToolbar = styled(StyledFlexColumn)({
   width: TOOLBAR_WIDTH,
@@ -60,7 +56,7 @@ const StyledToolbar = styled(StyledFlexColumn)({
   position: "fixed",
   left: 0,
   borderRight: "0.5px solid rgba(114, 138, 150, 0.24)",
-  zIndex: 20,
+  zIndex: 30,
   top: 0,
   justifyContent: "flex-start",
   paddingTop: 20,

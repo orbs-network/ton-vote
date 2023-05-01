@@ -4,7 +4,7 @@ import { Button, LoadingContainer, Progress, TitleContainer } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { calculateTonAmount, getSymbol, nFormatter } from "utils";
 import { VERIFY_LINK } from "config";
 import _ from "lodash";
@@ -34,52 +34,48 @@ export const Results = () => {
   }, [dataUpdatedAt]);
 
   const results = (proposalResult as any) || ({} as any);
-  const status = useProposalPageStatus()
 
   if (isLoading) {
     return <LoadingContainer />;
   }
 
+ const showVerify = results.totalWeight != "0";
+  return (
+    <StyledResults title="Results">
+      <StyledFlexColumn gap={15}>
+        <ResultRow
+          symbol={symbol}
+          name={"Yes"}
+          percent={results.yes || 0}
+          tonAmount={calculateTonAmount(
+            results.yes || 0,
+            results?.totalWeight as string
+          )}
+          votes={votesCount.yes}
+        />
 
-  if (results.totalWeight == "0" && status === ProposalStatus.CLOSED) {
-    return null;
-  }
-    return (
-      <StyledResults title="Results">
-        <StyledFlexColumn gap={15}>
-          <ResultRow
-            symbol={symbol}
-            name={"Yes"}
-            percent={results.yes || 0}
-            tonAmount={calculateTonAmount(
-              results.yes || 0,
-              results?.totalWeight as string
-            )}
-            votes={votesCount.yes}
-          />
+        <ResultRow
+          symbol={symbol}
+          name={"No"}
+          percent={results.no || 0}
+          tonAmount={calculateTonAmount(
+            results.no || 0,
+            results?.totalWeight as string
+          )}
+          votes={votesCount.no}
+        />
+        <ResultRow
+          symbol={symbol}
+          name={"Abstain"}
+          percent={results.abstain || 0}
+          tonAmount={calculateTonAmount(
+            results.abstain || 0,
+            results?.totalWeight as string
+          )}
+          votes={votesCount.abstain}
+        />
 
-          <ResultRow
-            symbol={symbol}
-            name={"No"}
-            percent={results.no || 0}
-            tonAmount={calculateTonAmount(
-              results.no || 0,
-              results?.totalWeight as string
-            )}
-            votes={votesCount.no}
-          />
-          <ResultRow
-            symbol={symbol}
-            name={"Abstain"}
-            percent={results.abstain || 0}
-            tonAmount={calculateTonAmount(
-              results.abstain || 0,
-              results?.totalWeight as string
-            )}
-            votes={votesCount.abstain}
-          />
-
-          {/* {proposalResult &&
+        {/* {proposalResult &&
           normalizeResults(proposalResult).map((item) => {
             const { title, percent } = item;
 
@@ -96,10 +92,10 @@ export const Results = () => {
               />
             );
           })} */}
-        </StyledFlexColumn>
-        <VerifyResults />
-      </StyledResults>
-    );
+      </StyledFlexColumn>
+      {showVerify && <VerifyResults />}
+    </StyledResults>
+  );
 };
 
 const ResultRow = ({
@@ -169,13 +165,21 @@ const StyledResults = styled(TitleContainer)({
 });
 
 export function VerifyResults() {
-  const proposalAddress = useProposalAddress();
   const {
     mutate: verify,
     isLoading,
     error,
     isSuccess,
+    reset,
   } = useVerifyProposalResults();
+
+  useEffect(() => {
+    if (isSuccess || error) {
+      setTimeout(() => {
+        reset();
+      }, 5_000);
+    }
+  }, [isSuccess, reset, error]);
 
   const [open, setOpen] = useState(false);
 
@@ -186,7 +190,7 @@ export function VerifyResults() {
       <StyledVerifyText>
         Download votes from chain and verify the results in browser.{" "}
         <Link href={VERIFY_LINK} target="_blank">
-          Read more.
+          Read more
         </Link>
       </StyledVerifyText>
       <EndpointPopup
@@ -195,14 +199,14 @@ export function VerifyResults() {
         onClose={() => setOpen(false)}
       />
       {isSuccess ? (
-        <StyledButton onClick={onClick}>
+        <StyledButton>
           <StyledFlexRow>
             <Typography>Verified</Typography>
             <BsFillCheckCircleFill className="icon" />
           </StyledFlexRow>
         </StyledButton>
       ) : error ? (
-        <StyledButton onClick={onClick}>
+        <StyledButton>
           <StyledFlexRow>
             <Typography>Not Verified</Typography>
             <AiFillCloseCircle className="icon" />
@@ -226,6 +230,9 @@ const StyledVerifyContainer = styled(StyledFlexColumn)(({ theme }) => ({
 
 const StyledVerifyText = styled(Typography)({
   fontWeight: 500,
+  a: {
+    textDecoration:'unset'
+  }
 });
 
 const StyledButton = styled(Button)({

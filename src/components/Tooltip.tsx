@@ -21,7 +21,7 @@ export function AppTooltip({
   markdown?: string;
   placement?: TooltipPlacement;
 }) {
-  if (!text) {
+  if (!text && !markdown) {
     return <>{children}</>;
   }
   return (

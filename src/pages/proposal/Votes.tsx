@@ -10,7 +10,7 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { getSymbol, nFormatter } from "utils";
+import { getSymbol, nFormatter, parseLanguage } from "utils";
 import { PAGE_SIZE } from "config";
 import { Proposal, Vote } from "types";
 import { fromNano } from "ton";
@@ -162,7 +162,7 @@ const DownloadCSV = () => {
   }, [size]);
 
   return (
-    <CSVLink data={csvData} filename={data?.metadata?.title}>
+    <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
       <AppTooltip text="Download CSV" placement="top">
         <BsFiletypeCsv
           style={{ width: 18, height: 18, color: theme.palette.text.primary }}

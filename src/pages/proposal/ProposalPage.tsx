@@ -17,6 +17,8 @@ import { useProposalPageStatus } from "./hooks";
 import { parseLanguage } from "utils";
 import { useEffect, useState } from "react";
 
+const gap = 15
+
 const useComponents = () => {
   const isLoading = useProposalPageQuery().isLoading;
 
@@ -107,6 +109,7 @@ export function ProposalPage() {
 }
 
 const StyledWrapper = styled(StyledFlexRow)({
+  gap,
   alignItems: "flex-start",
   "@media (max-width: 850px)": {
     flexDirection: "column",
@@ -115,8 +118,10 @@ const StyledWrapper = styled(StyledFlexRow)({
 
 const StyledLeft = styled(StyledFlexColumn)({
   width: "calc(100% - 370px - 10px)",
+  gap,
 });
 
 const StyledRight = styled(StyledFlexColumn)({
   width: 370,
+  gap,
 });
