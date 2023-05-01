@@ -7,9 +7,8 @@ import { Link } from "react-router-dom";
 import { appNavigation } from "router";
 import AnimateHeight from "react-animate-height";
 import { useEffect, useRef, useState } from "react";
-import TextOverflow from "react-text-overflow";
 
-import { useProposalPageQuery } from "pages/proposal/query";
+import { useProposalPageQuery } from "./query";
 import {
   LoadingContainer,
   Markdown,
@@ -108,6 +107,7 @@ const ProposalOwner = () => {
   const proposalAddress = useProposalAddress();
 
   const dao = useDaoQuery(daoAddress);
+  const proposal = useProposalPageQuery().data;
   const status = useProposalPageStatus();
 
   return (
@@ -121,11 +121,13 @@ const ProposalOwner = () => {
             to={appNavigation.daoPage.root(daoAddress)}
             className="dao-name"
           >
-            <OverflowWithTooltip text={parseLanguage(dao.data?.daoMetadata.name)} />
+            <OverflowWithTooltip
+              text={parseLanguage(dao.data?.daoMetadata.name)}
+            />
           </StyledLink>
 
           <Typography className="by">by</Typography>
-          <AddressDisplay address={proposalAddress} padding={5} />
+          <AddressDisplay address={proposal?.metadata?.owner} padding={5} />
         </StyledFlexRow>
         <ShareButton url={window.location.href} />
       </StyledFlexRow>
