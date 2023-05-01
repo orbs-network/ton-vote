@@ -104,10 +104,7 @@ const StyledHeader = styled(Header)({
 
 const ProposalOwner = () => {
   const daoAddress = useDaoAddress();
-  const proposalAddress = useProposalAddress();
-
   const dao = useDaoQuery(daoAddress);
-  const proposal = useProposalPageQuery().data;
   const status = useProposalPageStatus();
 
   return (
@@ -127,7 +124,7 @@ const ProposalOwner = () => {
           </StyledLink>
 
           <Typography className="by">by</Typography>
-          <AddressDisplay address={proposal?.metadata?.owner} padding={5} />
+          <AddressDisplay address={dao?.data?.daoRoles.proposalOwner} padding={5} />
         </StyledFlexRow>
         <ShareButton url={window.location.href} />
       </StyledFlexRow>
