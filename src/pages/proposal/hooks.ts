@@ -19,7 +19,6 @@ import { Endpoints, ProposalResults } from "types";
 import { useProposalStatusQuery } from "query/queries";
 import { lib } from "lib/lib";
 import { Transaction } from "ton-core";
-import { api } from "api";
 import { useTranslation } from "react-i18next";
 
 const handleNulls = (result?: ProposalResults) => {

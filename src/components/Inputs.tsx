@@ -11,7 +11,7 @@ import {
   SelectChangeEvent,
   IconButton,
 } from "@mui/material";
-import React, { ReactNode, useCallback } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
@@ -29,7 +29,9 @@ import { FaMarkdown } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { t } from "i18next";
 import { Button } from "./Button";
-import { useDebouncedCallback } from "hooks";
+import { Container } from "./Container";
+import { Markdown } from "./Markdown";
+import { FiEdit2 } from "react-icons/fi";
 
 interface TextInputProps {
   value?: string | number;
@@ -73,6 +75,7 @@ export function TextInput({
   isMarkdown,
 }: TextInputProps) {
   const { t } = useTranslation();
+  const [preview, setPreview] = useState(false);
 
   const _onChange = (_value: string) => {
     if (!limit) {
@@ -94,29 +97,38 @@ export function TextInput({
         tooltip={tooltip}
       />
       <div style={{ position: "relative", width: "100%" }}>
-        <StyledInput
-          markdown={isMarkdown ? 1 : 0}
-          placeholder={placeholder}
-          onBlur={onBlur}
-          name={name}
-          rows={rows}
-          disabled={disabled}
-          multiline={rows ? true : false}
-          onFocus={onFocus}
-          variant="outlined"
-          value={value}
-          error={!!error}
-          label={label}
-          onChange={(e) => _onChange(e.target.value)}
-          InputProps={{ endAdornment, startAdornment }}
-        />
-        {isMarkdown && (
-          <StyledMdIcon>
+        {isMarkdown && _.size(value.toString()) > 0 && (
+          <StyledPreviewButton onClick={() => setPreview(!preview)}>
+            {preview ? "Edit" : "Preview"}
+          </StyledPreviewButton>
+        )}
+        {preview ? (
+          <PreviewInput md={value as string} />
+        ) : (
+          <StyledInput
+            markdown={isMarkdown ? 1 : 0}
+            placeholder={placeholder}
+            onBlur={onBlur}
+            name={name}
+            rows={rows}
+            disabled={disabled}
+            multiline={rows ? true : false}
+            onFocus={onFocus}
+            variant="outlined"
+            value={value}
+            error={!!error}
+            label={label}
+            onChange={(e) => _onChange(e.target.value)}
+            InputProps={{ endAdornment, startAdornment }}
+          />
+        )}
+        {/* {isMarkdown && (
+          <StyledInputBottom>
             <AppTooltip text={t("stylingWithMarkdown")} placement="top">
               <StyledFaMarkdown />
             </AppTooltip>
-          </StyledMdIcon>
-        )}
+          </StyledInputBottom>
+        )} */}
       </div>
 
       {error && (
@@ -129,12 +141,27 @@ export function TextInput({
   );
 }
 
+
+const PreviewInput = ({ md }: { md: string }) => {
+  return (
+    <StyledPreview>
+      <Markdown>{md}</Markdown>
+    </StyledPreview>
+  );
+};
+
+const StyledPreview = styled(Box)({
+  padding: "30px 13px 20px 13px",
+  border: "1px solid rgba(0, 0, 0, 0.23)",
+  borderRadius: 10,
+});
+
 const StyledFaMarkdown = styled(FaMarkdown)({
   width: 20,
   height: 20,
 });
 
-const StyledMdIcon = styled(Box)({
+const StyledInputBottom = styled(Box)({
   position: "absolute",
   right: 10,
   bottom: 5,
@@ -160,7 +187,7 @@ const Header = ({
     <StyledInputHeader>
       <StyledFlexRow justifyContent="flex-start" width="auto">
         <Title title={title} required={required} />
-        {tooltip && <AppTooltip placement='right' info markdown={tooltip} />}
+        {tooltip && <AppTooltip placement="right" info markdown={tooltip} />}
       </StyledFlexRow>
 
       {limit && (
@@ -298,6 +325,19 @@ const StyledError = styled(StyledFlexRow)({
   },
 });
 
+const StyledPreviewButton = styled(Button)({
+  padding: "3px 10px",
+  height: "auto",
+  position: "absolute",
+  top: 5,
+  right: 5,
+  zIndex: 1,
+  borderRadius: 12,
+  "*": {
+    fontSize: 12,
+  },
+});
+
 const StyledInput = styled(TextField)<{ markdown: number }>(({ markdown }) => ({
   width: "100%",
   fieldset: {
@@ -305,6 +345,7 @@ const StyledInput = styled(TextField)<{ markdown: number }>(({ markdown }) => ({
   },
   ".MuiInputBase-root": {
     paddingBottom: markdown ? "30px" : "unset",
+    paddingTop: markdown ? "32px" : "unset",
   },
   input: {
     background: "transparent!important",

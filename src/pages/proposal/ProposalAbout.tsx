@@ -47,7 +47,7 @@ export function ProposalAbout() {
   if (isLoading) {
     return <LoadingContainer loaderAmount={4} />;
   }
-  
+
   const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
   const HEIGHT = descriptionHeight > 120 ? 120 : descriptionHeight;
 

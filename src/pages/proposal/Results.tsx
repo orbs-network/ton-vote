@@ -39,13 +39,13 @@ export const Results = () => {
   const symbol = getSymbol(votingPowerStrategy);
 
   const votesCount = useMemo(() => {
-    const grouped = _.groupBy(votes, "vote");
+    const result = _.mapValues(_.groupBy(votes, "vote"), (value, key) => {
+      return _.size(value);
+    });
 
-    return {
-      yes: _.size(grouped.Yes),
-      no: _.size(grouped.No),
-      abstain: _.size(grouped.Abstain),
-    };
+    return _.mapKeys(result, (_, key) => {
+      return key.toLowerCase();
+    });
   }, [dataUpdatedAt]);
 
   if (isLoading) {
@@ -53,7 +53,6 @@ export const Results = () => {
   }
 
   const totalWeight = proposalResult?.totalWeight;
-
 
   const LIMIT = 5;
 
@@ -68,6 +67,7 @@ export const Results = () => {
         {normalizedResults.map((item, index) => {
           if (index >= LIMIT && !showAllResults) return null;
           const { title, percent } = item;
+
           const votes = sumVotes
             ? sumVotes[title]
             : votesCount[title as keyof typeof votesCount];
@@ -86,6 +86,7 @@ export const Results = () => {
             />
           );
         })}
+    
         {_.size(normalizedResults) > LIMIT && (
           <ToggleResultsButton
             toggle={setShowAllResults}

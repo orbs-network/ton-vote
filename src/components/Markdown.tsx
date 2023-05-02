@@ -34,11 +34,13 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
   p: {
     fontSize: 16,
   },
-  h1:{
+  h1: {
     fontSize: 20,
+    lineHeight: "24px",
   },
   h2: {
     fontSize: 18,
+    lineHeight: "22px",
   },
   h3: {
     fontSize: 16,
@@ -48,5 +50,5 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
   },
   a: {
     color: theme.palette.primary.main,
-  }
+  },
 }));

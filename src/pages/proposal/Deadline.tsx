@@ -19,19 +19,21 @@ export function Deadline() {
 
   const proposalMetadata = data?.metadata;
 
+    const title = useMemo(() => {
+      if (!proposalStatus) {
+        return "";
+      }
+      if (proposalStatus === ProposalStatus.NOT_STARTED) {
+        return t("voteStartsIn");
+      }
+      return t("timeLeftToVote");
+    }, [proposalStatus]);
+
   if (!proposalMetadata) {
     return <LoadingContainer />;
   }
 
-  const title = useMemo(() => {
-    if (!proposalStatus) {
-      return "";
-    }
-    if (proposalStatus === ProposalStatus.NOT_STARTED) {
-      return t("voteStartsIn");
-    }
-    return t("timeLeftToVote");
-  }, [proposalStatus]);
+
 
   return (
     <TitleContainer title={title}>

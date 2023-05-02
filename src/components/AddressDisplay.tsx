@@ -3,7 +3,7 @@ import { useCopyToClipboard } from "hooks";
 import { StyledFlexRow } from "styles";
 import { IoCopyOutline } from "react-icons/io5";
 import { getTonScanContractUrl, makeElipsisAddress } from "utils";
-import { AppTooltip } from "./Tooltip";
+import { OverflowWithTooltip } from "./OverflowWithTooltip";
 
 export function AddressDisplay({
   displayText,
@@ -32,9 +32,9 @@ export function AddressDisplay({
   return (
     <StyledContainer className={className} justifyContent="flex-start">
       <StyledButton onClick={onLinkClick} className="address-display-btn">
-        <Typography>
-          {displayText || makeElipsisAddress(address, padding)}
-        </Typography>
+        <OverflowWithTooltip
+          text={displayText || makeElipsisAddress(address, padding)}
+        />
       </StyledButton>
       <StyledButton onClick={onCopy}>
         <IoCopyOutline style={{ color: theme.palette.text.primary }} />
