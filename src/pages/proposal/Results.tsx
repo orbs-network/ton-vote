@@ -54,7 +54,6 @@ export const Results = () => {
 
   const totalWeight = proposalResult?.totalWeight;
 
-  const showVerify = proposalResult?.totalWeight != "0";
 
   const LIMIT = 5;
 
@@ -94,7 +93,7 @@ export const Results = () => {
           />
         )}
       </StyledFlexColumn>
-      {showVerify && <VerifyResults />}
+      <VerifyResults />
     </StyledResults>
   );
 };

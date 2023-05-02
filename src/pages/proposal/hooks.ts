@@ -55,11 +55,9 @@ export const useVerifyProposalResults = () => {
 
       let transactions: Transaction[] = [];
 
-
       const result = await getTransactions(clientV2, proposalAddress);
-      
 
-      transactions = filterTxByTimestamp(result.allTxns, data?.maxLt || '');
+      transactions = filterTxByTimestamp(result.allTxns, data?.maxLt || "");
 
       const contractState = await lib.getProposalFromContract(
         clientV2,
@@ -93,6 +91,10 @@ export const useVerifyProposalResults = () => {
       loading: t("verifyingResults") as string,
       error: t("failedToVerifyResults") as string,
     });
+
+    if (_.isEmpty(data?.proposalResult)) {
+      return true;
+    }
     return promise;
   });
 };
