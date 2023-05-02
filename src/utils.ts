@@ -19,7 +19,6 @@ import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
 import { showErrorToast } from "toasts";
 import { WHITELISTED_DAOS, WHITELISTED_PROPOSALS } from "whitelisted";
-import dora from "foundation/dora.json";
 import BigNumber from "bignumber.js";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
@@ -147,7 +146,6 @@ export const getTonAmounFromSumCoins = (value?: BigNumber) => {
 
   const amount = typeof value === "string" ? Number(value) : value.toNumber();
 
-  // console.log(fromNano(Math.round(value.toNumber())));
   return nFormatter(Number(fromNano(Math.round(amount))), 2);
 };
 

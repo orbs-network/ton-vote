@@ -24,10 +24,14 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
+
+interface daoMetadata extends MetadataArgs{
+  dns?: string
+}
 export interface Dao {
   daoAddress: string;
   daoId?: number;
-  daoMetadata: MetadataArgs;
+  daoMetadata: daoMetadata;
   daoRoles: DaoRoles;
   daoProposals: string[];
 }
