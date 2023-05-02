@@ -19,6 +19,8 @@ import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
 import { showErrorToast } from "toasts";
 import { WHITELISTED_DAOS, WHITELISTED_PROPOSALS } from "whitelisted";
+import dora from "foundation/dora.json";
+import BigNumber from "bignumber.js";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -140,6 +142,16 @@ export const calculateTonAmount = (percent?: number, total?: string) => {
   return nFormatter(result, 2);
 };
 
+export const getTonAmounFromSumCoins = (value?: BigNumber) => {
+  if (!value) return "0";
+
+  const amount = typeof value === "string" ? Number(value) : value.toNumber();
+
+  // console.log(fromNano(Math.round(value.toNumber())));
+  return nFormatter(Number(fromNano(Math.round(amount))), 2);
+};
+
+
 export const validateAddress = (value?: string) => {
   if (!value) {
     return true;
@@ -179,40 +191,40 @@ export const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
 };
 
 export const normalizeResults = (
-  proposalResult: ProposalResults
+  proposalResult?: ProposalResults
 ): { title: string; percent: number }[] => {
-  return _.map(proposalResult, (value, key) => {
-    return {
-      title: key,
-      percent: value ? Number(value) : 0,
-    };
-  }).filter((it) => it.title !== "totalWeight");
+  if (!proposalResult) return []
+    return _.map(proposalResult, (value, key) => {
+      return {
+        title: key,
+        percent: value ? Number(value) : 0,
+      };
+    }).filter((it) => it.title !== "totalWeight");
 };
 
 export const parseLanguage = (json?: string, lang: string = "en") => {
-  if (!json || !lang) return '';
-  
+  if (!json || !lang) return "";
+
   try {
     const parsed = JSON.parse(json);
     const value = parsed[lang];
     if (!value) {
       throw new Error("No value");
-    }    
+    }
     return parsed[lang];
-  } catch (error) {    
+  } catch (error) {
     return json;
   }
 };
 
 export const isDaoWhitelisted = (address?: string) => {
   if (!address) return false;
-  if (!_.size(WHITELISTED_DAOS)) return true
-   return WHITELISTED_DAOS.includes(address);
+  if (!_.size(WHITELISTED_DAOS)) return true;
+  return WHITELISTED_DAOS.includes(address);
 };
 
 export const isProposalWhitelisted = (address?: string) => {
   if (!address) return false;
-  if (!_.size(WHITELISTED_PROPOSALS)) return true
+  if (!_.size(WHITELISTED_PROPOSALS)) return true;
   return WHITELISTED_PROPOSALS.includes(address);
 };
-

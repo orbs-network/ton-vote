@@ -36,24 +36,23 @@ const ContainerHeader = () => {
     data?.metadata?.votingPowerStrategy === VotingPowerStrategy.NftCcollection;
 
   return (
-    
-      <StyledContainerHeader>
-        <StyledChip
-          label={
-            <>
-              <NumberDisplay value={votesLength} /> votes
-            </>
-          }
-        />
-        <StyledFlexRow style={{ width: "unset" }} gap={10}>
-          {!isNFT && (
-            <Typography className="total" style={{ fontWeight: 600 }}>
-              {tonAmount} {getSymbol(data?.metadata?.votingPowerStrategy)}
-            </Typography>
-          )}
-          <DownloadCSV />
-        </StyledFlexRow>
-      </StyledContainerHeader>
+    <StyledContainerHeader>
+      <StyledChip
+        label={
+          <>
+            <NumberDisplay value={votesLength} /> votes
+          </>
+        }
+      />
+      <StyledFlexRow style={{ width: "unset" }} gap={10}>
+        {!isNFT && (
+          <Typography className="total" style={{ fontWeight: 600 }}>
+            {tonAmount} {getSymbol(data?.metadata?.votingPowerStrategy)}
+          </Typography>
+        )}
+        <DownloadCSV />
+      </StyledFlexRow>
+    </StyledContainerHeader>
   );
 };
 
@@ -125,7 +124,7 @@ export function Votes() {
         </StyledList>
       </List>
 
-      <LoadMore
+      <StyledLoadMore
         totalItems={_.size(data?.votes)}
         amountToShow={votesShowAmount}
         showMore={showMoreVotes}
@@ -134,6 +133,14 @@ export function Votes() {
     </StyledContainer>
   );
 }
+
+const StyledLoadMore = styled(LoadMore)({
+  marginTop: 20,
+  width: "90%",
+  marginLeft: "auto",
+  marginRight: "auto",
+  marginBottom: 20,
+});
 
 const Empty = () => {
   return (
@@ -172,16 +179,6 @@ const DownloadCSV = () => {
   );
 };
 
-const StyledCsv = styled(Button)({
-  width: 36,
-  height: 36,
-  padding: 0,
-  svg: {
-    width: 15,
-    height: 15,
-  },
-});
-
 const VoteComponent = ({
   data,
   votingPowerStrategy,
@@ -199,7 +196,10 @@ const VoteComponent = ({
   const isNFT = votingPowerStrategy === VotingPowerStrategy.NftCcollection;
 
   return (
-    <StyledAppTooltip text={`${moment.unix(timestamp).utc().fromNow()}`}>
+    <StyledAppTooltip
+      text={`${moment.unix(timestamp).utc().fromNow()}`}
+      placement="top"
+    >
       <StyledVote justifyContent="flex-start">
         <StyledAddressDisplay
           address={address}
@@ -211,7 +211,7 @@ const VoteComponent = ({
           }}
           className="vote"
         >
-          {vote}
+          {_.isArray(vote) ? vote.join(", ") : vote}
         </Typography>
         {!isNFT && (
           <Typography className="voting-power">

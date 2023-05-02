@@ -1,23 +1,38 @@
 import { Chip, Link, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { Button, LoadingContainer, Progress, TitleContainer } from "components";
+import {
+  Button,
+  LoadingContainer,
+  OverflowWithTooltip,
+  Progress,
+  TitleContainer,
+} from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useMemo, useState } from "react";
-import { calculateTonAmount, getSymbol, nFormatter } from "utils";
+import {
+  calculateTonAmount,
+  getSymbol,
+  getTonAmounFromSumCoins,
+  nFormatter,
+  normalizeResults,
+} from "utils";
 import { VERIFY_LINK } from "config";
 import _ from "lodash";
-import { useProposalPageStatus, useVerifyProposalResults } from "./hooks";
-import { useProposalAddress } from "hooks";
+import { useVerifyProposalResults } from "./hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageQuery } from "./query";
-import { ProposalStatus } from "types";
+import BigNumber from "bignumber.js";
 
 export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery(false);
+  const [showAllResults, setShowAllResults] = useState(false);
 
   const proposalResult = data?.proposalResult;
+  const sumCoins = data?.sumCoins;
+  const sumVotes = data?.sumVotes;
+
   const votes = data?.votes;
 
   const votingPowerStrategy = data?.metadata?.votingPowerStrategy;
@@ -27,76 +42,85 @@ export const Results = () => {
     const grouped = _.groupBy(votes, "vote");
 
     return {
-      yes: nFormatter(_.size(grouped.Yes)),
-      no: nFormatter(_.size(grouped.No)),
-      abstain: nFormatter(_.size(grouped.Abstain)),
+      yes: _.size(grouped.Yes),
+      no: _.size(grouped.No),
+      abstain: _.size(grouped.Abstain),
     };
   }, [dataUpdatedAt]);
-
-  const results = (proposalResult as any) || ({} as any);
 
   if (isLoading) {
     return <LoadingContainer />;
   }
 
- const showVerify = results.totalWeight != "0";
+  const totalWeight = proposalResult?.totalWeight;
+
+  const showVerify = proposalResult?.totalWeight != "0";
+
+  const LIMIT = 5;
+
+  const normalizedResults = useMemo(
+    () => normalizeResults(proposalResult),
+    [dataUpdatedAt]
+  );
+
   return (
     <StyledResults title="Results">
       <StyledFlexColumn gap={15}>
-        <ResultRow
-          symbol={symbol}
-          name={"Yes"}
-          percent={results.yes || 0}
-          tonAmount={calculateTonAmount(
-            results.yes || 0,
-            results?.totalWeight as string
-          )}
-          votes={votesCount.yes}
-        />
+        {normalizedResults.map((item, index) => {
+          if (index >= LIMIT && !showAllResults) return null;
+          const { title, percent } = item;
+          const votes = sumVotes
+            ? sumVotes[title]
+            : votesCount[title as keyof typeof votesCount];
+          const tonAmount = sumCoins
+            ? getTonAmounFromSumCoins(sumCoins[title] as BigNumber)
+            : calculateTonAmount(percent, totalWeight as string);
 
-        <ResultRow
-          symbol={symbol}
-          name={"No"}
-          percent={results.no || 0}
-          tonAmount={calculateTonAmount(
-            results.no || 0,
-            results?.totalWeight as string
-          )}
-          votes={votesCount.no}
-        />
-        <ResultRow
-          symbol={symbol}
-          name={"Abstain"}
-          percent={results.abstain || 0}
-          tonAmount={calculateTonAmount(
-            results.abstain || 0,
-            results?.totalWeight as string
-          )}
-          votes={votesCount.abstain}
-        />
-
-        {/* {proposalResult &&
-          normalizeResults(proposalResult).map((item) => {
-            const { title, percent } = item;
-
-            return (
-              <ResultRow
-                symbol={symbol}
-                name={title}
-                percent={percent}
-                tonAmount={calculateTonAmount(
-                  percent,
-                  proposalResult?.totalWeight as string
-                )}
-                votes={votesCount.yes}
-              />
-            );
-          })} */}
+          return (
+            <ResultRow
+              key={title}
+              symbol={symbol}
+              name={title}
+              percent={percent}
+              tonAmount={tonAmount}
+              votes={votes}
+            />
+          );
+        })}
+        {_.size(normalizedResults) > LIMIT && (
+          <ToggleResultsButton
+            toggle={setShowAllResults}
+            value={showAllResults}
+          />
+        )}
       </StyledFlexColumn>
       {showVerify && <VerifyResults />}
     </StyledResults>
   );
 };
+
+const ToggleResultsButton = ({
+  toggle,
+  value,
+}: {
+  toggle: (value: boolean) => void;
+  value: boolean;
+}) => {
+  return (
+    <StyledToggleResultsButton onClick={() => toggle(!value)}>
+      {value ? "Show less" : "Show more"}
+    </StyledToggleResultsButton>
+  );
+};
+
+const StyledToggleResultsButton = styled(Button)({
+  padding: "6px 10px",
+  height: "unset",
+  marginLeft: "auto",
+  "*": {
+    fontSize: 12,
+  },
+});
 
 const ResultRow = ({
   name,
@@ -108,22 +132,22 @@ const ResultRow = ({
   name: string;
   percent?: number;
   tonAmount?: string;
-  votes: string;
+  votes: number;
   symbol?: string | null;
 }) => {
   return (
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <StyledFlexRow style={{ width: "fit-content" }}>
-          <Typography style={{ textTransform: "capitalize" }}>
-            {name}
-          </Typography>
-          <StyledChip label={`${votes} votes`} />
+          <div>
+            <StyledTitle text={name} />
+          </div>
+          <StyledChip label={`${nFormatter(votes, 2)} votes`} />
         </StyledFlexRow>
 
         <StyledResultRowRight justifyContent="flex-end">
           {symbol && (
-            <Typography fontSize={13}>
+            <Typography fontSize={13} style={{ whiteSpace: "nowrap" }}>
               {tonAmount} {symbol}
             </Typography>
           )}
@@ -135,6 +159,10 @@ const ResultRow = ({
     </StyledResultRow>
   );
 };
+
+const StyledTitle = styled(OverflowWithTooltip)({
+  textTransform: "capitalize",
+});
 
 const StyledChip = styled(Chip)({
   fontSize: 11,
@@ -231,8 +259,8 @@ const StyledVerifyContainer = styled(StyledFlexColumn)(({ theme }) => ({
 const StyledVerifyText = styled(Typography)({
   fontWeight: 500,
   a: {
-    textDecoration:'unset'
-  }
+    textDecoration: "unset",
+  },
 });
 
 const StyledButton = styled(Button)({

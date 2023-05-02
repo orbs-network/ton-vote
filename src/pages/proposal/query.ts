@@ -15,6 +15,7 @@ import {
 } from "ton-vote-contracts-sdk";
 import { api } from "api";
 import { Transaction } from "ton-core";
+import { proposals } from "data/data";
 
 const contractProposal = async (
   proposalAddress: string,
@@ -70,6 +71,12 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   return useQuery(
     queryKey,
     async ({ signal }) => {
+
+    const hardcodedProposal = proposals[proposalAddress!];
+
+    if (hardcodedProposal) {
+      return hardcodedProposal;
+    }
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
       }

@@ -19,6 +19,11 @@ export function OverflowWithTooltip({
 
   useEffect(() => {
     if (textRef && textRef.current) {
+      console.log(
+        textRef.current.clientWidth,
+        textRef.current.parentElement.clientWidth
+      );
+      
       if (
         textRef.current.clientWidth > textRef.current.parentElement.clientWidth
       ) {

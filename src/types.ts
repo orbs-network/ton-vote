@@ -1,12 +1,13 @@
+import BigNumber from "bignumber.js";
 import { Address, Transaction } from "ton";
 import { DaoRoles, MetadataArgs, ProposalMetadata, ProposalResult } from "ton-vote-contracts-sdk";
 
 
-export type ProposalResults = {[key: string]: number | string}
+export type ProposalResults = {[key: string]: any}
 
 export interface Vote {
   address: string;
-  vote: string;
+  vote: string | string[];
   votingPower: string;
   timestamp: number;
   hash: string;
@@ -63,6 +64,8 @@ export interface Proposal {
   daoAddress?: string;
   hardcoded?: boolean;
   url?: string;
+  sumCoins?: { [key: string]: BigNumber | string };
+  sumVotes?: {[key: string]: number};
 }
 
 export type InputType =

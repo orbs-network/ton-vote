@@ -13,6 +13,7 @@ import {
   normalizeResults,
   getSymbol,
   parseLanguage,
+  getTonAmounFromSumCoins,
 } from "utils";
 import { ProposalLoader } from "../ProposalLoader";
 import removeMd from "remove-markdown";
@@ -29,6 +30,7 @@ import {
   StyledTime,
 } from "./styles";
 import { useTranslation } from "react-i18next";
+import BigNumber from "bignumber.js";
 
 const Time = ({
   proposalMetadata,
@@ -40,8 +42,6 @@ const Time = ({
   const { t } = useTranslation();
   if (!status || !proposalMetadata) return null;
 
-
-
   if (status === ProposalStatus.NOT_STARTED) {
     return (
       <StyledTime>
@@ -52,15 +52,15 @@ const Time = ({
     );
   }
 
-    if (status === ProposalStatus.CLOSED) {
-      return (
-        <StyledTime>
-          {t("proposalEnded", {
-            value: getTimeDiff(proposalMetadata.proposalEndTime, true),
-          })}
-        </StyledTime>
-      );
-    }
+  if (status === ProposalStatus.CLOSED) {
+    return (
+      <StyledTime>
+        {t("proposalEnded", {
+          value: getTimeDiff(proposalMetadata.proposalEndTime, true),
+        })}
+      </StyledTime>
+    );
+  }
 
   return (
     <StyledTime>
@@ -111,11 +111,7 @@ export const ProposalComponent = ({
   const hideProposal = useHideProposal(proposalAddress, proposal, status);
 
   const onClick = () => {
-    if (proposal?.url) {
-      window.open(proposal.url);
-    } else {
-      proposalPage.root(daoAddress, proposalAddress);
-    }
+    proposalPage.root(daoAddress, proposalAddress);
   };
 
   if (isLoading) {
@@ -164,22 +160,21 @@ export const ProposalComponent = ({
   );
 };
 
-
 const StyledProposalAddress = styled(StyledAddressDisplay)({
-   opacity: 0.7,
-  p:{
+  opacity: 0.7,
+  p: {
     fontSize: 14,
-   
-  }
+  },
 });
 
-
 const Results = ({ proposal }: { proposal: Proposal }) => {
-  const { proposalResult } = proposal;
+  const { proposalResult, sumCoins } = proposal;
 
   const { t } = useTranslation();
 
-  const { totalWeight } = proposalResult;
+  const totalWeight = proposalResult.totalWeight;
+
+  
 
   if (Number(totalWeight) === 0) {
     return (
@@ -191,24 +186,31 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
 
   return (
     <StyledResults gap={5}>
-        {normalizeResults(proposalResult)
-          .filter((it) => it.title !== "totalWeight")
-          .map((item) => {
-            const { title, percent } = item;
+      {normalizeResults(proposalResult)
+        .filter((it) => it.title !== "totalWeight")
+        .map((item) => {
+          const { title, percent } = item;
 
-            return (
-              <Result
-                votingPowerStrategy={proposal.metadata?.votingPowerStrategy}
-                key={title}
-                title={title}
-                percent={percent}
-                tonAmount={calculateTonAmount(percent, totalWeight as string)}
-              />
-            );
-          })}
+          return (
+            <Result
+              votingPowerStrategy={proposal.metadata?.votingPowerStrategy}
+              key={title}
+              title={title}
+              percent={percent}
+              tonAmount={
+                sumCoins
+                  ? getTonAmounFromSumCoins(sumCoins[title] as BigNumber)
+                  : calculateTonAmount(percent, totalWeight as string)
+              }
+            />
+          );
+        })}
     </StyledResults>
   );
 };
+
+
+
 
 const StyledResults = styled(StyledFlexColumn)({
   width: "100%",

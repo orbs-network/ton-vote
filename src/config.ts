@@ -42,7 +42,6 @@ export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
 export const CLIENT_V4_ENDPOINT = "htyarn dtps://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
-
 export const VERIFY_LINK =
   "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
 
@@ -73,5 +72,6 @@ export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
 
 export const LANGUAGES = { en: "English", ru: "Русский" };
 
-
-export const VERIFIED_DAOS = ["EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr"];
+export const VERIFIED_DAOS = [
+  "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
+];

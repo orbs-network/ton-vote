@@ -10,23 +10,22 @@ function LoadMore({
   showMore,
   totalItems,
   amountToShow,
+  className = "",
 }: {
   limit: number;
   totalItems: number;
   showMore: () => void;
   amountToShow: number;
+  className?: string;
 }) {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
-
 
   useEffect(() => {
     if (isVisible) {
       showMore();
     }
   }, [isVisible]);
-
-  
 
   if (amountToShow >= totalItems) {
     return null;
@@ -36,8 +35,10 @@ function LoadMore({
     return <div ref={ref}></div>;
   }
   return (
-    <StyledContainer>
-      <StyledButton variant='transparent' onClick={showMore}>Load more</StyledButton>
+    <StyledContainer className={className}>
+      <StyledButton variant="transparent" onClick={showMore}>
+        Load more
+      </StyledButton>
     </StyledContainer>
   );
 }
