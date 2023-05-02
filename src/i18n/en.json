@@ -54,6 +54,15 @@
     "onTon": "on TON",
     "searchForDAO": "Search for DAO",
     "start": "Start",
-    "proposalEnded": "Ended {{value}} ago"
+    "proposalEnded": "Ended {{value}} ago",
+    "address": "Address",
+     "vote": "Vote",
+     "votingPower": "Voting Power",
+     "date": "Date",
+     "voteStartsIn":"Vote starts in",
+     "timeLeftToVote": "Time left to vote",
+     "resultsVerified": "Results verified",
+     "verifyingResults": "Verifying results",
+     "failedToVerifyResults": "Failed to verify results"
   }
 }

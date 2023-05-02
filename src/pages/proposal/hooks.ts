@@ -12,7 +12,6 @@ import {
   getClientV2,
   getClientV4,
   getTransactions,
-  ProposalResult,
 } from "ton-vote-contracts-sdk";
 import { TX_FEE } from "config";
 import { showPromiseToast } from "toasts";
@@ -21,6 +20,7 @@ import { useProposalStatusQuery } from "query/queries";
 import { lib } from "lib/lib";
 import { Transaction } from "ton-core";
 import { api } from "api";
+import { useTranslation } from "react-i18next";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -41,6 +41,7 @@ export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
   const { data } = useProposalPageQuery(false);
   const { setEndpoints, endpoints } = useEnpointsStore();
+  const { t } = useTranslation();
 
   return useMutation(async (customEndpoints: Endpoints) => {
     analytics.GA.verifyButtonClick();
@@ -54,11 +55,11 @@ export const useVerifyProposalResults = () => {
 
       let transactions: Transaction[] = [];
 
-      const maxLt = await api.getMaxLt(proposalAddress);
 
       const result = await getTransactions(clientV2, proposalAddress);
+      
 
-      transactions = filterTxByTimestamp(result.allTxns, maxLt);
+      transactions = filterTxByTimestamp(result.allTxns, data?.maxLt || '');
 
       const contractState = await lib.getProposalFromContract(
         clientV2,
@@ -88,9 +89,9 @@ export const useVerifyProposalResults = () => {
 
     showPromiseToast({
       promise,
-      success: "Results verified",
-      loading: "Verifying results",
-      error: "Failed to verify results",
+      success: t("resultsVerified"),
+      loading: t("verifyingResults") as string,
+      error: t("failedToVerifyResults") as string,
     });
     return promise;
   });

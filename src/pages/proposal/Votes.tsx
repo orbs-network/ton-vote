@@ -19,9 +19,10 @@ import moment from "moment";
 import _ from "lodash";
 import { useConnection } from "ConnectionProvider";
 import { CSVLink } from "react-csv";
-import { BsFiletypeCsv } from "react-icons/bs";
 import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { useProposalPageQuery } from "./query";
+import { GrDocumentCsv } from "react-icons/gr";
+import { useTranslation } from "react-i18next";
 
 const ContainerHeader = () => {
   const { data, isLoading } = useProposalPageQuery();
@@ -152,8 +153,8 @@ const Empty = () => {
 
 const DownloadCSV = () => {
   const theme = useTheme();
-  const data = useProposalPageQuery(false).data;
-  const size = _.size(data?.votes);
+  const { data, dataUpdatedAt } = useProposalPageQuery(false);
+  const {t} = useTranslation()
 
   const csvData = useMemo(() => {
     const values = _.map(data?.votes, (vote) => {
@@ -164,14 +165,19 @@ const DownloadCSV = () => {
         moment.unix(vote.timestamp).format("DD/MM/YY HH:mm:ss"),
       ];
     });
-    values.unshift(["Address", "Vote", "Voting Power", "Date"]);
+    values.unshift([
+      t("address") as string,
+      t("vote") as string,
+      t("votingPower") as string,
+      t("date") as string,
+    ]);
     return values;
-  }, [size]);
+  }, [dataUpdatedAt]);
 
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
       <AppTooltip text="Download CSV" placement="top">
-        <BsFiletypeCsv
+        <GrDocumentCsv
           style={{ width: 18, height: 18, color: theme.palette.text.primary }}
         />
       </AppTooltip>

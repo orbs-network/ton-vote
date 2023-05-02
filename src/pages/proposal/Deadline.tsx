@@ -1,6 +1,7 @@
-import { styled } from "@mui/material";
 import { Countdown, LoadingContainer, TitleContainer } from "components";
 import moment from "moment";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ProposalStatus } from "types";
 import { useProposalPageStatus } from "./hooks";
 import { useProposalPageQuery } from "./query";
@@ -14,22 +15,26 @@ const handleDate = (endDate?: number) => {
 export function Deadline() {
   const { data } = useProposalPageQuery();
   const proposalStatus = useProposalPageStatus();
+  const {t} = useTranslation()
 
   const proposalMetadata = data?.metadata;
 
   if (!proposalMetadata) {
     return <LoadingContainer />;
   }
+
+  const title = useMemo(() => {
+    if (!proposalStatus) {
+      return "";
+    }
+    if (proposalStatus === ProposalStatus.NOT_STARTED) {
+      return t("voteStartsIn");
+    }
+    return t("timeLeftToVote");
+  }, [proposalStatus]);
+
   return (
-    <TitleContainer
-      title={
-        !proposalStatus
-          ? ""
-          : proposalStatus === ProposalStatus.NOT_STARTED
-          ? "Vote starts in"
-          : "Time left to vote"
-      }
-    >
+    <TitleContainer title={title}>
       {proposalStatus === ProposalStatus.NOT_STARTED ? (
         <Countdown date={handleDate(proposalMetadata?.proposalStartTime)} />
       ) : proposalStatus === ProposalStatus.ACTIVE ? (

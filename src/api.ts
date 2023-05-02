@@ -34,15 +34,18 @@ const getProposal = async (
   signal?: AbortSignal
 ): Promise<Proposal> => {
   Logger(`Fetching proposal from api ${proposalAddress}`);
-  const result = await (
-    await axiosInstance.get(`/proposal/${proposalAddress}`, {
+
+  const [result, maxLt] = await Promise.all([
+    axiosInstance.get(`/proposal/${proposalAddress}`, {
       signal,
-    })
-  ).data;
+    }),
+    getMaxLt(proposalAddress, signal),
+  ]);
 
   return {
-    ...result,
-    votes: parseVotes(result.votes, result.votingPower),
+    ...result.data,
+    votes: parseVotes(result.data.votes, result.data.votingPower),
+    maxLt,
   };
 };
 

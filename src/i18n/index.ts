@@ -8,8 +8,8 @@ import HttpBackend from "i18next-http-backend";
 import LngDetector from "i18next-browser-languagedetector";
 
 i18n
-  .use(ChainedBackend)
-  .use(LngDetector)
+  // .use(ChainedBackend)
+  // .use(LngDetector)
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
     resources: {
@@ -17,17 +17,17 @@ i18n
       ru,
     },
     fallbackLng: "en",
-    backend: {
-      backends: [LocalStorageBackend, HttpBackend],
-      backendOptions: [
-        {
-          expirationTime: 7 * 24 * 60 * 60 * 1000, // 7 days
-        },
-        {
-          loadPath: "/locales/{{lng}}/{{ns}}.json",
-        },
-      ],
-    },
+    // backend: {
+    //   backends: [LocalStorageBackend, HttpBackend],
+    //   backendOptions: [
+    //     {
+    //       expirationTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+    //     },
+    //     {
+    //       loadPath: "/locales/{{lng}}/{{ns}}.json",
+    //     },
+    //   ],
+    // },
     interpolation: {
       escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
     },
