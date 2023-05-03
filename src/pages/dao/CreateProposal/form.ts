@@ -10,14 +10,14 @@ import * as Yup from "yup";
 import { CreateProposalForm } from "./types";
 
 export const FormSchema = Yup.object().shape({
-  description_en: Yup.string().test(
+  description_en: Yup.string().required('Description is required').test(
     "",
     `About must be less than or equal to ${ABOUT_CHARS_LIMIT} characters`,
-    (value, context) => {
+    (value) => {
       return _.size(value) <= ABOUT_CHARS_LIMIT;
     }
   ),
-  title_en: Yup.string()
+title_en: Yup.string()
     .required("Title is Required")
     .test(
       "",
@@ -111,6 +111,8 @@ export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
       name: "title_en",
       required: true,
       limit: TITLE_LIMIT,
+      tooltip:
+        "Title of the new proposal, normally 1 sentence. Example: Increase staking reward percentage",
     },
     {
       label: t("description"),
@@ -120,24 +122,29 @@ export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
       tooltip: t("createProposalDescriptionTooltip") as string,
       limit: ABOUT_CHARS_LIMIT,
       isMarkdown: true,
+      required: true
+      
     },
   ];
 
   const secondSection: InputInterface[] = [
     {
-      label: "Select Voting Strategy",
+      label: "Voting power strategy",
       type: "select",
       name: "votingPowerStrategy",
+      tooltip:
+        "How is the voting power of each member counted when calculating the vote result. [Read more about strategies](https://github.com/orbs-network/ton-vote/blob/main/STRATEGIES.md)",
+      required: true,
       options: [
         {
-          key: "Ton Balance",
+          key: "Ton balance",
           value: 0,
         },
         {
-          key: "Jetton Balance",
+          key: "Jetton balance",
           value: 1,
           input: {
-            label: "Jetton Address",
+            label: "Jetton address",
             type: "address",
             name: "jetton",
             required:
@@ -146,7 +153,7 @@ export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
           },
         },
         {
-          key: "NFT Collection",
+          key: "NFT collection",
           value: 2,
           input: {
             label: "NFT Address",
@@ -163,7 +170,10 @@ export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
       label: "Voting choices",
       type: "list",
       name: "votingChoices",
+      required: true,
       disabled: true,
+      tooltip:
+        "The different options each voting member needs to choose from when submitting their vote.",
     },
   ];
 

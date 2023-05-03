@@ -11,7 +11,7 @@ export const useInputs = () => {
 
   const createMetadataInputs: InputInterface[] = [
     {
-      label: "DAO Name",
+      label: "DAO name",
       type: "text",
       name: "name_en",
       tooltip: t("spaceNameTooltip") as string,

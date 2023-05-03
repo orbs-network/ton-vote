@@ -10,6 +10,7 @@ import {
   Select,
   SelectChangeEvent,
   IconButton,
+  Link,
 } from "@mui/material";
 import React, { ReactNode, useCallback, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -89,7 +90,7 @@ export function TextInput({
 
   return (
     <StyledContainer className={`${className} text-input`}>
-      <Header
+      <InputHeader
         value={value.toString()}
         limit={limit}
         title={title}
@@ -98,9 +99,18 @@ export function TextInput({
       />
       <div style={{ position: "relative", width: "100%" }}>
         {isMarkdown && _.size(value.toString()) > 0 && (
-          <StyledPreviewButton onClick={() => setPreview(!preview)}>
-            {preview ? "Edit" : "Preview"}
-          </StyledPreviewButton>
+          <StyledPreviewBox justifyContent="flex-end">
+            <StyledPreviewButton onClick={() => setPreview(!preview)}>
+              {preview ? "Edit" : "Preview"}
+            </StyledPreviewButton>
+            <StyledPreviewButton
+              onClick={() =>
+                window.open("https://www.markdownguide.org/basic-syntax/", '_blank')
+              }
+            >
+              Help
+            </StyledPreviewButton>
+          </StyledPreviewBox>
         )}
         {preview ? (
           <PreviewInput md={value as string} />
@@ -108,6 +118,7 @@ export function TextInput({
           <StyledInput
             markdown={isMarkdown ? 1 : 0}
             placeholder={placeholder}
+            preview={preview ? 1 : 0}
             onBlur={onBlur}
             name={name}
             rows={rows}
@@ -122,13 +133,6 @@ export function TextInput({
             InputProps={{ endAdornment, startAdornment }}
           />
         )}
-        {/* {isMarkdown && (
-          <StyledInputBottom>
-            <AppTooltip text={t("stylingWithMarkdown")} placement="top">
-              <StyledFaMarkdown />
-            </AppTooltip>
-          </StyledInputBottom>
-        )} */}
       </div>
 
       {error && (
@@ -140,7 +144,6 @@ export function TextInput({
     </StyledContainer>
   );
 }
-
 
 const PreviewInput = ({ md }: { md: string }) => {
   return (
@@ -167,7 +170,7 @@ const StyledInputBottom = styled(Box)({
   bottom: 5,
 });
 
-const Header = ({
+export const InputHeader = ({
   title,
   tooltip,
   limit,
@@ -325,12 +328,22 @@ const StyledError = styled(StyledFlexRow)({
   },
 });
 
-const StyledPreviewButton = styled(Button)({
-  padding: "3px 10px",
-  height: "auto",
+const StyledPreviewBox = styled(StyledFlexRow)({
   position: "absolute",
   top: 5,
   right: 5,
+  gap: 5,
+    cursor:'pointer',
+  a: {
+    fontSize: 14,
+  
+  }
+});
+
+const StyledPreviewButton = styled(Button)({
+  padding: "3px 10px",
+  height: "auto",
+
   zIndex: 1,
   borderRadius: 12,
   "*": {
@@ -338,25 +351,32 @@ const StyledPreviewButton = styled(Button)({
   },
 });
 
-const StyledInput = styled(TextField)<{ markdown: number }>(({ markdown }) => ({
-  width: "100%",
-  fieldset: {
-    borderRadius: 10,
-  },
-  ".MuiInputBase-root": {
-    paddingBottom: markdown ? "30px" : "unset",
-    paddingTop: markdown ? "32px" : "unset",
-  },
-  input: {
-    background: "transparent!important",
-    padding: "12.5px 12px",
-    fontSize: 16,
-    fontWeight: 500,
-    "::placeholder": {
-      opacity: 1,
+const StyledInput = styled(TextField)<{ markdown: number; preview: number }>(
+  ({ markdown, preview }) => ({
+    width: "100%",
+    fieldset: {
+      borderRadius: 10,
     },
-  },
-}));
+    ".MuiInputBase-root": {
+      paddingBottom: markdown ? "30px" : "unset",
+      paddingTop: markdown ? "32px" : "unset",
+    },
+    textarea: {
+      fontFamily: markdown && !preview ? "monospace!important" : "inherit",
+      color: markdown && !preview ? 'black' : 'inherit',
+    },
+    input: {
+      background: "transparent!important",
+      padding: "12.5px 12px",
+      fontSize: 16,
+      fontWeight: 500,
+
+      "::placeholder": {
+        opacity: 1,
+      },
+    },
+  })
+);
 
 interface DateRangeInputProps {
   className?: string;
@@ -513,6 +533,7 @@ export function MapInput<T>({
         values={value as InputOption[]}
         required={input.required}
         disabled={input.disabled}
+        tooltip={input.tooltip}
       />
     );
   }
@@ -679,6 +700,7 @@ interface ListProps {
   title: string;
   required?: boolean;
   disabled?: boolean;
+  tooltip?: string;
 }
 
 export const ListInputs = ({
@@ -687,6 +709,7 @@ export const ListInputs = ({
   required,
   onChange,
   disabled,
+  tooltip,
 }: ListProps) => {
   const onInputChange = (key: string, _value: string) => {
     const newValue = values.map((it) => {
@@ -710,7 +733,7 @@ export const ListInputs = ({
 
   return (
     <StyledContainer>
-      <Header title={title} required={required} />
+      <InputHeader tooltip={tooltip} title={title} required={required} />
       <StyledFlexColumn gap={15} alignItems="flex-start">
         {values.map((it, index) => {
           const isLast = index === values.length - 1;

@@ -12,7 +12,7 @@ import {
 } from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress, useDebouncedCallback } from "hooks";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledCreateAbout, StyledFlexColumn, StyledFlexRow } from "styles";
 import { FormSchema, useInputs } from "./form";
 import { useCreateProposal, useCreateProposalStore } from "./store";
 import { useConnection } from "ConnectionProvider";
@@ -159,9 +159,16 @@ function CreateForm({ formik }: { formik: FormikProps<CreateProposalForm> }) {
 
   return (
     <StyledFlexColumn gap={15}>
-      <StyledDescription>
-        <StyledFlexColumn gap={20}>
-          <InputsForm formik={formik} inputs={firstSection} />
+      <StyledDescription title="Create Proposal">
+        <StyledFlexColumn gap={30}>
+          <StyledCreateAbout>
+            Enter all fields in English. Future versions will support adding
+            translations in multiple languages. You can update these fields
+            later.
+          </StyledCreateAbout>
+          <StyledFlexColumn gap={20}>
+            <InputsForm formik={formik} inputs={firstSection} />
+          </StyledFlexColumn>
         </StyledFlexColumn>
       </StyledDescription>
       <TitleContainer title={t("votingConfigurations")}>
@@ -187,7 +194,7 @@ const StyledVotingPeriod = styled(StyledFlexRow)({
   },
 });
 
-const StyledDescription = styled(Container)({
+const StyledDescription = styled(TitleContainer)({
   width: "100%",
 });
 

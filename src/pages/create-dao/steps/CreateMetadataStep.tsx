@@ -1,6 +1,6 @@
 import { Fade, styled, Typography } from "@mui/material";
 import { Button, InputsForm } from "components";
-import { StyledFlexColumn } from "styles";
+import { StyledCreateAbout, StyledFlexColumn } from "styles";
 import { FormikProps, useFormik } from "formik";
 import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
 import _ from "lodash";
@@ -74,10 +74,10 @@ export function CreateMetadataStep() {
       title={editMode ? t("editspaceDetails") : t("createSpaceDetails")}
     >
       <StyledFlexColumn alignItems="flex-start" gap={30}>
-        <StyledAbout>
+        <StyledCreateAbout>
           Enter all fields in English. Future versions will support adding
           translations in multiple languages. You can update these fields later.
-        </StyledAbout>
+        </StyledCreateAbout>
         <StyledFlexColumn>
           <StyledInputs>
             <InputsForm
@@ -103,10 +103,7 @@ export function CreateMetadataStep() {
   );
 }
 
-const StyledAbout = styled(Typography)({
-  fontSize: 14,
-  opacity: 0.7,
-});
+
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();

@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import { SelectOption } from "types";
 import {MdKeyboardArrowDown} from 'react-icons/md'
+import { StyledSelectContainer } from "styles";
 interface Props {
   options: SelectOption[];
   selected: string;
@@ -20,7 +21,7 @@ export function Select({ options, selected, onSelect, className = '' }: Props) {
   };
 
   return (
-    <StyledContainer className={className}>
+    <StyledSelectContainer className={className}>
       <MuiSelect
         MenuProps={{
           PaperProps: {
@@ -43,32 +44,9 @@ export function Select({ options, selected, onSelect, className = '' }: Props) {
           );
         })}
       </MuiSelect>
-    </StyledContainer>
+    </StyledSelectContainer>
   );
 }
 
 
-const StyledContainer = styled(Box)(({ theme }) => ({
-  position: "relative",
-  ".MuiInputBase-root": {
-    borderRadius: 30,
-  },
-  ".MuiOutlinedInput-notchedOutline": {
-    display: "none",
-  },
-  ".MuiSelect-select": {
-    minWidth: 200,
-    padding: "8px 15px 8px 15px",
-    border: `1px solid rgba(211, 211, 211, 0.5)`,
-    borderRadius: `30px!important`,
-    transition: "0.2s all",
-    "&:hover": {
-      border: `1px solid ${theme.palette.primary.main}`,
-    },
-  },
-  ".MuiSelect-icon": {
-    width: 20,
-    height: 20,
-    marginTop: -2,
-  },
-}));
+

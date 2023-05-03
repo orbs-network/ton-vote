@@ -141,3 +141,35 @@ export const StyledEmptyText = styled(Typography)({
   fontSize: 20,
   fontWeight: 700,
 });
+
+
+export const StyledCreateAbout = styled(Typography)({
+  fontSize: 14,
+  opacity: 0.7,
+});
+
+
+export const StyledSelectContainer = styled(Box)(({ theme }) => ({
+  position: "relative",
+  ".MuiInputBase-root": {
+    borderRadius: 30,
+  },
+  ".MuiOutlinedInput-notchedOutline": {
+    display: "none",
+  },
+  ".MuiSelect-select": {
+    minWidth: 200,
+    padding: "8px 15px 8px 15px",
+    border: `1px solid rgba(211, 211, 211, 0.5)`,
+    borderRadius: `30px!important`,
+    transition: "0.2s all",
+    "&:hover": {
+      border: `1px solid ${theme.palette.primary.main}`,
+    },
+  },
+  ".MuiSelect-icon": {
+    width: 20,
+    height: 20,
+    marginTop: -2,
+  },
+}));

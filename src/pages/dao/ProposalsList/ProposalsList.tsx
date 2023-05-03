@@ -71,14 +71,14 @@ export function ProposalsList() {
   );
 
   return (
-    <StyledFlexColumn gap={20}>
+    <StyledFlexColumn gap={30}>
       <StyledHeader title="Proposals" component={<ProposalsSearch />} />
       <Box style={{ position: "relative", width: "100%" }}>
         {!isLoading && <EmptyList />}
         <StyledFlexColumn gap={15} style={{ zIndex: 10, position: "relative" }}>
           <List isLoading={isLoading} loader={<ListLoader />}>
             {data?.daoProposals?.map((proposalAddress, index) => {
-              if (index > amount) return null;
+              if (index >= amount) return null;
               return (
                 <Proposal
                   key={proposalAddress}
@@ -88,13 +88,13 @@ export function ProposalsList() {
             })}
           </List>
         </StyledFlexColumn>
-        <LoadMore
-          totalItems={_.size(data?.daoProposals)}
-          amountToShow={amount}
-          showMore={showMore}
-          limit={LIMIT}
-        />
       </Box>
+      <LoadMore
+        totalItems={_.size(data?.daoProposals)}
+        amountToShow={amount}
+        showMore={showMore}
+        limit={LIMIT}
+      />
     </StyledFlexColumn>
   );
 }

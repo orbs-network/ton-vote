@@ -185,7 +185,6 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
       {normalizeResults(proposalResult)
         .map((item) => {
           const { title, percent } = item;
-
           return (
             <Result
               votingPowerStrategy={proposal.metadata?.votingPowerStrategy}

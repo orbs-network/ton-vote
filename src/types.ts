@@ -108,6 +108,9 @@ export interface InputInterface {
   disabled?: boolean;
 }
 
+
+
+
 export interface Endpoints {
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
