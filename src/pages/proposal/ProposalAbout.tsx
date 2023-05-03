@@ -4,7 +4,7 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useDaoQuery } from "query/queries";
 import { useDaoAddress, useProposalAddress } from "hooks";
 import { Link } from "react-router-dom";
-import { appNavigation } from "router";
+import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
 import { useEffect, useRef, useState } from "react";
 import TransparentImg from "assets/tr.png";

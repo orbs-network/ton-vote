@@ -13,7 +13,7 @@ import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
-import { appNavigation } from "router";
+import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { parseLanguage } from "utils";
 

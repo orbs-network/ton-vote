@@ -1,44 +1,65 @@
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { InputHeader } from "components";
+import { InputHeader, MapInput } from "components";
+import { StyledSelectBoxInput } from "components/inputs/styles";
 import { FormikProps } from "formik";
 import _ from "lodash";
-import { StyledFlexColumn, StyledSelectContainer } from "styles";
-import { InputInterface } from "types";
+import { useMemo } from "react";
+import { StyledFlexColumn } from "styles";
+import { parseStrategyJSON, STRATEGY_DATA, STRATEGY_TYPE } from "./store";
+import { STRATEGIES } from "./strategies";
+import { CreateProposalForm } from "./types";
 
-interface NestedSelectInputProps<T> {
-  value?: string | number;
+interface Props<T> {
+  value?: string;
   label: string;
-  inputs: InputInterface[];
   formik: FormikProps<T>;
-  onChange: (value: string | number) => void;
   required?: boolean;
   tooltip?: string;
-  options: { [key: string]: NestedSelectOption };
-}
-
-export interface NestedSelectOption {
   name: string;
-  args: InputInterface[];
 }
 
-export function NestedSelectInput<T>(props: NestedSelectInputProps<T>) {
-  const { value, options, label, formik, onChange, required, tooltip } = props;
+export function StrategySelect(props: Props<CreateProposalForm>) {
+  const { value, label, formik, required, tooltip, name } = props;
+  const parsedValue = useMemo(() => parseStrategyJSON(value), [value]);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    onChange(event.target.value);
+  const selectedOption = useMemo(
+    () => _.find(STRATEGIES, (it, key) => key === parsedValue.type),
+    [value]
+  );
+
+  const onSelect = (event: SelectChangeEvent) => {
+    const newValue = { ...parsedValue, [STRATEGY_TYPE]: event.target.value };
+    formik.setFieldValue(name, JSON.stringify(newValue));
+  };
+
+  const onInputChange = (_name: string, value: any) => {
+    const data = parsedValue.data;
+    const newValue = {
+      ...parsedValue,
+      [STRATEGY_DATA]: { ...data, [_name]: value },
+    };
+    
+    formik.setFieldValue(name, JSON.stringify(newValue));
   };
 
   return (
-    <StyledSelectContainer>
+    <StyledSelectBoxInput>
       <InputHeader title={label} required={required} tooltip={tooltip} />
       <StyledFlexColumn alignItems="flex-start" gap={20}>
         <Select
-          labelId="demo-simple-select-helper-label"
-          id="demo-simple-select-helper"
-          value={value?.toString() || ""}
-          onChange={handleChange}
+          value={parsedValue.type?.toString() || ""}
+          onChange={onSelect}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                borderRadius: 10,
+                border: "1px solid #e0e0e0",
+                boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+              },
+            },
+          }}
         >
-          {_.map(options, (value, key) => {
+          {_.map(STRATEGIES, (value, key) => {
             return (
               <MenuItem key={key} value={key}>
                 {value.name}
@@ -46,16 +67,19 @@ export function NestedSelectInput<T>(props: NestedSelectInputProps<T>) {
             );
           })}
         </Select>
-
-        {/* {options.map((it) => {
-          if (!it.input || it.value !== value) return null;
+        {selectedOption?.args?.map((it) => {
           return (
-            <div key={it.value} style={{ maxWidth: "600px", width: "100%" }}>
-              <MapInput input={it.input} formik={formik} />{" "}
+            <div key={it.name} style={{ maxWidth: "600px", width: "100%" }}>
+              <MapInput<CreateProposalForm>
+                args={it}
+                value={parsedValue.data[it.name]}
+                error=""
+                onChange={(value) => onInputChange(it.name, value)}
+              />
             </div>
           );
-        })} */}
+        })}
       </StyledFlexColumn>
-    </StyledSelectContainer>
+    </StyledSelectBoxInput>
   );
 }

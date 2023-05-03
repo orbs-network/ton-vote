@@ -3,27 +3,28 @@ import {
   Button,
   ConnectButton,
   Container,
-  InputsForm,
+  FormikInputsForm,
   LoadingContainer,
   Markdown,
   Page,
   SideMenu,
-  TitleContainer,
 } from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress, useDebouncedCallback } from "hooks";
-import { StyledCreateAbout, StyledFlexColumn, StyledFlexRow } from "styles";
-import { FormSchema, useInputs } from "./form";
-import { useCreateProposal, useCreateProposalStore } from "./store";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { FormSchema, useCreateProposalForm } from "./form";
+import { handleInitialStrategy, useCreateProposal, useCreateProposalStore } from "./store";
 import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
 import { useEffect } from "react";
 import { useDaoQuery } from "query/queries";
-import { appNavigation } from "router";
 import { parseLanguage, validateFormik } from "utils";
 import { ZERO_ADDRESS } from "consts";
 import { CreateProposalForm } from "./types";
-import { useTranslation } from "react-i18next";
+import { appNavigation } from "router/navigation";
+import { InputArgs } from "types";
+import { StrategySelect } from "./StrategySelect";
+import { STRATEGIES } from "./strategies";
 
 const initialChoices = [
   { key: crypto.randomUUID(), value: "Yes" },
@@ -38,23 +39,18 @@ function Form() {
   const { data: dao } = useDaoQuery(daoAddress);
   const { formData, setFormData, preview } = useCreateProposalStore();
 
-  const initialNFT = formData.nft || dao?.daoMetadata?.nft || "";
-  const initialJetton = formData.jetton || dao?.daoMetadata?.jetton || "";
-  
-
   const formik = useFormik<CreateProposalForm>({
     initialValues: {
       proposalStartTime: formData.proposalStartTime,
       proposalEndTime: formData.proposalEndTime,
       proposalSnapshotTime: formData.proposalSnapshotTime,
-      jetton: initialJetton === ZERO_ADDRESS ? "" : initialJetton,
-      nft: initialNFT === ZERO_ADDRESS ? "" : initialNFT,
       votingPowerStrategy: formData.votingPowerStrategy || 0,
       votingChoices: formData.votingChoices || initialChoices,
       description_en: formData.description_en,
       description_ru: formData.description_ru,
       votingSystemType: formData.votingSystemType || 0,
       title_en: formData.title_en,
+      strategy: handleInitialStrategy(formData.strategy)
     },
     validationSchema: FormSchema,
     onSubmit: (formValues) =>
@@ -107,11 +103,27 @@ const StyledContainer = styled(StyledFlexRow)({
   },
 });
 
+
+const useCustomInputHandler = (formik: FormikProps<CreateProposalForm>) => {
+  return (args: InputArgs) => {
+    const value = formik.values.strategy
+    return (
+      <StrategySelect
+        required={args.required}
+        tooltip={args.tooltip}
+        value={value}
+        label={args.label}
+        formik={formik}
+        name = {args.name}
+      />
+    );
+  };
+};
+
 export const CreateProposal = () => {
   const daoAddress = useDaoAddress();
   const isLoading = useDaoQuery(daoAddress).isLoading;
   const { preview, setPreview } = useCreateProposalStore();
-
 
   const backFunc = preview ? () => setPreview(false) : undefined;
 
@@ -154,50 +166,17 @@ const StyledPreview = styled(Container)({
 });
 
 function CreateForm({ formik }: { formik: FormikProps<CreateProposalForm> }) {
-  const { firstSection, secondSection, thirdSection } = useInputs(formik);
-  const { t } = useTranslation();
+  const form = useCreateProposalForm();
+  const customInputHandler = useCustomInputHandler(formik);
 
   return (
-    <StyledFlexColumn gap={15}>
-      <StyledDescription title="Create Proposal">
-        <StyledFlexColumn gap={30}>
-          <StyledCreateAbout>
-            Enter all fields in English. Future versions will support adding
-            translations in multiple languages. You can update these fields
-            later.
-          </StyledCreateAbout>
-          <StyledFlexColumn gap={20}>
-            <InputsForm formik={formik} inputs={firstSection} />
-          </StyledFlexColumn>
-        </StyledFlexColumn>
-      </StyledDescription>
-      <TitleContainer title={t("votingConfigurations")}>
-        <StyledFlexColumn gap={20}>
-          <InputsForm formik={formik} inputs={secondSection} />
-        </StyledFlexColumn>
-      </TitleContainer>
-      <TitleContainer title="Voting period">
-        <StyledVotingPeriod>
-          <InputsForm formik={formik} inputs={thirdSection} />
-        </StyledVotingPeriod>
-      </TitleContainer>
-    </StyledFlexColumn>
+    <FormikInputsForm<CreateProposalForm>
+      formik={formik}
+      form={form}
+      customInputHandler={customInputHandler}
+    />
   );
 }
-
-const StyledVotingPeriod = styled(StyledFlexRow)({
-  flexWrap: "wrap",
-  justifyContent: "flex-start",
-  gap: 20,
-  ".form-input": {
-    width: "calc(50% - 10px)",
-  },
-});
-
-const StyledDescription = styled(TitleContainer)({
-  width: "100%",
-});
-
 function CreateProposalMenu({
   onSubmit,
   isLoading,

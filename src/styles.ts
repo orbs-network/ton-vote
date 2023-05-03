@@ -1,7 +1,6 @@
 import { Skeleton, styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { TOOLBAR_WIDTH } from "consts";
-import { CSSProperties } from "react";
 import { theme } from "theme";
 
 export const StyledFlexRow = styled(Box)(

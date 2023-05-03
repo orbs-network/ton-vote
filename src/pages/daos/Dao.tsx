@@ -5,7 +5,7 @@ import { useConnection } from "ConnectionProvider";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
-import { useAppNavigation } from "router";
+import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
 import { isOwner, makeElipsisAddress, nFormatter, parseLanguage } from "utils";

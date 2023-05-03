@@ -8,10 +8,10 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import AnimateHeight from "react-animate-height";
-import { Endpoints, InputInterface } from "types";
+import { Endpoints, FormArgs, InputArgs } from "types";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { Button, MapInput, Markdown, Popup } from "components";
+import { Button, FormikInputsForm, MapInput, Markdown, Popup } from "components";
 import { useEnpointsStore } from "./store";
 
 const FormSchema = Yup.object().shape({
@@ -20,21 +20,26 @@ const FormSchema = Yup.object().shape({
   clientV4Endpoint: Yup.string().required("Required"),
 });
 
-const inputs: InputInterface[] = [
+const form: FormArgs[] = [
   {
-    label: "HTTP v2 endpoint",
-    type: "text",
-    name: "clientV2Endpoint",
-  },
-  {
-    label: "HTTP v2 API key",
-    type: "text",
-    name: "apiKey",
-  },
-  {
-    label: "HTTP v4 endpoint",
-    type: "text",
-    name: "clientV4Endpoint",
+    title: "",
+    inputs: [
+      {
+        label: "HTTP v2 endpoint",
+        type: "text",
+        name: "clientV2Endpoint",
+      },
+      {
+        label: "HTTP v2 API key",
+        type: "text",
+        name: "apiKey",
+      },
+      {
+        label: "HTTP v4 endpoint",
+        type: "text",
+        name: "clientV4Endpoint",
+      },
+    ],
   },
 ];
 
@@ -115,19 +120,7 @@ export function EndpointPopup({
           height={customSelected ? "auto" : 0}
           duration={200}
         >
-          <Fade in={customSelected}>
-            <StyledCustomEndpoints gap={20}>
-              {inputs.map((input) => {
-                return (
-                  <MapInput<EndpointForm>
-                    key={input.name}
-                    input={input}
-                    formik={formik}
-                  />
-                );
-              })}
-            </StyledCustomEndpoints>
-          </Fade>
+          <FormikInputsForm<EndpointForm> form={form} formik={formik} />
         </AnimateHeight>
         <StyledSaveButton onClick={_onSubmit}>Verify</StyledSaveButton>
       </StyledFlexColumn>

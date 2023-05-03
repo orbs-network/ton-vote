@@ -8,7 +8,7 @@ import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_NAME } from "config";
-import { appNavigation } from "router";
+import { appNavigation } from "router/navigation";
 import { useDaoAddress } from "hooks";
 import { ProposalStatus } from "types";
 import { useProposalPageQuery } from "./query";

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useDaoAddress, useGetSender } from "hooks";
-import { useAppNavigation } from "router";
+import { useAppNavigation } from "router/navigation";
 import { showErrorToast, showPromiseToast } from "toasts";
 import {
   getClientV2,
@@ -16,7 +16,31 @@ import { Address } from "ton-core";
 import { useConnection } from "ConnectionProvider";
 import { isOwner } from "utils";
 import { useDaoQuery } from "query/queries";
-import { CreateProposalForm, CreateProposalStore } from "./types";
+import { CreateProposalForm, CreateProposalStore, StrategyValue } from "./types";
+import { STRATEGIES } from "./strategies";
+import _ from "lodash";
+
+export const STRATEGY_TYPE = "type";
+export const STRATEGY_DATA = "data";
+
+
+export const parseStrategyJSON = (value?: string): StrategyValue => {
+  let parsed = { type: "", data: {} };
+
+  if (!value) return parsed;
+  try {
+    parsed = JSON.parse(value);
+  } catch (error) {}
+  return parsed;
+};
+
+
+export const handleInitialStrategy = (value?: string) => {
+ if(value) {
+  return value;
+ }
+ return JSON.stringify({type: _.first(_.keys(STRATEGIES)), data: {}})
+};
 
 export const useCreateProposalStore = create(
   persist<CreateProposalStore>(
@@ -54,21 +78,7 @@ export const useCreateProposal = () => {
         showErrorToast("Only Dao owner can create proposal");
         return;
       }
-      const jetton =
-        formValues.votingPowerStrategy === VotingPowerStrategy.JettonBalance
-          ? formValues.jetton
-          : ZERO_ADDRESS;
-      const nft =
-        formValues.votingPowerStrategy === VotingPowerStrategy.NftCcollection
-          ? formValues.nft
-          : ZERO_ADDRESS;
 
-      try {
-        Address.isAddress(jetton);
-        Address.isAddress(nft);
-      } catch (error) {
-        throw new Error("Invalid address");
-      }
 
       const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: formValues.proposalStartTime! / 1_000,
@@ -78,17 +88,17 @@ export const useCreateProposal = () => {
           votingSystemType: formValues.votingSystemType,
           choices: formValues.votingChoices.map((it) => it.value),
         },
-        jetton,
-        nft,
-        title: JSON.stringify({en: formValues.title_en}),
-        description: JSON.stringify({en: formValues.description_en}),
+        jetton: ZERO_ADDRESS,
+        nft: ZERO_ADDRESS,
+        title: JSON.stringify({ en: formValues.title_en }),
+        description: JSON.stringify({ en: formValues.description_en }),
         votingPowerStrategy: formValues.votingPowerStrategy,
       };
 
       const sender = getSender();
       const clientV2 = await getClientV2();
       console.log({ proposalMetadata });
-      
+
       const promise = newProposal(
         sender,
         clientV2,

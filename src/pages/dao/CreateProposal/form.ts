@@ -1,23 +1,103 @@
 import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
-import { FormikProps } from "formik";
 import _ from "lodash";
 import moment from "moment";
 import { useTranslation } from "react-i18next";
 import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
-import { InputInterface } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
-import { CreateProposalForm } from "./types";
+import { FormArgs } from "types";
+export const useCreateProposalForm = (): FormArgs[] => {
+  const { t } = useTranslation();
+
+  return [
+    {
+      title: "Create Proposal",
+      subTitle: t("formLanguageInfo") as string,
+      inputs: [
+        {
+          label: t("title"),
+          type: "text",
+          name: "title_en",
+          required: true,
+          limit: TITLE_LIMIT,
+          tooltip:
+            "Title of the new proposal, normally 1 sentence. Example: Increase staking reward percentage",
+        },
+        {
+          label: t("description"),
+          type: "textarea",
+          name: "description_en",
+          rows: 9,
+          tooltip: t("createProposalDescriptionTooltip") as string,
+          limit: ABOUT_CHARS_LIMIT,
+          isMarkdown: true,
+          required: true,
+        },
+      ],
+    },
+    {
+      title: t("votingParameters"),
+      inputs: [
+        {
+          label: "Voting power strategy",
+          type: "custom",
+          name: "strategy",
+          tooltip:
+            "How is the voting power of each member counted when calculating the vote result. [Read more about strategies](https://github.com/orbs-network/ton-vote/blob/main/STRATEGIES.md)",
+          required: true,
+        },
+        {
+          label: "Voting choices",
+          type: "list",
+          name: "votingChoices",
+          required: true,
+          disabled: true,
+          tooltip:
+            "The different options each voting member needs to choose from when submitting their vote.",
+        },
+      ],
+    },
+    {
+      title: "Voting period",
+      inputs: [
+        {
+          label: "Snapshot time",
+          type: "date",
+          name: "proposalSnapshotTime",
+          required: true,
+          tooltip:
+            "Snapshot time can be up to 14 days before specified start time",
+        },
+        {
+          label: "Start time",
+          type: "date",
+          name: "proposalStartTime",
+          required: true,
+        },
+        {
+          label: "End time",
+          type: "date",
+          name: "proposalEndTime",
+          required: true,
+        },
+      ],
+    },
+  ];
+};
+
+/// validation
 
 export const FormSchema = Yup.object().shape({
-  description_en: Yup.string().required('Description is required').test(
-    "",
-    `About must be less than or equal to ${ABOUT_CHARS_LIMIT} characters`,
-    (value) => {
-      return _.size(value) <= ABOUT_CHARS_LIMIT;
-    }
-  ),
-title_en: Yup.string()
+  description_en: Yup.string()
+    .required("Description is required")
+    .test(
+      "",
+      `About must be less than or equal to ${ABOUT_CHARS_LIMIT} characters`,
+      (value) => {
+        return _.size(value) <= ABOUT_CHARS_LIMIT;
+      }
+    ),
+  title_en: Yup.string()
     .required("Title is Required")
     .test(
       "",
@@ -101,107 +181,3 @@ title_en: Yup.string()
     )
     .required("Proposal snapshot time is required"),
 });
-
-export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
-  const { t } = useTranslation();
-  const firstSection: InputInterface[] = [
-    {
-      label: t("title"),
-      type: "text",
-      name: "title_en",
-      required: true,
-      limit: TITLE_LIMIT,
-      tooltip:
-        "Title of the new proposal, normally 1 sentence. Example: Increase staking reward percentage",
-    },
-    {
-      label: t("description"),
-      type: "textarea",
-      name: "description_en",
-      rows: 9,
-      tooltip: t("createProposalDescriptionTooltip") as string,
-      limit: ABOUT_CHARS_LIMIT,
-      isMarkdown: true,
-      required: true
-      
-    },
-  ];
-
-  const secondSection: InputInterface[] = [
-    {
-      label: "Voting power strategy",
-      type: "select",
-      name: "votingPowerStrategy",
-      tooltip:
-        "How is the voting power of each member counted when calculating the vote result. [Read more about strategies](https://github.com/orbs-network/ton-vote/blob/main/STRATEGIES.md)",
-      required: true,
-      options: [
-        {
-          key: "Ton balance",
-          value: 0,
-        },
-        {
-          key: "Jetton balance",
-          value: 1,
-          input: {
-            label: "Jetton address",
-            type: "address",
-            name: "jetton",
-            required:
-              formik.values.votingPowerStrategy ===
-              VotingPowerStrategy.JettonBalance,
-          },
-        },
-        {
-          key: "NFT collection",
-          value: 2,
-          input: {
-            label: "NFT Address",
-            type: "address",
-            name: "nft",
-            required:
-              formik.values.votingPowerStrategy ===
-              VotingPowerStrategy.NftCcollection,
-          },
-        },
-      ],
-    },
-    {
-      label: "Voting choices",
-      type: "list",
-      name: "votingChoices",
-      required: true,
-      disabled: true,
-      tooltip:
-        "The different options each voting member needs to choose from when submitting their vote.",
-    },
-  ];
-
-  const thirdSection: InputInterface[] = [
-    {
-      label: "Snapshot time",
-      type: "date",
-      name: "proposalSnapshotTime",
-      required: true,
-      tooltip: "Snapshot time can be up to 14 days before specified start time",
-    },
-    {
-      label: "Start time",
-      type: "date",
-      name: "proposalStartTime",
-      required: true,
-    },
-    {
-      label: "End time",
-      type: "date",
-      name: "proposalEndTime",
-      required: true,
-    },
-  ];
-
-  return {
-    firstSection,
-    secondSection,
-    thirdSection,
-  };
-};

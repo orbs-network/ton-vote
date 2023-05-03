@@ -1,5 +1,5 @@
 import { Fade, styled, Typography } from "@mui/material";
-import { Button, InputsForm } from "components";
+import { Button, FormikInputsForm } from "components";
 import { StyledCreateAbout, StyledFlexColumn } from "styles";
 import { FormikProps, useFormik } from "formik";
 import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
@@ -29,7 +29,7 @@ export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
   const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
 
-  const { createMetadataInputs } = useInputs();
+  const { createMetadataForm } = useInputs();
 
   const onSubmit = async (_formData: DaoMetadata) => {
     createMetadata(_formData);
@@ -80,8 +80,8 @@ export function CreateMetadataStep() {
         </StyledCreateAbout>
         <StyledFlexColumn>
           <StyledInputs>
-            <InputsForm
-              inputs={createMetadataInputs}
+            <FormikInputsForm<DaoMetadata>
+              form={createMetadataForm}
               formik={formik}
               EndAdornment={EndAdornment}
             />
@@ -102,8 +102,6 @@ export function CreateMetadataStep() {
     </Step>
   );
 }
-
-
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
   const { t } = useTranslation();

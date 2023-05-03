@@ -3,7 +3,7 @@ import { AddressDisplay, Status, AppTooltip, Container } from "components";
 import { useAppQueryParams, useDaoAddress } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
-import { useAppNavigation } from "router";
+import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
 import { Proposal, ProposalStatus } from "types";

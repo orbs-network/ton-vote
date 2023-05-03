@@ -6,7 +6,7 @@ import { useDaosQuery } from "query/queries";
 import { useTranslation } from "react-i18next";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
-import { appNavigation, useAppNavigation } from "router";
+import { appNavigation, useAppNavigation } from "router/navigation";
 import { StyledFlexColumn } from "styles";
 import { isOwner, parseLanguage } from "utils";
 

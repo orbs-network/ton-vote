@@ -48,7 +48,7 @@
     "title": "Заголовок",
     "description": "Описание",
     "createProposalDescriptionTooltip": "Опишите свое голосования. \n Поддерживает Markdown для редактирования, добавления изображений и т. д. [Подробнее](https://www.markdownguide.org/basic-syntax/)",
-    "votingConfigurations": "Конфигурации голосования",
+    "votingParameters": "Конфигурации голосования",
     "checkWallet": "Please check wallet for pending transaction"
   }
 }

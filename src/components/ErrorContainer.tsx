@@ -1,7 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import { AddressDisplay, Button, Container } from "components";
 
-import { useAppNavigation } from "router";
+import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
 export function ErrorContainer({ text }: { text: string }) {

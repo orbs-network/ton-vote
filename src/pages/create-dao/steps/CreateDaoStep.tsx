@@ -1,13 +1,13 @@
 import { Box, styled, Typography } from "@mui/material";
 import { AddressDisplay, Button, Img, Link, Markdown } from "components";
 import { StyledFlexColumn } from "styles";
-import { InputInterface } from "types";
 import { useInputs } from "./form";
 import { RolesForm, useCreatDaoStore, useCreateDao } from "../store";
 import { Submit } from "./Submit";
 import { MetadataArgs } from "ton-vote-contracts-sdk";
 import { Step } from "./Step";
 import { useTranslation } from "react-i18next";
+import { InputArgs } from "types";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
@@ -15,32 +15,40 @@ export function CreateDaoStep() {
 
   const { daoMetadataForm, rolesForm } = useCreatDaoStore();
 
-  const { setRolesInputs, createMetadataInputs } = useInputs();
+  const { setRolesForm, createMetadataForm } = useInputs();
   return (
     <Step title={t("createSpace")}>
       <StyledFlexColumn>
         <StyledInputs>
-          {setRolesInputs.map((input) => {
-            const name = input.name as keyof RolesForm;
-            return (
-              <InputPreview
-                key={input.name}
-                input={input}
-                value={rolesForm[name]}
-              />
-            );
-          })}
-          {createMetadataInputs.map((input) => {
-            const name = input.name as keyof MetadataArgs;
+          <>
+            {setRolesForm.map((section) => {
+              section.inputs.map((input) => {
+                const name = input.name as keyof RolesForm;
+                return (
+                  <InputPreview
+                    key={input.name}
+                    input={input}
+                    value={rolesForm[name]}
+                  />
+                );
+              });
+            })}
+            {createMetadataForm.map((section) => {
+              {
+                section.inputs.map((input) => {
+                  const name = input.name as keyof MetadataArgs;
 
-            return (
-              <InputPreview
-                key={input.name}
-                input={input}
-                value={daoMetadataForm[name]}
-              />
-            );
-          })}
+                  return (
+                    <InputPreview
+                      key={input.name}
+                      input={input}
+                      value={daoMetadataForm[name]}
+                    />
+                  );
+                });
+              }
+            })}
+          </>
         </StyledInputs>
         <Submit>
           <Button isLoading={isLoading} onClick={() => createDao()}>
@@ -60,7 +68,7 @@ const InputPreview = ({
   input,
   value,
 }: {
-  input: InputInterface;
+  input: InputArgs;
   value: any;
 }) => {
   const getValue = () => {

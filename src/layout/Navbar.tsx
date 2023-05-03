@@ -10,7 +10,7 @@ import { AppSocials, Button, ConnectButton, Github, Menu } from "components";
 import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
 import { makeElipsisAddress } from "utils";
 import { useState } from "react";
-import { useAppNavigation } from "router";
+import { useAppNavigation } from "router/navigation";
 import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
 import { useCopyToClipboard } from "hooks";

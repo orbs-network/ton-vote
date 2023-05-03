@@ -48,7 +48,7 @@
     "title": "Title",
     "description": "Description",
     "createProposalDescriptionTooltip": "All background information needed to help members make a decision in this vote. Normally 3-10 sentences. Formatted as Markdown",
-    "votingConfigurations": "Voting Parameters",
+    "votingParameters": "Voting Parameters",
     "checkWallet": "Please check wallet for pending transaction",
     "createDaoSpace": "Create DAO Space",
     "onTon": "on TON",
@@ -63,6 +63,7 @@
      "timeLeftToVote": "Time left to vote",
      "resultsVerified": "Results verified",
      "verifyingResults": "Verifying results",
-     "failedToVerifyResults": "Failed to verify results"
+     "failedToVerifyResults": "Failed to verify results",
+     "formLanguageInfo":"Enter all fields in English. Future versions will support adding translations in multiple languages. You can update these fields later."
   }
 }

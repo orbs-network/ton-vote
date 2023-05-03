@@ -7,7 +7,6 @@ import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 import ScrollTop from "components/ScrollTop";
 import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
-
 import { ErrorFallback } from "./ErrorBoundary";
 import { Toolbar } from "./Toolbar";
 import { ReactNode, Suspense } from "react";

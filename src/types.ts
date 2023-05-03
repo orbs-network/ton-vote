@@ -85,29 +85,29 @@ export type InputType =
   | "radio"
   | "select"
   | "list"
+  | 'custom'
 
-export type InputOption = {
+export type ListInputOption = {
   key: string;
   value: string | number;
-  input?: InputInterface;
 };
-export interface InputInterface {
+export interface InputArgs {
   label: string;
   type: InputType;
   name: string;
-  defaultValue?: string;
+  defaultValueClick?: string;
   rows?: number;
   min?: number;
   max?: number;
   tooltip?: string;
   required?: boolean;
-  options?: InputOption[];
+  listOptions?: ListInputOption[];
   limit?: number;
   placeholder?: string;
   isMarkdown?: boolean;
   disabled?: boolean;
+  default?: string | number;
 }
-
 
 
 
@@ -132,3 +132,11 @@ export type TooltipPlacement =
   | "right-start"
   | "top-end"
   | "top-start";
+
+
+
+export interface FormArgs {
+  title: string;
+  subTitle?: string;
+  inputs: InputArgs[];
+}

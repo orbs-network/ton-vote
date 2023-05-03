@@ -5,7 +5,7 @@ import { useGetSender } from "hooks";
 import * as TonVoteContract from "ton-vote-contracts-sdk";
 import { getClientV2, MetadataArgs } from "ton-vote-contracts-sdk";
 import { showPromiseToast } from "toasts";
-import { useAppNavigation } from "router";
+import { useAppNavigation } from "router/navigation";
 import { useNewDataStore, useTxReminderPopup } from "store";
 import { ZERO_ADDRESS } from "consts";
 import { Logger } from "utils";

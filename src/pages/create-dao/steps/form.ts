@@ -1,7 +1,7 @@
 import { useConnection } from "ConnectionProvider";
 import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { useTranslation } from "react-i18next";
-import { InputInterface } from "types";
+import { FormArgs, InputArgs } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
 
@@ -9,77 +9,88 @@ export const useInputs = () => {
   const { t } = useTranslation();
   const address = useConnection().address;
 
-  const createMetadataInputs: InputInterface[] = [
+  const createMetadataForm: FormArgs[] = [
     {
-      label: "DAO name",
-      type: "text",
-      name: "name_en",
-      tooltip: t("spaceNameTooltip") as string,
-      required: true,
-      limit: TITLE_LIMIT,
-    },
-    {
-      label: "About the DAO",
-      type: "textarea",
-      name: "about_en",
-      rows: 6,
-      tooltip: t("projectAboutTooltip") as string,
-      required: true,
-      isMarkdown: true,
-      limit: ABOUT_CHARS_LIMIT,
-    },
-    {
-      label: "Logo URL",
-      type: "image",
-      name: "avatar",
-      tooltip: t("spaceAvatarTootlip") as string,
-      required: true,
-    },
-    {
-      label: "TON DNS name",
-      type: "text",
-      name: "dns",
-      tooltip: t("tonDnsTooltip") as string,
-    },
-    {
-      label: "Project website URL",
-      type: "url",
-      name: "website",
-    },
-    {
-      label: "Project Telegram group",
-      type: "url",
-      name: "telegram",
-    },
-    {
-      label: "Project GitHub URL",
-      type: "url",
-      name: "github",
-    },
-  ];
-
-  const setRolesInputs: InputInterface[] = [
-    {
-      label: "Space owner",
-      type: "address",
-      name: "ownerAddress",
-      defaultValue: address,
-      required: true,
-      tooltip:
-        "The owner of the space, can change metadata and update admins. Can be a multi-sig contract.",
-    },
-    {
-      label: "Proposal publisher",
-      type: "address",
-      name: "proposalOwner",
-      defaultValue: address,
-      required: true,
-      tooltip:
-        "The address that can publish new proposals for vote. Can be a multi-sig contract or a multi-owner contract.",
+      title: "",
+      subTitle: "",
+      inputs: [
+        {
+          label: "DAO name",
+          type: "text",
+          name: "name_en",
+          tooltip: t("spaceNameTooltip") as string,
+          required: true,
+          limit: TITLE_LIMIT,
+        },
+        {
+          label: "About the DAO",
+          type: "textarea",
+          name: "about_en",
+          rows: 6,
+          tooltip: t("projectAboutTooltip") as string,
+          required: true,
+          isMarkdown: true,
+          limit: ABOUT_CHARS_LIMIT,
+        },
+        {
+          label: "Logo URL",
+          type: "image",
+          name: "avatar",
+          tooltip: t("spaceAvatarTootlip") as string,
+          required: true,
+        },
+        {
+          label: "TON DNS name",
+          type: "text",
+          name: "dns",
+          tooltip: t("tonDnsTooltip") as string,
+        },
+        {
+          label: "Project website URL",
+          type: "url",
+          name: "website",
+        },
+        {
+          label: "Project Telegram group",
+          type: "url",
+          name: "telegram",
+        },
+        {
+          label: "Project GitHub URL",
+          type: "url",
+          name: "github",
+        },
+      ],
     },
   ];
 
-  return { createMetadataInputs, setRolesInputs };
+  const setRolesForm: FormArgs[] = [
+    {
+      title: "",
+      inputs: [
+        {
+          label: "Space owner",
+          type: "address",
+          name: "ownerAddress",
+          defaultValueClick: address,
+          required: true,
+          tooltip:
+            "The owner of the space, can change metadata and update admins. Can be a multi-sig contract.",
+        },
+        {
+          label: "Proposal publisher",
+          type: "address",
+          name: "proposalOwner",
+          defaultValueClick: address,
+          required: true,
+          tooltip:
+            "The address that can publish new proposals for vote. Can be a multi-sig contract or a multi-owner contract.",
+        },
+      ],
+    },
+  ];
+
+  return { createMetadataForm, setRolesForm };
 };
 
 export const DaoMetadataFormSchema = Yup.object().shape({

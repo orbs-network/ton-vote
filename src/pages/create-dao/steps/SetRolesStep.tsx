@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, InputsForm, MapInput } from "components";
+import { Button, FormikInputsForm, MapInput } from "components";
 import { useFormik } from "formik";
 import _ from "lodash";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ import { Submit } from "./Submit";
 export function SetRolesStep() {
   const { setRolesForm, rolesForm, nextStep, editMode } = useCreatDaoStore();
   const { t } = useTranslation();
-  const { setRolesInputs } = useInputs();
+  const form = useInputs().setRolesForm;
 
   const formik = useFormik<RolesForm>({
     initialValues: {
@@ -34,8 +34,8 @@ export function SetRolesStep() {
     <Step title={editMode ? t("editSpaceStage") : t("createSpaceStage")}>
       <StyledFlexColumn>
         <StyledInputs>
-          <InputsForm
-            inputs={setRolesInputs}
+          <FormikInputsForm<RolesForm>
+            form={form}
             EndAdornment={EndAdornment}
             formik={formik}
           />
@@ -47,7 +47,7 @@ export function SetRolesStep() {
               validateFormik(formik);
             }}
           >
-           Next
+            Next
           </Button>
         </Submit>
       </StyledFlexColumn>

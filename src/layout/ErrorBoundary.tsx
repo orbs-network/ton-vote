@@ -1,7 +1,8 @@
+
 import { styled, Typography } from "@mui/material";
 import { Button, Container } from "components";
 import { FallbackProps } from "react-error-boundary";
-import { useAppNavigation } from "router";
+import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn } from "styles";
 
 export const ErrorFallback = (props: FallbackProps) => {
