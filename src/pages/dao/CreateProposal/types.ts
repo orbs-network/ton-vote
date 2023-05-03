@@ -3,8 +3,6 @@ export interface CreateProposalForm {
   proposalStartTime?: number;
   proposalEndTime?: number;
   proposalSnapshotTime?: number;
-  description: string;
-  title: string;
   jetton: string;
   nft: string;
   votingPowerStrategy: number;

@@ -169,12 +169,8 @@ const StyledProposalAddress = styled(StyledAddressDisplay)({
 
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult, sumCoins } = proposal;
-
-  const { t } = useTranslation();
-
   const totalWeight = proposalResult.totalWeight;
-
-  
+  const { t } = useTranslation();
 
   if (Number(totalWeight) === 0) {
     return (
@@ -185,9 +181,8 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
   }
 
   return (
-    <StyledResults gap={5}>
+    <StyledResults gap={10}>
       {normalizeResults(proposalResult)
-        .filter((it) => it.title !== "totalWeight")
         .map((item) => {
           const { title, percent } = item;
 
@@ -209,15 +204,9 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
   );
 };
 
-
-
-
 const StyledResults = styled(StyledFlexColumn)({
   width: "100%",
-  padding: 10,
-  background: "#F8F9FB",
-  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
-  borderRadius: 10,
+
 });
 
 const Result = ({

@@ -1,34 +1,22 @@
-import { styled, Typography, useTheme } from "@mui/material";
-import { AppTooltip, Container, List, LoadMore, OverflowWithTooltip, Page, Search, VerifiedDao } from "components";
+import { styled, Typography } from "@mui/material";
+import { Container, List, LoadMore, Page, Search } from "components";
 import { useDaosQuery } from "query/queries";
-import { useAppNavigation } from "router";
 import {
   StyledEmptyText,
   StyledFlexColumn,
   StyledFlexRow,
   StyledSkeletonLoader,
 } from "styles";
-import { useIntersectionObserver } from "react-intersection-observer-hook";
-import { AiFillEyeInvisible } from "react-icons/ai";
-import {
-  StyledDao,
-  StyledDaoAvatar,
-  StyledDaoContent,
-  StyledDaosList,
-  StyledJoinDao,
-} from "./styles";
-import { isOwner, makeElipsisAddress, nFormatter, parseLanguage } from "utils";
+import { StyledDao, StyledDaoContent, StyledDaosList } from "./styles";
+import { nFormatter } from "utils";
 import { Dao } from "types";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import { useConnection } from "ConnectionProvider";
-import { Box } from "@mui/system";
 import { useTranslation } from "react-i18next";
-import { DAOS_PAGE_REFETCH_INTERVAL, VERIFIED_DAOS } from "config";
+import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
 import { useAppQueryParams } from "hooks";
-import TextOverflow from "react-text-overflow";
+import { DaoListItem } from "./Dao";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
@@ -43,7 +31,11 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
 };
 
 export function DaosPage() {
-  const { data = [], isLoading } = useDaosQuery(DAOS_PAGE_REFETCH_INTERVAL);
+  const {
+    data = [],
+    isLoading,
+    dataUpdatedAt,
+  } = useDaosQuery(DAOS_PAGE_REFETCH_INTERVAL);
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
 
@@ -55,7 +47,10 @@ export function DaosPage() {
   };
   const { t } = useTranslation();
 
-  const filteredDaos = filterDaos(data, searchValue);
+  const filteredDaos = useMemo(
+    () => filterDaos(data, searchValue),
+    [searchValue, dataUpdatedAt]
+  );
 
   const emptyList = !isLoading && !_.size(filteredDaos);
   return (
@@ -139,77 +134,3 @@ const ListLoader = () => {
     </StyledDaosList>
   );
 };
-
-const useJoinDao = () => {
-  return useMutation(async () => {});
-};
-
-export const DaoListItem = ({ dao }: { dao: Dao }) => {
-  const [ref, { entry }] = useIntersectionObserver();
-  const isVisible = entry && entry.isIntersecting;
-  const { daoPage } = useAppNavigation();
-  const { mutate } = useJoinDao();
-  const { daoMetadata } = dao;
-  const walletAddress = useConnection().address;
-  const theme = useTheme();
-
-  const join = (e: any) => {
-    e.stopPropagation();
-    mutate();
-  };
-
-  if (dao.daoMetadata.hide && !isOwner(walletAddress, dao.daoRoles))
-    return null;
-
-  return (
-    <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
-      <StyledDaoContent className="container" hover>
-        {dao.daoMetadata.hide && (
-          <StyledHiddenIcon>
-            <AiFillEyeInvisible
-              style={{ width: 25, height: 25 }}
-              color={theme.palette.primary.main}
-            />
-          </StyledHiddenIcon>
-        )}
-        {isVisible ? (
-          <StyledFlexColumn>
-            <StyledDaoAvatar src={daoMetadata?.avatar} />
-            <Typography className="title">
-              <TextOverflow text={parseLanguage(daoMetadata?.name) || ""} />
-            </Typography>
-            <Address dao={dao} />
-            <Container className="members">
-              <Typography>{nFormatter(100000)} members</Typography>
-            </Container>
-          </StyledFlexColumn>
-        ) : null}
-      </StyledDaoContent>
-    </StyledDao>
-  );
-};
-
-
-const Address = ({ dao }: { dao: Dao }) => {
-  return (
-    <StyledFlexRow className="address">
-      {dao.daoMetadata.dns ? (
-        <OverflowWithTooltip
-          className="address-value"
-          text={dao.daoMetadata.dns}
-        />
-      ) : (
-        <Typography className="address-value">
-          {makeElipsisAddress(dao.daoAddress, 6)}
-        </Typography>
-      )}
-      <VerifiedDao daoAddress={dao.daoAddress} />
-    </StyledFlexRow>
-  );
-};
-
-const StyledHiddenIcon = styled(Box)({
-  position: "absolute",
-  left: 10,
-  top: 10,
-});

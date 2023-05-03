@@ -93,10 +93,10 @@ export const DaoMetadataFormSchema = Yup.object().shape({
     .url("invalid Logo URL")
     .required("Logo URL is Required")
     .test("", "Logo URL must be https", (value) => {
-      return !value ? true :  value.startsWith("https://");
+      return value.startsWith("https://");
     })
     .test("", "Logo URL must be png format", (value) => {
-      return !value ? true : value.endsWith(".png");
+      return value.endsWith(".png");
     }),
 
   dns: Yup.string().test("", "TON DNS must end with .ton", (value) => {
@@ -115,9 +115,13 @@ export const DaoMetadataFormSchema = Yup.object().shape({
   github: Yup.string().test("", "Invalid Github URL", (value) => {
     return value ? value.includes("github") : true;
   }),
-  telegram: Yup.string().test('', 'Telegram group should start with https://t.me', (value) => {
-    return !value ? true : value.startsWith("https://t.me");
-  }),
+  telegram: Yup.string().test(
+    "",
+    "Telegram group should start with https://t.me",
+    (value) => {
+      return !value ? true : value.startsWith("https://t.me");
+    }
+  ),
   website: Yup.string().url("invalid Website URL"),
 });
 

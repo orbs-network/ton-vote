@@ -80,13 +80,15 @@ export const useCreateProposal = () => {
         },
         jetton,
         nft,
-        title: formValues.title,
-        description: formValues.description,
+        title: JSON.stringify({en: formValues.title_en}),
+        description: JSON.stringify({en: formValues.description_en}),
         votingPowerStrategy: formValues.votingPowerStrategy,
       };
 
       const sender = getSender();
       const clientV2 = await getClientV2();
+      console.log({ proposalMetadata });
+      
       const promise = newProposal(
         sender,
         clientV2,

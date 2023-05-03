@@ -14,7 +14,7 @@ export const flatRoutes = _.map(routes, (value) => {
 });
 
 
-export const TOOLBAR_WIDTH = 80;
+export const TOOLBAR_WIDTH = 60;
 export const ZERO_ADDRESS = "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";
 
 export const TELETGRAM_URL = "https://t.me/TONVoteSupportGroup";

@@ -61,6 +61,9 @@ export const Results = () => {
     [dataUpdatedAt]
   );
 
+  console.log(proposalResult);
+  
+
   return (
     <StyledResults title="Results">
       <StyledFlexColumn gap={15}>

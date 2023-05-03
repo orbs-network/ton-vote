@@ -47,6 +47,7 @@ export { LoadMore };
 
 const StyledButton = styled(Button)({
   width:'100%',
+  background:'white'
 });
 
 const StyledContainer = styled(StyledFlexRow)({

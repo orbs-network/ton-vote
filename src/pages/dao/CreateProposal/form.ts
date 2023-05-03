@@ -9,51 +9,44 @@ import { validateAddress } from "utils";
 import * as Yup from "yup";
 import { CreateProposalForm } from "./types";
 
-
-
 export const FormSchema = Yup.object().shape({
-  description: Yup.string().test(
-    "test",
+  description_en: Yup.string().test(
+    "",
     `About must be less than or equal to ${ABOUT_CHARS_LIMIT} characters`,
     (value, context) => {
       return _.size(value) <= ABOUT_CHARS_LIMIT;
     }
   ),
-  title: Yup.string()
-    .test("", "Title is Required", (value, context) => {      
-      if (!context.parent.title_en) {
-        return false;
-      }
-      return true;
-    })
+  title_en: Yup.string()
+    .required("Title is Required")
     .test(
-      "test",
+      "",
       `Title must be less than or equal to ${TITLE_LIMIT} characters`,
-      (value, context) => {
+      (value) => {
         return _.size(value) <= TITLE_LIMIT;
       }
     ),
   jetton: Yup.string()
-    .test("test", "Invalid jetton address", (value, context) => {
+    .test("", "Invalid jetton address", (value, context) => {
       return context.parent.votingPowerStrategy ===
         VotingPowerStrategy.JettonBalance
         ? validateAddress(value)
         : true;
     })
-    .test("test", "Jetton address requird", (value, context) => {
+    .test("", "Jetton address requird", (value, context) => {
       return context.parent.votingPowerStrategy ===
         VotingPowerStrategy.JettonBalance
         ? !!value
         : true;
     }),
   nft: Yup.string()
-    .test("test", "Invalid NFT address", (value, context) => {
+    .test("", "Invalid NFT address", (value, context) => {
       return context.parent.votingPowerStrategy ===
         VotingPowerStrategy.NftCcollection
         ? validateAddress(value)
         : true;
     })
-    .test("test", "NFT requird", (value, context) => {
+    .test("", "NFT requird", (value, context) => {
       return context.parent.votingPowerStrategy ===
         VotingPowerStrategy.NftCcollection
         ? !!value
@@ -110,7 +103,7 @@ export const FormSchema = Yup.object().shape({
 });
 
 export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const firstSection: InputInterface[] = [
     {
       label: t("title"),
@@ -128,7 +121,6 @@ export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
       limit: ABOUT_CHARS_LIMIT,
       isMarkdown: true,
     },
-    
   ];
 
   const secondSection: InputInterface[] = [
@@ -171,7 +163,7 @@ export const useInputs = (formik: FormikProps<CreateProposalForm>) => {
       label: "Voting choices",
       type: "list",
       name: "votingChoices",
-      disabled: true
+      disabled: true,
     },
   ];
 

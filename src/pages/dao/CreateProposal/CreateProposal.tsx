@@ -31,22 +31,6 @@ const initialChoices = [
   { key: crypto.randomUUID(), value: "Abstain" },
 ];
 
-const useFormLanguageListeners = (formik: FormikProps<CreateProposalForm>) => {
-  useEffect(() => {
-    formik.setFieldValue(
-      "title",
-      JSON.stringify({ en: formik.values.title_en })
-    );
-    formik.setFieldValue(
-      "description",
-      JSON.stringify({
-        en: formik.values.description_en,
-        ru: formik.values.description_ru,
-      })
-    );
-  }, [formik.values]);
-};
-
 function Form() {
   const { mutate: createProposal, isLoading } = useCreateProposal();
 
@@ -63,8 +47,6 @@ function Form() {
       proposalStartTime: formData.proposalStartTime,
       proposalEndTime: formData.proposalEndTime,
       proposalSnapshotTime: formData.proposalSnapshotTime,
-      description: formData.description,
-      title: formData.title,
       jetton: initialJetton === ZERO_ADDRESS ? "" : initialJetton,
       nft: initialNFT === ZERO_ADDRESS ? "" : initialNFT,
       votingPowerStrategy: formData.votingPowerStrategy || 0,
@@ -80,8 +62,6 @@ function Form() {
     validateOnChange: false,
     validateOnBlur: true,
   });
-
-  useFormLanguageListeners(formik);
 
   const saveForm = useDebouncedCallback(() => {
     setFormData(formik.values);
@@ -157,9 +137,9 @@ const Preview = ({ formik }: { formik?: FormikProps<CreateProposalForm> }) => {
   return (
     <StyledPreview>
       <Typography variant="h2" className="title">
-        {parseLanguage(formik?.values.title) || "Untitled"}
+        {parseLanguage(formik?.values.title_en) || "Untitled"}
       </Typography>
-      <Markdown>{parseLanguage(formik?.values.description)}</Markdown>
+      <Markdown>{parseLanguage(formik?.values.description_en)}</Markdown>
     </StyledPreview>
   );
 };

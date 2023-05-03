@@ -44,6 +44,9 @@ export const globalStyles = {
   body: {
     background: "#F8F9FB",
   },
+  "*::-webkit-scrollbar": {
+    display: "none",
+  },
   ".MuiPickersDay-today": {
     border: "unset!important",
   },
@@ -112,31 +115,29 @@ export const StyledTitle = styled(Typography)({
   },
 });
 
-export const StyledContainer = styled(Box)<{ hover?: number }>(({ theme, hover }) => ({
-  background: "white",
-  border: "1px solid #e0e0e0",
-  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
-  borderRadius: 10,
-  padding: 20,
-  transition: "0.2s all",
-  svg: {
+export const StyledContainer = styled(Box)<{ hover?: number }>(
+  ({ theme, hover }) => ({
+    background: "white",
+    border: "1px solid #e0e0e0",
+    boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+    borderRadius: 10,
+    padding: 20,
     transition: "0.2s all",
-  },
-  "&:hover": {
-    border: hover
-      ? `1px solid ${theme.palette.primary.main}`
-      : "1px solid #e0e0e0",
     svg: {
-      color: hover ? `${theme.palette.primary.main}` : "",
+      transition: "0.2s all",
     },
-  },
-}));
-
-
-
-
+    "&:hover": {
+      border: hover
+        ? `1px solid ${theme.palette.primary.main}`
+        : "1px solid #e0e0e0",
+      svg: {
+        color: hover ? `${theme.palette.primary.main}` : "",
+      },
+    },
+  })
+);
 
 export const StyledEmptyText = styled(Typography)({
   fontSize: 20,
-  fontWeight: 700
-})
+  fontWeight: 700,
+});

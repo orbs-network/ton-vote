@@ -1,5 +1,4 @@
-import { Fade, styled } from "@mui/material";
-import LogoImg from "assets/logo.svg";
+import { styled } from "@mui/material";
 import { AppTooltip, Button, Img } from "components";
 import { useConnection } from "ConnectionProvider";
 import { TOOLBAR_WIDTH } from "consts";
@@ -9,7 +8,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router";
 import { StyledFlexColumn } from "styles";
-import { isOwner } from "utils";
+import { isOwner, parseLanguage } from "utils";
 
 export function Toolbar() {
   const navigation = useAppNavigation();
@@ -84,12 +83,9 @@ const UserDaos = () => {
               to={appNavigation.daoPage.root(dao.daoAddress)}
               key={dao.daoAddress}
             >
-              <AppTooltip text={dao.daoMetadata.name} placement="right">
+              <AppTooltip text={parseLanguage(dao.daoMetadata.name)} placement="right">
                 <StyledDaoImg src={dao.daoMetadata.avatar} />
               </AppTooltip>
-              {/* <Fade in={selected}>
-                <figure className="border" />
-              </Fade> */}
             </StyledLink>
           );
         }

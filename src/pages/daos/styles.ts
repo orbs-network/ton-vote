@@ -17,15 +17,15 @@ export const StyledJoinDao = styled(Button)({
 });
 
 export const StyledDaoAvatar = styled(Img)({
-  width: 65,
-  height: 65,
+  width: 55,
+  height: 55,
   borderRadius: "50%",
   overflow: "hidden",
   marginBottom: 20,
 });
 
 
-export const StyledDao = styled(Box)({
+export const StyledDao = styled(Box)(({ theme }) => ({
   width: "calc(100% / 4 - 15px)",
   height: 280,
 
@@ -39,11 +39,11 @@ export const StyledDao = styled(Box)({
     fontWeight: 800,
     width: "100%",
     textAlign: "center",
+    color: theme.typography.h2.color,
   },
   ".address-value": {
     textAlign: "center",
     fontSize: 16,
-    opacity: 0.6,
   },
   ".members": {
     fontSize: 14,
@@ -55,7 +55,7 @@ export const StyledDao = styled(Box)({
       fontSize: 12,
     },
   },
-});
+}));
 
 
 
@@ -66,4 +66,11 @@ export const StyledDaosList = styled(StyledFlexRow)({
   flexWrap: "wrap",
   gap: 20,
   justifyContent:'flex-start'
+});
+
+
+export  const StyledHiddenIcon = styled(Box)({
+  position: "absolute",
+  left: 10,
+  top: 10,
 });
