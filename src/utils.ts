@@ -226,3 +226,5 @@ export const isProposalWhitelisted = (address?: string) => {
   if (!_.size(WHITELISTED_PROPOSALS)) return true;
   return WHITELISTED_PROPOSALS.includes(address);
 };
+
+

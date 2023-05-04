@@ -24,3 +24,6 @@ export const ABOUT_CHARS_LIMIT = 2600
 export const TITLE_LIMIT =   180;
 
 
+
+
+export const isStaging = import.meta.env.VITE_STAGING;

@@ -20,7 +20,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { FormArgs, ListInputOption, InputArgs } from "types";
+import { FormArgs, InputArgs } from "types";
 import { FormikProps } from "formik";
 import { AppTooltip } from "../Tooltip";
 import _ from "lodash";
@@ -378,10 +378,11 @@ export function MapInput<T>({
       <ListInputs
         title={label}
         onChange={onChange}
-        values={value as ListInputOption[]}
+        values={value as string[]}
         required={args.required}
         disabled={args.disabled}
         tooltip={args.tooltip}
+        placeholder={args.placeholder}
       />
     );
   }
@@ -439,26 +440,28 @@ const StyledCheckBoxTitle = styled(Title)({
 const StycheckBoxInput = styled(StyledFlexRow)({});
 
 interface ListProps {
-  values: ListInputOption[];
-  onChange: (value: ListInputOption[]) => void;
+  values: string[];
+  onChange: (value: string[]) => void;
   title: string;
   required?: boolean;
   disabled?: boolean;
   tooltip?: string;
+  placeholder?: string
 }
 
 export const ListInputs = ({
-  values = [],
+  values = [''],
   title,
   required,
   onChange,
   disabled,
   tooltip,
+  placeholder = '',
 }: ListProps) => {
-  const onInputChange = (key: string, _value: string) => {
-    const newValue = values.map((it) => {
-      if (it.key === key) {
-        return { ...it, value: _value };
+  const onInputChange = (index: number, _value: string) => {
+    const newValue = values.map((it, _index) => {
+      if (index === _index) {
+        return _value;
       }
       return it;
     });
@@ -466,12 +469,12 @@ export const ListInputs = ({
   };
 
   const addOption = () => {
-    const newValue = [...values, { key: crypto.randomUUID(), value: "" }];
+    const newValue = [...values, ""];
     onChange(newValue);
   };
 
-  const deleteOption = (key: string) => {
-    const newValue = values.filter((it) => it.key !== key);
+  const deleteOption = (_index: number) => {
+    const newValue = values.filter((it, index) => _index !== index);
     onChange(newValue);
   };
 
@@ -482,15 +485,16 @@ export const ListInputs = ({
         {values.map((it, index) => {
           const isLast = index === values.length - 1;
           return (
-            <StyledFlexRow justifyContent="flex-start" key={it.key}>
+            <StyledFlexRow justifyContent="flex-start" key={index}>
               <StyledListTextInput>
                 <TextInput
                   disabled={disabled}
+                  placeholder={placeholder}
                   endAdornment={
                     !disabled &&
                     index > 0 && (
                       <AppTooltip text="Delete choice">
-                        <IconButton onClick={() => deleteOption(it.key)}>
+                        <IconButton onClick={() => deleteOption(index)}>
                           <BsFillTrash3Fill
                             style={{
                               width: 17,
@@ -502,13 +506,8 @@ export const ListInputs = ({
                       </AppTooltip>
                     )
                   }
-                  startAdornment={
-                    <StyledListInputPrefix>
-                      Option {index + 1}
-                    </StyledListInputPrefix>
-                  }
-                  onChange={(value) => onInputChange(it.key, value)}
-                  value={it.value}
+                  onChange={(value) => onInputChange(index, value)}
+                  value={it}
                 />
               </StyledListTextInput>
               {!disabled && isLast && (

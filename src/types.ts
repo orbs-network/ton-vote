@@ -87,10 +87,6 @@ export type InputType =
   | "list"
   | 'custom'
 
-export type ListInputOption = {
-  key: string;
-  value: string | number;
-};
 export interface InputArgs {
   label: string;
   type: InputType;
@@ -101,12 +97,12 @@ export interface InputArgs {
   max?: number;
   tooltip?: string;
   required?: boolean;
-  listOptions?: ListInputOption[];
+  listOptions?: string[];
   limit?: number;
   placeholder?: string;
   isMarkdown?: boolean;
   disabled?: boolean;
-  default?: string | number;
+  default?: any;
 }
 
 

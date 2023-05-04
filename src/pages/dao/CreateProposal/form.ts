@@ -47,6 +47,7 @@ export const useCreateProposalForm = (): FormArgs[] => {
           required: true,
         },
         {
+          
           label: "Voting choices",
           type: "list",
           name: "votingChoices",

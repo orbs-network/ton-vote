@@ -16,13 +16,16 @@ import { Address } from "ton-core";
 import { useConnection } from "ConnectionProvider";
 import { isOwner } from "utils";
 import { useDaoQuery } from "query/queries";
-import { CreateProposalForm, CreateProposalStore, StrategyValue } from "./types";
+import {
+  CreateProposalForm,
+  CreateProposalStore,
+  StrategyValue,
+} from "./types";
 import { STRATEGIES } from "./strategies";
 import _ from "lodash";
 
 export const STRATEGY_TYPE = "type";
 export const STRATEGY_DATA = "data";
-
 
 export const parseStrategyJSON = (value?: string): StrategyValue => {
   let parsed = { type: "", data: {} };
@@ -34,12 +37,11 @@ export const parseStrategyJSON = (value?: string): StrategyValue => {
   return parsed;
 };
 
-
 export const handleInitialStrategy = (value?: string) => {
- if(value) {
-  return value;
- }
- return JSON.stringify({type: _.first(_.keys(STRATEGIES)), data: {}})
+  if (value) {
+    return value;
+  }
+  return JSON.stringify({ type: _.first(_.keys(STRATEGIES)), data: {} });
 };
 
 export const useCreateProposalStore = create(
@@ -79,6 +81,17 @@ export const useCreateProposal = () => {
         return;
       }
 
+      const parsedStrategy = parseStrategyJSON(formValues.strategy);
+      let votingPowerStrategy;
+
+      switch (parsedStrategy.type) {
+        case "ton-balance":
+          votingPowerStrategy = 0;
+        case "jetton-balance":
+          votingPowerStrategy = 1;
+        case "nft-number":
+          votingPowerStrategy = 2;
+      }
 
       const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: formValues.proposalStartTime! / 1_000,
@@ -88,16 +101,15 @@ export const useCreateProposal = () => {
           votingSystemType: formValues.votingSystemType,
           choices: formValues.votingChoices.map((it) => it.value),
         },
-        jetton: ZERO_ADDRESS,
-        nft: ZERO_ADDRESS,
+        jetton: parsedStrategy.data["jetton"] || ZERO_ADDRESS,
+        nft: parsedStrategy.data["nft"] || ZERO_ADDRESS,
         title: JSON.stringify({ en: formValues.title_en }),
         description: JSON.stringify({ en: formValues.description_en }),
-        votingPowerStrategy: formValues.votingPowerStrategy,
+        votingPowerStrategy,
       };
 
       const sender = getSender();
       const clientV2 = await getClientV2();
-      console.log({ proposalMetadata });
 
       const promise = newProposal(
         sender,

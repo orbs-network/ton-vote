@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
-import LogoImg from "assets/logo.svg";
+import LogoImg from "assets/logo.png";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -28,12 +28,10 @@ export function Navbar() {
     <StyledContainer>
       <StyledNav>
         <StyledLogo onClick={daosPage.root}>
-            <img src={LogoImg} />
-            <Typography style={{marginTop: 5}}>{APP_NAME}</Typography>
-         
+          <img src={LogoImg} />
+          <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
-          {/* <LanuageSelect /> */}
           <Wallet />
 
           {!mobile && <Github />}
@@ -42,8 +40,6 @@ export function Navbar() {
     </StyledContainer>
   );
 }
-
-
 
 const Wallet = () => {
   const { address, disconnect } = useConnection();
@@ -112,10 +108,10 @@ const SideMenu = () => {
       </StyledDotsButton>
       <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
         <StyledMenuContent>
-            <LanuageSelect />
-            <StyledSocials>
-              <AppSocials />
-            </StyledSocials>
+          <LanuageSelect />
+          <StyledSocials>
+            <AppSocials />
+          </StyledSocials>
         </StyledMenuContent>
       </Menu>
     </>
@@ -123,17 +119,16 @@ const SideMenu = () => {
 };
 
 const StyledSocials = styled(Box)({
-  width:'100%',
-  borderTop:'1px solid #E0E0E0',
+  width: "100%",
+  borderTop: "1px solid #E0E0E0",
   marginTop: 40,
-  paddingTop:20
-})
+  paddingTop: 20,
+});
 
 const StyledMenuContent = styled(StyledFlexColumn)({
-  padding: '20px 0px 10px 0px',
+  padding: "20px 0px 10px 0px",
   minWidth: 200,
-  gap: 0
- 
+  gap: 0,
 });
 
 const StyledDotsButton = styled(Button)({
@@ -184,8 +179,8 @@ const LanuageSelect = () => {
 };
 
 const StyledLanguages = styled(Box)({
-  width:'100%'
-})
+  width: "100%",
+});
 
 const StyledLanguageSelectButton = styled(Button)({
   height: "unset",
@@ -232,7 +227,7 @@ const StyledLogo = styled("button")(({ theme }) => ({
     top: -3,
   },
   img: {
-    height: 30,
+    height: 40,
   },
 }));
 

@@ -26,11 +26,7 @@ import { InputArgs } from "types";
 import { StrategySelect } from "./StrategySelect";
 import { STRATEGIES } from "./strategies";
 
-const initialChoices = [
-  { key: crypto.randomUUID(), value: "Yes" },
-  { key: crypto.randomUUID(), value: "No" },
-  { key: crypto.randomUUID(), value: "Abstain" },
-];
+const initialChoices = ["Yes", "No", "Abstain"];
 
 function Form() {
   const { mutate: createProposal, isLoading } = useCreateProposal();

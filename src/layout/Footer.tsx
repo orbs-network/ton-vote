@@ -19,7 +19,6 @@ export function Footer() {
       </StyledWithLove>
       <StyledFlexRow gap={0}>
         <StyledSocials />
-        <Github />
       </StyledFlexRow>
     </StyledContainer>
   );

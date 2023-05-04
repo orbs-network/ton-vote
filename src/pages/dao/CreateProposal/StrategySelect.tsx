@@ -28,7 +28,10 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
   );
 
   const onSelect = (event: SelectChangeEvent) => {
-    const newValue = { ...parsedValue, [STRATEGY_TYPE]: event.target.value };
+    const newValue = {
+      [STRATEGY_TYPE]: event.target.value,
+      [STRATEGY_DATA]: {},
+    };
     formik.setFieldValue(name, JSON.stringify(newValue));
   };
 

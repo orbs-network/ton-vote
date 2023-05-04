@@ -2,10 +2,11 @@ import { Avatar, styled } from "@mui/material";
 import React from "react";
 import { StyledFlexRow } from "styles";
 import {  AiFillGithub } from "react-icons/ai";
-import {BsTelegram} from 'react-icons/bs'
+import {BsInfoCircleFill, BsTelegram} from 'react-icons/bs'
 import { ReactElement } from "react";
 import {BsGlobe} from 'react-icons/bs'
 import { IoNewspaperOutline } from "react-icons/io5";
+import { AppTooltip } from "./Tooltip";
 
 interface Props {
   telegram?: string;
@@ -29,22 +30,40 @@ export function Socials({
 
   return (
     <StyledContainer className={className}>
-      <Social url={telegram} icon={<BsTelegram size={20} />} />
-      <Social url={github} icon={<AiFillGithub size={23} />} />
-      <Social url={website} icon={<BsGlobe size={20} />} />
-      <Social url={whitepaper} icon={<IoNewspaperOutline size={20} />} />
-      <Social url={about} icon={<BsGlobe size={20} />} />
+      <Social
+        tooltip="Telegram"
+        url={telegram}
+        icon={<BsTelegram size={20} />}
+      />
+      <Social tooltip="GitHub" url={github} icon={<AiFillGithub size={23} />} />
+      <Social tooltip="Website" url={website} icon={<BsGlobe size={20} />} />
+      <Social
+        tooltip="White paper"
+        url={whitepaper}
+        icon={<IoNewspaperOutline size={20} />}
+      />
+      <Social tooltip="About" url={about} icon={<BsInfoCircleFill size={20} />} />
     </StyledContainer>
   );
 }
 
 
-const Social = ({ url, icon }: { url?: string; icon: ReactElement }) => {
+const Social = ({
+  url,
+  icon,
+  tooltip,
+}: {
+  url?: string;
+  icon: ReactElement;
+  tooltip: string;
+}) => {
   if (!url) return null;
   return (
-    <StyledSocial href={url} target="_blank">
-      {icon}
-    </StyledSocial>
+    <AppTooltip text={tooltip}>
+      <StyledSocial href={url} target="_blank">
+        {icon}
+      </StyledSocial>
+    </AppTooltip>
   );
 };
 

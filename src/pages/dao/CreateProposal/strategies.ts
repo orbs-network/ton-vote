@@ -12,7 +12,6 @@ export const STRATEGIES: { [key: string]: StrategyOption } = {
         name: "jetton",
         tooltip: "The address of the Jetton",
         required: true,
-        default: "3829432984732894e",
       },
     ],
   },
@@ -25,7 +24,6 @@ export const STRATEGIES: { [key: string]: StrategyOption } = {
         name: "nft",
         tooltip: "The address of the Jetton",
         required: true,
-        default: "3829432984732894e",
       },
     ],
   },
@@ -38,6 +36,7 @@ export const STRATEGIES: { [key: string]: StrategyOption } = {
         name: "blacklist",
         tooltip: "The address of the Jetton",
         required: true,
+        placeholder:'Enter address'
       },
     ],
   },
