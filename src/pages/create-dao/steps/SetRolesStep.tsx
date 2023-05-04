@@ -3,18 +3,14 @@ import { Button, FormikInputsForm, MapInput } from "components";
 import { useFormik } from "formik";
 import _ from "lodash";
 import { useTranslation } from "react-i18next";
-import { StyledFlexColumn } from "styles";
 import { validateFormik } from "utils";
 import { RolesForm, useCreatDaoStore } from "../store";
-import { StyledInputs } from "../styles";
 import { SetRolesFormSchema, useInputs } from "./form";
-import { Step } from "./Step";
 import { Submit } from "./Submit";
 
 export function SetRolesStep() {
   const { setRolesForm, rolesForm, nextStep, editMode } = useCreatDaoStore();
-  const { t } = useTranslation();
-  const form = useInputs().setRolesForm;
+  const form = useInputs(editMode).setRolesForm;
 
   const formik = useFormik<RolesForm>({
     initialValues: {
@@ -31,27 +27,22 @@ export function SetRolesStep() {
   });
 
   return (
-    <Step title={editMode ? t("editSpaceStage") : t("createSpaceStage")}>
-      <StyledFlexColumn>
-        <StyledInputs>
-          <FormikInputsForm<RolesForm>
-            form={form}
-            EndAdornment={EndAdornment}
-            formik={formik}
-          />
-        </StyledInputs>
-        <Submit>
-          <Button
-            onClick={() => {
-              formik.submitForm();
-              validateFormik(formik);
-            }}
-          >
-            Next
-          </Button>
-        </Submit>
-      </StyledFlexColumn>
-    </Step>
+    <FormikInputsForm<RolesForm>
+      form={form}
+      EndAdornment={EndAdornment}
+      formik={formik}
+    >
+      <Submit>
+        <Button
+          onClick={() => {
+            formik.submitForm();
+            validateFormik(formik);
+          }}
+        >
+          Next
+        </Button>
+      </Submit>
+    </FormikInputsForm>
   );
 }
 

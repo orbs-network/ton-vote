@@ -14,8 +14,6 @@ export interface CreateProposalForm {
 }
 
 export interface CreateProposalStore {
-  preview: boolean;
-  setPreview: (value: boolean) => void;
   formData: CreateProposalForm;
   setFormData: (value: CreateProposalForm) => void;
 }
@@ -24,4 +22,4 @@ export interface StrategyOption {
   name: string;
   args?: InputArgs[];
 }
-export type StrategyValue = { type: string; data: { [key: string]: string } };
+export type StrategyValue = { type: string[]; args: string[][] };

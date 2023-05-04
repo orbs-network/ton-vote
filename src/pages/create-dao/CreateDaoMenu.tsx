@@ -1,6 +1,6 @@
 import { styled, Typography, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, SideMenu } from "components";
+import { Button, OverflowWithTooltip, SideMenu } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsCheckLg } from "react-icons/bs";
 import { useCreatDaoStore } from "./store";
@@ -12,9 +12,13 @@ export function CreateDaoMenu() {
   const { t } = useTranslation();
   const steps = useSteps();
   const theme = useTheme();
-  const onStepSelect = (index: number) => {
-   
+
+  const onClick = (index: number) => {
+    if (index < currentStep) {
+      setStep(index);
+    }
   };
+
   return (
     <StyledContainer>
       <StyledSteps>
@@ -25,19 +29,25 @@ export function CreateDaoMenu() {
           return (
             <StyledStep key={index}>
               <StyledIndicator
+                onClick={() => onClick(index)}
                 style={{
                   background: finished ? theme.palette.primary.main : "white",
+                  cursor: finished ? "pointer" : "unset",
                 }}
               >
                 {finished && <BsCheckLg style={{ color: "white" }} />}
                 {isCurrent && <StyledDot />}
               </StyledIndicator>
-              <Typography>{step.title}</Typography>
+              <div style={{ flex: 1 }}>
+                <OverflowWithTooltip text={step.title} />
+              </div>
               {index > 0 && finished && (
-                <StyledEdit onClick={() => {
-                  setStep(index);
-                  setEditMode(true);
-                }}>
+                <StyledEdit
+                  onClick={() => {
+                    setStep(index);
+                    setEditMode(true);
+                  }}
+                >
                   {t("edit")}
                 </StyledEdit>
               )}
@@ -50,9 +60,8 @@ export function CreateDaoMenu() {
 }
 
 const StyledEdit = styled(Button)({
- 
-  padding:'5px 10px',
-  height:'unset',
+  padding: "5px 10px",
+  height: "unset",
   "*": {
     fontSize: 14,
   },
@@ -101,4 +110,5 @@ const StyledStep = styled(StyledFlexRow)({
   position: "relative",
 });
 
-const StyledContainer = styled(SideMenu)({});
+const StyledContainer = styled(SideMenu)({
+});

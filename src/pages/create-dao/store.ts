@@ -94,11 +94,11 @@ export const useCreateDaoMetadata = () => {
       const sender = getSender();
 
       const metadataArgs: DaoMetadata = {
-        about: values.about,
+        about: JSON.stringify({en: values.about_en}),
         avatar: values.avatar || "",
         github: values.github || "",
         hide: values.hide,
-        name: values.name,
+        name: JSON.stringify({en: values.name_en}),
         terms: "",
         telegram: values.telegram || "",
         website: values.website || "",

@@ -6,13 +6,10 @@ import {
   getClientV2,
   newProposal,
   ProposalMetadata,
-  VotingPowerStrategy,
 } from "ton-vote-contracts-sdk";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ZERO_ADDRESS } from "consts";
 import { useNewDataStore, useTxReminderPopup } from "store";
-import { Address } from "ton-core";
 import { useConnection } from "ConnectionProvider";
 import { isOwner } from "utils";
 import { useDaoQuery } from "query/queries";
@@ -23,12 +20,61 @@ import {
 } from "./types";
 import { STRATEGIES } from "./strategies";
 import _ from "lodash";
+import { Dao } from "types";
+import moment from "moment";
 
-export const STRATEGY_TYPE = "type";
-export const STRATEGY_DATA = "data";
+const initialChoices = ["Yes", "No", "Abstain"];
+
+export const useFormInitialValues = (
+  formData: CreateProposalForm,
+  dao?: Dao
+): CreateProposalForm => {
+  const proposalStartTime = moment()
+    .add("1", "day")
+    .set("h", 15)
+    .set("minute", 0).valueOf();
+
+  const proposalEndTime = moment(proposalStartTime).add("7", "days").valueOf();
+  const proposalSnapshotTime = moment(proposalStartTime).subtract('1', 'day').valueOf();
+  return {
+    proposalStartTime:
+      formData.proposalStartTime || proposalStartTime,
+    proposalEndTime: formData.proposalEndTime || proposalEndTime,
+    proposalSnapshotTime: formData.proposalSnapshotTime || proposalSnapshotTime,
+    votingPowerStrategy: formData.votingPowerStrategy || 0,
+    votingChoices: formData.votingChoices || initialChoices,
+    description_en: formData.description_en,
+    description_ru: formData.description_ru,
+    votingSystemType: formData.votingSystemType || 0,
+    title_en: formData.title_en,
+    strategy: handleInitialStrategy(formData.strategy, dao),
+  };
+};
+
+export const handleInitialStrategy = (value?: string, dao?: Dao) => {
+  if (value) {
+    return value;
+  }
+
+  let type = [_.first(_.keys(STRATEGIES)) || ""];
+  let args = [["ton-balance"]];
+
+  if (dao?.daoMetadata.jetton) {
+    type = ["jetton-balance"];
+    args = [[dao.daoMetadata.jetton]];
+  } else if (dao?.daoMetadata.nft) {
+    type = ["nft-number"];
+    args = [[dao.daoMetadata.nft]];
+  }
+  const newValue: StrategyValue = {
+    type,
+    args,
+  };
+  return JSON.stringify(newValue);
+};
 
 export const parseStrategyJSON = (value?: string): StrategyValue => {
-  let parsed = { type: "", data: {} };
+  let parsed: StrategyValue = { type: [], args: [[]] };
 
   if (!value) return parsed;
   try {
@@ -37,18 +83,9 @@ export const parseStrategyJSON = (value?: string): StrategyValue => {
   return parsed;
 };
 
-export const handleInitialStrategy = (value?: string) => {
-  if (value) {
-    return value;
-  }
-  return JSON.stringify({ type: _.first(_.keys(STRATEGIES)), data: {} });
-};
-
 export const useCreateProposalStore = create(
   persist<CreateProposalStore>(
     (set) => ({
-      preview: false,
-      setPreview: (preview) => set({ preview }),
       formData: {} as CreateProposalForm,
       setFormData: (formData) => set({ formData }),
     }),
@@ -84,14 +121,14 @@ export const useCreateProposal = () => {
       const parsedStrategy = parseStrategyJSON(formValues.strategy);
       let votingPowerStrategy;
 
-      switch (parsedStrategy.type) {
-        case "ton-balance":
-          votingPowerStrategy = 0;
-        case "jetton-balance":
-          votingPowerStrategy = 1;
-        case "nft-number":
-          votingPowerStrategy = 2;
-      }
+      // switch (parsedStrategy.type) {
+      //   case "ton-balance":
+      //     votingPowerStrategy = 0;
+      //   case "jetton-balance":
+      //     votingPowerStrategy = 1;
+      //   case "nft-number":
+      //     votingPowerStrategy = 2;
+      // }
 
       const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: formValues.proposalStartTime! / 1_000,
@@ -101,8 +138,6 @@ export const useCreateProposal = () => {
           votingSystemType: formValues.votingSystemType,
           choices: formValues.votingChoices.map((it) => it.value),
         },
-        jetton: parsedStrategy.data["jetton"] || ZERO_ADDRESS,
-        nft: parsedStrategy.data["nft"] || ZERO_ADDRESS,
         title: JSON.stringify({ en: formValues.title_en }),
         description: JSON.stringify({ en: formValues.description_en }),
         votingPowerStrategy,

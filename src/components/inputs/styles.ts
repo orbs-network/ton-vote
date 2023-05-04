@@ -3,40 +3,41 @@ import { Button } from "components/Button";
 import { Img } from "components/Img";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
-export const StyledUpload = styled("div")<{ active: boolean }>(({ active }) => ({
-  width: 110,
-  height: 110,
-  background: "rgba(211, 211, 211, 0.6)",
-  borderRadius: "50%",
-  position: "relative",
-  cursor: "pointer",
-  overflow: "hidden",
-  svg: {
-    transition: "0.2s all",
-    width: 35,
-    height: 35,
-    position: "absolute",
-    top: "50%",
-    transform: active
-      ? "translate(-50%, -50%) scale(1.2)"
-      : "translate(-50%, -50%)",
-    left: "50%",
-  },
-  ".img": {
-    transition: "0.2s all",
+export const StyledUpload = styled("div")<{ active: boolean }>(
+  ({ active }) => ({
+    width: 110,
+    height: 110,
+    background: "rgba(211, 211, 211, 0.6)",
+    borderRadius: "50%",
     position: "relative",
-    zIndex: 2,
-  },
-  "&:hover": {
-    ".img": {
-      opacity: 0,
-    },
+    cursor: "pointer",
+    overflow: "hidden",
     svg: {
-      transform: "translate(-50%, -50%) scale(1.1)",
+      transition: "0.2s all",
+      width: 35,
+      height: 35,
+      position: "absolute",
+      top: "50%",
+      transform: active
+        ? "translate(-50%, -50%) scale(1.2)"
+        : "translate(-50%, -50%)",
+      left: "50%",
     },
-  },
-}));
-
+    ".img": {
+      transition: "0.2s all",
+      position: "relative",
+      zIndex: 2,
+    },
+    "&:hover": {
+      ".img": {
+        opacity: 0,
+      },
+      svg: {
+        transform: "translate(-50%, -50%) scale(1.1)",
+      },
+    },
+  })
+);
 
 export const StyledUploadContainer = styled(StyledFlexColumn)({
   alignItems: "flex-start",
@@ -46,7 +47,6 @@ export const StyledUploadImg = styled(Img)({
   width: "100%",
   height: "100%",
 });
-
 
 export const StyledAddMoreButton = styled(Button)({
   width: "auto",
@@ -67,7 +67,6 @@ export const StyledListInputPrefix = styled(Typography)({
   opacity: 0.6,
 });
 
-
 export const StyledFormInput = styled(Box)({
   width: "100%",
 });
@@ -86,9 +85,6 @@ export const StyledSelectBoxInput = styled(StyledContainer)({
     borderRadius: 10,
   },
 });
-
-
-
 
 export const StyledError = styled(StyledFlexRow)({
   width: "100%",
@@ -129,40 +125,42 @@ export const StyledPreviewButton = styled(Button)({
   },
 });
 
-export const StyledInput = styled(TextField)<{ markdown: number; preview: number }>(
-  ({ markdown, preview }) => ({
+export const StyledInputContainer = styled(Box)<{
+  markdown?: number;
+  preview?: number;
+}>(({ markdown, preview }) => ({
+  width: "100%",
+  fieldset: {
+    borderRadius: 10,
+  },
+  ".MuiFormControl-root": {
     width: "100%",
-    fieldset: {
-      borderRadius: 10,
-    },
-    ".MuiInputBase-root": {
-      paddingBottom: markdown ? "30px" : "unset",
-      paddingTop: markdown ? "32px" : "unset",
-    },
-    textarea: {
-      fontFamily: markdown && !preview ? "monospace!important" : "inherit",
-      color: markdown && !preview ? "black" : "inherit",
-    },
-    input: {
-      background: "transparent!important",
-      padding: "12.5px 12px",
-      fontSize: 16,
-      fontWeight: 500,
+  },
+  ".MuiInputBase-root": {
+    paddingBottom: markdown ? "30px" : "unset",
+    paddingTop: markdown ? "32px" : "unset",
+  },
+  textarea: {
+    fontFamily: markdown && !preview ? "monospace!important" : "inherit",
+    color: markdown && !preview ? "black" : "inherit",
+  },
+  input: {
+    background: "transparent!important",
+    padding: "12.5px 12px",
+    fontSize: 16,
+    fontWeight: 500,
 
-      "::placeholder": {
-        opacity: 1,
-      },
+    "::placeholder": {
+      opacity: 1,
     },
-  })
-);
-
+  },
+}));
 
 export const StyledPreview = styled(Box)({
   padding: "30px 13px 20px 13px",
   border: "1px solid rgba(0, 0, 0, 0.23)",
   borderRadius: 10,
 });
-
 
 export const StyledChars = styled(Typography)({
   fontSize: 14,
@@ -172,7 +170,6 @@ export const StyledInputHeader = styled(StyledFlexRow)({
   marginBottom: 10,
   justifyContent: "flex-start",
 });
-
 
 export const StyledTitle = styled(Typography)({
   textAlign: "left",

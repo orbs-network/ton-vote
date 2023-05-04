@@ -53,4 +53,5 @@ const StyledTitleContainer = styled(StyledContainer)({
 const StyledHeader = styled(StyledFlexRow)({
   borderBottom: "1px solid rgba(114, 138, 150, 0.24)",
   padding: "15px 20px",
+  flexWrap:'wrap'
 });

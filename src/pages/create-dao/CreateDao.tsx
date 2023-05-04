@@ -11,7 +11,11 @@ const SelectedStep = () => {
   const steps = useSteps()
   const step = useCreatDaoStore((store) => store.step);
   const Component = steps[step].component;
-  return <Component />;
+  return (
+    <StyledStep>
+      <Component />
+    </StyledStep>
+  );
 };
 
 export function CreateDaoPage() {
@@ -24,6 +28,10 @@ export function CreateDaoPage() {
   </Page>
   );
 }
+
+const StyledStep  =styled(Box)({
+  flex:1
+})
 const StyledContainer = styled(StyledFlexRow)({
   gap: 20,
   alignItems: "flex-start",

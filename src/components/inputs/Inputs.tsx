@@ -3,6 +3,7 @@ import {
   Typography,
   Checkbox,
   IconButton,
+  TextField,
 } from "@mui/material";
 import React, {
   ReactElement,
@@ -34,9 +35,7 @@ import {
   StyledDatepicker,
   StyledError,
   StyledFormInput,
-  StyledInput,
   StyledInputHeader,
-  StyledListInputPrefix,
   StyledListTextInput,
   StyledPreview,
   StyledPreviewBox,
@@ -45,8 +44,10 @@ import {
   StyledUploadContainer,
   StyledUploadImg,
   StyledTitle,
+  StyledInputContainer,
 } from "./styles";
 import { TitleContainer } from "components/TitleContainer";
+import { NumericFormat } from "react-number-format";
 
 interface TextInputProps {
   value?: string | number;
@@ -134,23 +135,26 @@ export function TextInput({
         {preview ? (
           <PreviewInput md={value as string} />
         ) : (
-          <StyledInput
+          <StyledInputContainer
             markdown={isMarkdown ? 1 : 0}
-            placeholder={placeholder}
             preview={preview ? 1 : 0}
-            onBlur={onBlur}
-            name={name}
-            rows={rows}
-            disabled={disabled}
-            multiline={rows ? true : false}
-            onFocus={onFocus}
-            variant="outlined"
-            value={value}
-            error={!!error}
-            label={label}
-            onChange={(e) => _onChange(e.target.value)}
-            InputProps={{ endAdornment, startAdornment }}
-          />
+          >
+            <TextField
+              placeholder={placeholder}
+              onBlur={onBlur}
+              name={name}
+              rows={rows}
+              disabled={disabled}
+              multiline={rows ? true : false}
+              onFocus={onFocus}
+              variant="outlined"
+              value={value}
+              error={!!error}
+              label={label}
+              onChange={(e) => _onChange(e.target.value)}
+              InputProps={{ endAdornment, startAdornment }}
+            />
+          </StyledInputContainer>
         )}
       </div>
 
@@ -293,7 +297,7 @@ export const DateRangeInput = ({
           onOpen={onFocus}
           className="datepicker"
           onChange={(value: any) => onChange(dayjs(value).valueOf())}
-          format={"DD/MM/YYYY HH:mm"}
+          format={"YYYY-MM-DD HH:mm"}
         />
         {error && (
           <StyledError>
@@ -368,17 +372,33 @@ export function MapInput<T>({
     );
   }
 
-  if (args.type === "checkbox") {
+  if (args.type === "number") {
     return (
-      <CheckboxInput {...common} onChange={onChange} value={value as boolean} />
+      <NumberInput
+        placeholder={args.placeholder}
+        value={value}
+        onChange={onChange}
+        prefix={args.prefix}
+        suffix={args.suffix}
+        {...common}
+      />
     );
   }
+    if (args.type === "checkbox") {
+      return (
+        <CheckboxInput
+          {...common}
+          onChange={onChange}
+          value={value as boolean}
+        />
+      );
+    }
   if (args.type === "list") {
     return (
       <ListInputs
         title={label}
         onChange={onChange}
-        values={value as string[]}
+        values={value as string[] || ['']}
         required={args.required}
         disabled={args.disabled}
         tooltip={args.tooltip}
@@ -387,7 +407,13 @@ export function MapInput<T>({
     );
   }
 
-  if (args.type === "text" || args.type === "textarea") {
+  if (
+    args.type === "text" ||
+    args.type === "textarea" ||
+    args.type === "address" ||
+    args.type === "image" ||
+    args.type === "url"
+  ) {
     return (
       <TextInput
         {...args}
@@ -446,18 +472,19 @@ interface ListProps {
   required?: boolean;
   disabled?: boolean;
   tooltip?: string;
-  placeholder?: string
+  placeholder?: string;
 }
 
 export const ListInputs = ({
-  values = [''],
+  values = [""],
   title,
   required,
   onChange,
   disabled,
   tooltip,
-  placeholder = '',
+  placeholder = "",
 }: ListProps) => {
+  
   const onInputChange = (index: number, _value: string) => {
     const newValue = values.map((it, _index) => {
       if (index === _index) {
@@ -482,44 +509,45 @@ export const ListInputs = ({
     <StyledContainer>
       <InputHeader tooltip={tooltip} title={title} required={required} />
       <StyledFlexColumn gap={15} alignItems="flex-start">
-        {values.map((it, index) => {
-          const isLast = index === values.length - 1;
-          return (
-            <StyledFlexRow justifyContent="flex-start" key={index}>
-              <StyledListTextInput>
-                <TextInput
-                  disabled={disabled}
-                  placeholder={placeholder}
-                  endAdornment={
-                    !disabled &&
-                    index > 0 && (
-                      <AppTooltip text="Delete choice">
-                        <IconButton onClick={() => deleteOption(index)}>
-                          <BsFillTrash3Fill
-                            style={{
-                              width: 17,
-                              height: 17,
-                              cursor: "pointer",
-                            }}
-                          />
-                        </IconButton>
-                      </AppTooltip>
-                    )
-                  }
-                  onChange={(value) => onInputChange(index, value)}
-                  value={it}
-                />
-              </StyledListTextInput>
-              {!disabled && isLast && (
-                <AppTooltip text="Add option">
-                  <StyledAddMoreButton onClick={addOption}>
-                    <AiOutlinePlus style={{ width: 17, height: 17 }} />
-                  </StyledAddMoreButton>
-                </AppTooltip>
-              )}
-            </StyledFlexRow>
-          );
-        })}
+        {values &&
+          values.map((it, index) => {
+            const isLast = index === values.length - 1;
+            return (
+              <StyledFlexRow justifyContent="flex-start" key={index}>
+                <StyledListTextInput>
+                  <TextInput
+                    disabled={disabled}
+                    placeholder={placeholder}
+                    endAdornment={
+                      !disabled &&
+                      index > 0 && (
+                        <AppTooltip text="Delete choice">
+                          <IconButton onClick={() => deleteOption(index)}>
+                            <BsFillTrash3Fill
+                              style={{
+                                width: 17,
+                                height: 17,
+                                cursor: "pointer",
+                              }}
+                            />
+                          </IconButton>
+                        </AppTooltip>
+                      )
+                    }
+                    onChange={(value) => onInputChange(index, value)}
+                    value={it}
+                  />
+                </StyledListTextInput>
+                {!disabled && isLast && (
+                  <AppTooltip text="Add option">
+                    <StyledAddMoreButton onClick={addOption}>
+                      <AiOutlinePlus style={{ width: 17, height: 17 }} />
+                    </StyledAddMoreButton>
+                  </AppTooltip>
+                )}
+              </StyledFlexRow>
+            );
+          })}
       </StyledFlexColumn>
     </StyledContainer>
   );
@@ -530,6 +558,7 @@ interface FormikInputsFormProps<T> {
   formik: FormikProps<T>;
   EndAdornment?: any;
   customInputHandler?: (value: InputArgs) => ReactElement;
+  children?: ReactNode;
 }
 
 export function FormikInputsForm<T>({
@@ -537,22 +566,46 @@ export function FormikInputsForm<T>({
   formik,
   EndAdornment,
   customInputHandler,
+  children,
 }: FormikInputsFormProps<T>) {
   return (
     <StyledFlexColumn gap={15}>
       {form.map((it, index) => {
+        const isLast = _.size(form) === index + 1;
+
         return (
-          <TitleContainer key={index} title={it.title}>
+          <TitleContainer
+            key={index}
+            title={it.title}
+            headerComponent={
+              it.warning && (
+                <StyledWarning>
+                  <RiErrorWarningLine />
+                  {it.warning}
+                </StyledWarning>
+              )
+            }
+          >
             <StyledFlexColumn gap={30}>
               {it.subTitle && (
                 <StyledCreateAbout>{it.subTitle}</StyledCreateAbout>
               )}
-              <StyledFlexColumn gap={20}>
+              <StyledInputsContainer gap={20}>
                 {it.inputs.map((input) => {
                   const clearError = () =>
                     formik.setFieldError(input.name as string, undefined);
                   return (
-                    <StyledFormInput key={input.name} className="form-input">
+                    <StyledFormInput
+                      key={input.name}
+                      className="form-input"
+                      style={{
+                        width: it.inputsInRow
+                          ? `calc(${100 / it.inputsInRow}% - ${
+                              it.inputsInRow * 5
+                            }px)`
+                          : "100%",
+                      }}
+                    >
                       <MapInput<T>
                         customInputHandler={customInputHandler}
                         EndAdornment={EndAdornment}
@@ -568,11 +621,72 @@ export function FormikInputsForm<T>({
                     </StyledFormInput>
                   );
                 })}
-              </StyledFlexColumn>
+              </StyledInputsContainer>
             </StyledFlexColumn>
+            {it.bottomText && <StyledMarkdown>{it.bottomText}</StyledMarkdown>}
+            {isLast && children}
           </TitleContainer>
         );
       })}
     </StyledFlexColumn>
   );
 }
+
+const StyledMarkdown = styled(Markdown)({
+  marginTop:20
+})
+
+
+const StyledWarning = styled(Typography)(({ theme }) => ({
+  width:'100%',
+  color: theme.palette.text.primary,
+  svg: {
+    position: "relative",
+    top: 2,
+    marginRight: 4,
+  },
+}));
+
+const StyledInputsContainer = styled(StyledFlexRow)({
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
+});
+
+interface NumberInputProps {
+  value: number;
+  placeholder?: string;
+  onChange: (value: any) => void;
+  prefix?: string;
+  suffix?: string;
+  required?: boolean;
+  title?: string;
+  tooltip?: string;
+}
+
+export const NumberInput = ({
+  value,
+  placeholder = "",
+  onChange,
+  prefix = "",
+  suffix = "",
+  required,
+  title,
+  tooltip,
+}: NumberInputProps) => {
+  return (
+    <StyledInputContainer>
+      <InputHeader title={title} required={required} tooltip={tooltip} />
+      <NumericFormat
+        prefix={prefix}
+        suffix={suffix}
+        value={value}
+        placeholder={placeholder}
+        customInput={TextField}
+        thousandSeparator=","
+        onValueChange={(value) => {
+          onChange(value.floatValue);
+        }}
+      />
+    </StyledInputContainer>
+  );
+};

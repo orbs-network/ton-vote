@@ -56,7 +56,7 @@ export const Metadata = () => {
               strategy={proposalMetadata.votingPowerStrategy}
             />
           </InformationRow>
-          {proposalMetadata.votingPowerStrategy ===
+          {/* {proposalMetadata.votingPowerStrategy ===
             VotingPowerStrategy.JettonBalance && (
             <InformationRow label="Jetton Address">
               <AddressDisplay address={proposalMetadata.jetton} />
@@ -67,7 +67,7 @@ export const Metadata = () => {
             <InformationRow label="NFT collection">
               <AddressDisplay address={proposalMetadata.nft} />
             </InformationRow>
-          )}
+          )} */}
         </StyledFlexColumn>
       )}
     </StyledInformation>

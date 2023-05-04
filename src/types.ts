@@ -1,9 +1,13 @@
 import BigNumber from "bignumber.js";
 import { Address, Transaction } from "ton";
-import { DaoRoles, MetadataArgs, ProposalMetadata, ProposalResult } from "ton-vote-contracts-sdk";
+import {
+  DaoRoles,
+  MetadataArgs,
+  ProposalMetadata,
+  ProposalResult,
+} from "ton-vote-contracts-sdk";
 
-
-export type ProposalResults = {[key: string]: any}
+export type ProposalResults = { [key: string]: any };
 
 export interface Vote {
   address: string;
@@ -24,9 +28,8 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
-
-interface daoMetadata extends MetadataArgs{
-  dns?: string
+interface daoMetadata extends MetadataArgs {
+  dns?: string;
 }
 export interface Dao {
   daoAddress: string;
@@ -69,7 +72,7 @@ export interface Proposal {
   hardcoded?: boolean;
   url?: string;
   sumCoins?: { [key: string]: BigNumber | string };
-  sumVotes?: {[key: string]: number};
+  sumVotes?: { [key: string]: number };
 }
 
 export type InputType =
@@ -85,12 +88,13 @@ export type InputType =
   | "radio"
   | "select"
   | "list"
-  | 'custom'
+  | "custom"
+  | "number"
 
 export interface InputArgs {
   label: string;
   type: InputType;
-  name: string;
+  name?: string;
   defaultValueClick?: string;
   rows?: number;
   min?: number;
@@ -103,17 +107,15 @@ export interface InputArgs {
   isMarkdown?: boolean;
   disabled?: boolean;
   default?: any;
+  prefix?: string;
+  suffix?: string;
 }
-
-
 
 export interface Endpoints {
   clientV2Endpoint?: string;
   clientV4Endpoint?: string;
   apiKey?: string;
 }
-
-
 
 export type TooltipPlacement =
   | "bottom"
@@ -129,10 +131,11 @@ export type TooltipPlacement =
   | "top-end"
   | "top-start";
 
-
-
 export interface FormArgs {
   title: string;
   subTitle?: string;
   inputs: InputArgs[];
+  inputsInRow?: number;
+  warning?: string;
+  bottomText?: string;
 }

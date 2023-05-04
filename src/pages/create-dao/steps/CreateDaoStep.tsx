@@ -1,13 +1,26 @@
 import { Box, styled, Typography } from "@mui/material";
-import { AddressDisplay, Button, Img, Link, Markdown } from "components";
+import {
+  AddressDisplay,
+  Button,
+  FormikInputsForm,
+  Img,
+  Link,
+  Markdown,
+  TitleContainer,
+} from "components";
 import { StyledFlexColumn } from "styles";
 import { useInputs } from "./form";
-import { RolesForm, useCreatDaoStore, useCreateDao } from "../store";
+import {
+  DaoMetadata,
+  RolesForm,
+  useCreatDaoStore,
+  useCreateDao,
+} from "../store";
 import { Submit } from "./Submit";
 import { MetadataArgs } from "ton-vote-contracts-sdk";
-import { Step } from "./Step";
 import { useTranslation } from "react-i18next";
 import { InputArgs } from "types";
+import _ from "lodash";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
@@ -16,14 +29,16 @@ export function CreateDaoStep() {
   const { daoMetadataForm, rolesForm } = useCreatDaoStore();
 
   const { setRolesForm, createMetadataForm } = useInputs();
+
   return (
-    <Step title={t("createSpace")}>
+    <TitleContainer title={t("createSpace")}>
       <StyledFlexColumn>
         <StyledInputs>
           <>
             {setRolesForm.map((section) => {
-              section.inputs.map((input) => {
+              return section.inputs.map((input) => {
                 const name = input.name as keyof RolesForm;
+
                 return (
                   <InputPreview
                     key={input.name}
@@ -34,8 +49,8 @@ export function CreateDaoStep() {
               });
             })}
             {createMetadataForm.map((section) => {
-              {
-                section.inputs.map((input) => {
+              
+                return section.inputs.map((input) => {
                   const name = input.name as keyof MetadataArgs;
 
                   return (
@@ -46,7 +61,7 @@ export function CreateDaoStep() {
                     />
                   );
                 });
-              }
+              
             })}
           </>
         </StyledInputs>
@@ -56,7 +71,7 @@ export function CreateDaoStep() {
           </Button>
         </Submit>
       </StyledFlexColumn>
-    </Step>
+    </TitleContainer>
   );
 }
 
@@ -64,13 +79,7 @@ const StyledInputs = styled(StyledFlexColumn)({
   gap: 20,
 });
 
-const InputPreview = ({
-  input,
-  value,
-}: {
-  input: InputArgs;
-  value: any;
-}) => {
+const InputPreview = ({ input, value }: { input: InputArgs; value: any }) => {
   const getValue = () => {
     if (input.type === "checkbox") {
       return <Typography>{value ? "Yes" : "No"}</Typography>;

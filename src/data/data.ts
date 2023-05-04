@@ -22,7 +22,7 @@ export const OLD_DAO: Dao = {
     dns: "foundation.ton",
   },
   daoRoles: {
-    owner: "",
+    owner: "EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N",
     proposalOwner: "",
   },
   daoProposals: [
@@ -48,8 +48,6 @@ export const proposals: { [key: string]: Proposal } = {
       votingPowerStrategy: 0,
       title: "Hack-a-TONx: Choose your winners!",
       description: DORA_HACKS_ABOUT,
-      jetton: "",
-      nft: "",
     },
     votes: dora.votes,
     proposalResult: dora.proposalResult.proposalResult,
@@ -73,8 +71,6 @@ export const proposals: { [key: string]: Proposal } = {
       votingPowerStrategy: 0,
       title: "Proposal of TON Tokenomics Optimization",
       description:TOKENOMICS_ABOUT,
-       jetton: "",
-      nft: "",
     },
     votingPower: tokenomics.votingPower,
     votes: tokenomics.votes,

@@ -145,6 +145,8 @@ export const StyledEmptyText = styled(Typography)({
 export const StyledCreateAbout = styled(Typography)({
   fontSize: 14,
   opacity: 0.7,
+  width:'100%',
+  textAlign:'left'
 });
 
 

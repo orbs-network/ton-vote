@@ -1,18 +1,19 @@
 import { useConnection } from "ConnectionProvider";
 import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { useTranslation } from "react-i18next";
-import { FormArgs, InputArgs } from "types";
+import { FormArgs } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
 
-export const useInputs = () => {
+export const useInputs = (editMode?: boolean) => {
   const { t } = useTranslation();
   const address = useConnection().address;
 
   const createMetadataForm: FormArgs[] = [
     {
-      title: "",
-      subTitle: "",
+      title: editMode ? t("editspaceDetails") : t("createSpaceDetails"),
+      subTitle: t("formLanguageInfo") as string,
+      warning: editMode ? (t("editSpaceDetailsWarning") as string) : undefined,
       inputs: [
         {
           label: "DAO name",
@@ -46,6 +47,20 @@ export const useInputs = () => {
           tooltip: t("tonDnsTooltip") as string,
         },
         {
+          label: "Project jetton",
+          type: "address",
+          name: "jetton",
+          tooltip:
+            "Does the DAO revolve around a fungible Jetton token that all members hold? If so, place the TON contract address of the Jetton master contract.",
+        },
+        {
+          label: "Project NFT collection",
+          type: "address",
+          name: "nft",
+          tooltip:
+            "Does the DAO revolve around an NFT that all all members hold? If so, place the TON contract address of the NFT master contract.",
+        },
+        {
           label: "Project website URL",
           type: "url",
           name: "website",
@@ -66,7 +81,8 @@ export const useInputs = () => {
 
   const setRolesForm: FormArgs[] = [
     {
-      title: "",
+      title: editMode ? t("editSpaceStage") : t("createSpaceStage"),
+      subTitle: t("formLanguageInfo") as string,
       inputs: [
         {
           label: "Space owner",
@@ -94,7 +110,7 @@ export const useInputs = () => {
 };
 
 export const DaoMetadataFormSchema = Yup.object().shape({
-  name: Yup.string().test("", "DAO Name is Required", (value, context) => {
+  name_en: Yup.string().test("", "DAO name is required", (value, context) => {
     if (!context.parent.name_en) {
       return false;
     }
@@ -102,7 +118,7 @@ export const DaoMetadataFormSchema = Yup.object().shape({
   }),
   avatar: Yup.string()
     .url("invalid Logo URL")
-    .required("Logo URL is Required")
+    .required("Logo URL is required")
     .test("", "Logo URL must be https", (value) => {
       return value.startsWith("https://");
     })
@@ -113,7 +129,7 @@ export const DaoMetadataFormSchema = Yup.object().shape({
   dns: Yup.string().test("", "TON DNS must end with .ton", (value) => {
     return !value ? true : value?.endsWith(".ton") && value?.length > 4;
   }),
-  about: Yup.string().test(
+  about_en: Yup.string().test(
     "",
     "About the DAO is Required",
     (value, context) => {
@@ -134,13 +150,23 @@ export const DaoMetadataFormSchema = Yup.object().shape({
     }
   ),
   website: Yup.string().url("invalid Website URL"),
+  jetton: Yup.string().test(
+    "address",
+    "Invalid jetton address",
+    validateAddress
+  ),
+  nft: Yup.string().test(
+    "address",
+    "Invalid NFT collection address",
+    validateAddress
+  ),
 });
 
 export const SetRolesFormSchema = Yup.object().shape({
   ownerAddress: Yup.string()
     .test("address", "Invalid owner address", validateAddress)
-    .required("Owner address Required"),
+    .required("Owner address required"),
   proposalOwner: Yup.string()
     .test("address", "Invalid proposal owner address", validateAddress)
-    .required("Proposal publisher address Required"),
+    .required("Proposal publisher address required"),
 });

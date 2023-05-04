@@ -1,9 +1,8 @@
-import { styled } from "@mui/material";
-import { Button, Markdown } from "components";
+import { Box, styled } from "@mui/material";
+import { Button, Markdown, TitleContainer } from "components";
 import { useTranslation } from "react-i18next";
 import { StyledFlexColumn } from "styles";
 import { useCreatDaoStore } from "../store";
-import { Step } from "./Step";
 import { Submit } from "./Submit";
 
 export function GettingStartedStep() {
@@ -11,7 +10,7 @@ export function GettingStartedStep() {
   const { nextStep } = useCreatDaoStore();
 
   return (
-    <Step title={t("getStarted")}>
+    <TitleContainer title={t("getStarted")}>
       <StyledContainer>
         <StyledFlexColumn alignItems="flex-start" gap={15}>
           {t("gettingStartedBody")
@@ -24,12 +23,12 @@ export function GettingStartedStep() {
           <Button onClick={nextStep}>{t("start")}</Button>
         </Submit>
       </StyledContainer>
-    </Step>
+    </TitleContainer>
   );
 }
 
 
-const StyledContainer = styled(StyledFlexColumn)({
+const StyledContainer = styled(Box)({
   a:{
     textDecoration:'unset'
   }

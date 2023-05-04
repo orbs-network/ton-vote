@@ -3,13 +3,25 @@ import { StrategyOption } from "./types";
 
 export const STRATEGIES: { [key: string]: StrategyOption } = {
   "ton-balance": { name: "TON coin balance", args: [] },
+  "ton-balance-with-amount": {
+    name: "TON coin balance, and amount",
+    args: [
+      {
+        type: "number",
+        label: "TON amount",
+        tooltip: "The amount of TON",
+        required: true,
+        default: 1,
+        placeholder:'Enter TON amount',
+      },
+    ],
+  },
   "jetton-balance": {
     name: "Jetton balance",
     args: [
       {
         type: "text",
         label: "Jetton address",
-        name: "jetton",
         tooltip: "The address of the Jetton",
         required: true,
       },
@@ -21,7 +33,6 @@ export const STRATEGIES: { [key: string]: StrategyOption } = {
       {
         type: "text",
         label: "NFT collection address",
-        name: "nft",
         tooltip: "The address of the Jetton",
         required: true,
       },
@@ -31,12 +42,10 @@ export const STRATEGIES: { [key: string]: StrategyOption } = {
     name: "TON balance blacklisted",
     args: [
       {
-        type: 'list',
+        type: "list",
         label: "Blacklist",
-        name: "blacklist",
         tooltip: "The address of the Jetton",
-        required: true,
-        placeholder:'Enter address'
+        placeholder: "Enter address",
       },
     ],
   },

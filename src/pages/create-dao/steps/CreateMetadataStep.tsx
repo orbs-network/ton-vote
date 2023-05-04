@@ -1,35 +1,20 @@
 import { Fade, styled, Typography } from "@mui/material";
 import { Button, FormikInputsForm } from "components";
-import { StyledCreateAbout, StyledFlexColumn } from "styles";
 import { FormikProps, useFormik } from "formik";
 import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
 import _ from "lodash";
 import { DaoMetadataFormSchema, useInputs } from "./form";
 import { Submit } from "./Submit";
-import { StyledInputs } from "../styles";
 import { useEffect } from "react";
 import { useDebouncedCallback } from "hooks";
 import { validateFormik } from "utils";
 import { useTranslation } from "react-i18next";
-import { Step } from "./Step";
-
-const useFormLanguageListeners = (formik: FormikProps<DaoMetadata>) => {
-  useEffect(() => {
-    formik.setFieldValue("name", JSON.stringify({ en: formik.values.name_en }));
-    formik.setFieldValue(
-      "about",
-      JSON.stringify({
-        en: formik.values.about_en,
-      })
-    );
-  }, [formik.values]);
-};
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
   const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
 
-  const { createMetadataForm } = useInputs();
+  const { createMetadataForm } = useInputs(editMode);
 
   const onSubmit = async (_formData: DaoMetadata) => {
     createMetadata(_formData);
@@ -58,7 +43,6 @@ export function CreateMetadataStep() {
   });
 
   const { t } = useTranslation();
-  useFormLanguageListeners(formik);
 
   const saveForm = useDebouncedCallback(() => {
     setDaoMetadataForm(formik.values);
@@ -69,37 +53,23 @@ export function CreateMetadataStep() {
   }, [formik.values]);
 
   return (
-    <Step
-      warning={editMode ? t("editSpaceDetailsWarning") : ""}
-      title={editMode ? t("editspaceDetails") : t("createSpaceDetails")}
+    <FormikInputsForm<DaoMetadata>
+      form={createMetadataForm}
+      formik={formik}
+      EndAdornment={EndAdornment}
     >
-      <StyledFlexColumn alignItems="flex-start" gap={30}>
-        <StyledCreateAbout>
-          Enter all fields in English. Future versions will support adding
-          translations in multiple languages. You can update these fields later.
-        </StyledCreateAbout>
-        <StyledFlexColumn>
-          <StyledInputs>
-            <FormikInputsForm<DaoMetadata>
-              form={createMetadataForm}
-              formik={formik}
-              EndAdornment={EndAdornment}
-            />
-          </StyledInputs>
-          <Submit>
-            <Button
-              isLoading={isLoading}
-              onClick={() => {
-                formik.submitForm();
-                validateFormik(formik);
-              }}
-            >
-              {editMode ? t("editDetails") : t("approveDetails")}
-            </Button>
-          </Submit>
-        </StyledFlexColumn>
-      </StyledFlexColumn>
-    </Step>
+      <Submit>
+        <Button
+          isLoading={isLoading}
+          onClick={() => {
+            formik.submitForm();
+            validateFormik(formik);
+          }}
+        >
+          {editMode ? t("editDetails") : t("approveDetails")}
+        </Button>
+      </Submit>
+    </FormikInputsForm>
   );
 }
 

@@ -4,7 +4,6 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from 'router/router';
 
 
-console.log(isStaging);
 
 function App() {
   return (
