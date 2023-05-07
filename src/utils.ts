@@ -6,6 +6,7 @@ import {
   DaoRoles,
   ProposalMetadata,
   VotingPowerStrategy,
+  VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import {
   ProposalResults,
@@ -20,6 +21,7 @@ import { FormikProps } from "formik";
 import { showErrorToast } from "toasts";
 import { WHITELISTED_DAOS, WHITELISTED_PROPOSALS } from "whitelisted";
 import BigNumber from "bignumber.js";
+import { ZERO_ADDRESS } from "consts";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -149,7 +151,6 @@ export const getTonAmounFromSumCoins = (value?: BigNumber) => {
   return nFormatter(Number(fromNano(Math.round(amount))), 2);
 };
 
-
 export const validateAddress = (value?: string) => {
   if (!value) {
     return true;
@@ -175,13 +176,13 @@ export function validateFormik(formik: FormikProps<any>) {
   });
 }
 
-export const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
+export const getSymbol = (votingPowerStrategy?: VotingPowerStrategyType) => {
   switch (votingPowerStrategy) {
-    case VotingPowerStrategy.TonBalance:
+    case VotingPowerStrategyType.TonBalance:
       return "TON";
-    case VotingPowerStrategy.JettonBalance:
+    case VotingPowerStrategyType.JettonBalance:
       return "Jetton";
-    case VotingPowerStrategy.NftCcollection:
+    case VotingPowerStrategyType.NftCcollection:
       return "NFT";
     default:
       return null;
@@ -191,13 +192,13 @@ export const getSymbol = (votingPowerStrategy?: VotingPowerStrategy) => {
 export const normalizeResults = (
   proposalResult?: ProposalResults
 ): { title: string; percent: number }[] => {
-  if (!proposalResult) return []
-    return _.map(proposalResult, (value, key) => {
-      return {
-        title: key,
-        percent: value ? Number(value) : 0,
-      };
-    }).filter((it) => it.title !== "totalWeight");
+  if (!proposalResult) return [];
+  return _.map(proposalResult, (value, key) => {
+    return {
+      title: key,
+      percent: value ? Number(value) : 0,
+    };
+  }).filter((it) => it.title !== "totalWeight");
 };
 
 export const parseLanguage = (json?: string, lang: string = "en") => {
@@ -227,4 +228,14 @@ export const isProposalWhitelisted = (address?: string) => {
   return WHITELISTED_PROPOSALS.includes(address);
 };
 
+export const isZeroAddress = (value?: string) => {
+  return value === ZERO_ADDRESS;
+};
 
+export const getVoteStrategyType = (
+  votingPowerStrategy?: VotingPowerStrategy[]
+) => {
+  return !votingPowerStrategy || !_.size(votingPowerStrategy)
+    ? VotingPowerStrategyType.TonBalance
+    : votingPowerStrategy[0].type;
+};

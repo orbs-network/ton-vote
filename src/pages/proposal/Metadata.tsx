@@ -9,10 +9,11 @@ import {
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import moment from "moment";
-import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
+import { VotingPowerStrategy, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { useTranslation } from "react-i18next";
 import { useProposalPageQuery } from "./query";
 import { useProposalAddress } from "hooks";
+import { getVoteStrategyType } from "utils";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -23,6 +24,8 @@ export const Metadata = () => {
   const {isLoading, data} = useProposalPageQuery(false)
 
   const proposalMetadata = data?.metadata
+  
+  
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -53,7 +56,9 @@ export const Metadata = () => {
           </InformationRow>
           <InformationRow label="Voting strategy">
             <ProposalStrategyLabel
-              strategy={proposalMetadata.votingPowerStrategy}
+              strategy={Number(
+                getVoteStrategyType(proposalMetadata.votingPowerStrategies)
+              )}
             />
           </InformationRow>
           {/* {proposalMetadata.votingPowerStrategy ===
@@ -77,18 +82,18 @@ export const Metadata = () => {
 const ProposalStrategyLabel = ({
   strategy,
 }: {
-  strategy: VotingPowerStrategy;
+  strategy: VotingPowerStrategyType;
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation();  
 
   switch (strategy) {
-    case VotingPowerStrategy.TonBalance:
+    case VotingPowerStrategyType.TonBalance:
       return <Typography>{t("tonBalance")}</Typography>;
 
-    case VotingPowerStrategy.JettonBalance:
+    case VotingPowerStrategyType.JettonBalance:
       return <Typography>{t("jettonBalance")}</Typography>;
 
-    case VotingPowerStrategy.NftCcollection:
+    case VotingPowerStrategyType.NftCcollection:
       return <Typography>{t("nftCollection")}</Typography>;
 
     default:

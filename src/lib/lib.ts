@@ -8,9 +8,10 @@ import {
   getTransactions,
   ProposalMetadata,
   VotingPowerStrategy,
+  VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { Dao, Proposal } from "types";
-import { Logger, parseVotes } from "utils";
+import { getVoteStrategyType, Logger, parseVotes } from "utils";
 import { api } from "api";
 
 const getProposalFromContract = async (
@@ -35,7 +36,7 @@ const getProposalFromContract = async (
     transactions = _transactions;
   }
 
-  const { votingPowerStrategy } = metadata;
+  const { votingPowerStrategies } = metadata;
 
   const nftItemsHolders = await getAllNftHolders(
     proposalAddress,
@@ -48,7 +49,7 @@ const getProposalFromContract = async (
     metadata,
     transactions,
     {},
-    votingPowerStrategy,
+    getVoteStrategyType(votingPowerStrategies),
     nftItemsHolders
   );
 
@@ -77,28 +78,7 @@ const getDaos = async (signal?: AbortSignal) => {
       return [];
     }
     return apiResult;
-  } catch (error) {
-    // get daos from contract
-    // Logger("server error, Fetching daos from contract");
-    // const client = await getClientV2();
-    // const { daoAddresses, endDaoId } = await TonVoteSDK.getDaos(client, 10);
-    // const daos: Dao[] = await Promise.all(
-    //   daoAddresses.map(async (address): Promise<Dao> => {
-    //     return {
-    //       daoAddress: address,
-    //       daoMetadata: await TonVoteSDK.getDaoMetadata(client, address),
-    //       daoRoles: await TonVoteSDK.getDaoRoles(client, address),
-    //       daoProposals:
-    //         (await TonVoteSDK.getDaoProposals(client, address))
-    //           .proposalAddresses || [],
-    //     };
-    //   })
-    // );
-    // return {
-    //   daos,
-    //   nextId: endDaoId,
-    // };
-  }
+  } catch (error) {}
 };
 
 const getDao = async (
@@ -138,7 +118,10 @@ const getAllNftHolders = async (
   metadata: ProposalMetadata,
   signal?: AbortSignal
 ) => {
-  if (metadata.votingPowerStrategy !== VotingPowerStrategy.NftCcollection) {
+  if (
+    getVoteStrategyType(metadata.votingPowerStrategies) !==
+    VotingPowerStrategyType.NftCcollection
+  ) {
     return new Set<string>();
   }
   try {

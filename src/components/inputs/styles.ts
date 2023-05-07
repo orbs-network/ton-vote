@@ -92,6 +92,7 @@ export const StyledError = styled(StyledFlexRow)({
   justifyContent: "flex-start",
   gap: 5,
   marginTop: 5,
+  alignItems:'flex-start',
   p: {
     fontSize: 13,
     color: "#d32f2f",
@@ -100,6 +101,8 @@ export const StyledError = styled(StyledFlexRow)({
   },
   svg: {
     color: "#d32f2f",
+    position:'relative',
+    top:3
   },
 });
 

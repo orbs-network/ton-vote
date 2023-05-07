@@ -601,7 +601,7 @@ export function FormikInputsForm<T>({
                       style={{
                         width: it.inputsInRow
                           ? `calc(${100 / it.inputsInRow}% - ${
-                              it.inputsInRow * 5
+                              it.inputsInRow * 7
                             }px)`
                           : "100%",
                       }}
@@ -650,6 +650,7 @@ const StyledWarning = styled(Typography)(({ theme }) => ({
 const StyledInputsContainer = styled(StyledFlexRow)({
   flexWrap: "wrap",
   justifyContent: "flex-start",
+  alignItems:'flex-start'
 });
 
 interface NumberInputProps {

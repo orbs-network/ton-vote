@@ -3,6 +3,7 @@ import dora from "./foundation/dora.json";
 import tokenomics from "./foundation/tokenomics.json";
 import {TOKENOMICS_ABOUT, DORA_HACKS_ABOUT} from './foundation/about'
 import FoundationImg from "assets/foundation.png";
+import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 
 
 export const OLD_DAO: Dao = {
@@ -45,7 +46,9 @@ export const proposals: { [key: string]: Proposal } = {
         choices: [],
         votingSystemType: 0,
       },
-      votingPowerStrategy: 0,
+      votingPowerStrategies: [
+        { type: VotingPowerStrategyType.TonBalance, arguments: [] },
+      ],
       title: "Hack-a-TONx: Choose your winners!",
       description: DORA_HACKS_ABOUT,
     },
@@ -68,9 +71,11 @@ export const proposals: { [key: string]: Proposal } = {
         choices: [],
         votingSystemType: 0,
       },
-      votingPowerStrategy: 0,
+      votingPowerStrategies: [
+        { type: VotingPowerStrategyType.TonBalance, arguments: [] },
+      ],
       title: "Proposal of TON Tokenomics Optimization",
-      description:TOKENOMICS_ABOUT,
+      description: TOKENOMICS_ABOUT,
     },
     votingPower: tokenomics.votingPower,
     votes: tokenomics.votes,

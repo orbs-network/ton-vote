@@ -5,7 +5,11 @@ import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { ProposalMetadata, VotingPowerStrategy } from "ton-vote-contracts-sdk";
+import {
+  ProposalMetadata,
+  VotingPowerStrategy,
+  VotingPowerStrategyType,
+} from "ton-vote-contracts-sdk";
 import { Proposal, ProposalStatus } from "types";
 import {
   getTimeDiff,
@@ -14,6 +18,7 @@ import {
   getSymbol,
   parseLanguage,
   getTonAmounFromSumCoins,
+  getVoteStrategyType,
 } from "utils";
 import { ProposalLoader } from "../ProposalLoader";
 import removeMd from "remove-markdown";
@@ -182,30 +187,30 @@ const Results = ({ proposal }: { proposal: Proposal }) => {
 
   return (
     <StyledResults gap={10}>
-      {normalizeResults(proposalResult)
-        .map((item) => {
-          const { title, percent } = item;
-          return (
-            <Result
-              votingPowerStrategy={proposal.metadata?.votingPowerStrategy}
-              key={title}
-              title={title}
-              percent={percent}
-              tonAmount={
-                sumCoins
-                  ? getTonAmounFromSumCoins(sumCoins[title] as BigNumber)
-                  : calculateTonAmount(percent, totalWeight as string)
-              }
-            />
-          );
-        })}
+      {normalizeResults(proposalResult).map((item) => {
+        const { title, percent } = item;
+        return (
+          <Result
+            votingPowerStrategy={getVoteStrategyType(
+              proposal.metadata?.votingPowerStrategies
+            )}
+            key={title}
+            title={title}
+            percent={percent}
+            tonAmount={
+              sumCoins
+                ? getTonAmounFromSumCoins(sumCoins[title] as BigNumber)
+                : calculateTonAmount(percent, totalWeight as string)
+            }
+          />
+        );
+      })}
     </StyledResults>
   );
 };
 
 const StyledResults = styled(StyledFlexColumn)({
   width: "100%",
-
 });
 
 const Result = ({
@@ -217,7 +222,7 @@ const Result = ({
   title: string;
   percent?: number;
   tonAmount?: string;
-  votingPowerStrategy?: VotingPowerStrategy;
+  votingPowerStrategy?: VotingPowerStrategyType;
 }) => {
   return (
     <StyledProposalResult>

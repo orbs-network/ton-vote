@@ -15,6 +15,7 @@ import {
   calculateTonAmount,
   getSymbol,
   getTonAmounFromSumCoins,
+  getVoteStrategyType,
   nFormatter,
   normalizeResults,
 } from "utils";
@@ -29,13 +30,18 @@ export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery(false);
   const [showAllResults, setShowAllResults] = useState(false);
 
+  console.log(data);
+  
+
   const proposalResult = data?.proposalResult;
   const sumCoins = data?.sumCoins;
   const sumVotes = data?.sumVotes;
 
   const votes = data?.votes;
 
-  const votingPowerStrategy = data?.metadata?.votingPowerStrategy;
+  const votingPowerStrategy = getVoteStrategyType(
+    data?.metadata?.votingPowerStrategies
+  );
   const symbol = getSymbol(votingPowerStrategy);
 
   const votesCount = useMemo(() => {
@@ -61,7 +67,6 @@ export const Results = () => {
     [dataUpdatedAt]
   );
 
-  console.log(proposalResult);
   
 
   return (

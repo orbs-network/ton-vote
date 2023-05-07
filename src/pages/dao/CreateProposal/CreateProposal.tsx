@@ -9,11 +9,9 @@ import {
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddress, useDebouncedCallback } from "hooks";
 import { StyledFlexRow } from "styles";
-import { FormSchema, useCreateProposalForm } from "./form";
 import {
   useCreateProposal,
   useCreateProposalStore,
-  useFormInitialValues,
 } from "./store";
 import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
@@ -24,18 +22,19 @@ import { CreateProposalForm } from "./types";
 import { appNavigation } from "router/navigation";
 import { InputArgs } from "types";
 import { StrategySelect } from "./StrategySelect";
+import { useFormInitialValues } from "./hooks";
+import { useCreateProposalForm } from "./form/inputs";
+import { FormSchema } from "./form/validation";
 
 function Form() {
   const daoAddress = useDaoAddress();
 
   const { mutate: createProposal, isLoading } = useCreateProposal();
   const data = useDaoQuery(daoAddress).data;
-
   const { formData, setFormData } = useCreateProposalStore();
     const form = useCreateProposalForm(formData);
 
   const initialValues = useFormInitialValues(formData, data);
-  console.log(initialValues);
 
   const formik = useFormik<CreateProposalForm>({
     initialValues,
@@ -80,7 +79,6 @@ const StyledContainer = styled(StyledFlexRow)({
   flex: 1,
   ".date-input": {
     ".MuiFormControl-root": {
-      maxWidth: 350,
       width: "100%",
     },
   },
@@ -88,12 +86,12 @@ const StyledContainer = styled(StyledFlexRow)({
 
 const useCustomInputHandler = (formik: FormikProps<CreateProposalForm>) => {
   return (args: InputArgs) => {
-    const value = formik.values.strategy;
+    const value = formik.values.votingPowerStrategies;
     return (
       <StrategySelect
         required={args.required}
         tooltip={args.tooltip}
-        value={value}
+        selectedStrategies={value || []}
         label={args.label}
         formik={formik}
         name={args.name!}

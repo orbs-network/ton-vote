@@ -4,7 +4,7 @@ import { useConnection } from "ConnectionProvider";
 import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { fromNano } from "ton-core";
-import { getSymbol, nFormatter } from "utils";
+import { getSymbol, getVoteStrategyType, nFormatter } from "utils";
 import { useProposalPageQuery, useWalletVotingPower } from "./query";
 
 interface Props {
@@ -45,11 +45,7 @@ export function VoteConfirmation({
 
 
   return (
-    <StyledPopup
-      title="Cast your vote"
-      open={open}
-      onClose={onClose}
-    >
+    <StyledPopup title="Cast your vote" open={open} onClose={onClose}>
       <StyledContainer gap={30}>
         <StyledFlexColumn>
           <Row label="Choice" value={vote} />
@@ -63,7 +59,7 @@ export function VoteConfirmation({
             isLoading={votingDataLoading}
             label="Your voting power"
             value={`${pasredVotingPower} ${getSymbol(
-              data?.metadata?.votingPowerStrategy
+              getVoteStrategyType(data?.metadata?.votingPowerStrategies)
             )}`}
           />
         </StyledFlexColumn>
@@ -78,7 +74,7 @@ export function VoteConfirmation({
           </Button>
           <Button
             disabled={NoVotingPower}
-            onClick={()  =>{
+            onClick={() => {
               onSubmit();
               onClose();
             }}

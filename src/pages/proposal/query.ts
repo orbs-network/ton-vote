@@ -3,7 +3,7 @@ import { STATE_REFETCH_INTERVAL, QueryKeys } from "config";
 import { useProposalAddress } from "hooks";
 import _ from "lodash";
 import { Proposal, ProposalStatus } from "types";
-import { getProposalStatus, isProposalWhitelisted, Logger } from "utils";
+import { getProposalStatus, getVoteStrategyType, isProposalWhitelisted, Logger } from "utils";
 import { lib } from "lib/lib";
 import { useProposalPersistedStore } from "./store";
 import {
@@ -46,10 +46,14 @@ const serverProposal = async (
   signal?: AbortSignal
 ): Promise<Proposal | null> => {
   const state = await api.getProposal(proposalAddress, signal);
-
+  console.log(state);
+  
   try {
     if (_.isEmpty(state.metadata)) {
       throw new Error("Proposal not found is server");
+    }
+    if (_.isEmpty(state.proposalResult)) {
+      throw new Error("Proposal result is not synced");
     }
     Logger("getting state from server");
     return state;
@@ -71,12 +75,11 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   return useQuery(
     queryKey,
     async ({ signal }) => {
+      const hardcodedProposal = proposals[proposalAddress!];
 
-    const hardcodedProposal = proposals[proposalAddress!];
-
-    if (hardcodedProposal) {
-      return hardcodedProposal;
-    }
+      if (hardcodedProposal) {
+        return hardcodedProposal;
+      }
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
       }
@@ -156,7 +159,7 @@ export const useWalletVotingPower = (
         clientV4,
         account!,
         proposal?.metadata!,
-        proposal?.metadata?.votingPowerStrategy!,
+        getVoteStrategyType(proposal?.metadata?.votingPowerStrategies),
         allNftHolders
       );
     },

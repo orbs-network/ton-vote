@@ -10,7 +10,7 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { getSymbol, nFormatter, parseLanguage } from "utils";
+import { getSymbol, getVoteStrategyType, nFormatter, parseLanguage } from "utils";
 import { PAGE_SIZE } from "config";
 import { Proposal, Vote } from "types";
 import { fromNano } from "ton";
@@ -19,7 +19,7 @@ import moment from "moment";
 import _ from "lodash";
 import { useConnection } from "ConnectionProvider";
 import { CSVLink } from "react-csv";
-import { VotingPowerStrategy } from "ton-vote-contracts-sdk";
+import { VotingPowerStrategy, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { useProposalPageQuery } from "./query";
 import { GrDocumentCsv } from "react-icons/gr";
 import { useTranslation } from "react-i18next";
@@ -34,7 +34,8 @@ const ContainerHeader = () => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
   const isNFT =
-    data?.metadata?.votingPowerStrategy === VotingPowerStrategy.NftCcollection;
+    getVoteStrategyType(data?.metadata?.votingPowerStrategies) ===
+    VotingPowerStrategyType.NftCcollection;
 
   return (
     <StyledContainerHeader>
@@ -48,7 +49,10 @@ const ContainerHeader = () => {
       <StyledFlexRow style={{ width: "unset" }} gap={10}>
         {!isNFT && (
           <Typography className="total" style={{ fontWeight: 600 }}>
-            {tonAmount} {getSymbol(data?.metadata?.votingPowerStrategy)}
+            {tonAmount}{" "}
+            {getSymbol(
+              getVoteStrategyType(data?.metadata?.votingPowerStrategies)
+            )}
           </Typography>
         )}
         <DownloadCSV />
@@ -68,7 +72,9 @@ const ConnectedWalletVote = () => {
 
   return (
     <VoteComponent
-      votingPowerStrategy={data?.metadata?.votingPowerStrategy}
+      votingPowerStrategy={getVoteStrategyType(
+        data?.metadata?.votingPowerStrategies
+      )}
       data={walletVote}
     />
   );
@@ -93,7 +99,9 @@ export function Votes() {
 
   const { data, isLoading } = useProposalPageQuery();
 
-  const votingPowerStrategy = data?.metadata?.votingPowerStrategy;
+  const votingPowerStrategy = getVoteStrategyType(
+    data?.metadata?.votingPowerStrategies
+  );
   const showMoreVotes = () => {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
   };
@@ -190,7 +198,7 @@ const VoteComponent = ({
   votingPowerStrategy,
 }: {
   data?: Vote;
-  votingPowerStrategy?: VotingPowerStrategy;
+  votingPowerStrategy?: VotingPowerStrategyType;
 }) => {
   const connectedAddress = useConnection().address;
 
@@ -199,7 +207,7 @@ const VoteComponent = ({
 
   const isYou = connectedAddress === address;
 
-  const isNFT = votingPowerStrategy === VotingPowerStrategy.NftCcollection;
+  const isNFT = votingPowerStrategy === VotingPowerStrategyType.NftCcollection;
 
   return (
     <StyledAppTooltip

@@ -12,15 +12,35 @@ import { InputHeader, MapInput } from "components";
 import { StyledSelectBoxInput } from "components/inputs/styles";
 import { FormikProps } from "formik";
 import _ from "lodash";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { BsFillTrash3Fill } from "react-icons/bs";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { parseStrategyJSON } from "./store";
-import { STRATEGIES } from "./strategies";
-import { CreateProposalForm, StrategyValue } from "./types";
+import {
+  VotingPowerStrategy,
+  VotingPowerStrategyType,
+} from "ton-vote-contracts-sdk";
+import { useStrategies } from "./hooks";
+import { CreateProposalForm } from "./types";
+
+const getValue = (
+  selectedStrategies: VotingPowerStrategy[],
+  type: string,
+  name: string
+) => {
+  const strategy = _.find(
+    selectedStrategies,
+    (it) => it.type == (type as any as VotingPowerStrategyType)
+  );
+
+  if (!strategy) {
+    return "";
+  }
+
+  return _.find(strategy.arguments, (it) => it.name === name)?.value;
+};
 
 interface Props<T> {
-  value?: string;
+  selectedStrategies: VotingPowerStrategy[];
   label: string;
   formik: FormikProps<T>;
   required?: boolean;
@@ -29,53 +49,102 @@ interface Props<T> {
 }
 
 export function StrategySelect(props: Props<CreateProposalForm>) {
-  const { value, label, formik, required, tooltip, name } = props;
-  const parsedValue = useMemo(() => parseStrategyJSON(value), [value]);
+  const {
+    selectedStrategies = [],
+    label,
+    formik,
+    required,
+    tooltip,
+    name,
+  } = props;
+  const strategies = useStrategies();
+  
 
-  const selectedOptions = useMemo(
-    () => _.filter(STRATEGIES, (it, key) => parsedValue.type.includes(key)),
-    [value]
-  );
+  const selectedStrategiesTypes = _.map(selectedStrategies, (it) => {
+    return it.type.toString();
+  });
 
   const onSelect = (event: SelectChangeEvent<string[]>) => {
-    const newValue: StrategyValue = {
-      args: [[]],
-      type: event.target.value as string[],
-    };
-    formik.setFieldValue(name, JSON.stringify(newValue));
+    const newStrategyTypes = [
+      event.target.value[event.target.value.length - 1],
+    ] as string[];
+    const currentStrategiesType = _.map(
+      formik.values.votingPowerStrategies,
+      (it) => it.type as any as string
+    );
+
+    let updatedStrategies = _.filter(
+      formik.values.votingPowerStrategies,
+      (it) => newStrategyTypes.includes(it.type as any as string)
+    );
+
+    const diff = _.filter(
+      _.difference(newStrategyTypes, currentStrategiesType),
+      (it) => newStrategyTypes.includes(it)
+    );
+
+    _.forEach(_.compact(diff), (type) => {
+      updatedStrategies.push({
+        type: type as any as VotingPowerStrategyType,
+        arguments: [],
+      });
+    });
+    formik.setFieldValue(name, updatedStrategies);
   };
 
-  const onInputChange = (
-    strategyIndex: number,
-    argIndex: number,
-    value: any
-  ) => {
-    const args = parsedValue.args;
-    args[strategyIndex] = args[strategyIndex] || [];
-    args[strategyIndex][argIndex] = value;
-    const newValue: StrategyValue = {
-      ...parsedValue,
-      args,
-    };
+  const onInputChange = (type: string, inputName: string, value: any) => {
+    const data = formik.values.votingPowerStrategies;
 
-    formik.setFieldValue(name, JSON.stringify(newValue));
+    const updated = _.map(data, (strategy) => {
+      if ((strategy.type as any as string) != type) {        
+        return strategy;
+      }
+      const argument = _.find(
+        strategy?.arguments,
+        (it) => it.name === inputName
+      );
+      
+      if (argument) {
+        argument.value = value;
+        const index = strategy.arguments.findIndex((it) => it.name);
+        return {
+          type: strategy.type,
+          arguments: strategy.arguments.splice(index, 1, argument),
+        };
+      }
+      return {
+        type: strategy.type,
+        arguments: [...strategy.arguments, { name: inputName, value }],
+      };
+    });
+
+    console.log(updated);
+    
+
+    formik.setFieldValue(name, updated);
   };
 
   return (
-    <StyledSelectBoxInput>
+    <StyledContainer>
       <InputHeader title={label} required={required} tooltip={tooltip} />
       <StyledFlexColumn alignItems="flex-start" gap={20}>
         <FormControl fullWidth={true} sx={{ maxWidth: 600 }}>
           <Select
-            multiple={true}
-            value={parsedValue.type}
+            // multiple={true}
+            value={selectedStrategiesTypes}
             onChange={onSelect}
             renderValue={(selected: string[]) => {
               return (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                   {selected.map((value) => {
-                    const label = STRATEGIES[value].name;
-                    return <Chip key={value} label={label} />;
+                    const label =
+                      strategies[value as any as VotingPowerStrategyType].name;
+                    // return <Chip key={value} label={label} />;
+                     return (
+                       <Typography key={value}>
+                         {label}
+                       </Typography>
+                     );
                   })}
                 </Box>
               );
@@ -95,20 +164,20 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
               },
             }}
           >
-            {_.map(STRATEGIES, (value, key) => {
-              const selected = parsedValue.type.includes(key);
+            {_.map(strategies, (value, key) => {
+              const selected = selectedStrategiesTypes.includes(key);
               return (
                 <StyledMenuItem key={key} value={key} bg={selected ? 1 : 0}>
                   <StyledFlexRow justifyContent="space-between" gap={30}>
                     <Typography>{value.name}</Typography>
-                    {selected && (
+                    {/* {selected && (
                       <BsFillTrash3Fill
                         style={{
                           width: 17,
                           height: 17,
                         }}
                       />
-                    )}
+                    )} */}
                   </StyledFlexRow>
                 </StyledMenuItem>
               );
@@ -116,38 +185,41 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
           </Select>
         </FormControl>
         <>
-          {selectedOptions?.map((strategy, strategyIndex) => {
-            return (
-              <div key={strategyIndex} style={{ width: "100%" }}>
-                {strategy.args?.map((it, argIndex) => {
-                  let value;
-                  try {
-                    value = parsedValue.args[strategyIndex][argIndex];
-                  } catch (error) {}
-                  return (
-                    <div
-                      key={argIndex}
-                      style={{ maxWidth: "600px", width: "100%" }}
-                    >
-                      <MapInput<CreateProposalForm>
-                        args={it}
-                        value={value}
-                        error=""
-                        onChange={(value) =>
-                          onInputChange(strategyIndex, argIndex, value)
-                        }
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            );
+          {_.map(strategies, (it, type) => {
+            if (!selectedStrategiesTypes.includes(type)) {
+              return null;
+            }
+
+            return it.args?.map((input) => {
+              const value = getValue(selectedStrategies, type, input.name!);
+              return (
+                <div
+                  key={input.name}
+                  style={{ maxWidth: "600px", width: "100%" }}
+                >
+                  <MapInput<CreateProposalForm>
+                    args={input}
+                    value={value}
+                    error=""
+                    onChange={(_value) => {
+                      onInputChange(type, input.name!, _value);
+                    }}
+                  />
+                </div>
+              );
+            });
           })}
         </>
       </StyledFlexColumn>
-    </StyledSelectBoxInput>
+    </StyledContainer>
   );
 }
+
+const StyledContainer = styled(StyledSelectBoxInput)({
+  ".MuiSelect-select": {
+    padding: "13.4px 15px",
+  },
+});
 
 const StyledMenuItem = styled(MenuItem)<{ bg: number }>(({ bg }) => ({
   paddingTop: 10,
