@@ -6,7 +6,7 @@ export interface CreateProposalForm {
   proposalEndTime?: number;
   proposalSnapshotTime?: number;
   votingPowerStrategies: VotingPowerStrategy[];
-  votingChoices: { key: string; value: string }[];
+  votingChoices: string[];
   description_en?: string;
   description_ru?: string;
   title_en?: string;

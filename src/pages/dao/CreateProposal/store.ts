@@ -50,19 +50,23 @@ export const useCreateProposal = () => {
         showErrorToast("Only Dao owner can create proposal");
         return;
       }
-
+      console.log(formValues);
+      
       const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: Math.floor(formValues.proposalStartTime! / 1_000),
         proposalEndTime: Math.floor(formValues.proposalEndTime! / 1_000),
         proposalSnapshotTime: Math.floor(formValues.proposalSnapshotTime! / 1_000),
         votingSystem: {
           votingSystemType: formValues.votingSystemType,
-          choices: formValues.votingChoices.map((it) => it.value),
+          choices: formValues.votingChoices,
         },
         title: JSON.stringify({ en: formValues.title_en }),
         description: JSON.stringify({ en: formValues.description_en }),
         votingPowerStrategies: formValues.votingPowerStrategies,
       };      
+
+      console.log({ proposalMetadata });
+      
 
       const sender = getSender();
       const clientV2 = await getClientV2();
