@@ -2,6 +2,8 @@ import { styled } from "@mui/material";
 import { AppTooltip, Button, Img } from "components";
 import { useConnection } from "ConnectionProvider";
 import { TOOLBAR_WIDTH } from "consts";
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
+import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/queries";
 import { useTranslation } from "react-i18next";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -12,13 +14,12 @@ import { isOwner, parseLanguage } from "utils";
 
 export function Toolbar() {
   const navigation = useAppNavigation();
-  const {t} = useTranslation()
+  const translations = useDaosPageTranslations()
 
   return (
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
-        
-        <AppTooltip text={t("createDaoSpace")} placement="right">
+        <AppTooltip text={translations.createDao} placement="right">
           <StyledButton
             onClick={navigation.createSpace.root}
             variant="transparent"

@@ -1,4 +1,5 @@
 import { styled, Typography } from "@mui/material";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useTranslation } from "react-i18next";
 import { useTxReminderPopup } from "store";
 import { StyledFlexColumn } from "styles";
@@ -7,13 +8,13 @@ import { Popup } from "./Popup";
 
 export function TxReminderPopup() {
   const { open, setOpen } = useTxReminderPopup();
-  const {t} = useTranslation()
+  const translations = useCommonTranslations()
 
   return (
     <StyledPoup hideCloseButton open={open} onClose={() => setOpen(false)}>
       <StyledFlexColumn gap={30}>
-        <StyledText>{t("checkWallet")}</StyledText>
-        <StyledBtn onClick={() => setOpen(false)}>Close</StyledBtn>
+        <StyledText>{translations.checkWallet}</StyledText>
+        <StyledBtn onClick={() => setOpen(false)}>{translations.close}</StyledBtn>
       </StyledFlexColumn>
     </StyledPoup>
   );

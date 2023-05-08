@@ -7,6 +7,7 @@ import { Container } from "./Container";
 import { Select } from "./Select";
 import { SelectOption } from "types";
 import _ from "lodash";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
 export function Search({
   className = "",
@@ -15,7 +16,7 @@ export function Search({
   filterOptions,
   filterValue,
   onFilterSelect,
-  placeholder = "Search",
+  placeholder,
 }: {
   className?: string;
   onChange: (value: string) => void;
@@ -27,7 +28,7 @@ export function Search({
 }) {
   const [value, setValue] = useState(initialValue);
   const debouncedValue = useDebounce<string>(value, 300);
-
+  const t = useCommonTranslations()
   const showFilter = filterOptions && filterValue && onFilterSelect;
 
   useEffect(() => {
@@ -40,7 +41,7 @@ export function Search({
         <StyledLeft>
           <HiMagnifyingGlass />
           <StyledInput
-            placeholder={placeholder}
+            placeholder={placeholder || t.search}
             value={value}
             onChange={(e) => setValue(e.target.value)}
           />

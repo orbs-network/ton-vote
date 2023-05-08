@@ -1,26 +1,24 @@
 import { Box, styled } from "@mui/material";
 import { Button, Markdown, TitleContainer } from "components";
-import { useTranslation } from "react-i18next";
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { StyledFlexColumn } from "styles";
 import { useCreatDaoStore } from "../store";
 import { Submit } from "./Submit";
 
 export function GettingStartedStep() {
-  const { t } = useTranslation();
+  const translations = useCreateDaoTranslations()
   const { nextStep } = useCreatDaoStore();
 
   return (
-    <TitleContainer title={t("getStarted")}>
+    <TitleContainer title={translations.gettingStarted}>
       <StyledContainer>
         <StyledFlexColumn alignItems="flex-start" gap={15}>
-          {t("gettingStartedBody")
-            .split("/n")
-            .map((it, index) => {
-              return <Markdown key={index}>{it}</Markdown>;
-            }) || ""}
+          {translations.gettingStartedBody.split("/n").map((it, index) => {
+            return <Markdown key={index}>{it}</Markdown>;
+          }) || ""}
         </StyledFlexColumn>
         <Submit>
-          <Button onClick={nextStep}>{t("start")}</Button>
+          <Button onClick={nextStep}>{translations.start}</Button>
         </Submit>
       </StyledContainer>
     </TitleContainer>

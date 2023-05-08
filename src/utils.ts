@@ -170,6 +170,7 @@ export const isOwner = (address?: string, roles?: DaoRoles) => {
 export function validateFormik(formik: FormikProps<any>) {
   formik.validateForm().then((errors) => {
     if (!_.isEmpty(errors)) {
+      
       const error = _.first(_.values(errors)) as string;
       error && showErrorToast(error);
     }

@@ -1,4 +1,5 @@
 import { Countdown, LoadingContainer, TitleContainer } from "components";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import moment from "moment";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +16,7 @@ const handleDate = (endDate?: number) => {
 export function Deadline() {
   const { data } = useProposalPageQuery();
   const proposalStatus = useProposalPageStatus();
-  const {t} = useTranslation()
+  const translations = useProposalPageTranslations()
 
   const proposalMetadata = data?.metadata;
 
@@ -24,9 +25,9 @@ export function Deadline() {
         return "";
       }
       if (proposalStatus === ProposalStatus.NOT_STARTED) {
-        return t("voteStartsIn");
+        return translations.voteStartsIn;
       }
-      return t("timeLeftToVote");
+      return translations.timeLeftToVote;
     }, [proposalStatus]);
 
   if (!proposalMetadata) {

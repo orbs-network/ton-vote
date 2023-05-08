@@ -21,6 +21,7 @@ import { showSuccessToast } from "toasts";
 import { ProposalStatus } from "types";
 import { useTranslation } from "react-i18next";
 import { StringParam, useQueryParams } from "use-query-params";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
 export const useDaoAddress = () => {
   return useParams().daoId as string;
@@ -166,14 +167,14 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
 };
 
 export const useProposalStatusText = (status?: ProposalStatus | null) => {
-  const { t } = useTranslation();
+  const t = useCommonTranslations()
   switch (status) {
     case ProposalStatus.CLOSED:
-      return t("ended");
+      return t.ended;
     case ProposalStatus.ACTIVE:
-      return t("active");
+      return t.active;
     case ProposalStatus.NOT_STARTED:
-      return t("notStarted");
+      return t.notStarted;
     default:
       break;
   }

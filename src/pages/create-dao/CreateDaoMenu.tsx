@@ -5,11 +5,11 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsCheckLg } from "react-icons/bs";
 import { useCreatDaoStore } from "./store";
 import { useSteps } from "./steps";
-import { useTranslation } from "react-i18next";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
 export function CreateDaoMenu() {
   const { step: currentStep, setStep, setEditMode } = useCreatDaoStore();
-  const { t } = useTranslation();
+  const translations = useCommonTranslations()
   const steps = useSteps();
   const theme = useTheme();
 
@@ -48,7 +48,7 @@ export function CreateDaoMenu() {
                     setEditMode(true);
                   }}
                 >
-                  {t("edit")}
+                  {translations.edit}
                 </StyledEdit>
               )}
             </StyledStep>

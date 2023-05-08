@@ -20,6 +20,7 @@ import { useProposalStatusQuery } from "query/queries";
 import { lib } from "lib/lib";
 import { Transaction } from "ton-core";
 import { useTranslation } from "react-i18next";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -40,7 +41,7 @@ export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
   const { data } = useProposalPageQuery(false);
   const { setEndpoints, endpoints } = useEnpointsStore();
-  const { t } = useTranslation();
+  const translations = useProposalPageTranslations()
 
   return useMutation(async (customEndpoints: Endpoints) => {
     analytics.GA.verifyButtonClick();
@@ -86,9 +87,9 @@ export const useVerifyProposalResults = () => {
 
     showPromiseToast({
       promise,
-      success: t("resultsVerified"),
-      loading: t("verifyingResults") as string,
-      error: t("failedToVerifyResults") as string,
+      success: translations.resultsVerified,
+      loading: translations.verifyingResults,
+      error: translations.failedToVerifyResults,
     });
 
     if (_.isEmpty(data?.proposalResult)) {

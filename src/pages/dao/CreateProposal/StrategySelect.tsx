@@ -192,6 +192,7 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
 
             return it.args?.map((input) => {
               const value = getValue(selectedStrategies, type, input.name!);
+              const errors: any = formik.errors
               return (
                 <div
                   key={input.name}
@@ -200,7 +201,8 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
                   <MapInput<CreateProposalForm>
                     args={input}
                     value={value}
-                    error=""
+                    error={errors[input.name!]}
+                    clearError={() => formik.setFieldError(input.name as string, undefined)}
                     onChange={(_value) => {
                       onInputChange(type, input.name!, _value);
                     }}

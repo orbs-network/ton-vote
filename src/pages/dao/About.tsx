@@ -1,6 +1,8 @@
 import { Chip, styled } from "@mui/material";
 import { AddressDisplay, Header, Link, TitleContainer } from "components";
 import { useDaoAddress } from "hooks";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoQuery } from "query/queries";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { DaoDescription } from "./DaoDescription";
@@ -8,14 +10,14 @@ import { DaoDescription } from "./DaoDescription";
 export function DaoPageAbout() {
   const daoAddress = useDaoAddress();
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
-
+  const translations = useCommonTranslations()
   return (
     <StyledFlexColumn gap={0} alignItems="flex-start">
       <StyledHeader title="About" />
       <StyledFlexColumn gap={30}>
         <DaoDescription />
         <StyledTitleContainer
-          title="Administrators"
+          title={translations.administrators}
           headerComponent={<Chip label={2} />}
         >
           <StyledFlexColumn gap={0}>
@@ -23,7 +25,7 @@ export function DaoPageAbout() {
               {roles && (
                 <StyledAddressDisplay address={roles.owner} padding={10} />
               )}
-              <Chip label="DAO space owner" color="primary" />
+              <Chip label={translations.daoSpaceOwner} color="primary" />
             </StyledSection>
             <StyledSection>
               {roles && (
@@ -32,7 +34,7 @@ export function DaoPageAbout() {
                   padding={10}
                 />
               )}
-              <Chip label="Proposal publisher" color="primary" />
+              <Chip label={translations.proposalPublisher} color="primary" />
             </StyledSection>
           </StyledFlexColumn>
         </StyledTitleContainer>

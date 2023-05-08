@@ -7,7 +7,6 @@ import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {
   ProposalMetadata,
-  VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { Proposal, ProposalStatus } from "types";
@@ -36,6 +35,7 @@ import {
 } from "./styles";
 import { useTranslation } from "react-i18next";
 import BigNumber from "bignumber.js";
+import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 
 const Time = ({
   proposalMetadata,
@@ -44,15 +44,13 @@ const Time = ({
   proposalMetadata?: ProposalMetadata;
   status: ProposalStatus | null;
 }) => {
-  const { t } = useTranslation();
+  const translations = useDaoPageTranslations();
   if (!status || !proposalMetadata) return null;
 
   if (status === ProposalStatus.NOT_STARTED) {
     return (
       <StyledTime>
-        {t("startIn", {
-          value: getTimeDiff(proposalMetadata.proposalStartTime),
-        })}
+        {translations.startIn(getTimeDiff(proposalMetadata.proposalStartTime))}
       </StyledTime>
     );
   }
@@ -60,16 +58,16 @@ const Time = ({
   if (status === ProposalStatus.CLOSED) {
     return (
       <StyledTime>
-        {t("proposalEnded", {
-          value: getTimeDiff(proposalMetadata.proposalEndTime, true),
-        })}
+        {translations.proposalEnded(
+          getTimeDiff(proposalMetadata.proposalEndTime, true)
+        )}
       </StyledTime>
     );
   }
 
   return (
     <StyledTime>
-      {t("endIn", { value: getTimeDiff(proposalMetadata.proposalEndTime) })}
+      {translations.endIn(getTimeDiff(proposalMetadata.proposalEndTime))}
     </StyledTime>
   );
 };

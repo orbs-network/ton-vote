@@ -1,23 +1,25 @@
 import { styled, Typography } from "@mui/material";
 import { Button, FormikInputsForm, MapInput } from "components";
 import { useFormik } from "formik";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
-import { useTranslation } from "react-i18next";
 import { validateFormik } from "utils";
+import { useInputs } from "../form/inputs";
+import { useSetRolesFormSchema } from "../form/validation";
 import { RolesForm, useCreatDaoStore } from "../store";
-import { SetRolesFormSchema, useInputs } from "./form";
 import { Submit } from "./Submit";
 
 export function SetRolesStep() {
   const { setRolesForm, rolesForm, nextStep, editMode } = useCreatDaoStore();
+  const Schema = useSetRolesFormSchema();
   const form = useInputs(editMode).setRolesForm;
-
+  const translations = useCommonTranslations()
   const formik = useFormik<RolesForm>({
     initialValues: {
       ownerAddress: rolesForm.ownerAddress,
       proposalOwner: rolesForm.proposalOwner,
     },
-    validationSchema: SetRolesFormSchema,
+    validationSchema: Schema,
     validateOnChange: false,
     validateOnBlur: true,
     onSubmit: (values) => {
@@ -39,7 +41,7 @@ export function SetRolesStep() {
             validateFormik(formik);
           }}
         >
-          Next
+          {translations.next}
         </Button>
       </Submit>
     </FormikInputsForm>
@@ -47,10 +49,10 @@ export function SetRolesStep() {
 }
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
-  const { t } = useTranslation();
+  const translations = useCommonTranslations()
   return (
     <StyledEndAdornment onClick={onClick}>
-      <Typography>{t("connectedWallet")}</Typography>
+      <Typography>{translations.connectedWallet}</Typography>
     </StyledEndAdornment>
   );
 };

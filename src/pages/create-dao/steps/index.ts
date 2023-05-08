@@ -1,3 +1,4 @@
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useTranslation } from "react-i18next";
 import { CreateDaoStep } from "./CreateDaoStep";
 import { CreateMetadataStep } from "./CreateMetadataStep";
@@ -6,22 +7,22 @@ import { SetRolesStep } from "./SetRolesStep";
 
 
 export const useSteps = () => {
-  const {t} = useTranslation()
+  const translations = useCreateDaoTranslations();
   return [
     {
-      title: t("getStarted"),
+      title: translations.gettingStarted,
       component: GettingStartedStep,
     },
     {
-      title: t("spaceDetails"),
+      title: translations.spaceMetadata,
       component: CreateMetadataStep,
     },
     {
-      title: t("spacestage"),
+      title: translations.stage,
       component: SetRolesStep,
     },
     {
-      title: t("createSpace"),
+      title: translations.createStage,
       component: CreateDaoStep,
     },
   ];

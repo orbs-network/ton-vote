@@ -3,19 +3,21 @@ import { Button, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
 import _ from "lodash";
-import { DaoMetadataFormSchema, useInputs } from "./form";
 import { Submit } from "./Submit";
 import { useEffect } from "react";
 import { useDebouncedCallback } from "hooks";
 import { validateFormik } from "utils";
-import { useTranslation } from "react-i18next";
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useInputs } from "../form/inputs";
+import { useDaoMetadataFormSchema } from "../form/validation";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
   const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
-
+  const translations = useCreateDaoTranslations()
   const { createMetadataForm } = useInputs(editMode);
-
+  const Schema = useDaoMetadataFormSchema();
   const onSubmit = async (_formData: DaoMetadata) => {
     createMetadata(_formData);
   };
@@ -36,13 +38,12 @@ export function CreateMetadataStep() {
       about_en: daoMetadataForm.about_en,
       name_en: daoMetadataForm.name_en,
     },
-    validationSchema: DaoMetadataFormSchema,
+    validationSchema: Schema,
     validateOnChange: false,
     validateOnBlur: true,
     onSubmit,
   });
 
-  const { t } = useTranslation();
 
   const saveForm = useDebouncedCallback(() => {
     setDaoMetadataForm(formik.values);
@@ -66,7 +67,7 @@ export function CreateMetadataStep() {
             validateFormik(formik);
           }}
         >
-          {editMode ? t("editDetails") : t("approveDetails")}
+          {editMode ? translations.editDetails : translations.approveDetails}
         </Button>
       </Submit>
     </FormikInputsForm>
@@ -74,10 +75,10 @@ export function CreateMetadataStep() {
 }
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
-  const { t } = useTranslation();
+  const commonTranslations = useCommonTranslations()
   return (
     <StyledEndAdornment onClick={onClick}>
-      <Typography>{t("connectedWallet")}</Typography>
+      <Typography>{commonTranslations.connectedWallet}</Typography>
     </StyledEndAdornment>
   );
 };

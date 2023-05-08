@@ -10,7 +10,12 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { getSymbol, getVoteStrategyType, nFormatter, parseLanguage } from "utils";
+import {
+  getSymbol,
+  getVoteStrategyType,
+  nFormatter,
+  parseLanguage,
+} from "utils";
 import { PAGE_SIZE } from "config";
 import { Proposal, Vote } from "types";
 import { fromNano } from "ton";
@@ -19,13 +24,16 @@ import moment from "moment";
 import _ from "lodash";
 import { useConnection } from "ConnectionProvider";
 import { CSVLink } from "react-csv";
-import { VotingPowerStrategy, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
+import {
+  VotingPowerStrategy,
+  VotingPowerStrategyType,
+} from "ton-vote-contracts-sdk";
 import { useProposalPageQuery } from "./query";
 import { GrDocumentCsv } from "react-icons/gr";
-import { useTranslation } from "react-i18next";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 const ContainerHeader = () => {
-  const { data, isLoading } = useProposalPageQuery();
+  const { data } = useProposalPageQuery();
 
   const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
@@ -96,6 +104,7 @@ const StyledContainerHeader = styled(StyledFlexRow)({
 export function Votes() {
   const connectedAddress = useConnection().address;
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
+  const translations = useProposalPageTranslations();
 
   const { data, isLoading } = useProposalPageQuery();
 
@@ -111,7 +120,10 @@ export function Votes() {
   }
 
   return (
-    <StyledContainer title="Recent votes" headerComponent={<ContainerHeader />}>
+    <StyledContainer
+      title={translations.recentVotes}
+      headerComponent={<ContainerHeader />}
+    >
       <List
         isLoading={isLoading}
         isEmpty={!isLoading && !_.size(data?.votes)}
@@ -152,17 +164,19 @@ const StyledLoadMore = styled(LoadMore)({
 });
 
 const Empty = () => {
+  const translations = useProposalPageTranslations();
   return (
     <StyledNoVotes>
-      <Typography>No votes</Typography>
+      <Typography>{translations.noVotes}</Typography>
     </StyledNoVotes>
   );
 };
 
 const DownloadCSV = () => {
+  const translations = useProposalPageTranslations();
+
   const theme = useTheme();
   const { data, dataUpdatedAt } = useProposalPageQuery(false);
-  const {t} = useTranslation()
 
   const csvData = useMemo(() => {
     const values = _.map(data?.votes, (vote) => {
@@ -174,17 +188,17 @@ const DownloadCSV = () => {
       ];
     });
     values.unshift([
-      t("address") as string,
-      t("vote") as string,
-      t("votingPower") as string,
-      t("date") as string,
+      translations.address,
+      translations.vote,
+      translations.votingPower,
+      translations.date,
     ]);
     return values;
   }, [dataUpdatedAt]);
 
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
-      <AppTooltip text="Download CSV" placement="top">
+      <AppTooltip text={translations.downloadCsv} placement="top">
         <GrDocumentCsv
           style={{ width: 18, height: 18, color: theme.palette.text.primary }}
         />
@@ -201,7 +215,7 @@ const VoteComponent = ({
   votingPowerStrategy?: VotingPowerStrategyType;
 }) => {
   const connectedAddress = useConnection().address;
-
+  const translations = useProposalPageTranslations();
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
@@ -217,7 +231,7 @@ const VoteComponent = ({
       <StyledVote justifyContent="flex-start">
         <StyledAddressDisplay
           address={address}
-          displayText={isYou ? "You" : ""}
+          displayText={isYou ? translations.you : ""}
         />
         <Typography
           style={{

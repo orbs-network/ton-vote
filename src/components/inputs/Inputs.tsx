@@ -48,6 +48,8 @@ import {
 } from "./styles";
 import { TitleContainer } from "components/TitleContainer";
 import { NumericFormat } from "react-number-format";
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
 interface TextInputProps {
   value?: string | number;
@@ -92,7 +94,7 @@ export function TextInput({
   isMarkdown,
   defaultValue,
 }: TextInputProps) {
-  const { t } = useTranslation();
+  const translations = useCommonTranslations()
   const [preview, setPreview] = useState(false);
 
   const _onChange = (_value: string) => {
@@ -118,7 +120,7 @@ export function TextInput({
         {isMarkdown && _.size(value.toString()) > 0 && (
           <StyledPreviewBox justifyContent="flex-end">
             <StyledPreviewButton onClick={() => setPreview(!preview)}>
-              {preview ? "Edit" : "Preview"}
+              {preview ? translations.edit : translations.preview}
             </StyledPreviewButton>
             <StyledPreviewButton
               onClick={() =>
@@ -128,7 +130,7 @@ export function TextInput({
                 )
               }
             >
-              Help
+              {translations.help}
             </StyledPreviewButton>
           </StyledPreviewBox>
         )}
@@ -384,21 +386,17 @@ export function MapInput<T>({
       />
     );
   }
-    if (args.type === "checkbox") {
-      return (
-        <CheckboxInput
-          {...common}
-          onChange={onChange}
-          value={value as boolean}
-        />
-      );
-    }
+  if (args.type === "checkbox") {
+    return (
+      <CheckboxInput {...common} onChange={onChange} value={value as boolean} />
+    );
+  }
   if (args.type === "list") {
     return (
       <ListInputs
         title={label}
         onChange={onChange}
-        values={value as string[] || ['']}
+        values={(value as string[]) || [""]}
         required={args.required}
         disabled={args.disabled}
         tooltip={args.tooltip}
@@ -484,7 +482,6 @@ export const ListInputs = ({
   tooltip,
   placeholder = "",
 }: ListProps) => {
-  
   const onInputChange = (index: number, _value: string) => {
     const newValue = values.map((it, _index) => {
       if (index === _index) {
@@ -575,6 +572,7 @@ export function FormikInputsForm<T>({
 
         return (
           <TitleContainer
+            className="formik-form"
             key={index}
             title={it.title}
             headerComponent={
@@ -633,12 +631,15 @@ export function FormikInputsForm<T>({
 }
 
 const StyledMarkdown = styled(Markdown)({
-  marginTop:20
-})
-
+  marginTop: 20,
+  p: {
+    fontSize: 15,
+    fontWeight: 500
+  },
+});
 
 const StyledWarning = styled(Typography)(({ theme }) => ({
-  width:'100%',
+  width: "100%",
   color: theme.palette.text.primary,
   svg: {
     position: "relative",
@@ -650,7 +651,7 @@ const StyledWarning = styled(Typography)(({ theme }) => ({
 const StyledInputsContainer = styled(StyledFlexRow)({
   flexWrap: "wrap",
   justifyContent: "flex-start",
-  alignItems:'flex-start'
+  alignItems: "flex-start",
 });
 
 interface NumberInputProps {

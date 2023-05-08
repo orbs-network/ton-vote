@@ -2,6 +2,7 @@ import { Typography, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Container, OverflowWithTooltip, VerifiedDao } from "components";
 import { useConnection } from "ConnectionProvider";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
@@ -24,11 +25,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const { daoMetadata } = dao;
   const walletAddress = useConnection().address;
   const theme = useTheme();
-
-  const join = (e: any) => {
-    e.stopPropagation();
-    mutate();
-  };
+  const t = useCommonTranslations()
 
   if (dao.daoMetadata.hide && !isOwner(walletAddress, dao.daoRoles))
     return null;
@@ -52,7 +49,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             </Typography>
             <Address dao={dao} />
             <Container className="members">
-              <Typography>{nFormatter(100000)} members</Typography>
+              <Typography>{nFormatter(100000)} {t.members}</Typography>
             </Container>
           </StyledFlexColumn>
         ) : null}

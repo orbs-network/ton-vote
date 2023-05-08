@@ -9,9 +9,9 @@ import {
 } from "components";
 import { routes } from "consts";
 import { useCurrentRoute, useDaoAddress, useIsOwner } from "hooks";
+import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
-import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
@@ -142,21 +142,21 @@ const Navigation = () => {
 };
 
 const useNavigationLinks = () => {
-  const {t} = useTranslation()
+  const translations = useDaoPageTranslations()
   return [
     {
-      title: t("proposals"),
+      title: translations.proposals,
       navigate: (daoId: string) => appNavigation.daoPage.root(daoId),
       path: routes.space,
     },
 
     {
-      title: t("about"),
+      title: translations.about,
       navigate: (daoId: string) => appNavigation.daoPage.about(daoId),
       path: routes.spaceAbout,
     },
     {
-      title: t("newProposal"),
+      title: translations.newProposal,
       navigate: (daoId: string) => appNavigation.daoPage.create(daoId),
       path: routes.createProposal,
       onlyOwner: true,

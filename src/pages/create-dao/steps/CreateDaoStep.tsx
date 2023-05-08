@@ -9,7 +9,6 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn } from "styles";
-import { useInputs } from "./form";
 import {
   DaoMetadata,
   RolesForm,
@@ -18,20 +17,23 @@ import {
 } from "../store";
 import { Submit } from "./Submit";
 import { MetadataArgs } from "ton-vote-contracts-sdk";
-import { useTranslation } from "react-i18next";
 import { InputArgs } from "types";
 import _ from "lodash";
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useInputs } from "../form/inputs";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
-  const { t } = useTranslation();
+  const translations = useCreateDaoTranslations();
+    const commonTranslations = useCommonTranslations();
 
   const { daoMetadataForm, rolesForm } = useCreatDaoStore();
 
   const { setRolesForm, createMetadataForm } = useInputs();
 
   return (
-    <TitleContainer title={t("createSpace")}>
+    <TitleContainer title={translations.createSpace}>
       <StyledFlexColumn>
         <StyledInputs>
           <>
@@ -49,25 +51,23 @@ export function CreateDaoStep() {
               });
             })}
             {createMetadataForm.map((section) => {
-              
-                return section.inputs.map((input) => {
-                  const name = input.name as keyof MetadataArgs;
+              return section.inputs.map((input) => {
+                const name = input.name as keyof MetadataArgs;
 
-                  return (
-                    <InputPreview
-                      key={input.name}
-                      input={input}
-                      value={daoMetadataForm[name]}
-                    />
-                  );
-                });
-              
+                return (
+                  <InputPreview
+                    key={input.name}
+                    input={input}
+                    value={daoMetadataForm[name]}
+                  />
+                );
+              });
             })}
           </>
         </StyledInputs>
         <Submit>
           <Button isLoading={isLoading} onClick={() => createDao()}>
-            {t("createSpace")}
+            {commonTranslations.create}
           </Button>
         </Submit>
       </StyledFlexColumn>

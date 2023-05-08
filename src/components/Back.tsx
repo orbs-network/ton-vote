@@ -1,5 +1,6 @@
 import { styled, Typography } from "@mui/material";
 import { routes } from "consts";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useTranslation } from "react-i18next";
 import { HiOutlineArrowLeft } from "react-icons/hi";
 import { useLocation, useNavigate, useNavigation } from "react-router-dom";
@@ -9,8 +10,7 @@ import { Button } from "./Button";
 function Back({ to, func }: { to?: string; func?: () => void }) {
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
-  const { t } = useTranslation();
-
+const t = useCommonTranslations()
   const onClick = () => {
     if (func) {
       func();
@@ -28,7 +28,7 @@ function Back({ to, func }: { to?: string; func?: () => void }) {
     <StyledContainer onClick={onClick} variant="transparent">
       <StyledFlexRow gap={5}>
         <HiOutlineArrowLeft />
-        <Typography>{t("back")}</Typography>
+        <Typography>{t.back}</Typography>
       </StyledFlexRow>
     </StyledContainer>
   );

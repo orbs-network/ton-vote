@@ -62,10 +62,7 @@ export const useCreateProposal = () => {
         title: JSON.stringify({ en: formValues.title_en }),
         description: JSON.stringify({ en: formValues.description_en }),
         votingPowerStrategies: formValues.votingPowerStrategies,
-      };
-
-      console.log(proposalMetadata);
-      
+      };      
 
       const sender = getSender();
       const clientV2 = await getClientV2();

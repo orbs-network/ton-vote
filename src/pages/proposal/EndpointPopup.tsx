@@ -8,40 +8,51 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import AnimateHeight from "react-animate-height";
-import { Endpoints, FormArgs, InputArgs } from "types";
+import { Endpoints, FormArgs } from "types";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { Button, FormikInputsForm, MapInput, Markdown, Popup } from "components";
+import { Button, FormikInputsForm, Markdown, Popup } from "components";
 import { useEnpointsStore } from "./store";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
-const FormSchema = Yup.object().shape({
-  clientV2Endpoint: Yup.string().required("Required"),
-  apiKey: Yup.string(),
-  clientV4Endpoint: Yup.string().required("Required"),
-});
+const useFormSchema = () => {
+  const commonTranslations = useCommonTranslations()
+   const translations = useProposalPageTranslations();
+  return Yup.object().shape({
+    clientV2Endpoint: Yup.string().required(
+      commonTranslations.isRequired(translations.httpsv2Endpoint)
+    ),
+    apiKey: Yup.string(),
+    clientV4Endpoint: Yup.string().required(commonTranslations.isRequired(translations.httpv4Endpoint)),
+  });
+};
 
-const form: FormArgs[] = [
-  {
-    title: "",
-    inputs: [
-      {
-        label: "HTTP v2 endpoint",
-        type: "text",
-        name: "clientV2Endpoint",
-      },
-      {
-        label: "HTTP v2 API key",
-        type: "text",
-        name: "apiKey",
-      },
-      {
-        label: "HTTP v4 endpoint",
-        type: "text",
-        name: "clientV4Endpoint",
-      },
-    ],
-  },
-];
+const useForm = (): FormArgs[] => {
+  const translations = useProposalPageTranslations();
+  return [
+    {
+      title: "",
+      inputs: [
+        {
+          label: translations.httpsv2Endpoint,
+          type: "text",
+          name: "clientV2Endpoint",
+        },
+        {
+          label: translations.httpsv2ApiKey,
+          type: "text",
+          name: "apiKey",
+        },
+        {
+          label: translations.httpv4Endpoint,
+          type: "text",
+          name: "clientV4Endpoint",
+        },
+      ],
+    },
+  ];
+};
 
 interface EndpointForm {
   clientV2Endpoint: string;
@@ -60,7 +71,9 @@ export function EndpointPopup({
 }) {
   const { endpoints } = useEnpointsStore();
   const [customSelected, setCustomSelected] = useState(false);
-
+  const validationSchema = useFormSchema();
+  const translations = useProposalPageTranslations();
+  const form = useForm()
   const formik = useFormik<EndpointForm>({
     initialValues: {
       apiKey: endpoints?.apiKey || CLIENT_V2_API_KEY,
@@ -69,15 +82,16 @@ export function EndpointPopup({
       clientV4Endpoint:
         endpoints?.clientV4Endpoint || DEFAULT_CLIENT_V4_ENDPOINT,
     },
-    validationSchema: FormSchema,
+    validationSchema,
     validateOnChange: false,
     validateOnBlur: true,
-    onSubmit: async (values) => {
+    onSubmit: async (values) => {      
       onSubmit({
         clientV2Endpoint: values.clientV2Endpoint,
         clientV4Endpoint: values.clientV4Endpoint,
         apiKey: values.apiKey,
       });
+       onClose();
     },
   });
 
@@ -86,9 +100,13 @@ export function EndpointPopup({
       formik.submitForm();
     } else {
       onSubmit({});
+       onClose();
     }
-    onClose();
+   
   };
+
+  
+
   useEffect(() => {
     setCustomSelected(
       !!endpoints?.clientV2Endpoint && !!endpoints.clientV4Endpoint
@@ -96,22 +114,26 @@ export function EndpointPopup({
   }, [endpoints?.clientV2Endpoint, endpoints?.clientV4Endpoint, open]);
 
   return (
-    <StyledPopup open={open} onClose={onClose} title="RPC endpoint settings">
-      <StyledFlexColumn>
-        <StyledFlexColumn gap={5} style={{ marginBottom: 20 }}>
+    <StyledPopup
+      open={open}
+      onClose={onClose}
+      title={translations.rpcSelectTitle}
+    >
+      <StyledFlexColumn gap={0}>
+        <StyledFlexColumn gap={5}>
           <StyledRadio>
             <Radio
               checked={!customSelected}
               onChange={() => setCustomSelected(false)}
             />
-            <Markdown>{`Default endpoint [(Orbs Ton Access)](https://www.orbs.com/ton-access/)`}</Markdown>
+            <Markdown>{translations.tonAccessEnpoint}</Markdown>
           </StyledRadio>
           <StyledRadio>
             <Radio
               checked={customSelected}
               onChange={() => setCustomSelected(true)}
             />
-            <Typography>Custom endpoint</Typography>
+            <Typography>{translations.customEndpoint}</Typography>
           </StyledRadio>
         </StyledFlexColumn>
 
@@ -122,15 +144,13 @@ export function EndpointPopup({
         >
           <FormikInputsForm<EndpointForm> form={form} formik={formik} />
         </AnimateHeight>
-        <StyledSaveButton onClick={_onSubmit}>Verify</StyledSaveButton>
+        <StyledSaveButton onClick={_onSubmit}>
+          {translations.verify}
+        </StyledSaveButton>
       </StyledFlexColumn>
     </StyledPopup>
   );
 }
-
-const StyledCustomEndpoints = styled(StyledFlexColumn)({
-  paddingBottom: 30,
-});
 
 const StyledRadio = styled(StyledFlexRow)({
   a: {
@@ -148,9 +168,21 @@ const StyledRadio = styled(StyledFlexRow)({
 const StyledPopup = styled(Popup)({
   maxWidth: 600,
   padding: 0,
+  ".formik-form": {
+    border: "unset!important",
+   
+
+    boxShadow: "unset",
+    ".title-container-children": {
+      padding: 20,
+    },
+  },
 });
+
 
 const StyledSaveButton = styled(Button)({
   width: "100%",
   maxWidth: 200,
+  marginTop: 30,
+  marginBottom: 10
 });

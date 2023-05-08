@@ -2,12 +2,11 @@ import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useDaoQuery } from "query/queries";
-import { useDaoAddress, useProposalAddress } from "hooks";
+import { useDaoAddress } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
 import { useEffect, useRef, useState } from "react";
-import TransparentImg from "assets/tr.png";
 
 import { useProposalPageQuery } from "./query";
 import {
@@ -24,6 +23,7 @@ import {
 } from "components";
 import { parseLanguage } from "utils";
 import { useProposalPageStatus } from "./hooks";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 const MIN_DESCRIPTION_HEIGHT = 150;
 
@@ -32,7 +32,7 @@ export function ProposalAbout() {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const [ready, setReady] = useState(false);
   const elRef = useRef<any>();
-
+  const translations = useProposalPageTranslations()
   const { isLoading, data } = useProposalPageQuery(false);
 
   const metadata = data?.metadata;
@@ -80,7 +80,7 @@ export function ProposalAbout() {
                       variant="transparent"
                     >
                       <Typography>
-                        {showMore ? "Show less" : "Show more"}
+                        {showMore ? translations.showLess : translations.showMore}
                       </Typography>
                     </StyledShowMoreButton>
                   </StyledShowMore>

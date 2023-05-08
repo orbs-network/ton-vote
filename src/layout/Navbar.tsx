@@ -20,6 +20,7 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
 import LogoImg from "assets/logo.png";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -44,7 +45,7 @@ export function Navbar() {
 const Wallet = () => {
   const { address, disconnect } = useConnection();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { t } = useTranslation();
+ const translations = useCommonTranslations()
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -77,7 +78,7 @@ const Wallet = () => {
 
       <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
         <StyledMenuItem onClick={() => copy(address)}>
-          <Typography>{t("copyAddress")}</Typography>
+          <Typography>{translations.copyAddress}</Typography>
           <MdContentCopy />
         </StyledMenuItem>
         <StyledMenuItem
@@ -86,7 +87,7 @@ const Wallet = () => {
             handleClose();
           }}
         >
-          <Typography>{t("logout")}</Typography>
+          <Typography>{translations.logout}</Typography>
           <MdLogout />
         </StyledMenuItem>
       </Menu>

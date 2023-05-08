@@ -2,13 +2,13 @@ import { Box } from "@mui/material";
 import { List, LoadMore } from "components";
 import { DAO_REFETCH_INTERVAL } from "config";
 import { useAppQueryParams, useDaoAddress } from "hooks";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
-import { DaoDescription } from "../DaoDescription";
 import { ProposalLoader } from "../ProposalLoader";
 import { ProposalComponent as Proposal } from "./Proposal";
 import { StyledEmptyList, StyledHeader, StyledSearch } from "./styles";
@@ -19,13 +19,13 @@ interface Option extends SelectOption {
 }
 
 const useOptions = (): Option[] => {
-  const { t } = useTranslation();
+  const translations = useCommonTranslations()
 
   return [
-    { text: t("all"), value: "all" },
-    { text: t("active"), value: ProposalStatus.ACTIVE },
-    { text: t("ended"), value: ProposalStatus.CLOSED },
-    { text: t("notStarted"), value: ProposalStatus.NOT_STARTED },
+    { text: translations.all, value: "all" },
+    { text: translations.active, value: ProposalStatus.ACTIVE },
+    { text: translations.ended, value: ProposalStatus.CLOSED },
+    { text: translations.notStarted, value: ProposalStatus.NOT_STARTED },
   ];
 };
 
@@ -100,11 +100,11 @@ export function ProposalsList() {
 }
 
 const EmptyList = () => {
-  const { t } = useTranslation();
+ const translations = useDaoPageTranslations()
   return (
     <StyledEmptyList>
       <StyledFlexColumn>
-        <StyledEmptyText>{t("emptyProposals")}</StyledEmptyText>
+        <StyledEmptyText>{translations.emptyProposals}</StyledEmptyText>
       </StyledFlexColumn>
     </StyledEmptyList>
   );

@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
 import { useAppQueryParams } from "hooks";
 import { DaoListItem } from "./Dao";
+import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
@@ -45,7 +46,7 @@ export function DaosPage() {
     setSearchValue(value);
     setSearch(value);
   };
-  const { t } = useTranslation();
+  const translations = useDaosPageTranslations()
 
   const filteredDaos = useMemo(
     () => filterDaos(data, searchValue),
@@ -60,10 +61,10 @@ export function DaosPage() {
           <StyledSearch
             initialValue={query.search || ""}
             onChange={onSearchInputChange}
-            placeholder={t("searchForDAO") as string}
+            placeholder={translations.searchForDAO}
           />
           <StyledDaosAmount>
-            {nFormatter(_.size(data))} {t("spaces")} {t("onTon")}
+            {nFormatter(_.size(data))} {translations.spaces}
           </StyledDaosAmount>
         </StyledFlexRow>
         <StyledFlexColumn gap={25}>
@@ -74,7 +75,7 @@ export function DaosPage() {
             emptyComponent={
               <StyledEmptyList>
                 <StyledFlexRow>
-                  <StyledEmptyText>{t("noSpaces")}</StyledEmptyText>
+                  <StyledEmptyText>{translations.noSpaces}</StyledEmptyText>
                 </StyledFlexRow>
               </StyledEmptyList>
             }

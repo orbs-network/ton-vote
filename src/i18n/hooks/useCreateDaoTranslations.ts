@@ -1,0 +1,55 @@
+import { useTranslation } from "react-i18next";
+
+export const useCreateDaoTranslations = () => {
+  const { t } = useTranslation("createDao");
+
+  return {
+    gettingStarted: t("gettingStarted"),
+    gettingStartedBody: t("gettingStartedBody"),
+    spaceMetadata: t("spaceMetadata"),
+    spaceAdministrators: t("spaceAdministrators"),
+    createSpace: t("createSpace"),
+    start: t("start"),
+    enterSpaceMetadata: t("enterSpaceMetadata"),
+    editSpaceMetadata: t("editSpaceMetadata"),
+    editWarning: t("editWarning"),
+    createStage: t("createStage"),
+    editStage: t("editStage"),
+    formInfo: t("formInfo"),
+    daoName: t("daoName"),
+    daoAbout: t("daoAbout"),
+    logoURL: t("logoURL"),
+    tonDns: t("tonDns"),
+    submit: t("submit"),
+    jetton: t("jetton"),
+    nft: t("nft"),
+    website: t("website"),
+    telegramGroup: t("telegramGroup"),
+    github: t("github"),
+    ownerAddress: t("ownerAddress"),
+    publisherAddress: t("proposalPublusherAddress"),
+    editDetails: t("editDetails"),
+    approveDetails: t("approveDetails"),
+    spaceDetailsCreated: t("spaceDetailsCreated"),
+    spaceDetailsUpdated: t("spaceDetailsUpdated"),
+    stage: t("stage"),
+    tooltips: {
+      daoName: t("tooltips.daoName"),
+      daoAbout: t("tooltips.daoAbout"),
+      logoURL: t("tooltips.logoURL"),
+      tonDNS: t("tooltips.tonDNS"),
+      jetton: t("tooltips.jetton"),
+      nft: t("tooltips.nft"),
+      owner: t("tooltips.owner"),
+proposalPublisher: t("tooltips.proposalPublisher"),
+    },
+    errors: {
+      logoURL1: t("errors.logoURL1"),
+      logoURL2: t("errors.logoURL2"),
+      tonDNS: t("errors.tonDNS"),
+      github: t("errors.github"),
+      telegram: t("errors.telegram"),
+      website: t("errors.website"),
+    },
+  };
+};

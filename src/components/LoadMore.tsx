@@ -1,4 +1,5 @@
 import { CircularProgress, styled } from "@mui/material";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
 import React, { useEffect } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
@@ -20,7 +21,7 @@ function LoadMore({
 }) {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
-
+  const t = useCommonTranslations()
   useEffect(() => {
     if (isVisible) {
       showMore();
@@ -37,7 +38,7 @@ function LoadMore({
   return (
     <StyledContainer className={className}>
       <StyledButton variant="transparent" onClick={showMore}>
-        Load more
+       {t.loadMore}
       </StyledButton>
     </StyledContainer>
   );

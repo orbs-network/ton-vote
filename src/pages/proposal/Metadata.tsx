@@ -1,19 +1,18 @@
-import { Box, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
-  Container,
-  Link,
   LoadingContainer,
   TitleContainer,
 } from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import moment from "moment";
-import { VotingPowerStrategy, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
-import { useTranslation } from "react-i18next";
+import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { useProposalPageQuery } from "./query";
 import { useProposalAddress } from "hooks";
 import { getVoteStrategyType } from "utils";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -22,7 +21,7 @@ const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
 export const Metadata = () => {
   const proposalAddress = useProposalAddress()
   const {isLoading, data} = useProposalPageQuery(false)
-
+const translations = useProposalPageTranslations()
   const proposalMetadata = data?.metadata
   
   
@@ -32,29 +31,29 @@ export const Metadata = () => {
   }
 
   return (
-    <StyledInformation title="Information">
+    <StyledInformation title={translations.information}>
       {proposalMetadata && (
         <StyledFlexColumn gap={12}>
-          <InformationRow label="Start date">
+          <InformationRow label={translations.startDate}>
             <Typography>
               {fromUnixToString(Number(proposalMetadata.proposalStartTime))}
             </Typography>
           </InformationRow>
-          <InformationRow label="End date">
+          <InformationRow label={translations.endDate}>
             <Typography>
               {fromUnixToString(Number(proposalMetadata.proposalEndTime))}
             </Typography>
           </InformationRow>
 
-          <InformationRow label="Snapshot">
+          <InformationRow label={translations.snapshot}>
             <Typography>
               {fromUnixToString(Number(proposalMetadata.proposalSnapshotTime))}
             </Typography>
           </InformationRow>
-          <InformationRow label="Contract">
+          <InformationRow label={translations.contract}>
             <AddressDisplay address={proposalAddress} />
           </InformationRow>
-          <InformationRow label="Voting strategy">
+          <InformationRow label={translations.votingStrategy}>
             <ProposalStrategyLabel
               strategy={Number(
                 getVoteStrategyType(proposalMetadata.votingPowerStrategies)
@@ -84,17 +83,16 @@ const ProposalStrategyLabel = ({
 }: {
   strategy: VotingPowerStrategyType;
 }) => {
-  const { t } = useTranslation();  
-
+  const commonTranslations = useCommonTranslations()
   switch (strategy) {
     case VotingPowerStrategyType.TonBalance:
-      return <Typography>{t("tonBalance")}</Typography>;
+      return <Typography>{commonTranslations.tonBalance}</Typography>;
 
     case VotingPowerStrategyType.JettonBalance:
-      return <Typography>{t("jettonBalance")}</Typography>;
+      return <Typography>{commonTranslations.jettonBalance}</Typography>;
 
     case VotingPowerStrategyType.NftCcollection:
-      return <Typography>{t("nftCollection")}</Typography>;
+      return <Typography>{commonTranslations.nftCollection}</Typography>;
 
     default:
       return null;

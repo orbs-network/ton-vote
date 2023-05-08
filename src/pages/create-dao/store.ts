@@ -9,8 +9,8 @@ import { useAppNavigation } from "router/navigation";
 import { useNewDataStore, useTxReminderPopup } from "store";
 import { ZERO_ADDRESS } from "consts";
 import { Logger } from "utils";
-import { useTranslation } from "react-i18next";
 import { persist } from "zustand/middleware";
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 
 export interface DaoMetadata extends MetadataArgs {
   dns: string;
@@ -74,6 +74,8 @@ export const useCreatDaoStore = create(
           daoMetadataForm: {} as DaoMetadata,
           step: 0,
           rolesForm: {} as RolesForm,
+          editMode: false,
+          metadataAddress: undefined,
         }),
     }),
     {
@@ -87,8 +89,7 @@ export const useCreateDaoMetadata = () => {
   const { nextStep, setMetadataAddress, setDaoMetadataForm, editMode } =
     useCreatDaoStore();
   const toggleTxReminder = useTxReminderPopup().setOpen;
-  const { t } = useTranslation();
-
+  const translations = useCreateDaoTranslations();
   return useMutation(
     async (values: DaoMetadata) => {
       const sender = getSender();
@@ -123,9 +124,7 @@ export const useCreateDaoMetadata = () => {
         toggleTxReminder(true);
         showPromiseToast({
           promise,
-          success: editMode
-            ? t("spaceDetailsUpdated")
-            : t("spaceDetailsCreated"),
+          success: editMode ? translations.spaceDetailsUpdated : translations.spaceDetailsCreated,
         });
       }
 

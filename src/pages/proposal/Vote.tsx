@@ -9,18 +9,18 @@ import { ProposalStatus } from "types";
 import { useConnection } from "ConnectionProvider";
 import { useProposalPageStatus, useVote } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
-import { useTranslation } from "react-i18next";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
   const proposalStatus = useProposalPageStatus()
-  const {t} = useTranslation()
+  const translations = useProposalPageTranslations()
 
   return (
     <>
-      <StyledContainer title={t("castVote")}>
+      <StyledContainer title={translations.castVote}>
         <StyledFlexColumn>
           {voteOptions.map((option) => {
             return (

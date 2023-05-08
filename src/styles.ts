@@ -137,7 +137,7 @@ export const StyledContainer = styled(Box)<{ hover?: number }>(
 );
 
 export const StyledEmptyText = styled(Typography)({
-  fontSize: 20,
+  fontSize: 18,
   fontWeight: 700,
 });
 

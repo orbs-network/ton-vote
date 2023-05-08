@@ -1,8 +1,9 @@
-import { Chip, Link, Typography } from "@mui/material";
+import { Chip, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import {
   Button,
   LoadingContainer,
+  Markdown,
   OverflowWithTooltip,
   Progress,
   TitleContainer,
@@ -19,20 +20,17 @@ import {
   nFormatter,
   normalizeResults,
 } from "utils";
-import { VERIFY_LINK } from "config";
 import _ from "lodash";
 import { useVerifyProposalResults } from "./hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageQuery } from "./query";
 import BigNumber from "bignumber.js";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery(false);
   const [showAllResults, setShowAllResults] = useState(false);
-
-  console.log(data);
-  
-
+  const translations = useProposalPageTranslations();
   const proposalResult = data?.proposalResult;
   const sumCoins = data?.sumCoins;
   const sumVotes = data?.sumVotes;
@@ -67,10 +65,8 @@ export const Results = () => {
     [dataUpdatedAt]
   );
 
-  
-
   return (
-    <StyledResults title="Results">
+    <StyledResults title={translations.results}>
       <StyledFlexColumn gap={15}>
         {normalizedResults.map((item, index) => {
           if (index >= LIMIT && !showAllResults) return null;
@@ -94,7 +90,7 @@ export const Results = () => {
             />
           );
         })}
-    
+
         {_.size(normalizedResults) > LIMIT && (
           <ToggleResultsButton
             toggle={setShowAllResults}
@@ -114,9 +110,10 @@ const ToggleResultsButton = ({
   toggle: (value: boolean) => void;
   value: boolean;
 }) => {
+  const translations = useProposalPageTranslations();
   return (
     <StyledToggleResultsButton onClick={() => toggle(!value)}>
-      {value ? "Show less" : "Show more"}
+      {value ? translations.showLess : translations.showMore}
     </StyledToggleResultsButton>
   );
 };
@@ -143,6 +140,7 @@ const ResultRow = ({
   votes: number;
   symbol?: string | null;
 }) => {
+  const translations = useProposalPageTranslations();
   return (
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
@@ -150,7 +148,7 @@ const ResultRow = ({
           <div>
             <StyledTitle text={name} />
           </div>
-          <StyledChip label={`${nFormatter(votes, 2)} votes`} />
+          <StyledChip label={`${nFormatter(votes, 2)} ${translations.votes}`} />
         </StyledFlexRow>
 
         <StyledResultRowRight justifyContent="flex-end">
@@ -208,7 +206,7 @@ export function VerifyResults() {
     isSuccess,
     reset,
   } = useVerifyProposalResults();
-
+  const translations = useProposalPageTranslations();
   useEffect(() => {
     if (isSuccess || error) {
       setTimeout(() => {
@@ -223,12 +221,7 @@ export function VerifyResults() {
 
   return (
     <StyledVerifyContainer>
-      <StyledVerifyText>
-        Download votes from chain and verify the results in browser.{" "}
-        <Link href={VERIFY_LINK} target="_blank">
-          Read more
-        </Link>
-      </StyledVerifyText>
+      <StyledVerifyText>{translations.verifyInfo}</StyledVerifyText>
       <EndpointPopup
         onSubmit={verify}
         open={open}
@@ -250,7 +243,7 @@ export function VerifyResults() {
         </StyledButton>
       ) : (
         <StyledButton onClick={onClick} isLoading={isLoading}>
-          <Typography>Verify results</Typography>
+          <Typography>{translations.verifyResults}</Typography>
         </StyledButton>
       )}
     </StyledVerifyContainer>
@@ -264,7 +257,7 @@ const StyledVerifyContainer = styled(StyledFlexColumn)(({ theme }) => ({
   gap: 15,
 }));
 
-const StyledVerifyText = styled(Typography)({
+const StyledVerifyText = styled(Markdown)({
   fontWeight: 500,
   a: {
     textDecoration: "unset",

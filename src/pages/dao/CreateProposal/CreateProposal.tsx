@@ -24,7 +24,7 @@ import { InputArgs } from "types";
 import { StrategySelect } from "./StrategySelect";
 import { useFormInitialValues } from "./hooks";
 import { useCreateProposalForm } from "./form/inputs";
-import { FormSchema } from "./form/validation";
+import { useFormSchema } from "./form/validation";
 
 function Form() {
   const daoAddress = useDaoAddress();
@@ -35,6 +35,7 @@ function Form() {
     const form = useCreateProposalForm(formData);
 
   const initialValues = useFormInitialValues(formData, data);
+  const FormSchema = useFormSchema()  
 
   const formik = useFormik<CreateProposalForm>({
     initialValues,

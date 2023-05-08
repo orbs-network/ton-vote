@@ -1,6 +1,7 @@
 import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
 import { useConnection } from "ConnectionProvider";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { fromNano } from "ton-core";
@@ -14,13 +15,9 @@ interface Props {
   onSubmit: () => void;
 }
 
-export function VoteConfirmation({
-  open,
-  onClose,
-  vote,
-  onSubmit,
-}: Props) {
+export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const { address } = useConnection();
+  const translations = useProposalPageTranslations();
 
   const { data } = useProposalPageQuery(false);
 
@@ -42,22 +39,20 @@ export function VoteConfirmation({
     ? nFormatter(Number(fromNano(votingData)))
     : 0;
 
-
-
   return (
-    <StyledPopup title="Cast your vote" open={open} onClose={onClose}>
+    <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
       <StyledContainer gap={30}>
         <StyledFlexColumn>
-          <Row label="Choice" value={vote} />
+          <Row label={translations.choice} value={vote} />
           {data?.metadata?.mcSnapshotBlock && (
             <Row
-              label="Snapshot"
+              label={translations.snapshot}
               value={<NumberDisplay value={data?.metadata?.mcSnapshotBlock} />}
             />
           )}
           <Row
             isLoading={votingDataLoading}
-            label="Your voting power"
+            label={translations.yourVotingPower}
             value={`${pasredVotingPower} ${getSymbol(
               getVoteStrategyType(data?.metadata?.votingPowerStrategies)
             )}`}
@@ -65,7 +60,9 @@ export function VoteConfirmation({
         </StyledFlexColumn>
         {NoVotingPower && (
           <InfoMessage
-            message={`Oops, it seems you don't have any voting power at block ${data?.metadata?.mcSnapshotBlock.toLocaleString()}. `}
+            message={translations.notEnoughVotingPower(
+              data?.metadata?.mcSnapshotBlock.toLocaleString() || ""
+            )}
           />
         )}
         <StyledButtons>
@@ -79,7 +76,7 @@ export function VoteConfirmation({
               onClose();
             }}
           >
-            Confirm
+            {translations.confirm}
           </Button>
         </StyledButtons>
       </StyledContainer>
