@@ -48,8 +48,6 @@ export const VERIFY_LINK =
 export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";
 export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 
-export const PASSWORD = "ton-vote-14-02";
-
 export enum QueryKeys {
   PROPOSAL_TIMELINE = "PROPOSAL_TIMELINE",
   DAOS = "DAOS",
@@ -75,3 +73,6 @@ export const LANGUAGES = { en: "English", ru: "Русский" };
 export const VERIFIED_DAOS = [
   "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
 ];
+
+
+export const isStaging = import.meta.env.VITE_STAGING || import.meta.env.DEV;
