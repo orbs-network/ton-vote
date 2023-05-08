@@ -1,7 +1,7 @@
 import { Dao, Proposal } from "types";
-import dora from "./foundation/dora.json";
-import tokenomics from "./foundation/tokenomics.json";
-import {TOKENOMICS_ABOUT, DORA_HACKS_ABOUT} from './foundation/about'
+import dora from "./dora.json";
+import tokenomics from "./tokenomics.json";
+import {TOKENOMICS_ABOUT, DORA_HACKS_ABOUT} from './about'
 import FoundationImg from "assets/foundation.png";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 

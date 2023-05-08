@@ -12,7 +12,7 @@ import {
   ProposalMetadata,
 } from "ton-vote-contracts-sdk";
 import { getProposalStatus, isDaoWhitelisted, Logger } from "utils";
-import { OLD_DAO, proposals } from "data/data";
+import { OLD_DAO, proposals } from "data/foundation/data";
 import { useNewDataStore } from "store";
 import { lib } from "lib/lib";
 import { api } from "api";

@@ -36,6 +36,7 @@ import {
 import { useTranslation } from "react-i18next";
 import BigNumber from "bignumber.js";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
+import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 const Time = ({
   proposalMetadata,
@@ -173,12 +174,12 @@ const StyledProposalAddress = styled(StyledAddressDisplay)({
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult, sumCoins } = proposal;
   const totalWeight = proposalResult.totalWeight;
-  const { t } = useTranslation();
+  const translations = useDaoPageTranslations()
 
   if (Number(totalWeight) === 0) {
     return (
       <StyledAlert severity="warning">
-        <Typography>{t("endedAndDidntPassedQuorum")}</Typography>
+        <Typography>{translations.endedAndDidntPassedQuorum}</Typography>
       </StyledAlert>
     );
   }

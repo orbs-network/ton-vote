@@ -3,7 +3,12 @@ import { STATE_REFETCH_INTERVAL, QueryKeys } from "config";
 import { useProposalAddress } from "hooks";
 import _ from "lodash";
 import { Proposal, ProposalStatus } from "types";
-import { getProposalStatus, getVoteStrategyType, isProposalWhitelisted, Logger } from "utils";
+import {
+  getProposalStatus,
+  getVoteStrategyType,
+  isProposalWhitelisted,
+  Logger,
+} from "utils";
 import { lib } from "lib/lib";
 import { useProposalPersistedStore } from "./store";
 import {
@@ -15,7 +20,7 @@ import {
 } from "ton-vote-contracts-sdk";
 import { api } from "api";
 import { Transaction } from "ton-core";
-import { proposals } from "data/data";
+import { proposals } from "data/foundation/data";
 
 const contractProposal = async (
   proposalAddress: string,
@@ -46,8 +51,6 @@ const serverProposal = async (
   signal?: AbortSignal
 ): Promise<Proposal | null> => {
   const state = await api.getProposal(proposalAddress, signal);
-  console.log(state);
-  
   try {
     if (_.isEmpty(state.metadata)) {
       throw new Error("Proposal not found is server");

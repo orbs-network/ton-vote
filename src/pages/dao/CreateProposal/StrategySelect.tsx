@@ -116,10 +116,7 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
         type: strategy.type,
         arguments: [...strategy.arguments, { name: inputName, value }],
       };
-    });
-
-    console.log(updated);
-    
+    });    
 
     formik.setFieldValue(name, updated);
   };
