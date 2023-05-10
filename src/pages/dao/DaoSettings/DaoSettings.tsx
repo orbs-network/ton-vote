@@ -4,6 +4,7 @@ import { useDaoFromQueryParam } from "query/queries";
 import { StyledFlexColumn } from "styles";
 import { MetadataForm } from "./Metadata";
 import { RolesForm } from "./Roles";
+import { SetFwdMsgFee } from "./SetFwdMsgFee";
 
 export function DaoSettings() {
   const translations = useDaoPageTranslations();
@@ -17,6 +18,7 @@ export function DaoSettings() {
           <LoadingContainer loaderAmount={5} />
         ) : (
           <>
+          <SetFwdMsgFee />
             <RolesForm />
             <MetadataForm />
           </>

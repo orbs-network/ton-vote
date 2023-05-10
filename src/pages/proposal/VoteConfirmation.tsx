@@ -54,7 +54,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             isLoading={votingDataLoading}
             label={translations.yourVotingPower}
             value={`${pasredVotingPower} ${getSymbol(
-              getVoteStrategyType(data?.metadata?.votingPowerStrategies)
+              Number(getVoteStrategyType(data?.metadata?.votingPowerStrategies))
             )}`}
           />
         </StyledFlexColumn>

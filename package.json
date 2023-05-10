@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "VITE_STAGING=1 vite",
-    "dev-prod": "vite",
+    "dev-beta": "vite",
     "dev-force": "vite --force",
     "build": "tsc && vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview"
@@ -62,7 +62,7 @@
     "remove-markdown": "^0.5.0",
     "ton": "^13.4.1",
     "ton-core": "^0.48.0",
-    "ton-vote-contracts-sdk": "^1.0.0-beta.17",
+    "ton-vote-contracts-sdk": "^1.0.0-beta.20",
     "tonweb": "^0.0.60",
     "use-query-params": "^2.2.0",
     "yup": "^1.1.1",

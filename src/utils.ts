@@ -1,4 +1,4 @@
-import { TONSCAN_ADDRESS_URL } from "config";
+import { TONSCAN_ADDRESS_URL, BASE_FEE } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
@@ -185,7 +185,7 @@ export function validateFormikSingleField<T>(
 ) {
   formik.validateField(name);
   console.log(formik);
-  
+
   const error = formik.errors[name as keyof T] as string;
   console.log(error);
 
@@ -260,5 +260,40 @@ export const getVoteStrategyType = (
     : votingPowerStrategy[0].type;
 };
 
+export const getTxFee = (value?: number | string): string => {
+  if (!value) return BASE_FEE.toString();
+  return Math.max(
+    typeof value === "string" ? Number(value) : value,
+    BASE_FEE
+  ).toString();
+};
 
+export const extractArg = (strategy: VotingPowerStrategy, name: string) => {
+  return { [name]: strategy.arguments.find((it) => it.name === name)?.value };
+};
 
+export const extractStrategyArguments = (
+  strategies?: VotingPowerStrategy[]
+) => {
+  if (!strategies) return {};
+  let result: any = {};
+  const args = _.flatMap(strategies, (it) => it.arguments);
+  _.forEach(args, (it) => {
+    result[it.name] = it.value;
+  });
+
+  return result;
+};
+
+export const getStrategyArgument = (
+  name: string,
+  strategies?: VotingPowerStrategy[]
+) => {
+  return extractStrategyArguments(strategies)[name];
+};
+
+export const momentToUTC = (value?: number) => {
+  const dt = value ? moment(value) : moment();
+
+  return dt.subtract(dt.parseZone().utcOffset(), "minutes");
+};

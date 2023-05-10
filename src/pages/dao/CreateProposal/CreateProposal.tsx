@@ -13,7 +13,7 @@ import { useCreateProposal, useCreateProposalStore } from "./store";
 import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
 import { useEffect } from "react";
-import { useDaoFromQueryParam, useDaoQuery } from "query/queries";
+import { useDaoFromQueryParam, useDaoQuery, useGetDaoFwdMsgFee } from "query/queries";
 import { validateFormik } from "utils";
 import { CreateProposalForm, CreateProposalInputArgs } from "./types";
 import { appNavigation } from "router/navigation";
@@ -30,6 +30,7 @@ function Form() {
   const data = useDaoFromQueryParam().data;
   const { formData, setFormData } = useCreateProposalStore();
   const form = useCreateProposalForm(formData);
+  const createProposalFee = useGetDaoFwdMsgFee(daoAddress).data;
 
   const initialValues = useFormInitialValues(formData, data);
   const FormSchema = useFormSchema();
@@ -37,8 +38,10 @@ function Form() {
   const formik = useFormik<CreateProposalForm>({
     initialValues,
     validationSchema: FormSchema,
-    onSubmit: (formValues) =>
-      createProposal({ formValues, daoAddr: daoAddress }),
+    onSubmit: (formValues) =>{
+      createProposal({ formValues, daoAddr: daoAddress });
+    }
+      ,
     validateOnChange: false,
     validateOnBlur: true,
   });
@@ -61,7 +64,7 @@ function Form() {
           customInputHandler={customInputHandler}
         >
           <CreateProposalButton
-            isLoading={isLoading}
+            isLoading={isLoading || createProposalFee === undefined}
             onSubmit={() => {
               formik.submitForm();
               validateFormik(formik);
@@ -110,7 +113,7 @@ export const CreateProposal = () => {
 };
 
 const StyledPage = styled(Page)({
-  maxWidth: 900,
+  maxWidth: 800,
 });
 
 function CreateProposalButton({

@@ -13,7 +13,7 @@ import {
   getClientV4,
   getTransactions,
 } from "ton-vote-contracts-sdk";
-import { TX_FEE } from "config";
+import { BASE_FEE } from "config";
 import { showPromiseToast } from "toasts";
 import { Endpoints, ProposalResults } from "types";
 import { useProposalStatusQuery } from "query/queries";
@@ -116,7 +116,7 @@ export const useVote = () => {
           sender,
           client,
           proposalAddress,
-          TX_FEE,
+          BASE_FEE.toString(),
           vote
         );
         return refetch();

@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { BASE_FEE } from "config";
 import { ZERO_ADDRESS } from "consts";
 import { useDaoAddressFromQueryParam, useGetSender } from "hooks";
 import { useDaoQuery } from "query/queries";
@@ -22,7 +23,13 @@ export const useUpdateDaoOwner = () => {
 
   return useMutation(async (newOwner: string) => {
     const clientV2 = await getClientV2();
-    return daoSetOwner(getSender(), clientV2, daoAddress, newOwner);
+    return daoSetOwner(
+      getSender(),
+      clientV2,
+      daoAddress,
+      BASE_FEE.toString(),
+      newOwner
+    );
   });
 };
 
@@ -33,9 +40,13 @@ export const useUpdateDaoPublisher = () => {
   return useMutation(async (newProposalOwner: string) => {
     const sender = getSender();
     const clientV2 = await getClientV2();
-    const res = await  daoSetProposalOwner(sender, clientV2, daoAddress, newProposalOwner);
-    console.log({res});
-    
+    const res = await daoSetProposalOwner(
+      sender,
+      clientV2,
+      daoAddress,
+      BASE_FEE.toString(),
+      newProposalOwner
+    );
   });
 };
 
@@ -60,9 +71,20 @@ export const useUpdateDaoMetadata = () => {
 
     const sender = getSender();
     const clientV2 = await getClientV2();
-    const metadataAddress = await newMetdata(sender, clientV2, metadataArgs);
+    const metadataAddress = await newMetdata(
+      sender,
+      clientV2,
+      BASE_FEE.toString(),
+      metadataArgs
+    );
     if (typeof metadataAddress === "string") {
-      return setMetadata(sender, clientV2, daoAddress, metadataAddress);
+      return setMetadata(
+        sender,
+        clientV2,
+        daoAddress,
+        BASE_FEE.toString(),
+        metadataAddress
+      );
     }
   });
 };

@@ -29,8 +29,8 @@ const getAllNftHolders = async (
     }
   );
 
-  const arr = result.data as string[];
-  return new Set(arr);
+  const val = result.data as { [key: string]: number };
+  return new Set(_.map(val, (v, k) => k));
 };
 
 const getProposal = async (

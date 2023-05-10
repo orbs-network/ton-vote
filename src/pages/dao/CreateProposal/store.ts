@@ -11,8 +11,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useNewDataStore, useTxReminderPopup } from "store";
 import { useConnection } from "ConnectionProvider";
-import { isOwner } from "utils";
-import { useDaoQuery } from "query/queries";
+import { getTxFee, isOwner, momentToUTC } from "utils";
+import { useDaoQuery, useGetDaoFwdMsgFee } from "query/queries";
 import { CreateProposalForm, CreateProposalStore } from "./types";
 import _ from "lodash";
 
@@ -37,6 +37,7 @@ export const useCreateProposal = () => {
   const toggleTxReminder = useTxReminderPopup().setOpen;
   const { addProposal } = useNewDataStore();
   const connectedWallet = useConnection().address;
+  const createProposalFee = useGetDaoFwdMsgFee(daoAddress).data;
 
   return useMutation(
     async ({
@@ -50,12 +51,13 @@ export const useCreateProposal = () => {
         showErrorToast("Only Dao owner can create proposal");
         return;
       }
-      console.log(formValues);
       
       const proposalMetadata: Partial<ProposalMetadata> = {
         proposalStartTime: Math.floor(formValues.proposalStartTime! / 1_000),
         proposalEndTime: Math.floor(formValues.proposalEndTime! / 1_000),
-        proposalSnapshotTime: Math.floor(formValues.proposalSnapshotTime! / 1_000),
+        proposalSnapshotTime: Math.floor(
+          formValues.proposalSnapshotTime! / 1_000
+        ),
         votingSystem: {
           votingSystemType: formValues.votingSystemType,
           choices: formValues.votingChoices,
@@ -63,17 +65,15 @@ export const useCreateProposal = () => {
         title: JSON.stringify({ en: formValues.title_en }),
         description: JSON.stringify({ en: formValues.description_en }),
         votingPowerStrategies: formValues.votingPowerStrategies,
-      };      
-
-      console.log({ proposalMetadata });
-      
+      };            
 
       const sender = getSender();
       const clientV2 = await getClientV2();
-
+  
       const promise = newProposal(
         sender,
         clientV2,
+        getTxFee(createProposalFee),
         daoAddr,
         proposalMetadata as ProposalMetadata
       );

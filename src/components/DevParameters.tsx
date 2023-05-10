@@ -1,13 +1,21 @@
-import { styled, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, styled, Typography } from "@mui/material";
 import { getRelaseMode } from "config";
 import { FormikProps, useFormik } from "formik";
 import React, { useState } from "react";
-import { StyledEndAdornment } from "styles";
+import { StyledEndAdornment, StyledFlexColumn } from "styles";
 import { ReleaseMode } from "ton-vote-contracts-sdk";
-import { FormArgs } from "types";
+import { FormArgs, FormikInputEndAdorment } from "types";
 import { Button } from "./Button";
 import { Popup } from "./Popup";
-import { useSetCreateDaoFee, useSetRegistryAdmin } from "query/queries";
+import {
+  useDaosQuery,
+  useGetCreateDaoFee,
+  useGetRegistryAdmin,
+  useGetRegistryId,
+  useSetCreateDaoFee,
+  useSetDaoFwdMsgFee,
+  useSetRegistryAdmin,
+} from "query/queries";
 import { FormikInputsForm } from "./inputs/Inputs";
 import { validateAddress } from "utils";
 import { AppTooltip } from "./Tooltip";
@@ -16,9 +24,18 @@ import _ from "lodash";
 import { showErrorToast } from "toasts";
 import { useParseError } from "hooks";
 import { useMutation } from "@tanstack/react-query";
+import { useConnection } from "ConnectionProvider";
 
 const useValidateFields = () => {
+  const registryAdmin = useGetRegistryAdmin().data;
+  const connectedAddress = useConnection().address;
   return (name: string, value: any) => {
+    if (!connectedAddress) {
+      throw new Error("Please connect your wallet");
+    }
+    if (connectedAddress !== registryAdmin) {
+      throw new Error("You are not the registry admin");
+    }
     if (name === "createDaoFee") {
       if (!value) {
         throw new Error("Create Dao fee is required");
@@ -38,6 +55,8 @@ const useUpdate = (formik: FormikProps<IForm>, name: string, value?: any) => {
   const { mutateAsync: setCreateDaoFee } = useSetCreateDaoFee();
   const { mutateAsync: setRegistryAdmin } = useSetRegistryAdmin();
   const parseError = useParseError();
+  const { mutateAsync: setCreateProposalFee } = useSetDaoFwdMsgFee();
+  const daos = useDaosQuery().data;
 
   const validate = useValidateFields();
   return useMutation(
@@ -48,6 +67,13 @@ const useUpdate = (formik: FormikProps<IForm>, name: string, value?: any) => {
       }
       if (name === "registryAdmin") {
         return setRegistryAdmin(value! as string);
+      }
+      if (name === "fwdMsgFee") {
+        const res = await setCreateProposalFee({
+          daoIds: daos!.map((dao) => dao.daoId!),
+          amount: value,
+        });
+        return res;
       }
     },
     {
@@ -70,9 +96,11 @@ const EndAdornment = ({
   formik: FormikProps<IForm>;
 }) => {
   const value = formik.values[name as keyof IForm];
+  const initialValue = formik.initialValues[name as keyof IForm];
 
   const { mutate, isLoading } = useUpdate(formik, name, value);
 
+  if (initialValue === value) return null;
   return (
     <StyledEndAdornment>
       <Button onClick={mutate} isLoading={isLoading}>
@@ -104,15 +132,27 @@ const form: FormArgs<IForm> = {
       EndAdornment,
       required: true,
     },
+    {
+      name: "fwdMsgFee",
+      label: "Forward Message Fee",
+      type: "number",
+      EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
+    },
   ],
 };
 
 export function DevParametersModal() {
   const [open, setOpen] = useState(false);
+  const createDaoFee = useGetCreateDaoFee().data;
+  const registryAdmin = useGetRegistryAdmin().data;
+  const registryId = useGetRegistryId().data;
+  const { isLoading: daosLoading } = useDaosQuery();
+
   const formik = useFormik<IForm>({
+    enableReinitialize: true,
     initialValues: {
-      createDaoFee: undefined,
-      registryAdmin: undefined,
+      createDaoFee: Number(createDaoFee),
+      registryAdmin: registryAdmin,
     },
     validateOnChange: false,
     validateOnBlur: true,
@@ -133,11 +173,37 @@ export function DevParametersModal() {
         open={open}
         onClose={() => setOpen(false)}
       >
-        <FormikInputsForm<IForm> form={form} formik={formik}></FormikInputsForm>
+        <>
+          <StyledFlexColumn
+            alignItems="flex-start"
+            gap={20}
+            style={{ opacity: daosLoading ? 0.5 : 1 }}
+          >
+            <StyledRegistryID label={`Registry ID: ${registryId}`} />
+            <FormikInputsForm<IForm>
+              form={form}
+              formik={formik}
+            ></FormikInputsForm>
+          </StyledFlexColumn>
+          {daosLoading && (
+            <StyledSpinner>
+              <CircularProgress size={50} />
+            </StyledSpinner>
+          )}
+        </>
       </StyledPoup>
     </>
   );
 }
+
+const StyledRegistryID = styled(Chip)({});
+
+const StyledSpinner = styled(Box)({
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  transform: "translate(-50%, -50%)",
+});
 
 const StyledButton = styled(Button)({
   width: 40,

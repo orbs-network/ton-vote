@@ -156,6 +156,8 @@ export const useWalletVotingPower = (
         proposal!.metadata!,
         signal
       );
+      console.log({ allNftHolders });
+      
       Logger(`Fetching voting power for account: ${account}`);
 
       return getSingleVoterPower(

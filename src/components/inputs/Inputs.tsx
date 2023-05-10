@@ -50,6 +50,7 @@ import { TitleContainer } from "components/TitleContainer";
 import { NumericFormat } from "react-number-format";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import moment, { utc } from "moment";
 
 interface TextInputProps {
   value?: string | number;
@@ -295,6 +296,7 @@ export const DateRangeInput = ({
         <DateTimePicker
           // maxDate={max && dayjs(max)}
           // minDate={min && dayjs(min)}
+
           value={value ? dayjs(value) : null}
           onOpen={onFocus}
           className="datepicker"
@@ -385,6 +387,7 @@ export function MapInput<T>({
         prefix={args.prefix}
         suffix={args.suffix}
         error={error}
+        onFocus={clearError}
         {...common}
         endAdornment={
           EndAdornment && <EndAdornment name={name!} formik={formik} />
@@ -670,6 +673,7 @@ interface NumberInputProps {
   tooltip?: string;
   endAdornment?: React.ReactNode;
   error?: string;
+  onFocus?: () => void;
 }
 
 export const NumberInput = ({
@@ -683,6 +687,7 @@ export const NumberInput = ({
   tooltip,
   endAdornment,
   error,
+  onFocus,
 }: NumberInputProps) => {
   return (
     <StyledInputContainer>
@@ -691,6 +696,7 @@ export const NumberInput = ({
         prefix={prefix}
         suffix={suffix}
         value={value}
+        onFocus={onFocus}
         placeholder={placeholder}
         customInput={TextField}
         thousandSeparator=","
@@ -708,3 +714,5 @@ export const NumberInput = ({
     </StyledInputContainer>
   );
 };
+
+

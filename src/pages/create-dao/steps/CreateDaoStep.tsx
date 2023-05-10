@@ -2,7 +2,6 @@ import { Box, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
   Button,
-  FormikInputsForm,
   Img,
   Link,
   Markdown,
@@ -17,6 +16,7 @@ import _ from "lodash";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoMetadataForm, useDaoRolesForm } from "../form";
+import { useGetCreateDaoFee } from "query/queries";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
@@ -24,6 +24,7 @@ export function CreateDaoStep() {
   const commonTranslations = useCommonTranslations();
 
   const { daoMetadataForm, rolesForm } = useCreatDaoStore();
+  const createDaoFee = useGetCreateDaoFee().data;
 
   const metadata = useDaoMetadataForm();
   const roles = useDaoRolesForm();
@@ -62,7 +63,10 @@ export function CreateDaoStep() {
           </>
         </StyledInputs>
         <Submit>
-          <Button isLoading={isLoading} onClick={() => createDao()}>
+          <Button
+            isLoading={isLoading || createDaoFee === undefined}
+            onClick={() => createDao()}
+          >
             {commonTranslations.create}
           </Button>
         </Submit>
@@ -75,7 +79,13 @@ const StyledInputs = styled(StyledFlexColumn)({
   gap: 20,
 });
 
-const InputPreview = ({ input, value }: { input: InputArgs<any>; value: any }) => {
+const InputPreview = ({
+  input,
+  value,
+}: {
+  input: InputArgs<any>;
+  value: any;
+}) => {
   const getValue = () => {
     if (input.type === "checkbox") {
       return <Typography>{value ? "Yes" : "No"}</Typography>;

@@ -13,12 +13,12 @@ import { showPromiseToast } from "toasts";
 import { useAppNavigation } from "router/navigation";
 import { useNewDataStore, useTxReminderPopup } from "store";
 import { ZERO_ADDRESS } from "consts";
-import { Logger } from "utils";
+import { getTxFee, Logger } from "utils";
 import { persist } from "zustand/middleware";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
-import { getRelaseMode } from "config";
+import { BASE_FEE, getRelaseMode } from "config";
 import { DaoMetadataForm, DaoRolesForm } from "types";
-import { useSetCreateProposalFee } from "query/queries";
+import { useGetCreateDaoFee, useSetDaoFwdMsgFee } from "query/queries";
 
 const initialCreateMetadataForm: DaoMetadataForm = {
   name: "",
@@ -115,6 +115,7 @@ export const useCreateDaoMetadata = () => {
       const promise = TonVoteContract.newMetdata(
         sender,
         clientV2,
+        BASE_FEE.toString(),
         metadataArgs
       );
 
@@ -150,7 +151,7 @@ export const useCreateDao = () => {
   const getSender = useGetSender();
   const appNavigation = useAppNavigation();
   const { addDao } = useNewDataStore();
-  const { mutateAsync: setCreateProposalFee } = useSetCreateProposalFee();
+  const createDaoFee = useGetCreateDaoFee().data
   const {
     rolesForm: { ownerAddress, proposalOwner },
     metadataAddress,
@@ -168,6 +169,7 @@ export const useCreateDao = () => {
         sender,
         clientV2,
         getRelaseMode(),
+        getTxFee(createDaoFee),
         metadataAddress!,
         ownerAddress,
         proposalOwner
@@ -183,11 +185,6 @@ export const useCreateDao = () => {
       console.log({ address });
 
       if (typeof address === "string") {
-      
-        if (getRelaseMode() === ReleaseMode.DEVELOPMENT) {
-          const daoIndex = await getDaoIndex(clientV2, address);
-          await setCreateProposalFee(daoIndex);
-        }
         appNavigation.daoPage.root(address);
         addDao(address);
         reset();

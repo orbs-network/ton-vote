@@ -16,16 +16,19 @@ const initialChoices = ["Yes", "No", "Abstain"];
 const getInitialTimestamps = () => {
   const now = moment().valueOf();
 
-  let proposalStartTime = moment()
+  let proposalStartTime = moment(now)
     .add("1", "day")
     .set("h", 15)
+    .set("s", 0)
     .set("minute", 0)
+   
     .valueOf();
-  if (moment(now).hour() < 15) {
+
+  if (moment(now).utc().hour() < 15) {
     proposalStartTime = moment(proposalStartTime)
       .subtract("1", "day")
       .valueOf();
-  }
+  }  
 
   return {
     proposalStartTime,
@@ -124,7 +127,7 @@ const handleInitialVotingPowerStrategies = (
       ? dao?.daoMetadata.nft
       : "";
 
-  if (jetton) {    
+  if (jetton) {
     return [
       {
         type: VotingPowerStrategyType.JettonBalance,

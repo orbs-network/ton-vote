@@ -1,13 +1,12 @@
-import { useCreateNewRegistry } from 'query/queries';
 import { Suspense } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { router } from 'router/router';
 
 
-console.log(import.meta.env.VITE_STAGING);
 
 
-function App() {
+
+function App() {  
   return (
     <Suspense>
       <RouterProvider router={router} />

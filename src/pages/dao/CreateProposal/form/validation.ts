@@ -3,7 +3,7 @@ import { useCreateProposalTranslations } from "i18n/hooks/useCreateProposalTrans
 import _ from "lodash";
 import moment from "moment";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
-import { getVoteStrategyType, validateAddress } from "utils";
+import { getVoteStrategyType, momentToUTC, validateAddress } from "utils";
 import * as Yup from "yup";
 import { CreateProposalForm } from "../types";
 
@@ -72,10 +72,10 @@ export const useFormSchema = () => {
     proposalStartTime: Yup.number()
       .required(translations.errors.isRequired(translations.startTime))
       .test("", translations.errors.startTime1, (value = 0) => {
-        return moment().isBefore(moment(value));
+        return momentToUTC().isBefore(moment.utc(value));
       })
       .test("", translations.errors.startTime2, (value = 0) => {
-        return moment(value).isBefore(moment().add("10", "days"));
+        return moment(value).isBefore(momentToUTC().add("10", "days"));
       }),
     proposalEndTime: Yup.number()
       .required(translations.errors.isRequired(translations.endTime))
@@ -95,13 +95,15 @@ export const useFormSchema = () => {
           moment(context.parent.proposalStartTime),
           "days"
         );
+        console.log(diff);
+
         return diff <= 10;
       }),
 
     proposalSnapshotTime: Yup.number()
 
       .test("", translations.errors.snapshotTime1, (value = 0) => {
-        return moment().isAfter(moment(value));
+        return momentToUTC().isAfter(moment(value));
       })
       .required(translations.errors.isRequired(translations.snaphotTime)),
   });

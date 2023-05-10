@@ -4,8 +4,6 @@ import { ReleaseMode } from "ton-vote-contracts-sdk";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
-export const TX_FEE = "0.0075";
-
 export const APP_NAME = "TON VOTE";
 
 export const voteOptions = [
@@ -58,6 +56,11 @@ export enum QueryKeys {
   PROPOSAL_PAGE = "PROPOSAL_PAGE",
   DAO = "DAO",
   SIGNLE_VOTING_POWER = "SIGNLE_VOTING_POWER",
+  CLIENTS = "CLIENTS",
+  DAO_FWD_MSG_FEE = "DAO_FWD_MSG_FEE",
+  CREATE_DAO_FEE = "CREATE_DAO_FEE",
+  REGISTRY_ADMIN = 'REGISTRY_ADMIN',
+  REGISTRY_ID='REGISTRY_ID',
 }
 
 export const FETCH_PROPOSALS_INTERVAL = 30_000;
@@ -81,3 +84,6 @@ export const getRelaseMode = () => {
   }
   return ReleaseMode.PRODUCTION;
 };
+
+
+export const BASE_FEE = 0.15

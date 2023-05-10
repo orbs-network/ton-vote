@@ -1,14 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getRelaseMode, QueryKeys } from "config";
+import { BASE_FEE, getRelaseMode, QueryKeys } from "config";
 import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
 import _ from "lodash";
 import {
   getClientV2,
   getClientV4,
+  getCreateDaoFee,
+  getDaoFwdMsgFee,
   getDaoMetadata,
   getDaoProposals,
   getDaoRoles,
   getProposalMetadata,
+  getRegistryAdmin,
+  getRegistryId,
   newRegistry,
   ProposalMetadata,
   setCreateDaoFee,
@@ -23,6 +27,8 @@ import { api } from "api";
 import { useDaoAddressFromQueryParam, useGetSender } from "hooks";
 import { useConnection } from "ConnectionProvider";
 import { showPromiseToast } from "toasts";
+import { fromNano } from "ton-core";
+import { delay } from "@ton-defi.org/ton-connection";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -196,68 +202,161 @@ export const useCreateNewRegistry = () => {
   return useMutation(async () => {
     const clientV2 = await getClientV2();
     const sender = getSender();
-    return newRegistry(sender, clientV2, getRelaseMode(), address!);
+    return newRegistry(
+      sender,
+      clientV2,
+      getRelaseMode(),
+      BASE_FEE.toString(),
+      address!
+    );
   });
 };
 
 export const useSetCreateDaoFee = () => {
   const getSender = useGetSender();
-  return useMutation(async (value: number) => {
-    console.log(value);
+  const { refetch } = useGetCreateDaoFee();
+  return useMutation(
+    async (value: number) => {
+      const client = await getClientV2();
+      const promise = setCreateDaoFee(
+        getSender(),
+        client,
+        getRelaseMode(),
+        BASE_FEE.toString(),
+        value.toString()
+      );
 
-    const client = await getClientV2();
-    const promise = setCreateDaoFee(
-      getSender(),
-      client,
-      getRelaseMode(),
-      value.toString()
-    );
+      showPromiseToast({
+        promise,
+        loading: "Setting create DAO fee...",
+        success: "Create DAO fee set",
+        error: "Failed to set create DAO fee",
+      });
 
-    showPromiseToast({
-      promise,
-      loading: "Setting create DAO fee...",
-      success: "Create DAO fee set",
-      error: "Failed to set create DAO fee",
-    });
-
-    return promise;
-  });
+      return promise;
+    },
+    {
+      onSuccess: () => refetch(),
+    }
+  );
 };
 
-export const useSetCreateProposalFee = () => {
+export const useSetDaoFwdMsgFee = (daoAddress?: string) => {
   const getSender = useGetSender();
-  return useMutation(async (daoId: number) => {
-    const client = await getClientV2();
-    const promise = setFwdMsgFee(
-      getSender(),
-      client,
-      getRelaseMode(),
-      [daoId.toString()],
-      "0"
-    );
+  const { refetch } = useGetDaoFwdMsgFee(daoAddress);
+  return useMutation(
+    async ({ daoIds, amount }: { daoIds: number[]; amount: number }) => {
+      const client = await getClientV2();
+      const promise = setFwdMsgFee(
+        getSender(),
+        client,
+        getRelaseMode(),
+        BASE_FEE.toString(),
+        daoIds.map((it) => it.toString()),
+        amount.toString()
+      );
 
-    showPromiseToast({
-      promise,
-      loading: "Setting create Proposal fee...",
-      success: "Create Proposal fee set",
-      error: "Failed to set create Proposal fee",
-    });
+      showPromiseToast({
+        promise,
+        loading: "Setting create Proposal fee...",
+        success: "Create Proposal fee set",
+        error: "Failed to set create Proposal fee",
+      });
 
-    return promise;
-  });
+      return promise;
+    },
+    {
+      onSuccess: () => refetch(),
+    }
+  );
 };
 
 export const useSetRegistryAdmin = () => {
   const getSender = useGetSender();
+  const { refetch } = useGetRegistryAdmin();
+  return useMutation(
+    async (newRegistryAdmin: string) => {
+      const client = await getClientV2();
 
-  return useMutation(async (newRegistryAdmin: string) => {
-    const client = await getClientV2();
+      return setRegistryAdmin(
+        getSender(),
+        client,
+        getRelaseMode(),
+        BASE_FEE.toString(),
+        newRegistryAdmin
+      );
+    },
+    {
+      onSuccess: () => refetch(),
+    }
+  );
+};
 
-    return setRegistryAdmin(
-      getSender(),
-      client,
-      getRelaseMode(),
-      newRegistryAdmin
-    );
-  });
+export const useGetDaoFwdMsgFee = (daoAddress?: string) => {
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.DAO_FWD_MSG_FEE, daoAddress],
+    async () => {
+      const res = await getDaoFwdMsgFee(clients!.clientV2, daoAddress!);
+      return fromNano(res);
+    },
+    {
+      enabled: !!daoAddress && !!clients?.clientV2,
+    }
+  );
+};
+
+export const useGetClients = () => {
+  return useQuery(
+    [QueryKeys.CLIENTS],
+    async () => {
+      return {
+        clientV2: await getClientV2(),
+        clientV4: await getClientV4(),
+      };
+    },
+    {
+      staleTime: Infinity,
+    }
+  );
+};
+
+export const useGetCreateDaoFee = () => {
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.CREATE_DAO_FEE],
+    async () => {
+      const res = await getCreateDaoFee(clients!.clientV2, getRelaseMode());
+      return fromNano(res);
+    },
+    {
+      enabled: !!clients?.clientV2,
+    }
+  );
+};
+
+export const useGetRegistryAdmin = () => {
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.REGISTRY_ADMIN],
+    async () => {
+      return getRegistryAdmin(clients!.clientV2, getRelaseMode());
+    },
+    {
+      enabled: !!clients?.clientV2,
+    }
+  );
+};
+
+export const useGetRegistryId = () => {
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.REGISTRY_ID],
+    async () => {
+      return getRegistryId(clients!.clientV2, getRelaseMode());
+    },
+    {
+      enabled: !!clients?.clientV2,
+    }
+  );
 };

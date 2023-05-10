@@ -1,5 +1,6 @@
 import { Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
+import { getRelaseMode } from "config";
 import { MOBILE_WIDTH, routes } from "consts";
 import {
   useCurrentRoute,
@@ -13,6 +14,7 @@ import { useDaoQuery } from "query/queries";
 import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
+import { ReleaseMode } from "ton-vote-contracts-sdk";
 import { Dao } from "types";
 import { parseLanguage } from "utils";
 import { useDaoPage } from "../hooks";
@@ -238,17 +240,11 @@ const useNavigationLinks = () => {
       publisher: true,
       route: routes.createProposal,
     },
-    {
-      title: translations.settings,
-      path: appNavigation.daoPage.settings(daoAddress),
-      selected: route === routes.spaceSettings,
-      owner: true,
-      publisher: false,
-      route: routes.createProposal,
-    },
   ];
 
-  return _.filter(result, (it) => {
+
+
+  const modified =  _.filter(result, (it) => {
     if (it.owner && !isDaoOwner) {
       return false;
     }
@@ -257,4 +253,17 @@ const useNavigationLinks = () => {
     }
     return true;
   });
+
+  if (getRelaseMode() === ReleaseMode.DEVELOPMENT) {
+    modified.push({
+      title: translations.settings,
+      path: appNavigation.daoPage.settings(daoAddress),
+      selected: route === routes.spaceSettings,
+      owner: true,
+      publisher: false,
+      route: routes.createProposal,
+    });
+  }
+
+  return modified;
 };
