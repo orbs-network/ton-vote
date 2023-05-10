@@ -13,7 +13,7 @@ import {
   getClientV4,
   getTransactions,
 } from "ton-vote-contracts-sdk";
-import { BASE_FEE } from "config";
+import { BASE_FEE, VOTE_FEE } from "config";
 import { showPromiseToast } from "toasts";
 import { Endpoints, ProposalResults } from "types";
 import { useProposalStatusQuery } from "query/queries";
@@ -111,14 +111,13 @@ export const useVote = () => {
       toggleTxReminder(true);
       const client = await getClientV2();
 
-      console.log(proposalAddress, vote);
       
 
       const voteFn = async () => {
         await TonVoteSDK.proposalSendMessage(
           sender,
           client,
-          BASE_FEE.toString(),
+          VOTE_FEE.toString(),
           proposalAddress,
           vote
         );

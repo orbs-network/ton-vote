@@ -87,3 +87,4 @@ export const getRelaseMode = () => {
 
 
 export const BASE_FEE = 0.15
+export const VOTE_FEE = 0.0065;
