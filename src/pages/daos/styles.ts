@@ -1,5 +1,6 @@
-import { Box, styled } from "@mui/material";
-import { Button, Container, Img } from "components";
+import { Box, styled, Typography } from "@mui/material";
+import { Button, Container, Img, Search } from "components";
+import { MOBILE_WIDTH } from "consts";
 import { StyledFlexRow } from "styles";
 
 
@@ -46,7 +47,6 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     fontSize: 16,
   },
   ".members": {
-    fontSize: 14,
     fontWeight: 700,
     padding: "5px 20px",
     borderRadius: 20,
@@ -55,9 +55,38 @@ export const StyledDao = styled(Box)(({ theme }) => ({
       fontSize: 12,
     },
   },
+  "@media (max-width: 1050px)": {
+    width: "calc(100% / 3 - 15px)",
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    width: "calc(100% / 2 - 5px)",
+    height: 260,
+    ".title": {
+      fontSize: 16,
+    },
+    ".address-value": {
+      fontSize: 14,
+    },
+    ".members": {
+      padding: "5px 10px",
+      marginTop: 15,
+      p: {
+        fontSize: 11,
+      },
+    },
+  },
+  "@media (max-width: 350px)": {
+    width: "100%",
+  },
 }));
 
-
+export const StyledHeader = styled(StyledFlexRow)({
+  justifyContent: "space-between",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+   flexDirection:'column',
+   alignItems:'flex-start',
+  },
+});
 
 
 export const StyledDaosList = styled(StyledFlexRow)({
@@ -65,7 +94,11 @@ export const StyledDaosList = styled(StyledFlexRow)({
   marginRight: "auto",
   flexWrap: "wrap",
   gap: 20,
-  justifyContent:'flex-start'
+  justifyContent: "flex-start",
+
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    gap: 10,
+  },
 });
 
 
@@ -73,4 +106,26 @@ export  const StyledHiddenIcon = styled(Box)({
   position: "absolute",
   left: 10,
   top: 10,
+});
+
+
+export const StyledEmptyList = styled(Container)({
+  width: "100%",
+});
+
+export const StyledDaosAmount = styled(Typography)({
+  fontSize: 15,
+  fontWeight: 700,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    textAlign: "right",
+    width:'100%'
+  },
+});
+
+export const StyledSearch = styled(Search)({
+  maxWidth: 400,
+  width: "100%",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    maxWidth: 'unset',
+  },
 });

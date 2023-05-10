@@ -1,5 +1,5 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { QueryKeys } from "config";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getRelaseMode, QueryKeys } from "config";
 import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
 import _ from "lodash";
 import {
@@ -9,13 +9,20 @@ import {
   getDaoProposals,
   getDaoRoles,
   getProposalMetadata,
+  newRegistry,
   ProposalMetadata,
+  setCreateDaoFee,
+  setFwdMsgFee,
+  setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
 import { getProposalStatus, isDaoWhitelisted, Logger } from "utils";
 import { OLD_DAO, proposals } from "data/foundation/data";
 import { useNewDataStore } from "store";
 import { lib } from "lib/lib";
 import { api } from "api";
+import { useDaoAddressFromQueryParam, useGetSender } from "hooks";
+import { useConnection } from "ConnectionProvider";
+import { showPromiseToast } from "toasts";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -57,7 +64,7 @@ export const useDaosQuery = (refetchInterval?: number) => {
       return _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
     },
     {
-      refetchInterval
+      refetchInterval,
     }
   );
 };
@@ -91,7 +98,6 @@ export const useDaoQuery = (
 ) => {
   const handleProposal = useHandleNewProposals();
   const queryClient = useQueryClient();
-
   const isWhitelisted = isDaoWhitelisted(daoAddress);
 
   return useQuery(
@@ -126,6 +132,14 @@ export const useDaoQuery = (
   );
 };
 
+export const useDaoFromQueryParam = (
+  refetchInterval?: number,
+  staleTime: number = Infinity
+) => {
+  const address = useDaoAddressFromQueryParam();
+  return useDaoQuery(address, refetchInterval, staleTime);
+};
+
 export const useProposalQuery = (proposalAddress?: string) => {
   return useQuery<Proposal>(
     [QueryKeys.PROPOSAL, proposalAddress],
@@ -154,7 +168,7 @@ export const useProposalQuery = (proposalAddress?: string) => {
     },
     {
       enabled: !!proposalAddress,
-      staleTime: 30_000
+      staleTime: 30_000,
     }
   );
 };
@@ -173,4 +187,77 @@ export const useProposalStatusQuery = (
   );
 
   return query.data as ProposalStatus | null;
+};
+
+export const useCreateNewRegistry = () => {
+  const getSender = useGetSender();
+  const address = useConnection().address;
+
+  return useMutation(async () => {
+    const clientV2 = await getClientV2();
+    const sender = getSender();
+    return newRegistry(sender, clientV2, getRelaseMode(), address!);
+  });
+};
+
+export const useSetCreateDaoFee = () => {
+  const getSender = useGetSender();
+  return useMutation(async (value: number) => {
+    console.log(value);
+
+    const client = await getClientV2();
+    const promise = setCreateDaoFee(
+      getSender(),
+      client,
+      getRelaseMode(),
+      value.toString()
+    );
+
+    showPromiseToast({
+      promise,
+      loading: "Setting create DAO fee...",
+      success: "Create DAO fee set",
+      error: "Failed to set create DAO fee",
+    });
+
+    return promise;
+  });
+};
+
+export const useSetCreateProposalFee = () => {
+  const getSender = useGetSender();
+  return useMutation(async (daoId: number) => {
+    const client = await getClientV2();
+    const promise = setFwdMsgFee(
+      getSender(),
+      client,
+      getRelaseMode(),
+      [daoId.toString()],
+      "0"
+    );
+
+    showPromiseToast({
+      promise,
+      loading: "Setting create Proposal fee...",
+      success: "Create Proposal fee set",
+      error: "Failed to set create Proposal fee",
+    });
+
+    return promise;
+  });
+};
+
+export const useSetRegistryAdmin = () => {
+  const getSender = useGetSender();
+
+  return useMutation(async (newRegistryAdmin: string) => {
+    const client = await getClientV2();
+
+    return setRegistryAdmin(
+      getSender(),
+      client,
+      getRelaseMode(),
+      newRegistryAdmin
+    );
+  });
 };

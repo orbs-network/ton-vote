@@ -1,9 +1,10 @@
 import { Box, Fade, styled } from "@mui/material";
 import { Page } from "components";
+import { MOBILE_WIDTH } from "consts";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { StyledFlexRow } from "styles";
-import { DaoMenu } from "./DaoMenu";
+import { DaoMenu } from "./dao-menu/DaoMenu";
 
 export function SpaceMenuLayout() {
   return (
@@ -22,9 +23,12 @@ export function SpaceMenuLayout() {
 
 
 const StyledContainer = styled(StyledFlexRow)({
-    alignItems:'flex-start',
-    gap: 30
-})
+  alignItems: "flex-start",
+  gap: 20,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    flexDirection: "column",
+  },
+});
 
 const StyledOutlet = styled(Box)({
   flex: 1,

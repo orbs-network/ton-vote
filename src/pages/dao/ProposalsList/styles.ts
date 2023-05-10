@@ -1,21 +1,12 @@
 import { Alert, Box, styled, Typography } from "@mui/material";
-import { AddressDisplay, Container, Header, Search } from "components";
-import { StyledContainer, StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-
-
-
-export const StyledProposalsHeader = styled(Box)({
-  width:'100%',
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  ".container-header":{
-    alignItems:'center',
-  },
- 
-});
-
-
+import { AddressDisplay, Container, Header, OverflowWithTooltip, Search } from "components";
+import { MOBILE_WIDTH } from "consts";
+import {
+  StyledContainer,
+  StyledFlexColumn,
+  StyledFlexRow,
+  StyledSkeletonLoader,
+} from "styles";
 
 export const StyledProposalResultProgress = styled("div")(({ theme }) => ({
   height: "100%",
@@ -43,7 +34,7 @@ export const StyledProposalResult = styled(StyledFlexRow)({
 
 export const StyledProposalOwner = styled(Typography)({
   fontSize: 15,
-  fontWeight: 600
+  fontWeight: 600,
 });
 
 export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
@@ -66,7 +57,7 @@ export const StyledTime = styled(Typography)({
   fontSize: 14,
   fontWeight: 600,
   opacity: 0.7,
-  marginTop:10
+  marginTop: 10,
 });
 
 export const StyledDescription = styled(Typography)({
@@ -76,36 +67,43 @@ export const StyledDescription = styled(Typography)({
   WebkitLineClamp: 2,
 });
 
-
-
-
 export const StyledMarkdown = styled(Typography)({
   fontWeight: 600,
   fontSize: 16,
-  marginBottom: 10
+  marginBottom: 10,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 15,
+  },
 });
 
 export const StyledProposalTitle = styled(Typography)({
   fontSize: 20,
   fontWeight: 800,
+  lineHeight: "28px",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 17,
+    lineHeight: "26px",
+  },
 });
-
 
 export const StyledAlert = styled(Alert)({
   width: "100%",
-  borderRadius: 10
+  borderRadius: 10,
 });
 
-export const StyledHeader = styled(Header)({
-  marginBottom: 0,
+export const StyledProposalsHeader = styled(StyledFlexRow)({
+  ".header": {
+    marginBottom: 0,
+  },
 });
 
 export const StyledSearch = styled(Search)({
   maxWidth: 360,
   width: "100%",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    maxWidth: "unset",
+  },
 });
-
-
 
 export const StyledEmptyList = styled(Container)({
   position: "absolute",
@@ -116,5 +114,31 @@ export const StyledEmptyList = styled(Container)({
 export const StyledAddressDisplay = styled(AddressDisplay)({
   p: {
     fontWeight: 600,
+  },
+});
+
+export const StyledProposalsContainer = styled(StyledFlexColumn)({
+  gap: 20,
+});
+
+export const StyledTonAmount = styled(Typography)({
+  fontSize: 13,
+  whiteSpace: "nowrap",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 11,
+  },
+});
+
+export const StyledResultName = styled(OverflowWithTooltip)({
+  fontSize: 16,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 14,
+  },
+});
+
+export const StyledProposalPercent = styled(Typography)({
+  fontSize: 14,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 12,
   },
 });

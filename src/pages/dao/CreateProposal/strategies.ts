@@ -2,7 +2,7 @@ import _ from "lodash";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "./types";
 
-export const STRATEGIES: { [key: number]: StrategyOption } = {
+export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
   [VotingPowerStrategyType.TonBalance]: { name: "TON coin balance", args: [] },
   [VotingPowerStrategyType.JettonBalance]: {
     name: "Jetton balance",

@@ -196,6 +196,7 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
                   style={{ maxWidth: "600px", width: "100%" }}
                 >
                   <MapInput<CreateProposalForm>
+                    formik={formik}
                     args={input}
                     value={value}
                     error={errors[input.name!]}

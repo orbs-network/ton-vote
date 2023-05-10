@@ -12,6 +12,7 @@ export const useDaoPageTranslations = () => {
     emptyProposals: t("emptyProposals"),
     endedAndDidntPassedQuorum: t("endedAndDidntPassedQuorum"),
     proposalEnded: (value: string) => t("proposalEnded", { value }),
-spaceNotFound:  t("spaceNotFound"),
+    spaceNotFound: t("spaceNotFound"),
+    settings: t("settings"),
   };
 };

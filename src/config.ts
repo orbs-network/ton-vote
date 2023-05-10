@@ -1,4 +1,5 @@
 import TonConnect from "@tonconnect/sdk";
+import { ReleaseMode } from "ton-vote-contracts-sdk";
 
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
@@ -74,5 +75,9 @@ export const VERIFIED_DAOS = [
   "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
 ];
 
-
-export const isStaging = import.meta.env.VITE_STAGING || import.meta.env.DEV;
+export const getRelaseMode = () => {
+  if (import.meta.env.VITE_STAGING || import.meta.env.DEV) {
+    return ReleaseMode.DEVELOPMENT;
+  }
+  return ReleaseMode.PRODUCTION;
+};

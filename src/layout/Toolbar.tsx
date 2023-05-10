@@ -1,11 +1,11 @@
 import { styled } from "@mui/material";
 import { AppTooltip, Button, Img } from "components";
+import { DevParametersModal } from "components/DevParameters";
 import { useConnection } from "ConnectionProvider";
 import { TOOLBAR_WIDTH } from "consts";
-import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
+import { useMobile } from "hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/queries";
-import { useTranslation } from "react-i18next";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router/navigation";
@@ -14,11 +14,16 @@ import { isOwner, parseLanguage } from "utils";
 
 export function Toolbar() {
   const navigation = useAppNavigation();
-  const translations = useDaosPageTranslations()
+  const translations = useDaosPageTranslations();
+
+  const mobile = useMobile();
+
+  if (mobile) return null;
 
   return (
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
+        <DevParametersModal />
         <AppTooltip text={translations.createDao} placement="right">
           <StyledButton
             onClick={navigation.createSpace.root}
@@ -48,7 +53,6 @@ const StyledButton = styled(Button)({
   },
 });
 
-
 const StyledToolbar = styled(StyledFlexColumn)({
   width: TOOLBAR_WIDTH,
   height: "100%",
@@ -75,23 +79,27 @@ const UserDaos = () => {
 
   return (
     <StyledUserDaos>
-      {daos && daos?.map((dao) => {
-        if (isOwner(connectedWallet, dao.daoRoles)) {
-          const selected = daoId === dao.daoAddress;
-          return (
-            <StyledLink
-              selected={selected ? 1 : 0}
-              to={appNavigation.daoPage.root(dao.daoAddress)}
-              key={dao.daoAddress}
-            >
-              <AppTooltip text={parseLanguage(dao.daoMetadata.name)} placement="right">
-                <StyledDaoImg src={dao.daoMetadata.avatar} />
-              </AppTooltip>
-            </StyledLink>
-          );
-        }
-        return null;
-      })}
+      {daos &&
+        daos?.map((dao) => {
+          if (isOwner(connectedWallet, dao.daoRoles)) {
+            const selected = daoId === dao.daoAddress;
+            return (
+              <StyledLink
+                selected={selected ? 1 : 0}
+                to={appNavigation.daoPage.root(dao.daoAddress)}
+                key={dao.daoAddress}
+              >
+                <AppTooltip
+                  text={parseLanguage(dao.daoMetadata.name)}
+                  placement="right"
+                >
+                  <StyledDaoImg src={dao.daoMetadata.avatar} />
+                </AppTooltip>
+              </StyledLink>
+            );
+          }
+          return null;
+        })}
     </StyledUserDaos>
   );
 };

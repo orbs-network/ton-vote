@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useDaoAddress, useGetSender } from "hooks";
+import { useDaoAddressFromQueryParam, useGetSender } from "hooks";
 import { useAppNavigation } from "router/navigation";
 import { showErrorToast, showPromiseToast } from "toasts";
 import {
@@ -29,7 +29,7 @@ export const useCreateProposalStore = create(
 );
 
 export const useCreateProposal = () => {
-  const daoAddress = useDaoAddress();
+  const daoAddress = useDaoAddressFromQueryParam();
   const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
   const getSender = useGetSender();
   const appNavigation = useAppNavigation();

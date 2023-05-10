@@ -1,4 +1,4 @@
-import { useDaoAddress } from "hooks";
+import { useDaoAddressFromQueryParam } from "hooks";
 import _ from "lodash";
 import moment from "moment";
 import { useDaoQuery } from "query/queries";
@@ -10,7 +10,7 @@ import {
 import { InputArgs, Dao } from "types";
 import { isZeroAddress } from "utils";
 import { STRATEGIES } from "./strategies";
-import { CreateProposalForm } from "./types";
+import { CreateProposalForm, CreateProposalInputArgs } from "./types";
 const initialChoices = ["Yes", "No", "Abstain"];
 
 const getInitialTimestamps = () => {
@@ -38,7 +38,10 @@ const getInitialTimestamps = () => {
   };
 };
 
-const handleDefaults = (input: InputArgs, dao?: Dao): InputArgs => {
+const handleDefaults = (
+  input: CreateProposalInputArgs,
+  dao?: Dao
+): CreateProposalInputArgs => {
   const nftAddress =
     dao?.daoMetadata.nft && !isZeroAddress(dao?.daoMetadata.nft)
       ? dao?.daoMetadata.nft
@@ -66,7 +69,7 @@ const handleDefaults = (input: InputArgs, dao?: Dao): InputArgs => {
 };
 
 export const useStrategies = () => {
-  const daoAddress = useDaoAddress();
+  const daoAddress = useDaoAddressFromQueryParam();
   const { data, dataUpdatedAt } = useDaoQuery(daoAddress);
 
   return useMemo(() => {

@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { useCreateProposalTranslations } from "i18n/hooks/useCreateProposalTranslations";
 export const useCreateProposalForm = (
   formData: CreateProposalForm
-): FormArgs[] => {
+): FormArgs<CreateProposalForm>[] => {
   const translations = useCreateProposalTranslations();
   const { proposalStartTime, proposalEndTime } = formData;
 

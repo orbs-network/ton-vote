@@ -7,18 +7,15 @@ import {
   Page,
 } from "components";
 import { FormikProps, useFormik } from "formik";
-import { useDaoAddress, useDebouncedCallback } from "hooks";
+import { useDaoAddressFromQueryParam, useDebouncedCallback } from "hooks";
 import { StyledFlexRow } from "styles";
-import {
-  useCreateProposal,
-  useCreateProposalStore,
-} from "./store";
+import { useCreateProposal, useCreateProposalStore } from "./store";
 import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
 import { useEffect } from "react";
-import { useDaoQuery } from "query/queries";
+import { useDaoFromQueryParam, useDaoQuery } from "query/queries";
 import { validateFormik } from "utils";
-import { CreateProposalForm } from "./types";
+import { CreateProposalForm, CreateProposalInputArgs } from "./types";
 import { appNavigation } from "router/navigation";
 import { InputArgs } from "types";
 import { StrategySelect } from "./StrategySelect";
@@ -27,15 +24,15 @@ import { useCreateProposalForm } from "./form/inputs";
 import { useFormSchema } from "./form/validation";
 
 function Form() {
-  const daoAddress = useDaoAddress();
+  const daoAddress = useDaoAddressFromQueryParam();
 
   const { mutate: createProposal, isLoading } = useCreateProposal();
-  const data = useDaoQuery(daoAddress).data;
+  const data = useDaoFromQueryParam().data;
   const { formData, setFormData } = useCreateProposalStore();
-    const form = useCreateProposalForm(formData);
+  const form = useCreateProposalForm(formData);
 
   const initialValues = useFormInitialValues(formData, data);
-  const FormSchema = useFormSchema()  
+  const FormSchema = useFormSchema();
 
   const formik = useFormik<CreateProposalForm>({
     initialValues,
@@ -86,7 +83,7 @@ const StyledContainer = styled(StyledFlexRow)({
 });
 
 const useCustomInputHandler = (formik: FormikProps<CreateProposalForm>) => {
-  return (args: InputArgs) => {
+  return (args: CreateProposalInputArgs) => {
     const value = formik.values.votingPowerStrategies;
     return (
       <StrategySelect
@@ -102,7 +99,7 @@ const useCustomInputHandler = (formik: FormikProps<CreateProposalForm>) => {
 };
 
 export const CreateProposal = () => {
-  const daoAddress = useDaoAddress();
+  const daoAddress = useDaoAddressFromQueryParam();
   const isLoading = useDaoQuery(daoAddress).isLoading;
 
   return (

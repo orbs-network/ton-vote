@@ -44,7 +44,7 @@ const items = [
   },
 ];
 
-export function ShareButton({ url }: { url: string }) {
+export function ShareButton({ url, className = " " }: { url: string; className?: string }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -55,7 +55,7 @@ export function ShareButton({ url }: { url: string }) {
 
   return (
     <>
-      <StyledShareButton onClick={handleClick}>
+      <StyledShareButton className={className} onClick={handleClick}>
         <RxShare2 />
         <Typography>Share</Typography>
       </StyledShareButton>

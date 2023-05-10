@@ -94,7 +94,7 @@ export function TextInput({
   isMarkdown,
   defaultValue,
 }: TextInputProps) {
-  const translations = useCommonTranslations()
+  const translations = useCommonTranslations();
   const [preview, setPreview] = useState(false);
 
   const _onChange = (_value: string) => {
@@ -316,20 +316,20 @@ export function MapInput<T>({
   args,
   value,
   error,
-  EndAdornment,
   className,
   onChange,
   customInputHandler,
   clearError,
+  formik,
 }: {
-  args: InputArgs;
+  args: InputArgs<T>;
   value: any;
   error?: string;
-  EndAdornment?: any;
   className?: string;
   onChange: (value: any) => void;
-  customInputHandler?: (value: InputArgs) => ReactElement;
+  customInputHandler?: (value: InputArgs<T>) => ReactElement;
   clearError?: () => void;
+  formik: FormikProps<T>;
 }) {
   const touchedRef = useRef(false);
 
@@ -347,6 +347,7 @@ export function MapInput<T>({
 
   const name = args.name;
   const label = args.label;
+  const EndAdornment = args.EndAdornment;
 
   const common = {
     required: args.required,
@@ -365,6 +366,7 @@ export function MapInput<T>({
         min={args.min}
         max={args.max}
         value={value as any}
+     
       />
     );
   }
@@ -382,7 +384,11 @@ export function MapInput<T>({
         onChange={onChange}
         prefix={args.prefix}
         suffix={args.suffix}
+        error={error}
         {...common}
+        endAdornment={
+          EndAdornment && <EndAdornment name={name!} formik={formik} />
+        }
       />
     );
   }
@@ -425,9 +431,7 @@ export function MapInput<T>({
         name={name}
         onChange={onChange}
         endAdornment={
-          args.defaultValueClick && !value && EndAdornment ? (
-            <EndAdornment onClick={() => onChange(args.defaultValueClick)} />
-          ) : undefined
+          EndAdornment && <EndAdornment name={name!} formik={formik} />
         }
       />
     );
@@ -551,24 +555,25 @@ export const ListInputs = ({
 };
 
 interface FormikInputsFormProps<T> {
-  form: FormArgs[];
+  form: FormArgs<T>[] | FormArgs<T>;
   formik: FormikProps<T>;
   EndAdornment?: any;
-  customInputHandler?: (value: InputArgs) => ReactElement;
+  customInputHandler?: (value: InputArgs<T>) => ReactElement;
   children?: ReactNode;
 }
 
 export function FormikInputsForm<T>({
   form,
   formik,
-  EndAdornment,
   customInputHandler,
   children,
 }: FormikInputsFormProps<T>) {
+  const _form = _.isArray(form) ? form : [form];
+
   return (
     <StyledFlexColumn gap={15}>
-      {form.map((it, index) => {
-        const isLast = _.size(form) === index + 1;
+      {_form.map((it, index) => {
+        const isLast = _.size(_form) === index + 1;
 
         return (
           <TitleContainer
@@ -606,7 +611,6 @@ export function FormikInputsForm<T>({
                     >
                       <MapInput<T>
                         customInputHandler={customInputHandler}
-                        EndAdornment={EndAdornment}
                         args={input}
                         value={formik.values[input.name as keyof T]}
                         error={formik.errors[input.name as keyof T] as string}
@@ -615,6 +619,7 @@ export function FormikInputsForm<T>({
                           formik.setFieldValue(input.name as string, value);
                           clearError();
                         }}
+                        formik={formik}
                       />
                     </StyledFormInput>
                   );
@@ -634,7 +639,7 @@ const StyledMarkdown = styled(Markdown)({
   marginTop: 20,
   p: {
     fontSize: 15,
-    fontWeight: 500
+    fontWeight: 500,
   },
 });
 
@@ -663,6 +668,8 @@ interface NumberInputProps {
   required?: boolean;
   title?: string;
   tooltip?: string;
+  endAdornment?: React.ReactNode;
+  error?: string;
 }
 
 export const NumberInput = ({
@@ -674,6 +681,8 @@ export const NumberInput = ({
   required,
   title,
   tooltip,
+  endAdornment,
+  error,
 }: NumberInputProps) => {
   return (
     <StyledInputContainer>
@@ -688,7 +697,14 @@ export const NumberInput = ({
         onValueChange={(value) => {
           onChange(value.floatValue);
         }}
+        InputProps={{ endAdornment }}
       />
+      {error && (
+        <StyledError>
+          <RiErrorWarningLine />
+          <Typography>{error}</Typography>
+        </StyledError>
+      )}
     </StyledInputContainer>
   );
 };

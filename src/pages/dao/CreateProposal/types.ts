@@ -18,7 +18,10 @@ export interface CreateProposalStore {
   setFormData: (value: CreateProposalForm) => void;
 }
 
-export interface StrategyOption {
+export interface StrategyOption<T> {
   name: string;
-  args?: InputArgs[];
+  args?: InputArgs<T>[];
 }
+
+
+export type CreateProposalInputArgs  = InputArgs<CreateProposalForm>

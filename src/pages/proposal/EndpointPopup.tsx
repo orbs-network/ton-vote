@@ -28,7 +28,7 @@ const useFormSchema = () => {
   });
 };
 
-const useForm = (): FormArgs[] => {
+const useForm = (): FormArgs<EndpointForm>[] => {
   const translations = useProposalPageTranslations();
   return [
     {

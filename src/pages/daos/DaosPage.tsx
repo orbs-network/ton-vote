@@ -7,7 +7,7 @@ import {
   StyledFlexRow,
   StyledSkeletonLoader,
 } from "styles";
-import { StyledDao, StyledDaoContent, StyledDaosList } from "./styles";
+import { StyledDao, StyledDaoContent, StyledDaosAmount, StyledDaosList, StyledEmptyList, StyledHeader, StyledSearch } from "./styles";
 import { nFormatter } from "utils";
 import { Dao } from "types";
 import { useMemo, useState } from "react";
@@ -15,7 +15,7 @@ import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { useTranslation } from "react-i18next";
 import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
-import { useAppQueryParams } from "hooks";
+import { useAppQueryParams, useMobile } from "hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 
@@ -39,6 +39,7 @@ export function DaosPage() {
   } = useDaosQuery(DAOS_PAGE_REFETCH_INTERVAL);
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
+  const mobile = useMobile()
 
   const { query, setSearch } = useAppQueryParams();
 
@@ -56,8 +57,8 @@ export function DaosPage() {
   const emptyList = !isLoading && !_.size(filteredDaos);
   return (
     <Page hideBack={true}>
-      <StyledFlexColumn alignItems="flex-start" gap={24}>
-        <StyledFlexRow justifyContent="space-between">
+      <StyledFlexColumn alignItems="flex-start" gap={mobile ? 15 : 24}>
+        <StyledHeader>
           <StyledSearch
             initialValue={query.search || ""}
             onChange={onSearchInputChange}
@@ -66,7 +67,7 @@ export function DaosPage() {
           <StyledDaosAmount>
             {nFormatter(_.size(data))} {translations.spaces}
           </StyledDaosAmount>
-        </StyledFlexRow>
+        </StyledHeader>
         <StyledFlexColumn gap={25}>
           <List
             isLoading={isLoading}
@@ -100,19 +101,6 @@ export function DaosPage() {
   );
 }
 
-const StyledEmptyList = styled(Container)({
-  width: "100%",
-});
-
-const StyledDaosAmount = styled(Typography)({
-  fontSize: 15,
-  fontWeight: 700,
-});
-
-const StyledSearch = styled(Search)({
-  maxWidth: 400,
-  width: "100%",
-});
 
 const ListLoader = () => {
   return (

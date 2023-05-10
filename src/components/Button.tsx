@@ -1,8 +1,7 @@
 import { CircularProgress, Fade, styled } from "@mui/material";
 import { Box } from "@mui/system";
-import React from "react";
+import { MOBILE_WIDTH } from "consts";
 import { ReactNode } from "react";
-
 import { StyledFlexRow } from "styles";
 
 type Variant = "transparent";
@@ -77,21 +76,24 @@ const StyledContainer = styled("button")<{
   position: "relative",
   padding: "0px 16px",
   transition: "0.3s all",
-  "*": {
+  "*, p": {
     color: variant === "transparent" ? theme.palette.primary.main : "white",
     fontSize: 16,
     fontWeight: 700,
     fontFamily: theme.typography.fontFamily,
   },
-  "&:hover": {
-    border:
-      variant === "transparent"
-        ? "1px solid transparent"
-        : `1px solid ${theme.palette.primary.main}`,
-    background:
-      variant === "transparent" ? theme.palette.primary.main : "transparent",
-    "*": {
-      color: variant === "transparent" ? "white" : theme.palette.primary.main,
+
+  [`@media (min-width: ${MOBILE_WIDTH}px)`]: {
+    "&:hover": {
+      border:
+        variant === "transparent"
+          ? "1px solid transparent"
+          : `1px solid ${theme.palette.primary.main}`,
+      background:
+        variant === "transparent" ? theme.palette.primary.main : "transparent",
+      "*": {
+        color: variant === "transparent" ? "white" : theme.palette.primary.main,
+      },
     },
   },
 }));

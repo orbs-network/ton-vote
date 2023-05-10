@@ -3,7 +3,12 @@ import { create } from "zustand";
 import _ from "lodash";
 import { useGetSender } from "hooks";
 import * as TonVoteContract from "ton-vote-contracts-sdk";
-import { getClientV2, MetadataArgs } from "ton-vote-contracts-sdk";
+import {
+  getClientV2,
+  getDaoIndex,
+  MetadataArgs,
+  ReleaseMode,
+} from "ton-vote-contracts-sdk";
 import { showPromiseToast } from "toasts";
 import { useAppNavigation } from "router/navigation";
 import { useNewDataStore, useTxReminderPopup } from "store";
@@ -11,14 +16,11 @@ import { ZERO_ADDRESS } from "consts";
 import { Logger } from "utils";
 import { persist } from "zustand/middleware";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
+import { getRelaseMode } from "config";
+import { DaoMetadataForm, DaoRolesForm } from "types";
+import { useSetCreateProposalFee } from "query/queries";
 
-export interface DaoMetadata extends MetadataArgs {
-  dns: string;
-  about_en?: string;
-  name_en?: string;
-}
-
-const initialCreateMetadataForm: DaoMetadata = {
+const initialCreateMetadataForm: DaoMetadataForm = {
   name: "",
   telegram: "",
   website: "",
@@ -33,23 +35,19 @@ const initialCreateMetadataForm: DaoMetadata = {
   dns: "",
 };
 
-export interface RolesForm {
-  ownerAddress: string;
-  proposalOwner: string;
-}
 interface State {
   step: number;
   setStep: (value: number) => void;
   nextStep: () => void;
   prevStep: () => void;
-  daoMetadataForm: DaoMetadata;
-  rolesForm: RolesForm;
+  daoMetadataForm: DaoMetadataForm;
+  rolesForm: DaoRolesForm;
   metadataAddress?: string;
   editMode: boolean;
   setEditMode: (value: boolean) => void;
-  setDaoMetadataForm: (value: DaoMetadata) => void;
+  setDaoMetadataForm: (value: DaoMetadataForm) => void;
   setMetadataAddress: (value: string) => void;
-  setRolesForm: (rolesForm?: RolesForm) => void;
+  setRolesForm: (rolesForm?: DaoRolesForm) => void;
   reset: () => void;
 }
 
@@ -57,7 +55,7 @@ export const useCreatDaoStore = create(
   persist<State>(
     (set) => ({
       editMode: false,
-      rolesForm: {} as RolesForm,
+      rolesForm: {} as DaoRolesForm,
       daoMetadataForm: initialCreateMetadataForm,
       step: 0,
       setStep: (step) => set({ step }),
@@ -71,9 +69,9 @@ export const useCreatDaoStore = create(
       setRolesForm: (rolesForm) => set({ rolesForm }),
       reset: () =>
         set({
-          daoMetadataForm: {} as DaoMetadata,
+          daoMetadataForm: {} as DaoMetadataForm,
           step: 0,
-          rolesForm: {} as RolesForm,
+          rolesForm: {} as DaoRolesForm,
           editMode: false,
           metadataAddress: undefined,
         }),
@@ -91,15 +89,15 @@ export const useCreateDaoMetadata = () => {
   const toggleTxReminder = useTxReminderPopup().setOpen;
   const translations = useCreateDaoTranslations();
   return useMutation(
-    async (values: DaoMetadata) => {
+    async (values: DaoMetadataForm) => {
       const sender = getSender();
 
-      const metadataArgs: DaoMetadata = {
-        about: JSON.stringify({en: values.about_en}),
+      const metadataArgs: DaoMetadataForm = {
+        about: JSON.stringify({ en: values.about_en }),
         avatar: values.avatar || "",
         github: values.github || "",
         hide: values.hide,
-        name: JSON.stringify({en: values.name_en}),
+        name: JSON.stringify({ en: values.name_en }),
         terms: "",
         telegram: values.telegram || "",
         website: values.website || "",
@@ -124,7 +122,9 @@ export const useCreateDaoMetadata = () => {
         toggleTxReminder(true);
         showPromiseToast({
           promise,
-          success: editMode ? translations.spaceDetailsUpdated : translations.spaceDetailsCreated,
+          success: editMode
+            ? translations.spaceDetailsUpdated
+            : translations.spaceDetailsCreated,
         });
       }
 
@@ -150,7 +150,7 @@ export const useCreateDao = () => {
   const getSender = useGetSender();
   const appNavigation = useAppNavigation();
   const { addDao } = useNewDataStore();
-
+  const { mutateAsync: setCreateProposalFee } = useSetCreateProposalFee();
   const {
     rolesForm: { ownerAddress, proposalOwner },
     metadataAddress,
@@ -163,9 +163,11 @@ export const useCreateDao = () => {
     async () => {
       const sender = getSender();
       const clientV2 = await getClientV2();
+
       const promise = TonVoteContract.newDao(
         sender,
         clientV2,
+        getRelaseMode(),
         metadataAddress!,
         ownerAddress,
         proposalOwner
@@ -178,7 +180,14 @@ export const useCreateDao = () => {
       });
       toggleTxReminder(true);
       const address = await promise;
+      console.log({ address });
+
       if (typeof address === "string") {
+      
+        if (getRelaseMode() === ReleaseMode.DEVELOPMENT) {
+          const daoIndex = await getDaoIndex(clientV2, address);
+          await setCreateProposalFee(daoIndex);
+        }
         appNavigation.daoPage.root(address);
         addDao(address);
         reset();
@@ -188,7 +197,6 @@ export const useCreateDao = () => {
     },
     {
       onSettled: () => toggleTxReminder(false),
-
     }
   );
 };

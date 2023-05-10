@@ -9,7 +9,7 @@ import { Votes } from "./Votes";
 import { Helmet } from "react-helmet";
 import { APP_NAME } from "config";
 import { appNavigation } from "router/navigation";
-import { useDaoAddress } from "hooks";
+import { useDaoAddressFromQueryParam } from "hooks";
 import { ProposalStatus } from "types";
 import { useProposalPageQuery } from "./query";
 import { ProposalAbout } from "./ProposalAbout";
@@ -89,7 +89,7 @@ const Meta = () => {
 
 export function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
-  const daoAddress = useDaoAddress();
+  const daoAddress = useDaoAddressFromQueryParam();
   const [showError, setShowError] = useState(false)
   const error = useProposalPageQuery().error;
 

@@ -1,4 +1,5 @@
 import { styled } from '@mui/material'
+import { MOBILE_WIDTH } from 'consts';
 import React from 'react'
 import { StyledContainer } from 'styles';
 
@@ -20,7 +21,11 @@ export function SideMenu({
 
 
 const StyledSideMenu = styled(StyledContainer)({
-    top:90,
-    width: 350,
-    position:'sticky',
-})
+  top: 90,
+  width: 350,
+  position: "sticky",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    position: "unset",
+    width: '100%',
+  },
+});

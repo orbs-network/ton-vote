@@ -1,17 +1,26 @@
 import { Box } from "@mui/material";
-import { List, LoadMore } from "components";
+import { Header, List, LoadMore } from "components";
 import { DAO_REFETCH_INTERVAL } from "config";
-import { useAppQueryParams, useDaoAddress } from "hooks";
+import {
+  useAppQueryParams,
+  useDaoAddressFromQueryParam,
+  useMobile,
+} from "hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { useDaoQuery } from "query/queries";
+import { useDaoFromQueryParam, useDaoQuery } from "query/queries";
 import { useState } from "react";
 import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { ProposalLoader } from "../ProposalLoader";
 import { ProposalComponent as Proposal } from "./Proposal";
-import { StyledEmptyList, StyledHeader, StyledSearch } from "./styles";
+import {
+  StyledEmptyList,
+  StyledProposalsContainer,
+  StyledProposalsHeader,
+  StyledSearch,
+} from "./styles";
 const LIMIT = 10;
 
 interface Option extends SelectOption {
@@ -19,7 +28,7 @@ interface Option extends SelectOption {
 }
 
 const useOptions = (): Option[] => {
-  const translations = useCommonTranslations()
+  const translations = useCommonTranslations();
 
   return [
     { text: translations.all, value: "all" },
@@ -57,22 +66,20 @@ const ProposalsSearch = () => {
 };
 
 export function ProposalsList() {
-  const daoAddress = useDaoAddress();
   const [amount, setAmount] = useState(LIMIT);
 
   const showMore = () => {
     setAmount((prev) => prev + LIMIT);
   };
 
-  const { data, isLoading } = useDaoQuery(
-    daoAddress,
+  const { data, isLoading } = useDaoFromQueryParam(
     DAO_REFETCH_INTERVAL,
     10_000
   );
 
   return (
-    <StyledFlexColumn gap={30}>
-      <StyledHeader title="Proposals" component={<ProposalsSearch />} />
+    <StyledProposalsContainer>
+      <ProposalsHeader />
       <Box style={{ position: "relative", width: "100%" }}>
         {!isLoading && <EmptyList />}
         <StyledFlexColumn gap={15} style={{ zIndex: 10, position: "relative" }}>
@@ -95,12 +102,30 @@ export function ProposalsList() {
         showMore={showMore}
         limit={LIMIT}
       />
-    </StyledFlexColumn>
+    </StyledProposalsContainer>
   );
 }
 
+const ProposalsHeader = () => {
+  const mobile = useMobile();
+  const translations = useDaoPageTranslations();
+
+  return (
+    <StyledProposalsHeader>
+      {mobile ? (
+        <ProposalsSearch />
+      ) : (
+        <Header
+          title={translations.proposals}
+          component={<ProposalsSearch />}
+        />
+      )}
+    </StyledProposalsHeader>
+  );
+};
+
 const EmptyList = () => {
- const translations = useDaoPageTranslations()
+  const translations = useDaoPageTranslations();
   return (
     <StyledEmptyList>
       <StyledFlexColumn>

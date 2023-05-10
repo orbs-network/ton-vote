@@ -9,6 +9,7 @@ import {
   ProposalPage,
   CreateProposal,
   BadRoute,
+  DaoSettings,
 } from "pages";
 import { styled, Typography } from "@mui/material";
 import Layout from "layout/Layout";
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
               {
                 index: true,
                 element: <ProposalsList />,
+              },
+              {
+                path: routes.spaceSettings,
+                element: <DaoSettings />,
               },
               {
                 path: routes.spaceAbout,

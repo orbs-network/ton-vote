@@ -88,11 +88,12 @@ const getDao = async (
   // return Dao from api if exist
   try {
     Logger(`Fetching dao from api  ${daoAddress}`);
-    const daoFromApi = await api.getDao(daoAddress, signal);
-    if (_.isEmpty(daoFromApi)) {
+    const dao = await api.getDao(daoAddress, signal);
+    if (_.isEmpty(dao)) {
       throw new Error("dao not found");
     }
-    return daoFromApi;
+      throw new Error("dao not found");
+
   } catch (error) {
     // return Dao from contract
     Logger(
@@ -134,6 +135,7 @@ const getAllNftHolders = async (
     return TonVoteSDK.getAllNftHolders(clientV4, metadata);
   }
 };
+
 
 export const lib = {
   getAllNftHolders,

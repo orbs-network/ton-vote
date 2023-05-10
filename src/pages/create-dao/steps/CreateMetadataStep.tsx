@@ -1,7 +1,10 @@
 import { Fade, styled, Typography } from "@mui/material";
 import { Button, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
-import { DaoMetadata, useCreatDaoStore, useCreateDaoMetadata } from "../store";
+import {
+  useCreatDaoStore,
+  useCreateDaoMetadata,
+} from "../store";
 import _ from "lodash";
 import { Submit } from "./Submit";
 import { useEffect } from "react";
@@ -9,20 +12,21 @@ import { useDebouncedCallback } from "hooks";
 import { validateFormik } from "utils";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useInputs } from "../form/inputs";
-import { useDaoMetadataFormSchema } from "../form/validation";
+import { useDaoMetadataInputs, useDaoMetadataSchema } from "forms/dao-form";
+import { useDaoMetadataForm } from "../form";
+import { DaoMetadataForm } from "types";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
   const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
   const translations = useCreateDaoTranslations()
-  const { createMetadataForm } = useInputs(editMode);
-  const Schema = useDaoMetadataFormSchema();
-  const onSubmit = async (_formData: DaoMetadata) => {
+  const createMetadataForm = useDaoMetadataForm(editMode);
+  const Schema = useDaoMetadataSchema();
+  const onSubmit = async (_formData: DaoMetadataForm) => {
     createMetadata(_formData);
   };
 
-  const formik = useFormik<DaoMetadata>({
+  const formik = useFormik<DaoMetadataForm>({
     initialValues: {
       name: daoMetadataForm.name,
       telegram: daoMetadataForm.telegram,
@@ -54,7 +58,7 @@ export function CreateMetadataStep() {
   }, [formik.values]);
 
   return (
-    <FormikInputsForm<DaoMetadata>
+    <FormikInputsForm<DaoMetadataForm>
       form={createMetadataForm}
       formik={formik}
       EndAdornment={EndAdornment}

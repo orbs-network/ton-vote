@@ -9,37 +9,33 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn } from "styles";
-import {
-  DaoMetadata,
-  RolesForm,
-  useCreatDaoStore,
-  useCreateDao,
-} from "../store";
+import { useCreatDaoStore, useCreateDao } from "../store";
 import { Submit } from "./Submit";
 import { MetadataArgs } from "ton-vote-contracts-sdk";
-import { InputArgs } from "types";
+import { DaoRolesForm, InputArgs } from "types";
 import _ from "lodash";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useInputs } from "../form/inputs";
+import { useDaoMetadataForm, useDaoRolesForm } from "../form";
 
 export function CreateDaoStep() {
   const { mutate: createDao, isLoading } = useCreateDao();
   const translations = useCreateDaoTranslations();
-    const commonTranslations = useCommonTranslations();
+  const commonTranslations = useCommonTranslations();
 
   const { daoMetadataForm, rolesForm } = useCreatDaoStore();
 
-  const { setRolesForm, createMetadataForm } = useInputs();
+  const metadata = useDaoMetadataForm();
+  const roles = useDaoRolesForm();
 
   return (
     <TitleContainer title={translations.createSpace}>
       <StyledFlexColumn>
         <StyledInputs>
           <>
-            {setRolesForm.map((section) => {
+            {roles.map((section) => {
               return section.inputs.map((input) => {
-                const name = input.name as keyof RolesForm;
+                const name = input.name as keyof DaoRolesForm;
 
                 return (
                   <InputPreview
@@ -50,7 +46,7 @@ export function CreateDaoStep() {
                 );
               });
             })}
-            {createMetadataForm.map((section) => {
+            {metadata.map((section) => {
               return section.inputs.map((input) => {
                 const name = input.name as keyof MetadataArgs;
 
@@ -79,7 +75,7 @@ const StyledInputs = styled(StyledFlexColumn)({
   gap: 20,
 });
 
-const InputPreview = ({ input, value }: { input: InputArgs; value: any }) => {
+const InputPreview = ({ input, value }: { input: InputArgs<any>; value: any }) => {
   const getValue = () => {
     if (input.type === "checkbox") {
       return <Typography>{value ? "Yes" : "No"}</Typography>;

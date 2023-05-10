@@ -1,16 +1,14 @@
 import { ErrorContainer } from "components";
 import { APP_NAME } from "config";
-import { useDaoAddress } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
-import { useDaoQuery } from "query/queries";
+import { useDaoFromQueryParam } from "query/queries";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 import { parseLanguage } from "utils";
 
 export function DaoPage() {
-  const dapAddress = useDaoAddress();
-  const { data, error } = useDaoQuery(dapAddress);
+  const { data, error } = useDaoFromQueryParam();
   const [showError, setShowError] = useState(false);
   const translations = useDaoPageTranslations()
   useEffect(() => {

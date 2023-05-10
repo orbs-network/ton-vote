@@ -1,7 +1,28 @@
 import { Skeleton, styled, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { TOOLBAR_WIDTH } from "consts";
+import { Button } from "components";
+import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 import { theme } from "theme";
+
+
+export const StyledEndAdornment = styled(Box)({
+  button: {
+    padding: "5px 10px",
+    height: "unset",
+    p: {
+      fontSize: 12,
+      display: "inline-block",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+    },
+    ".MuiCircularProgress-root": {
+      width: "20px!important",
+      height: "20px!important",
+    },
+  },
+});
+
+
 
 export const StyledFlexRow = styled(Box)(
   ({
@@ -80,9 +101,12 @@ export const StyledGrid = styled(StyledFlexColumn)({
   marginLeft: "auto",
   paddingLeft: TOOLBAR_WIDTH,
   marginRight: "auto",
-
-  "@media (max-width: 850px)": {
-    width: "calc(100% - 30px)",
+  "@media (max-width: 1100px)": {
+    width: "calc(100% - 50px)",
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    width: "calc(100% - 20px)",
+    paddingLeft: "unset",
   },
 });
 
@@ -174,3 +198,5 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
     marginTop: -2,
   },
 }));
+
+

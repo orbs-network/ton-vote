@@ -1,4 +1,6 @@
 import BigNumber from "bignumber.js";
+import { FormikProps } from "formik";
+import { FunctionComponent, ReactElement } from "react";
 import { Address, Transaction } from "ton";
 import {
   DaoRoles,
@@ -91,7 +93,7 @@ export type InputType =
   | "custom"
   | "number"
 
-export interface InputArgs {
+export interface InputArgs<T> {
   label: string;
   type: InputType;
   name?: string;
@@ -109,7 +111,13 @@ export interface InputArgs {
   default?: any;
   prefix?: string;
   suffix?: string;
+  EndAdornment?: FormikInputEndAdorment<T>;
 }
+
+export type FormikInputEndAdorment<T> = FunctionComponent<{
+  name: string;
+  formik: FormikProps<T>;
+}>;
 
 export interface Endpoints {
   clientV2Endpoint?: string;
@@ -131,11 +139,25 @@ export type TooltipPlacement =
   | "top-end"
   | "top-start";
 
-export interface FormArgs {
+export interface FormArgs<T> {
   title: string;
   subTitle?: string;
-  inputs: InputArgs[];
+  inputs: InputArgs<T>[];
   inputsInRow?: number;
   warning?: string;
   bottomText?: string;
+}
+
+
+
+ export interface DaoMetadataForm extends MetadataArgs {
+  dns: string;
+  about_en?: string;
+  name_en?: string;
+}
+
+
+export interface DaoRolesForm {
+  ownerAddress: string;
+  proposalOwner: string;
 }

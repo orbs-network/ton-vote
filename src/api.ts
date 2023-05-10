@@ -3,8 +3,12 @@ import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
 import moment from "moment";
-import { LAST_FETCH_UPDATE_LIMIT } from "config";
-const baseURL = import.meta.env.VITE_API_URL;
+import { getRelaseMode, LAST_FETCH_UPDATE_LIMIT } from "config";
+import { ReleaseMode } from "ton-vote-contracts-sdk";
+const baseURL =
+  getRelaseMode() === ReleaseMode.DEVELOPMENT
+    ? "https://dev-ton-vote-cache.herokuapp.com"
+    : "https://ton-vote-cache-server.herokuapp.com";
 
 const axiosInstance = axios.create({
   baseURL,

@@ -1,6 +1,6 @@
 import { styled, Typography } from "@mui/material";
-import { AddressDisplay, Status, AppTooltip, Container } from "components";
-import { useAppQueryParams, useDaoAddress } from "hooks";
+import { AddressDisplay, Status, AppTooltip, Container, OverflowWithTooltip } from "components";
+import { useAppQueryParams, useDaoAddressFromQueryParam } from "hooks";
 import _ from "lodash";
 import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router/navigation";
@@ -27,11 +27,14 @@ import {
   StyledAlert,
   StyledMarkdown,
   StyledProposal,
+  StyledProposalPercent,
   StyledProposalResult,
   StyledProposalResultContent,
   StyledProposalResultProgress,
   StyledProposalTitle,
+  StyledResultName,
   StyledTime,
+  StyledTonAmount,
 } from "./styles";
 import { useTranslation } from "react-i18next";
 import BigNumber from "bignumber.js";
@@ -107,7 +110,7 @@ export const ProposalComponent = ({
   proposalAddress: string;
 }) => {
   const { proposalPage } = useAppNavigation();
-  const daoAddress = useDaoAddress();
+  const daoAddress = useDaoAddressFromQueryParam();
 
   const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
 
@@ -228,14 +231,12 @@ const Result = ({
       <StyledProposalResultProgress style={{ width: `${percent}%` }} />
       <StyledProposalResultContent>
         <StyledFlexRow justifyContent="flex-start">
-          <Typography style={{ fontWeight: 700, textTransform: "capitalize" }}>
-            {title}
-          </Typography>
-          <Typography fontSize={13}>
+          <StyledResultName text={title} />
+          <StyledTonAmount>
             {tonAmount} {getSymbol(votingPowerStrategy)}
-          </Typography>
+          </StyledTonAmount>
         </StyledFlexRow>
-        <Typography style={{ fontWeight: 700 }}>{percent}%</Typography>
+        <StyledProposalPercent>{percent}%</StyledProposalPercent>
       </StyledProposalResultContent>
     </StyledProposalResult>
   );

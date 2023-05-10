@@ -41,7 +41,7 @@ export const useCreateDaoTranslations = () => {
       jetton: t("tooltips.jetton"),
       nft: t("tooltips.nft"),
       owner: t("tooltips.owner"),
-proposalPublisher: t("tooltips.proposalPublisher"),
+      proposalPublisher: t("tooltips.proposalPublisher"),
     },
     errors: {
       logoURL1: t("errors.logoURL1"),

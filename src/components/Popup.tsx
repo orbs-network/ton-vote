@@ -59,7 +59,7 @@ const StyledChildren = styled(TitleContainer)(({ theme }) => ({
     alignItems: "center",
   },
   position: "relative",
-  padding: "20px 20px 40px 20px",
+  padding: "0px",
   width: "100%",
   height: "fit-content",
   outline: "unset",

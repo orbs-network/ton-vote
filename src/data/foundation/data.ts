@@ -37,7 +37,7 @@ export const proposals: { [key: string]: Proposal } = {
     daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
     metadata: {
       id: 0,
-      owner: "EQDmbwKbzpuuPacqcX67UAjQ3o6WqEjQ4_Mwvr5Ci524vO60",
+      proposalDeployer: "EQDmbwKbzpuuPacqcX67UAjQ3o6WqEjQ4_Mwvr5Ci524vO60",
       mcSnapshotBlock: 28390698,
       proposalStartTime: 1680098400,
       proposalEndTime: 1680195600,
@@ -62,7 +62,7 @@ export const proposals: { [key: string]: Proposal } = {
     daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
     metadata: {
       id: 0,
-      owner: "EQDmbwKbzpuuPacqcX67UAjQ3o6WqEjQ4_Mwvr5Ci524vO60",
+      proposalDeployer: "EQDmbwKbzpuuPacqcX67UAjQ3o6WqEjQ4_Mwvr5Ci524vO60",
       mcSnapshotBlock: 27280026,
       proposalStartTime: 1676379600,
       proposalEndTime: 1676984400,

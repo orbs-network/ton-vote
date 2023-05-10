@@ -2897,10 +2897,10 @@ ton-crypto@^3.0.0, ton-crypto@^3.1.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton-vote-contracts-sdk@^1.0.0-beta.11:
-  version "1.0.0-beta.11"
-  resolved "https://registry.yarnpkg.com/ton-vote-contracts-sdk/-/ton-vote-contracts-sdk-1.0.0-beta.11.tgz#433ea0bc4c55ec5358d3f267dfcee1dc8ddbb4b0"
-  integrity sha512-SMft1qz4ga2o4Hlqb+ezKFCFFaStQgD+fKdjlxKxEbG3f3/+YPvMUmqwlV1u5AY0EUosMWBs4QNzTgQRDc26JA==
+ton-vote-contracts-sdk@^1.0.0-beta.17:
+  version "1.0.0-beta.17"
+  resolved "https://registry.yarnpkg.com/ton-vote-contracts-sdk/-/ton-vote-contracts-sdk-1.0.0-beta.17.tgz#6396c2c68f4e438b13f0767078da1ccef29de636"
+  integrity sha512-ZcTKZ45WQHscqRHJV+IeMZrCGjR7lDxuOEplpzuYZ0Ip1eI1h/pXrnmYY8PYp24IcXgS24ANv7pc8Li8jiaQ1g==
   dependencies:
     "@orbs-network/ton-access" "^2.2.2"
     bignumber.js "^9.1.1"

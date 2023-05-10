@@ -1,20 +1,23 @@
 import { styled, Typography } from "@mui/material";
 import { Button, FormikInputsForm, MapInput } from "components";
-import { useFormik } from "formik";
+import { useConnection } from "ConnectionProvider";
+import { FormikProps, useFormik } from "formik";
+import { useDaoRolesSchema } from "forms/dao-form";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
+import { StyledEndAdornment } from "styles";
+import { DaoRolesForm } from "types";
 import { validateFormik } from "utils";
-import { useInputs } from "../form/inputs";
-import { useSetRolesFormSchema } from "../form/validation";
-import { RolesForm, useCreatDaoStore } from "../store";
+import { useDaoRolesForm } from "../form";
+import { useCreatDaoStore } from "../store";
 import { Submit } from "./Submit";
 
 export function SetRolesStep() {
   const { setRolesForm, rolesForm, nextStep, editMode } = useCreatDaoStore();
-  const Schema = useSetRolesFormSchema();
-  const form = useInputs(editMode).setRolesForm;
-  const translations = useCommonTranslations()
-  const formik = useFormik<RolesForm>({
+  const Schema = useDaoRolesSchema();
+  const form = useDaoRolesForm(EndAdornment, editMode);
+  const translations = useCommonTranslations();
+  const formik = useFormik<DaoRolesForm>({
     initialValues: {
       ownerAddress: rolesForm.ownerAddress,
       proposalOwner: rolesForm.proposalOwner,
@@ -29,11 +32,7 @@ export function SetRolesStep() {
   });
 
   return (
-    <FormikInputsForm<RolesForm>
-      form={form}
-      EndAdornment={EndAdornment}
-      formik={formik}
-    >
+    <FormikInputsForm<DaoRolesForm> form={form} formik={formik}>
       <Submit>
         <Button
           onClick={() => {
@@ -48,22 +47,28 @@ export function SetRolesStep() {
   );
 }
 
-const EndAdornment = ({ onClick }: { onClick: () => void }) => {
-  const translations = useCommonTranslations()
+const EndAdornment = ({
+  name,
+  formik,
+}: {
+  name: string;
+  formik: FormikProps<DaoRolesForm>;
+}) => {
+  const translations = useCommonTranslations();
+  const address = useConnection().address;
+
+  const onClick = () => {
+    formik.setFieldError(name, undefined);
+    formik.setFieldValue(name, address);
+  };
+
+  if (!address || formik.values[name as keyof DaoRolesForm] === address)
+    return null;
   return (
-    <StyledEndAdornment onClick={onClick}>
-      <Typography>{translations.connectedWallet}</Typography>
+    <StyledEndAdornment>
+      <Button onClick={onClick}>
+        <Typography>{translations.connectedWallet}</Typography>
+      </Button>
     </StyledEndAdornment>
   );
 };
-
-const StyledEndAdornment = styled(Button)({
-  padding: "5px 10px",
-  height: "unset",
-  p: {
-    fontSize: 12,
-    display: "inline-block",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-  },
-});

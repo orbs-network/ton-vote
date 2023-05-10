@@ -6,7 +6,7 @@ import {
   useRef,
 } from "react";
 import { matchRoutes, useLocation, useParams } from "react-router-dom";
-import { flatRoutes } from "consts";
+import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
   beginCell,
@@ -22,8 +22,9 @@ import { ProposalStatus } from "types";
 import { useTranslation } from "react-i18next";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useMediaQuery } from "@mui/material";
 
-export const useDaoAddress = () => {
+export const useDaoAddressFromQueryParam = () => {
   return useParams().daoId as string;
 };
 
@@ -167,7 +168,7 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
 };
 
 export const useProposalStatusText = (status?: ProposalStatus | null) => {
-  const t = useCommonTranslations()
+  const t = useCommonTranslations();
   switch (status) {
     case ProposalStatus.CLOSED:
       return t.ended;
@@ -179,8 +180,6 @@ export const useProposalStatusText = (status?: ProposalStatus | null) => {
       break;
   }
 };
-
-
 
 enum Params {
   PROPOSAL_STATE = "proposal-state",
@@ -206,3 +205,20 @@ export const useAppQueryParams = () => {
     },
   };
 };
+
+export const useMobile = () => {
+  const macthes = useMediaQuery(`(max-width: ${MOBILE_WIDTH}px)`);
+  return macthes;
+  
+};
+
+
+
+export const useParseError = () => {
+  return  (error: string) => {
+    if (error.includes("UserRejectsError")) {
+      return 'User rejected the transaction'
+    }
+    return error;
+  };
+}

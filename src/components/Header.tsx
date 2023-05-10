@@ -10,7 +10,7 @@ interface Props {
 
 export function Header({ title, component, className = '' }: Props) {
   return (
-    <StyledHeader justifyContent="space-between" className={className}>
+    <StyledHeader justifyContent="space-between" className={`header ${className}`}>
       <StyledTitle>{title}</StyledTitle>
       {component}
     </StyledHeader>

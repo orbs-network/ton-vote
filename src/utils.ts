@@ -12,7 +12,6 @@ import {
   ProposalResults,
   ProposalStatus,
   RawVote,
-  RawVotes,
   Vote,
   VotingPower,
 } from "types";
@@ -167,14 +166,34 @@ export const isOwner = (address?: string, roles?: DaoRoles) => {
   return address === roles.owner || address === roles.proposalOwner;
 };
 
-export function validateFormik(formik: FormikProps<any>) {
-  formik.validateForm().then((errors) => {
+export async function validateFormik(formik: FormikProps<any>) {
+  let value = "";
+  await formik.validateForm().then((errors) => {
     if (!_.isEmpty(errors)) {
-      
       const error = _.first(_.values(errors)) as string;
+      value = error;
       error && showErrorToast(error);
     }
   });
+
+  return value;
+}
+
+export function validateFormikSingleField<T>(
+  formik: FormikProps<T>,
+  name: string
+) {
+  formik.validateField(name);
+  console.log(formik);
+  
+  const error = formik.errors[name as keyof T] as string;
+  console.log(error);
+
+  if (error) {
+    showErrorToast(error);
+  }
+
+  return error;
 }
 
 export const getSymbol = (votingPowerStrategy?: VotingPowerStrategyType) => {
@@ -240,3 +259,6 @@ export const getVoteStrategyType = (
     ? VotingPowerStrategyType.TonBalance
     : votingPowerStrategy[0].type;
 };
+
+
+
