@@ -150,11 +150,9 @@ export const StyledContainer = styled(Box)<{ hover?: number }>(
       transition: "0.2s all",
     },
     "&:hover": {
-      border: hover
-        ? `1px solid ${theme.palette.primary.main}`
-        : "1px solid #e0e0e0",
+      border: hover &&  `1px solid ${theme.palette.primary.main}`,
       svg: {
-        color: hover ? `${theme.palette.primary.main}` : "",
+        color: hover && `${theme.palette.primary.main}`,
       },
     },
   })

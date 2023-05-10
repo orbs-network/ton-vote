@@ -1,5 +1,5 @@
 import { Fade, styled, Typography } from "@mui/material";
-import { Button, FormikInputsForm } from "components";
+import { Button, ConnectButton, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import _ from "lodash";
 import { useEffect } from "react";
@@ -12,6 +12,7 @@ import { useMetadataForm } from "./form";
 import { DaoMetadataForm } from "types";
 import { useUpdateDaoMetadata } from "../hooks";
 import { StyledFlexRow } from "styles";
+import { useConnection } from "ConnectionProvider";
 
 export function MetadataForm() {
   const Schema = useDaoMetadataSchema();
@@ -58,15 +59,18 @@ const SubmitButton = ({
   isLoading: boolean;
   formik: FormikProps<DaoMetadataForm>;
 }) => {
+  const connectedAddress = useConnection().address;
 
   const hide = _.isEqual(formik.values, formik.initialValues)
 
   if (hide) return null
     return (
       <StyledSubmit>
-        <Button isLoading={isLoading} onClick={formik.submitForm}>
+        {!connectedAddress ? 
+          <ConnectButton />
+        : <Button isLoading={isLoading} onClick={formik.submitForm}>
           Update Metadata
-        </Button>
+        </Button>}
       </StyledSubmit>
     );
 };

@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { BASE_FEE } from "config";
 import { ZERO_ADDRESS } from "consts";
 import { useDaoAddressFromQueryParam, useGetSender } from "hooks";
-import { useDaoQuery } from "query/queries";
+import { useDaoFromQueryParam, useDaoQuery } from "query/queries";
 import {
   daoSetOwner,
   daoSetProposalOwner,
@@ -53,38 +53,45 @@ export const useUpdateDaoPublisher = () => {
 export const useUpdateDaoMetadata = () => {
   const getSender = useGetSender();
   const daoAddress = useDaoAddressFromQueryParam();
+  const { refetch } = useDaoFromQueryParam();
 
-  return useMutation(async (metadata: DaoMetadataForm) => {
-    const metadataArgs: DaoMetadataForm = {
-      about: JSON.stringify({ en: metadata.about_en }),
-      avatar: metadata.avatar || "",
-      github: metadata.github || "",
-      hide: metadata.hide,
-      name: JSON.stringify({ en: metadata.name_en }),
-      terms: "",
-      telegram: metadata.telegram || "",
-      website: metadata.website || "",
-      jetton: metadata.jetton || ZERO_ADDRESS,
-      nft: metadata.nft || ZERO_ADDRESS,
-      dns: metadata.dns || "",
-    };
+  return useMutation(
+    async (metadata: DaoMetadataForm) => {
+      const metadataArgs: DaoMetadataForm = {
+        about: JSON.stringify({ en: metadata.about_en }),
+        avatar: metadata.avatar || "",
+        github: metadata.github || "",
+        hide: metadata.hide,
+        name: JSON.stringify({ en: metadata.name_en }),
+        terms: "",
+        telegram: metadata.telegram || "",
+        website: metadata.website || "",
+        jetton: metadata.jetton || ZERO_ADDRESS,
+        nft: metadata.nft || ZERO_ADDRESS,
+        dns: metadata.dns || "",
+      };
 
-    const sender = getSender();
-    const clientV2 = await getClientV2();
-    const metadataAddress = await newMetdata(
-      sender,
-      clientV2,
-      BASE_FEE.toString(),
-      metadataArgs
-    );
-    if (typeof metadataAddress === "string") {
-      return setMetadata(
+      const sender = getSender();
+      const clientV2 = await getClientV2();
+      const metadataAddress = await newMetdata(
         sender,
         clientV2,
-        daoAddress,
         BASE_FEE.toString(),
-        metadataAddress
+        metadataArgs
       );
+      
+      if (typeof metadataAddress === "string") {
+        return setMetadata(
+          sender,
+          clientV2,
+          daoAddress,
+          BASE_FEE.toString(),
+          metadataAddress
+        );
+      }
+    },
+    {
+      onSuccess: () => refetch(),
     }
-  });
+  );
 };
