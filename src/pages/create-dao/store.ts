@@ -182,7 +182,6 @@ export const useCreateDao = () => {
       });
       toggleTxReminder(true);
       const address = await promise;
-      console.log({ address });
 
       if (typeof address === "string") {
         appNavigation.daoPage.root(address);

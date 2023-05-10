@@ -19,7 +19,6 @@ export function MetadataForm() {
   const updateDaoForm = useMetadataForm();
   const daoMetadata = useDaoFromQueryParam().data?.daoMetadata;
   const { mutate, isLoading } = useUpdateDaoMetadata();
-  const onSubmit = async (_formData: DaoMetadataForm) => {};
 
   const formik = useFormik<DaoMetadataForm>({
     initialValues: {

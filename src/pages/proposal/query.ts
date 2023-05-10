@@ -21,6 +21,7 @@ import {
 import { api } from "api";
 import { Transaction } from "ton-core";
 import { proposals } from "data/foundation/data";
+import { useGetClients } from "query/queries";
 
 const contractProposal = async (
   proposalAddress: string,
@@ -145,23 +146,21 @@ export const useWalletVotingPower = (
   proposal?: Proposal | null
 ) => {
   const proposalAddress = useProposalAddress();
-
+  const clients = useGetClients().data
   return useQuery(
     [QueryKeys.SIGNLE_VOTING_POWER, account],
     async ({ signal }) => {
-      const clientV4 = await getClientV4();
       const allNftHolders = await lib.getAllNftHolders(
         proposalAddress,
-        clientV4,
+        clients!.clientV4,
         proposal!.metadata!,
         signal
       );
-      console.log({ allNftHolders });
-      
+
       Logger(`Fetching voting power for account: ${account}`);
 
       return getSingleVoterPower(
-        clientV4,
+        clients!.clientV4,
         account!,
         proposal?.metadata!,
         getVoteStrategyType(proposal?.metadata?.votingPowerStrategies),
@@ -169,7 +168,7 @@ export const useWalletVotingPower = (
       );
     },
     {
-      enabled: !!account && !!proposal,
+      enabled: !!account && !!proposal && !!clients?.clientV4,
     }
   );
 };

@@ -4,7 +4,6 @@ import { Button } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 import { theme } from "theme";
 
-
 export const StyledEndAdornment = styled(Box)({
   button: {
     padding: "5px 10px",
@@ -21,8 +20,6 @@ export const StyledEndAdornment = styled(Box)({
     },
   },
 });
-
-
 
 export const StyledFlexRow = styled(Box)(
   ({
@@ -138,39 +135,37 @@ export const StyledTitle = styled(Typography)({
   },
 });
 
-export const StyledContainer = styled(Box)<{ hover?: number }>(
-  ({ theme, hover }) => ({
-    background: "white",
-    border: "1px solid #e0e0e0",
-    boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
-    borderRadius: 10,
-    padding: 20,
+export const StyledContainer = styled(Box)({
+  background: "white",
+  border: "1px solid #e0e0e0",
+  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+  borderRadius: 10,
+  padding: 20,
+  transition: "0.2s all",
+  svg: {
     transition: "0.2s all",
-    svg: {
-      transition: "0.2s all",
-    },
-    "&:hover": {
-      border: hover &&  `1px solid ${theme.palette.primary.main}`,
-      svg: {
-        color: hover && `${theme.palette.primary.main}`,
-      },
-    },
-  })
-);
+  },
+});
 
+export const StyledHoverContainer = styled(StyledContainer)(({ theme }) => ({
+  "&:hover": {
+    border: `1px solid ${theme.palette.primary.main}`,
+    svg: {
+      color: `${theme.palette.primary.main}`,
+    },
+  },
+}));
 export const StyledEmptyText = styled(Typography)({
   fontSize: 18,
   fontWeight: 700,
 });
 
-
 export const StyledCreateAbout = styled(Typography)({
   fontSize: 14,
   opacity: 0.7,
-  width:'100%',
-  textAlign:'left'
+  width: "100%",
+  textAlign: "left",
 });
-
 
 export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   position: "relative",
@@ -196,5 +191,3 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
     marginTop: -2,
   },
 }));
-
-

@@ -79,7 +79,7 @@ export const useUpdateDaoMetadata = () => {
         BASE_FEE.toString(),
         metadataArgs
       );
-      
+        
       if (typeof metadataAddress === "string") {
         return setMetadata(
           sender,

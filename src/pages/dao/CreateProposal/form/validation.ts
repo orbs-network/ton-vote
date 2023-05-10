@@ -95,7 +95,6 @@ export const useFormSchema = () => {
           moment(context.parent.proposalStartTime),
           "days"
         );
-        console.log(diff);
 
         return diff <= 10;
       }),

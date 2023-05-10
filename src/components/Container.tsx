@@ -1,7 +1,7 @@
 import { Box, styled } from "@mui/material";
 import React, { ReactNode } from "react";
 import {
-  StyledContainer,
+  StyledContainer, StyledHoverContainer,
 } from "styles";
 
 export const Container = React.forwardRef(
@@ -19,12 +19,19 @@ export const Container = React.forwardRef(
     },
     ref: any
   ) => {
-    return (
+    return hover ? (
+      <StyledHoverContainer
+        onClick={onClick}
+        className={className}
+        ref={ref}
+      >
+        {children}
+      </StyledHoverContainer>
+    ) : (
       <StyledContainer
         onClick={onClick}
         className={className}
         ref={ref}
-        hover={hover ? 1 : 0}
       >
         {children}
       </StyledContainer>

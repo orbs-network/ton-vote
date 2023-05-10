@@ -33,7 +33,9 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     }
   }, [open]);
 
-  const NoVotingPower = votingData && Number(votingData) === 0 ? true : false;
+  console.log(votingData);
+  
+  const NoVotingPower = !votingData ? true : votingData && Number(votingData) === 0 ? true : false;
 
   const pasredVotingPower = votingData
     ? nFormatter(Number(fromNano(votingData)))
@@ -70,7 +72,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             Cancel
           </Button>
           <Button
-            disabled={NoVotingPower}
+            disabled={NoVotingPower || votingDataLoading}
             onClick={() => {
               onSubmit();
               onClose();

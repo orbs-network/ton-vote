@@ -21,16 +21,14 @@ const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
 const getAllNftHolders = async (
   proposalAddress: string,
   signal?: AbortSignal
-): Promise<Set<string>> => {
-  const result = await axiosInstance.get(
+): Promise<{ [key: string]: number }> => {
+  const res = await axiosInstance.get(
     `/proposalNftHolders/${proposalAddress}`,
     {
       signal,
     }
-  );
-
-  const val = result.data as { [key: string]: number };
-  return new Set(_.map(val, (v, k) => k));
+  );    
+  return res.data;
 };
 
 const getProposal = async (

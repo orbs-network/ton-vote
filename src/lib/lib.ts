@@ -119,12 +119,12 @@ const getAllNftHolders = async (
   clientV4: TonClient4,
   metadata: ProposalMetadata,
   signal?: AbortSignal
-): Promise<Set<string>> => {
+) => {
   if (
     getVoteStrategyType(metadata.votingPowerStrategies) !=
     VotingPowerStrategyType.NftCcollection
   ) {
-    return new Set<string>();
+    return {} as { [key: string]: number };
   }
   try {
     const res = await api.getAllNftHolders(proposalAddress, signal);
@@ -134,9 +134,7 @@ const getAllNftHolders = async (
     }
     return res;
   } catch (error) {
-    const res = await TonVoteSDK.getAllNftHolders(clientV4, metadata);
-
-    return new Set(_.map(res, (v, k) => k));
+    return TonVoteSDK.getAllNftHolders(clientV4, metadata);
   }
 };
 

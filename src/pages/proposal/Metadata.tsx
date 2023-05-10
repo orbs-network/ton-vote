@@ -28,13 +28,7 @@ export const Metadata = () => {
   );
 
 
-  if (proposalMetadata?.proposalStartTime) {
-    console.log(
-      moment(proposalMetadata!.proposalStartTime * 1000)
-        .format("YYYY-MM-DD HH:mm:ss")
-    );
-    
-  }
+
     if (isLoading) {
       return <LoadingContainer />;
     }
