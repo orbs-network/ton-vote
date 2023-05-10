@@ -172,8 +172,10 @@ export const useWalletVotingPower = (
         strategy,
         allNftHolders
       );
+      console.log(result);
+      
 
-      return nFormatter(Number(result));
+      return nFormatter(Number(fromNano(result)));
     },
     {
       enabled: !!account && !!proposal && !!clients?.clientV4,
