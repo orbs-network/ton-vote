@@ -158,6 +158,7 @@ export const useWalletVotingPower = (
       );
 
       Logger(`Fetching voting power for account: ${account}`);
+      
 
       return getSingleVoterPower(
         clients!.clientV4,

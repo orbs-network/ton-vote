@@ -37,9 +37,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   
   const NoVotingPower = !votingData ? true : votingData && Number(votingData) === 0 ? true : false;
 
-  const pasredVotingPower = votingData
-    ? nFormatter(Number(fromNano(votingData)))
-    : 0;
 
   return (
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
@@ -55,7 +52,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
           <Row
             isLoading={votingDataLoading}
             label={translations.yourVotingPower}
-            value={`${pasredVotingPower} ${getSymbol(
+            value={`${votingData} ${getSymbol(
               Number(getVoteStrategyType(data?.metadata?.votingPowerStrategies))
             )}`}
           />
