@@ -4,6 +4,9 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from 'router/router';
 
 
+console.log(import.meta.env.VITE_STAGING);
+
+
 function App() {
   return (
     <Suspense>

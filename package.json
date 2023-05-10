@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "VITE_STAGING=1 vite",
+    "dev-prod": "vite",
     "dev-force": "vite --force",
     "build": "tsc && vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview"

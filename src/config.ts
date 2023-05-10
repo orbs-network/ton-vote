@@ -76,7 +76,7 @@ export const VERIFIED_DAOS = [
 ];
 
 export const getRelaseMode = () => {
-  if (import.meta.env.VITE_STAGING || import.meta.env.DEV) {
+  if (import.meta.env.VITE_STAGING) {
     return ReleaseMode.DEVELOPMENT;
   }
   return ReleaseMode.PRODUCTION;

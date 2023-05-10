@@ -8,7 +8,7 @@ import { ReleaseMode } from "ton-vote-contracts-sdk";
 const baseURL =
   getRelaseMode() === ReleaseMode.DEVELOPMENT
     ? "https://dev-ton-vote-cache.herokuapp.com"
-    : "https://ton-vote-cache-server.herokuapp.com";
+    : "https://ton-vote-cache.herokuapp.com/";
 
 const axiosInstance = axios.create({
   baseURL,
