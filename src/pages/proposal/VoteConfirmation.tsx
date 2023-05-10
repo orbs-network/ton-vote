@@ -33,7 +33,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     }
   }, [open]);
 
-  console.log(votingData);
   
   const NoVotingPower = !votingData ? true : votingData && Number(votingData) === 0 ? true : false;
 

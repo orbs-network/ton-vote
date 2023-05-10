@@ -84,8 +84,8 @@ export const useUpdateDaoMetadata = () => {
         return setMetadata(
           sender,
           clientV2,
-          daoAddress,
           BASE_FEE.toString(),
+          daoAddress,
           metadataAddress
         );
       }

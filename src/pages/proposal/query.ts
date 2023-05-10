@@ -8,6 +8,7 @@ import {
   getVoteStrategyType,
   isProposalWhitelisted,
   Logger,
+  nFormatter,
 } from "utils";
 import { lib } from "lib/lib";
 import { useProposalPersistedStore } from "./store";
@@ -17,9 +18,10 @@ import {
   getClientV4,
   getSingleVoterPower,
   getTransactions,
+  VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { api } from "api";
-import { Transaction } from "ton-core";
+import { fromNano, Transaction } from "ton-core";
 import { proposals } from "data/foundation/data";
 import { useGetClients } from "query/queries";
 
@@ -146,7 +148,7 @@ export const useWalletVotingPower = (
   proposal?: Proposal | null
 ) => {
   const proposalAddress = useProposalAddress();
-  const clients = useGetClients().data
+  const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.SIGNLE_VOTING_POWER, account],
     async ({ signal }) => {
@@ -158,15 +160,20 @@ export const useWalletVotingPower = (
       );
 
       Logger(`Fetching voting power for account: ${account}`);
-      
 
-      return getSingleVoterPower(
+      const strategy = getVoteStrategyType(
+        proposal?.metadata?.votingPowerStrategies
+      );
+
+      const result = await getSingleVoterPower(
         clients!.clientV4,
         account!,
         proposal?.metadata!,
-        getVoteStrategyType(proposal?.metadata?.votingPowerStrategies),
+        strategy,
         allNftHolders
       );
+
+      return nFormatter(Number(result));
     },
     {
       enabled: !!account && !!proposal && !!clients?.clientV4,

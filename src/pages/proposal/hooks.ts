@@ -111,12 +111,15 @@ export const useVote = () => {
       toggleTxReminder(true);
       const client = await getClientV2();
 
+      console.log(proposalAddress, vote);
+      
+
       const voteFn = async () => {
         await TonVoteSDK.proposalSendMessage(
           sender,
           client,
-          proposalAddress,
           BASE_FEE.toString(),
+          proposalAddress,
           vote
         );
         return refetch();
