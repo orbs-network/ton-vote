@@ -25,7 +25,10 @@ export function Footer() {
 }
 
 const StyledSocials = styled(AppSocials)({
-  width:'auto'
+  width: "auto",
+  svg: {
+    color: "rgb(114, 138, 150)",
+  },
 });
 
 

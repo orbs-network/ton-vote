@@ -11,11 +11,12 @@ import {
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
 import { useDaoQuery } from "query/queries";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { ReleaseMode } from "ton-vote-contracts-sdk";
 import { Dao } from "types";
+import { useQueryParam } from "use-query-params";
 import { parseLanguage } from "utils";
 import { useDaoPage } from "../hooks";
 import {
@@ -210,6 +211,8 @@ const MobileNavigation = () => {
 };
 
 const useNavigationLinks = () => {
+  const [devParam] = useQueryParam('dev')
+  
   const translations = useDaoPageTranslations();
   const daoAddress = useDaoAddressFromQueryParam();
   const { isDaoOwner, isProposalOnwer, isLoading } = useIsOwner(daoAddress);
@@ -248,13 +251,13 @@ const useNavigationLinks = () => {
     if (it.owner && !isDaoOwner) {
       return false;
     }
-    if ((it.publisher && !isProposalOnwer) || (it.publisher && !isDaoOwner)) {
+    if ((it.publisher && !isProposalOnwer) && (it.publisher && !isDaoOwner)) {
       return false;
     }
     return true;
   });
 
-  if (getRelaseMode() === ReleaseMode.DEVELOPMENT) {
+  if (devParam || getRelaseMode() === ReleaseMode.DEVELOPMENT) {
     modified.push({
       title: translations.settings,
       path: appNavigation.daoPage.settings(daoAddress),
