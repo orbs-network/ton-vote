@@ -48,7 +48,6 @@ export const useDaosQuery = (refetchInterval?: number) => {
             metadataLastUpdate &&
             !validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)
           ) {
-            
             metadata = await getDaoMetadata(
               await getClientV2(),
               dao.daoAddress
@@ -67,7 +66,7 @@ export const useDaosQuery = (refetchInterval?: number) => {
         const addresses = _.map(daos, (it) => it.daoAddress);
         const client = await getClientV2();
 
-        let promise: Promise<Array<Dao | undefined>> = Promise.all(
+        let promise = Promise.allSettled(
           _.map(newDaosAddresses, async (newDaoAddress) => {
             if (addresses.includes(newDaoAddress)) {
               removeDao(newDaoAddress);
@@ -80,7 +79,16 @@ export const useDaosQuery = (refetchInterval?: number) => {
         );
 
         const newDaosMap = await promise;
-        const newDaos = _.compact(newDaosMap);
+
+        const newDaos = _.compact(
+          newDaosMap.map((it, index) => {
+            if (it.status === "fulfilled") {
+              return it.value;
+            } else {
+              removeDao(newDaosAddresses[index]);
+            }
+          })
+        );
         daos.splice(1, 0, ...newDaos);
       }
 

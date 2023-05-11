@@ -86,22 +86,18 @@ export const getDaoFromContract = async (
   daoAddress: string,
   clientV2?: TonClient
 ) => {
-  try {
-    Logger("Fetching dao from contract");
-    const client = clientV2 || (await getClientV2());
-    const daoFromContract: Dao = {
-      daoAddress: daoAddress,
-      daoRoles: await TonVoteSDK.getDaoRoles(client, daoAddress),
-      daoMetadata: await TonVoteSDK.getDaoMetadata(client, daoAddress),
-      daoId: await getDaoIndex(client, daoAddress),
-      daoProposals:
-        (await TonVoteSDK.getDaoProposals(client, daoAddress))
-          .proposalAddresses || [],
-    };
-    return daoFromContract;
-  } catch (error) {
-    
-  }
+  Logger("Fetching dao from contract");
+  const client = clientV2 || (await getClientV2());
+  const daoFromContract: Dao = {
+    daoAddress: daoAddress,
+    daoRoles: await TonVoteSDK.getDaoRoles(client, daoAddress),
+    daoMetadata: await TonVoteSDK.getDaoMetadata(client, daoAddress),
+    daoId: await getDaoIndex(client, daoAddress),
+    daoProposals:
+      (await TonVoteSDK.getDaoProposals(client, daoAddress))
+        .proposalAddresses || [],
+  };
+  return daoFromContract;
 };
 
 const getDao = async (
