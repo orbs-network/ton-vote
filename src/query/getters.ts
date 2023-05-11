@@ -26,7 +26,7 @@ import {
 } from "utils";
 import { OLD_DAO, proposals } from "data/foundation/data";
 import { useNewDataStore, useSyncStore } from "store";
-import { lib } from "lib/lib";
+import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
 import { useDaoAddressFromQueryParam } from "hooks";
 import { fromNano } from "ton-core";
@@ -48,7 +48,6 @@ export const useDaosQuery = (refetchInterval?: number) => {
             metadataLastUpdate &&
             !validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)
           ) {
-            console.log(dao.daoAddress);
             
             metadata = await getDaoMetadata(
               await getClientV2(),
@@ -75,14 +74,7 @@ export const useDaosQuery = (refetchInterval?: number) => {
             } else {
               Logger(`New DAO: ${newDaoAddress}`);
 
-              return {
-                daoAddress: newDaoAddress,
-                daoMetadata: await getDaoMetadata(client, newDaoAddress),
-                daoRoles: await getDaoRoles(client, newDaoAddress),
-                daoProposals:
-                  (await getDaoProposals(client, newDaoAddress))
-                    .proposalAddresses || [],
-              };
+              return getDaoFromContract(newDaoAddress, client);
             }
           })
         );
