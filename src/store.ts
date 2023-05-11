@@ -1,4 +1,5 @@
 import _ from "lodash";
+import moment from "moment";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -23,14 +24,20 @@ export const useNewDataStore = create(
         set((state) => {
           const proposals = state.proposals[dao] || [];
           return {
-            proposals: { ...state.proposals, [dao]: _.uniq([proposal, ...proposals]) },
+            proposals: {
+              ...state.proposals,
+              [dao]: _.uniq([proposal, ...proposals]),
+            },
           };
         }),
       removeProposal: (dao, proposal) =>
         set((state) => {
           const proposals = state.proposals[dao] || [];
           return {
-            proposals: { ...state.proposals, [dao]: proposals.filter((p) => p !== proposal) },
+            proposals: {
+              ...state.proposals,
+              [dao]: proposals.filter((p) => p !== proposal),
+            },
           };
         }),
     }),
@@ -49,3 +56,41 @@ export const useTxReminderPopup = create<useTxReminderPopup>((set, get) => ({
   open: false,
   setOpen: (open) => set({ open }),
 }));
+
+interface SyncStore {
+  daoUpdateMillis: { [key: string]: number | undefined };
+  getDaoUpdateMillis: (daoAddress: string) => number | undefined;
+  setDaoUpdateMillis: (daoAddress: string) => void;
+  removeDaoUpdateMillis: (daoAddress: string) => void;
+}
+
+export const useSyncStore = create(
+  persist<SyncStore>(
+    (set, get) => ({
+      daoUpdateMillis: {},
+      getDaoUpdateMillis: (daoAddress) => {
+        const daoUpdateMillisMap = get().daoUpdateMillis;
+        return daoUpdateMillisMap[daoAddress];
+      },
+      removeDaoUpdateMillis: (daoAddress) => {
+        const daoUpdateMillisMap = get().daoUpdateMillis;
+        const newValue = {
+          ...daoUpdateMillisMap,
+          [daoAddress]: undefined,
+        };
+        set({ daoUpdateMillis: _.omit(newValue) });
+      },
+      setDaoUpdateMillis: (daoAddress) => {
+        const daoUpdateMillisMap = get().daoUpdateMillis;
+        const newValue = {
+          ...daoUpdateMillisMap,
+          [daoAddress]: moment().valueOf(),
+        };
+        set({ daoUpdateMillis: newValue });
+      },
+    }),
+    {
+      name: "ton_vote_sync_store",
+    }
+  )
+);

@@ -7,7 +7,14 @@ export const useMetadataForm = (): FormArgs<DaoMetadataForm> => {
   return {
     title: "Metadata",
     subTitle: "",
-    inputs,
+    inputs: [
+      ...inputs,
+      {
+        label: "Hide DAO",
+        name: "hide",
+        type: "checkbox",
+      },
+    ],
   };
 };
 
@@ -18,6 +25,6 @@ export const useRolesForm = (
   return {
     title: "Roles",
     subTitle: "",
-    inputs,
+   inputs
   };
 };

@@ -82,11 +82,30 @@ const getDaos = async (signal?: AbortSignal) => {
   } catch (error) {}
 };
 
+const getDaoFromContract = async (daoAddress: string) => {
+  Logger("Fetching dao from contract");
+  const client = await getClientV2();
+  const daoFromContract: Dao = {
+    daoAddress: daoAddress,
+    daoRoles: await TonVoteSDK.getDaoRoles(client, daoAddress),
+    daoMetadata: await TonVoteSDK.getDaoMetadata(client, daoAddress),
+    daoId: await getDaoIndex(client, daoAddress),
+    daoProposals:
+      (await TonVoteSDK.getDaoProposals(client, daoAddress))
+        .proposalAddresses || [],
+  };
+  return daoFromContract;
+};
+
 const getDao = async (
   daoAddress: string,
+  fetchFromContract: boolean,
   signal?: AbortSignal
 ): Promise<Dao> => {
   // return Dao from api if exist
+  if (fetchFromContract) {
+    return getDaoFromContract(daoAddress);
+  }
   try {
     Logger(`Fetching dao from api  ${daoAddress}`);
     const dao = await api.getDao(daoAddress, signal);
@@ -96,21 +115,8 @@ const getDao = async (
     return dao;
   } catch (error) {
     // return Dao from contract
-    Logger(
-      `Dao not found in server \n Fetching dao from contract \n address: ${daoAddress}`
-    );
 
-    const client = await getClientV2();
-    const daoFromContract: Dao = {
-      daoAddress: daoAddress,
-      daoRoles: await TonVoteSDK.getDaoRoles(client, daoAddress),
-      daoMetadata: await TonVoteSDK.getDaoMetadata(client, daoAddress),
-      daoId: await getDaoIndex(client, daoAddress),
-      daoProposals:
-        (await TonVoteSDK.getDaoProposals(client, daoAddress))
-          .proposalAddresses || [],
-    };
-    return daoFromContract;
+    return getDaoFromContract(daoAddress);
   }
 };
 

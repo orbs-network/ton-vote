@@ -1,4 +1,5 @@
 import { Header, LoadingContainer } from "components";
+import { useIsOwner } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoFromQueryParam } from "query/getters";
 import { StyledFlexColumn } from "styles";
@@ -8,21 +9,26 @@ import { SetFwdMsgFee } from "./SetFwdMsgFee";
 
 export function DaoSettings() {
   const translations = useDaoPageTranslations();
-  const {isLoading} = useDaoFromQueryParam()
+  const { isLoading, data } = useDaoFromQueryParam();
 
+  const { isDaoOwner } = useIsOwner(data?.daoAddress);
 
-    return (
-      <StyledFlexColumn>
-        <Header title={translations.settings} />
-        {isLoading ? (
-          <LoadingContainer loaderAmount={5} />
-        ) : (
-          <>
+  return (
+    <StyledFlexColumn>
+      <Header title={translations.settings} />
+      {isLoading ? (
+        <LoadingContainer loaderAmount={5} />
+      ) : (
+        <>
           <SetFwdMsgFee />
-            <RolesForm />
-            <MetadataForm />
-          </>
-        )}
-      </StyledFlexColumn>
-    );
+          {isDaoOwner && (
+            <>
+              <RolesForm />
+              <MetadataForm />
+            </>
+          )}
+        </>
+      )}
+    </StyledFlexColumn>
+  );
 }

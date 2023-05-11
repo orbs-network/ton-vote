@@ -34,7 +34,6 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 
 const ContainerHeader = () => {
   const { data } = useProposalFromQueryParam();
-  
 
   const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
@@ -222,8 +221,6 @@ const VoteComponent = ({
 
   const isYou = connectedAddress === address;
 
-  const isNFT = votingPowerStrategy === VotingPowerStrategyType.NftCcollection;
-
   return (
     <StyledAppTooltip
       text={`${moment.unix(timestamp).utc().fromNow()}`}
@@ -234,19 +231,12 @@ const VoteComponent = ({
           address={address}
           displayText={isYou ? translations.you : ""}
         />
-        <Typography
-          style={{
-            textAlign: isNFT ? "right" : "center",
-          }}
-          className="vote"
-        >
+        <Typography className="vote">
           {_.isArray(vote) ? vote.join(", ") : vote}
         </Typography>
-        {!isNFT && (
-          <Typography className="voting-power">
-            {nFormatter(Number(votingPower))} {getSymbol(votingPowerStrategy)}
-          </Typography>
-        )}
+        <Typography className="voting-power">
+          {nFormatter(Number(votingPower))} {getSymbol(votingPowerStrategy)}
+        </Typography>
       </StyledVote>
     </StyledAppTooltip>
   );

@@ -1,7 +1,8 @@
 import { Typography, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import { Container, OverflowWithTooltip, VerifiedDao } from "components";
+import { AppTooltip, Container, OverflowWithTooltip, VerifiedDao } from "components";
 import { useConnection } from "ConnectionProvider";
+import { useIsOwner } from "hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
@@ -21,25 +22,32 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
   const { daoPage } = useAppNavigation();
-  const { mutate } = useJoinDao();
   const { daoMetadata } = dao;
   const walletAddress = useConnection().address;
   const theme = useTheme();
-  const t = useCommonTranslations()
+  const t = useCommonTranslations();
+  const { isDaoOwner, isProposalOnwer } = useIsOwner(dao.daoAddress);
 
-  if (dao.daoMetadata.hide && !isOwner(walletAddress, dao.daoRoles))
-    return null;
+  const isOwner = isDaoOwner || isProposalOnwer;
+
+  if (dao.daoMetadata.hide && !isOwner) return null;
 
   return (
-    <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
+    <StyledDao
+      ref={ref}
+      onClick={() => daoPage.root(dao.daoAddress)}
+    
+    >
       <StyledDaoContent className="container" hover>
         {dao.daoMetadata.hide && (
-          <StyledHiddenIcon>
-            <AiFillEyeInvisible
-              style={{ width: 25, height: 25 }}
-              color={theme.palette.primary.main}
-            />
-          </StyledHiddenIcon>
+          <AppTooltip text="Dao is hidden, you can change it in the settings page">
+            <StyledHiddenIcon>
+              <AiFillEyeInvisible
+                style={{ width: 25, height: 25 }}
+                color={theme.palette.primary.main}
+              />
+            </StyledHiddenIcon>
+          </AppTooltip>
         )}
         {isVisible ? (
           <StyledFlexColumn>
@@ -49,7 +57,9 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             </Typography>
             <Address dao={dao} />
             <Container className="members">
-              <Typography>{nFormatter(100000)} {t.members}</Typography>
+              <Typography>
+                {nFormatter(100000)} {t.members}
+              </Typography>
             </Container>
           </StyledFlexColumn>
         ) : null}

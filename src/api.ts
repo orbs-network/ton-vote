@@ -73,6 +73,12 @@ const validateServerLastUpdate = async (
   return moment().valueOf() - serverLastUpdate < LAST_FETCH_UPDATE_LIMIT;
 };
 
+
+const getUpdateTime = async (): Promise<number> => {
+  const res = await axiosInstance.get("/updateTime")
+  return res.data
+}
+
 export const api = {
   getDaos,
   getProposal,
@@ -80,6 +86,7 @@ export const api = {
   validateServerLastUpdate,
   getDao,
   getAllNftHolders,
+  getUpdateTime,
 };
 
 export interface GetStateApiPayload {

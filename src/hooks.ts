@@ -56,7 +56,7 @@ export const useWindowResize = () => {
   return size;
 };
 
-export const useIsOwner = (daoAddress: string) => {
+export const useIsOwner = (daoAddress?: string) => {
   const address = useConnection().address;
   const { data, isLoading } = useDaoQuery(daoAddress);
 

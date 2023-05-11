@@ -196,15 +196,14 @@ export function validateFormikSingleField<T>(
 }
 
 export const getSymbol = (votingPowerStrategy?: VotingPowerStrategyType) => {
-  switch (votingPowerStrategy) {
-    case VotingPowerStrategyType.TonBalance:
-      return "TON";
-    case VotingPowerStrategyType.JettonBalance:
-      return "Jetton";
-    case VotingPowerStrategyType.NftCcollection:
-      return "NFT";
-    default:
-      return null;
+  if (votingPowerStrategy == VotingPowerStrategyType.TonBalance) {
+    return "TON";
+  }
+  if (votingPowerStrategy == VotingPowerStrategyType.JettonBalance) {
+    return "Jetton";
+  }
+  if (votingPowerStrategy == VotingPowerStrategyType.NftCcollection) {
+    return "NFT";
   }
 };
 
@@ -295,4 +294,14 @@ export const utcMoment = (value?: number) => {
   return offset < 0
     ? dt.subtract(Math.abs(offset), "minutes")
     : dt.add(offset, "minutes");
+};
+
+export const validateServerUpdateTime = (
+  server: number,
+  local: number,
+  value: number = 90_000
+) => {
+  const now = moment().valueOf();
+  const diff = server - local;
+  return diff >= value;
 };

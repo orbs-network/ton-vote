@@ -72,7 +72,7 @@ export const EndAdornment = ({
     }
   };
 
-  if (initialValue === value) return null;
+  if (!value || initialValue === value) return null;
 
   return (
     <StyledEndAdornment>

@@ -30,33 +30,41 @@ import {
   useGetDaoFwdMsgFeeQuery,
   useGetRegistryAdminQuery,
 } from "./getters";
-import { useTxReminderPopup } from "store";
+import { useSyncStore, useTxReminderPopup } from "store";
 import { getTxFee, isOwner, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { DaoMetadataForm } from "types";
 import { useAppNavigation } from "router/navigation";
+import moment from "moment";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
   const address = useConnection().address;
+  const handleError = useError();
 
-  return useMutation(async () => {
-    const clientV2 = await getClientV2();
-    const sender = getSender();
-    return newRegistry(
-      sender,
-      clientV2,
-      releaseMode,
-      TX_FEES.BASE.toString(),
-      address!
-    );
-  });
+  return useMutation(
+    async () => {
+      const clientV2 = await getClientV2();
+      const sender = getSender();
+      return newRegistry(
+        sender,
+        clientV2,
+        releaseMode,
+        TX_FEES.BASE.toString(),
+        address!
+      );
+    },
+    {
+      onError: (error) => handleError(error),
+    }
+  );
 };
 
 export const useSetCreateDaoFee = () => {
   const getSender = useGetSender();
-  const parsedError = useParseError();
+  const handleError = useError();
+
   const connectedAddress = useConnection().address;
   const registryAdmin = useGetRegistryAdminQuery().data;
   return useMutation(
@@ -94,11 +102,7 @@ export const useSetCreateDaoFee = () => {
     {
       onSuccess: (_, args) => args.onSuccess(),
       onError: (error, args) => {
-        if (error instanceof Error) {
-          const message = parsedError(error.message);
-          args.onError(message);
-          showErrorToast(message);
-        }
+        handleError(error, args.onError);
       },
     }
   );
@@ -107,7 +111,8 @@ export const useSetCreateDaoFee = () => {
 export const useSetDaoFwdMsgFee = () => {
   const registryAdmin = useGetRegistryAdminQuery().data;
   const connectedAddress = useConnection().address;
-  const parseError = useParseError();
+  const handleError = useError();
+
   const getSender = useGetSender();
   return useMutation(
     async ({
@@ -151,11 +156,7 @@ export const useSetDaoFwdMsgFee = () => {
     {
       onSuccess: (_, args) => args.onSuccess(),
       onError: (error, args) => {
-        if (error instanceof Error) {
-          const parsedError = parseError(error.message);
-          showErrorToast(parsedError);
-          args.onError(parsedError);
-        }
+        handleError(error, args.onError);
       },
     }
   );
@@ -163,7 +164,8 @@ export const useSetDaoFwdMsgFee = () => {
 
 export const useSetRegistryAdmin = () => {
   const getSender = useGetSender();
-  const parseError = useParseError();
+  const handleError = useError();
+
   return useMutation(
     async ({
       value,
@@ -186,13 +188,7 @@ export const useSetRegistryAdmin = () => {
     },
     {
       onSuccess: (_, args) => args.onSuccess(),
-      onError: (error, args) => {
-        if (error instanceof Error) {
-          const parsedError = parseError(error.message);
-          showErrorToast(parsedError);
-          args.onError(parsedError);
-        }
-      },
+      onError: (error, args) => handleError(error, args.onError),
     }
   );
 };
@@ -200,6 +196,7 @@ export const useSetRegistryAdmin = () => {
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
   const createDaoFee = useGetCreateDaoFeeQuery().data;
+  const handleError = useError();
 
   const toggleTxReminder = useTxReminderPopup().setOpen;
 
@@ -234,6 +231,7 @@ export const useCreateDaoQuery = () => {
     },
     {
       onSettled: () => toggleTxReminder(false),
+      onError: (error) => handleError(error),
     }
   );
 };
@@ -242,11 +240,12 @@ export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
   const toggleTxReminder = useTxReminderPopup().setOpen;
   const translations = useCreateDaoTranslations();
+  const handleError = useError();
+
   return useMutation(
     async (args: CreateMetadataArgs) => {
       const { onSuccess, metadata } = args;
       const sender = getSender();
-      Logger(metadata);
 
       const clientV2 = await getClientV2();
       const isMetadataExist = await metdataExists(clientV2, metadata);
@@ -274,6 +273,7 @@ export const useCreateMetadataQuery = () => {
     },
     {
       onSettled: () => toggleTxReminder(false),
+      onError: (error) => handleError(error),
     }
   );
 };
@@ -290,6 +290,7 @@ export const useCreateProposalQuery = () => {
   const toggleTxReminder = useTxReminderPopup().setOpen;
   const connectedWallet = useConnection().address;
   const createProposalFee = useGetDaoFwdMsgFeeQuery(daoAddress).data;
+  const handleError = useError();
 
   return useMutation(
     async (args: CreateProposalArgs) => {
@@ -326,13 +327,15 @@ export const useCreateProposalQuery = () => {
     },
     {
       onSettled: () => toggleTxReminder(false),
+      onError: (error) => handleError(error),
     }
   );
 };
 
 export const useSetDaoOwnerQuery = () => {
   const getSender = useGetSender();
-  const parsedError = useParseError();
+  const handleError = useError();
+  const { setDaoUpdateMillis } = useSyncStore();
 
   return useMutation(
     async ({
@@ -369,21 +372,21 @@ export const useSetDaoOwnerQuery = () => {
     },
     {
       onError: (error, args) => {
-        if (error instanceof Error) {
-          const message = parsedError(error.message);
-          showErrorToast(message);
-          args.onError(message);
-        }
+        handleError(error, args.onError);
       },
-      onSuccess: (_, args) => args.onSuccess(),
+      onSuccess: (_, args) => {
+        args.onSuccess();
+        setDaoUpdateMillis(args.daoAddress);
+      },
     }
   );
 };
 
 export const useSetDaoPublisherQuery = () => {
   const getSender = useGetSender();
+  const { setDaoUpdateMillis } = useSyncStore();
 
-  const parsedError = useParseError();
+  const handleError = useError();
 
   return useMutation(
     async ({
@@ -418,28 +421,26 @@ export const useSetDaoPublisherQuery = () => {
       return promise;
     },
     {
-      onError: (error, args) => {
-        if (error instanceof Error) {
-          const message = parsedError(error.message);
-          showErrorToast(message);
-          args.onError(message);
-        }
+      onError: (error, args) => handleError(error, args.onError),
+      onSuccess: (_, args) => {
+        args.onSuccess();
+        setDaoUpdateMillis(args.daoAddress);
       },
-      onSuccess: (_, args) => args.onSuccess(),
     }
   );
 };
 
 export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
-  const parsedError = useParseError();
+  const { setDaoUpdateMillis } = useSyncStore();
+
+  const handleError = useError();
   return useMutation(
     async (args: UpdateMetadataArgs) => {
       const { metadata, daoAddress } = args;
 
       const sender = getSender();
       const clientV2 = await getClientV2();
-      console.log(metadata);
 
       const metadataAddressPromise = newMetdata(
         sender,
@@ -474,12 +475,23 @@ export const useUpdateDaoMetadataQuery = () => {
       }
     },
     {
-      onSuccess: (_, args) => args.onSuccess(),
-      onError: (error) => {
-        if (error instanceof Error) {
-          showErrorToast(parsedError(error.message));
-        }
+      onSuccess: (_, args) => {
+        args.onSuccess();
+        setDaoUpdateMillis(args.daoAddress);
       },
+      onError: (error) => handleError(error),
     }
   );
+};
+
+const useError = () => {
+  const parsedError = useParseError();
+  return (error: any, callback?: (value: string) => void) => {
+    if (Error instanceof Error) {
+      const message = parsedError(error);
+      showErrorToast(message);
+      callback?.(message);
+      return message;
+    }
+  };
 };

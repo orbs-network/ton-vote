@@ -16,9 +16,9 @@ import {
   getSingleVoterPower,
   ProposalMetadata,
 } from "ton-vote-contracts-sdk";
-import { getProposalStatus, getVoteStrategyType, isDaoWhitelisted, Logger, nFormatter } from "utils";
+import { getProposalStatus, getVoteStrategyType, isDaoWhitelisted, Logger, nFormatter, validateServerUpdateTime } from "utils";
 import { OLD_DAO, proposals } from "data/foundation/data";
-import { useNewDataStore } from "store";
+import { useNewDataStore, useSyncStore } from "store";
 import { lib } from "lib/lib";
 import { api } from "api";
 import { useDaoAddressFromQueryParam } from "hooks";
@@ -93,13 +93,14 @@ const useHandleNewProposals = () => {
 };
 
 export const useDaoQuery = (
-  daoAddress: string,
+  daoAddress?: string,
   refetchInterval?: number,
   staleTime: number = Infinity
 ) => {
   const handleProposal = useHandleNewProposals();
   const queryClient = useQueryClient();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
+  const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
 
   return useQuery(
     [QueryKeys.DAO, daoAddress],
@@ -111,8 +112,21 @@ export const useDaoQuery = (
         return OLD_DAO;
       }
 
-      const dao = await lib.getDao(daoAddress, signal);
-      const daoProposals = handleProposal(daoAddress, dao.daoProposals);
+      const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
+      let fetchFromContract = false;
+
+        if (metadataLastUpdate) {
+          const serverLastUpdate = await api.getUpdateTime();          
+          if (!validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)) {
+            Logger("metadataLastUpdate is not valid in server");
+            fetchFromContract = true
+          } else {
+            removeDaoUpdateMillis(daoAddress!);
+          }
+        }
+
+      const dao = await lib.getDao(daoAddress!, fetchFromContract, signal);
+      const daoProposals = handleProposal(daoAddress!, dao.daoProposals);
 
       return {
         ...dao,

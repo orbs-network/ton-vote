@@ -67,4 +67,7 @@ const SubmitButton = ({
 
 const StyledSubmit = styled(StyledFlexRow)({
   marginTop: 40,
+  button:{
+    width:'100%'
+  }
 });
