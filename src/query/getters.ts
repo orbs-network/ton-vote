@@ -16,7 +16,14 @@ import {
   getSingleVoterPower,
   ProposalMetadata,
 } from "ton-vote-contracts-sdk";
-import { getProposalStatus, getVoteStrategyType, isDaoWhitelisted, Logger, nFormatter, validateServerUpdateTime } from "utils";
+import {
+  getProposalStatus,
+  getVoteStrategyType,
+  isDaoWhitelisted,
+  Logger,
+  nFormatter,
+  validateServerUpdateTime,
+} from "utils";
 import { OLD_DAO, proposals } from "data/foundation/data";
 import { useNewDataStore, useSyncStore } from "store";
 import { lib } from "lib/lib";
@@ -27,11 +34,34 @@ import { useConnection } from "ConnectionProvider";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
+  const { getDaoUpdateMillis } = useSyncStore();
 
   return useQuery(
     [QueryKeys.DAOS],
     async ({ signal }) => {
-      const res = (await lib.getDaos(signal)) || [];
+      const serverLastUpdate = await api.getUpdateTime();
+      const res = await Promise.all(
+        _.map((await lib.getDaos(signal)) || [], async (dao) => {
+          const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
+          let metadata = dao.daoMetadata;
+          if (
+            metadataLastUpdate &&
+            !validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)
+          ) {
+            console.log(dao.daoAddress);
+            
+            metadata = await getDaoMetadata(
+              await getClientV2(),
+              dao.daoAddress
+            );
+          }
+          return {
+            ...dao,
+            daoMetadata: metadata,
+          };
+        })
+      );
+
       const daos = [OLD_DAO, ...res];
 
       if (_.size(newDaosAddresses)) {
@@ -115,15 +145,15 @@ export const useDaoQuery = (
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
       let fetchFromContract = false;
 
-        if (metadataLastUpdate) {
-          const serverLastUpdate = await api.getUpdateTime();          
-          if (!validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)) {
-            Logger("metadataLastUpdate is not valid in server");
-            fetchFromContract = true
-          } else {
-            removeDaoUpdateMillis(daoAddress!);
-          }
+      if (metadataLastUpdate) {
+        const serverLastUpdate = await api.getUpdateTime();
+        if (!validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)) {
+          Logger("metadataLastUpdate is not valid in server");
+          fetchFromContract = true;
+        } else {
+          removeDaoUpdateMillis(daoAddress!);
         }
+      }
 
       const dao = await lib.getDao(daoAddress!, fetchFromContract, signal);
       const daoProposals = handleProposal(daoAddress!, dao.daoProposals);
@@ -273,13 +303,11 @@ export const useGetRegistryIdQuery = () => {
   );
 };
 
-
 export const useConnectedWalletVotingPowerQuery = (
   proposal?: Proposal | null,
   proposalAddress?: string
 ) => {
   const connectedWallet = useConnection().address;
-
 
   const clients = useGetClients().data;
   return useQuery(
@@ -309,9 +337,11 @@ export const useConnectedWalletVotingPowerQuery = (
       return nFormatter(Number(fromNano(result)));
     },
     {
-      enabled: !!connectedWallet && !!proposal && !!clients?.clientV4 && !!proposalAddress,
+      enabled:
+        !!connectedWallet &&
+        !!proposal &&
+        !!clients?.clientV4 &&
+        !!proposalAddress,
     }
   );
 };
-
-

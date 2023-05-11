@@ -26,6 +26,7 @@ import { useConnection } from "ConnectionProvider";
 import { showErrorToast, showPromiseToast } from "toasts";
 import {
   useDaoFromQueryParam,
+  useDaosQuery,
   useGetCreateDaoFeeQuery,
   useGetDaoFwdMsgFeeQuery,
   useGetRegistryAdminQuery,
@@ -34,9 +35,7 @@ import { useSyncStore, useTxReminderPopup } from "store";
 import { getTxFee, isOwner, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
-import { DaoMetadataForm } from "types";
-import { useAppNavigation } from "router/navigation";
-import moment from "moment";
+
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -433,6 +432,7 @@ export const useSetDaoPublisherQuery = () => {
 export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
+  const {refetch}  =useDaosQuery()
 
   const handleError = useError();
   return useMutation(
@@ -478,6 +478,7 @@ export const useUpdateDaoMetadataQuery = () => {
       onSuccess: (_, args) => {
         args.onSuccess();
         setDaoUpdateMillis(args.daoAddress);
+        refetch();
       },
       onError: (error) => handleError(error),
     }

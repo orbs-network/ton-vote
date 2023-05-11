@@ -82,7 +82,7 @@ const getDaos = async (signal?: AbortSignal) => {
   } catch (error) {}
 };
 
-const getDaoFromContract = async (daoAddress: string) => {
+export const getDaoFromContract = async (daoAddress: string) => {
   Logger("Fetching dao from contract");
   const client = await getClientV2();
   const daoFromContract: Dao = {
