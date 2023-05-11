@@ -1,7 +1,6 @@
 import { Box, styled } from "@mui/material";
-import { Page, TitleContainer } from "components";
+import { Page } from "components";
 import { CreateDaoMenu } from "./CreateDaoMenu";
-
 import { routes } from "consts";
 import { StyledFlexRow } from "styles";
 import { useSteps } from "./steps";

@@ -1,12 +1,13 @@
 import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
-import { useConnection } from "ConnectionProvider";
+import { useProposalAddress } from "hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { useConnectedWalletVotingPowerQuery } from "query/getters";
 import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { fromNano } from "ton-core";
-import { getSymbol, getVoteStrategyType, nFormatter } from "utils";
-import { useProposalPageQuery, useWalletVotingPower } from "./query";
+import { getSymbol, getVoteStrategyType } from "utils";
+import { useProposalFromQueryParam } from "./query";
 
 interface Props {
   open: boolean;
@@ -16,16 +17,16 @@ interface Props {
 }
 
 export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
-  const { address } = useConnection();
   const translations = useProposalPageTranslations();
 
-  const { data } = useProposalPageQuery(false);
+  const { data } = useProposalFromQueryParam(false);
+  const proposalAddress = useProposalAddress();
 
   const {
     data: votingData,
     isLoading: votingDataLoading,
     refetch,
-  } = useWalletVotingPower(address, data);
+  } = useConnectedWalletVotingPowerQuery(data, proposalAddress);
 
   useEffect(() => {
     if (open) {
@@ -33,9 +34,11 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     }
   }, [open]);
 
-  
-  const NoVotingPower = !votingData ? true : votingData && Number(votingData) === 0 ? true : false;
-
+  const NoVotingPower = !votingData
+    ? true
+    : votingData && Number(votingData) === 0
+    ? true
+    : false;
 
   return (
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>

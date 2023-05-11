@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BASE_FEE, getRelaseMode, QueryKeys } from "config";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { releaseMode, QueryKeys } from "config";
 import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
 import _ from "lodash";
 import {
@@ -13,22 +13,17 @@ import {
   getProposalMetadata,
   getRegistryAdmin,
   getRegistryId,
-  newRegistry,
+  getSingleVoterPower,
   ProposalMetadata,
-  setCreateDaoFee,
-  setFwdMsgFee,
-  setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
-import { getProposalStatus, isDaoWhitelisted, Logger } from "utils";
+import { getProposalStatus, getVoteStrategyType, isDaoWhitelisted, Logger, nFormatter } from "utils";
 import { OLD_DAO, proposals } from "data/foundation/data";
 import { useNewDataStore } from "store";
 import { lib } from "lib/lib";
 import { api } from "api";
-import { useDaoAddressFromQueryParam, useGetSender } from "hooks";
-import { useConnection } from "ConnectionProvider";
-import { showPromiseToast } from "toasts";
+import { useDaoAddressFromQueryParam } from "hooks";
 import { fromNano } from "ton-core";
-import { delay } from "@ton-defi.org/ton-connection";
+import { useConnection } from "ConnectionProvider";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -195,104 +190,7 @@ export const useProposalStatusQuery = (
   return query.data as ProposalStatus | null;
 };
 
-export const useCreateNewRegistry = () => {
-  const getSender = useGetSender();
-  const address = useConnection().address;
-
-  return useMutation(async () => {
-    const clientV2 = await getClientV2();
-    const sender = getSender();
-    return newRegistry(
-      sender,
-      clientV2,
-      getRelaseMode(),
-      BASE_FEE.toString(),
-      address!
-    );
-  });
-};
-
-export const useSetCreateDaoFee = () => {
-  const getSender = useGetSender();
-  const { refetch } = useGetCreateDaoFee();
-  return useMutation(
-    async (value: number) => {
-      const client = await getClientV2();
-      const promise = setCreateDaoFee(
-        getSender(),
-        client,
-        getRelaseMode(),
-        BASE_FEE.toString(),
-        value.toString()
-      );
-
-      showPromiseToast({
-        promise,
-        loading: "Setting create DAO fee...",
-        success: "Create DAO fee set",
-        error: "Failed to set create DAO fee",
-      });
-
-      return promise;
-    },
-    {
-      onSuccess: () => refetch(),
-    }
-  );
-};
-
-export const useSetDaoFwdMsgFee = (daoAddress?: string) => {
-  const getSender = useGetSender();
-  const { refetch } = useGetDaoFwdMsgFee(daoAddress);
-  return useMutation(
-    async ({ daoIds, amount }: { daoIds: number[]; amount: number }) => {
-      const client = await getClientV2();
-      const promise = setFwdMsgFee(
-        getSender(),
-        client,
-        getRelaseMode(),
-        BASE_FEE.toString(),
-        daoIds.map((it) => it.toString()),
-        amount.toString()
-      );
-
-      showPromiseToast({
-        promise,
-        loading: "Setting create Proposal fee...",
-        success: "Create Proposal fee set",
-        error: "Failed to set create Proposal fee",
-      });
-
-      return promise;
-    },
-    {
-      onSuccess: () => refetch(),
-    }
-  );
-};
-
-export const useSetRegistryAdmin = () => {
-  const getSender = useGetSender();
-  const { refetch } = useGetRegistryAdmin();
-  return useMutation(
-    async (newRegistryAdmin: string) => {
-      const client = await getClientV2();
-
-      return setRegistryAdmin(
-        getSender(),
-        client,
-        getRelaseMode(),
-        BASE_FEE.toString(),
-        newRegistryAdmin
-      );
-    },
-    {
-      onSuccess: () => refetch(),
-    }
-  );
-};
-
-export const useGetDaoFwdMsgFee = (daoAddress?: string) => {
+export const useGetDaoFwdMsgFeeQuery = (daoAddress?: string) => {
   const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.DAO_FWD_MSG_FEE, daoAddress],
@@ -321,12 +219,12 @@ export const useGetClients = () => {
   );
 };
 
-export const useGetCreateDaoFee = () => {
+export const useGetCreateDaoFeeQuery = () => {
   const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.CREATE_DAO_FEE],
     async () => {
-      const res = await getCreateDaoFee(clients!.clientV2, getRelaseMode());
+      const res = await getCreateDaoFee(clients!.clientV2, releaseMode);
       return fromNano(res);
     },
     {
@@ -335,12 +233,12 @@ export const useGetCreateDaoFee = () => {
   );
 };
 
-export const useGetRegistryAdmin = () => {
+export const useGetRegistryAdminQuery = () => {
   const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.REGISTRY_ADMIN],
     async () => {
-      return getRegistryAdmin(clients!.clientV2, getRelaseMode());
+      return getRegistryAdmin(clients!.clientV2, releaseMode);
     },
     {
       enabled: !!clients?.clientV2,
@@ -348,15 +246,58 @@ export const useGetRegistryAdmin = () => {
   );
 };
 
-export const useGetRegistryId = () => {
+export const useGetRegistryIdQuery = () => {
   const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.REGISTRY_ID],
     async () => {
-      return getRegistryId(clients!.clientV2, getRelaseMode());
+      return getRegistryId(clients!.clientV2, releaseMode);
     },
     {
       enabled: !!clients?.clientV2,
     }
   );
 };
+
+
+export const useConnectedWalletVotingPowerQuery = (
+  proposal?: Proposal | null,
+  proposalAddress?: string
+) => {
+  const connectedWallet = useConnection().address;
+
+
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.SIGNLE_VOTING_POWER, connectedWallet, proposalAddress],
+    async ({ signal }) => {
+      const allNftHolders = await lib.getAllNftHolders(
+        proposalAddress!,
+        clients!.clientV4,
+        proposal!.metadata!,
+        signal
+      );
+
+      Logger(`Fetching voting power for account: ${connectedWallet}`);
+
+      const strategy = getVoteStrategyType(
+        proposal?.metadata?.votingPowerStrategies
+      );
+
+      const result = await getSingleVoterPower(
+        clients!.clientV4,
+        connectedWallet!,
+        proposal?.metadata!,
+        strategy,
+        allNftHolders
+      );
+
+      return nFormatter(Number(fromNano(result)));
+    },
+    {
+      enabled: !!connectedWallet && !!proposal && !!clients?.clientV4 && !!proposalAddress,
+    }
+  );
+};
+
+

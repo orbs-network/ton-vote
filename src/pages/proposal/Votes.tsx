@@ -28,12 +28,13 @@ import {
   VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import { useProposalPageQuery } from "./query";
+import { useProposalFromQueryParam } from "./query";
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 const ContainerHeader = () => {
-  const { data } = useProposalPageQuery();
+  const { data } = useProposalFromQueryParam();
+  
 
   const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
@@ -72,7 +73,7 @@ const ContainerHeader = () => {
 const ConnectedWalletVote = () => {
   const { address } = useConnection();
 
-  const { data, dataUpdatedAt } = useProposalPageQuery();
+  const { data, dataUpdatedAt } = useProposalFromQueryParam();
 
   const walletVote = useMemo(() => {
     return _.find(data?.votes, (it) => it.address === address);
@@ -106,7 +107,7 @@ export function Votes() {
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const translations = useProposalPageTranslations();
 
-  const { data, isLoading } = useProposalPageQuery();
+  const { data, isLoading } = useProposalFromQueryParam();
 
   const votingPowerStrategy = getVoteStrategyType(
     data?.metadata?.votingPowerStrategies
@@ -176,7 +177,7 @@ const DownloadCSV = () => {
   const translations = useProposalPageTranslations();
 
   const theme = useTheme();
-  const { data, dataUpdatedAt } = useProposalPageQuery(false);
+  const { data, dataUpdatedAt } = useProposalFromQueryParam(false);
 
   const csvData = useMemo(() => {
     const values = _.map(data?.votes, (vote) => {

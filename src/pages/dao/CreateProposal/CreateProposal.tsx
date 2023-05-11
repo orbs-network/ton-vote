@@ -9,39 +9,48 @@ import {
 import { FormikProps, useFormik } from "formik";
 import { useDaoAddressFromQueryParam, useDebouncedCallback } from "hooks";
 import { StyledFlexRow } from "styles";
-import { useCreateProposal, useCreateProposalStore } from "./store";
+import { useCreateProposalStore } from "./store";
 import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
 import { useEffect } from "react";
-import { useDaoFromQueryParam, useDaoQuery, useGetDaoFwdMsgFee } from "query/queries";
 import { validateFormik } from "utils";
 import { CreateProposalForm, CreateProposalInputArgs } from "./types";
-import { appNavigation } from "router/navigation";
-import { InputArgs } from "types";
+import { appNavigation, useAppNavigation } from "router/navigation";
 import { StrategySelect } from "./StrategySelect";
-import { useFormInitialValues } from "./hooks";
+import { getInitialValues } from "./utils";
 import { useCreateProposalForm } from "./form/inputs";
 import { useFormSchema } from "./form/validation";
+import { useDaoFromQueryParam, useGetDaoFwdMsgFeeQuery } from "query/getters";
+import { prepareMetadata } from "./utils";
+import { useCreateProposalQuery } from "query/setters";
+import { useNewDataStore } from "store";
 
 function Form() {
   const daoAddress = useDaoAddressFromQueryParam();
 
-  const { mutate: createProposal, isLoading } = useCreateProposal();
+  const { mutate: createProposal, isLoading } = useCreateProposalQuery();
   const data = useDaoFromQueryParam().data;
   const { formData, setFormData } = useCreateProposalStore();
   const form = useCreateProposalForm(formData);
-  const createProposalFee = useGetDaoFwdMsgFee(daoAddress).data;
-
-  const initialValues = useFormInitialValues(formData, data);
+  const createProposalFee = useGetDaoFwdMsgFeeQuery(daoAddress).data;
+  const appNavigation = useAppNavigation();
   const FormSchema = useFormSchema();
+  const { addProposal } = useNewDataStore();
 
   const formik = useFormik<CreateProposalForm>({
-    initialValues,
+    initialValues: getInitialValues(formData, data),
     validationSchema: FormSchema,
-    onSubmit: (formValues) =>{
-      createProposal({ formValues, daoAddr: daoAddress });
-    }
-      ,
+    onSubmit: (formValues) => {
+      const metadata = prepareMetadata(formValues);
+      createProposal({
+        metadata,
+        onSuccess: (proposalAddress: string) => {
+          appNavigation.proposalPage.root(daoAddress, proposalAddress);
+          setFormData({} as CreateProposalForm);
+          addProposal(daoAddress, proposalAddress);
+        },
+      });
+    },
     validateOnChange: false,
     validateOnBlur: true,
   });
@@ -103,7 +112,7 @@ const useCustomInputHandler = (formik: FormikProps<CreateProposalForm>) => {
 
 export const CreateProposal = () => {
   const daoAddress = useDaoAddressFromQueryParam();
-  const isLoading = useDaoQuery(daoAddress).isLoading;
+  const isLoading = useDaoFromQueryParam().isLoading;
 
   return (
     <StyledPage back={appNavigation.daoPage.root(daoAddress)}>

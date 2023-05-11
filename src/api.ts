@@ -3,10 +3,9 @@ import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
 import moment from "moment";
-import { getRelaseMode, LAST_FETCH_UPDATE_LIMIT } from "config";
-import { ReleaseMode } from "ton-vote-contracts-sdk";
+import { LAST_FETCH_UPDATE_LIMIT, IS_DEV } from "config";
 const baseURL =
-  getRelaseMode() === ReleaseMode.DEVELOPMENT
+  IS_DEV
     ? "https://dev-ton-vote-cache.herokuapp.com"
     : "https://ton-vote-cache.herokuapp.com/";
 

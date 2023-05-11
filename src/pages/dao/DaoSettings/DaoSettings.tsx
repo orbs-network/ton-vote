@@ -1,6 +1,6 @@
 import { Header, LoadingContainer } from "components";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
-import { useDaoFromQueryParam } from "query/queries";
+import { useDaoFromQueryParam } from "query/getters";
 import { StyledFlexColumn } from "styles";
 import { MetadataForm } from "./Metadata";
 import { RolesForm } from "./Roles";

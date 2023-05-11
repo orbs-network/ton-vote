@@ -15,14 +15,14 @@ import {
   storeStateInit,
 } from "ton-core";
 import { useConnection } from "ConnectionProvider";
-import { TON_CONNECTOR } from "config";
-import { useDaoQuery } from "query/queries";
+import {  releaseMode, TON_CONNECTOR } from "config";
 import { showSuccessToast } from "toasts";
 import { ProposalStatus } from "types";
-import { useTranslation } from "react-i18next";
-import { StringParam, useQueryParams } from "use-query-params";
+import { StringParam, useQueryParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
+import { ReleaseMode } from "ton-vote-contracts-sdk";
+import { useDaoQuery } from "query/getters";
 
 export const useDaoAddressFromQueryParam = () => {
   return useParams().daoId as string;
@@ -184,21 +184,27 @@ export const useProposalStatusText = (status?: ProposalStatus | null) => {
 enum Params {
   PROPOSAL_STATE = "proposal-state",
   SEARCH = "search",
+  DEV = 'dev'
 }
 
 export const useAppQueryParams = () => {
   const [query, setQuery] = useQueryParams({
     [Params.PROPOSAL_STATE]: StringParam,
     [Params.SEARCH]: StringParam,
+    [Params.DEV]: StringParam,
   });
 
   return {
     query: {
       proposalState: query[Params.PROPOSAL_STATE] as string | undefined,
       search: query.search as string | undefined,
+      dev: query.dev as string | undefined,
     },
     setProposalState: (state: string | undefined) => {
       setQuery({ [Params.PROPOSAL_STATE]: state }, "pushIn");
+    },
+    setDev: (state: string | undefined) => {
+      setQuery({ [Params.DEV]: state }, "pushIn");
     },
     setSearch: (search: string | undefined) => {
       setQuery({ [Params.SEARCH]: search || undefined }, "pushIn");
@@ -209,16 +215,19 @@ export const useAppQueryParams = () => {
 export const useMobile = () => {
   const macthes = useMediaQuery(`(max-width: ${MOBILE_WIDTH}px)`);
   return macthes;
-  
 };
 
-
-
 export const useParseError = () => {
-  return  (error: string) => {
+  return (error: string) => {
     if (error.includes("UserRejectsError")) {
-      return 'User rejected the transaction'
+      return "User rejected the transaction";
     }
     return error;
   };
-}
+};
+
+export const useDevFeatures = () => {
+  const dev = useAppQueryParams().query.dev;
+
+  return dev || releaseMode === ReleaseMode.DEVELOPMENT;
+};

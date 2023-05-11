@@ -59,8 +59,8 @@ export enum QueryKeys {
   CLIENTS = "CLIENTS",
   DAO_FWD_MSG_FEE = "DAO_FWD_MSG_FEE",
   CREATE_DAO_FEE = "CREATE_DAO_FEE",
-  REGISTRY_ADMIN = 'REGISTRY_ADMIN',
-  REGISTRY_ID='REGISTRY_ID',
+  REGISTRY_ADMIN = "REGISTRY_ADMIN",
+  REGISTRY_ID = "REGISTRY_ID",
 }
 
 export const FETCH_PROPOSALS_INTERVAL = 30_000;
@@ -78,13 +78,17 @@ export const VERIFIED_DAOS = [
   "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
 ];
 
-export const getRelaseMode = () => {
-  if (import.meta.env.VITE_STAGING) {
-    return ReleaseMode.DEVELOPMENT;
-  }
-  return ReleaseMode.PRODUCTION;
+export const releaseMode = import.meta.env.VITE_STAGING
+  ? ReleaseMode.DEVELOPMENT
+  : ReleaseMode.PRODUCTION;
+
+export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
+
+export const TX_FEES = {
+  CREATE_DAO: IS_DEV ? 0.0085 : 0,
+  CREATE_METADATA: IS_DEV ? 0.05 : 0,
+  FORWARD_MSG: IS_DEV ? 0.5 : 0,
+  SET_METADATA: IS_DEV ? 0.05 : 0,
+  VOTE_FEE: 0.0065,
+  BASE: 0.15,
 };
-
-
-export const BASE_FEE = 0.15
-export const VOTE_FEE = 0.0065;

@@ -1,7 +1,7 @@
 import { ErrorContainer } from "components";
 import { APP_NAME } from "config";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
-import { useDaoFromQueryParam } from "query/queries";
+import { useDaoFromQueryParam } from "query/getters";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";

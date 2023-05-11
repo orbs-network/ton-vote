@@ -23,12 +23,12 @@ import {
 import _ from "lodash";
 import { useVerifyProposalResults } from "./hooks";
 import { EndpointPopup } from "./EndpointPopup";
-import { useProposalPageQuery } from "./query";
+import { useProposalFromQueryParam } from "./query";
 import BigNumber from "bignumber.js";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 
 export const Results = () => {
-  const { data, dataUpdatedAt, isLoading } = useProposalPageQuery(false);
+  const { data, dataUpdatedAt, isLoading } = useProposalFromQueryParam(false);
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
   const proposalResult = data?.proposalResult;

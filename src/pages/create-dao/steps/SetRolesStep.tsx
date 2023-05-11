@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, FormikInputsForm, MapInput } from "components";
+import { Button, FormikInputsForm } from "components";
 import { useConnection } from "ConnectionProvider";
 import { FormikProps, useFormik } from "formik";
 import { useDaoRolesSchema } from "forms/dao-form";

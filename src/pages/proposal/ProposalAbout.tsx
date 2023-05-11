@@ -1,13 +1,12 @@
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useDaoQuery, useDaosQuery } from "query/queries";
 import { useDaoAddressFromQueryParam, useMobile } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
 import { useEffect, useRef, useState } from "react";
-import { useProposalPageQuery } from "./query";
+import { useProposalFromQueryParam } from "./query";
 import {
   LoadingContainer,
   Markdown,
@@ -24,11 +23,12 @@ import { makeElipsisAddress, parseLanguage } from "utils";
 import { useProposalPageStatus } from "./hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
+import { useDaoFromQueryParam } from "query/getters";
 
 const MIN_DESCRIPTION_HEIGHT = 200;
 
 export const ProposalAbout = () => {
-  const { isLoading } = useProposalPageQuery(false);
+  const { isLoading } = useProposalFromQueryParam(false);
   const mobile = useMobile();
 
   if (isLoading) {
@@ -44,16 +44,16 @@ export const ProposalAbout = () => {
 
 function DesktopAbout() {
   return (
-      <StyledFlexColumn alignItems="flex-start" gap={20}>
-        <ProposalHeader />
-        <StyledProposalOwner justifyContent="flex-start">
-          <ProposalStatus />
-          <DaoInfo />
-          <ByProposalOwner />
-          <StyledShareButton url={window.location.href} />
-        </StyledProposalOwner>
-        <Description />
-      </StyledFlexColumn>
+    <StyledFlexColumn alignItems="flex-start" gap={20}>
+      <ProposalHeader />
+      <StyledProposalOwner justifyContent="flex-start">
+        <ProposalStatus />
+        <DaoInfo />
+        <ByProposalOwner />
+        <StyledShareButton url={window.location.href} />
+      </StyledProposalOwner>
+      <Description />
+    </StyledFlexColumn>
   );
 }
 
@@ -77,7 +77,7 @@ function MobileAbout() {
 }
 
 const ProposalHeader = () => {
-  const data = useProposalPageQuery(false).data;
+  const data = useProposalFromQueryParam(false).data;
 
   return <StyledHeader title={parseLanguage(data?.metadata?.title)} />;
 };
@@ -108,7 +108,7 @@ const ShowMoreButton = ({
 const Description = () => {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const elRef = useRef<any>();
-  const { data, isLoading } = useProposalPageQuery(false);
+  const { data, isLoading } = useProposalFromQueryParam(false);
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
@@ -178,7 +178,7 @@ const StyledShareButton = styled(ShareButton)({
 
 const DaoInfo = () => {
   const daoAddress = useDaoAddressFromQueryParam();
-  const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
+  const daoMetadata = useDaoFromQueryParam().data?.daoMetadata;
 
   return (
     <StyledFlexRow style={{ width: "auto" }}>
@@ -195,7 +195,7 @@ const DaoInfo = () => {
 
 const ByProposalOwner = () => {
   const daoAddress = useDaoAddressFromQueryParam();
-  const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
+  const daoRoles = useDaoFromQueryParam().data?.daoRoles;
   if (!daoRoles?.proposalOwner) {
     return null;
   }

@@ -1,33 +1,38 @@
 import { Box, Chip, CircularProgress, styled, Typography } from "@mui/material";
-import { getRelaseMode } from "config";
 import { FormikProps, useFormik } from "formik";
 import React, { useState } from "react";
 import { StyledEndAdornment, StyledFlexColumn } from "styles";
-import { ReleaseMode } from "ton-vote-contracts-sdk";
 import { FormArgs, FormikInputEndAdorment } from "types";
 import { Button } from "./Button";
 import { Popup } from "./Popup";
-import {
-  useDaosQuery,
-  useGetCreateDaoFee,
-  useGetRegistryAdmin,
-  useGetRegistryId,
-  useSetCreateDaoFee,
-  useSetDaoFwdMsgFee,
-  useSetRegistryAdmin,
-} from "query/queries";
 import { FormikInputsForm } from "./inputs/Inputs";
 import { validateAddress } from "utils";
 import { AppTooltip } from "./Tooltip";
 import { FiSettings } from "react-icons/fi";
 import _ from "lodash";
 import { showErrorToast } from "toasts";
-import { useParseError } from "hooks";
+import {
+  useDaoAddressFromQueryParam,
+  useDevFeatures,
+  useParseError,
+} from "hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useConnection } from "ConnectionProvider";
+import {
+  useDaosQuery,
+  useGetCreateDaoFeeQuery,
+  useGetDaoFwdMsgFeeQuery,
+  useGetRegistryAdminQuery,
+  useGetRegistryIdQuery,
+} from "query/getters";
+import {
+  useSetCreateDaoFee,
+  useSetDaoFwdMsgFee,
+  useSetRegistryAdmin,
+} from "query/setters";
 
 const useValidateFields = () => {
-  const registryAdmin = useGetRegistryAdmin().data;
+  const registryAdmin = useGetRegistryAdminQuery().data;
   const connectedAddress = useConnection().address;
   return (name: string, value: any) => {
     if (!connectedAddress) {
@@ -62,19 +67,6 @@ const useUpdate = (formik: FormikProps<IForm>, name: string, value?: any) => {
   return useMutation(
     async () => {
       validate(name, value);
-      if (name === "createDaoFee") {
-        return setCreateDaoFee(value! as number);
-      }
-      if (name === "registryAdmin") {
-        return setRegistryAdmin(value! as string);
-      }
-      if (name === "fwdMsgFee") {
-        const res = await setCreateProposalFee({
-          daoIds: daos!.map((dao) => dao.daoId!),
-          amount: value,
-        });
-        return res;
-      }
     },
     {
       onError: (error) => {
@@ -97,13 +89,62 @@ const EndAdornment = ({
 }) => {
   const value = formik.values[name as keyof IForm];
   const initialValue = formik.initialValues[name as keyof IForm];
+  const { mutateAsync: setCreateDaoFee, isLoading: createDaoFeeLoading } =
+    useSetCreateDaoFee();
+  const { mutateAsync: setRegistryAdmin, isLoading: setAdminLoading } =
+    useSetRegistryAdmin();
+  const { mutateAsync: setCreateProposalFee, isLoading: daoFwdFeeLoading } =
+    useSetDaoFwdMsgFee();
+  const { refetch: refetchCreateDaoFee } = useGetCreateDaoFeeQuery();
+  const { refetch: refetchRegistryAdmin } = useGetRegistryAdminQuery();
+  const daoAddress = useDaoAddressFromQueryParam();
+  const { refetch: refetchFwdMsgFee } = useGetDaoFwdMsgFeeQuery(daoAddress);
 
-  const { mutate, isLoading } = useUpdate(formik, name, value);
+  const daos = useDaosQuery().data;
+
+  const onSubmit = () => {
+    const onError = (error: string) => formik.setFieldError(name, error);
+
+    if (name === "createDaoFee") {
+      return setCreateDaoFee({
+        value: value as number,
+        onSuccess: refetchCreateDaoFee,
+        onError,
+      });
+    }
+    if (name === "registryAdmin") {
+      return setRegistryAdmin({
+        value: value! as string,
+        onSuccess: refetchRegistryAdmin,
+        onError,
+      });
+    }
+    if (name === "fwdMsgFee") {
+      return setCreateProposalFee({
+        daoIds: daos!.map((dao) => dao.daoId!),
+        amount: value as number,
+        onSuccess: refetchFwdMsgFee,
+        onError,
+      });
+    }
+  };
+
+  const isLoading = () => {
+    if (name === "createDaoFee") {
+      return createDaoFeeLoading;
+    }
+    if (name === "registryAdmin") {
+      return setAdminLoading;
+    }
+    if (name === "fwdMsgFee") {
+      return daoFwdFeeLoading;
+    }
+  };
 
   if (initialValue === value) return null;
   return (
     <StyledEndAdornment>
-      <Button onClick={mutate} isLoading={isLoading}>
+      <Button onClick={onSubmit} isLoading={isLoading()}>
         <Typography>update</Typography>
       </Button>
     </StyledEndAdornment>
@@ -143,11 +184,11 @@ const form: FormArgs<IForm> = {
 
 export function DevParametersModal() {
   const [open, setOpen] = useState(false);
-  const createDaoFee = useGetCreateDaoFee().data;
-  const registryAdmin = useGetRegistryAdmin().data;
-  const registryId = useGetRegistryId().data;
+  const createDaoFee = useGetCreateDaoFeeQuery().data;
+  const registryAdmin = useGetRegistryAdminQuery().data;
+  const registryId = useGetRegistryIdQuery().data;
   const { isLoading: daosLoading } = useDaosQuery();
-
+  const show = useDevFeatures();
   const formik = useFormik<IForm>({
     enableReinitialize: true,
     initialValues: {
@@ -159,7 +200,7 @@ export function DevParametersModal() {
     onSubmit: () => {},
   });
 
-  if (getRelaseMode() !== ReleaseMode.DEVELOPMENT) return null;
+  if (!show) return null;
 
   return (
     <>

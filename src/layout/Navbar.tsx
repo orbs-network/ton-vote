@@ -14,8 +14,8 @@ import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
 import { useConnection } from "ConnectionProvider";
 import { MdContentCopy, MdLogout } from "react-icons/md";
-import { useCopyToClipboard } from "hooks";
-import { APP_NAME, getRelaseMode, LANGUAGES } from "config";
+import { useCopyToClipboard, useDevFeatures } from "hooks";
+import { APP_NAME, releaseMode, LANGUAGES } from "config";
 import { useTranslation } from "react-i18next";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { BsGlobeAmericas } from "react-icons/bs";
@@ -27,6 +27,7 @@ import { ReleaseMode } from "ton-vote-contracts-sdk";
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
+  const devFeatures = useDevFeatures()
   return (
     <StyledContainer>
       <StyledNav>
@@ -35,9 +36,7 @@ export function Navbar() {
           <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
-          {getRelaseMode() === ReleaseMode.DEVELOPMENT && (
-            <Chip label="Dev mode" />
-          )}
+          {devFeatures && <Chip label="Dev mode" />}
           <Wallet />
 
           {!mobile && <Github />}

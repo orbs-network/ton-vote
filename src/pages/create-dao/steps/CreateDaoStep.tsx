@@ -8,7 +8,7 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn } from "styles";
-import { useCreatDaoStore, useCreateDao } from "../store";
+import { useCreatDaoStore } from "../store";
 import { Submit } from "./Submit";
 import { MetadataArgs } from "ton-vote-contracts-sdk";
 import { DaoRolesForm, InputArgs } from "types";
@@ -16,18 +16,37 @@ import _ from "lodash";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoMetadataForm, useDaoRolesForm } from "../form";
-import { useGetCreateDaoFee } from "query/queries";
+import { useCreateDaoQuery } from "query/setters";
+import { useAppNavigation } from "router/navigation";
+import { useNewDataStore } from "store";
+import { useGetCreateDaoFeeQuery } from "query/getters";
+import { isZeroAddress } from "utils";
 
 export function CreateDaoStep() {
-  const { mutate: createDao, isLoading } = useCreateDao();
+  const { mutate: createDao, isLoading } = useCreateDaoQuery();
   const translations = useCreateDaoTranslations();
   const commonTranslations = useCommonTranslations();
-
-  const { daoMetadataForm, rolesForm } = useCreatDaoStore();
-  const createDaoFee = useGetCreateDaoFee().data;
+  const appNavigation = useAppNavigation();
+  const { addDao } = useNewDataStore();
+  const { daoMetadataForm, rolesForm, metadataAddress, reset } =
+    useCreatDaoStore();
+  const createDaoFee = useGetCreateDaoFeeQuery().data;
 
   const metadata = useDaoMetadataForm();
   const roles = useDaoRolesForm();
+
+  const onSubmit = () => {
+    createDao({
+      metadataAddress: metadataAddress!,
+      ownerAddress: rolesForm.ownerAddress,
+      proposalOwner: rolesForm.proposalOwner,
+      onSuccess: (address: string) => {
+        appNavigation.daoPage.root(address);
+        addDao(address);
+        reset();
+      },
+    });
+  };
 
   return (
     <TitleContainer title={translations.createSpace}>
@@ -65,7 +84,7 @@ export function CreateDaoStep() {
         <Submit>
           <Button
             isLoading={isLoading || createDaoFee === undefined}
-            onClick={() => createDao()}
+            onClick={onSubmit}
           >
             {commonTranslations.create}
           </Button>
@@ -87,6 +106,9 @@ const InputPreview = ({
   value: any;
 }) => {
   const getValue = () => {
+    if (input.type === "address" && isZeroAddress(value)) {
+      return null;
+    }
     if (input.type === "checkbox") {
       return <Typography>{value ? "Yes" : "No"}</Typography>;
     }

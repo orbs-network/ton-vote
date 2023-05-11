@@ -1,47 +1,36 @@
-import { Fade, styled, Typography } from "@mui/material";
+import { styled } from "@mui/material";
 import { Button, ConnectButton, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import _ from "lodash";
-import { useEffect } from "react";
-import { useDebouncedCallback } from "hooks";
-import { isZeroAddress, parseLanguage } from "utils";
-import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoMetadataSchema } from "forms/dao-form";
-import { useDaoFromQueryParam } from "query/queries";
 import { useMetadataForm } from "./form";
 import { DaoMetadataForm } from "types";
-import { useUpdateDaoMetadata } from "../hooks";
 import { StyledFlexRow } from "styles";
 import { useConnection } from "ConnectionProvider";
+import { useDaoFromQueryParam } from "query/getters";
+import { useUpdateDaoMetadataQuery } from "query/setters";
+import { useDaoAddressFromQueryParam } from "hooks";
+import { getInitialValues, prepareMetadata } from "./utils";
 
 export function MetadataForm() {
   const Schema = useDaoMetadataSchema();
   const updateDaoForm = useMetadataForm();
-  const daoMetadata = useDaoFromQueryParam().data?.daoMetadata;
-  const { mutate, isLoading } = useUpdateDaoMetadata();
+  const { data, refetch } = useDaoFromQueryParam();
+  const daoAddress = useDaoAddressFromQueryParam();
+  const { mutate: updateMetadata, isLoading } = useUpdateDaoMetadataQuery();
 
   const formik = useFormik<DaoMetadataForm>({
-    initialValues: {
-      name: daoMetadata?.name || "",
-      telegram: daoMetadata?.telegram || "",
-      website: daoMetadata?.website || "",
-      github: daoMetadata?.github || "",
-      about: daoMetadata?.about || "",
-      terms: daoMetadata?.terms || "",
-      avatar: daoMetadata?.avatar || "",
-      hide: daoMetadata?.hide || false,
-      jetton: isZeroAddress(daoMetadata?.jetton)
-        ? ""
-        : daoMetadata?.jetton || "",
-      nft: isZeroAddress(daoMetadata?.nft) ? "" : "",
-      dns: daoMetadata?.dns || "",
-      about_en: parseLanguage(daoMetadata?.about) || "",
-      name_en: parseLanguage(daoMetadata?.name) || "",
-    },
+    initialValues: getInitialValues(data?.daoMetadata),
     validationSchema: Schema,
     validateOnChange: false,
     validateOnBlur: true,
-    onSubmit: (values) => mutate(values),
+    onSubmit: (values) => {
+      updateMetadata({
+        metadata: prepareMetadata(values),
+        daoAddress,
+        onSuccess: refetch,
+      });
+    },
   });
 
   return (
@@ -60,18 +49,20 @@ const SubmitButton = ({
 }) => {
   const connectedAddress = useConnection().address;
 
-  const hide = _.isEqual(formik.values, formik.initialValues)
+  const hide = _.isEqual(formik.values, formik.initialValues);
 
-  if (hide) return null
-    return (
-      <StyledSubmit>
-        {!connectedAddress ? 
-          <ConnectButton />
-        : <Button isLoading={isLoading} onClick={formik.submitForm}>
+  if (hide) return null;
+  return (
+    <StyledSubmit>
+      {!connectedAddress ? (
+        <ConnectButton />
+      ) : (
+        <Button isLoading={isLoading} onClick={formik.submitForm}>
           Update Metadata
-        </Button>}
-      </StyledSubmit>
-    );
+        </Button>
+      )}
+    </StyledSubmit>
+  );
 };
 
 const StyledSubmit = styled(StyledFlexRow)({

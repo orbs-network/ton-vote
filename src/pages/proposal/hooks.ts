@@ -4,7 +4,7 @@ import { useProposalAddress, useGetSender } from "hooks";
 import _ from "lodash";
 import { useTxReminderPopup } from "store";
 import { Logger } from "utils";
-import { useProposalPageQuery } from "./query";
+import { useProposalFromQueryParam } from "./query";
 import { useEnpointsStore, useProposalPersistedStore } from "./store";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import {
@@ -13,14 +13,14 @@ import {
   getClientV4,
   getTransactions,
 } from "ton-vote-contracts-sdk";
-import { BASE_FEE, VOTE_FEE } from "config";
 import { showPromiseToast } from "toasts";
 import { Endpoints, ProposalResults } from "types";
-import { useProposalStatusQuery } from "query/queries";
 import { lib } from "lib/lib";
-import { Transaction } from "ton-core";
+import { fromNano, Transaction } from "ton-core";
 import { useTranslation } from "react-i18next";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { TX_FEES } from "config";
+import { useProposalStatusQuery } from "query/getters";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -39,7 +39,7 @@ const handleNulls = (result?: ProposalResults) => {
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
-  const { data } = useProposalPageQuery(false);
+  const { data } = useProposalFromQueryParam(false);
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations()
 
@@ -67,8 +67,8 @@ export const useVerifyProposalResults = () => {
         transactions
       );
       const currentResults = handleNulls(data?.proposalResult);
-
       const compareToResults = handleNulls(contractState?.proposalResult);
+
 
       Logger({
         currentResults,
@@ -101,7 +101,7 @@ export const useVerifyProposalResults = () => {
 
 export const useVote = () => {
   const getSender = useGetSender();
-  const { refetch } = useProposalPageQuery(true);
+  const { refetch } = useProposalFromQueryParam(true);
   const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
   const proposalAddress = useProposalAddress();
   const toggleTxReminder = useTxReminderPopup().setOpen;
@@ -117,7 +117,7 @@ export const useVote = () => {
         await TonVoteSDK.proposalSendMessage(
           sender,
           client,
-          VOTE_FEE.toString(),
+          TX_FEES.VOTE_FEE.toString(),
           proposalAddress,
           vote
         );
@@ -141,7 +141,7 @@ export const useVote = () => {
 };
 
 export const useProposalPageStatus = () => {
-  const { data } = useProposalPageQuery();
+  const { data } = useProposalFromQueryParam();
   const proposalAddress = useProposalAddress();
   return useProposalStatusQuery(data?.metadata, proposalAddress);
 };

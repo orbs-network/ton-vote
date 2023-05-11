@@ -1,24 +1,20 @@
 import { Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
-import { getRelaseMode } from "config";
-import { MOBILE_WIDTH, routes } from "consts";
+import { routes } from "consts";
 import {
   useCurrentRoute,
   useDaoAddressFromQueryParam,
+  useDevFeatures,
   useIsOwner,
   useMobile,
 } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { useDaoQuery } from "query/queries";
-import { useNavigate, useParams } from "react-router-dom";
+import { useDaoFromQueryParam } from "query/getters";
+import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-import { ReleaseMode } from "ton-vote-contracts-sdk";
-import { Dao } from "types";
-import { useQueryParam } from "use-query-params";
 import { parseLanguage } from "utils";
-import { useDaoPage } from "../hooks";
 import {
   StyledSideMenu,
   StyledLogo,
@@ -36,7 +32,7 @@ import {
 } from "./styles";
 
 export function DaoMenu() {
-  const isLoading = useDaoPage().isLoading;
+  const isLoading = useDaoFromQueryParam().isLoading;
   const mobile = useMobile();
   if (isLoading) {
     return (
@@ -95,12 +91,12 @@ const MobilepMenu = () => {
 };
 
 const DaoLogo = () => {
-  const dao = useDaoPage().data;
+  const dao = useDaoFromQueryParam().data;
   return <StyledLogo src={dao?.daoMetadata?.avatar} />;
 };
 
 const DaoTitle = () => {
-  const dao = useDaoPage().data;
+  const dao = useDaoFromQueryParam().data;
 
   return (
     <StyledTitle placement="top" text={parseLanguage(dao?.daoMetadata?.name)} />
@@ -108,7 +104,7 @@ const DaoTitle = () => {
 };
 
 const DaoDNS = () => {
-  const dao = useDaoPage().data;
+  const dao = useDaoFromQueryParam().data;
 
   if (!dao?.daoMetadata.dns) {
     return null;
@@ -125,12 +121,12 @@ const DaoDNS = () => {
 };
 
 const DaoAddress = () => {
-  const dao = useDaoPage().data;
+  const dao = useDaoFromQueryParam().data;
   return <StyledAddressDisplay address={dao?.daoAddress} padding={8} />;
 };
 
 const DaoSocials = () => {
-  const dao = useDaoPage().data;
+  const dao = useDaoFromQueryParam().data;
   return (
     <StyledSocials
       github={dao?.daoMetadata?.github || "/"}
@@ -211,8 +207,8 @@ const MobileNavigation = () => {
 };
 
 const useNavigationLinks = () => {
-  const [devParam] = useQueryParam('dev')
-  
+  const showDev = useDevFeatures();
+
   const translations = useDaoPageTranslations();
   const daoAddress = useDaoAddressFromQueryParam();
   const { isDaoOwner, isProposalOnwer, isLoading } = useIsOwner(daoAddress);
@@ -245,19 +241,17 @@ const useNavigationLinks = () => {
     },
   ];
 
-
-
-  const modified =  _.filter(result, (it) => {
+  const modified = _.filter(result, (it) => {
     if (it.owner && !isDaoOwner) {
       return false;
     }
-    if ((it.publisher && !isProposalOnwer) && (it.publisher && !isDaoOwner)) {
+    if (it.publisher && !isProposalOnwer && it.publisher && !isDaoOwner) {
       return false;
     }
     return true;
   });
 
-  if (devParam || getRelaseMode() === ReleaseMode.DEVELOPMENT) {
+  if (showDev) {
     modified.push({
       title: translations.settings,
       path: appNavigation.daoPage.settings(daoAddress),

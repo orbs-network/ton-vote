@@ -5,16 +5,17 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ProposalStatus } from "types";
 import { useProposalPageStatus } from "./hooks";
-import { useProposalPageQuery } from "./query";
+import { useProposalFromQueryParam } from "./query";
 
 const handleDate = (endDate?: number) => {
   if (!endDate) return 0;
 
-  return moment.unix(endDate).utc().valueOf();
+  return moment.unix(endDate).valueOf();
 };
 
 export function Deadline() {
-  const { data } = useProposalPageQuery();
+  const { data } = useProposalFromQueryParam();
+  
   const proposalStatus = useProposalPageStatus();
   const translations = useProposalPageTranslations()
 

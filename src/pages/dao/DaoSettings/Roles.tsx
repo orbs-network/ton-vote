@@ -1,74 +1,14 @@
-import { Fade, styled, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { Button, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import _ from "lodash";
-import { useEffect, useState } from "react";
-import { useDebouncedCallback, useParseError } from "hooks";
-import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useDaoRolesSchema } from "forms/dao-form";
-import { useDaoFromQueryParam } from "query/queries";
+import { useDaoAddressFromQueryParam, useParseError } from "hooks";
+
 import { useRolesForm } from "./form";
 import { DaoRolesForm } from "types";
-import { useUpdateDaoOwner, useUpdateDaoPublisher } from "../hooks";
-import { validateAddress, validateFormik } from "utils";
 import { StyledEndAdornment } from "styles";
-import { useMutation } from "@tanstack/react-query";
-import { showErrorToast } from "toasts";
-
-const useValidateFields = () => {
-  return (name: string, value?: any) => {
-    if (name === "ownerAddress") {
-      if (!value) {
-        throw new Error("Owner address is required");
-      }
-      if (!validateAddress(value)) {
-        throw new Error("Invalid owner address");
-      }
-    }
-    if (name === "proposalOwner") {
-      if (!value) {
-        throw new Error("Proposal owner address is required");
-      }
-      if (!validateAddress(value)) {
-        throw new Error("Invalid proposal owner address");
-      }
-    }
-  };
-};
-
-const useUpdate = (
-  formik: FormikProps<DaoRolesForm>,
-  name: string,
-  value?: any
-) => {
-  const { mutateAsync: setOwner } = useUpdateDaoOwner();
-  const { mutateAsync: setPublisher } = useUpdateDaoPublisher();
-  const parseError = useParseError();
-  const { refetch: refetchDao } = useDaoFromQueryParam();
-  const validate = useValidateFields();
-
-  return useMutation(
-    async () => {
-      validate(name, value);
-      if (name === "ownerAddress") {
-        return setOwner(value);
-      }
-      if (name === "proposalOwner") {
-        return setPublisher(value);
-      }
-    },
-    {
-      onSuccess: () => refetchDao(),
-      onError: (error) => {
-        if (error instanceof Error) {
-          const parsedError = parseError(error.message);
-          formik.setFieldError(name, parsedError);
-          showErrorToast(parsedError);
-        }
-      },
-    }
-  );
-};
+import { useDaoFromQueryParam } from "query/getters";
+import { useSetDaoOwnerQuery, useSetDaoPublisherQuery } from "query/setters";
 
 export function RolesForm() {
   const form = useRolesForm(EndAdornment);
@@ -99,16 +39,39 @@ export const EndAdornment = ({
   name: string;
   formik: FormikProps<DaoRolesForm>;
 }) => {
+  const { mutateAsync: setOwner, isLoading: setOwnerLoading } =
+    useSetDaoOwnerQuery();
+  const { mutateAsync: setPublisher, isLoading: setPublisherloading } =
+    useSetDaoPublisherQuery();
+  const { refetch: refetchDao } = useDaoFromQueryParam();
+  const daoAddress = useDaoAddressFromQueryParam();
   const value = formik.values[name as keyof DaoRolesForm];
   const initialValue = formik.initialValues[name as keyof DaoRolesForm];
 
-  const { mutate, isLoading } = useUpdate(formik, name, value);
+  const update = () => {
+    const args = {
+      daoAddress,
+      newOwner: value,
+      onError: (error: string) => formik.setFieldError(name, error),
+      onSuccess: refetchDao,
+    };
+
+    if (name === "ownerAddress") {
+      return setOwner(args);
+    }
+    if (name === "proposalOwner") {
+      return setPublisher(args);
+    }
+  };
+
+  const isLoading =
+    name === "ownerAddress" ? setOwnerLoading : setPublisherloading;
 
   if (initialValue === value) return null;
 
   return (
     <StyledEndAdornment>
-      <Button onClick={mutate} isLoading={isLoading}>
+      <Button onClick={update} isLoading={isLoading}>
         <Typography>Update</Typography>
       </Button>
     </StyledEndAdornment>

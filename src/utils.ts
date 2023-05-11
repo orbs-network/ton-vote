@@ -1,5 +1,6 @@
-import { TONSCAN_ADDRESS_URL, BASE_FEE } from "config";
+import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
+import timeZoneMoment from "moment-timezone";
 import moment from "moment";
 import { Address, fromNano } from "ton";
 import {
@@ -121,7 +122,7 @@ export const getProposalStatus = (
 };
 
 export const unixToMilliseconds = (value: Number) => {
-  return moment.unix(Number(value)).utc().valueOf();
+  return moment.unix(Number(value)).valueOf();
 };
 
 export const urlPatternValidation = (URL: string) => {
@@ -184,10 +185,8 @@ export function validateFormikSingleField<T>(
   name: string
 ) {
   formik.validateField(name);
-  console.log(formik);
 
   const error = formik.errors[name as keyof T] as string;
-  console.log(error);
 
   if (error) {
     showErrorToast(error);
@@ -260,12 +259,8 @@ export const getVoteStrategyType = (
     : votingPowerStrategy[0].type;
 };
 
-export const getTxFee = (value?: number | string): string => {
-  if (!value) return BASE_FEE.toString();
-  return Math.max(
-    typeof value === "string" ? Number(value) : value,
-    BASE_FEE
-  ).toString();
+export const getTxFee = (value: number, baseFee: number): string => {
+  return Math.max(Number(value), baseFee).toString();
 };
 
 export const extractArg = (strategy: VotingPowerStrategy, name: string) => {
@@ -292,8 +287,12 @@ export const getStrategyArgument = (
   return extractStrategyArguments(strategies)[name];
 };
 
-export const momentToUTC = (value?: number) => {
+export const utcMoment = (value?: number) => {
   const dt = value ? moment(value) : moment();
 
-  return dt.subtract(dt.parseZone().utcOffset(), "minutes");
+  const offset = dt.parseZone().utcOffset();
+
+  return offset < 0
+    ? dt.subtract(Math.abs(offset), "minutes")
+    : dt.add(offset, "minutes");
 };

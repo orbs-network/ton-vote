@@ -2243,6 +2243,13 @@ mime-types@^2.1.12:
   dependencies:
     mime-db "1.52.0"
 
+moment-timezone@^0.5.43:
+  version "0.5.43"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.43.tgz#3dd7f3d0c67f78c23cd1906b9b2137a09b3c4790"
+  integrity sha512-72j3aNyuIsDxdF1i7CEgV2FfxM1r6aaqJyLB2vwb33mXYyoyLly+F1zbWqhA3/bVIoJ4szlUoMbUnVdid32NUQ==
+  dependencies:
+    moment "^2.29.4"
+
 moment@^2.29.4:
   version "2.29.4"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
@@ -2897,7 +2904,7 @@ ton-crypto@^3.0.0, ton-crypto@^3.1.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton-vote-contracts-sdk@^1.0.0-beta.24:
+ton-vote-contracts-sdk@1.0.0-beta.24:
   version "1.0.0-beta.24"
   resolved "https://registry.yarnpkg.com/ton-vote-contracts-sdk/-/ton-vote-contracts-sdk-1.0.0-beta.24.tgz#93d687b29f0fa39d62e61466d54c81342bf7c9db"
   integrity sha512-2Yt6IOXrSntn/TdYFFWzKa0j463wDS26mICcXvJAwZZk6U39CG4oXesmiuLwyQ0fEFLSW0jqjscyQ1fgtLtqSQ==

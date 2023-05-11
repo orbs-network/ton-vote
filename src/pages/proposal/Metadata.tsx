@@ -4,19 +4,19 @@ import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import moment from "moment";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
-import { useProposalPageQuery } from "./query";
+import { useProposalFromQueryParam } from "./query";
 import { useProposalAddress } from "hooks";
 import { getStrategyArgument, getVoteStrategyType } from "utils";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
-const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
-  return `${moment.unix(time).format(format)} UTC`;
+const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {  
+  return `${moment.unix(time).utc().format(format)} UTC`;
 };
 
 export const Metadata = () => {
   const proposalAddress = useProposalAddress();
-  const { isLoading, data } = useProposalPageQuery(false);
+  const { isLoading, data } = useProposalFromQueryParam(false);
   const translations = useProposalPageTranslations();
   const proposalMetadata = data?.metadata;
   const votingPowerStrategies = data?.metadata?.votingPowerStrategies;
@@ -27,11 +27,9 @@ export const Metadata = () => {
     votingPowerStrategies
   );
 
-
-
-    if (isLoading) {
-      return <LoadingContainer />;
-    }
+      if (isLoading) {
+        return <LoadingContainer />;
+      }
 
   return (
     <StyledInformation title={translations.information}>

@@ -1,6 +1,5 @@
 import { styled, Typography } from "@mui/material";
 import { Container, List, LoadMore, Page, Search } from "components";
-import { useDaosQuery } from "query/queries";
 import {
   StyledEmptyText,
   StyledFlexColumn,
@@ -13,11 +12,11 @@ import { Dao } from "types";
 import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import { useTranslation } from "react-i18next";
 import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
 import { useAppQueryParams, useMobile } from "hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
+import { useDaosQuery } from "query/getters";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;

@@ -17,7 +17,7 @@ import { StyledCreateAbout, StyledFlexColumn, StyledFlexRow } from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
 import { BsFillTrash3Fill, BsUpload } from "react-icons/bs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
@@ -50,7 +50,7 @@ import { TitleContainer } from "components/TitleContainer";
 import { NumericFormat } from "react-number-format";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import moment, { utc } from "moment";
+import moment, { Moment, utc } from "moment";
 
 interface TextInputProps {
   value?: string | number;
@@ -283,7 +283,7 @@ export const DateRangeInput = ({
   tooltip,
 }: DateRangeInputProps) => {
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterMoment}>
       <StyledDatepicker
         className={`${className} date-input`}
         error={error ? 1 : 0}
@@ -297,10 +297,10 @@ export const DateRangeInput = ({
           // maxDate={max && dayjs(max)}
           // minDate={min && dayjs(min)}
 
-          value={value ? dayjs(value) : null}
+          value={value ? moment(value) : null}
           onOpen={onFocus}
           className="datepicker"
-          onChange={(value: any) => onChange(dayjs(value).valueOf())}
+          onChange={(value: Moment | null) => onChange(moment(value).valueOf())}
           format={"YYYY-MM-DD HH:mm"}
         />
         {error && (

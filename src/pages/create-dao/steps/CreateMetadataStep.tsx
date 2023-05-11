@@ -1,10 +1,7 @@
-import { Fade, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { Button, FormikInputsForm } from "components";
-import { FormikProps, useFormik } from "formik";
-import {
-  useCreatDaoStore,
-  useCreateDaoMetadata,
-} from "../store";
+import { useFormik } from "formik";
+import { useCreatDaoStore } from "../store";
 import _ from "lodash";
 import { Submit } from "./Submit";
 import { useEffect } from "react";
@@ -12,18 +9,44 @@ import { useDebouncedCallback } from "hooks";
 import { validateFormik } from "utils";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useDaoMetadataInputs, useDaoMetadataSchema } from "forms/dao-form";
+import { useDaoMetadataSchema } from "forms/dao-form";
 import { useDaoMetadataForm } from "../form";
 import { DaoMetadataForm } from "types";
+import { useCreateMetadataQuery } from "query/setters";
+import { ZERO_ADDRESS } from "consts";
 
 export function CreateMetadataStep() {
-  const { mutate: createMetadata, isLoading } = useCreateDaoMetadata();
-  const { daoMetadataForm, setDaoMetadataForm, editMode } = useCreatDaoStore();
-  const translations = useCreateDaoTranslations()
-  const createMetadataForm = useDaoMetadataForm(editMode);
+  const { mutate: createMetadata, isLoading } = useCreateMetadataQuery();
+  const store = useCreatDaoStore();
+  const { daoMetadataForm } = store;
+  const translations = useCreateDaoTranslations();
+  const createMetadataForm = useDaoMetadataForm(store.editMode);
   const Schema = useDaoMetadataSchema();
-  const onSubmit = async (_formData: DaoMetadataForm) => {
-    createMetadata(_formData);
+
+  const onSubmit = async (formData: DaoMetadataForm) => {
+    const metadata: DaoMetadataForm = {
+      about: JSON.stringify({ en: formData.about_en }),
+      avatar: formData.avatar || "",
+      github: formData.github || "",
+      hide: formData.hide,
+      name: JSON.stringify({ en: formData.name_en }),
+      terms: "",
+      telegram: formData.telegram || "",
+      website: formData.website || "",
+      jetton: formData.jetton || ZERO_ADDRESS,
+      nft: formData.nft || ZERO_ADDRESS,
+      dns: formData.dns || "",
+    };
+
+    createMetadata({
+      metadata,
+      onSuccess: (address: string) => {
+        store.nextStep();
+        store.setDaoMetadataForm(formData);
+        store.setMetadataAddress(address);
+        window.scrollTo(0, 0);
+      },
+    });
   };
 
   const formik = useFormik<DaoMetadataForm>({
@@ -48,9 +71,8 @@ export function CreateMetadataStep() {
     onSubmit,
   });
 
-
   const saveForm = useDebouncedCallback(() => {
-    setDaoMetadataForm(formik.values);
+    store.setDaoMetadataForm(formik.values);
   });
 
   useEffect(() => {
@@ -71,7 +93,9 @@ export function CreateMetadataStep() {
             validateFormik(formik);
           }}
         >
-          {editMode ? translations.editDetails : translations.approveDetails}
+          {store.editMode
+            ? translations.editDetails
+            : translations.approveDetails}
         </Button>
       </Submit>
     </FormikInputsForm>
@@ -79,7 +103,7 @@ export function CreateMetadataStep() {
 }
 
 const EndAdornment = ({ onClick }: { onClick: () => void }) => {
-  const commonTranslations = useCommonTranslations()
+  const commonTranslations = useCommonTranslations();
   return (
     <StyledEndAdornment onClick={onClick}>
       <Typography>{commonTranslations.connectedWallet}</Typography>

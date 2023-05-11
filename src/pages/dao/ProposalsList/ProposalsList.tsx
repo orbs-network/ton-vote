@@ -9,7 +9,7 @@ import {
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { useDaoFromQueryParam, useDaoQuery } from "query/queries";
+import { useDaoFromQueryParam } from "query/getters";
 import { useState } from "react";
 import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";

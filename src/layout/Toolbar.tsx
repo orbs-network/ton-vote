@@ -5,7 +5,7 @@ import { useConnection } from "ConnectionProvider";
 import { TOOLBAR_WIDTH } from "consts";
 import { useMobile } from "hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
-import { useCreateNewRegistry, useDaosQuery } from "query/queries";
+import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router/navigation";
@@ -22,7 +22,6 @@ export function Toolbar() {
 
   return (
     <StyledToolbar>
- 
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
         <AppTooltip text={translations.createDao} placement="right">

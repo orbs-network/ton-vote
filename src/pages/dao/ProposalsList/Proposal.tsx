@@ -1,8 +1,7 @@
 import { styled, Typography } from "@mui/material";
-import { AddressDisplay, Status, AppTooltip, Container, OverflowWithTooltip } from "components";
+import { Status, AppTooltip } from "components";
 import { useAppQueryParams, useDaoAddressFromQueryParam } from "hooks";
 import _ from "lodash";
-import { useProposalQuery, useProposalStatusQuery } from "query/queries";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {
@@ -40,6 +39,7 @@ import { useTranslation } from "react-i18next";
 import BigNumber from "bignumber.js";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { useProposalQuery, useProposalStatusQuery } from "query/getters";
 
 const Time = ({
   proposalMetadata,
