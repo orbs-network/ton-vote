@@ -50,11 +50,11 @@ export function Navbar() {
 const StyledDev = styled(Chip)({
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 10,
-   ".MuiChip-label":{
-    padding:'0px 8px'
-   } 
-  }
-})
+    ".MuiChip-label": {
+      padding: "0px 8px",
+    },
+  },
+});
 
 const Wallet = () => {
   const { address, disconnect } = useConnection();
@@ -86,7 +86,6 @@ const Wallet = () => {
           <Typography style={{ flex: 1 }}>
             {makeElipsisAddress(address!, 5)}
           </Typography>
-          {/* <StyledSelectedWallet src={walletIcon} /> */}
         </StyledFlexRow>
       </StyledConnected>
 
@@ -179,9 +178,9 @@ const StyledWalletContainer = styled(Box)({
     ".button": {
       padding: "8px 10px",
       height: "unset",
-      p: {
-        fontSize: 12,
-      },
+    },
+    "*": {
+      fontSize: '12px!important',
     },
   },
 });
@@ -189,6 +188,11 @@ const StyledWalletContainer = styled(Box)({
 const StyledConnected = styled(Button)({
   "*": {
     fontSize: 14,
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    "*": {
+      fontSize: 12,
+    },
   },
 });
 
@@ -239,5 +243,4 @@ const StyledNav = styled(StyledGrid)({
   display: "flex",
   justifyContent: "space-between",
   flexDirection: "row",
-  
 });

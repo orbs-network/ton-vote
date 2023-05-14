@@ -85,33 +85,36 @@ const WalletList = () => {
     context.setSelectedWallet({ name: wallet.name, icon: wallet.imageUrl });
     const session = connect(wallet);
 
-    context.setSessionUrl(session);
+    if (isMobile) {
+      window.open(session, "_blank");
+    } else {
+      context.setSessionUrl(session);
+    }
   };
 
   if (!_.size(wallets)) {
     return (
       <StyledWalletsList>
-        <StyledFlexColumn gap={15} alignItems='flex-start'>
+        <StyledFlexColumn gap={15} alignItems="flex-start">
           <StyledSkeletonLoader height={30} />
           <StyledSkeletonLoader height={30} />
-
         </StyledFlexColumn>
       </StyledWalletsList>
     );
   }
-    return (
-      <StyledWalletsList>
-        {wallets?.map((wallet: any) => {
-          return (
-            <Wallet
-              key={wallet.name}
-              wallet={wallet}
-              onConnect={() => onConnect(wallet)}
-            />
-          );
-        })}
-      </StyledWalletsList>
-    );
+  return (
+    <StyledWalletsList>
+      {wallets?.map((wallet: any) => {
+        return (
+          <Wallet
+            key={wallet.name}
+            wallet={wallet}
+            onConnect={() => onConnect(wallet)}
+          />
+        );
+      })}
+    </StyledWalletsList>
+  );
 };
 
 const Wallet = ({
