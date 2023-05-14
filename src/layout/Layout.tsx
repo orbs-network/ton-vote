@@ -12,6 +12,7 @@ import { Toolbar } from "./Toolbar";
 import { ReactNode, Suspense } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
+import { MOBILE_WIDTH } from "consts";
 
 function Layout({children}:{children?: ReactNode}) {
   return (
@@ -43,6 +44,9 @@ function Layout({children}:{children?: ReactNode}) {
 const StyledContent = styled(StyledGrid)({
   paddingTop: 100,
   flex: 1,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    paddingTop: 80,
+  },
 });
 
 const StyledContainer = styled(StyledFlexColumn)({

@@ -1,5 +1,5 @@
 import { Header, LoadingContainer } from "components";
-import { useIsOwner } from "hooks";
+import { useIsOwner, useMobile } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoFromQueryParam } from "query/getters";
 import { StyledFlexColumn } from "styles";
@@ -12,10 +12,11 @@ export function DaoSettings() {
   const { isLoading, data } = useDaoFromQueryParam();
 
   const { isDaoOwner } = useIsOwner(data?.daoAddress);
+  const mobile = useMobile();
 
   return (
     <StyledFlexColumn>
-      <Header title={translations.settings} />
+      {!mobile && <Header title={translations.settings} />}
       {isLoading ? (
         <LoadingContainer loaderAmount={5} />
       ) : (

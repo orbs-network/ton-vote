@@ -109,50 +109,6 @@ const Wallet = () => {
   );
 };
 
-const SideMenu = () => {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  return (
-    <>
-      <StyledDotsButton onClick={handleClick}>
-        <HiOutlineDotsHorizontal />
-      </StyledDotsButton>
-      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <StyledMenuContent>
-          <LanuageSelect />
-          <StyledSocials>
-            <AppSocials />
-          </StyledSocials>
-        </StyledMenuContent>
-      </Menu>
-    </>
-  );
-};
-
-const StyledSocials = styled(Box)({
-  width: "100%",
-  borderTop: "1px solid #E0E0E0",
-  marginTop: 40,
-  paddingTop: 20,
-});
-
-const StyledMenuContent = styled(StyledFlexColumn)({
-  padding: "20px 0px 10px 0px",
-  minWidth: 200,
-  gap: 0,
-});
-
-const StyledDotsButton = styled(Button)({
-  width: "unset",
-  height: "unset",
-  borderRadius: "50%",
-  padding: 10,
-});
-
 const LanuageSelect = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { i18n } = useTranslation();
@@ -223,9 +179,9 @@ const StyledWalletContainer = styled(Box)({
     ".button": {
       padding: "8px 10px",
       height: "unset",
-    },
-    p: {
-      fontSize: 12,
+      p: {
+        fontSize: 12,
+      },
     },
   },
 });
@@ -274,11 +230,14 @@ const StyledContainer = styled(StyledFlexRow)({
   top: 0,
   zIndex: 20,
   borderBottom: "0.5px solid rgba(114, 138, 150, 0.24)",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    height: 60,
+  },
 });
 
 const StyledNav = styled(StyledGrid)({
   display: "flex",
   justifyContent: "space-between",
   flexDirection: "row",
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {},
+  
 });

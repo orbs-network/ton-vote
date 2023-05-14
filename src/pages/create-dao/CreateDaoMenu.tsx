@@ -6,6 +6,7 @@ import { BsCheckLg } from "react-icons/bs";
 import { useCreatDaoStore } from "./store";
 import { useSteps } from "./steps";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { MOBILE_WIDTH } from "consts";
 
 export function CreateDaoMenu() {
   const { step: currentStep, setStep, setEditMode } = useCreatDaoStore();
@@ -67,7 +68,6 @@ const StyledEdit = styled(Button)({
   },
 });
 
-export { SideMenu };
 
 const StyledStepsLine = styled("figure")(({ theme }) => ({
   width: 1,
@@ -78,6 +78,9 @@ const StyledStepsLine = styled("figure")(({ theme }) => ({
   background: theme.palette.primary.main,
   position: "absolute",
   margin: 0,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    left: 15,
+  },
 }));
 
 const StyledDot = styled(Box)(({ theme }) => ({
@@ -89,11 +92,15 @@ const StyledDot = styled(Box)(({ theme }) => ({
   left: "50%",
   top: "50%",
   transform: "translate(-50%, -50%)",
+  
 }));
 
 const StyledSteps = styled(StyledFlexColumn)({
   gap: 30,
   position: "relative",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]:{
+    gap:15
+  }
 });
 
 const StyledIndicator = styled(StyledFlexRow)(({ theme }) => ({
@@ -102,6 +109,10 @@ const StyledIndicator = styled(StyledFlexRow)(({ theme }) => ({
   height: 40,
   borderRadius: "50%",
   border: `2px solid ${theme.palette.primary.main}`,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    width: 30,
+    height: 30,
+  },
 }));
 
 const StyledStep = styled(StyledFlexRow)({

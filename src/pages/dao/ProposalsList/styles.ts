@@ -5,7 +5,6 @@ import {
   StyledContainer,
   StyledFlexColumn,
   StyledFlexRow,
-  StyledSkeletonLoader,
 } from "styles";
 
 export const StyledProposalResultProgress = styled("div")(({ theme }) => ({

@@ -77,7 +77,7 @@ export const StyledLogo = styled(Img)({
 
 
 export const StyledMobileNavigation = styled(Box)({
-  padding: "0px 0px 0px 0px",
+  padding: "0px 10px 0px 10px",
   width: "100%",
   marginTop: 20
 });

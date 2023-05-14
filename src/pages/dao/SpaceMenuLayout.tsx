@@ -32,4 +32,7 @@ const StyledContainer = styled(StyledFlexRow)({
 
 const StyledOutlet = styled(Box)({
   flex: 1,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    width: "100%",
+  },
 });

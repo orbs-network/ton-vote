@@ -181,7 +181,7 @@ const MobileNavigation = () => {
   return (
     <StyledMobileNavigation>
       <Tabs
-        centered
+      variant="scrollable"
         value={currentRoute}
         TabIndicatorProps={{
           style: {
@@ -258,7 +258,7 @@ const useNavigationLinks = () => {
       selected: route === routes.spaceSettings,
       owner: true,
       publisher: false,
-      route: routes.createProposal,
+      route: routes.spaceSettings,
     });
   }
 

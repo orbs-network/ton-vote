@@ -51,6 +51,7 @@ import { NumericFormat } from "react-number-format";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import moment, { Moment, utc } from "moment";
+import { useMobile } from "hooks";
 
 interface TextInputProps {
   value?: string | number;
@@ -574,6 +575,7 @@ export function FormikInputsForm<T>({
   children,
 }: FormikInputsFormProps<T>) {
   const _form = _.isArray(form) ? form : [form];
+  const mobile = useMobile();
 
   return (
     <StyledFlexColumn gap={15}>
@@ -607,7 +609,7 @@ export function FormikInputsForm<T>({
                       key={input.name}
                       className="form-input"
                       style={{
-                        width: it.inputsInRow
+                        width: mobile ? '100%' :  it.inputsInRow
                           ? `calc(${100 / it.inputsInRow}% - ${
                               it.inputsInRow * 7
                             }px)`

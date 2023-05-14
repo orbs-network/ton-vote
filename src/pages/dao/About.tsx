@@ -1,5 +1,6 @@
 import { Chip, styled } from "@mui/material";
 import { AddressDisplay, Header, Link, TitleContainer } from "components";
+import { useMobile } from "hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoFromQueryParam } from "query/getters";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -7,11 +8,13 @@ import { DaoDescription } from "./DaoDescription";
 
 export function DaoPageAbout() {
   const roles = useDaoFromQueryParam().data?.daoRoles;
-  const translations = useCommonTranslations()
+  const translations = useCommonTranslations();
+  const mobile = useMobile();
+
   return (
     <StyledFlexColumn gap={0} alignItems="flex-start">
-      <StyledHeader title="About" />
-      <StyledFlexColumn gap={30}>
+      {!mobile && <StyledHeader title="About" />}
+      <StyledFlexColumn gap={mobile ? 10 : 30}>
         <DaoDescription />
         <StyledTitleContainer
           title={translations.administrators}
@@ -41,7 +44,7 @@ export function DaoPageAbout() {
 }
 
 const StyledHeader = styled(Header)({
-  marginBottom: 38
+  marginBottom: 38,
 });
 
 const StyledAddressDisplay = styled(AddressDisplay)({
