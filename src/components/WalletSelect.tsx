@@ -86,7 +86,7 @@ const WalletList = () => {
     const session = connect(wallet);
 
     if (isMobile) {
-      window.open(session, "_blank");
+      (window as any).location = session;
     } else {
       context.setSessionUrl(session);
     }

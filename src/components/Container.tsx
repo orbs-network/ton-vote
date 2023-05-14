@@ -1,5 +1,6 @@
 import { Box, styled } from "@mui/material";
 import React, { ReactNode } from "react";
+import { isMobile } from "react-device-detect";
 import {
   StyledContainer, StyledHoverContainer,
 } from "styles";
@@ -19,7 +20,7 @@ export const Container = React.forwardRef(
     },
     ref: any
   ) => {
-    return hover ? (
+    return !isMobile &&  hover ? (
       <StyledHoverContainer
         onClick={onClick}
         className={className}
