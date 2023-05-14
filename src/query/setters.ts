@@ -248,10 +248,7 @@ export const useCreateDaoQuery = () => {
         error: "Failed to create Dao",
         isSuccess: (address) => validateAddress(address),
       });
-      const res = await promise;
-      console.log(res);
-      
-      return res
+      return promise;
     },
     {
       onSuccess: (address, args) => {        
