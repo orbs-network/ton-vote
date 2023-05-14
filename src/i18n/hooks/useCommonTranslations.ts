@@ -32,5 +32,9 @@ export const useCommonTranslations = () => {
     close: t("close"),
     connectWallet: t("connectWallet"),
     next: t("next"),
+    transactionRejected: t("transactionRejected"),
+    somethingWentWrong: t("somethingWentWrong"),
+    txPending: t("txPending"),
+    checkWalletForTx: t("checkWalletForTx"),
   };
 };

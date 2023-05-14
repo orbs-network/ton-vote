@@ -112,6 +112,7 @@ export interface InputArgs<T> {
   prefix?: string;
   suffix?: string;
   EndAdornment?: FormikInputEndAdorment<T>;
+
 }
 
 export type FormikInputEndAdorment<T> = FunctionComponent<{
@@ -161,3 +162,4 @@ export interface DaoRolesForm {
   ownerAddress: string;
   proposalOwner: string;
 }
+

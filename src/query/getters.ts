@@ -1,8 +1,9 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { releaseMode, QueryKeys } from "config";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { releaseMode, QueryKeys, STATE_REFETCH_INTERVAL } from "config";
 import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
 import _ from "lodash";
 import {
+  filterTxByTimestamp,
   getClientV2,
   getClientV4,
   getCreateDaoFee,
@@ -11,15 +12,18 @@ import {
   getDaoProposals,
   getDaoRoles,
   getProposalMetadata,
+  getRegistry,
   getRegistryAdmin,
   getRegistryId,
   getSingleVoterPower,
+  getTransactions,
   ProposalMetadata,
 } from "ton-vote-contracts-sdk";
 import {
   getProposalStatus,
   getVoteStrategyType,
   isDaoWhitelisted,
+  isProposalWhitelisted,
   Logger,
   nFormatter,
   validateServerUpdateTime,
@@ -28,9 +32,11 @@ import { OLD_DAO, proposals } from "data/foundation/data";
 import { useNewDataStore, useSyncStore } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
-import { useDaoAddressFromQueryParam } from "hooks";
-import { fromNano } from "ton-core";
+import { useDaoAddressFromQueryParam, useProposalAddress } from "hooks";
+import { fromNano, Transaction } from "ton-core";
 import { useConnection } from "ConnectionProvider";
+import { useProposalPersistedStore } from "pages/proposal/store";
+import { GetProposalArgs } from "./types";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -185,39 +191,6 @@ export const useDaoFromQueryParam = (
   return useDaoQuery(address, refetchInterval, staleTime);
 };
 
-export const useProposalQuery = (proposalAddress?: string) => {
-  return useQuery<Proposal>(
-    [QueryKeys.PROPOSAL, proposalAddress],
-    async ({ signal }) => {
-      try {
-        const p = proposals[proposalAddress!];
-        const proposal = p || (await api.getProposal(proposalAddress!, signal));
-        if (_.isEmpty(proposal.metadata)) {
-          throw new Error("Proposal not found in server");
-        }
-        return proposal;
-      } catch (error) {
-        Logger("Proposal not found is server, fetching from contract");
-        const clientV2 = await getClientV2();
-        const clientV4 = await getClientV4();
-        return {
-          votes: [],
-          proposalResult: {} as ProposalResults,
-          metadata: await getProposalMetadata(
-            clientV2,
-            clientV4,
-            proposalAddress!
-          ),
-        };
-      }
-    },
-    {
-      enabled: !!proposalAddress,
-      staleTime: 30_000,
-    }
-  );
-};
-
 export const useProposalStatusQuery = (
   proposalMetadata?: ProposalMetadata,
   proposalAddress?: string
@@ -342,6 +315,113 @@ export const useConnectedWalletVotingPowerQuery = (
         !!proposal &&
         !!clients?.clientV4 &&
         !!proposalAddress,
+    }
+  );
+};
+
+export const useGetRegistryAddressQuery = () => {
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.REGISTRY_ADDRESS],
+    () => {
+      return getRegistry(clients!.clientV2, releaseMode);
+    },
+    {
+      enabled: !!clients?.clientV2,
+    }
+  );
+};
+
+export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
+  const address = useProposalAddress();
+  return useProposalQuery(address, {
+    refetchInterval: 30_000,
+    isCustomEndpoint,
+    validateMaxLt: true,
+    validateResults: true,
+  });
+};
+
+export const useProposalQuery = (
+  proposalAddress?: string,
+  args?: GetProposalArgs
+) => {
+  const isWhitelisted = isProposalWhitelisted(proposalAddress);
+  const clients = useGetClients().data;
+  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
+    useProposalPersistedStore();
+
+  const queryKey = [QueryKeys.PROPOSAL, proposalAddress];
+
+  return useQuery(
+    queryKey,
+    async ({ signal }) => {
+      const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress!);
+
+      const hardcodedProposal = proposals[proposalAddress!];
+      if (hardcodedProposal) {
+        return hardcodedProposal;
+      }
+      if (!isWhitelisted) {
+        throw new Error("Proposal not whitelisted");
+      }
+
+      const getContractState = async () => {
+        let transactions: Transaction[] = [];
+        if (latestMaxLtAfterTx) {
+          const result = await getTransactions(
+            clients!.clientV2,
+            proposalAddress!
+          );
+          transactions = filterTxByTimestamp(
+            result.allTxns,
+            latestMaxLtAfterTx
+          );
+        }
+
+        return lib.getProposalFromContract(
+          clients!.clientV2,
+          clients!.clientV4,
+          proposalAddress!,
+          undefined,
+          transactions
+        );
+      };
+
+
+      if (args?.isCustomEndpoint) {
+        Logger("isCustomEndpoint selected");
+        return getContractState();
+      }
+
+      if (args?.validateMaxLt && latestMaxLtAfterTx) {
+        const serverMaxLt = await api.getMaxLt(proposalAddress!, signal);
+
+        if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
+          Logger(
+            `server latestMaxLtAfterTx is outdated, fetching from contract, latestMaxLtAfterTx: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
+          );
+          return getContractState();
+        }
+      }
+      setLatestMaxLtAfterTx(proposalAddress!, undefined);
+      const proposal = await api.getProposal(proposalAddress!, signal);
+      if (_.isEmpty(proposal.metadata)) {
+        Logger("Proposal not found is server, fetching from contract");
+
+        return getContractState();
+      }
+      if (args?.validateResults && _.isEmpty(proposal.proposalResult)) {
+        Logger("Proposal result is not synced, fetching from contract");
+        return getContractState();
+      }
+      return proposal;
+    },
+    {
+      enabled: !!proposalAddress && !!clients?.clientV2 && !!clients.clientV4,
+      staleTime: args?.staleTime !== undefined ?  args?.staleTime : 10_000,
+      retry: isWhitelisted ? 3 : false,
+      refetchInterval: args?.refetchInterval,
     }
   );
 };

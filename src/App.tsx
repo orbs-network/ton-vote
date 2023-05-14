@@ -1,13 +1,12 @@
 import { APP_NAME } from 'config';
-import { useAppQueryParams } from 'hooks';
-import moment from 'moment';
+
 import { Suspense } from 'react';
 import { Helmet } from 'react-helmet';
 import { RouterProvider } from 'react-router-dom';
 import { router } from 'router/router';
 
-
 function App() {  
+
   return (
     <Suspense>
       <Helmet>

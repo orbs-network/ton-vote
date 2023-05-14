@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
 import { useEffect, useRef, useState } from "react";
-import { useProposalFromQueryParam } from "./query";
 import {
   LoadingContainer,
   Markdown,
@@ -23,12 +22,12 @@ import { makeElipsisAddress, parseLanguage } from "utils";
 import { useProposalPageStatus } from "./hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoFromQueryParam, useProposalPageQuery } from "query/getters";
 
 const MIN_DESCRIPTION_HEIGHT = 200;
 
 export const ProposalAbout = () => {
-  const { isLoading } = useProposalFromQueryParam(false);
+  const { isLoading } = useProposalPageQuery(false);
   const mobile = useMobile();
 
   if (isLoading) {
@@ -77,7 +76,7 @@ function MobileAbout() {
 }
 
 const ProposalHeader = () => {
-  const data = useProposalFromQueryParam(false).data;
+  const data = useProposalPageQuery(false).data;
 
   return <StyledHeader title={parseLanguage(data?.metadata?.title)} />;
 };
@@ -108,7 +107,7 @@ const ShowMoreButton = ({
 const Description = () => {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const elRef = useRef<any>();
-  const { data, isLoading } = useProposalFromQueryParam(false);
+  const { data, isLoading } = useProposalPageQuery(false);
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {

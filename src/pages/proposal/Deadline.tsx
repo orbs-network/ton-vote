@@ -1,11 +1,11 @@
 import { Countdown, LoadingContainer, TitleContainer } from "components";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import moment from "moment";
+import { useProposalPageQuery } from "query/getters";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ProposalStatus } from "types";
 import { useProposalPageStatus } from "./hooks";
-import { useProposalFromQueryParam } from "./query";
 
 const handleDate = (endDate?: number) => {
   if (!endDate) return 0;
@@ -14,7 +14,7 @@ const handleDate = (endDate?: number) => {
 };
 
 export function Deadline() {
-  const { data } = useProposalFromQueryParam();
+  const { data } = useProposalPageQuery();
   
   const proposalStatus = useProposalPageStatus();
   const translations = useProposalPageTranslations()

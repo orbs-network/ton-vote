@@ -75,7 +75,7 @@ export const StyledDao = styled(Box)(({ theme }) => ({
       },
     },
   },
-  "@media (max-width: 350px)": {
+  "@media (max-width: 420px)": {
     width: "100%",
   },
 }));

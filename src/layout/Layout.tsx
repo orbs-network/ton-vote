@@ -34,7 +34,7 @@ function Layout({children}:{children?: ReactNode}) {
         </StyledContainer>
       </Fade>
       <ScrollTop />
-      <Toaster />
+      <Toaster  />
       <TxReminderPopup />
     </QueryParamProvider>
   );

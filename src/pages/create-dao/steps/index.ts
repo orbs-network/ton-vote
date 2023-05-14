@@ -22,7 +22,7 @@ export const useSteps = () => {
       component: SetRolesStep,
     },
     {
-      title: translations.createStage,
+      title: translations.createSpace,
       component: CreateDaoStep,
     },
   ];

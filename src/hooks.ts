@@ -15,7 +15,7 @@ import {
   storeStateInit,
 } from "ton-core";
 import { useConnection } from "ConnectionProvider";
-import {  releaseMode, TON_CONNECTOR } from "config";
+import { releaseMode, TON_CONNECTOR } from "config";
 import { showSuccessToast } from "toasts";
 import { ProposalStatus } from "types";
 import { StringParam, useQueryParam, useQueryParams } from "use-query-params";
@@ -184,7 +184,7 @@ export const useProposalStatusText = (status?: ProposalStatus | null) => {
 enum Params {
   PROPOSAL_STATE = "proposal-state",
   SEARCH = "search",
-  DEV = 'dev'
+  DEV = "dev",
 }
 
 export const useAppQueryParams = () => {
@@ -218,11 +218,13 @@ export const useMobile = () => {
 };
 
 export const useParseError = () => {
-  return (error: string) => {
+  const translations = useCommonTranslations();
+  return (error?: string) => {
+    if (!error) return translations.somethingWentWrong;
     if (error.includes("UserRejectsError")) {
-      return "User rejected the transaction";
+      return translations.transactionRejected;
     }
-    return error;
+    return error
   };
 };
 

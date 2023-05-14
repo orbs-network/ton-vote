@@ -250,9 +250,11 @@ export function UploadInput({
 
 const Title = ({ title, required }: { title: string; required?: boolean }) => {
   return (
-    <StyledTitle>
+    <StyledTitle className="input-title">
       {title}
-      {required ? " (required)" : " (optional)"}
+      <small className="input-title-required" style={{ fontSize: 14 }}>
+        {required ? " (required)" : " (optional)"}
+      </small>
     </StyledTitle>
   );
 };

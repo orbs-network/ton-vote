@@ -11,16 +11,16 @@ import { APP_NAME } from "config";
 import { appNavigation } from "router/navigation";
 import { useDaoAddressFromQueryParam } from "hooks";
 import { ProposalStatus } from "types";
-import { useProposalFromQueryParam } from "./query";
 import { ProposalAbout } from "./ProposalAbout";
 import { useProposalPageStatus } from "./hooks";
 import { parseLanguage } from "utils";
 import { useEffect, useState } from "react";
+import { useProposalPageQuery } from "query/getters";
 
 const gap = 15
 
 const useComponents = () => {
-  const isLoading = useProposalFromQueryParam().isLoading;
+  const isLoading = useProposalPageQuery().isLoading;
 
   const status = useProposalPageStatus();
 
@@ -75,7 +75,7 @@ const Mobile = () => {
 };
 
 const Meta = () => {
-  const title = useProposalFromQueryParam(false).data?.metadata?.title;
+  const title = useProposalPageQuery().data?.metadata?.title;
 
   return (
     <Helmet>
@@ -91,7 +91,7 @@ export function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
   const daoAddress = useDaoAddressFromQueryParam();
   const [showError, setShowError] = useState(false)
-  const error = useProposalFromQueryParam().error;
+  const error = useProposalPageQuery().error;
 
   useEffect(() => {
     if(error) {

@@ -2,16 +2,6 @@ import { Endpoints } from "types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface ProposalStore {
-  txLoading: boolean;
-  setTxLoading: (value: boolean) => void;
-}
-
-export const useProposalStore = create<ProposalStore>((set, get) => ({
-  txLoading: false,
-  setTxLoading: (txLoading) => set({ txLoading }),
-}));
-
 interface ProposalPersistedStore {
   serverUpdateTime?: number;
   setSrverUpdateTime: (value: number) => void;

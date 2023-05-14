@@ -53,7 +53,6 @@ export enum QueryKeys {
   PROPOSALS = "PROPOSALS",
   DAO_ROLES = "DAO_ROLES",
   PROPOSAL = "PROPOSAL",
-  PROPOSAL_PAGE = "PROPOSAL_PAGE",
   DAO = "DAO",
   SIGNLE_VOTING_POWER = "SIGNLE_VOTING_POWER",
   CLIENTS = "CLIENTS",
@@ -61,6 +60,7 @@ export enum QueryKeys {
   CREATE_DAO_FEE = "CREATE_DAO_FEE",
   REGISTRY_ADMIN = "REGISTRY_ADMIN",
   REGISTRY_ID = "REGISTRY_ID",
+  REGISTRY_ADDRESS = "REGISTRY_ADDRESS",
 }
 
 export const FETCH_PROPOSALS_INTERVAL = 30_000;
@@ -85,7 +85,7 @@ export const releaseMode = import.meta.env.VITE_STAGING
 export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
 
 export const TX_FEES = {
-  CREATE_DAO: IS_DEV ? 0.0085 : 0,
+  CREATE_DAO: IS_DEV ? 0.085 : 0,
   CREATE_METADATA: IS_DEV ? 0.05 : 0,
   FORWARD_MSG: IS_DEV ? 0.5 : 0,
   SET_METADATA: IS_DEV ? 0.05 : 0,

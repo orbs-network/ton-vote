@@ -1,44 +1,67 @@
 import { IconButton, styled } from "@mui/material";
+import { useParseError } from "hooks";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
-import toast from "react-hot-toast";
+import toast, { ToastPosition } from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import { StyledFlexRow } from "styles";
-export function showPromiseToast<T>(args: {
-  promise: Promise<T>;
-  loading?: string;
-  success: string;
-  error?: string;
-}) {
-  toast.dismiss();
-
-  toast.promise(
-    args.promise,
-    {
-      loading: args.loading || "Transaction pending",
-      success: () => (
-        <ToastContent message={args.success} customClick={toast.dismiss} />
-      ),
-      error: (err) => {
-        const error = args.error || getErrorText(err);
-
-        return <ToastContent customClick={toast.dismiss} message={error} />;
-      },
-    },
-    {
-      success: {
-        duration: 10000,
-      },
-      error: {
-        duration: 10000,
-      },
-      position: "top-center",
+import { SlWallet } from "react-icons/sl";
+import { TON_CONNECTOR } from "config";
+export function usePromiseToast<T>() {
+  const parseError = useParseError();
+  const translations = useCommonTranslations();
+  return (args: {
+    promise: Promise<T>;
+    loading?: string;
+    success?: string;
+    error?: string;
+    isSuccess?: (value: any) => boolean;
+  }) => {
+    let infoToast = "";
+    if (TON_CONNECTOR.wallet?.provider !== 'injected') {
+      infoToast = showToast(translations.checkWalletForTx);
     }
-  );
+    toast.promise(
+      args.promise,
+      {
+        loading: args.loading || translations.txPending,
+        success: (value) => {
+          infoToast && toast.dismiss(infoToast);
+          const show = args.isSuccess ? args.isSuccess(value) : true;
+          if (show && args.success && value) {
+            return (
+              <ToastContent
+                message={args.success}
+                customClick={toast.dismiss}
+              />
+            );
+          }
+          return null;
+        },
+        error: (err: any) => {          
+          infoToast && toast.dismiss(infoToast);
+          const parsedError = parseError(
+            err instanceof Error ? err.message : err
+          );
+
+          return (
+            <ToastContent customClick={toast.dismiss} message={parsedError} />
+          );
+        },
+      },
+      {
+        success: {
+          duration: 5000,
+        },
+        error: {
+          duration: 5000,
+        },
+        position: "top-center",
+      }
+    );
+  };
 }
 
-export const toastTxMessage = (message?: string) => {
-  return `${message || "Transaction submitted"} \n Please check wallet`;
-};
 
 export const showErrorToast = (message: string) => {
   toast.dismiss();
@@ -54,9 +77,18 @@ export const showSuccessToast = (message: string) => {
   });
 };
 
-export const showToast = (message: string) => {
-  toast.error((t) => <ToastContent message={message} id={t.id} />, {
-    duration: 5000,
+interface ToastConfig {
+  duration?: number;
+  position: ToastPosition;
+}
+
+export const showToast = (message: string, config?: ToastConfig) => {
+  return toast((t) => <ToastContent message={message} id={t.id} />, {
+    duration: config?.duration || Infinity,
+    position: config?.position || "top-center",
+    icon: <SlWallet />,
+    className: 'info-toast',
+  
   });
 };
 
@@ -85,17 +117,7 @@ const ToastContent = ({
 };
 
 const StyledIconButton = styled(IconButton)({
-  padding: 5
+  padding: 5,
 });
 
 const StyledPromiseContainer = styled(StyledFlexRow)({});
-
-const getErrorText = (error: any) => {
-  const { message } = error;
-
-  if (message.indexOf("UserRejectsError") > -1) {
-    return "User rejected the transaction";
-  }
-
-  return "Something went wrong";
-};

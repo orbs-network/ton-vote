@@ -4,7 +4,6 @@ import { useProposalAddress, useGetSender } from "hooks";
 import _ from "lodash";
 import { useTxReminderPopup } from "store";
 import { Logger } from "utils";
-import { useProposalFromQueryParam } from "./query";
 import { useEnpointsStore, useProposalPersistedStore } from "./store";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import {
@@ -13,14 +12,14 @@ import {
   getClientV4,
   getTransactions,
 } from "ton-vote-contracts-sdk";
-import { showPromiseToast } from "toasts";
 import { Endpoints, ProposalResults } from "types";
 import { lib } from "lib/lib";
 import { fromNano, Transaction } from "ton-core";
 import { useTranslation } from "react-i18next";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { TX_FEES } from "config";
-import { useProposalStatusQuery } from "query/getters";
+import { useProposalPageQuery, useProposalStatusQuery } from "query/getters";
+import { usePromiseToast } from "toasts";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -39,9 +38,11 @@ const handleNulls = (result?: ProposalResults) => {
 
 export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
-  const { data } = useProposalFromQueryParam(false);
+  const { data } = useProposalPageQuery(false);
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations()
+
+  const promiseToast = usePromiseToast();
 
   return useMutation(async (customEndpoints: Endpoints) => {
     analytics.GA.verifyButtonClick();
@@ -85,7 +86,7 @@ export const useVerifyProposalResults = () => {
 
     const promise = promiseFn();
 
-    showPromiseToast({
+    promiseToast({
       promise,
       success: translations.resultsVerified,
       loading: translations.verifyingResults,
@@ -101,10 +102,12 @@ export const useVerifyProposalResults = () => {
 
 export const useVote = () => {
   const getSender = useGetSender();
-  const { refetch } = useProposalFromQueryParam(true);
+  const { refetch } = useProposalPageQuery(true);
   const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
   const proposalAddress = useProposalAddress();
   const toggleTxReminder = useTxReminderPopup().setOpen;
+    const promiseToast = usePromiseToast();
+
   return useMutation(
     async (vote: string) => {
       const sender = getSender();
@@ -126,7 +129,7 @@ export const useVote = () => {
 
       const promise = voteFn();
 
-      showPromiseToast({
+      promiseToast({
         promise,
         success: "Vote sent",
       });
@@ -141,7 +144,7 @@ export const useVote = () => {
 };
 
 export const useProposalPageStatus = () => {
-  const { data } = useProposalFromQueryParam();
+  const { data } = useProposalPageQuery();
   const proposalAddress = useProposalAddress();
   return useProposalStatusQuery(data?.metadata, proposalAddress);
 };

@@ -23,11 +23,12 @@ import _ from "lodash";
 import LogoImg from "assets/logo.png";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { ReleaseMode } from "ton-vote-contracts-sdk";
+import { MOBILE_WIDTH } from "consts";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
-  const devFeatures = useDevFeatures()
+  const devFeatures = useDevFeatures();
   return (
     <StyledContainer>
       <StyledNav>
@@ -36,7 +37,7 @@ export function Navbar() {
           <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
-          {devFeatures && <Chip label="Dev mode" />}
+          {devFeatures && <StyledDev label="Dev mode" />}
           <Wallet />
 
           {!mobile && <Github />}
@@ -46,10 +47,19 @@ export function Navbar() {
   );
 }
 
+const StyledDev = styled(Chip)({
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 10,
+   ".MuiChip-label":{
+    padding:'0px 8px'
+   } 
+  }
+})
+
 const Wallet = () => {
   const { address, disconnect } = useConnection();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
- const translations = useCommonTranslations()
+  const translations = useCommonTranslations();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -207,6 +217,17 @@ const StyledWalletContainer = styled(Box)({
   ".button": {
     width: "100%",
   },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    width: 120,
+
+    ".button": {
+      padding: "8px 10px",
+      height: "unset",
+    },
+    p: {
+      fontSize: 12,
+    },
+  },
 });
 
 const StyledConnected = styled(Button)({
@@ -234,6 +255,14 @@ const StyledLogo = styled("button")(({ theme }) => ({
   img: {
     height: 40,
   },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    p: {
+      fontSize: 16,
+    },
+    img: {
+      height: 30,
+    },
+  },
 }));
 
 const StyledContainer = styled(StyledFlexRow)({
@@ -251,4 +280,5 @@ const StyledNav = styled(StyledGrid)({
   display: "flex",
   justifyContent: "space-between",
   flexDirection: "row",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {},
 });

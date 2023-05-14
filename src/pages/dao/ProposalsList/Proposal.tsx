@@ -78,7 +78,7 @@ const Time = ({
 
 const useHideProposal = (
   proposalAddress: string,
-  proposal?: Proposal,
+  proposal?: Proposal | null,
   status?: ProposalStatus | null
 ) => {
   const { query } = useAppQueryParams();

@@ -19,3 +19,16 @@ export interface UpdateMetadataArgs {
   metadata: DaoMetadataForm;
   daoAddress: string;
 }
+
+
+export interface ReactQueryConfig {
+  refetchInterval?: number;
+}
+
+export interface GetProposalArgs extends ReactQueryConfig {
+  validateUpdateTime?: boolean;
+  isCustomEndpoint?: boolean;
+  validateMaxLt?: boolean;
+  validateResults?: boolean;
+  staleTime?: number;
+}

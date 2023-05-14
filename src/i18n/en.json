@@ -133,7 +133,11 @@
     "help": "Help",
     "close": "Close",
     "connectWallet": "Connect Wallet",
-    "next": "Next"
+    "next": "Next",
+    "transactionRejected":"User rejected the transaction",
+    "somethingWentWrong":"Something went wrong",
+    "txPending":"Transaction pending",
+    "checkWalletForTx":"Check wallet for transaction"
   },
   "createProposal": {
     "votingParameters": "Voting Parameters",

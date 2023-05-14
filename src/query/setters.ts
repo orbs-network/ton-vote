@@ -5,25 +5,21 @@ import {
   daoSetOwner,
   daoSetProposalOwner,
   getClientV2,
-  MetadataArgs,
   metdataExists,
   newDao,
   newMetdata,
   newProposal,
   newRegistry,
   ProposalMetadata,
+  ReleaseMode,
   setCreateDaoFee,
   setFwdMsgFee,
   setMetadata,
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
-import {
-  useDaoAddressFromQueryParam,
-  useGetSender,
-  useParseError,
-} from "hooks";
+import { useDaoAddressFromQueryParam, useGetSender } from "hooks";
 import { useConnection } from "ConnectionProvider";
-import { showErrorToast, showPromiseToast } from "toasts";
+import { showErrorToast, usePromiseToast } from "toasts";
 import {
   useDaoFromQueryParam,
   useDaosQuery,
@@ -31,19 +27,25 @@ import {
   useGetDaoFwdMsgFeeQuery,
   useGetRegistryAdminQuery,
 } from "./getters";
-import { useSyncStore, useTxReminderPopup } from "store";
-import { getTxFee, isOwner, Logger, validateAddress } from "utils";
+import { useSyncStore } from "store";
+import { getTxFee, isOwner, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
-
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
   const address = useConnection().address;
-  const handleError = useError();
+  const promiseToast = usePromiseToast();
+  const registryAdmin = useGetRegistryAdminQuery().data;
 
-  return useMutation(
-    async () => {
+  return useMutation(async (releaseMode: number) => {
+    const getPromise = async () => {
+      if (!Object.keys(ReleaseMode).includes(releaseMode.toString())) {
+        throw new Error("Invalid release mode");
+      }
+      if (!registryAdmin || address !== registryAdmin) {
+        throw new Error("You are not the registry admin");
+      }
       const clientV2 = await getClientV2();
       const sender = getSender();
       return newRegistry(
@@ -53,43 +55,47 @@ export const useCreateNewRegistry = () => {
         TX_FEES.BASE.toString(),
         address!
       );
-    },
-    {
-      onError: (error) => handleError(error),
-    }
-  );
+    };
+
+    const promise = getPromise();
+
+    promiseToast({
+      promise,
+      loading: "Creating new registry...",
+      success: "New registry created",
+    });
+  });
 };
 
 export const useSetCreateDaoFee = () => {
   const getSender = useGetSender();
-  const handleError = useError();
-
+  const promiseToast = usePromiseToast();
   const connectedAddress = useConnection().address;
   const registryAdmin = useGetRegistryAdminQuery().data;
-  return useMutation(
-    async ({
-      value,
-    }: {
-      value: number;
-      onError: (value: string) => void;
-      onSuccess: () => void;
-    }) => {
-      if (connectedAddress !== registryAdmin) {
-        throw new Error("You are not the registry admin");
-      }
-      if (!value) {
-        throw new Error("Create Dao fee is required");
-      }
-      const client = await getClientV2();
-      const promise = setCreateDaoFee(
-        getSender(),
-        client,
-        releaseMode,
-        TX_FEES.BASE.toString(),
-        value.toString()
-      );
+  const refetch = useGetCreateDaoFeeQuery().refetch;
 
-      showPromiseToast({
+  return useMutation(
+    async ({ value }: { value: number; onError: (value: string) => void }) => {
+      const getPromise = async () => {
+        if (connectedAddress !== registryAdmin) {
+          throw new Error("You are not the registry admin");
+        }
+        if (!_.isNumber(value) || value < 0) {
+          throw new Error("Fee must be zero or positive");
+        }
+        const client = await getClientV2();
+        return setCreateDaoFee(
+          getSender(),
+          client,
+          releaseMode,
+          TX_FEES.BASE.toString(),
+          value.toString()
+        );
+      };
+
+      const promise = getPromise();
+
+      promiseToast({
         promise,
         loading: "Setting create DAO fee...",
         success: "Create DAO fee set",
@@ -99,10 +105,8 @@ export const useSetCreateDaoFee = () => {
       return promise;
     },
     {
-      onSuccess: (_, args) => args.onSuccess(),
-      onError: (error, args) => {
-        handleError(error, args.onError);
-      },
+      onSuccess: () => refetch(),
+      onError: (error: Error, args) => args.onError(error.message),
     }
   );
 };
@@ -110,7 +114,7 @@ export const useSetCreateDaoFee = () => {
 export const useSetDaoFwdMsgFee = () => {
   const registryAdmin = useGetRegistryAdminQuery().data;
   const connectedAddress = useConnection().address;
-  const handleError = useError();
+  const promiseToast = usePromiseToast();
 
   const getSender = useGetSender();
   return useMutation(
@@ -121,29 +125,33 @@ export const useSetDaoFwdMsgFee = () => {
       daoIds: number[];
       amount?: number;
       onError: (error: string) => void;
-      onSuccess: () => void;
+      onSuccess?: () => void;
     }) => {
-      if (registryAdmin !== connectedAddress) {
-        throw new Error("You are not the registry admin");
-      }
+      const getPromise = async () => {
+        if (registryAdmin !== connectedAddress) {
+          throw new Error("You are not the registry admin");
+        }
 
-      if (!_.isNumber(amount)) {
-        throw new Error("Forward Message Fee is required");
-      }
-      if (amount < 0) {
-        throw new Error("Forward Message Fee must be at least 0");
-      }
-      const client = await getClientV2();
-      const promise = setFwdMsgFee(
-        getSender(),
-        client,
-        releaseMode,
-        TX_FEES.BASE.toString(),
-        daoIds.map((it) => it.toString()),
-        amount.toString()
-      );
+        if (!_.isNumber(amount)) {
+          throw new Error("Forward Message Fee is required");
+        }
+        if (amount < 0) {
+          throw new Error("Forward Message Fee must be at least 0");
+        }
+        const client = await getClientV2();
+        return setFwdMsgFee(
+          getSender(),
+          client,
+          releaseMode,
+          TX_FEES.BASE.toString(),
+          daoIds.map((it) => it.toString()),
+          amount.toString()
+        );
+      };
 
-      showPromiseToast({
+      const promise = getPromise();
+
+      promiseToast({
         promise,
         loading: "Setting create Proposal fee...",
         success: "Create Proposal fee set",
@@ -153,41 +161,62 @@ export const useSetDaoFwdMsgFee = () => {
       return promise;
     },
     {
-      onSuccess: (_, args) => args.onSuccess(),
-      onError: (error, args) => {
-        handleError(error, args.onError);
-      },
+      onError: (error: Error, args) => args.onError(error.message),
+      onSuccess: (_, args) => args.onSuccess?.(),
     }
   );
 };
 
 export const useSetRegistryAdmin = () => {
   const getSender = useGetSender();
-  const handleError = useError();
+  const promiseToast = usePromiseToast();
+  const { refetch, data: admin } = useGetRegistryAdminQuery();
+  const connectedAddress = useConnection().address;
 
   return useMutation(
     async ({
-      value,
+      newRegistryAdmin,
     }: {
-      value?: string;
-      onError: (value: string) => void;
-      onSuccess: () => void;
+      newRegistryAdmin?: string;
+      onError: (newRegistryAdmin: string) => void;
     }) => {
-      const client = await getClientV2();
-      if (!value) {
-        throw new Error("Registry admin is required");
-      }
-      return setRegistryAdmin(
-        getSender(),
-        client,
-        releaseMode,
-        TX_FEES.BASE.toString(),
-        value
-      );
+      const getPromise = async () => {
+        if (connectedAddress !== admin) {
+          throw new Error("You are not the registry admin");
+        }
+        if (!newRegistryAdmin) {
+          throw new Error("Registry admin is required");
+        }
+        if (!validateAddress(newRegistryAdmin)) {
+          throw new Error("Invalid register admin address");
+        }
+        const client = await getClientV2();
+
+        return setRegistryAdmin(
+          getSender(),
+          client,
+          releaseMode,
+          TX_FEES.BASE.toString(),
+          newRegistryAdmin
+        );
+      };
+
+      const promise = getPromise();
+
+      promiseToast({
+        promise,
+        loading: "Setting registry admin...",
+        success: "Registry admin set",
+        error: "Failed to set registry admin",
+      });
+
+      return promise;
     },
     {
-      onSuccess: (_, args) => args.onSuccess(),
-      onError: (error, args) => handleError(error, args.onError),
+      onSuccess: (_, args) => {
+        refetch();
+      },
+      onError: (error: Error, args) => args.onError(error.message),
     }
   );
 };
@@ -195,9 +224,7 @@ export const useSetRegistryAdmin = () => {
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
   const createDaoFee = useGetCreateDaoFeeQuery().data;
-  const handleError = useError();
-
-  const toggleTxReminder = useTxReminderPopup().setOpen;
+  const promiseToast = usePromiseToast();  
 
   return useMutation(
     async (args: CreateDaoArgs) => {
@@ -214,65 +241,71 @@ export const useCreateDaoQuery = () => {
         args.proposalOwner
       );
 
-      showPromiseToast({
+      promiseToast({
         promise,
         loading: "Transaction pending",
         success: "Dao created!",
+        error: "Failed to create Dao",
+        isSuccess: (address) => validateAddress(address),
       });
-      toggleTxReminder(true);
-      const address = await promise;
-
-      if (typeof address === "string") {
-        args.onSuccess(address);
-      } else {
-        throw new Error("Something went wrong");
-      }
+      const res = await promise;
+      console.log(res);
+      
+      return res
     },
     {
-      onSettled: () => toggleTxReminder(false),
-      onError: (error) => handleError(error),
+      onSuccess: (address, args) => {        
+        if (typeof address === "string") {
+          args.onSuccess(address);
+        } else {
+          showErrorToast("Failed to create Dao");
+        }
+      },
     }
   );
 };
 
 export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
-  const toggleTxReminder = useTxReminderPopup().setOpen;
   const translations = useCreateDaoTranslations();
-  const handleError = useError();
+  const promiseToast = usePromiseToast();
 
   return useMutation(
     async (args: CreateMetadataArgs) => {
-      const { onSuccess, metadata } = args;
+      const { metadata } = args;
       const sender = getSender();
 
       const clientV2 = await getClientV2();
       const isMetadataExist = await metdataExists(clientV2, metadata);
-      const promise = newMetdata(
-        sender,
-        clientV2,
-        TX_FEES.CREATE_METADATA.toString(),
-        metadata
-      );
+      const getPromise = () => {
+        return newMetdata(
+          sender,
+          clientV2,
+          TX_FEES.CREATE_METADATA.toString(),
+          metadata
+        );
+      };
+
+      const promise = getPromise();
 
       if (!isMetadataExist) {
-        toggleTxReminder(true);
-        showPromiseToast({
+        promiseToast({
           promise,
           success: translations.spaceDetailsCreated,
+          error: "Failed to create space details",
         });
       }
 
-      const address = await promise;
-      if (typeof address === "string") {
-        onSuccess(address);
-      } else {
-        throw new Error("Something went wrong");
-      }
+      return promise;
     },
     {
-      onSettled: () => toggleTxReminder(false),
-      onError: (error) => handleError(error),
+      onSuccess: (address, args) => {
+        if (typeof address === "string") {
+          args.onSuccess(address);
+        } else {
+          showErrorToast("Failed to create space details");
+        }
+      },
     }
   );
 };
@@ -286,54 +319,53 @@ export const useCreateProposalQuery = () => {
   const daoAddress = useDaoAddressFromQueryParam();
   const daoRoles = useDaoFromQueryParam().data?.daoRoles;
   const getSender = useGetSender();
-  const toggleTxReminder = useTxReminderPopup().setOpen;
   const connectedWallet = useConnection().address;
   const createProposalFee = useGetDaoFwdMsgFeeQuery(daoAddress).data;
-  const handleError = useError();
+  const promiseToast = usePromiseToast();
 
   return useMutation(
     async (args: CreateProposalArgs) => {
       const { metadata, onSuccess } = args;
-      if (!isOwner(connectedWallet, daoRoles)) {
-        throw new Error("Only owner can create proposal");
-      }
 
       const sender = getSender();
-      const clientV2 = await getClientV2();
-      console.log(getTxFee(Number(createProposalFee), TX_FEES.FORWARD_MSG));
+      const getPromise = async () => {
+        if (!isOwner(connectedWallet, daoRoles)) {
+          throw new Error("Only owner can create proposal");
+        }
+        const clientV2 = await getClientV2();
+        return newProposal(
+          sender,
+          clientV2,
+          getTxFee(Number(createProposalFee), TX_FEES.FORWARD_MSG),
+          daoAddress,
+          metadata as ProposalMetadata
+        );
+      };
+      const promise = getPromise();
 
-      const promise = newProposal(
-        sender,
-        clientV2,
-        getTxFee(Number(createProposalFee), TX_FEES.FORWARD_MSG),
-        daoAddress,
-        metadata as ProposalMetadata
-      );
-      toggleTxReminder(true);
-      showPromiseToast({
+      promiseToast({
         promise,
         loading: "Creating Proposal",
-        success: "Proposal Created",
+        error: "Failed to create Proposal",
       });
 
-      const proposalAddress = await promise;
-
-      if (typeof proposalAddress === "string") {
-        onSuccess(proposalAddress);
-      } else {
-        throw new Error("Something went wrong");
-      }
+      return promise;
     },
     {
-      onSettled: () => toggleTxReminder(false),
-      onError: (error) => handleError(error),
+      onSuccess: (value, args) => {
+        if (typeof value === "string") {
+          return args.onSuccess(value);
+        }
+        showErrorToast("Something went wrong");
+      },
     }
   );
 };
 
 export const useSetDaoOwnerQuery = () => {
   const getSender = useGetSender();
-  const handleError = useError();
+  const promiseToast = usePromiseToast();
+
   const { setDaoUpdateMillis } = useSyncStore();
 
   return useMutation(
@@ -346,22 +378,25 @@ export const useSetDaoOwnerQuery = () => {
       onError: (value: string) => void;
       onSuccess: () => void;
     }) => {
-      if (!newOwner) {
-        throw new Error("Owner address is required");
-      }
-      if (!validateAddress(newOwner)) {
-        throw new Error("Invalid owner address");
-      }
-      const clientV2 = await getClientV2();
-      const promise = daoSetOwner(
-        getSender(),
-        clientV2,
-        daoAddress,
-        TX_FEES.BASE.toString(),
-        newOwner
-      );
+      const getPromise = async () => {
+        if (!newOwner) {
+          throw new Error("Owner address is required");
+        }
+        if (!validateAddress(newOwner)) {
+          throw new Error("Invalid owner address");
+        }
+        const clientV2 = await getClientV2();
+        return daoSetOwner(
+          getSender(),
+          clientV2,
+          daoAddress,
+          TX_FEES.BASE.toString(),
+          newOwner
+        );
+      };
+      const promise = getPromise();
 
-      showPromiseToast({
+      promiseToast({
         promise,
         loading: "Setting owner...",
         success: "Owner set!",
@@ -370,9 +405,6 @@ export const useSetDaoOwnerQuery = () => {
       return promise;
     },
     {
-      onError: (error, args) => {
-        handleError(error, args.onError);
-      },
       onSuccess: (_, args) => {
         args.onSuccess();
         setDaoUpdateMillis(args.daoAddress);
@@ -385,7 +417,7 @@ export const useSetDaoPublisherQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
 
-  const handleError = useError();
+  const promiseToast = usePromiseToast();
 
   return useMutation(
     async ({
@@ -397,22 +429,27 @@ export const useSetDaoPublisherQuery = () => {
       onError: (value: string) => void;
       onSuccess: () => void;
     }) => {
-      if (!newOwner) {
-        throw new Error("Proposal owner address is required");
-      }
-      if (!validateAddress(newOwner)) {
-        throw new Error("Invalid proposal owner address");
-      }
+      const getPromise = async () => {
+        if (!newOwner) {
+          throw new Error("Proposal owner address is required");
+        }
+        if (!validateAddress(newOwner)) {
+          throw new Error("Invalid proposal owner address");
+        }
 
-      const clientV2 = await getClientV2();
-      const promise = daoSetProposalOwner(
-        getSender(),
-        clientV2,
-        TX_FEES.BASE.toString(),
-        daoAddress,
-        newOwner
-      );
-      showPromiseToast({
+        const clientV2 = await getClientV2();
+        return daoSetProposalOwner(
+          getSender(),
+          clientV2,
+          TX_FEES.BASE.toString(),
+          daoAddress,
+          newOwner
+        );
+      };
+
+      const promise = getPromise();
+
+      promiseToast({
         promise,
         loading: "Setting proposal publisher...",
         success: "Proposal publisher set!",
@@ -420,7 +457,7 @@ export const useSetDaoPublisherQuery = () => {
       return promise;
     },
     {
-      onError: (error, args) => handleError(error, args.onError),
+      onError: (error: Error, args) => args.onError(error.message),
       onSuccess: (_, args) => {
         args.onSuccess();
         setDaoUpdateMillis(args.daoAddress);
@@ -432,9 +469,9 @@ export const useSetDaoPublisherQuery = () => {
 export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
-  const {refetch}  =useDaosQuery()
+  const refetch = useDaosQuery().refetch;
+  const promiseToast = usePromiseToast();
 
-  const handleError = useError();
   return useMutation(
     async (args: UpdateMetadataArgs) => {
       const { metadata, daoAddress } = args;
@@ -449,30 +486,32 @@ export const useUpdateDaoMetadataQuery = () => {
         metadata
       );
 
-      showPromiseToast({
+      promiseToast({
         promise: metadataAddressPromise,
         loading: "Updating metadata...",
-        success: "Metadata updated!",
       });
 
       const metadataAddress = await metadataAddressPromise;
 
-      if (typeof metadataAddress === "string") {
-        const setMetadataPromise = setMetadata(
-          sender,
-          clientV2,
-          TX_FEES.SET_METADATA.toString(),
-          daoAddress,
-          metadataAddress
-        );
-
-        showPromiseToast({
-          promise: setMetadataPromise,
-          loading: "Setting metadata...",
-          success: "Metadata set!",
-        });
-        return setMetadataPromise;
+      if (typeof metadataAddress !== "string") {
+        showErrorToast("Failed to update metadata");
+        return;
       }
+
+      const setMetadataPromise = setMetadata(
+        sender,
+        clientV2,
+        TX_FEES.SET_METADATA.toString(),
+        daoAddress,
+        metadataAddress
+      );
+
+      promiseToast({
+        promise: setMetadataPromise,
+        loading: "Setting metadata...",
+        success: "Metadata set!",
+      });
+      return setMetadataPromise;
     },
     {
       onSuccess: (_, args) => {
@@ -480,19 +519,6 @@ export const useUpdateDaoMetadataQuery = () => {
         setDaoUpdateMillis(args.daoAddress);
         refetch();
       },
-      onError: (error) => handleError(error),
     }
   );
-};
-
-const useError = () => {
-  const parsedError = useParseError();
-  return (error: any, callback?: (value: string) => void) => {
-    if (Error instanceof Error) {
-      const message = parsedError(error);
-      showErrorToast(message);
-      callback?.(message);
-      return message;
-    }
-  };
 };
