@@ -9,6 +9,7 @@ export default defineConfig({
     tsconfigPaths(),
     
   ],
+  // base: '/ton-vote/',
   server: {
     port: 3000,
   },
