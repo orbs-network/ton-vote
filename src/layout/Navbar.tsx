@@ -20,9 +20,8 @@ import { useTranslation } from "react-i18next";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
-import LogoImg from "assets/logo.png";
+import LogoImg from "assets/logo.svg";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { ReleaseMode } from "ton-vote-contracts-sdk";
 import { MOBILE_WIDTH } from "consts";
 
 export function Navbar() {
