@@ -1,34 +1,10 @@
-import TonhubLogo from "assets/tonhub.png";
-import ExtensionLogo from "assets/chrome.svg";
-
-import { Provider, WalletProvider } from "types";
-import { Address } from "ton";
+import TonConnect from "@tonconnect/sdk";
+import { ReleaseMode } from "ton-vote-contracts-sdk";
 
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 
-export const BASE_ERROR_MESSAGE = "Oops, something went wrong";
-
-export const APPROVE_TX = "Please check wallet for pending transaction";
-export const TX_APPROVED_AND_PENDING = "Transaction pending";
-export const TX_FEE = "0.0075";
-
-export const walletAdapters: WalletProvider[] = [
-  {
-    type: Provider.TONHUB,
-    icon: TonhubLogo,
-    title: "Tonhub",
-    description: "A mobile wallet in your pocket",
-    reminder: true,
-  },
-  {
-    type: Provider.EXTENSION,
-    icon: ExtensionLogo,
-    title: "TON Wallet",
-    description: "TON Wallet Plugin for Google Chrome",
-    mobileDisabled: true,
-  },
-];
+export const APP_NAME = "TON VOTE";
 
 export const voteOptions = [
   {
@@ -47,35 +23,15 @@ export const voteOptions = [
 
 export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
 
-export const DEFAULT_ENDPOINTS = {
-  v2: "https://toncenter.com/api/v2/jsonRPC",
-  // v2: "https://scalable-api.tonwhales.com/jsonRPC",
-  v4: "https://mainnet-v4.tonhubapi.com",
-};
+export const DEFAULT_CLIENT_V2_ENDPOINT =
+  "https://toncenter.com/api/v2/jsonRPC";
+export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 
-export const ENDPOINT_INPUTS = {
-  clientV2: {
-    name: "clientV2Endpoint",
-    label: "HTTP v2 endpoint",
-    defaut: DEFAULT_ENDPOINTS.v2,
-  },
-  apiKey: {
-    name: "apiKey",
-    label: "HTTP v2 API key",
-    default: "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2",
-    // default:''
-  },
-
-  clientV4: {
-    name: "clientV4Endpoint",
-    label: "HTTP v4 endpoint",
-    defaut: DEFAULT_ENDPOINTS.v4,
-  },
-};
+export const CLIENT_V2_API_KEY =
+  "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
 
 export const STATE_REFETCH_INTERVAL = 30_000;
 
-export const INVALID_ENDPOINT_ERROR = "Invalid endpoint";
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 
 export const PAGE_SIZE = 20;
@@ -85,35 +41,54 @@ export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
 export const CLIENT_V4_ENDPOINT = "htyarn dtps://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
-export const TX_SUBMIT_ERROR_TEXT = "Transaction failed";
-export const TX_SUBMIT_SUCCESS_TEXT = "Transaction completed";
-console.log(import.meta.env.VITE_CONTRACT_ADDRESS);
-
-export const CONTRACT_ADDRESS = Address.parse(
-  import.meta.env.VITE_CONTRACT_ADDRESS
-);
-
 export const VERIFY_LINK =
   "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
 
 export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";
 export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 
-export const PASSWORD = "ton-vote-14-02";
+export enum QueryKeys {
+  PROPOSAL_TIMELINE = "PROPOSAL_TIMELINE",
+  DAOS = "DAOS",
+  PROPOSALS = "PROPOSALS",
+  DAO_ROLES = "DAO_ROLES",
+  PROPOSAL = "PROPOSAL",
+  DAO = "DAO",
+  SIGNLE_VOTING_POWER = "SIGNLE_VOTING_POWER",
+  CLIENTS = "CLIENTS",
+  DAO_FWD_MSG_FEE = "DAO_FWD_MSG_FEE",
+  CREATE_DAO_FEE = "CREATE_DAO_FEE",
+  REGISTRY_ADMIN = "REGISTRY_ADMIN",
+  REGISTRY_ID = "REGISTRY_ID",
+  REGISTRY_ADDRESS = "REGISTRY_ADDRESS",
+}
 
-export const VOTE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-export const VOTE_REQUIRED_NUM_OPTIONS = 5;
+export const FETCH_PROPOSALS_INTERVAL = 30_000;
 
-export const PROJECT_NAMES = [
-  "",
-  "Tsunami Exchange",
-  "1ton",
-  "Genlock",
-  "Tonic Lounge",
-  "DeDust",
-  "Nujan IDE",
-  "TonEase",
-  "Evaa",
-  "re:doubt",
-  "Punk City",
+export const TON_CONNECTOR = new TonConnect({
+  manifestUrl,
+});
+
+export const DAO_REFETCH_INTERVAL = 20_000;
+export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
+
+export const LANGUAGES = { en: "English", ru: "Русский" };
+
+export const VERIFIED_DAOS = [
+  "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
 ];
+
+export const releaseMode = import.meta.env.VITE_STAGING
+  ? ReleaseMode.DEVELOPMENT
+  : ReleaseMode.PRODUCTION;
+
+export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
+
+export const TX_FEES = {
+  CREATE_DAO: IS_DEV ? 0.085 : 0,
+  CREATE_METADATA: IS_DEV ? 0.05 : 0,
+  FORWARD_MSG: IS_DEV ? 0.5 : 0,
+  SET_METADATA: IS_DEV ? 0.05 : 0,
+  VOTE_FEE: 0.0065,
+  BASE: 0.15,
+};

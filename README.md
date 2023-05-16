@@ -6,6 +6,8 @@ Our team is working on an open no code governance platform for TON, similar to [
 
 This system will support governance proposals and voting using native coins (TON coin), jettons or NTFs, with programmable strategies. For example, NFT voting weights can factor rarity if that's what a DAO wants to do.
 
+Due to the recent turmoil in the community due to the miner addresses that may get frozen, we wanted to see if the DAO platform could be used to get the general TON holder community's opinion on the matter.
+
 The full system is still WIP and not ready for a production release, so we decided to implement a much simpler case for a single vote and pitch it to TF.
 
 ## Properties of this version
@@ -26,28 +28,25 @@ There are many wallets on TON, we made sure that you can use any of them and tha
 
 1. Use the client in https://ton.vote which supports TonHub, TonKeeper and OpenMask (via TonConnect2)
 
-2. Manually transfer 0.01 TON to the contract address EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr and include a comment with your vote, specifying the numbers of the selected projects. You may format the comment by either separating the numbers with commas or with spaces, such as "1, 2, 5, 7, 9" or "1 2 5 7 9".
+2. Transfer 0.01 TON manually to the contract address `EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS` and add a comment with your vote - `yes` or `no` or `abstain`
 
-3. Open the relevant ton:// deep link with a supporting wallet: `ton://transfer/EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr?amount=10000000&text=1, 2, 5, 7, 9`
+3. Open the relevant ton:// deep link with a supporting wallet:
+    * yes - `ton://transfer/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS?amount=10000000&text=yes`
+    * no - `ton://transfer/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS?amount=10000000&text=no`
+    * abstain - `ton://transfer/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS?amount=10000000&text=abstain`
   
 After voting, you can open the client in https://ton.vote to see your vote counted. It will appear in the top of the recent votes list.
 
-If you choose to send a direct message to the contract please use the following mapping:
-1 - Tsunami Exchange, 2 - 1ton, 3 - Genlock, 4 - Tonic Lounge, 5 - DeDust, 6 - Nujan IDE, 7 - TonEase, 
-8 - Evaa, 9 - re:doubt, 10 - Punk City.
-
-For example, if you want to vote to: Tsunami Exchange, 1ton, Genlock, Tonic Lounge, DeDust you should send a message with 0.075 Ton to the voting contract at address EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr with a comment '1, 2, 3, 4, 5' or '1 2 3 4 5'
-
-Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/dao-vote/blob/12ddd3d368c3bc1dc331cc219de496f23c99771e/src/contracts-api/custodian.js). 
+Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/dao-vote/blob/e14d9e301297d4c47f221742bb030bf800d3150f/src/contracts-api/whales.js). 
 If you are an owner of an address from this list and want to know how to vote, you can contact us via Telegram: https://t.me/TONVoteSupportGroup.
 
 ## How can you verify the results?
 
 We took great care to make sure the voting process and calculation is decentralized and trustless. You can verify the results by yourself and you are not required to trust anyone in the process.
 
-1. Votes are sent as on-chain transactions to a smart contract on mainnet: https://tonscan.org/address/EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr
+1. Votes are sent as on-chain transactions to a smart contract on mainnet: https://tonscan.org/address/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS
 
-2. You can open this contract in an explorer and see all transactions sent to it with their votes as comments. You can also see the contract code since it is [verified](https://verifier.ton.org/EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr). The source includes parameters of the vote like start and end time.
+2. You can open this contract in an explorer and see all transactions sent to it with their votes as comments. You can also see the contract code since it is [verified](https://verifier.ton.org/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS). The source includes parameters of the vote like its duration and which addresses are subject to the freeze.
 
 3. The browser app that displays the results is open source and served from GitHub Pages on [this repo](https://github.com/orbs-network/dao-vote). It does not require any hidden servers in order to calculate the results. You can even fork this repo and run your own version of the app to make sure 100% that this is the code running in your browser.
 
@@ -59,7 +58,7 @@ We took great care to make sure the voting process and calculation is decentrali
 
 ## Walkthrough of the implementation
 
-* [Contract](https://github.com/orbs-network/dao-vote/tree/main/contracts) - A very simple FunC contract to be a destination for votes. Voters vote with a comment so they can vote even without a special client. Contract holds the start and end timestamps. Also holds the timeatamp of the snapshot.
+* [Contract](https://github.com/orbs-network/dao-vote/tree/main/contracts) - A very simple FunC contract to be a destination for votes. Voters vote with a comment so they can vote even without a special client. Contract holds the start and end timestamps. Also holds the timeatamp of the snapshot. We also want to add the list of frozen addresses to be getters in this contract so it is immuatble.
 
 * [Vote calculation logic](https://github.com/orbs-network/dao-vote/tree/main/src/contracts-api) - The vote calculation happens in JavaScript. It downloads all the votes using HTTP v2 API (transactions sent to the contract). Each vote is weighted according to the holdings of the voter in the snapshot timestamp, which is read using HTTP v4 API. Most recent vote takes. The calculation logic also runs client-side so every user can run it in their browser and be convinced of the result.
 

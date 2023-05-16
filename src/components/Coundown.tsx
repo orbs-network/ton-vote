@@ -12,12 +12,12 @@ const addZero = (num: number) => {
 export function Countdown({ date }: { date?: number }) {
   const renderer = (value: any) => {
     return (
-      <>
+      <StyledFlexRow justifyContent='space-between'>
         <Flipper title="Days" value={addZero(value.days)} />
         <Flipper title="Hours" value={addZero(value.hours)} />
         <Flipper title="Minutes" value={addZero(value.minutes)} />
         <Flipper title="Seconds" value={addZero(value.seconds)} />
-      </>
+      </StyledFlexRow>
     );
   };
 
@@ -49,6 +49,8 @@ const Flipper = ({ value, title }: { value: string; title: string }) => {
 };
 
 const StyledSection = styled(StyledFlexColumn)({
+  width:'unset',
+
   ".title": {
     textTransform: "uppercase",
     fontSize: 12,

@@ -1,8 +1,10 @@
 /// <reference types="vite/client" />
 
+
+
+
 interface ImportMetaEnv {
-  readonly VITE_CONTRACT_ADDRESS: string;
-  readonly VITE_SERVER_DISABLED: boolean;
+  readonly VITE_STAGING: string;
   // more env variables...
 }
 

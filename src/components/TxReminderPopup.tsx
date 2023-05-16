@@ -1,36 +1,36 @@
-import { CircularProgress, styled, Typography } from "@mui/material";
-import React from "react";
+import { styled, Typography } from "@mui/material";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useTranslation } from "react-i18next";
+import { useTxReminderPopup } from "store";
 import { StyledFlexColumn } from "styles";
+import { Button } from "./Button";
 import { Popup } from "./Popup";
 
-export function TxReminderPopup({
-  open,
-  close,
-  text,
-}: {
-  open: boolean;
-  close: () => void;
-  text: string;
-}) {
+export function TxReminderPopup() {
+  const { open, setOpen } = useTxReminderPopup();
+  const translations = useCommonTranslations()
 
-  if (!text) return null;
   return (
-    <Popup open={open} close={close}>
-      <StyledContainer>
-        <Typography>{text}</Typography>
-        <CircularProgress />
-      </StyledContainer>
-    </Popup>
+    <StyledPoup hideCloseButton open={open} onClose={() => setOpen(false)}>
+      <StyledFlexColumn gap={30}>
+        <StyledText>{translations.checkWallet}</StyledText>
+        <StyledBtn onClick={() => setOpen(false)}>{translations.close}</StyledBtn>
+      </StyledFlexColumn>
+    </StyledPoup>
   );
 }
 
-const StyledContainer = styled(StyledFlexColumn)({
-  gap: 30,
-  width:'calc(100vw - 50px)',
-  maxWidth: 300,
-  textAlign:'center',
-  "p":{
-    fontSize: 18,
-    fontWeight: 500
-  }
+const StyledBtn = styled(Button)({
+  minWidth: 160,
+});
+
+const StyledText = styled(Typography)({
+  fontSize: 17,
+  fontWeight: 600,
+});
+
+const StyledPoup = styled(Popup)({
+  padding: 20,
+  maxWidth: 400,
+  textAlign: "center",
 });

@@ -3,6 +3,9 @@ import { createTheme } from "@mui/material";
 
 export const theme = createTheme({
   palette: {
+    error: {
+      main: "#d32f2f",
+    },
     primary: {
       main: "#0088CC",
     },
@@ -11,8 +14,8 @@ export const theme = createTheme({
       secondary: "rgb(22, 28, 40)",
     },
   },
+
   typography: {
-    
     allVariants: {
       color: "rgb(114, 138, 150)",
     },
