@@ -25,7 +25,7 @@ import { StyledFlexColumn } from "styles";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: window.location.pathname.endsWith('/ton-vote') ? '/ton-vote' : '/',
     element: <Layout />,
     children: [
       {
