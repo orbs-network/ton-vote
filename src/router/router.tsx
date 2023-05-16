@@ -23,7 +23,9 @@ import { createBrowserRouter, useNavigate } from "react-router-dom";
 import { StyledFlexColumn } from "styles";
 
 
-const basename = window.location.pathname.endsWith('/ton-vote/') ? '/ton-vote' : '/';
+const basename = window.location.pathname.endsWith('/ton-vote/') ? '/ton-vote/' : '/';
+
+console.log('basename=', basename);
 
 export const router = createBrowserRouter([
   {
