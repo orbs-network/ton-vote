@@ -4,7 +4,6 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import.meta.url
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/ton-vote/',
   plugins: [
     react(),
     tsconfigPaths(),
