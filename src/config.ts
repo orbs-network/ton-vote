@@ -92,3 +92,5 @@ export const TX_FEES = {
   VOTE_FEE: 0.0065,
   BASE: 0.15,
 };
+
+

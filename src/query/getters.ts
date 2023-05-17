@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { releaseMode, QueryKeys, STATE_REFETCH_INTERVAL } from "config";
+import { releaseMode, QueryKeys, STATE_REFETCH_INTERVAL, IS_DEV } from "config";
 import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
 import _ from "lodash";
 import {
@@ -37,6 +37,7 @@ import { fromNano, Transaction } from "ton-core";
 import { useConnection } from "ConnectionProvider";
 import { useProposalPersistedStore } from "pages/proposal/store";
 import { GetProposalArgs } from "./types";
+import { mock } from "mock/mock";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -46,8 +47,10 @@ export const useDaosQuery = (refetchInterval?: number) => {
     [QueryKeys.DAOS],
     async ({ signal }) => {
       const serverLastUpdate = await api.getUpdateTime();
-      const res = await Promise.all(
-        _.map((await lib.getDaos(signal)) || [], async (dao) => {
+
+      const payload = (await lib.getDaos(signal)) || [];
+      const promise = await Promise.allSettled(
+        _.map(payload, async (dao) => {
           const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
           let metadata = dao.daoMetadata;
           if (
@@ -59,6 +62,7 @@ export const useDaosQuery = (refetchInterval?: number) => {
               dao.daoAddress
             );
           }
+
           return {
             ...dao,
             daoMetadata: metadata,
@@ -66,7 +70,19 @@ export const useDaosQuery = (refetchInterval?: number) => {
         })
       );
 
-      const daos = [FOUNDATION_DAO, ...res];
+      const res = _.compact(
+        promise.map((it) => {
+          if (it.status === "fulfilled") {
+            return it.value;
+          } else {
+            return null;
+          }
+        })
+      );
+
+      const prodDaos = [FOUNDATION_DAO, ...res];
+
+      const daos = IS_DEV ? _.concat(prodDaos, mock.daos) : prodDaos;
 
       if (_.size(newDaosAddresses)) {
         const addresses = _.map(daos, (it) => it.daoAddress);
@@ -134,16 +150,22 @@ export const useDaoQuery = (
   staleTime: number = Infinity
 ) => {
   const handleProposal = useHandleNewProposals();
-  const queryClient = useQueryClient();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
 
   return useQuery(
     [QueryKeys.DAO, daoAddress],
-    async ({ signal }) => {
-      if (!isWhitelisted) {
-        throw new Error("DAO not whitelisted");
+    async ({ signal }) => {      
+      const mockDao = mock.isMockDao(daoAddress!);
+      if (mockDao) {
+        return {
+          ...mockDao,
+          daoProposals: mock.proposalAddresses,
+        };
       }
+        if (!isWhitelisted) {
+          throw new Error("DAO not whitelisted");
+        }
       if (daoAddress === FOUNDATION_DAO.daoAddress) {
         return FOUNDATION_DAO;
       }
@@ -162,8 +184,10 @@ export const useDaoQuery = (
       }
 
       const dao = await lib.getDao(daoAddress!, fetchFromContract, signal);
-      const daoProposals = handleProposal(daoAddress!, dao.daoProposals);
-
+      const proposals = handleProposal(daoAddress!, dao.daoProposals);
+      const daoProposals = IS_DEV
+        ? _.concat(proposals, mock.proposalAddresses)
+        : proposals;
       return {
         ...dao,
         daoProposals,
@@ -174,11 +198,6 @@ export const useDaoQuery = (
       staleTime,
       refetchInterval: isWhitelisted ? refetchInterval : undefined,
       enabled: !!daoAddress,
-      initialData: () => {
-        const daos = queryClient.getQueryData<Dao[]>([QueryKeys.DAOS]);
-        if (!daos) return;
-        return daos.find((it) => it.daoAddress === daoAddress);
-      },
     }
   );
 };
@@ -356,11 +375,15 @@ export const useProposalQuery = (
   return useQuery(
     queryKey,
     async ({ signal }) => {
+      const isMockProposal = mock.getMockProposal(proposalAddress!);
+      if (isMockProposal) {
+        return isMockProposal;
+      }
       const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress!);
 
-      const hardcodedProposal = proposals[proposalAddress!];
-      if (hardcodedProposal) {
-        return hardcodedProposal;
+      const foundationProposal = proposals[proposalAddress!];
+      if (foundationProposal) {
+        return foundationProposal;
       }
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
@@ -387,7 +410,6 @@ export const useProposalQuery = (
           transactions
         );
       };
-
 
       if (args?.isCustomEndpoint) {
         Logger("isCustomEndpoint selected");
@@ -419,7 +441,7 @@ export const useProposalQuery = (
     },
     {
       enabled: !!proposalAddress && !!clients?.clientV2 && !!clients.clientV4,
-      staleTime: args?.staleTime !== undefined ?  args?.staleTime : 10_000,
+      staleTime: args?.staleTime !== undefined ? args?.staleTime : 10_000,
       retry: isWhitelisted ? 3 : false,
       refetchInterval: args?.refetchInterval,
     }

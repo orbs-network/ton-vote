@@ -344,6 +344,7 @@ export const useCreateProposalQuery = () => {
         promise,
         loading: "Creating Proposal",
         error: "Failed to create Proposal",
+        success: "Proposal created",
       });
 
       return promise;
