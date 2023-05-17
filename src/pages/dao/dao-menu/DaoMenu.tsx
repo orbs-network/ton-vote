@@ -1,5 +1,6 @@
 import { Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
+import { IS_DEV } from "config";
 import { routes } from "consts";
 import {
   useCurrentRoute,
@@ -181,7 +182,7 @@ const MobileNavigation = () => {
   return (
     <StyledMobileNavigation>
       <Tabs
-      variant="scrollable"
+        variant="scrollable"
         value={currentRoute}
         TabIndicatorProps={{
           style: {
@@ -223,6 +224,8 @@ const useNavigationLinks = () => {
       path: appNavigation.daoPage.root(daoAddress),
       selected: route === routes.space,
       route: routes.space,
+      owner: false,
+      publisher: false,
     },
 
     {
@@ -230,17 +233,21 @@ const useNavigationLinks = () => {
       path: appNavigation.daoPage.about(daoAddress),
       selected: route === routes.spaceAbout,
       route: routes.spaceAbout,
+      owner: false,
+      publisher: false,
     },
-    {
+  ];
+
+  if (IS_DEV) {
+    result.push({
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
       selected: route === routes.createProposal,
       owner: true,
       publisher: true,
       route: routes.createProposal,
-    },
-  ];
-
+    });
+  }
   const modified = _.filter(result, (it) => {
     if (it.owner && !isDaoOwner) {
       return false;

@@ -28,7 +28,7 @@ import {
   nFormatter,
   validateServerUpdateTime,
 } from "utils";
-import { OLD_DAO, proposals } from "data/foundation/data";
+import { FOUNDATION_DAO, proposals } from "data/foundation/data";
 import { useNewDataStore, useSyncStore } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
@@ -66,7 +66,7 @@ export const useDaosQuery = (refetchInterval?: number) => {
         })
       );
 
-      const daos = [OLD_DAO, ...res];
+      const daos = [FOUNDATION_DAO, ...res];
 
       if (_.size(newDaosAddresses)) {
         const addresses = _.map(daos, (it) => it.daoAddress);
@@ -144,8 +144,8 @@ export const useDaoQuery = (
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
       }
-      if (daoAddress === OLD_DAO.daoAddress) {
-        return OLD_DAO;
+      if (daoAddress === FOUNDATION_DAO.daoAddress) {
+        return FOUNDATION_DAO;
       }
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);

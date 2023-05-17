@@ -6,7 +6,7 @@ import FoundationImg from "assets/foundation.png";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 
 
-export const OLD_DAO: Dao = {
+export const FOUNDATION_DAO: Dao = {
   daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
   daoId: 0,
   daoMetadata: {

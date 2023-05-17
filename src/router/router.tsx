@@ -1,4 +1,3 @@
-
 import {
   DaosPage,
   CreateDaoPage,
@@ -19,9 +18,8 @@ import _ from "lodash";
 
 import { routes } from "consts";
 
-import { createBrowserRouter, useNavigate } from "react-router-dom";
-import { StyledFlexColumn } from "styles";
-
+import { createBrowserRouter, Navigate, useNavigate } from "react-router-dom";
+import { IS_DEV } from "config";
 
 export const router = createBrowserRouter([
   {
@@ -34,7 +32,7 @@ export const router = createBrowserRouter([
       },
       {
         path: routes.createSpace,
-      element: <CreateDaoPage />,
+        element: IS_DEV ? <CreateDaoPage /> : <Navigate to={"/"} />,
       },
 
       {
@@ -43,7 +41,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: routes.createProposal,
-            element: <CreateProposal />,
+            element: IS_DEV ? <CreateProposal /> : <Navigate to={"/"} />,
           },
           {
             path: routes.space,
@@ -73,6 +71,3 @@ export const router = createBrowserRouter([
     errorElement: <BadRoute />,
   },
 ]);
-
-
-

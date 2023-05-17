@@ -1,6 +1,7 @@
 import { styled } from "@mui/material";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
+import { IS_DEV } from "config";
 import { useConnection } from "ConnectionProvider";
 import { TOOLBAR_WIDTH } from "consts";
 import { useMobile } from "hooks";
@@ -24,9 +25,13 @@ export function Toolbar() {
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
-        <AppTooltip text={translations.createDao} placement="right">
+        <AppTooltip
+          text={IS_DEV ? translations.createDao : `${translations.createDao} (comming soon)`}
+          placement="right"
+        >
           <StyledButton
-            onClick={navigation.createSpace.root}
+          disabled={!IS_DEV}
+            onClick={IS_DEV ? navigation.createSpace.root : () => {}}
             variant="transparent"
           >
             <AiOutlinePlus />
