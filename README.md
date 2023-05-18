@@ -75,3 +75,4 @@ There are ideas in the community on how to implement an on-chain DAO. Most propo
 ## License
 
 MIT
+
