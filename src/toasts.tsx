@@ -71,7 +71,8 @@ export const useErrorToast = () => {
 
   return (err: any) => {
     const parsedError = parseError(err instanceof Error ? err.message : err);
-    toast.dismiss();
+    if (!parsedError) return 
+     toast.dismiss();
     return errorToast(parsedError);
   };
 };

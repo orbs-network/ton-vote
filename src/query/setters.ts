@@ -20,6 +20,7 @@ import {
 import { useDaoAddressFromQueryParam, useGetSender, useRole } from "hooks";
 import { useErrorToast } from "toasts";
 import {
+  useDaoFromQueryParam,
   useDaosQuery,
   useGetCreateDaoFeeQuery,
   useGetDaoFwdMsgFeeQuery,
@@ -263,10 +264,10 @@ interface CreateProposalArgs {
 }
 
 export const useCreateProposalQuery = () => {
-  const daoAddress = useDaoAddressFromQueryParam();
+  const dao = useDaoFromQueryParam().data;
   const getSender = useGetSender();
-  const createProposalFee = useGetDaoFwdMsgFeeQuery(daoAddress).data;
-  const { isOwner, isProposalPublisher } = useRole();
+  const createProposalFee = useGetDaoFwdMsgFeeQuery(dao?.daoAddress).data;
+  const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
 
   const allowed = isOwner || isProposalPublisher;
@@ -284,7 +285,7 @@ export const useCreateProposalQuery = () => {
         sender,
         clientV2,
         getTxFee(Number(createProposalFee), TX_FEES.FORWARD_MSG),
-        daoAddress,
+        dao?.daoAddress!,
         metadata as ProposalMetadata
       );
 

@@ -210,7 +210,7 @@ export const useParseError = () => {
   return (error?: string) => {
     if (!error) return translations.somethingWentWrong;
     if (error.includes("UserRejectsError")) {
-      return translations.transactionRejected;
+      return '';
     }
     return error;
   };
@@ -227,8 +227,8 @@ export const useRole = (roles?: DaoRoles) => {
 
   const getRole = (_roles?: DaoRoles) => {
     return {
-      isOwner: !roles ? false : address === roles.owner,
-      isProposalPublisher: !roles ? false : address === roles.proposalOwner,
+      isOwner: !_roles ? false : address === _roles.owner,
+      isProposalPublisher: !_roles ? false : address === _roles.proposalOwner,
     };
   };
 

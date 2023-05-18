@@ -28,8 +28,10 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalStyles styles={globalStyles} />
-      <TonConnectUIProvider manifestUrl={manifestUrl}>
-          <App />
+      <TonConnectUIProvider
+        manifestUrl={manifestUrl}
+      >
+        <App />
       </TonConnectUIProvider>
     </ThemeProvider>
 
