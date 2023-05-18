@@ -25,7 +25,7 @@ export function Navbar() {
   const devFeatures = useDevFeatures();
   return (
     <StyledContainer>
-      <button id="connect-btn" />
+ 
       <StyledNav>
         <StyledLogo onClick={daosPage.root}>
           <img src={LogoImg} />
@@ -125,10 +125,10 @@ const StyledLogo = styled("button")(({ theme }) => ({
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     p: {
-      fontSize: 16,
+      fontSize: 14,
     },
     img: {
-      height: 30,
+      height: 27,
     },
   },
 }));
