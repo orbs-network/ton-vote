@@ -32,7 +32,7 @@ export function Navbar() {
           <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
-          {devFeatures && <StyledDev label="Dev mode" />}
+          {devFeatures && <StyledDev label="Dev" />}
           <ConnectButton />
           {!mobile && <Github />}
         </StyledFlexRow>
@@ -125,10 +125,10 @@ const StyledLogo = styled("button")(({ theme }) => ({
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     p: {
-      fontSize: 14,
+      fontSize: 17,
     },
     img: {
-      height: 27,
+      height: 32,
     },
   },
 }));
