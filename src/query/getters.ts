@@ -34,10 +34,10 @@ import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
 import { useDaoAddressFromQueryParam, useProposalAddress } from "hooks";
 import { fromNano, Transaction } from "ton-core";
-import { useConnection } from "ConnectionProvider";
 import { useProposalPersistedStore } from "pages/proposal/store";
 import { GetProposalArgs } from "./types";
 import { mock } from "mock/mock";
+import { useTonAddress, useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -299,7 +299,7 @@ export const useConnectedWalletVotingPowerQuery = (
   proposal?: Proposal | null,
   proposalAddress?: string
 ) => {
-  const connectedWallet = useConnection().address;
+  const connectedWallet = useTonAddress();
 
   const clients = useGetClients().data;
   return useQuery(
@@ -444,6 +444,21 @@ export const useProposalQuery = (
       staleTime: args?.staleTime !== undefined ? args?.staleTime : 10_000,
       retry: isWhitelisted ? 3 : false,
       refetchInterval: args?.refetchInterval,
+    }
+  );
+};
+
+
+export const useWalletsQuery = () => {
+  const [tonConnectUI] = useTonConnectUI();
+  return useQuery(
+    ["useWalletsQuery"],
+    () => {
+      return tonConnectUI.getWallets();
+    },
+    {
+      staleTime: Infinity,
+      enabled: !!tonConnectUI,
     }
   );
 };

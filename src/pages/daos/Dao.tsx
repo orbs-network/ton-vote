@@ -1,7 +1,7 @@
 import { Typography, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Container, OverflowWithTooltip, VerifiedDao } from "components";
-import { useConnection } from "ConnectionProvider";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { mock } from "mock/mock";
 import { AiFillEyeInvisible } from "react-icons/ai";
@@ -23,7 +23,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const isVisible = entry && entry.isIntersecting;
   const { daoPage } = useAppNavigation();
   const { daoMetadata } = dao;
-  const walletAddress = useConnection().address;
+  const walletAddress = useTonAddress();
   const theme = useTheme();
   const t = useCommonTranslations();
 

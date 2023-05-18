@@ -1,4 +1,3 @@
-import { useConnection } from "ConnectionProvider";
 import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
@@ -72,7 +71,6 @@ export const useDaoMetadataInputs = (): InputArgs<DaoMetadataForm>[] => {
 };
 
 export const useDaoRolesInputs = (EndAdornment?: any): InputArgs<DaoRolesForm>[] => {
-  const address = useConnection().address;
   const translations = useCreateDaoTranslations();
 
   return [

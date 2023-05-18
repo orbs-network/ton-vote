@@ -1,11 +1,11 @@
 import { Box, styled } from "@mui/material";
+import { useTonAddress } from "@tonconnect/ui-react";
 import { ConnectButton } from "components";
-import { useConnection } from "ConnectionProvider";
 import React from "react";
 import { StyledFlexRow } from "styles";
 
 export function Submit({ children }: { children: React.ReactNode }) {
-  const address = useConnection().address;
+  const address = useTonAddress();
 
   if (!address) {
     return (

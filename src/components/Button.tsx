@@ -12,6 +12,7 @@ interface Props {
   className?: string;
   onClick?: (e: any) => void;
   variant?: Variant;
+  id?: string
 }
 
 function Button({
@@ -21,9 +22,11 @@ function Button({
   className = "",
   onClick,
   variant,
+  id,
 }: Props) {
   return (
     <StyledContainer
+      id={id}
       onClick={onClick}
       disabled={disabled || !!isLoading}
       className={`${className} button`}

@@ -18,10 +18,10 @@ import {
 } from "types";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
-import { showErrorToast } from "toasts";
 import { WHITELISTED_DAOS, WHITELISTED_PROPOSALS } from "whitelisted";
 import BigNumber from "bignumber.js";
 import { ZERO_ADDRESS } from "consts";
+import { errorToast } from "toasts";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -162,18 +162,13 @@ export const validateAddress = (value?: string) => {
   }
 };
 
-export const isOwner = (address?: string, roles?: DaoRoles) => {
-  if (!address || !roles) return false;
-  return address === roles.owner || address === roles.proposalOwner;
-};
-
 export async function validateFormik(formik: FormikProps<any>) {
   let value = "";
   await formik.validateForm().then((errors) => {
     if (!_.isEmpty(errors)) {
       const error = _.first(_.values(errors)) as string;
       value = error;
-      error && showErrorToast(error);
+      error && errorToast(error);
     }
   });
 
@@ -189,7 +184,7 @@ export function validateFormikSingleField<T>(
   const error = formik.errors[name as keyof T] as string;
 
   if (error) {
-    showErrorToast(error);
+    errorToast(error);
   }
 
   return error;

@@ -14,15 +14,15 @@ import {
   SenderArguments,
   storeStateInit,
 } from "ton-core";
-import { useConnection } from "ConnectionProvider";
-import { releaseMode, TON_CONNECTOR } from "config";
+import { releaseMode } from "config";
 import { showSuccessToast } from "toasts";
 import { ProposalStatus } from "types";
-import { StringParam, useQueryParam, useQueryParams } from "use-query-params";
+import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
-import { ReleaseMode } from "ton-vote-contracts-sdk";
+import { DaoRoles, ReleaseMode } from "ton-vote-contracts-sdk";
 import { useDaoQuery } from "query/getters";
+import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 
 export const useDaoAddressFromQueryParam = () => {
   return useParams().daoId as string;
@@ -56,21 +56,9 @@ export const useWindowResize = () => {
   return size;
 };
 
-export const useIsOwner = (daoAddress?: string) => {
-  const address = useConnection().address;
-  const { data, isLoading } = useDaoQuery(daoAddress);
-
-  return {
-    isDaoOwner: address && address === (data as any)?.daoRoles.owner,
-    isProposalOnwer:
-      address && address === (data as any)?.daoRoles.proposalOwner,
-    isLoading,
-  };
-};
-
 export const useGetSender = () => {
-  const { address } = useConnection();
-
+  const address = useTonAddress();
+  const [tonConnect] = useTonConnectUI();
   return useCallback((): Sender => {
     if (!address) {
       throw new Error("Not connected");
@@ -91,7 +79,7 @@ export const useGetSender = () => {
     return {
       address: Address.parse(address!),
       async send(args: SenderArguments) {
-        await TON_CONNECTOR.sendTransaction({
+        await tonConnect.sendTransaction({
           validUntil: Date.now() + 5 * 60 * 1000,
           messages: [
             {
@@ -224,7 +212,7 @@ export const useParseError = () => {
     if (error.includes("UserRejectsError")) {
       return translations.transactionRejected;
     }
-    return error
+    return error;
   };
 };
 
@@ -232,4 +220,20 @@ export const useDevFeatures = () => {
   const dev = useAppQueryParams().query.dev;
 
   return dev || releaseMode === ReleaseMode.DEVELOPMENT;
+};
+
+export const useRole = (roles?: DaoRoles) => {
+  const address = useTonAddress();
+
+  const getRole = (_roles?: DaoRoles) => {
+    return {
+      isOwner: !roles ? false : address === roles.owner,
+      isProposalPublisher: !roles ? false : address === roles.proposalOwner,
+    };
+  };
+
+  return {
+    ...getRole(roles),
+    getRole,
+  };
 };

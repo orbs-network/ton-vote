@@ -1,28 +1,23 @@
 import {
   Chip,
-  IconButton,
   MenuItem,
   styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { AppSocials, Button, ConnectButton, Github, Menu } from "components";
-import { StyledFlexColumn, StyledFlexRow, StyledGrid } from "styles";
-import { makeElipsisAddress } from "utils";
+import { Button, Github, Menu } from "components";
+import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
-import { useConnection } from "ConnectionProvider";
-import { MdContentCopy, MdLogout } from "react-icons/md";
-import { useCopyToClipboard, useDevFeatures } from "hooks";
-import { APP_NAME, releaseMode, LANGUAGES } from "config";
+import { useDevFeatures } from "hooks";
+import { APP_NAME, LANGUAGES } from "config";
 import { useTranslation } from "react-i18next";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
-import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { MOBILE_WIDTH } from "consts";
+import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -30,6 +25,7 @@ export function Navbar() {
   const devFeatures = useDevFeatures();
   return (
     <StyledContainer>
+      <button id="connect-btn" />
       <StyledNav>
         <StyledLogo onClick={daosPage.root}>
           <img src={LogoImg} />
@@ -37,8 +33,7 @@ export function Navbar() {
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
           {devFeatures && <StyledDev label="Dev mode" />}
-          <Wallet />
-
+          <ConnectButton />
           {!mobile && <Github />}
         </StyledFlexRow>
       </StyledNav>
@@ -54,58 +49,6 @@ const StyledDev = styled(Chip)({
     },
   },
 });
-
-const Wallet = () => {
-  const { address, disconnect } = useConnection();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const translations = useCommonTranslations();
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const [_, copy] = useCopyToClipboard();
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  if (!address) {
-    return (
-      <StyledWalletContainer>
-        <ConnectButton />
-      </StyledWalletContainer>
-    );
-  }
-
-  return (
-    <StyledWalletContainer>
-      <StyledConnected onClick={handleClick}>
-        <StyledFlexRow>
-          <Typography style={{ flex: 1 }}>
-            {makeElipsisAddress(address!, 5)}
-          </Typography>
-        </StyledFlexRow>
-      </StyledConnected>
-
-      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <StyledMenuItem onClick={() => copy(address)}>
-          <Typography>{translations.copyAddress}</Typography>
-          <MdContentCopy />
-        </StyledMenuItem>
-        <StyledMenuItem
-          onClick={() => {
-            disconnect();
-            handleClose();
-          }}
-        >
-          <Typography>{translations.logout}</Typography>
-          <MdLogout />
-        </StyledMenuItem>
-      </Menu>
-    </StyledWalletContainer>
-  );
-};
 
 const LanuageSelect = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -161,40 +104,6 @@ const StyledLanguageSelectButton = styled(Button)({
   },
 });
 
-const StyledMenuItem = styled(MenuItem)({
-  gap: 20,
-  justifyContent: "space-between",
-});
-
-const StyledWalletContainer = styled(Box)({
-  width: 170,
-  ".button": {
-    width: "100%",
-  },
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    width: 120,
-
-    ".button": {
-      padding: "8px 10px",
-      height: "unset",
-    },
-    "*": {
-      fontSize: '12px!important',
-    },
-  },
-});
-
-const StyledConnected = styled(Button)({
-  "*": {
-    fontSize: 14,
-  },
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    "*": {
-      fontSize: 12,
-    },
-  },
-});
-
 const StyledLogo = styled("button")(({ theme }) => ({
   background: "transparent",
   border: "unset",
@@ -243,3 +152,21 @@ const StyledNav = styled(StyledGrid)({
   justifyContent: "space-between",
   flexDirection: "row",
 });
+
+function ConnectButton() {
+  const address = useTonAddress();
+
+  return (
+    <>
+      <StyledButton connected={address ? 1 : 0} />
+    </>
+  );
+}
+
+const StyledButton = styled(TonConnectButton)<{ connected: number }>(
+  ({ theme, connected }) => ({
+    button: {
+      background: !connected && theme.palette.primary.main,
+    },
+  })
+);

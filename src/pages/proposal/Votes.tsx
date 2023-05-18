@@ -17,12 +17,11 @@ import {
   parseLanguage,
 } from "utils";
 import { PAGE_SIZE } from "config";
-import { Proposal, Vote } from "types";
+import {  Vote } from "types";
 import { fromNano } from "ton";
 import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
-import { useConnection } from "ConnectionProvider";
 import { CSVLink } from "react-csv";
 import {
   VotingPowerStrategy,
@@ -31,6 +30,7 @@ import {
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useProposalPageQuery } from "query/getters";
+import { useTonAddress } from "@tonconnect/ui-react";
 
 const ContainerHeader = () => {
   const { data } = useProposalPageQuery();
@@ -70,7 +70,7 @@ const ContainerHeader = () => {
 };
 
 const ConnectedWalletVote = () => {
-  const { address } = useConnection();
+  const address = useTonAddress();
 
   const { data, dataUpdatedAt } = useProposalPageQuery();
 
@@ -102,7 +102,7 @@ const StyledContainerHeader = styled(StyledFlexRow)({
 });
 
 export function Votes() {
-  const connectedAddress = useConnection().address;
+  const connectedAddress = useTonAddress();
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const translations = useProposalPageTranslations();
 
@@ -214,7 +214,7 @@ const VoteComponent = ({
   data?: Vote;
   votingPowerStrategy?: VotingPowerStrategyType;
 }) => {
-  const connectedAddress = useConnection().address;
+  const connectedAddress = useTonAddress();
   const translations = useProposalPageTranslations();
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;

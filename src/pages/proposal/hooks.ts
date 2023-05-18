@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { TX_FEES } from "config";
 import { useProposalPageQuery, useProposalStatusQuery } from "query/getters";
-import { usePromiseToast } from "toasts";
+import { useErrorToast, usePromiseToast } from "toasts";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {

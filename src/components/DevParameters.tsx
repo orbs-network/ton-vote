@@ -6,12 +6,10 @@ import { FormArgs, FormikInputEndAdorment } from "types";
 import { Button } from "./Button";
 import { Popup } from "./Popup";
 import { FormikInputsForm } from "./inputs/Inputs";
-import { validateAddress } from "utils";
 import { AppTooltip } from "./Tooltip";
 import { FiSettings } from "react-icons/fi";
 import _ from "lodash";
 import { useDevFeatures } from "hooks";
-import { useConnection } from "ConnectionProvider";
 import {
   useDaosQuery,
   useGetCreateDaoFeeQuery,

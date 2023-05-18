@@ -1,20 +1,19 @@
 import { APP_NAME } from 'config';
-
 import { Suspense } from 'react';
 import { Helmet } from 'react-helmet';
 import { RouterProvider } from 'react-router-dom';
 import { router } from 'router/router';
+
+
 
 function App() {  
 
   return (
     <Suspense>
       <Helmet>
-        <title>
-          {APP_NAME}
-        </title>
+        <title>{APP_NAME}</title>
       </Helmet>
-      <RouterProvider router={router} />
+        <RouterProvider router={router} />
     </Suspense>
   );
 }

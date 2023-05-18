@@ -1,5 +1,4 @@
 import { Fade, styled } from "@mui/material";
-import { useConnection } from "ConnectionProvider";
 import React, { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Back } from "./Back";

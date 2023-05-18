@@ -6,10 +6,10 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { voteOptions } from "config";
 import { ProposalStatus } from "types";
-import { useConnection } from "ConnectionProvider";
 import { useProposalPageStatus, useVote } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { useTonAddress } from "@tonconnect/ui-react";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
@@ -68,10 +68,10 @@ const VoteButton = ({
   isLoading: boolean;
   disabled: boolean;
 }) => {
-  const walletAddress = useConnection().address;
+  const walletAddress = useTonAddress();
 
   if (!walletAddress) {
-    return <StyledConnectButton text="Connect wallet" />;
+    return <StyledConnectButton />;
   }
 
   return (
