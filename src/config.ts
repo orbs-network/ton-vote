@@ -1,5 +1,7 @@
 import TonConnect from "@tonconnect/sdk";
 import { ReleaseMode } from "ton-vote-contracts-sdk";
+import {THEME, TonConnectUI} from "@tonconnect/ui";
+
 
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
@@ -65,9 +67,6 @@ export enum QueryKeys {
 
 export const FETCH_PROPOSALS_INTERVAL = 30_000;
 
-export const TON_CONNECTOR = new TonConnect({
-  manifestUrl,
-});
 
 export const DAO_REFETCH_INTERVAL = 20_000;
 export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
@@ -92,3 +91,5 @@ export const TX_FEES = {
   VOTE_FEE: 0.0065,
   BASE: 0.15,
 };
+
+

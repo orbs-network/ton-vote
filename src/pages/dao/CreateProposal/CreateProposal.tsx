@@ -10,7 +10,6 @@ import { FormikProps, useFormik } from "formik";
 import { useDaoAddressFromQueryParam, useDebouncedCallback } from "hooks";
 import { StyledFlexRow } from "styles";
 import { useCreateProposalStore } from "./store";
-import { useConnection } from "ConnectionProvider";
 import _ from "lodash";
 import { useEffect } from "react";
 import { validateFormik } from "utils";
@@ -24,6 +23,7 @@ import { useDaoFromQueryParam, useGetDaoFwdMsgFeeQuery } from "query/getters";
 import { prepareMetadata } from "./utils";
 import { useCreateProposalQuery } from "query/setters";
 import { useNewDataStore } from "store";
+import { useTonAddress } from "@tonconnect/ui-react";
 
 function Form() {
   const daoAddress = useDaoAddressFromQueryParam();
@@ -132,7 +132,7 @@ function CreateProposalButton({
   onSubmit?: () => void;
   isLoading: boolean;
 }) {
-  const address = useConnection().address;
+  const address = useTonAddress();
   return (
     <StyledSubmit>
       {!address ? (

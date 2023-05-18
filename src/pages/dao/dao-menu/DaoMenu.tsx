@@ -1,15 +1,17 @@
 import { Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
+import { IS_DEV } from "config";
 import { routes } from "consts";
 import {
   useCurrentRoute,
   useDaoAddressFromQueryParam,
   useDevFeatures,
-  useIsOwner,
   useMobile,
+  useRole,
 } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
+import { mock } from "mock/mock";
 import { useDaoFromQueryParam } from "query/getters";
 import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
@@ -181,7 +183,7 @@ const MobileNavigation = () => {
   return (
     <StyledMobileNavigation>
       <Tabs
-      variant="scrollable"
+        variant="scrollable"
         value={currentRoute}
         TabIndicatorProps={{
           style: {
@@ -211,7 +213,8 @@ const useNavigationLinks = () => {
 
   const translations = useDaoPageTranslations();
   const daoAddress = useDaoAddressFromQueryParam();
-  const { isDaoOwner, isProposalOnwer, isLoading } = useIsOwner(daoAddress);
+  const {data, isLoading} = useDaoFromQueryParam();
+  const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
   const route = useCurrentRoute();
   if (isLoading) {
     return null;
@@ -223,6 +226,8 @@ const useNavigationLinks = () => {
       path: appNavigation.daoPage.root(daoAddress),
       selected: route === routes.space,
       route: routes.space,
+      owner: false,
+      publisher: false,
     },
 
     {
@@ -230,22 +235,26 @@ const useNavigationLinks = () => {
       path: appNavigation.daoPage.about(daoAddress),
       selected: route === routes.spaceAbout,
       route: routes.spaceAbout,
+      owner: false,
+      publisher: false,
     },
-    {
+  ];
+
+  if (IS_DEV && !mock.isMockDao(daoAddress)) {
+    result.push({
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
       selected: route === routes.createProposal,
       owner: true,
       publisher: true,
       route: routes.createProposal,
-    },
-  ];
-
+    });
+  }
   const modified = _.filter(result, (it) => {
-    if (it.owner && !isDaoOwner) {
+    if (it.owner && !isOwner) {
       return false;
     }
-    if (it.publisher && !isProposalOnwer && it.publisher && !isDaoOwner) {
+    if (it.publisher && !isProposalPublisher && it.publisher && !isOwner) {
       return false;
     }
     return true;

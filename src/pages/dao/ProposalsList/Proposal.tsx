@@ -40,6 +40,7 @@ import BigNumber from "bignumber.js";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useProposalQuery, useProposalStatusQuery } from "query/getters";
+import { mock } from "mock/mock";
 
 const Time = ({
   proposalMetadata,
@@ -143,6 +144,9 @@ export const ProposalComponent = ({
         <StyledFlexColumn alignItems="flex-start">
           <StyledProposalTitle variant="h4">
             {parseLanguage(proposal?.metadata?.title)}
+            {mock.isMockProposal(proposalAddress) && (
+              <small style={{ opacity: 0.5 }}> (Mock)</small>
+            )}
           </StyledProposalTitle>
           <StyledMarkdown
             sx={{
@@ -177,7 +181,7 @@ const StyledProposalAddress = styled(StyledAddressDisplay)({
 const Results = ({ proposal }: { proposal: Proposal }) => {
   const { proposalResult, sumCoins } = proposal;
   const totalWeight = proposalResult.totalWeight;
-  const translations = useDaoPageTranslations()
+  const translations = useDaoPageTranslations();
 
   if (Number(totalWeight) === 0) {
     return (

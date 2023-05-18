@@ -6,11 +6,11 @@ import { useDaoMetadataSchema } from "forms/dao-form";
 import { useMetadataForm } from "./form";
 import { DaoMetadataForm } from "types";
 import { StyledFlexRow } from "styles";
-import { useConnection } from "ConnectionProvider";
 import { useDaoFromQueryParam } from "query/getters";
 import { useUpdateDaoMetadataQuery } from "query/setters";
 import { useDaoAddressFromQueryParam } from "hooks";
 import { getInitialValues, prepareMetadata } from "./utils";
+import { useTonAddress } from "@tonconnect/ui-react";
 
 export function MetadataForm() {
   const Schema = useDaoMetadataSchema();
@@ -47,7 +47,7 @@ const SubmitButton = ({
   isLoading: boolean;
   formik: FormikProps<DaoMetadataForm>;
 }) => {
-  const connectedAddress = useConnection().address;
+  const connectedAddress = useTonAddress();
 
   const hide = _.isEqual(formik.values, formik.initialValues);
 

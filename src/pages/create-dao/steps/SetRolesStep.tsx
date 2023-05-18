@@ -1,6 +1,6 @@
 import { styled, Typography } from "@mui/material";
+import { useTonAddress } from "@tonconnect/ui-react";
 import { Button, FormikInputsForm } from "components";
-import { useConnection } from "ConnectionProvider";
 import { FormikProps, useFormik } from "formik";
 import { useDaoRolesSchema } from "forms/dao-form";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
@@ -55,7 +55,7 @@ const EndAdornment = ({
   formik: FormikProps<DaoRolesForm>;
 }) => {
   const translations = useCommonTranslations();
-  const address = useConnection().address;
+  const address = useTonAddress();
 
   const onClick = () => {
     formik.setFieldError(name, undefined);

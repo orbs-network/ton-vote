@@ -7,9 +7,10 @@ import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
 import { theme } from "theme";
 import { globalStyles } from "styles";
 import analytics from "analytics";
-import {ConnectionProvider} from "ConnectionProvider";
 import './i18n/index'
 import App from "App";
+import { TonConnectUIProvider } from "@tonconnect/ui-react";
+import { manifestUrl } from "config";
 
 analytics.GA.init();
 
@@ -27,11 +28,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalStyles styles={globalStyles} />
-      
-        <ConnectionProvider>
-          <App />
-        </ConnectionProvider>
-
+      <TonConnectUIProvider
+        manifestUrl={manifestUrl}
+      >
+        <App />
+      </TonConnectUIProvider>
     </ThemeProvider>
 
     <ReactQueryDevtools />

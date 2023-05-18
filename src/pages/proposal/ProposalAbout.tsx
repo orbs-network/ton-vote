@@ -1,11 +1,11 @@
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useDaoAddressFromQueryParam, useMobile } from "hooks";
+import { useDaoAddressFromQueryParam, useMobile, useProposalAddress } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   LoadingContainer,
   Markdown,
@@ -23,6 +23,7 @@ import { useProposalPageStatus } from "./hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
 import { useDaoFromQueryParam, useProposalPageQuery } from "query/getters";
+import { mock } from "mock/mock";
 
 const MIN_DESCRIPTION_HEIGHT = 200;
 
@@ -76,9 +77,18 @@ function MobileAbout() {
 }
 
 const ProposalHeader = () => {
+  const proposalAddress = useProposalAddress();
   const data = useProposalPageQuery(false).data;
 
-  return <StyledHeader title={parseLanguage(data?.metadata?.title)} />;
+  const mockPrefix = mock.isMockProposal(proposalAddress)  ? ' (Mock)' : '';
+  
+  const title = parseLanguage(data?.metadata?.title);
+
+  return (
+    <>
+      <StyledHeader title={`${title}${mockPrefix}`} />
+    </>
+  );
 };
 
 const ShowMoreButton = ({
@@ -110,14 +120,15 @@ const Description = () => {
   const { data, isLoading } = useProposalPageQuery(false);
   const [showMore, setShowMore] = useState(false);
 
-  useEffect(() => {
-    if (elRef.current && !isLoading) {
-      setDescriptionHeight(elRef.current.clientHeight);
+  useLayoutEffect(() => {
+    if (elRef.current) {
+      setDescriptionHeight(elRef.current.offsetHeight);
     }
-  }, [isLoading]);
+  }, [data?.metadata?.description]);
   const description = parseLanguage(data?.metadata?.description);
 
   const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
+
   const HEIGHT =
     descriptionHeight > MIN_DESCRIPTION_HEIGHT
       ? MIN_DESCRIPTION_HEIGHT
@@ -142,10 +153,11 @@ const StyledDescription = styled(Box)({
   position: "relative",
 });
 
-const StyledPlaceholder = styled(Box)({
+const StyledPlaceholder = styled("span")({
   position: "absolute",
   visibility: "hidden",
   pointerEvents: "none",
+  height: "auto",
 });
 
 const StyledMarkdown = styled(Markdown)<{ open: number }>(({ open }) => ({

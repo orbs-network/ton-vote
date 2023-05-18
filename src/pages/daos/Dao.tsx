@@ -1,16 +1,16 @@
 import { Typography, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Container, OverflowWithTooltip, VerifiedDao } from "components";
-import { useConnection } from "ConnectionProvider";
-import { useIsOwner } from "hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { mock } from "mock/mock";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
-import { isOwner, makeElipsisAddress, nFormatter, parseLanguage } from "utils";
+import { makeElipsisAddress, nFormatter, parseLanguage } from "utils";
 import {
   StyledDao,
   StyledDaoAvatar,
@@ -23,21 +23,22 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const isVisible = entry && entry.isIntersecting;
   const { daoPage } = useAppNavigation();
   const { daoMetadata } = dao;
-  const walletAddress = useConnection().address;
+  const walletAddress = useTonAddress();
   const theme = useTheme();
   const t = useCommonTranslations();
-  const { isDaoOwner, isProposalOnwer } = useIsOwner(dao.daoAddress);
 
-  const isOwner = isDaoOwner || isProposalOnwer;
+  const isOwner =
+    dao.daoRoles.owner === walletAddress ||
+    dao.daoRoles.proposalOwner === walletAddress;
 
   if (dao.daoMetadata.hide && !isOwner) return null;
 
+  const mockPrefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
+
+  const name = parseLanguage(daoMetadata?.name) || "";
+
   return (
-    <StyledDao
-      ref={ref}
-      onClick={() => daoPage.root(dao.daoAddress)}
-    
-    >
+    <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
       <StyledDaoContent className="container" hover>
         {dao.daoMetadata.hide && (
           <AppTooltip text="Dao is hidden, you can change it in the settings page">
@@ -53,7 +54,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
           <StyledFlexColumn>
             <StyledDaoAvatar src={daoMetadata?.avatar} />
             <Typography className="title">
-              <TextOverflow text={parseLanguage(daoMetadata?.name) || ""} />
+              <TextOverflow text={`${name}${mockPrefix}`} />
             </Typography>
             <Address dao={dao} />
             <Container className="members">

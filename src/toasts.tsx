@@ -1,15 +1,18 @@
 import { IconButton, styled } from "@mui/material";
 import { useParseError } from "hooks";
-import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
 import toast, { ToastPosition } from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import { StyledFlexRow } from "styles";
 import { SlWallet } from "react-icons/sl";
-import { TON_CONNECTOR } from "config";
+import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useTonWallet } from "@tonconnect/ui-react";
+
+
 export function usePromiseToast<T>() {
   const parseError = useParseError();
   const translations = useCommonTranslations();
+  const wallet = useTonWallet()
   return (args: {
     promise: Promise<T>;
     loading?: string;
@@ -18,7 +21,7 @@ export function usePromiseToast<T>() {
     isSuccess?: (value: any) => boolean;
   }) => {
     let infoToast = "";
-    if (TON_CONNECTOR.wallet?.provider !== 'injected') {
+    if (wallet?.provider !== "injected") {
       infoToast = showToast(translations.checkWalletForTx);
     }
     toast.promise(
@@ -38,7 +41,7 @@ export function usePromiseToast<T>() {
           }
           return null;
         },
-        error: (err: any) => {          
+        error: (err: any) => {
           infoToast && toast.dismiss(infoToast);
           const parsedError = parseError(
             err instanceof Error ? err.message : err
@@ -63,9 +66,18 @@ export function usePromiseToast<T>() {
 }
 
 
-export const showErrorToast = (message: string) => {
-  toast.dismiss();
+export const useErrorToast = () => {
+  const parseError = useParseError();
 
+  return (err: any) => {
+    const parsedError = parseError(err instanceof Error ? err.message : err);
+    if (!parsedError) return 
+     toast.dismiss();
+    return errorToast(parsedError);
+  };
+};
+
+export const errorToast = (message: string) => {
   toast.error((t) => <ToastContent message={message} id={t.id} />, {
     duration: 500000,
   });
@@ -87,8 +99,7 @@ export const showToast = (message: string, config?: ToastConfig) => {
     duration: config?.duration || Infinity,
     position: config?.position || "top-center",
     icon: <SlWallet />,
-    className: 'info-toast',
-  
+    className: "info-toast",
   });
 };
 

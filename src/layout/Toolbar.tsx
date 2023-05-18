@@ -1,16 +1,17 @@
 import { styled } from "@mui/material";
+import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
-import { useConnection } from "ConnectionProvider";
+import { IS_DEV } from "config";
 import { TOOLBAR_WIDTH } from "consts";
-import { useMobile } from "hooks";
+import { useMobile, useRole } from "hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router/navigation";
 import { StyledFlexColumn } from "styles";
-import { isOwner, parseLanguage } from "utils";
+import { parseLanguage } from "utils";
 
 export function Toolbar() {
   const navigation = useAppNavigation();
@@ -24,9 +25,17 @@ export function Toolbar() {
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
-        <AppTooltip text={translations.createDao} placement="right">
+        <AppTooltip
+          text={
+            IS_DEV
+              ? translations.createDao
+              : `${translations.createDao} (comming soon)`
+          }
+          placement="right"
+        >
           <StyledButton
-            onClick={navigation.createSpace.root}
+            disabled={!IS_DEV}
+            onClick={IS_DEV ? navigation.createSpace.root : () => {}}
             variant="transparent"
           >
             <AiOutlinePlus />
@@ -69,7 +78,9 @@ const StyledToolbar = styled(StyledFlexColumn)({
 
 const UserDaos = () => {
   const { data: daos } = useDaosQuery();
-  const connectedWallet = useConnection().address;
+  const connectedWallet = useTonAddress();
+
+  const { getRole } = useRole();
 
   const daoId = useParams().daoId;
 
@@ -81,7 +92,9 @@ const UserDaos = () => {
     <StyledUserDaos>
       {daos &&
         daos?.map((dao) => {
-          if (isOwner(connectedWallet, dao.daoRoles)) {
+          const {isOwner, isProposalPublisher} = getRole(dao.daoRoles);
+          
+          if ((isOwner || isProposalPublisher)) {
             const selected = daoId === dao.daoAddress;
             return (
               <StyledLink
