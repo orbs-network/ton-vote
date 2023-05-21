@@ -3,7 +3,6 @@ export * from "./Button";
 export * from "./Link";
 export * from "./Progress";
 export * from "./ConnectButton";
-export * from "./TxReminderPopup";
 export * from "./inputs/Inputs";
 export * from "./ConnectButton";
 export * from "./NumberDisplay";

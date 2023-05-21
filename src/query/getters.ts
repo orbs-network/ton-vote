@@ -29,12 +29,11 @@ import {
   validateServerUpdateTime,
 } from "utils";
 import { FOUNDATION_DAO, proposals } from "data/foundation/data";
-import { useNewDataStore, useSyncStore } from "store";
+import { useNewDataStore, useProposalPersistedStore, useSyncStore } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
 import { useDaoAddressFromQueryParam, useProposalAddress } from "hooks";
 import { fromNano, Transaction } from "ton-core";
-import { useProposalPersistedStore } from "pages/proposal/store";
 import { GetProposalArgs } from "./types";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";

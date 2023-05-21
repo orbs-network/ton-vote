@@ -6,13 +6,11 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
 import { theme } from "theme";
 import { globalStyles } from "styles";
-import analytics from "analytics";
 import './i18n/index'
 import App from "App";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { manifestUrl } from "config";
 
-analytics.GA.init();
 
 const queryClient = new QueryClient({
   defaultOptions: {

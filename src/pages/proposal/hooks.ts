@@ -1,11 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import analytics from "analytics";
-import { useProposalAddress, useGetSender } from "hooks";
+import { useProposalAddress } from "hooks";
 import _ from "lodash";
-import { useTxReminderPopup } from "store";
 import { Logger } from "utils";
-import { useEnpointsStore, useProposalPersistedStore } from "./store";
-import * as TonVoteSDK from "ton-vote-contracts-sdk";
+import { useEnpointsStore } from "./store";
 import {
   filterTxByTimestamp,
   getClientV2,
@@ -14,12 +11,10 @@ import {
 } from "ton-vote-contracts-sdk";
 import { Endpoints, ProposalResults } from "types";
 import { lib } from "lib/lib";
-import { fromNano, Transaction } from "ton-core";
-import { useTranslation } from "react-i18next";
+import { Transaction } from "ton-core";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { TX_FEES } from "config";
 import { useProposalPageQuery, useProposalStatusQuery } from "query/getters";
-import { useErrorToast, usePromiseToast } from "toasts";
+import {  usePromiseToast } from "toasts";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -40,12 +35,11 @@ export const useVerifyProposalResults = () => {
   const proposalAddress = useProposalAddress();
   const { data } = useProposalPageQuery(false);
   const { setEndpoints, endpoints } = useEnpointsStore();
-  const translations = useProposalPageTranslations()
+  const translations = useProposalPageTranslations();
 
   const promiseToast = usePromiseToast();
 
   return useMutation(async (customEndpoints: Endpoints) => {
-    analytics.GA.verifyButtonClick();
     setEndpoints(customEndpoints);
     const promiseFn = async () => {
       const clientV2 = await getClientV2(
@@ -69,7 +63,6 @@ export const useVerifyProposalResults = () => {
       );
       const currentResults = handleNulls(data?.proposalResult);
       const compareToResults = handleNulls(contractState?.proposalResult);
-
 
       Logger({
         currentResults,
@@ -98,49 +91,6 @@ export const useVerifyProposalResults = () => {
     }
     return promise;
   });
-};
-
-export const useVote = () => {
-  const getSender = useGetSender();
-  const { refetch } = useProposalPageQuery(true);
-  const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
-  const proposalAddress = useProposalAddress();
-  const toggleTxReminder = useTxReminderPopup().setOpen;
-    const promiseToast = usePromiseToast();
-
-  return useMutation(
-    async (vote: string) => {
-      const sender = getSender();
-      toggleTxReminder(true);
-      const client = await getClientV2();
-
-      
-
-      const voteFn = async () => {
-        await TonVoteSDK.proposalSendMessage(
-          sender,
-          client,
-          TX_FEES.VOTE_FEE.toString(),
-          proposalAddress,
-          vote
-        );
-        return refetch();
-      };
-
-      const promise = voteFn();
-
-      promiseToast({
-        promise,
-        success: "Vote sent",
-      });
-
-      const { data } = await promise;
-      setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
-    },
-    {
-      onSettled: () => toggleTxReminder(false),
-    }
-  );
 };
 
 export const useProposalPageStatus = () => {

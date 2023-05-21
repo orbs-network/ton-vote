@@ -1,5 +1,4 @@
 import { Fade, styled } from "@mui/material";
-import {  TxReminderPopup } from "../components";
 import { Outlet } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
@@ -36,7 +35,6 @@ function Layout({children}:{children?: ReactNode}) {
       </Fade>
       <ScrollTop />
       <Toaster  />
-      <TxReminderPopup />
     </QueryParamProvider>
   );
 }

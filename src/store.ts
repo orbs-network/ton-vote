@@ -47,16 +47,6 @@ export const useNewDataStore = create(
   )
 );
 
-interface useTxReminderPopup {
-  open: boolean;
-  setOpen: (value: boolean) => void;
-}
-
-export const useTxReminderPopup = create<useTxReminderPopup>((set, get) => ({
-  open: false,
-  setOpen: (open) => set({ open }),
-}));
-
 interface SyncStore {
   daoUpdateMillis: { [key: string]: number | undefined };
   getDaoUpdateMillis: (daoAddress: string) => number | undefined;
@@ -91,6 +81,38 @@ export const useSyncStore = create(
     }),
     {
       name: "ton_vote_sync_store",
+    }
+  )
+);
+
+
+interface ProposalPersistedStore {
+  serverUpdateTime?: number;
+  setSrverUpdateTime: (value: number) => void;
+  latestMaxLtAfterTx: { [key: string]: string | undefined };
+  getLatestMaxLtAfterTx: (proposalAddress: string) => string | undefined;
+  setLatestMaxLtAfterTx: (contractAddress: string, value?: string) => void;
+}
+
+export const useProposalPersistedStore = create(
+  persist<ProposalPersistedStore>(
+    (set, get) => ({
+      latestMaxLtAfterTx: {},
+      getLatestMaxLtAfterTx: (proposalAddress) =>
+        get().latestMaxLtAfterTx
+          ? get().latestMaxLtAfterTx[proposalAddress]
+          : undefined,
+      setLatestMaxLtAfterTx: (contractAddress, value) => {
+        const prev = { ...get().latestMaxLtAfterTx, [contractAddress]: value };
+        set({
+          latestMaxLtAfterTx: prev,
+        });
+      },
+      serverUpdateTime: undefined,
+      setSrverUpdateTime: (serverUpdateTime) => set({ serverUpdateTime }),
+    }),
+    {
+      name: "ton_vote_proposal_persisted_store", // name of the item in the storage (must be unique)
     }
   )
 );

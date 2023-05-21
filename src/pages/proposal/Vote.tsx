@@ -6,10 +6,11 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { voteOptions } from "config";
 import { ProposalStatus } from "types";
-import { useProposalPageStatus, useVote } from "./hooks";
+import { useProposalPageStatus } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { useVote } from "query/setters";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();

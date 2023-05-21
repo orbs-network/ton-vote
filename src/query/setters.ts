@@ -5,19 +5,19 @@ import {
   daoSetOwner,
   daoSetProposalOwner,
   getClientV2,
-  metdataExists,
   newDao,
   newMetdata,
   newProposal,
   newRegistry,
   ProposalMetadata,
+  proposalSendMessage,
   ReleaseMode,
   setCreateDaoFee,
   setFwdMsgFee,
   setMetadata,
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
-import { useDaoAddressFromQueryParam, useGetSender, useRole } from "hooks";
+import { useGetSender, useProposalAddress, useRole } from "hooks";
 import { useErrorToast } from "toasts";
 import {
   useDaoFromQueryParam,
@@ -25,12 +25,13 @@ import {
   useGetCreateDaoFeeQuery,
   useGetDaoFwdMsgFeeQuery,
   useGetRegistryAdminQuery,
+  useProposalPageQuery,
 } from "./getters";
-import { useSyncStore } from "store";
+import { useProposalPersistedStore, useSyncStore } from "store";
 import { getTxFee, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
-import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { analytics } from "analytics";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -214,11 +215,13 @@ export const useCreateDaoQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => {
+      onError: (error: Error, args) => {
         showErrorToast(error);
+        analytics.createSpaceSuccess(args.metadataAddress, error.message);
       },
       onSuccess: (address, args) => {
         args.onSuccess(address);
+          analytics.createSpaceSuccess(args.metadataAddress, address);
       },
     }
   );
@@ -252,6 +255,7 @@ export const useCreateMetadataQuery = () => {
     {
       onError: (error: Error) => showErrorToast(error),
       onSuccess: (address, args) => {
+        analytics.createSpaceMetadataSucess(address, args.metadata);
         args.onSuccess(address);
       },
     }
@@ -296,9 +300,19 @@ export const useCreateProposalQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => showErrorToast(error),
-      onSuccess: (value, args) => {
-        return args.onSuccess(value);
+      onError: (error: Error, args) => {
+        showErrorToast(error);
+        analytics.createProposalFailed(
+          args.metadata as ProposalMetadata,
+          error.message
+        );
+      },
+      onSuccess: (address, args) => {
+        analytics.createProposalSuccess(
+          args.metadata as ProposalMetadata,
+          address
+        );
+        args.onSuccess(address);
       },
     }
   );
@@ -319,21 +333,20 @@ export const useSetDaoOwnerQuery = () => {
       onError: (value: string) => void;
       onSuccess: () => void;
     }) => {
-        if (!newOwner) {
-          throw new Error("Owner address is required");
-        }
-        if (!validateAddress(newOwner)) {
-          throw new Error("Invalid owner address");
-        }
-        const clientV2 = await getClientV2();
-        return daoSetOwner(
-          getSender(),
-          clientV2,
-          daoAddress,
-          TX_FEES.BASE.toString(),
-          newOwner
-        );
-      
+      if (!newOwner) {
+        throw new Error("Owner address is required");
+      }
+      if (!validateAddress(newOwner)) {
+        throw new Error("Invalid owner address");
+      }
+      const clientV2 = await getClientV2();
+      return daoSetOwner(
+        getSender(),
+        clientV2,
+        daoAddress,
+        TX_FEES.BASE.toString(),
+        newOwner
+      );
     },
     {
       onError: (error) => errorToast(error),
@@ -361,22 +374,21 @@ export const useSetDaoPublisherQuery = () => {
       onError: (value: string) => void;
       onSuccess: () => void;
     }) => {
-        if (!newOwner) {
-          throw new Error("Proposal owner address is required");
-        }
-        if (!validateAddress(newOwner)) {
-          throw new Error("Invalid proposal owner address");
-        }
+      if (!newOwner) {
+        throw new Error("Proposal owner address is required");
+      }
+      if (!validateAddress(newOwner)) {
+        throw new Error("Invalid proposal owner address");
+      }
 
-        const clientV2 = await getClientV2();
-        return daoSetProposalOwner(
-          getSender(),
-          clientV2,
-          TX_FEES.BASE.toString(),
-          daoAddress,
-          newOwner
-        );
-
+      const clientV2 = await getClientV2();
+      return daoSetProposalOwner(
+        getSender(),
+        clientV2,
+        TX_FEES.BASE.toString(),
+        daoAddress,
+        newOwner
+      );
     },
     {
       onError: (error: Error, args) => {
@@ -395,7 +407,7 @@ export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
   const refetch = useDaosQuery().refetch;
-  const showErrorToast = useErrorToast();
+  const errorToast = useErrorToast();
 
   return useMutation(
     async (args: UpdateMetadataArgs) => {
@@ -429,11 +441,54 @@ export const useUpdateDaoMetadataQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => showErrorToast(error),
+      onError: (error: Error, args) => {
+        errorToast(error);
+        analytics.updateDaoMetatdaFailed(
+          args.metadata,
+          args.daoAddress,
+          error.message
+        );
+      },
       onSuccess: (_, args) => {
         args.onSuccess();
         setDaoUpdateMillis(args.daoAddress);
         refetch();
+        analytics.updateDaoMetadataSuccess(args.metadata, args.daoAddress);
+      },
+    }
+  );
+};
+
+export const useVote = () => {
+  const getSender = useGetSender();
+  const { refetch } = useProposalPageQuery(true);
+  const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
+  const proposalAddress = useProposalAddress();
+  const errorToast = useErrorToast();
+
+  return useMutation(
+    async (vote: string) => {
+      const sender = getSender();
+      const client = await getClientV2();
+
+      await proposalSendMessage(
+        sender,
+        client,
+        TX_FEES.VOTE_FEE.toString(),
+        proposalAddress,
+        vote
+      );
+
+      const { data } = await refetch();
+      setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
+    },
+    {
+      onSuccess: (_, vote) => {
+        analytics.voteSuccess(proposalAddress, vote);
+      },
+      onError: (error: Error, vote) => {
+        errorToast(error);
+        analytics.voteError(proposalAddress, vote, error.message);
       },
     }
   );
