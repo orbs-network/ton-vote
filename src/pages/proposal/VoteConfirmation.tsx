@@ -2,8 +2,9 @@ import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
 import { useProposalAddress } from "hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { mock } from "mock/mock";
 import { useConnectedWalletVotingPowerQuery, useProposalPageQuery } from "query/getters";
-import React, { ReactNode, useEffect } from "react";
+import  { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getSymbol, getVoteStrategyType } from "utils";
 
@@ -19,6 +20,8 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
 
   const { data } = useProposalPageQuery();
   const proposalAddress = useProposalAddress();
+
+  const isMock = mock.isMockProposal(proposalAddress)
 
   const {
     data: votingData,
@@ -42,7 +45,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
       <StyledContainer gap={30}>
         <StyledFlexColumn>
-          <Row label={translations.choice} value={vote} />
+          <StyledVote label={translations.choice} value={vote} />
           {data?.metadata?.mcSnapshotBlock && (
             <Row
               label={translations.snapshot}
@@ -69,13 +72,13 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             Cancel
           </Button>
           <Button
-            disabled={NoVotingPower || votingDataLoading}
+            disabled={NoVotingPower || votingDataLoading || isMock}
             onClick={() => {
               onSubmit();
               onClose();
             }}
           >
-            {translations.confirm}
+            {isMock ? `${translations.confirm} (mock)` : translations.confirm}
           </Button>
         </StyledButtons>
       </StyledContainer>
@@ -100,13 +103,15 @@ const Row = ({
   label,
   value,
   isLoading,
+  className = "",
 }: {
   label: string;
   value: ReactNode;
   isLoading?: boolean;
+  className?: string;
 }) => {
   return (
-    <StyledRow justifyContent="space-between">
+    <StyledRow className={className} justifyContent="space-between">
       <Typography className="label">{label}</Typography>
       {isLoading ? (
         <CircularProgress style={{ width: 20, height: 20 }} />
@@ -117,6 +122,7 @@ const Row = ({
   );
 };
 
+
 const StyledRow = styled(StyledFlexRow)({
   ".label": {
     fontWeight: 700,
@@ -125,5 +131,13 @@ const StyledRow = styled(StyledFlexRow)({
     fontWeight: 600,
   },
 });
+
+
+const StyledVote = styled(Row)({
+  ".value": {
+    textTransform: "capitalize",
+  },
+});
+
 
 const StyledContainer = styled(StyledFlexColumn)({});

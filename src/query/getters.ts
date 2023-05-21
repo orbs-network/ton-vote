@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { releaseMode, QueryKeys, STATE_REFETCH_INTERVAL, IS_DEV } from "config";
-import { Dao, Proposal, ProposalResults, ProposalStatus } from "types";
+import { useQuery } from "@tanstack/react-query";
+import { releaseMode, QueryKeys, IS_DEV } from "config";
+import { Proposal, ProposalStatus } from "types";
 import _ from "lodash";
 import {
   filterTxByTimestamp,
@@ -9,9 +9,6 @@ import {
   getCreateDaoFee,
   getDaoFwdMsgFee,
   getDaoMetadata,
-  getDaoProposals,
-  getDaoRoles,
-  getProposalMetadata,
   getRegistry,
   getRegistryAdmin,
   getRegistryId,
@@ -409,7 +406,7 @@ export const useProposalQuery = (
           transactions
         );
       };
-
+      
       if (args?.isCustomEndpoint) {
         Logger("isCustomEndpoint selected");
         return getContractState();

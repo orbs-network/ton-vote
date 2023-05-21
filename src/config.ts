@@ -1,27 +1,8 @@
-import TonConnect from "@tonconnect/sdk";
 import { ReleaseMode } from "ton-vote-contracts-sdk";
-import {THEME, TonConnectUI} from "@tonconnect/ui";
-
-
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
-
 export const APP_NAME = "TON VOTE";
 
-export const voteOptions = [
-  {
-    name: "Yes",
-    value: "yes",
-  },
-  {
-    name: "No",
-    value: "no",
-  },
-  {
-    name: "Abstain",
-    value: "abstain",
-  },
-];
 
 export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
 
@@ -32,15 +13,12 @@ export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const CLIENT_V2_API_KEY =
   "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
 
-export const STATE_REFETCH_INTERVAL = 30_000;
 
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 
 export const PAGE_SIZE = 20;
 
-export const LOCAL_STORAGE_PROVIDER = "ton_vote_wallet_provider";
-
-export const CLIENT_V4_ENDPOINT = "htyarn dtps://mainnet-v4.tonhubapi.com";
+export const CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const VERIFY_LINK =
@@ -65,12 +43,9 @@ export enum QueryKeys {
   REGISTRY_ADDRESS = "REGISTRY_ADDRESS",
 }
 
-export const FETCH_PROPOSALS_INTERVAL = 30_000;
-
 
 export const DAO_REFETCH_INTERVAL = 20_000;
 export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
-
 export const LANGUAGES = { en: "English", ru: "Русский" };
 
 export const VERIFIED_DAOS = [

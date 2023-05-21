@@ -15,6 +15,8 @@ import { Button, FormikInputsForm, Markdown, Popup } from "components";
 import { useEnpointsStore } from "./store";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { useProposalAddress } from "hooks";
+import { mock } from "mock/mock";
 
 const useFormSchema = () => {
   const commonTranslations = useCommonTranslations()
@@ -73,6 +75,8 @@ export function EndpointPopup({
   const [customSelected, setCustomSelected] = useState(false);
   const validationSchema = useFormSchema();
   const translations = useProposalPageTranslations();
+  const proposalAddress = useProposalAddress();
+  const isMock = mock.isMockProposal(proposalAddress)
   const form = useForm()
   const formik = useFormik<EndpointForm>({
     initialValues: {
@@ -144,8 +148,8 @@ export function EndpointPopup({
         >
           <FormikInputsForm<EndpointForm> form={form} formik={formik} />
         </AnimateHeight>
-        <StyledSaveButton onClick={_onSubmit}>
-          {translations.verify}
+        <StyledSaveButton disabled={isMock} onClick={_onSubmit}>
+          {isMock ? `${translations.verify} (mock)` : translations.verify}
         </StyledSaveButton>
       </StyledFlexColumn>
     </StyledPopup>

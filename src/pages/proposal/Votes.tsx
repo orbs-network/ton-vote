@@ -24,7 +24,6 @@ import moment from "moment";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
 import {
-  VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { GrDocumentCsv } from "react-icons/gr";

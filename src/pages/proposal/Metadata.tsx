@@ -26,8 +26,6 @@ export const Metadata = () => {
     "jetton-address",
     votingPowerStrategies
   );
-
-  console.log(votingPowerStrategies);
   
 
       if (isLoading) {
