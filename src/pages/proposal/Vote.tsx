@@ -11,15 +11,26 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useVote } from "query/setters";
 import { useProposalPageQuery } from "query/getters";
+import { mock } from "mock/mock";
+import { useProposalAddress } from "hooks";
+import { errorToast } from "toasts";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
-  const proposalStatus = useProposalPageStatus()
-  const translations = useProposalPageTranslations()
+  const proposalStatus = useProposalPageStatus();
+  const translations = useProposalPageTranslations();
   const choices = useProposalPageQuery().data?.metadata?.votingSystem.choices;
-  
+  const proposalAddress = useProposalAddress();
+
+  const onSubmit = () => {
+    if (mock.isMockProposal(proposalAddress)) {
+      errorToast("You can't vote on mock proposals")
+    } else {
+      setConfirmation(true);
+    }
+  };
 
   return (
     <>
@@ -47,7 +58,7 @@ export function Vote() {
             <VoteButton
               isLoading={isLoading}
               disabled={!vote || isLoading}
-              onSubmit={() => setConfirmation(true)}
+              onSubmit={onSubmit}
             />
             <VoteConfirmation
               open={confirmation}

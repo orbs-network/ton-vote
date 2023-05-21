@@ -26,14 +26,21 @@ import {
   validateServerUpdateTime,
 } from "utils";
 import { FOUNDATION_DAO, proposals } from "data/foundation/data";
-import { useNewDataStore, useProposalPersistedStore, useSyncStore } from "store";
+import {
+  useNewDataStore,
+  useProposalPersistedStore,
+  useSyncStore,
+} from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
 import { useDaoAddressFromQueryParam, useProposalAddress } from "hooks";
 import { fromNano, Transaction } from "ton-core";
 import { GetProposalArgs } from "./types";
 import { mock } from "mock/mock";
-import { useTonAddress, useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
+import {
+  useTonAddress,
+  useTonConnectUI,
+} from "@tonconnect/ui-react";
 
 export const useDaosQuery = (refetchInterval?: number) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -151,7 +158,7 @@ export const useDaoQuery = (
 
   return useQuery(
     [QueryKeys.DAO, daoAddress],
-    async ({ signal }) => {      
+    async ({ signal }) => {
       const mockDao = mock.isMockDao(daoAddress!);
       if (mockDao) {
         return {
@@ -159,9 +166,9 @@ export const useDaoQuery = (
           daoProposals: mock.proposalAddresses,
         };
       }
-        if (!isWhitelisted) {
-          throw new Error("DAO not whitelisted");
-        }
+      if (!isWhitelisted) {
+        throw new Error("DAO not whitelisted");
+      }
       if (daoAddress === FOUNDATION_DAO.daoAddress) {
         return FOUNDATION_DAO;
       }
@@ -227,6 +234,7 @@ export const useGetDaoFwdMsgFeeQuery = (daoAddress?: string) => {
   return useQuery(
     [QueryKeys.DAO_FWD_MSG_FEE, daoAddress],
     async () => {
+      if (mock.isMockDao(daoAddress!)) return "0";
       const res = await getDaoFwdMsgFee(clients!.clientV2, daoAddress!);
       return fromNano(res);
     },
@@ -406,7 +414,7 @@ export const useProposalQuery = (
           transactions
         );
       };
-      
+
       if (args?.isCustomEndpoint) {
         Logger("isCustomEndpoint selected");
         return getContractState();
@@ -443,7 +451,6 @@ export const useProposalQuery = (
     }
   );
 };
-
 
 export const useWalletsQuery = () => {
   const [tonConnectUI] = useTonConnectUI();

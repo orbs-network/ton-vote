@@ -213,7 +213,7 @@ const useNavigationLinks = () => {
 
   const translations = useDaoPageTranslations();
   const daoAddress = useDaoAddressFromQueryParam();
-  const {data, isLoading} = useDaoFromQueryParam();
+  const { data, isLoading } = useDaoFromQueryParam();
   const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
   const route = useCurrentRoute();
   if (isLoading) {
@@ -238,18 +238,16 @@ const useNavigationLinks = () => {
       owner: false,
       publisher: false,
     },
-  ];
-
-  if (IS_DEV && !mock.isMockDao(daoAddress)) {
-    result.push({
+    {
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
       selected: route === routes.createProposal,
       owner: true,
       publisher: true,
       route: routes.createProposal,
-    });
-  }
+    },
+  ];
+
   const modified = _.filter(result, (it) => {
     if (it.owner && !isOwner) {
       return false;

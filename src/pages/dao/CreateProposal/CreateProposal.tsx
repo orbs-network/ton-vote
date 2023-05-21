@@ -24,6 +24,8 @@ import { prepareMetadata } from "./utils";
 import { useCreateProposalQuery } from "query/setters";
 import { useNewDataStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { mock } from "mock/mock";
+import { errorToast } from "toasts";
 
 function Form() {
   const daoAddress = useDaoAddressFromQueryParam();
@@ -64,6 +66,15 @@ function Form() {
     saveForm();
   }, [formik.values]);
 
+  const onSubmit = () => {
+    if (mock.isMockDao(daoAddress)) {
+      errorToast("You can't create proposals on mock DAOs");
+    } else {
+      formik.submitForm();
+      validateFormik(formik);
+    }
+  };
+
   return (
     <Fade in={true}>
       <StyledContainer alignItems="flex-start">
@@ -74,10 +85,7 @@ function Form() {
         >
           <CreateProposalButton
             isLoading={isLoading || createProposalFee === undefined}
-            onSubmit={() => {
-              formik.submitForm();
-              validateFormik(formik);
-            }}
+            onSubmit={onSubmit}
           />
         </FormikInputsForm>
       </StyledContainer>

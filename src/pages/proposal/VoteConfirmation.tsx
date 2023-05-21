@@ -2,9 +2,8 @@ import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
 import { useProposalAddress } from "hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { mock } from "mock/mock";
 import { useConnectedWalletVotingPowerQuery, useProposalPageQuery } from "query/getters";
-import  { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getSymbol, getVoteStrategyType } from "utils";
 
@@ -20,8 +19,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
 
   const { data } = useProposalPageQuery();
   const proposalAddress = useProposalAddress();
-
-  const isMock = mock.isMockProposal(proposalAddress)
 
   const {
     data: votingData,
@@ -72,13 +69,13 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             Cancel
           </Button>
           <Button
-            disabled={NoVotingPower || votingDataLoading || isMock}
+            disabled={NoVotingPower || votingDataLoading}
             onClick={() => {
               onSubmit();
               onClose();
             }}
           >
-            {isMock ? `${translations.confirm} (mock)` : translations.confirm}
+            {translations.confirm}
           </Button>
         </StyledButtons>
       </StyledContainer>
