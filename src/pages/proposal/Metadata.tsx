@@ -27,6 +27,9 @@ export const Metadata = () => {
     votingPowerStrategies
   );
 
+  console.log(votingPowerStrategies);
+  
+
       if (isLoading) {
         return <LoadingContainer />;
       }

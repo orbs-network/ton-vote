@@ -221,7 +221,7 @@ export const useCreateDaoQuery = () => {
       },
       onSuccess: (address, args) => {
         args.onSuccess(address);
-          analytics.createSpaceSuccess(args.metadataAddress, address);
+        analytics.createSpaceSuccess(args.metadataAddress, address);
       },
     }
   );
@@ -229,7 +229,7 @@ export const useCreateDaoQuery = () => {
 
 export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
-  const showErrorToast = useErrorToast();
+  const errorToast = useErrorToast();
 
   return useMutation(
     async (args: CreateMetadataArgs) => {
@@ -253,7 +253,10 @@ export const useCreateMetadataQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => showErrorToast(error),
+      onError: (error: Error, args) => {
+        errorToast(error);
+        analytics.createSpaceMetadataFailed(error.message, args.metadata);
+      },
       onSuccess: (address, args) => {
         analytics.createSpaceMetadataSucess(address, args.metadata);
         args.onSuccess(address);
