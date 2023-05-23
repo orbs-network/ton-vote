@@ -103,10 +103,10 @@ const UserDaos = () => {
                 key={dao.daoAddress}
               >
                 <AppTooltip
-                  text={parseLanguage(dao.daoMetadata.name)}
+                  text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
                   placement="right"
                 >
-                  <StyledDaoImg src={dao.daoMetadata.avatar} />
+                  <StyledDaoImg src={dao.daoMetadata.metadataArgs.avatar} />
                 </AppTooltip>
               </StyledLink>
             );

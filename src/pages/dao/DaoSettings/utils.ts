@@ -3,11 +3,8 @@ import { MetadataArgs } from "ton-vote-contracts-sdk";
 import { DaoMetadataForm } from "types";
 import { isZeroAddress, parseLanguage } from "utils";
 
-interface Props extends MetadataArgs {
-  dns?: string;
-}
 
-export const getInitialValues = (metadata?: Props) => {
+export const getInitialValues = (metadata?: MetadataArgs) => {
   return {
     name: metadata?.name || "",
     telegram: metadata?.telegram || "",

@@ -10,17 +10,20 @@ export const FOUNDATION_DAO: Dao = {
   daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
   daoId: 0,
   daoMetadata: {
-    about: "Some description",
-    avatar: FoundationImg,
-    github: "https://reactdatepicker.com/",
-    hide: false,
-    name: "TON Foundation",
-    terms: "https://reactdatepicker.com/",
-    telegram: "https://reactdatepicker.com/",
-    website: "https://ton.org/",
-    jetton: "",
-    nft: "",
-    dns: "foundation.ton",
+    metadataAddress: "",
+    metadataArgs: {
+      about: "Some description",
+      avatar: FoundationImg,
+      github: "https://reactdatepicker.com/",
+      hide: false,
+      name: "TON Foundation",
+      terms: "https://reactdatepicker.com/",
+      telegram: "https://reactdatepicker.com/",
+      website: "https://ton.org/",
+      jetton: "",
+      nft: "",
+      dns: "foundation.ton",
+    },
   },
   daoRoles: {
     owner: "EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N",
@@ -36,6 +39,7 @@ export const proposals: { [key: string]: Proposal } = {
   "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr": {
     daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
     metadata: {
+      quorum: "",
       id: 0,
       proposalDeployer: "EQDmbwKbzpuuPacqcX67UAjQ3o6WqEjQ4_Mwvr5Ci524vO60",
       mcSnapshotBlock: 28390698,
@@ -61,6 +65,7 @@ export const proposals: { [key: string]: Proposal } = {
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS": {
     daoAddress: "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
     metadata: {
+      quorum: "",
       id: 0,
       proposalDeployer: "EQDmbwKbzpuuPacqcX67UAjQ3o6WqEjQ4_Mwvr5Ci524vO60",
       mcSnapshotBlock: 27280026,

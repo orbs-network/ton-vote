@@ -22,7 +22,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
   const { daoPage } = useAppNavigation();
-  const { daoMetadata } = dao;
+  const metadataArgs = dao.daoMetadata?.metadataArgs;
   const walletAddress = useTonAddress();
   const theme = useTheme();
   const t = useCommonTranslations();
@@ -31,16 +31,16 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
     dao.daoRoles.owner === walletAddress ||
     dao.daoRoles.proposalOwner === walletAddress;
 
-  if (dao.daoMetadata.hide && !isOwner) return null;
+  if (metadataArgs.hide && !isOwner) return null;
 
   const mockPrefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
 
-  const name = parseLanguage(daoMetadata?.name) || "";
+  const name = parseLanguage(metadataArgs?.name) || "";
 
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
       <StyledDaoContent className="container" hover>
-        {dao.daoMetadata.hide && (
+        {metadataArgs.hide && (
           <AppTooltip text="Dao is hidden, you can change it in the settings page">
             <StyledHiddenIcon>
               <AiFillEyeInvisible
@@ -52,7 +52,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
         )}
         {isVisible ? (
           <StyledFlexColumn>
-            <StyledDaoAvatar src={daoMetadata?.avatar} />
+            <StyledDaoAvatar src={metadataArgs?.avatar} />
             <Typography className="title">
               <TextOverflow text={`${name}${mockPrefix}`} />
             </Typography>
@@ -74,12 +74,13 @@ const useJoinDao = () => {
 };
 
 const Address = ({ dao }: { dao: Dao }) => {
+  const metadataArgs = dao.daoMetadata?.metadataArgs;
   return (
     <StyledFlexRow className="address">
-      {dao.daoMetadata.dns ? (
+      {metadataArgs.dns ? (
         <OverflowWithTooltip
           className="address-value"
-          text={dao.daoMetadata.dns}
+          text={metadataArgs.dns}
         />
       ) : (
         <Typography className="address-value">

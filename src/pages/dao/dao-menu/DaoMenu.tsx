@@ -11,7 +11,6 @@ import {
 } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { mock } from "mock/mock";
 import { useDaoFromQueryParam } from "query/getters";
 import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
@@ -94,28 +93,29 @@ const MobilepMenu = () => {
 
 const DaoLogo = () => {
   const dao = useDaoFromQueryParam().data;
-  return <StyledLogo src={dao?.daoMetadata?.avatar} />;
+  return <StyledLogo src={dao?.daoMetadata?.metadataArgs.avatar} />;
 };
 
 const DaoTitle = () => {
   const dao = useDaoFromQueryParam().data;
-
+  console.log(dao);
+  
   return (
-    <StyledTitle placement="top" text={parseLanguage(dao?.daoMetadata?.name)} />
+    <StyledTitle placement="top" text={parseLanguage(dao?.daoMetadata?.metadataArgs.name)} />
   );
 };
 
 const DaoDNS = () => {
   const dao = useDaoFromQueryParam().data;
 
-  if (!dao?.daoMetadata.dns) {
+  if (!dao?.daoMetadata.metadataArgs?.dns) {
     return null;
   }
 
   return (
     <StyledDNS>
       <a href={"/"} target="_blank">
-        <Typography>{dao?.daoMetadata.dns}</Typography>
+        <Typography>{dao?.daoMetadata.metadataArgs.dns}</Typography>
       </a>
       <VerifiedDao daoAddress={dao.daoAddress} />
     </StyledDNS>
@@ -131,9 +131,9 @@ const DaoSocials = () => {
   const dao = useDaoFromQueryParam().data;
   return (
     <StyledSocials
-      github={dao?.daoMetadata?.github || "/"}
-      telegram={dao?.daoMetadata?.telegram || "/"}
-      website={dao?.daoMetadata?.website || "/"}
+      github={dao?.daoMetadata?.metadataArgs.github || "/"}
+      telegram={dao?.daoMetadata?.metadataArgs.telegram || "/"}
+      website={dao?.daoMetadata?.metadataArgs.website || "/"}
     />
   );
 };

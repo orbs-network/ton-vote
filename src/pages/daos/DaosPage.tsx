@@ -21,7 +21,7 @@ import { useDaosQuery } from "query/getters";
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
   const nameFilter = _.filter(daos, (it) =>
-    it.daoMetadata.name.toLowerCase().includes(searchValue.toLowerCase())
+    it.daoMetadata.metadataArgs.name.toLowerCase().includes(searchValue.toLowerCase())
   );
   const addressFilter = _.filter(daos, (it) =>
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
@@ -35,7 +35,7 @@ export function DaosPage() {
     data = [],
     isLoading,
     dataUpdatedAt,
-  } = useDaosQuery(DAOS_PAGE_REFETCH_INTERVAL);
+  } = useDaosQuery({ refetchInterval: DAOS_PAGE_REFETCH_INTERVAL });
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
   const mobile = useMobile()

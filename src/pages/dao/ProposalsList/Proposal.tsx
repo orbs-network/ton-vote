@@ -130,6 +130,9 @@ export const ProposalComponent = ({
     return null;
   }
 
+  if (!proposal) {
+    return null;
+  }
   const description = parseLanguage(proposal?.metadata?.description, "en");
   return (
     <StyledProposal onClick={onClick}>

@@ -12,7 +12,7 @@ import {
   ProposalMetadata,
   proposalSendMessage,
   ReleaseMode,
-  setCreateDaoFee,
+  setDeployAndInitDaoFee,
   setFwdMsgFee,
   setMetadata,
   setRegistryAdmin,
@@ -22,10 +22,9 @@ import { useErrorToast } from "toasts";
 import {
   useDaoFromQueryParam,
   useDaosQuery,
-  useGetCreateDaoFeeQuery,
-  useGetDaoFwdMsgFeeQuery,
-  useGetRegistryAdminQuery,
+  useDaoStateQuery,
   useProposalPageQuery,
+  useRegistryStateQuery,
 } from "./getters";
 import { useProposalPersistedStore, useSyncStore } from "store";
 import { getTxFee, validateAddress } from "utils";
@@ -37,14 +36,14 @@ export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
   const address = useTonAddress();
   const showErrorToast = useErrorToast();
-  const registryAdmin = useGetRegistryAdminQuery().data;
+  const registryState = useRegistryStateQuery().data;
 
   return useMutation(
     async (releaseMode: number) => {
       if (!Object.keys(ReleaseMode).includes(releaseMode.toString())) {
         throw new Error("Invalid release mode");
       }
-      if (!registryAdmin || address !== registryAdmin) {
+      if (!registryState?.admin || address !== registryState.admin) {
         throw new Error("You are not the registry admin");
       }
       const clientV2 = await getClientV2();
@@ -67,19 +66,19 @@ export const useSetCreateDaoFee = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
   const address = useTonAddress();
-  const registryAdmin = useGetRegistryAdminQuery().data;
-  const refetch = useGetCreateDaoFeeQuery().refetch;
+  const registryState = useRegistryStateQuery().data;
+  const refetch = useDaoStateQuery().refetch;
 
   return useMutation(
     async ({ value }: { value: number; onError: (value: string) => void }) => {
-      if (address !== registryAdmin) {
+      if (address !== registryState?.admin) {
         throw new Error("You are not the registry admin");
       }
       if (!_.isNumber(value) || value < 0) {
         throw new Error("Fee must be zero or positive");
       }
       const client = await getClientV2();
-      return setCreateDaoFee(
+      return setDeployAndInitDaoFee(
         getSender(),
         client,
         releaseMode,
@@ -98,7 +97,7 @@ export const useSetCreateDaoFee = () => {
 };
 
 export const useSetDaoFwdMsgFee = () => {
-  const registryAdmin = useGetRegistryAdminQuery().data;
+  const registryState = useRegistryStateQuery().data;
   const address = useTonAddress();
   const errorToast = useErrorToast();
 
@@ -113,7 +112,7 @@ export const useSetDaoFwdMsgFee = () => {
       onError: (error: string) => void;
       onSuccess?: () => void;
     }) => {
-      if (registryAdmin !== address) {
+      if (registryState?.admin !== address) {
         throw new Error("You are not the registry admin");
       }
 
@@ -147,7 +146,7 @@ export const useSetRegistryAdmin = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
 
-  const { refetch, data: admin } = useGetRegistryAdminQuery();
+  const { refetch, data: registryState } = useRegistryStateQuery();
   const address = useTonAddress();
 
   return useMutation(
@@ -157,7 +156,7 @@ export const useSetRegistryAdmin = () => {
       newRegistryAdmin?: string;
       onError: (newRegistryAdmin: string) => void;
     }) => {
-      if (address !== admin) {
+      if (address !== registryState?.admin) {
         throw new Error("You are not the registry admin");
       }
       if (!newRegistryAdmin) {
@@ -190,8 +189,11 @@ export const useSetRegistryAdmin = () => {
 
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
-  const createDaoFee = useGetCreateDaoFeeQuery().data;
+  const registryState = useRegistryStateQuery().data;
   const showErrorToast = useErrorToast();
+
+  
+  
 
   return useMutation(
     async (args: CreateDaoArgs) => {
@@ -202,7 +204,7 @@ export const useCreateDaoQuery = () => {
         sender,
         clientV2,
         releaseMode,
-        getTxFee(Number(createDaoFee), TX_FEES.CREATE_DAO),
+        getTxFee(Number(registryState?.deployAndInitDaoFee), TX_FEES.CREATE_DAO),
         args.metadataAddress,
         args.ownerAddress,
         args.proposalOwner
@@ -273,7 +275,7 @@ interface CreateProposalArgs {
 export const useCreateProposalQuery = () => {
   const dao = useDaoFromQueryParam().data;
   const getSender = useGetSender();
-  const createProposalFee = useGetDaoFwdMsgFeeQuery(dao?.daoAddress).data;
+  const daoState = useDaoStateQuery(dao?.daoAddress).data;
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
 
@@ -288,10 +290,12 @@ export const useCreateProposalQuery = () => {
         throw new Error("you are not allowed to create a proposal");
       }
       const clientV2 = await getClientV2();
+      console.log(dao?.daoAddress);
+      
       const address = await newProposal(
         sender,
         clientV2,
-        getTxFee(Number(createProposalFee), TX_FEES.FORWARD_MSG),
+        getTxFee(Number(daoState?.fwdMsgFee), TX_FEES.FORWARD_MSG),
         dao?.daoAddress!,
         metadata as ProposalMetadata
       );

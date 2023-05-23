@@ -19,7 +19,7 @@ import { StrategySelect } from "./StrategySelect";
 import { getInitialValues } from "./utils";
 import { useCreateProposalForm } from "./form/inputs";
 import { useFormSchema } from "./form/validation";
-import { useDaoFromQueryParam, useGetDaoFwdMsgFeeQuery } from "query/getters";
+import { useDaoFromQueryParam, useDaoStateQuery } from "query/getters";
 import { prepareMetadata } from "./utils";
 import { useCreateProposalQuery } from "query/setters";
 import { useNewDataStore } from "store";
@@ -34,7 +34,7 @@ function Form() {
   const data = useDaoFromQueryParam().data;
   const { formData, setFormData } = useCreateProposalStore();
   const form = useCreateProposalForm(formData);
-  const createProposalFee = useGetDaoFwdMsgFeeQuery(daoAddress).data;
+  const daoState = useDaoStateQuery(daoAddress).data;
   const appNavigation = useAppNavigation();
   const FormSchema = useFormSchema();
   const { addProposal } = useNewDataStore();
@@ -84,7 +84,7 @@ function Form() {
           customInputHandler={customInputHandler}
         >
           <CreateProposalButton
-            isLoading={isLoading || createProposalFee === undefined}
+            isLoading={isLoading || daoState?.fwdMsgFee === undefined}
             onSubmit={onSubmit}
           />
         </FormikInputsForm>

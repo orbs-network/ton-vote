@@ -1,20 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { releaseMode, QueryKeys, IS_DEV } from "config";
-import { Proposal, ProposalStatus } from "types";
+import { Dao, Proposal, ProposalStatus } from "types";
 import _ from "lodash";
 import {
   filterTxByTimestamp,
   getClientV2,
   getClientV4,
-  getCreateDaoFee,
-  getDaoFwdMsgFee,
   getDaoMetadata,
-  getRegistry,
-  getRegistryAdmin,
-  getRegistryId,
   getSingleVoterPower,
   getTransactions,
   ProposalMetadata,
+  getDaoState,
+  getRegistryState,
 } from "ton-vote-contracts-sdk";
 import {
   getProposalStatus,
@@ -35,14 +32,55 @@ import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
 import { useDaoAddressFromQueryParam, useProposalAddress } from "hooks";
 import { fromNano, Transaction } from "ton-core";
-import { GetProposalArgs } from "./types";
+import { GetProposalArgs, ReactQueryConfig } from "./types";
 import { mock } from "mock/mock";
-import {
-  useTonAddress,
-  useTonConnectUI,
-} from "@tonconnect/ui-react";
+import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 
-export const useDaosQuery = (refetchInterval?: number) => {
+export const useRegistryStateQuery = () => {
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.REGISTRY_STATE],
+    async () => {
+      const result = await getRegistryState(clients!.clientV2, releaseMode);      
+      
+      return {
+        ...result,
+        deployAndInitDaoFee: result ? fromNano(result!.deployAndInitDaoFee) : '',
+      };
+    },
+    {
+      enabled: !!clients?.clientV2,
+    }
+  );
+};
+
+export const useDaoStateQuery = (daoAddress?: string) => {
+  const clients = useGetClients().data;
+  return useQuery(
+    [QueryKeys.DAO_STATE],
+    async () => {
+      if (mock.isMockDao(daoAddress!))
+        return {
+          registry: "",
+          owner: "EQDehfd8rzzlqsQlVNPf9_svoBcWJ3eRbz-eqgswjNEKRIwo",
+          proposalOwner: "EQDehfd8rzzlqsQlVNPf9_svoBcWJ3eRbz-eqgswjNEKRIwo",
+          metadata: "",
+          daoIndex: 2,
+          fwdMsgFee: 2,
+        };
+      const result = await getDaoState(clients!.clientV2, daoAddress!);
+      return {
+        ...result,
+        fwdMsgFee: fromNano(result!.fwdMsgFee),
+      };
+    },
+    {
+      enabled: !!clients?.clientV2 && !!daoAddress,
+    }
+  );
+};
+
+export const useDaosQuery = (config?: ReactQueryConfig) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
   const { getDaoUpdateMillis } = useSyncStore();
 
@@ -53,14 +91,14 @@ export const useDaosQuery = (refetchInterval?: number) => {
 
       const payload = (await lib.getDaos(signal)) || [];
       const promise = await Promise.allSettled(
-        _.map(payload, async (dao) => {
+        _.map(payload, async (dao): Promise<Dao> => {
           const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
-          let metadata = dao.daoMetadata;
+          let metadataArgs = dao.daoMetadata.metadataArgs;
           if (
             metadataLastUpdate &&
             !validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)
           ) {
-            metadata = await getDaoMetadata(
+            metadataArgs = await getDaoMetadata(
               await getClientV2(),
               dao.daoAddress
             );
@@ -68,7 +106,10 @@ export const useDaosQuery = (refetchInterval?: number) => {
 
           return {
             ...dao,
-            daoMetadata: metadata,
+            daoMetadata: {
+              metadataAddress: "",
+              metadataArgs,
+            },
           };
         })
       );
@@ -120,7 +161,8 @@ export const useDaosQuery = (refetchInterval?: number) => {
       return _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
     },
     {
-      refetchInterval,
+      refetchInterval: config?.refetchInterval,
+      staleTime: config?.staleTime
     }
   );
 };
@@ -156,7 +198,7 @@ export const useDaoQuery = (
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
 
-  return useQuery(
+  return useQuery<Dao>(
     [QueryKeys.DAO, daoAddress],
     async ({ signal }) => {
       const mockDao = mock.isMockDao(daoAddress!);
@@ -229,21 +271,6 @@ export const useProposalStatusQuery = (
   return query.data as ProposalStatus | null;
 };
 
-export const useGetDaoFwdMsgFeeQuery = (daoAddress?: string) => {
-  const clients = useGetClients().data;
-  return useQuery(
-    [QueryKeys.DAO_FWD_MSG_FEE, daoAddress],
-    async () => {
-      if (mock.isMockDao(daoAddress!)) return "0";
-      const res = await getDaoFwdMsgFee(clients!.clientV2, daoAddress!);
-      return fromNano(res);
-    },
-    {
-      enabled: !!daoAddress && !!clients?.clientV2,
-    }
-  );
-};
-
 export const useGetClients = () => {
   return useQuery(
     [QueryKeys.CLIENTS],
@@ -255,46 +282,6 @@ export const useGetClients = () => {
     },
     {
       staleTime: Infinity,
-    }
-  );
-};
-
-export const useGetCreateDaoFeeQuery = () => {
-  const clients = useGetClients().data;
-  return useQuery(
-    [QueryKeys.CREATE_DAO_FEE],
-    async () => {
-      const res = await getCreateDaoFee(clients!.clientV2, releaseMode);
-      return fromNano(res);
-    },
-    {
-      enabled: !!clients?.clientV2,
-    }
-  );
-};
-
-export const useGetRegistryAdminQuery = () => {
-  const clients = useGetClients().data;
-  return useQuery(
-    [QueryKeys.REGISTRY_ADMIN],
-    async () => {
-      return getRegistryAdmin(clients!.clientV2, releaseMode);
-    },
-    {
-      enabled: !!clients?.clientV2,
-    }
-  );
-};
-
-export const useGetRegistryIdQuery = () => {
-  const clients = useGetClients().data;
-  return useQuery(
-    [QueryKeys.REGISTRY_ID],
-    async () => {
-      return getRegistryId(clients!.clientV2, releaseMode);
-    },
-    {
-      enabled: !!clients?.clientV2,
     }
   );
 };
@@ -338,19 +325,6 @@ export const useConnectedWalletVotingPowerQuery = (
         !!proposal &&
         !!clients?.clientV4 &&
         !!proposalAddress,
-    }
-  );
-};
-
-export const useGetRegistryAddressQuery = () => {
-  const clients = useGetClients().data;
-  return useQuery(
-    [QueryKeys.REGISTRY_ADDRESS],
-    () => {
-      return getRegistry(clients!.clientV2, releaseMode);
-    },
-    {
-      enabled: !!clients?.clientV2,
     }
   );
 };

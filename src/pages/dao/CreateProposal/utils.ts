@@ -1,6 +1,10 @@
 import _ from "lodash";
 import moment from "moment";
-import { ProposalMetadata, VotingPowerStrategy, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
+import {
+  ProposalMetadata,
+  VotingPowerStrategy,
+  VotingPowerStrategyType,
+} from "ton-vote-contracts-sdk";
 import { Dao } from "types";
 import { isZeroAddress, utcMoment } from "utils";
 import { CreateProposalForm, CreateProposalInputArgs } from "./types";
@@ -25,9 +29,9 @@ export const prepareMetadata = (
     title: JSON.stringify({ en: formValues.title_en }),
     description: JSON.stringify({ en: formValues.description_en }),
     votingPowerStrategies: formValues.votingPowerStrategies,
+    quorum: "",
   };
 };
-
 
 export const getInitialValues = (
   formData: CreateProposalForm,
@@ -56,17 +60,18 @@ const handleInitialVotingPowerStrategies = (
   votingPowerStrategies?: VotingPowerStrategy[],
   dao?: Dao
 ): VotingPowerStrategy[] => {
+  const metadataArgs = dao?.daoMetadata.metadataArgs;
   if (votingPowerStrategies && _.size(votingPowerStrategies)) {
     return votingPowerStrategies;
   }
 
   const jetton =
-    dao?.daoMetadata.jetton && !isZeroAddress(dao?.daoMetadata.jetton)
-      ? dao?.daoMetadata.jetton
+    metadataArgs?.jetton && !isZeroAddress(metadataArgs?.jetton)
+      ? metadataArgs.jetton
       : "";
   const nft =
-    dao?.daoMetadata.nft && !isZeroAddress(dao?.daoMetadata.nft)
-      ? dao?.daoMetadata.nft
+    metadataArgs?.nft && !isZeroAddress(metadataArgs?.nft)
+      ? metadataArgs?.nft
       : "";
 
   if (jetton) {
@@ -88,7 +93,6 @@ const handleInitialVotingPowerStrategies = (
 
   return [{ type: VotingPowerStrategyType.TonBalance, arguments: [] }];
 };
-
 
 const initialChoices = ["Yes", "No", "Abstain"];
 
@@ -123,13 +127,14 @@ export const handleDefaults = (
   input: CreateProposalInputArgs,
   dao?: Dao
 ): CreateProposalInputArgs => {
+  const metadataArgs = dao?.daoMetadata.metadataArgs;
   const nftAddress =
-    dao?.daoMetadata.nft && !isZeroAddress(dao?.daoMetadata.nft)
-      ? dao?.daoMetadata.nft
+    metadataArgs?.nft && !isZeroAddress(metadataArgs?.nft)
+      ? metadataArgs?.nft
       : "";
   const jettonAddress =
-    dao?.daoMetadata.jetton && !isZeroAddress(dao?.daoMetadata.jetton)
-      ? dao?.daoMetadata.jetton
+    metadataArgs?.jetton && !isZeroAddress(metadataArgs?.jetton)
+      ? metadataArgs?.jetton
       : "";
 
   switch (input.name) {

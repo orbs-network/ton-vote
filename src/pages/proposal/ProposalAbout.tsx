@@ -193,12 +193,12 @@ const DaoInfo = () => {
 
   return (
     <StyledFlexRow style={{ width: "auto" }}>
-      <StyledDaoImg src={daoMetadata?.avatar} />
+      <StyledDaoImg src={daoMetadata?.metadataArgs.avatar} />
       <StyledLink
         to={appNavigation.daoPage.root(daoAddress)}
         className="dao-name"
       >
-        <OverflowWithTooltip text={parseLanguage(daoMetadata?.name)} />
+        <OverflowWithTooltip text={parseLanguage(daoMetadata?.metadataArgs.name)} />
       </StyledLink>
     </StyledFlexRow>
   );

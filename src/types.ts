@@ -6,7 +6,6 @@ import {
   DaoRoles,
   MetadataArgs,
   ProposalMetadata,
-  ProposalResult,
 } from "ton-vote-contracts-sdk";
 
 export type ProposalResults = { [key: string]: any };
@@ -30,13 +29,14 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
-interface daoMetadata extends MetadataArgs {
-  dns?: string;
-}
+
 export interface Dao {
   daoAddress: string;
   daoId?: number;
-  daoMetadata: daoMetadata;
+  daoMetadata: {
+    metadataAddress: string;
+    metadataArgs: MetadataArgs;
+  };
   daoRoles: DaoRoles;
   daoProposals: string[];
 }
@@ -152,7 +152,6 @@ export interface FormArgs<T> {
 
 
  export interface DaoMetadataForm extends MetadataArgs {
-  dns: string;
   about_en?: string;
   name_en?: string;
 }

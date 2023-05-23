@@ -5,7 +5,7 @@ import React, { useMemo } from "react";
 import { parseLanguage } from "utils";
 
 export function DaoDescription() {
-  const rawAbout = useDaoFromQueryParam().data?.daoMetadata.about;
+  const rawAbout = useDaoFromQueryParam().data?.daoMetadata.metadataArgs.about;
 
   const about = useMemo(() => parseLanguage(rawAbout, "en"), [rawAbout]);
 

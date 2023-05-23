@@ -22,7 +22,7 @@ export function DaoPage() {
       <Helmet>
         <title>
           {APP_NAME}
-          {data ? ` - ${parseLanguage(data.daoMetadata.name)}` : ""}
+          {data ? ` - ${parseLanguage(data.daoMetadata.metadataArgs.name)}` : ""}
         </title>
       </Helmet>
       {showError ? (

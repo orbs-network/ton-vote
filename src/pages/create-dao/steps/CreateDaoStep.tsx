@@ -19,7 +19,7 @@ import { useDaoMetadataForm, useDaoRolesForm } from "../form";
 import { useCreateDaoQuery } from "query/setters";
 import { useAppNavigation } from "router/navigation";
 import { useNewDataStore } from "store";
-import { useGetCreateDaoFeeQuery } from "query/getters";
+import { useRegistryStateQuery } from "query/getters";
 import { isZeroAddress } from "utils";
 
 export function CreateDaoStep() {
@@ -30,7 +30,7 @@ export function CreateDaoStep() {
   const { addDao } = useNewDataStore();
   const { daoMetadataForm, rolesForm, metadataAddress, reset } =
     useCreatDaoStore();
-  const createDaoFee = useGetCreateDaoFeeQuery().data;
+  const registryState = useRegistryStateQuery().data;
 
   const metadata = useDaoMetadataForm();
   const roles = useDaoRolesForm();
@@ -83,7 +83,7 @@ export function CreateDaoStep() {
         </StyledInputs>
         <Submit>
           <Button
-            isLoading={isLoading || createDaoFee === undefined}
+            isLoading={isLoading || registryState?.deployAndInitDaoFee === undefined}
             onClick={onSubmit}
           >
             {commonTranslations.create}
