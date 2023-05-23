@@ -205,16 +205,7 @@ export const useMobile = () => {
   return macthes;
 };
 
-export const useParseError = () => {
-  const translations = useCommonTranslations();
-  return (error?: string) => {
-    if (!error) return translations.somethingWentWrong;
-    if (error.includes("UserRejectsError")) {
-      return '';
-    }
-    return error;
-  };
-};
+
 
 export const useDevFeatures = () => {
   const dev = useAppQueryParams().query.dev;

@@ -1,15 +1,12 @@
 import { IconButton, styled } from "@mui/material";
-import { useParseError } from "hooks";
 import _ from "lodash";
 import toast, { ToastPosition } from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import { StyledFlexRow } from "styles";
-import { SlWallet } from "react-icons/sl";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useTonWallet } from "@tonconnect/ui-react";
 
 export function usePromiseToast<T>() {
-  const parseError = useParseError();
   const translations = useCommonTranslations();
   const wallet = useTonWallet();
   return (args: {
@@ -42,13 +39,8 @@ export function usePromiseToast<T>() {
         },
         error: (err: any) => {
           infoToast && toast.dismiss(infoToast);
-          const parsedError = parseError(
-            err instanceof Error ? err.message : err
-          );
 
-          return (
-            <ToastContent customClick={toast.dismiss} message={parsedError} />
-          );
+          return <ToastContent customClick={toast.dismiss} message={err} />;
         },
       },
       {
@@ -64,14 +56,18 @@ export function usePromiseToast<T>() {
   };
 }
 
-export const useErrorToast = () => {
-  const parseError = useParseError();
+export const filterError = (error?: string) => {
+  if (error?.includes("UserRejectsError")) {
+    return true;
+  }
+  return false;
+};
 
+export const useErrorToast = () => {
   return (err: any) => {
-    const parsedError = parseError(err instanceof Error ? err.message : err);
-    if (!parsedError) return;
+    if (filterError(err instanceof Error ? err.message : err)) return;
     toast.dismiss();
-    return errorToast(parsedError);
+    return errorToast(err);
   };
 };
 
@@ -128,8 +124,7 @@ const StyledIconButton = styled(IconButton)({
   background: "rgba(0, 0, 0, 0.03)",
 });
 
-
-export const hideAllToasts = () => toast.dismiss();
+export const clearAllToasts = () => toast.dismiss();
 
 const StyledContainer = styled(StyledFlexRow)({
   fontSize: 15,

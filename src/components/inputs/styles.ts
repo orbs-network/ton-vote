@@ -139,7 +139,7 @@ export const StyledInputContainer = styled(Box)<{
   ".MuiFormControl-root": {
     width: "100%",
   },
-  ".MuiInputBase-root": {
+  ".MuiInput-root": {
     paddingBottom: markdown ? "30px" : "unset",
     paddingTop: markdown ? "32px" : "unset",
   },
