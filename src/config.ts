@@ -56,13 +56,14 @@ export const releaseMode = import.meta.env.VITE_STAGING
   ? ReleaseMode.DEVELOPMENT
   : ReleaseMode.PRODUCTION;
 
-export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
-
+export const IS_DEV =
+  releaseMode === ReleaseMode.DEVELOPMENT
+export  const IS_BETA = import.meta.env.VITE_BETA;
 export const TX_FEES = {
-  CREATE_DAO: IS_DEV ? 0.085 : 0,
-  CREATE_METADATA: IS_DEV ? 0.05 : 0,
-  FORWARD_MSG: IS_DEV ? 0.5 : 0,
-  SET_METADATA: IS_DEV ? 0.05 : 0,
+  CREATE_DAO: IS_DEV ? 0.085 : 1,
+  CREATE_METADATA: IS_DEV ? 0.05 : 1,
+  FORWARD_MSG: IS_DEV ? 0.5 : 1,
+  SET_METADATA: IS_DEV ? 0.05 : 1,
   VOTE_FEE: 0.0065,
   BASE: 0.15,
 };

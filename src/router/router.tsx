@@ -10,20 +10,21 @@ import {
   BadRoute,
   DaoSettings,
 } from "pages";
-import { styled, Typography } from "@mui/material";
 import Layout from "layout/Layout";
-import { Button, Container } from "components";
 
 import _ from "lodash";
 
 import { routes } from "consts";
 
-import { createBrowserRouter, Navigate, useNavigate } from "react-router-dom";
-import { IS_DEV } from "config";
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import { IS_DEV, IS_BETA } from "config";
+
+
+const showBetaRoute = IS_BETA || IS_DEV;
 
 export const router = createBrowserRouter([
   {
-    path: '/', 
+    path: "/",
     element: <Layout />,
     children: [
       {
@@ -32,7 +33,7 @@ export const router = createBrowserRouter([
       },
       {
         path: routes.createSpace,
-        element: IS_DEV ? <CreateDaoPage /> : <Navigate to={"/"} />,
+        element: showBetaRoute ? <CreateDaoPage /> : <Navigate to={"/"} />,
       },
 
       {
@@ -41,7 +42,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: routes.createProposal,
-            element: IS_DEV ? <CreateProposal /> : <Navigate to={"/"} />,
+            element: showBetaRoute ? <CreateProposal /> : <Navigate to={"/"} />,
           },
           {
             path: routes.space,
