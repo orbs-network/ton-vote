@@ -44,6 +44,7 @@ function Form() {
     validationSchema: FormSchema,
     onSubmit: (formValues) => {
       const metadata = prepareMetadata(formValues);
+      
       createProposal({
         metadata,
         onSuccess: (proposalAddress: string) => {

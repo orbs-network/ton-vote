@@ -18,7 +18,7 @@ import {
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
 import { useGetSender, useProposalAddress, useRole } from "hooks";
-import { useErrorToast } from "toasts";
+import { errorToast, useErrorToast } from "toasts";
 import {
   useDaoFromQueryParam,
   useDaosQuery,
@@ -192,9 +192,6 @@ export const useCreateDaoQuery = () => {
   const registryState = useRegistryStateQuery().data;
   const showErrorToast = useErrorToast();
 
-  
-  
-
   return useMutation(
     async (args: CreateDaoArgs) => {
       const sender = getSender();
@@ -204,7 +201,10 @@ export const useCreateDaoQuery = () => {
         sender,
         clientV2,
         releaseMode,
-        getTxFee(Number(registryState?.deployAndInitDaoFee), TX_FEES.CREATE_DAO),
+        getTxFee(
+          Number(registryState?.deployAndInitDaoFee),
+          TX_FEES.CREATE_DAO
+        ),
         args.metadataAddress,
         args.ownerAddress,
         args.proposalOwner
@@ -287,11 +287,10 @@ export const useCreateProposalQuery = () => {
 
       const sender = getSender();
       if (!allowed) {
-        throw new Error("you are not allowed to create a proposal");
+       throw new Error("you are not allowed to create a proposal");
       }
       const clientV2 = await getClientV2();
-      console.log(dao?.daoAddress);
-      
+
       const address = await newProposal(
         sender,
         clientV2,
@@ -303,6 +302,7 @@ export const useCreateProposalQuery = () => {
       if (typeof address !== "string") {
         throw new Error("Failed to create Proposal");
       }
+      
 
       return address;
     },

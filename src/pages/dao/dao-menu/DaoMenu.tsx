@@ -114,9 +114,7 @@ const DaoDNS = () => {
 
   return (
     <StyledDNS>
-      <a href={"/"} target="_blank">
-        <Typography>{dao?.daoMetadata.metadataArgs.dns}</Typography>
-      </a>
+      <Typography>{dao?.daoMetadata.metadataArgs.dns}</Typography>
       <VerifiedDao daoAddress={dao.daoAddress} />
     </StyledDNS>
   );

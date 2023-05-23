@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
-import.meta.url
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -9,8 +9,7 @@ export default defineConfig({
     tsconfigPaths(),
     
   ],
-  // base: '/ton-vote/',
   server: {
-    port: 3000,
+    port: 3001,
   },
 });

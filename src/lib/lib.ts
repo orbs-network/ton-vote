@@ -21,7 +21,7 @@ const getProposalFromContract = async (
 ): Promise<Proposal | null> => {
   const metadata =
     _metadata ||
-    (await getProposalMetadata(clientV2, clientV4, proposalAddress));  
+    (await getProposalMetadata(clientV2, clientV4, proposalAddress));
   let transactions: Transaction[];
   let maxLt: undefined | string = "";
 
@@ -84,13 +84,19 @@ export const getDaoFromContract = async (
 ) => {
   Logger("Fetching dao from contract");
   const client = clientV2 || (await getClientV2());
+
   const daoState = await TonVoteSDK.getDaoState(client, daoAddress);
+  const metadataArgs = await TonVoteSDK.getDaoMetadata(
+    client,
+    daoState.metadata
+  );
+
   const daoFromContract: Dao = {
     daoAddress: daoAddress,
     daoRoles: { owner: daoState.owner, proposalOwner: daoState.proposalOwner },
     daoMetadata: {
       metadataAddress: "",
-      metadataArgs: await TonVoteSDK.getDaoMetadata(client, daoAddress),
+      metadataArgs,
     },
     daoId: daoState.daoIndex,
     daoProposals:

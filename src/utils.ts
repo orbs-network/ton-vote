@@ -1,4 +1,4 @@
-import { TONSCAN_ADDRESS_URL } from "config";
+import { IS_DEV, TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import timeZoneMoment from "moment-timezone";
 import moment from "moment";
@@ -254,6 +254,7 @@ export const getVoteStrategyType = (
 };
 
 export const getTxFee = (value: number, baseFee: number): string => {
+  if(IS_DEV) return baseFee.toString();
   return Math.max(Number(value), baseFee).toString();
 };
 

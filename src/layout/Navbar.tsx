@@ -164,9 +164,13 @@ function ConnectButton() {
 }
 
 const StyledButton = styled(TonConnectButton)<{ connected: number }>(
-  ({ theme, connected }) => ({
+  ({ theme }) => ({
     button: {
-      background: !connected && theme.palette.primary.main,
+      background: theme.palette.primary.main,
+      "*": {
+        color: "white",
+        stroke:'white'
+      },
     },
   })
 );

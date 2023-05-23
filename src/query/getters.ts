@@ -42,7 +42,8 @@ export const useRegistryStateQuery = () => {
     [QueryKeys.REGISTRY_STATE],
     async () => {
       const result = await getRegistryState(clients!.clientV2, releaseMode);      
-      
+        console.log({ result });
+        
       return {
         ...result,
         deployAndInitDaoFee: result ? fromNano(result!.deployAndInitDaoFee) : '',
@@ -388,6 +389,7 @@ export const useProposalQuery = (
           transactions
         );
       };
+    
 
       if (args?.isCustomEndpoint) {
         Logger("isCustomEndpoint selected");

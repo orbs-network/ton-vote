@@ -34,7 +34,9 @@ function Layout({children}:{children?: ReactNode}) {
         </StyledContainer>
       </Fade>
       <ScrollTop />
-      <Toaster  />
+      <Toaster toastOptions={{
+        className:'toast'
+      }} />
     </QueryParamProvider>
   );
 }

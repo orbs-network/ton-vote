@@ -67,11 +67,12 @@ export const globalStyles = {
   ".MuiPickersDay-today": {
     border: "unset!important",
   },
-
-  ".go1858758034": {
-    width: 18,
-    height: 18,
+  ".toast": {
+    "[role=status]": {
+      marginRight: 0
+    },
   },
+
   html: {
     // scrollBehavior: "smooth" as const,
   },
