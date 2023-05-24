@@ -36,7 +36,7 @@ export const Popup = ({
           title={title || ""}
           className={`popup-children ${className}`}
           headerComponent={
-            onClose && !hideCloseButton && <CloseButton close={onClose} />
+            !title ? null : onClose && !hideCloseButton && <CloseButton close={onClose} />
           }
         >
           {children}

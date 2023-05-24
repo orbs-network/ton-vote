@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -6,17 +5,20 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { CssBaseline, GlobalStyles, ThemeProvider } from "@mui/material";
 import { theme } from "theme";
 import { globalStyles } from "styles";
-import './i18n/index'
+import "./i18n/index";
 import App from "App";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { manifestUrl } from "config";
-
+import { clearAllToasts } from "toasts";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 3,
+    },
+    mutations: {
+      onMutate: () => clearAllToasts(),
     },
   },
 });
@@ -26,9 +28,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalStyles styles={globalStyles} />
-      <TonConnectUIProvider
-        manifestUrl={manifestUrl}
-      >
+      <TonConnectUIProvider manifestUrl={manifestUrl}>
         <App />
       </TonConnectUIProvider>
     </ThemeProvider>

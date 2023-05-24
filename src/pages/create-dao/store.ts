@@ -32,15 +32,23 @@ interface State {
   setMetadataAddress: (value: string) => void;
   setRolesForm: (rolesForm?: DaoRolesForm) => void;
   reset: () => void;
+  daoAddress?: string;
+  setDaoAddress: (value: string) => void;
+  createDaoSuccessModal: boolean;
+  setCreateDaoSuccessModal: (value: boolean) => void;
 }
 
 export const useCreatDaoStore = create(
   persist<State>(
     (set) => ({
+      createDaoSuccessModal: false,
+      setCreateDaoSuccessModal: (createDaoSuccessModal) =>
+        set({ createDaoSuccessModal }),
       editMode: false,
       rolesForm: {} as DaoRolesForm,
       daoMetadataForm: initialCreateMetadataForm,
       step: 0,
+      setDaoAddress: (daoAddress) => set({ daoAddress }),
       setStep: (step) => set({ step }),
       nextStep: () => set((state) => ({ step: state.step + 1 })),
       prevStep: () => set((state) => ({ step: state.step - 1 })),

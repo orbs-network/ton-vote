@@ -7,7 +7,7 @@ import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useTonWallet } from "@tonconnect/ui-react";
 
 export function usePromiseToast<T>() {
-  const translations = useCommonTranslations();
+const translations = useCommonTranslations();
   const wallet = useTonWallet();
   return (args: {
     promise: Promise<T>;
@@ -68,12 +68,13 @@ export const useErrorToast = () => {
     if (filterError(err instanceof Error ? err.message : err)) return;
     toast.dismiss();
     return errorToast(err);
-  };
+  };  
 };
 
-export const errorToast = (message: string) => {
-  toast.error((t) => <ToastContent message={message} id={t.id} />, {
-    duration: 4000,
+export const errorToast = (message: string | Error) => {
+  const msg = message instanceof Error ? message.message : message;
+  toast.error((t) => <ToastContent message={msg} id={t.id} />, {
+    duration: 400000,
   });
 };
 
@@ -104,6 +105,7 @@ const ToastContent = ({
   id?: string;
   customClick?: () => void;
 }) => {
+  console.log(message);
   const showButton = customClick || id;
   return (
     <StyledContainer className="test">

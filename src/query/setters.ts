@@ -18,7 +18,7 @@ import {
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
 import { useGetSender, useProposalAddress, useRole } from "hooks";
-import { clearAllToasts, errorToast, useErrorToast } from "toasts";
+import { useErrorToast } from "toasts";
 import {
   useDaoFromQueryParam,
   useDaosQuery,
@@ -31,6 +31,7 @@ import { getTxFee, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
+import { Sender } from "ton-core";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -195,7 +196,6 @@ export const useCreateDaoQuery = () => {
   return useMutation(
     async (args: CreateDaoArgs) => {
       const sender = getSender();
-      clearAllToasts();
       const clientV2 = await getClientV2();
 
       const address = await newDao(
@@ -210,7 +210,8 @@ export const useCreateDaoQuery = () => {
         args.ownerAddress,
         args.proposalOwner
       );
-
+            console.log(address);
+            
       if (typeof address !== "string") {
         throw new Error("Failed to create Dao");
       }
@@ -220,7 +221,7 @@ export const useCreateDaoQuery = () => {
     {
       onError: (error: Error, args) => {
         showErrorToast(error);
-        analytics.createSpaceSuccess(args.metadataAddress, error.message);
+        analytics.createSpaceFailed(args.metadataAddress, error.message);
       },
       onSuccess: (address, args) => {
         args.onSuccess(address);
@@ -237,7 +238,6 @@ export const useCreateMetadataQuery = () => {
   return useMutation(
     async (args: CreateMetadataArgs) => {
       const { metadata } = args;
-      clearAllToasts();
       const sender = getSender();
 
       const clientV2 = await getClientV2();
@@ -286,7 +286,6 @@ export const useCreateProposalQuery = () => {
   return useMutation(
     async (args: CreateProposalArgs) => {
       const { metadata } = args;
-      clearAllToasts();
       const sender = getSender();
       if (!allowed) {
         throw new Error("you are not allowed to create a proposal");
@@ -300,6 +299,7 @@ export const useCreateProposalQuery = () => {
         dao?.daoAddress!,
         metadata as ProposalMetadata
       );
+      console.log(address);
 
       if (typeof address !== "string") {
         throw new Error("Failed to create Proposal");
@@ -501,3 +501,4 @@ export const useVote = () => {
     }
   );
 };
+

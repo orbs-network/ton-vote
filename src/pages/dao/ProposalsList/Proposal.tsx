@@ -41,6 +41,7 @@ import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useProposalQuery, useProposalStatusQuery } from "query/getters";
 import { mock } from "mock/mock";
+import { useMemo } from "react";
 
 const Time = ({
   proposalMetadata,
@@ -118,6 +119,20 @@ export const ProposalComponent = ({
   const status = useProposalStatusQuery(proposal?.metadata, proposalAddress);
   const hideProposal = useHideProposal(proposalAddress, proposal, status);
 
+  const isMock = useMemo(
+    () => mock.isMockProposal(proposalAddress),
+    [proposalAddress]
+  );
+
+  const description = useMemo(
+    () => parseLanguage(proposal?.metadata?.description, "en"),
+    [proposal?.metadata?.description]
+  );
+  const title = useMemo(
+    () => parseLanguage(proposal?.metadata?.title),
+    [proposal?.metadata?.title]
+  );
+
   const onClick = () => {
     proposalPage.root(daoAddress, proposalAddress);
   };
@@ -133,7 +148,7 @@ export const ProposalComponent = ({
   if (!proposal) {
     return null;
   }
-  const description = parseLanguage(proposal?.metadata?.description, "en");
+
   return (
     <StyledProposal onClick={onClick}>
       <StyledFlexColumn alignItems="flex-start" gap={20}>
@@ -146,10 +161,8 @@ export const ProposalComponent = ({
 
         <StyledFlexColumn alignItems="flex-start">
           <StyledProposalTitle variant="h4">
-            {parseLanguage(proposal?.metadata?.title)}
-            {mock.isMockProposal(proposalAddress) && (
-              <small style={{ opacity: 0.5 }}> (Mock)</small>
-            )}
+            {title}
+            {isMock && <small style={{ opacity: 0.5 }}> (Mock)</small>}
           </StyledProposalTitle>
           <StyledMarkdown
             sx={{
