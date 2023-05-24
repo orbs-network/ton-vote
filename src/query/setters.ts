@@ -210,7 +210,6 @@ export const useCreateDaoQuery = () => {
         args.ownerAddress,
         args.proposalOwner
       );
-            console.log(address);
             
       if (typeof address !== "string") {
         throw new Error("Failed to create Dao");
@@ -299,7 +298,6 @@ export const useCreateProposalQuery = () => {
         dao?.daoAddress!,
         metadata as ProposalMetadata
       );
-      console.log(address);
 
       if (typeof address !== "string") {
         throw new Error("Failed to create Proposal");

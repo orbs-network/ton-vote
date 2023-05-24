@@ -42,7 +42,6 @@ export const useRegistryStateQuery = () => {
     [QueryKeys.REGISTRY_STATE],
     async () => {
       const result = await getRegistryState(clients!.clientV2, releaseMode);      
-        console.log({ result });
         
       return {
         ...result,
@@ -232,7 +231,7 @@ export const useDaoQuery = (
       const dao = await lib.getDao(daoAddress!, fetchFromContract, signal);
       const proposals = handleProposal(daoAddress!, dao.daoProposals);
       const daoProposals = IS_DEV
-        ? _.concat(proposals, mock.proposalAddresses)
+        ? _.concat(mock.proposalAddresses, proposals)
         : proposals;
       return {
         ...dao,
@@ -389,7 +388,6 @@ export const useProposalQuery = (
           transactions
         );
       };
-    
 
       if (args?.isCustomEndpoint) {
         Logger("isCustomEndpoint selected");
@@ -420,7 +418,8 @@ export const useProposalQuery = (
       return proposal;
     },
     {
-      enabled: !!proposalAddress && !!clients?.clientV2 && !!clients.clientV4,
+      enabled:
+        !!proposalAddress && !!clients?.clientV2 && !!clients.clientV4 && !args?.disabled,
       staleTime: args?.staleTime !== undefined ? args?.staleTime : 10_000,
       retry: isWhitelisted ? 3 : false,
       refetchInterval: args?.refetchInterval,

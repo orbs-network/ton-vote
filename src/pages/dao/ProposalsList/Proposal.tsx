@@ -42,6 +42,7 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { useProposalQuery, useProposalStatusQuery } from "query/getters";
 import { mock } from "mock/mock";
 import { useMemo } from "react";
+import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 const Time = ({
   proposalMetadata,
@@ -106,15 +107,23 @@ const useHideProposal = (
   return false;
 };
 
+
+
 export const ProposalComponent = ({
   proposalAddress,
 }: {
   proposalAddress: string;
 }) => {
+
+  
   const { proposalPage } = useAppNavigation();
   const daoAddress = useDaoAddressFromQueryParam();
-
-  const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
+  const [ref, { entry }] = useIntersectionObserver();
+  const isVisible = entry && entry.isIntersecting;
+  
+  const { data: proposal, isLoading } = useProposalQuery(proposalAddress, {
+    disabled: !isVisible,
+  });
 
   const status = useProposalStatusQuery(proposal?.metadata, proposalAddress);
   const hideProposal = useHideProposal(proposalAddress, proposal, status);
@@ -134,55 +143,51 @@ export const ProposalComponent = ({
   );
 
   const onClick = () => {
-    proposalPage.root(daoAddress, proposalAddress);
+    if (daoAddress && proposalAddress){
+      proposalPage.root(daoAddress, proposalAddress);
+    }
+      
   };
 
-  if (isLoading) {
-    return <ProposalLoader />;
-  }
-
-  if (hideProposal) {
-    return null;
-  }
-
-  if (!proposal) {
-    return null;
-  }
 
   return (
-    <StyledProposal onClick={onClick}>
-      <StyledFlexColumn alignItems="flex-start" gap={20}>
-        <StyledFlexRow justifyContent="space-between">
-          <AppTooltip text="Proposal address" placement="right">
-            <StyledProposalAddress address={proposalAddress} padding={10} />
-          </AppTooltip>
-          <Status status={status} />
-        </StyledFlexRow>
+    <StyledProposal onClick={onClick} ref={ref}>
+      {isLoading ? (
+        <ProposalLoader />
+      ) : hideProposal || !proposal ? null : (
+        <StyledFlexColumn alignItems="flex-start" gap={20}>
+          <StyledFlexRow justifyContent="space-between">
+            <AppTooltip text="Proposal address" placement="right">
+              <StyledProposalAddress address={proposalAddress} padding={10} />
+            </AppTooltip>
+            <Status status={status} />
+          </StyledFlexRow>
 
-        <StyledFlexColumn alignItems="flex-start">
-          <StyledProposalTitle variant="h4">
-            {title}
-            {isMock && <small style={{ opacity: 0.5 }}> (Mock)</small>}
-          </StyledProposalTitle>
-          <StyledMarkdown
-            sx={{
-              display: "-webkit-box",
-              overflow: "hidden",
-              WebkitBoxOrient: "vertical",
-              WebkitLineClamp: 3,
-            }}
-          >
-            {removeMd(description || "", {
-              useImgAltText: true,
-            })}
-          </StyledMarkdown>
+          <StyledFlexColumn alignItems="flex-start">
+            <StyledProposalTitle variant="h4">
+              {title}
+              {isMock && <small style={{ opacity: 0.5 }}> (Mock)</small>}
+            </StyledProposalTitle>
+            <StyledMarkdown
+              sx={{
+                display: "-webkit-box",
+                overflow: "hidden",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 3,
+              }}
+            >
+              {removeMd(description || "", {
+                useImgAltText: true,
+              })}
+            </StyledMarkdown>
+          </StyledFlexColumn>
+
+          {!proposal?.hardcoded &&
+            status === ProposalStatus.CLOSED &&
+            proposal && <Results proposal={proposal} />}
+          <Time proposalMetadata={proposal?.metadata} status={status} />
         </StyledFlexColumn>
-
-        {!proposal?.hardcoded &&
-          status === ProposalStatus.CLOSED &&
-          proposal && <Results proposal={proposal} />}
-        <Time proposalMetadata={proposal?.metadata} status={status} />
-      </StyledFlexColumn>
+      )}
     </StyledProposal>
   );
 };

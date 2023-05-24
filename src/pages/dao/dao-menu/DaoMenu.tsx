@@ -98,7 +98,6 @@ const DaoLogo = () => {
 
 const DaoTitle = () => {
   const dao = useDaoFromQueryParam().data;
-  console.log(dao);
   
   return (
     <StyledTitle placement="top" text={parseLanguage(dao?.daoMetadata?.metadataArgs.name)} />

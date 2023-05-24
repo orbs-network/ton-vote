@@ -34,7 +34,6 @@ const useCreateDao = () => {
       ownerAddress: rolesForm.ownerAddress,
       proposalOwner: rolesForm.proposalOwner,
       onSuccess: (address: string) => {
-        
         appNavigation.daoPage.root(address);
         addDao(address);
         // setCreateDaoSuccessModal(true);

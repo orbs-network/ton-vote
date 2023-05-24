@@ -105,7 +105,6 @@ const ToastContent = ({
   id?: string;
   customClick?: () => void;
 }) => {
-  console.log(message);
   const showButton = customClick || id;
   return (
     <StyledContainer className="test">
