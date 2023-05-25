@@ -7,7 +7,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, Github, Menu } from "components";
+import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
@@ -48,14 +48,19 @@ export function Navbar() {
 const ThemeToggle = () => {
   const { toggleThemeMode, themeMode } = useSettingsStore();
   return (
-    <StyledThemeToggle onClick={toggleThemeMode}>
-      {themeMode === "dark" ? <FiSun /> : <FiMoon />}
-    </StyledThemeToggle>
+    <AppTooltip text={themeMode === "dark" ? "Light mode" : "Dark more"}>
+      <StyledThemeToggle onClick={toggleThemeMode}>
+        {themeMode === "dark" ? <FiSun /> : <FiMoon />}
+      </StyledThemeToggle>
+    </AppTooltip>
   );
 };
 
 const StyledThemeToggle = styled(IconButton)(({ theme }) => ({
   color: theme.palette.mode === "dark" ? theme.palette.primary.main : "black",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    padding: 3
+  },
 }));
 
 const StyledDev = styled(Chip)({
@@ -142,10 +147,10 @@ const StyledLogo = styled("button")(({ theme }) => ({
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     p: {
-      fontSize: 17,
+      fontSize: 14,
     },
     img: {
-      height: 32,
+      height: 25,
     },
   },
 }));
@@ -187,6 +192,11 @@ const StyledButton = styled(TonConnectButton)<{ connected: number }>(
       "*": {
         color: "white",
         stroke: "white",
+      },
+    },
+    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+      "*": {
+        fontSize: 13,
       },
     },
   })
