@@ -60,6 +60,7 @@ export const StyledFlexColumn = styled(Box)(
 export const globalStyles = {
   body: {
     background: "#F8F9FB",
+    overflowX: "hidden",
   },
   "*::-webkit-scrollbar": {
     display: "none",
@@ -69,7 +70,7 @@ export const globalStyles = {
   },
   ".toast": {
     "[role=status]": {
-      marginRight: 0
+      marginRight: 0,
     },
   },
 
@@ -89,6 +90,12 @@ export const globalStyles = {
   ".MuiDateCalendar-root .Mui-disabled": {
     opacity: "0.4!important",
     color: "gray!important",
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    "tc-root": {
+      right: 10,
+      left: "unset!important",
+    },
   },
 };
 
