@@ -162,3 +162,6 @@ export interface DaoRolesForm {
   proposalOwner: string;
 }
 
+
+
+export type ThemeType = "light" | "dark";

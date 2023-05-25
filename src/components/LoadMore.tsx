@@ -46,10 +46,10 @@ function LoadMore({
 
 export { LoadMore };
 
-const StyledButton = styled(Button)({
-  width:'100%',
-  background:'white'
-});
+const StyledButton = styled(Button)(({ theme }) => ({
+  width: "100%",
+  background: theme.palette.background.paper,
+}));
 
 const StyledContainer = styled(StyledFlexRow)({
   marginBottom: 50,

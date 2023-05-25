@@ -120,10 +120,10 @@ const ToastContent = ({
   );
 };
 
-const StyledIconButton = styled(IconButton)({
+const StyledIconButton = styled(IconButton)(({theme}) => ({
   padding: 5,
-  background: "rgba(0, 0, 0, 0.03)",
-});
+  background: theme.palette.mode === 'light' ?   "rgba(0, 0, 0, 0.03)" : "rgba(255, 255, 255, 0.03)",
+}));
 
 export const clearAllToasts = () => toast.dismiss();
 

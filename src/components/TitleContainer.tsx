@@ -35,11 +35,11 @@ export function TitleContainer({
   );
 }
 
-const StyledTitle = styled(Typography)({
+const StyledTitle = styled(Typography)(({ theme }) => ({
   fontSize: 17,
-  color: "black",
+  color: theme.palette.text.primary,
   fontWeight: 700,
-});
+}));
 
 const StyledTitleContainer = styled(StyledContainer)({
   width: "100%",
@@ -50,8 +50,9 @@ const StyledTitleContainer = styled(StyledContainer)({
   },
 });
 
-const StyledHeader = styled(StyledFlexRow)({
-  borderBottom: "1px solid rgba(114, 138, 150, 0.24)",
+const StyledHeader = styled(StyledFlexRow)(({ theme }) => ({
+  borderBottom:
+    theme.palette.mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
   padding: "15px 20px",
-  flexWrap:'wrap'
-});
+  flexWrap: "wrap",
+}));

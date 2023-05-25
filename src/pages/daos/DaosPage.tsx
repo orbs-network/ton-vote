@@ -1,5 +1,4 @@
-import { styled, Typography } from "@mui/material";
-import { Container, List, LoadMore, Page, Search } from "components";
+import {  List, LoadMore, Page } from "components";
 import {
   StyledEmptyText,
   StyledFlexColumn,

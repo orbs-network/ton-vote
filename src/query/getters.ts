@@ -231,7 +231,7 @@ export const useDaoQuery = (
       const dao = await lib.getDao(daoAddress!, fetchFromContract, signal);
       const proposals = handleProposal(daoAddress!, dao.daoProposals);
       const daoProposals = IS_DEV
-        ? _.concat(mock.proposalAddresses, proposals)
+        ? _.concat(proposals, mock.proposalAddresses)
         : proposals;
       return {
         ...dao,

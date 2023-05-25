@@ -2,6 +2,7 @@ import { CircularProgress, Fade, styled } from "@mui/material";
 import { Box } from "@mui/system";
 import { MOBILE_WIDTH } from "consts";
 import { ReactNode } from "react";
+import { useSettingsStore } from "store";
 import { StyledFlexRow } from "styles";
 
 type Variant = "transparent";
@@ -63,40 +64,47 @@ const StyledChildren = styled(StyledFlexRow)({
 const StyledContainer = styled("button")<{
   disabled: boolean;
   variant?: Variant;
-}>(({ theme, disabled, variant }) => ({
-  width: "fit-content",
-  height: 44,
-  borderRadius: 40,
-  opacity: disabled ? 0.7 : 1,
-  pointerEvents: disabled ? "none" : "all",
-  background:
-    variant === "transparent" ? "transparent" : theme.palette.primary.main,
-  border:
-    variant === "transparent"
-      ? `1px solid ${theme.palette.primary.main}`
-      : "1px solid transparent",
-  cursor: "pointer",
-  position: "relative",
-  padding: "0px 16px",
-  transition: "0.3s all",
-  "*, p": {
-    color: variant === "transparent" ? theme.palette.primary.main : "white",
-    fontSize: 16,
-    fontWeight: 700,
-    fontFamily: theme.typography.fontFamily,
-  },
+}>(({ theme, disabled, variant }) => {
 
-  [`@media (min-width: ${MOBILE_WIDTH}px)`]: {
-    "&:hover": {
-      border:
-        variant === "transparent"
-          ? "1px solid transparent"
-          : `1px solid ${theme.palette.primary.main}`,
-      background:
-        variant === "transparent" ? theme.palette.primary.main : "transparent",
-      "*": {
-        color: variant === "transparent" ? "white" : theme.palette.primary.main,
+
+  return {
+    width: "fit-content",
+    height: 44,
+    borderRadius: 40,
+    opacity: disabled ? 0.7 : 1,
+    pointerEvents: disabled ? "none" : "all",
+    background:
+      variant === "transparent" ? "transparent" : theme.palette.primary.main,
+    border:
+      variant === "transparent"
+        ? `1px solid ${theme.palette.primary.main}`
+        : "1px solid transparent",
+    cursor: "pointer",
+    position: "relative",
+    padding: "0px 16px",
+    transition: "0.3s all",
+    "*, p": {
+      color: variant === "transparent" && theme.palette.mode === 'light' ? theme.palette.primary.main : "white",
+      fontSize: 16,
+      fontWeight: 700,
+      fontFamily: theme.typography.fontFamily,
+    },
+
+    [`@media (min-width: ${MOBILE_WIDTH}px)`]: {
+      "&:hover": {
+        border:
+          variant === "transparent"
+            ? "1px solid transparent"
+            : `1px solid ${theme.palette.primary.main}`,
+        background:
+          variant === "transparent"
+            ? theme.palette.primary.main
+            : "transparent",
+        "*": {
+          color:
+            variant === "transparent" || theme.palette.mode === 'dark' ? "white" : theme.palette.primary.main,
+        },
       },
     },
-  },
-}));
+  };
+});

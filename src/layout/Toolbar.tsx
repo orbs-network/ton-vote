@@ -11,6 +11,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router/navigation";
 import { StyledFlexColumn } from "styles";
+import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
 
 export function Toolbar() {
@@ -62,19 +63,20 @@ const StyledButton = styled(Button)({
   },
 });
 
-const StyledToolbar = styled(StyledFlexColumn)({
+const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
   width: TOOLBAR_WIDTH,
   height: "100%",
-  background: "white",
+  background: theme.palette.background.paper,
   position: "fixed",
   left: 0,
-  borderRight: "0.5px solid rgba(114, 138, 150, 0.24)",
+  borderRight: `0.5px solid ${
+    getBorderColor(theme.palette.mode)}`,
   zIndex: 30,
   top: 0,
   justifyContent: "flex-start",
   paddingTop: 20,
   gap: 0,
-});
+}));
 
 const UserDaos = () => {
   const { data: daos } = useDaosQuery();
@@ -117,15 +119,21 @@ const UserDaos = () => {
   );
 };
 
-const StyledLink = styled(Link)<{ selected: number }>(({ selected }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 5,
-  transition: "0.2s all",
-  boxShadow: selected === 1 ? "0px -1px 24px 4px rgba(0,136,204,1)" : "unset",
-  borderRadius: "50%",
-}));
+const StyledLink = styled(Link)<{ selected: number }>(({ selected, theme }) => {
+  const shadow =
+    theme.palette.mode === "light"
+      ? "0px -1px 24px 4px rgba(0,136,204,1)"
+      : "0px -1px 15px 4px rgba(255,255,255,0.2)";
+  return {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 5,
+    transition: "0.2s all",
+    boxShadow: selected === 1 ? shadow : "unset",
+    borderRadius: "50%",
+  };
+});
 
 const StyledDaoImg = styled(Img)({
   width: 40,

@@ -5,7 +5,7 @@ import {
   useEffect,
   useRef,
 } from "react";
-import { matchRoutes, useLocation, useParams } from "react-router-dom";
+import { matchRoutes, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
@@ -173,6 +173,7 @@ enum Params {
   PROPOSAL_STATE = "proposal-state",
   SEARCH = "search",
   DEV = "dev",
+  MODE = 'mode'
 }
 
 export const useAppQueryParams = () => {
@@ -180,6 +181,7 @@ export const useAppQueryParams = () => {
     [Params.PROPOSAL_STATE]: StringParam,
     [Params.SEARCH]: StringParam,
     [Params.DEV]: StringParam,
+    [Params.MODE]: StringParam,
   });
 
   return {
@@ -187,6 +189,7 @@ export const useAppQueryParams = () => {
       proposalState: query[Params.PROPOSAL_STATE] as string | undefined,
       search: query.search as string | undefined,
       dev: query.dev as string | undefined,
+      mode: query.mode as string | undefined,
     },
     setProposalState: (state: string | undefined) => {
       setQuery({ [Params.PROPOSAL_STATE]: state }, "pushIn");
@@ -228,3 +231,6 @@ export const useRole = (roles?: DaoRoles) => {
     getRole,
   };
 };
+
+
+

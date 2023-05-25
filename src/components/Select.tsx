@@ -4,6 +4,7 @@ import {
   Select as MuiSelect,
   SelectChangeEvent,
   styled,
+  useTheme,
 } from "@mui/material";
 import { SelectOption } from "types";
 import {MdKeyboardArrowDown} from 'react-icons/md'
@@ -20,6 +21,9 @@ export function Select({ options, selected, onSelect, className = '' }: Props) {
     onSelect(event.target.value);
   };
 
+
+  const theme = useTheme()
+
   return (
     <StyledSelectContainer className={className}>
       <MuiSelect
@@ -27,8 +31,8 @@ export function Select({ options, selected, onSelect, className = '' }: Props) {
           PaperProps: {
             style: {
               borderRadius: 10,
-              border: "1px solid #e0e0e0",
-              boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+              border: theme.palette.mode === 'light' ?  "1px solid #e0e0e0" : '1px solid #424242',
+              boxShadow: theme.palette.mode === 'light' ? "rgb(114 138 150 / 8%) 0px 2px 16px" : 'unset',
             },
           },
         }}

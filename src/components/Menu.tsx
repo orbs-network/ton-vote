@@ -1,4 +1,4 @@
-import { Menu as MuiMenu } from "@mui/material";
+import { Menu as MuiMenu, useTheme } from "@mui/material";
 export function Menu({
   anchorEl,
   setAnchorEl,
@@ -8,10 +8,7 @@ export function Menu({
   setAnchorEl: (value: HTMLButtonElement | null) => void;
   children: React.ReactNode;
 }) {
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
+  const theme = useTheme()
   const open = Boolean(anchorEl);
 
   const handleClose = () => {
@@ -23,8 +20,8 @@ export function Menu({
       PaperProps={{
         style: {
           borderRadius: 10,
-          border: "1px solid #e0e0e0",
-          boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+          border: theme.palette.mode === 'light' ?  "1px solid #e0e0e0" : 'unset',
+          boxShadow: theme.palette.mode === 'light'  ? "rgb(114 138 150 / 8%) 0px 2px 16px" : 'unset',
         },
       }}
       id="basic-menu"
@@ -44,4 +41,3 @@ export function Menu({
     </MuiMenu>
   );
 }
-

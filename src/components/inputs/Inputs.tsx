@@ -25,7 +25,6 @@ import { FormArgs, InputArgs } from "types";
 import { FormikProps } from "formik";
 import { AppTooltip } from "../Tooltip";
 import _ from "lodash";
-import { useTranslation } from "react-i18next";
 import { Markdown } from "../Markdown";
 import { AiOutlinePlus } from "react-icons/ai";
 import {

@@ -1,8 +1,8 @@
-import { Skeleton, styled, Typography } from "@mui/material";
+import { Skeleton, styled, Theme, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { Button } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
-import { theme } from "theme";
+import { getBorderColor } from "theme";
 
 export const StyledEndAdornment = styled(Box)({
   button: {
@@ -57,46 +57,76 @@ export const StyledFlexColumn = styled(Box)(
   })
 );
 
-export const globalStyles = {
-  body: {
-    background: "#F8F9FB",
-    overflowX: "hidden",
-  },
-  "*::-webkit-scrollbar": {
-    display: "none",
-  },
-  ".MuiPickersDay-today": {
-    border: "unset!important",
-  },
-  ".toast": {
-    "[role=status]": {
-      marginRight: 0,
+export const getGlobalStyles = (theme: Theme) => {
+  return {
+    body: {
+      background: theme.palette.background.default,
+      overflowX: "hidden",
+      fontFamily: "mulish",
     },
-  },
+    "*::-webkit-scrollbar": {
+      display: "none",
+    },
+    ".MuiPickersDay-today": {
+      border: "unset!important",
+    },
+    ".toast": {
+      background:
+        theme.palette.mode === "light"
+          ? theme.palette.background.paper
+          : "#212023",
+      border:
+        theme.palette.mode === "light"
+          ? "unset"
+          : `1px solid rgba(255,255,255, 0.2)`,
+      "*": {
+        color: theme.palette.text.secondary,
+      },
+      "[role=status]": {
+        marginRight: 0,
+      },
+    },
+    input: {
+      background: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+    },
+    svg: {
+      color: theme.palette.text.primary,
+    },
 
-  html: {
-    // scrollBehavior: "smooth" as const,
-  },
-  ".snackbar-success": {
-    backgroundColor: `${theme.palette.primary.main}!important`,
-  },
-  ".MuiTooltip-arrow": {
-    color: `#EEEEEE!important`,
-  },
-  ".MuiTooltip-tooltip": {
-    background: `#EEEEEE!important`,
-    boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
-  },
-  ".MuiDateCalendar-root .Mui-disabled": {
-    opacity: "0.4!important",
-    color: "gray!important",
-  },
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    "tc-root": {
-      right: 10,
-      left: "unset!important",
+    html: {
+      // scrollBehavior: "smooth" as const,
     },
-  },
+    ".snackbar-success": {
+      backgroundColor: `${theme.palette.primary.main}!important`,
+    },
+    ".MuiTooltip-arrow": {
+      color:
+        theme.palette.mode === "light"
+          ? `#EEEEEE!important`
+          : "#2B303B!important",
+    },
+    ".MuiTooltip-tooltip": {
+      background:
+        theme.palette.mode === "light"
+          ? `#EEEEEE!important`
+          : "#2B303B!important",
+      boxShadow:
+        theme.palette.mode === "light"
+          ? "rgb(114 138 150 / 8%) 0px 2px 16px"
+          : "unset",
+    },
+    ".MuiDateCalendar-root .Mui-disabled": {
+      opacity: "0.4!important",
+      color: "gray!important",
+    },
+    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+      "tc-root": {
+        right: 10,
+        left: "unset!important",
+      },
+    },
+  };
 };
 
 export const StyledGrid = styled(StyledFlexColumn)({
@@ -131,8 +161,8 @@ export const StyledOneLine = styled(Typography)({
   whiteSpace: "nowrap",
 });
 
-export const StyledTitle = styled(Typography)({
-  color: "black",
+export const StyledTitle = styled(Typography)(({ theme }) => ({
+  color: theme.palette.mode === 'light' ? 'black' : theme.palette.text.secondary,
   textAlign: "left",
   fontWeight: 700,
   lineHeight: "28px",
@@ -141,28 +171,33 @@ export const StyledTitle = styled(Typography)({
     fontSize: 18,
     lineHeight: "25px",
   },
-});
+}));
 
-export const StyledContainer = styled(Box)({
-  background: "white",
-  border: "1px solid #e0e0e0",
-  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+export const StyledContainer = styled(Box)(({theme}) => ({
+  background: theme.palette.background.paper,
+  border: theme.palette.mode === 'light' ?  "1px solid #e0e0e0" : '1px solid rgba(255,255,255, 0.2)',
+  boxShadow: theme.palette.mode === 'light' ? "rgb(114 138 150 / 8%) 0px 2px 16px" : 'unset',
   borderRadius: 10,
   padding: 20,
-  transition: "0.2s all",
+  transition: "0s all",
   svg: {
-    transition: "0.2s all",
-  },
-});
-
-export const StyledHoverContainer = styled(StyledContainer)(({ theme }) => ({
-  "&:hover": {
-    border: `1px solid ${theme.palette.primary.main}`,
-    svg: {
-      color: `${theme.palette.primary.main}`,
-    },
+    transition: "0s all",
   },
 }));
+
+export const StyledHoverContainer = styled(StyledContainer)(({ theme }) => {
+  const color = theme.palette.mode === 'light' ? theme.palette.primary.main : 'white';
+  return {
+    transition: "border-color 0.2s",
+    svg: {
+      transition: "0.2s all",
+    },
+    "&:hover": {
+      border: `1px solid ${color}`,
+      
+    },
+  };
+});
 export const StyledEmptyText = styled(Typography)({
   fontSize: 18,
   fontWeight: 700,
@@ -186,11 +221,11 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   ".MuiSelect-select": {
     minWidth: 200,
     padding: "8px 15px 8px 15px",
-    border: `1px solid rgba(211, 211, 211, 0.5)`,
+    border: `1px solid ${getBorderColor(theme.palette.mode)}`,
     borderRadius: `30px!important`,
     transition: "0.2s all",
     "&:hover": {
-      border: `1px solid ${theme.palette.primary.main}`,
+      border: theme.palette.mode === 'light' ? `1px solid ${theme.palette.primary.main}` : `1px solid white`,
     },
   },
   ".MuiSelect-icon": {

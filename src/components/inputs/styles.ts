@@ -92,7 +92,7 @@ export const StyledError = styled(StyledFlexRow)({
   justifyContent: "flex-start",
   gap: 5,
   marginTop: 5,
-  alignItems:'flex-start',
+  alignItems: "flex-start",
   p: {
     fontSize: 13,
     color: "#d32f2f",
@@ -101,8 +101,8 @@ export const StyledError = styled(StyledFlexRow)({
   },
   svg: {
     color: "#d32f2f",
-    position:'relative',
-    top:3
+    position: "relative",
+    top: 3,
   },
 });
 
@@ -131,39 +131,42 @@ export const StyledPreviewButton = styled(Button)({
 export const StyledInputContainer = styled(Box)<{
   markdown?: number;
   preview?: number;
-}>(({ markdown, preview }) => ({
-  width: "100%",
-  fieldset: {
-    borderRadius: 10,
-  },
-  ".MuiFormControl-root": {
+}>(({ markdown, preview, theme }) => {
+  const color = theme.palette.mode === "light" ? "black" : "white";
+  return {
     width: "100%",
-  },
-  ".MuiInput-root": {
-    paddingBottom: markdown ? "30px" : "unset",
-    paddingTop: markdown ? "32px" : "unset",
-  },
-  textarea: {
-    fontFamily: markdown && !preview ? "monospace!important" : "inherit",
-    color: markdown && !preview ? "black" : "inherit",
-  },
-  input: {
-    background: "transparent!important",
-    padding: "12.5px 12px",
-    fontSize: 16,
-    fontWeight: 500,
-
-    "::placeholder": {
-      opacity: 1,
+    fieldset: {
+      borderRadius: 10,
     },
-  },
-}));
+    ".MuiFormControl-root": {
+      width: "100%",
+    },
+    ".MuiInput-root": {
+      paddingBottom: markdown ? "30px" : "unset",
+      paddingTop: markdown ? "32px" : "unset",
+    },
+    textarea: {
+      fontFamily: markdown && !preview ? "monospace!important" : "inherit",
+      color: markdown && !preview ? color : theme.palette.text.primary,
+    },
+    input: {
+      background: "transparent!important",
+      padding: "12.5px 12px",
+      fontSize: 16,
+      fontWeight: 500,
 
-export const StyledPreview = styled(Box)({
-  padding: "30px 13px 20px 13px",
-  border: "1px solid rgba(0, 0, 0, 0.23)",
-  borderRadius: 10,
+      "::placeholder": {
+        opacity: 1,
+      },
+    },
+  };
 });
+
+export const StyledPreview = styled(Box)(({theme}) => ({
+  padding: "30px 13px 20px 13px",
+  border:  theme.palette.mode === 'light' ?  "1px solid rgba(0, 0, 0, 0.23)" : '1px solid rgba(255, 255, 255, 0.23)',
+  borderRadius: 10,
+}));
 
 export const StyledChars = styled(Typography)({
   fontSize: 14,
@@ -186,7 +189,7 @@ export const StyledDatepicker = styled(StyledContainer)<{ error: number }>(
     flex: 1,
     fieldset: {
       borderRadius: 10,
-      borderColor: error ? "#d32f2f" : "rgba(0, 0, 0, 0.23)",
+      // borderColor: error ? "#d32f2f" : "rgba(0, 0, 0, 0.23)",
     },
     input: {
       fontSize: 14,

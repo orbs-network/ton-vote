@@ -94,16 +94,16 @@ export function CloseButton({
   );
 }
 
-const StyledClose = styled(IconButton)({
+const StyledClose = styled(IconButton)(({ theme }) => ({
   background: "transparent",
   border: "unset",
   cursor: "pointer",
   svg: {
-    stroke: "black",
+    stroke: theme.palette.text.primary,
 
     "*": {
       color: "inherit",
       stroke: "inherit",
     },
   },
-});
+}));

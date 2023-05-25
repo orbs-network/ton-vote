@@ -1,5 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
+import { ThemeType } from "types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -85,7 +86,6 @@ export const useSyncStore = create(
   )
 );
 
-
 interface ProposalPersistedStore {
   serverUpdateTime?: number;
   setSrverUpdateTime: (value: number) => void;
@@ -113,6 +113,32 @@ export const useProposalPersistedStore = create(
     }),
     {
       name: "ton_vote_proposal_persisted_store", // name of the item in the storage (must be unique)
+    }
+  )
+);
+
+interface SettingsStore {
+  themeMode?: ThemeType;
+  setThemeMode: (theme: ThemeType) => void;
+  toggleThemeMode: () => void;
+}
+
+export const useSettingsStore = create(
+  persist<SettingsStore>(
+    (set, get) => ({
+      themeMode: undefined,
+      setThemeMode: (themeMode) => set({ themeMode }),
+      toggleThemeMode: () => {
+        const themeMode = get().themeMode;
+        if (themeMode === "dark") {
+          set({ themeMode: "light" });
+        } else {
+          set({ themeMode: "dark" });
+        }
+      },
+    }),
+    {
+      name: "ton_vote_settings",
     }
   )
 );

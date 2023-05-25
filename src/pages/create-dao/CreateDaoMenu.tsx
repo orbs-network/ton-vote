@@ -32,7 +32,7 @@ export function CreateDaoMenu() {
               <StyledIndicator
                 onClick={() => onClick(index)}
                 style={{
-                  background: finished ? theme.palette.primary.main : "white",
+                  background: finished ? theme.palette.primary.main : theme.palette.background.paper,
                   cursor: finished ? "pointer" : "unset",
                 }}
               >
@@ -108,6 +108,7 @@ const StyledIndicator = styled(StyledFlexRow)(({ theme }) => ({
   width: 40,
   height: 40,
   borderRadius: "50%",
+
   border: `2px solid ${theme.palette.primary.main}`,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     width: 30,
@@ -119,6 +120,7 @@ const StyledStep = styled(StyledFlexRow)({
   gap: 20,
   justifyContent: "flex-start",
   position: "relative",
+  
 });
 
 const StyledContainer = styled(SideMenu)({

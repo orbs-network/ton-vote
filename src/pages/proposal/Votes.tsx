@@ -198,13 +198,17 @@ const DownloadCSV = () => {
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
       <AppTooltip text={translations.downloadCsv} placement="top">
-        <GrDocumentCsv
-          style={{ width: 18, height: 18, color: theme.palette.text.primary }}
-        />
+        <StyledIcon style={{ width: 18, height: 18 }} />
       </AppTooltip>
     </CSVLink>
   );
 };
+
+const StyledIcon = styled(GrDocumentCsv)(({ theme }) => ({
+  "*": {
+    stroke: theme.palette.text.primary,
+  },
+}));
 
 const VoteComponent = ({
   data,
