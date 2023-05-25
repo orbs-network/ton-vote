@@ -1,4 +1,4 @@
-import { IS_DEV, TONSCAN_ADDRESS_URL } from "config";
+import { IS_BETA, IS_DEV, TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
 import timeZoneMoment from "moment-timezone";
 import moment from "moment";

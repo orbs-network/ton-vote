@@ -100,8 +100,10 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
           ) {
             metadataArgs = await getDaoMetadata(
               await getClientV2(),
-              dao.daoAddress
+              dao.daoMetadata.metadataAddress
             );
+            console.log(metadataArgs);
+            
           }
 
           return {
@@ -118,7 +120,7 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
         promise.map((it) => {
           if (it.status === "fulfilled") {
             return it.value;
-          } else {
+          } else {            
             return null;
           }
         })

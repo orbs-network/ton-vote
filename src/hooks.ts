@@ -19,7 +19,7 @@ import {
   SenderArguments,
   storeStateInit,
 } from "ton-core";
-import { releaseMode } from "config";
+import { IS_BETA, IS_DEV, releaseMode } from "config";
 import { showSuccessToast } from "toasts";
 import { ProposalStatus, ThemeType } from "types";
 import { StringParam, useQueryParams } from "use-query-params";
@@ -217,7 +217,7 @@ export const useMobile = () => {
 export const useDevFeatures = () => {
   const dev = useAppQueryParams().query.dev;
 
-  return dev || releaseMode === ReleaseMode.DEVELOPMENT;
+  return dev || IS_DEV || IS_BETA;
 };
 
 export const useRole = (roles?: DaoRoles) => {

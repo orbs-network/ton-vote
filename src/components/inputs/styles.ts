@@ -141,13 +141,11 @@ export const StyledInputContainer = styled(Box)<{
     ".MuiFormControl-root": {
       width: "100%",
     },
-    ".MuiInput-root": {
-      paddingBottom: markdown ? "30px" : "unset",
-      paddingTop: markdown ? "32px" : "unset",
-    },
+
     textarea: {
       fontFamily: markdown && !preview ? "monospace!important" : "inherit",
       color: markdown && !preview ? color : theme.palette.text.primary,
+      paddingTop: markdown ? "25px" : "unset",
     },
     input: {
       background: "transparent!important",

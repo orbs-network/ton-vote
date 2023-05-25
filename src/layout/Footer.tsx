@@ -24,12 +24,12 @@ export function Footer() {
   );
 }
 
-const StyledSocials = styled(AppSocials)({
+const StyledSocials = styled(AppSocials)(({ theme }) => ({
   width: "auto",
   svg: {
-    color: "rgb(114, 138, 150)",
+    color: theme.palette.mode === 'light' && theme.palette.primary.main,
   },
-});
+}));
 
 
 const StyledContainer = styled(StyledFlexColumn)(({ theme }) => ({

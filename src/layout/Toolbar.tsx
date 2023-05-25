@@ -4,7 +4,7 @@ import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
 import { IS_DEV } from "config";
 import { TOOLBAR_WIDTH } from "consts";
-import { useMobile, useRole } from "hooks";
+import { useDevFeatures, useMobile, useRole } from "hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -17,7 +17,7 @@ import { parseLanguage } from "utils";
 export function Toolbar() {
   const navigation = useAppNavigation();
   const translations = useDaosPageTranslations();
-
+  const devFeatures = useDevFeatures()
   const mobile = useMobile();
 
   if (mobile) return null;
@@ -28,15 +28,15 @@ export function Toolbar() {
         <DevParametersModal />
         <AppTooltip
           text={
-            IS_DEV
+            devFeatures
               ? translations.createDao
               : `${translations.createDao} (comming soon)`
           }
           placement="right"
         >
           <StyledButton
-            disabled={!IS_DEV}
-            onClick={IS_DEV ? navigation.createSpace.root : () => {}}
+            disabled={!devFeatures}
+            onClick={devFeatures ? navigation.createSpace.root : () => {}}
             variant="transparent"
           >
             <AiOutlinePlus />
