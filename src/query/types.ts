@@ -23,6 +23,8 @@ export interface UpdateMetadataArgs {
 
 export interface ReactQueryConfig {
   refetchInterval?: number;
+  staleTime?: number;
+  disabled?: boolean;
 }
 
 export interface GetProposalArgs extends ReactQueryConfig {
@@ -30,5 +32,5 @@ export interface GetProposalArgs extends ReactQueryConfig {
   isCustomEndpoint?: boolean;
   validateMaxLt?: boolean;
   validateResults?: boolean;
-  staleTime?: number;
+  
 }

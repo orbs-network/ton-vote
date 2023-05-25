@@ -17,36 +17,43 @@ import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoMetadataForm, useDaoRolesForm } from "../form";
 import { useCreateDaoQuery } from "query/setters";
-import { useAppNavigation } from "router/navigation";
+import {  useAppNavigation } from "router/navigation";
 import { useNewDataStore } from "store";
-import { useGetCreateDaoFeeQuery } from "query/getters";
+import { useRegistryStateQuery } from "query/getters";
 import { isZeroAddress } from "utils";
 
-export function CreateDaoStep() {
-  const { mutate: createDao, isLoading } = useCreateDaoQuery();
-  const translations = useCreateDaoTranslations();
-  const commonTranslations = useCommonTranslations();
-  const appNavigation = useAppNavigation();
+const useCreateDao = () => {
+  const { rolesForm, metadataAddress, reset } = useCreatDaoStore();
   const { addDao } = useNewDataStore();
-  const { daoMetadataForm, rolesForm, metadataAddress, reset } =
-    useCreatDaoStore();
-  const createDaoFee = useGetCreateDaoFeeQuery().data;
+  const appNavigation = useAppNavigation();
 
-  const metadata = useDaoMetadataForm();
-  const roles = useDaoRolesForm();
-
-  const onSubmit = () => {
-    createDao({
+  const { mutate, isLoading } = useCreateDaoQuery();
+  return {
+    createDao: () => mutate({
       metadataAddress: metadataAddress!,
       ownerAddress: rolesForm.ownerAddress,
       proposalOwner: rolesForm.proposalOwner,
       onSuccess: (address: string) => {
         appNavigation.daoPage.root(address);
         addDao(address);
+        // setCreateDaoSuccessModal(true);
+        // setDaoAddress(address);
         reset();
       },
-    });
+    }),
+    isLoading,
   };
+};
+
+export function CreateDaoStep() {
+  const { createDao, isLoading } = useCreateDao();
+  const translations = useCreateDaoTranslations();
+  const commonTranslations = useCommonTranslations();
+  const { daoMetadataForm, rolesForm } = useCreatDaoStore();
+  const registryState = useRegistryStateQuery().data;
+
+  const metadata = useDaoMetadataForm();
+  const roles = useDaoRolesForm();
 
   return (
     <TitleContainer title={translations.createSpace}>
@@ -83,8 +90,10 @@ export function CreateDaoStep() {
         </StyledInputs>
         <Submit>
           <Button
-            isLoading={isLoading || createDaoFee === undefined}
-            onClick={onSubmit}
+            isLoading={
+              isLoading || registryState?.deployAndInitDaoFee === undefined
+            }
+            onClick={createDao}
           >
             {commonTranslations.create}
           </Button>
@@ -139,12 +148,12 @@ const InputPreview = ({
   );
 };
 
-const StyledInputPreviewComponent = styled(Box)({
+const StyledInputPreviewComponent = styled(Box)(({theme}) => ({
   borderRadius: 10,
-  border: "1px solid rgba(0, 0, 0, 0.23)",
+  border: theme.palette.mode === 'light' ?  "1px solid rgba(0, 0, 0, 0.23)" : "1px solid rgba(255, 255, 255, 0.23)",
   width: "100%",
   padding: 10,
-});
+}));
 
 const StyledImage = styled(Img)({
   width: 45,

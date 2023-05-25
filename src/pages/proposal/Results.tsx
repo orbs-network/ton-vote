@@ -26,6 +26,9 @@ import { EndpointPopup } from "./EndpointPopup";
 import BigNumber from "bignumber.js";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useProposalPageQuery } from "query/getters";
+import { mock } from "mock/mock";
+import { errorToast } from "toasts";
+import { useProposalAddress } from "hooks";
 
 export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery();
@@ -207,6 +210,7 @@ export function VerifyResults() {
     reset,
   } = useVerifyProposalResults();
   const translations = useProposalPageTranslations();
+  const proposalAddress = useProposalAddress();
   useEffect(() => {
     if (isSuccess || error) {
       setTimeout(() => {
@@ -217,7 +221,13 @@ export function VerifyResults() {
 
   const [open, setOpen] = useState(false);
 
-  const onClick = () => setOpen(true);
+  const onClick = () => {
+    if (mock.isMockProposal(proposalAddress)) {
+      errorToast("This is a mock proposal. You can not verify it.");
+    } else {
+      setOpen(true);
+    }
+  };
 
   return (
     <StyledVerifyContainer>

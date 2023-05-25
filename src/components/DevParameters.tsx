@@ -12,10 +12,7 @@ import _ from "lodash";
 import { useDevFeatures } from "hooks";
 import {
   useDaosQuery,
-  useGetCreateDaoFeeQuery,
-  useGetRegistryAddressQuery,
-  useGetRegistryAdminQuery,
-  useGetRegistryIdQuery,
+  useRegistryStateQuery
 } from "query/getters";
 import {
   useCreateNewRegistry,
@@ -144,18 +141,16 @@ const form: FormArgs<IForm> = {
 
 export function DevParametersModal() {
   const [open, setOpen] = useState(false);
-  const createDaoFee = useGetCreateDaoFeeQuery().data;
-  const registryAdmin = useGetRegistryAdminQuery().data;
-  const registryId = useGetRegistryIdQuery().data;
-  const registryAddress = useGetRegistryAddressQuery().data;
-  const { isLoading: daosLoading } = useDaosQuery();
+  const registryState = useRegistryStateQuery().data;
+
+  const { isLoading: daosLoading } = useDaosQuery({staleTime: Infinity});
   const show = useDevFeatures();
   const formik = useFormik<IForm>({
     enableReinitialize: true,
     initialValues: {
-      createDaoFee: Number(createDaoFee),
-      registryAdmin: registryAdmin,
-      registryAddress: registryAddress,
+      createDaoFee: Number(registryState?.deployAndInitDaoFee),
+      registryAdmin: registryState?.admin,
+      registryAddress: registryState?.registryAddr,
     },
     validateOnChange: false,
     validateOnBlur: true,
@@ -182,7 +177,7 @@ export function DevParametersModal() {
             gap={20}
             style={{ opacity: daosLoading ? 0.5 : 1 }}
           >
-            <StyledRegistryID label={`Registry ID: ${registryId}`} />
+            <StyledRegistryID label={`Registry ID: ${registryState?.registryId}`} />
             <FormikInputsForm<IForm>
               form={form}
               formik={formik}

@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { Status, AppTooltip } from "components";
 import { useAppQueryParams, useDaoAddressFromQueryParam } from "hooks";
 import _ from "lodash";
@@ -41,6 +41,8 @@ import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useProposalQuery, useProposalStatusQuery } from "query/getters";
 import { mock } from "mock/mock";
+import { useMemo } from "react";
+import { useIntersectionObserver } from "react-intersection-observer-hook";
 
 const Time = ({
   proposalMetadata,
@@ -112,62 +114,77 @@ export const ProposalComponent = ({
 }) => {
   const { proposalPage } = useAppNavigation();
   const daoAddress = useDaoAddressFromQueryParam();
+  const [ref, { entry }] = useIntersectionObserver();
+  const isVisible = entry && entry.isIntersecting;
 
-  const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
+  const { data: proposal, isLoading } = useProposalQuery(proposalAddress, {
+    disabled: !isVisible,
+  });
 
   const status = useProposalStatusQuery(proposal?.metadata, proposalAddress);
   const hideProposal = useHideProposal(proposalAddress, proposal, status);
 
+  const isMock = useMemo(
+    () => mock.isMockProposal(proposalAddress),
+    [proposalAddress]
+  );
+
+  const description = useMemo(
+    () => parseLanguage(proposal?.metadata?.description, "en"),
+    [proposal?.metadata?.description]
+  );
+  const title = useMemo(
+    () => parseLanguage(proposal?.metadata?.title),
+    [proposal?.metadata?.title]
+  );
+
   const onClick = () => {
-    proposalPage.root(daoAddress, proposalAddress);
+    if (daoAddress && proposalAddress) {
+      proposalPage.root(daoAddress, proposalAddress);
+    }
   };
 
-  if (isLoading) {
-    return <ProposalLoader />;
-  }
-
-  if (hideProposal) {
-    return null;
-  }
-
-  const description = parseLanguage(proposal?.metadata?.description, "en");
   return (
-    <StyledProposal onClick={onClick}>
-      <StyledFlexColumn alignItems="flex-start" gap={20}>
-        <StyledFlexRow justifyContent="space-between">
-          <AppTooltip text="Proposal address" placement="right">
-            <StyledProposalAddress address={proposalAddress} padding={10} />
-          </AppTooltip>
-          <Status status={status} />
-        </StyledFlexRow>
+    <div onClick={onClick} ref={ref} style={{width:'100%'}}>
+      {isLoading ? (
+        <ProposalLoader />
+      ) : hideProposal || !proposal ? null : (
+        <StyledProposal>
+          <StyledFlexColumn alignItems="flex-start" gap={20}>
+            <StyledFlexRow justifyContent="space-between">
+              <AppTooltip text="Proposal address" placement="right">
+                <StyledProposalAddress address={proposalAddress} padding={10} />
+              </AppTooltip>
+              <Status status={status} />
+            </StyledFlexRow>
 
-        <StyledFlexColumn alignItems="flex-start">
-          <StyledProposalTitle variant="h4">
-            {parseLanguage(proposal?.metadata?.title)}
-            {mock.isMockProposal(proposalAddress) && (
-              <small style={{ opacity: 0.5 }}> (Mock)</small>
-            )}
-          </StyledProposalTitle>
-          <StyledMarkdown
-            sx={{
-              display: "-webkit-box",
-              overflow: "hidden",
-              WebkitBoxOrient: "vertical",
-              WebkitLineClamp: 3,
-            }}
-          >
-            {removeMd(description || "", {
-              useImgAltText: true,
-            })}
-          </StyledMarkdown>
-        </StyledFlexColumn>
+            <StyledFlexColumn alignItems="flex-start">
+              <StyledProposalTitle variant="h4">
+                {title}
+                {isMock && <small style={{ opacity: 0.5 }}> (Mock)</small>}
+              </StyledProposalTitle>
+              <StyledMarkdown
+                sx={{
+                  display: "-webkit-box",
+                  overflow: "hidden",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 3,
+                }}
+              >
+                {removeMd(description || "", {
+                  useImgAltText: true,
+                })}
+              </StyledMarkdown>
+            </StyledFlexColumn>
 
-        {!proposal?.hardcoded &&
-          status === ProposalStatus.CLOSED &&
-          proposal && <Results proposal={proposal} />}
-        <Time proposalMetadata={proposal?.metadata} status={status} />
-      </StyledFlexColumn>
-    </StyledProposal>
+            {!proposal?.hardcoded &&
+              status === ProposalStatus.CLOSED &&
+              proposal && <Results proposal={proposal} />}
+            <Time proposalMetadata={proposal?.metadata} status={status} />
+          </StyledFlexColumn>
+        </StyledProposal>
+      )}
+    </div>
   );
 };
 

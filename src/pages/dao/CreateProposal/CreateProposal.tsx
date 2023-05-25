@@ -19,11 +19,13 @@ import { StrategySelect } from "./StrategySelect";
 import { getInitialValues } from "./utils";
 import { useCreateProposalForm } from "./form/inputs";
 import { useFormSchema } from "./form/validation";
-import { useDaoFromQueryParam, useGetDaoFwdMsgFeeQuery } from "query/getters";
+import { useDaoFromQueryParam, useDaoStateQuery } from "query/getters";
 import { prepareMetadata } from "./utils";
 import { useCreateProposalQuery } from "query/setters";
 import { useNewDataStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { mock } from "mock/mock";
+import { errorToast } from "toasts";
 
 function Form() {
   const daoAddress = useDaoAddressFromQueryParam();
@@ -32,7 +34,7 @@ function Form() {
   const data = useDaoFromQueryParam().data;
   const { formData, setFormData } = useCreateProposalStore();
   const form = useCreateProposalForm(formData);
-  const createProposalFee = useGetDaoFwdMsgFeeQuery(daoAddress).data;
+  const daoState = useDaoStateQuery(daoAddress).data;
   const appNavigation = useAppNavigation();
   const FormSchema = useFormSchema();
   const { addProposal } = useNewDataStore();
@@ -42,6 +44,7 @@ function Form() {
     validationSchema: FormSchema,
     onSubmit: (formValues) => {
       const metadata = prepareMetadata(formValues);
+      
       createProposal({
         metadata,
         onSuccess: (proposalAddress: string) => {
@@ -64,6 +67,15 @@ function Form() {
     saveForm();
   }, [formik.values]);
 
+  const onSubmit = () => {
+    if (mock.isMockDao(daoAddress)) {
+      errorToast("You can't create proposals on mock DAOs");
+    } else {
+      formik.submitForm();
+      validateFormik(formik);
+    }
+  };
+
   return (
     <Fade in={true}>
       <StyledContainer alignItems="flex-start">
@@ -73,11 +85,8 @@ function Form() {
           customInputHandler={customInputHandler}
         >
           <CreateProposalButton
-            isLoading={isLoading || createProposalFee === undefined}
-            onSubmit={() => {
-              formik.submitForm();
-              validateFormik(formik);
-            }}
+            isLoading={isLoading || daoState?.fwdMsgFee === undefined}
+            onSubmit={onSubmit}
           />
         </FormikInputsForm>
       </StyledContainer>

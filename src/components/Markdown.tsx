@@ -25,6 +25,7 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
     marginTop: 10,
   },
   "*": {
+    color: theme.palette.text.primary,
     margin: 0,
     marginBottom: 15,
     "&:last-child": {

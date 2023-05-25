@@ -1,12 +1,13 @@
 import {
   Chip,
+  IconButton,
   MenuItem,
   styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, Github, Menu } from "components";
+import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
@@ -18,6 +19,9 @@ import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
 import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
+import { getBorderColor } from "theme";
+import { useSettingsStore } from "store";
+import { FiMoon, FiSun } from "react-icons/fi";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -25,7 +29,6 @@ export function Navbar() {
   const devFeatures = useDevFeatures();
   return (
     <StyledContainer>
- 
       <StyledNav>
         <StyledLogo onClick={daosPage.root}>
           <img src={LogoImg} />
@@ -34,12 +37,31 @@ export function Navbar() {
         <StyledFlexRow style={{ width: "fit-content" }}>
           {devFeatures && <StyledDev label="Dev" />}
           <ConnectButton />
+          <ThemeToggle />
           {!mobile && <Github />}
         </StyledFlexRow>
       </StyledNav>
     </StyledContainer>
   );
 }
+
+const ThemeToggle = () => {
+  const { toggleThemeMode, themeMode } = useSettingsStore();
+  return (
+    <AppTooltip text={themeMode === "dark" ? "Light mode" : "Dark more"}>
+      <StyledThemeToggle onClick={toggleThemeMode}>
+        {themeMode === "dark" ? <FiSun /> : <FiMoon />}
+      </StyledThemeToggle>
+    </AppTooltip>
+  );
+};
+
+const StyledThemeToggle = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.mode === "dark" ? theme.palette.primary.main : "black",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    padding: 3
+  },
+}));
 
 const StyledDev = styled(Chip)({
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
@@ -125,27 +147,27 @@ const StyledLogo = styled("button")(({ theme }) => ({
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     p: {
-      fontSize: 17,
+      fontSize: 14,
     },
     img: {
-      height: 32,
+      height: 25,
     },
   },
 }));
 
-const StyledContainer = styled(StyledFlexRow)({
-  background: "white",
+const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
+  background: theme.palette.background.paper,
   height: 70,
   position: "fixed",
   left: "50%",
   transform: "translate(-50%)",
   top: 0,
   zIndex: 20,
-  borderBottom: "0.5px solid rgba(114, 138, 150, 0.24)",
+  borderBottom: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     height: 60,
   },
-});
+}));
 
 const StyledNav = styled(StyledGrid)({
   display: "flex",
@@ -164,9 +186,53 @@ function ConnectButton() {
 }
 
 const StyledButton = styled(TonConnectButton)<{ connected: number }>(
-  ({ theme, connected }) => ({
+  ({ theme }) => ({
     button: {
-      background: !connected && theme.palette.primary.main,
+      background: theme.palette.primary.main,
+      "*": {
+        color: "white",
+        stroke: "white",
+      },
+    },
+    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+      "*": {
+        fontSize: 13,
+      },
     },
   })
 );
+
+const SettingsMenu = () => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const onClick = () => {};
+
+  return (
+    <div>
+      <button onClick={handleClick}>Dashboard</button>
+      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
+        <StyledLanguages>
+          {_.map(LANGUAGES, (value, key) => {
+            return (
+              <MenuItem
+                onClick={() => {
+                  setAnchorEl(null);
+                }}
+                key={key}
+              >
+                {value}
+              </MenuItem>
+            );
+          })}
+        </StyledLanguages>
+      </Menu>
+    </div>
+  );
+};

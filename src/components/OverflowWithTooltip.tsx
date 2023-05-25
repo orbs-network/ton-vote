@@ -30,7 +30,7 @@ export function OverflowWithTooltip({
   }, []);
 
   return (
-    <div ref={parentRef}>
+    <StyledContainer ref={parentRef}>
       <StyledPlaceholder ref={textRef}>
         <Typography className={className}>{text}</Typography>
       </StyledPlaceholder>
@@ -39,9 +39,17 @@ export function OverflowWithTooltip({
           <TextOverflow text={text} />
         </Typography>
       </StyledTooltip>
-    </div>
+    </StyledContainer>
   );
 }
+
+
+const StyledContainer = styled(Box)(({ theme }) => ({
+  color: theme.palette.text.primary,
+  "*":{
+    color:'inherit'
+  }
+}));
 
 const StyledPlaceholder = styled(Box)({
   whiteSpace: "nowrap",

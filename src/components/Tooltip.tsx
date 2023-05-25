@@ -55,14 +55,12 @@ export function AppTooltip({
 const StyledTitle = styled(Typography)({
   fontSize: 14,
   fontWeight: 600,
-  color: "rgb(114, 138, 150)",
 });
 
 const StyledMarkdown = styled(Markdown)({
   "p": {
     fontSize: 14,
     fontWeight: 600,
-    color: "rgb(114, 138, 150)",
   },
   a: {
     
@@ -71,6 +69,6 @@ const StyledMarkdown = styled(Markdown)({
 
 const StyledTooltip = styled(Tooltip)({
   "& .MuiTooltip-tooltip": {
-    color:'black'
+   
   },
 });

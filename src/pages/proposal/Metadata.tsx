@@ -26,6 +26,7 @@ export const Metadata = () => {
     "jetton-address",
     votingPowerStrategies
   );
+  
 
       if (isLoading) {
         return <LoadingContainer />;

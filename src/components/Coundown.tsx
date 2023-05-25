@@ -12,12 +12,12 @@ const addZero = (num: number) => {
 export function Countdown({ date }: { date?: number }) {
   const renderer = (value: any) => {
     return (
-      <StyledFlexRow justifyContent='space-between'>
+      <StyledContainer justifyContent='space-between'>
         <Flipper title="Days" value={addZero(value.days)} />
         <Flipper title="Hours" value={addZero(value.hours)} />
         <Flipper title="Minutes" value={addZero(value.minutes)} />
         <Flipper title="Seconds" value={addZero(value.seconds)} />
-      </StyledFlexRow>
+      </StyledContainer>
     );
   };
 
@@ -29,6 +29,14 @@ export function Countdown({ date }: { date?: number }) {
     </StyledCountdown>
   );
 }
+
+const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
+  span: {
+    background: `${theme.palette.background.paper}!important`,
+    color: theme.palette.mode === 'light' ? theme.palette.text.primary : `white!important`,
+  },
+}));
+
 
 const Flipper = ({ value, title }: { value: string; title: string }) => {
   const theme = useTheme();

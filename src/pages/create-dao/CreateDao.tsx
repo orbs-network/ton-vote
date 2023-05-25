@@ -5,6 +5,7 @@ import { MOBILE_WIDTH, routes } from "consts";
 import { StyledFlexRow } from "styles";
 import { useSteps } from "./steps";
 import { useCreatDaoStore } from "./store";
+import Confirmation from "./Confirmation";
 
 const SelectedStep = () => {
   const steps = useSteps()
@@ -13,6 +14,7 @@ const SelectedStep = () => {
   return (
     <StyledStep>
       <Component />
+      <Confirmation />
     </StyledStep>
   );
 };

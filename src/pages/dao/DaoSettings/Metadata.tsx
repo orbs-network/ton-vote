@@ -20,7 +20,7 @@ export function MetadataForm() {
   const { mutate: updateMetadata, isLoading } = useUpdateDaoMetadataQuery();
 
   const formik = useFormik<DaoMetadataForm>({
-    initialValues: getInitialValues(data?.daoMetadata),
+    initialValues: getInitialValues(data?.daoMetadata.metadataArgs),
     validationSchema: Schema,
     validateOnChange: false,
     validateOnBlur: true,

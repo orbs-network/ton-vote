@@ -2,7 +2,7 @@ import { Typography } from "@mui/material";
 import { Button, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import _ from "lodash";
-import { useDaoAddressFromQueryParam, useParseError } from "hooks";
+import { useDaoAddressFromQueryParam } from "hooks";
 
 import { useRolesForm } from "./form";
 import { DaoRolesForm } from "types";

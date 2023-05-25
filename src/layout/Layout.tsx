@@ -1,5 +1,4 @@
-import { Fade, styled } from "@mui/material";
-import {  TxReminderPopup } from "../components";
+import { Fade, styled, Typography } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
@@ -14,7 +13,7 @@ import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
 
-function Layout({children}:{children?: ReactNode}) {
+function Layout({ children }: { children?: ReactNode }) {
   return (
     <QueryParamProvider adapter={ReactRouter6Adapter}>
       <Fade in={true} timeout={500}>
@@ -35,8 +34,11 @@ function Layout({children}:{children?: ReactNode}) {
         </StyledContainer>
       </Fade>
       <ScrollTop />
-      <Toaster  />
-      <TxReminderPopup />
+      <Toaster
+        toastOptions={{
+          className: "toast",
+        }}
+      />
     </QueryParamProvider>
   );
 }

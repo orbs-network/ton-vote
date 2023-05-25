@@ -24,7 +24,6 @@ import moment from "moment";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
 import {
-  VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { GrDocumentCsv } from "react-icons/gr";
@@ -199,13 +198,17 @@ const DownloadCSV = () => {
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
       <AppTooltip text={translations.downloadCsv} placement="top">
-        <GrDocumentCsv
-          style={{ width: 18, height: 18, color: theme.palette.text.primary }}
-        />
+        <StyledIcon style={{ width: 18, height: 18 }} />
       </AppTooltip>
     </CSVLink>
   );
 };
+
+const StyledIcon = styled(GrDocumentCsv)(({ theme }) => ({
+  "*": {
+    stroke: theme.palette.text.primary,
+  },
+}));
 
 const VoteComponent = ({
   data,

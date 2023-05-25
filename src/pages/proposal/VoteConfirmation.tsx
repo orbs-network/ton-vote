@@ -42,7 +42,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
       <StyledContainer gap={30}>
         <StyledFlexColumn>
-          <Row label={translations.choice} value={vote} />
+          <StyledVote label={translations.choice} value={vote} />
           {data?.metadata?.mcSnapshotBlock && (
             <Row
               label={translations.snapshot}
@@ -100,13 +100,15 @@ const Row = ({
   label,
   value,
   isLoading,
+  className = "",
 }: {
   label: string;
   value: ReactNode;
   isLoading?: boolean;
+  className?: string;
 }) => {
   return (
-    <StyledRow justifyContent="space-between">
+    <StyledRow className={className} justifyContent="space-between">
       <Typography className="label">{label}</Typography>
       {isLoading ? (
         <CircularProgress style={{ width: 20, height: 20 }} />
@@ -117,6 +119,7 @@ const Row = ({
   );
 };
 
+
 const StyledRow = styled(StyledFlexRow)({
   ".label": {
     fontWeight: 700,
@@ -125,5 +128,13 @@ const StyledRow = styled(StyledFlexRow)({
     fontWeight: 600,
   },
 });
+
+
+const StyledVote = styled(Row)({
+  ".value": {
+    textTransform: "capitalize",
+  },
+});
+
 
 const StyledContainer = styled(StyledFlexColumn)({});

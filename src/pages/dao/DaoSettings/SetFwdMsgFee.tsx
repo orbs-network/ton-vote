@@ -6,7 +6,7 @@ import { useDaoAddressFromQueryParam } from "hooks";
 
 import { FormArgs, FormikInputEndAdorment } from "types";
 import { StyledEndAdornment } from "styles";
-import { useDaoFromQueryParam, useGetDaoFwdMsgFeeQuery } from "query/getters";
+import { useDaoFromQueryParam, useDaoStateQuery } from "query/getters";
 import { useSetDaoFwdMsgFee } from "query/setters";
 
 interface IForm {
@@ -30,12 +30,12 @@ const useForm = (): FormArgs<IForm> => {
 export function SetFwdMsgFee() {
   const form = useForm();
   const daoAddress = useDaoAddressFromQueryParam();
-  const { data } = useGetDaoFwdMsgFeeQuery(daoAddress);
+  const { data: daoState } = useDaoStateQuery(daoAddress);
 
   const formik = useFormik<IForm>({
     enableReinitialize: true,
     initialValues: {
-      fwdMsgFee: Number(data),
+      fwdMsgFee: Number(daoState?.fwdMsgFee),
     },
     validateOnChange: false,
     validateOnBlur: true,
@@ -59,7 +59,7 @@ export const EndAdornment = ({
   const data = useDaoFromQueryParam().data;
   const { mutate: setCreateProposalFee, isLoading } = useSetDaoFwdMsgFee();
 
-  const { refetch } = useGetDaoFwdMsgFeeQuery(data?.daoAddress);
+  const { refetch } = useDaoStateQuery(data?.daoAddress);
 
   const onSubmit = () => {
     if (name === "fwdMsgFee") {
@@ -72,7 +72,7 @@ export const EndAdornment = ({
     }
   };
 
-  if (!value || initialValue === value) return null;
+  if (!_.isNumber(value) || initialValue === value) return null;
 
   return (
     <StyledEndAdornment>

@@ -1,11 +1,14 @@
 import { Alert, Box, styled, Typography } from "@mui/material";
-import { AddressDisplay, Container, Header, OverflowWithTooltip, Search } from "components";
-import { MOBILE_WIDTH } from "consts";
 import {
-  StyledContainer,
-  StyledFlexColumn,
-  StyledFlexRow,
-} from "styles";
+  AddressDisplay,
+  Container,
+  Header,
+  OverflowWithTooltip,
+  Search,
+} from "components";
+import { MOBILE_WIDTH } from "consts";
+import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
+import { getBorderColor } from "theme";
 
 export const StyledProposalResultProgress = styled("div")(({ theme }) => ({
   height: "100%",
@@ -22,14 +25,17 @@ export const StyledProposalResultContent = styled(StyledFlexRow)({
   justifyContent: "space-between",
 });
 
-export const StyledProposalResult = styled(StyledFlexRow)({
+export const StyledProposalResult = styled(StyledFlexRow)(({ theme }) => ({
   position: "relative",
   justifyContent: "flex-start",
   padding: 10,
-  background: "#F8F9FB",
-  boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
+  background: theme.palette.mode === "light" ? "#F8F9FB" : "#2B303B",
+  boxShadow:
+    theme.palette.mode === "light"
+      ? "rgb(114 138 150 / 8%) 0px 2px 16px"
+      : "unset",
   borderRadius: 10,
-});
+}));
 
 export const StyledProposalOwner = styled(Typography)({
   fontSize: 15,
@@ -40,7 +46,7 @@ export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
   ".title": {
     fontSize: 18,
   },
-  transition: "0.2s all",
+  transition: "border-color 0.2s",
   width: "100%",
   cursor: "pointer",
   ".description": {
@@ -48,7 +54,7 @@ export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
   },
 
   "&:hover": {
-    border: `1px solid ${theme.palette.primary.main}`,
+    border: theme.palette.mode === 'light'  ?  `1px solid ${theme.palette.primary.main}` : '1px solid white',
   },
 }));
 
@@ -96,13 +102,16 @@ export const StyledProposalsHeader = styled(StyledFlexRow)({
   },
 });
 
-export const StyledSearch = styled(Search)({
+export const StyledSearch = styled(Search)(({ theme }) => ({
   maxWidth: 360,
   width: "100%",
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    maxWidth: "unset",
+  input: {
+    borderRight: `1px solid ${getBorderColor(theme.palette.mode)}`
   },
-});
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    maxWidth: "unset"
+  },
+}));
 
 export const StyledEmptyList = styled(Container)({
   position: "absolute",

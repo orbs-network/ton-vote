@@ -79,7 +79,6 @@ const StyledSelect = styled(Select)({
 const StyledLeft = styled(StyledFlexRow)({
   flex: 1,
   height: "100%",
-  borderRight: "1px solid rgba(211, 211, 211, 0.5)",
 });
 
 const StyledContainer = styled(Container)({
@@ -103,6 +102,6 @@ const StyledInput = styled("input")({
   fontFamily:'inherit',
   fontWeight: 500,
   "&::placeholder": {
-    opacity: 0.5,
+    opacity: 0.6,
   },
 });

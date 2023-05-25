@@ -4,37 +4,51 @@ import { Button, ConnectButton, TitleContainer } from "components";
 import { useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { voteOptions } from "config";
 import { ProposalStatus } from "types";
-import { useProposalPageStatus, useVote } from "./hooks";
+import { useProposalPageStatus } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { useVote } from "query/setters";
+import { useProposalPageQuery } from "query/getters";
+import { mock } from "mock/mock";
+import { useProposalAddress } from "hooks";
+import { errorToast } from "toasts";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
-  const proposalStatus = useProposalPageStatus()
-  const translations = useProposalPageTranslations()
+  const proposalStatus = useProposalPageStatus();
+  const translations = useProposalPageTranslations();
+  const choices = useProposalPageQuery().data?.metadata?.votingSystem.choices;
+  const proposalAddress = useProposalAddress();
+
+  const onSubmit = () => {
+    if (mock.isMockProposal(proposalAddress)) {
+      errorToast("You can't vote on mock proposals")
+    } else {
+      setConfirmation(true);
+    }
+  };
 
   return (
     <>
       <StyledContainer title={translations.castVote}>
         <StyledFlexColumn>
-          {voteOptions.map((option) => {
+          {choices?.map((option) => {
             return (
               <StyledOption
-                selected={option.value === vote}
-                key={option.value}
-                onClick={() => setVote(option.value)}
+                selected={option.toLowerCase() === vote}
+                key={option}
+                onClick={() => setVote(option.toLowerCase())}
               >
-                <Fade in={option.value === vote}>
+                <Fade in={option.toLowerCase() === vote}>
                   <StyledFlexRow className="icon">
                     <FiCheck style={{ width: 20, height: 20 }} />
                   </StyledFlexRow>
                 </Fade>
-                <Typography>{option.name}</Typography>
+                <Typography>{option}</Typography>
               </StyledOption>
             );
           })}
@@ -44,11 +58,11 @@ export function Vote() {
             <VoteButton
               isLoading={isLoading}
               disabled={!vote || isLoading}
-              onSubmit={() => setConfirmation(true)}
+              onSubmit={onSubmit}
             />
             <VoteConfirmation
               open={confirmation}
-              vote={voteOptions.find((option) => option.value === vote)?.name}
+              vote={vote}
               onClose={() => setConfirmation(false)}
               onSubmit={() => mutate(vote!)}
             />

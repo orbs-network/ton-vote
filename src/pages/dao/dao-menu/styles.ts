@@ -24,7 +24,9 @@ export const StyledNavigation = styled(StyledFlexColumn)({
 });
 
 export const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
-  ({ selected, theme }) => ({
+  ({ selected, theme }) => {
+    const color = theme.palette.mode === 'light' ?  theme.palette.primary.main : 'white'
+    return ({
     width: "100%",
     paddingLeft: 15,
     transition: "0.2s all",
@@ -32,15 +34,16 @@ export const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
     height: 43,
     display: "flex",
     alignItems: "center",
-    color: theme.palette.primary.main,
+    color,
     fontWeight: 700,
     borderLeft: selected
-      ? `5px solid ${theme.palette.primary.main}`
+      ? `5px solid ${color}`
       : "5px solid transparent",
     "&:hover": {
       background: "rgba(0, 136, 204, 0.05)",
     },
   })
+  }
 );
 
 export const StyledSocials = styled(Socials)({

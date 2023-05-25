@@ -1,18 +1,14 @@
 import { IconButton, styled } from "@mui/material";
-import { useParseError } from "hooks";
 import _ from "lodash";
 import toast, { ToastPosition } from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import { StyledFlexRow } from "styles";
-import { SlWallet } from "react-icons/sl";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useTonWallet } from "@tonconnect/ui-react";
 
-
 export function usePromiseToast<T>() {
-  const parseError = useParseError();
-  const translations = useCommonTranslations();
-  const wallet = useTonWallet()
+const translations = useCommonTranslations();
+  const wallet = useTonWallet();
   return (args: {
     promise: Promise<T>;
     loading?: string;
@@ -43,21 +39,16 @@ export function usePromiseToast<T>() {
         },
         error: (err: any) => {
           infoToast && toast.dismiss(infoToast);
-          const parsedError = parseError(
-            err instanceof Error ? err.message : err
-          );
 
-          return (
-            <ToastContent customClick={toast.dismiss} message={parsedError} />
-          );
+          return <ToastContent customClick={toast.dismiss} message={err} />;
         },
       },
       {
         success: {
-          duration: 5000,
+          duration: 4000,
         },
         error: {
-          duration: 5000,
+          duration: 4000,
         },
         position: "top-center",
       }
@@ -65,27 +56,31 @@ export function usePromiseToast<T>() {
   };
 }
 
-
-export const useErrorToast = () => {
-  const parseError = useParseError();
-
-  return (err: any) => {
-    const parsedError = parseError(err instanceof Error ? err.message : err);
-    if (!parsedError) return 
-     toast.dismiss();
-    return errorToast(parsedError);
-  };
+export const filterError = (error?: string) => {
+  if (error?.includes("UserRejectsError")) {
+    return true;
+  }
+  return false;
 };
 
-export const errorToast = (message: string) => {
-  toast.error((t) => <ToastContent message={message} id={t.id} />, {
-    duration: 500000,
+export const useErrorToast = () => {
+  return (err: any) => {
+    if (filterError(err instanceof Error ? err.message : err)) return;
+    toast.dismiss();
+    return errorToast(err);
+  };  
+};
+
+export const errorToast = (message: string | Error) => {
+  const msg = message instanceof Error ? message.message : message;
+  toast.error((t) => <ToastContent message={msg} id={t.id} />, {
+    duration: 400000,
   });
 };
 
 export const showSuccessToast = (message: string) => {
   toast.success((t) => <ToastContent message={message} id={t.id} />, {
-    duration: 5000,
+    duration: 4000,
   });
 };
 
@@ -98,8 +93,6 @@ export const showToast = (message: string, config?: ToastConfig) => {
   return toast((t) => <ToastContent message={message} id={t.id} />, {
     duration: config?.duration || Infinity,
     position: config?.position || "top-center",
-    icon: <SlWallet />,
-    className: "info-toast",
   });
 };
 
@@ -114,7 +107,7 @@ const ToastContent = ({
 }) => {
   const showButton = customClick || id;
   return (
-    <StyledPromiseContainer>
+    <StyledContainer className="test">
       {message}
       {showButton && (
         <StyledIconButton
@@ -123,12 +116,17 @@ const ToastContent = ({
           <IoMdClose style={{ width: 20, height: 20, cursor: "pointer" }} />
         </StyledIconButton>
       )}
-    </StyledPromiseContainer>
+    </StyledContainer>
   );
 };
 
-const StyledIconButton = styled(IconButton)({
+const StyledIconButton = styled(IconButton)(({theme}) => ({
   padding: 5,
-});
+  background: theme.palette.mode === 'light' ?   "rgba(0, 0, 0, 0.03)" : "rgba(255, 255, 255, 0.03)",
+}));
 
-const StyledPromiseContainer = styled(StyledFlexRow)({});
+export const clearAllToasts = () => toast.dismiss();
+
+const StyledContainer = styled(StyledFlexRow)({
+  fontSize: 15,
+});

@@ -193,12 +193,12 @@ const DaoInfo = () => {
 
   return (
     <StyledFlexRow style={{ width: "auto" }}>
-      <StyledDaoImg src={daoMetadata?.avatar} />
+      <StyledDaoImg src={daoMetadata?.metadataArgs.avatar} />
       <StyledLink
         to={appNavigation.daoPage.root(daoAddress)}
         className="dao-name"
       >
-        <OverflowWithTooltip text={parseLanguage(daoMetadata?.name)} />
+        <OverflowWithTooltip text={parseLanguage(daoMetadata?.metadataArgs.name)} />
       </StyledLink>
     </StyledFlexRow>
   );
@@ -261,14 +261,19 @@ const StyledShowMoreButton = styled(Button)(({ theme }) => ({
   width: "100%",
 }));
 
-const StyledShowMore = styled(Box)<{ open: number }>(({ open }) => ({
-  width: "100%",
-  position: "relative",
-  boxShadow: open === 1 ? "unset" : "0px -22px 50px 16px #FFFFFF",
-  background: "white",
-  paddingTop: 20,
-  transition: "0.2s all",
-}));
+const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
+  const shadow =
+    theme.palette.mode === "light"
+      ? "0px -22px 50px 16px #FFFFFF"
+      : "0px -22px 50px 16px #222830";
+  return {
+    width: "100%",
+    position: "relative",
+    boxShadow: open === 1 ? "unset" : shadow,
+    background: theme.palette.mode === "light" ?  "white" : "#222830",
+    paddingTop: 20,
+  };
+});
 
 const StyledContainer = styled(Container)({
   width: "100%",

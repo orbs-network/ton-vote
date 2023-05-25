@@ -5,45 +5,46 @@ import {
   daoSetOwner,
   daoSetProposalOwner,
   getClientV2,
-  metdataExists,
   newDao,
   newMetdata,
   newProposal,
   newRegistry,
   ProposalMetadata,
+  proposalSendMessage,
   ReleaseMode,
-  setCreateDaoFee,
+  setDeployAndInitDaoFee,
   setFwdMsgFee,
   setMetadata,
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
-import { useDaoAddressFromQueryParam, useGetSender, useRole } from "hooks";
+import { useGetSender, useProposalAddress, useRole } from "hooks";
 import { useErrorToast } from "toasts";
 import {
   useDaoFromQueryParam,
   useDaosQuery,
-  useGetCreateDaoFeeQuery,
-  useGetDaoFwdMsgFeeQuery,
-  useGetRegistryAdminQuery,
+  useDaoStateQuery,
+  useProposalPageQuery,
+  useRegistryStateQuery,
 } from "./getters";
-import { useSyncStore } from "store";
+import { useProposalPersistedStore, useSyncStore } from "store";
 import { getTxFee, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
-import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { analytics } from "analytics";
+import { Sender } from "ton-core";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
   const address = useTonAddress();
   const showErrorToast = useErrorToast();
-  const registryAdmin = useGetRegistryAdminQuery().data;
+  const registryState = useRegistryStateQuery().data;
 
   return useMutation(
     async (releaseMode: number) => {
       if (!Object.keys(ReleaseMode).includes(releaseMode.toString())) {
         throw new Error("Invalid release mode");
       }
-      if (!registryAdmin || address !== registryAdmin) {
+      if (!registryState?.admin || address !== registryState.admin) {
         throw new Error("You are not the registry admin");
       }
       const clientV2 = await getClientV2();
@@ -66,19 +67,19 @@ export const useSetCreateDaoFee = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
   const address = useTonAddress();
-  const registryAdmin = useGetRegistryAdminQuery().data;
-  const refetch = useGetCreateDaoFeeQuery().refetch;
+  const registryState = useRegistryStateQuery().data;
+  const refetch = useDaoStateQuery().refetch;
 
   return useMutation(
     async ({ value }: { value: number; onError: (value: string) => void }) => {
-      if (address !== registryAdmin) {
+      if (address !== registryState?.admin) {
         throw new Error("You are not the registry admin");
       }
       if (!_.isNumber(value) || value < 0) {
         throw new Error("Fee must be zero or positive");
       }
       const client = await getClientV2();
-      return setCreateDaoFee(
+      return setDeployAndInitDaoFee(
         getSender(),
         client,
         releaseMode,
@@ -97,7 +98,7 @@ export const useSetCreateDaoFee = () => {
 };
 
 export const useSetDaoFwdMsgFee = () => {
-  const registryAdmin = useGetRegistryAdminQuery().data;
+  const registryState = useRegistryStateQuery().data;
   const address = useTonAddress();
   const errorToast = useErrorToast();
 
@@ -112,7 +113,7 @@ export const useSetDaoFwdMsgFee = () => {
       onError: (error: string) => void;
       onSuccess?: () => void;
     }) => {
-      if (registryAdmin !== address) {
+      if (registryState?.admin !== address) {
         throw new Error("You are not the registry admin");
       }
 
@@ -146,7 +147,7 @@ export const useSetRegistryAdmin = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
 
-  const { refetch, data: admin } = useGetRegistryAdminQuery();
+  const { refetch, data: registryState } = useRegistryStateQuery();
   const address = useTonAddress();
 
   return useMutation(
@@ -156,7 +157,7 @@ export const useSetRegistryAdmin = () => {
       newRegistryAdmin?: string;
       onError: (newRegistryAdmin: string) => void;
     }) => {
-      if (address !== admin) {
+      if (address !== registryState?.admin) {
         throw new Error("You are not the registry admin");
       }
       if (!newRegistryAdmin) {
@@ -189,7 +190,7 @@ export const useSetRegistryAdmin = () => {
 
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
-  const createDaoFee = useGetCreateDaoFeeQuery().data;
+  const registryState = useRegistryStateQuery().data;
   const showErrorToast = useErrorToast();
 
   return useMutation(
@@ -201,12 +202,15 @@ export const useCreateDaoQuery = () => {
         sender,
         clientV2,
         releaseMode,
-        getTxFee(Number(createDaoFee), TX_FEES.CREATE_DAO),
+        getTxFee(
+          Number(registryState?.deployAndInitDaoFee),
+          TX_FEES.CREATE_DAO
+        ),
         args.metadataAddress,
         args.ownerAddress,
         args.proposalOwner
       );
-
+            
       if (typeof address !== "string") {
         throw new Error("Failed to create Dao");
       }
@@ -214,11 +218,13 @@ export const useCreateDaoQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => {
+      onError: (error: Error, args) => {
         showErrorToast(error);
+        analytics.createSpaceFailed(args.metadataAddress, error.message);
       },
       onSuccess: (address, args) => {
         args.onSuccess(address);
+        analytics.createSpaceSuccess(args.metadataAddress, address);
       },
     }
   );
@@ -226,7 +232,7 @@ export const useCreateDaoQuery = () => {
 
 export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
-  const showErrorToast = useErrorToast();
+  const errorToast = useErrorToast();
 
   return useMutation(
     async (args: CreateMetadataArgs) => {
@@ -250,8 +256,12 @@ export const useCreateMetadataQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => showErrorToast(error),
+      onError: (error: Error, args) => {
+        errorToast(error);
+        analytics.createSpaceMetadataFailed(error.message, args.metadata);
+      },
       onSuccess: (address, args) => {
+        analytics.createSpaceMetadataSucess(address, args.metadata);
         args.onSuccess(address);
       },
     }
@@ -266,25 +276,25 @@ interface CreateProposalArgs {
 export const useCreateProposalQuery = () => {
   const dao = useDaoFromQueryParam().data;
   const getSender = useGetSender();
-  const createProposalFee = useGetDaoFwdMsgFeeQuery(dao?.daoAddress).data;
+  const daoState = useDaoStateQuery(dao?.daoAddress).data;
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
 
   const allowed = isOwner || isProposalPublisher;
-
+  
   return useMutation(
     async (args: CreateProposalArgs) => {
       const { metadata } = args;
-
       const sender = getSender();
       if (!allowed) {
         throw new Error("you are not allowed to create a proposal");
       }
       const clientV2 = await getClientV2();
-      const address = await newProposal(
+      let address;
+      address = await newProposal(
         sender,
         clientV2,
-        getTxFee(Number(createProposalFee), TX_FEES.FORWARD_MSG),
+        getTxFee(Number(daoState?.fwdMsgFee), TX_FEES.FORWARD_MSG),
         dao?.daoAddress!,
         metadata as ProposalMetadata
       );
@@ -296,9 +306,19 @@ export const useCreateProposalQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => showErrorToast(error),
-      onSuccess: (value, args) => {
-        return args.onSuccess(value);
+      onError: (error: Error, args) => {
+        showErrorToast(error);
+        analytics.createProposalFailed(
+          args.metadata as ProposalMetadata,
+          error.message
+        );
+      },
+      onSuccess: (address, args) => {
+        analytics.createProposalSuccess(
+          args.metadata as ProposalMetadata,
+          address
+        );
+        args.onSuccess(address);
       },
     }
   );
@@ -319,21 +339,20 @@ export const useSetDaoOwnerQuery = () => {
       onError: (value: string) => void;
       onSuccess: () => void;
     }) => {
-        if (!newOwner) {
-          throw new Error("Owner address is required");
-        }
-        if (!validateAddress(newOwner)) {
-          throw new Error("Invalid owner address");
-        }
-        const clientV2 = await getClientV2();
-        return daoSetOwner(
-          getSender(),
-          clientV2,
-          daoAddress,
-          TX_FEES.BASE.toString(),
-          newOwner
-        );
-      
+      if (!newOwner) {
+        throw new Error("Owner address is required");
+      }
+      if (!validateAddress(newOwner)) {
+        throw new Error("Invalid owner address");
+      }
+      const clientV2 = await getClientV2();
+      return daoSetOwner(
+        getSender(),
+        clientV2,
+        daoAddress,
+        TX_FEES.BASE.toString(),
+        newOwner
+      );
     },
     {
       onError: (error) => errorToast(error),
@@ -361,22 +380,21 @@ export const useSetDaoPublisherQuery = () => {
       onError: (value: string) => void;
       onSuccess: () => void;
     }) => {
-        if (!newOwner) {
-          throw new Error("Proposal owner address is required");
-        }
-        if (!validateAddress(newOwner)) {
-          throw new Error("Invalid proposal owner address");
-        }
+      if (!newOwner) {
+        throw new Error("Proposal owner address is required");
+      }
+      if (!validateAddress(newOwner)) {
+        throw new Error("Invalid proposal owner address");
+      }
 
-        const clientV2 = await getClientV2();
-        return daoSetProposalOwner(
-          getSender(),
-          clientV2,
-          TX_FEES.BASE.toString(),
-          daoAddress,
-          newOwner
-        );
-
+      const clientV2 = await getClientV2();
+      return daoSetProposalOwner(
+        getSender(),
+        clientV2,
+        TX_FEES.BASE.toString(),
+        daoAddress,
+        newOwner
+      );
     },
     {
       onError: (error: Error, args) => {
@@ -395,7 +413,7 @@ export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
   const refetch = useDaosQuery().refetch;
-  const showErrorToast = useErrorToast();
+  const errorToast = useErrorToast();
 
   return useMutation(
     async (args: UpdateMetadataArgs) => {
@@ -429,12 +447,56 @@ export const useUpdateDaoMetadataQuery = () => {
       return address;
     },
     {
-      onError: (error: Error) => showErrorToast(error),
+      onError: (error: Error, args) => {
+        errorToast(error);
+        analytics.updateDaoMetatdaFailed(
+          args.metadata,
+          args.daoAddress,
+          error.message
+        );
+      },
       onSuccess: (_, args) => {
         args.onSuccess();
         setDaoUpdateMillis(args.daoAddress);
         refetch();
+        analytics.updateDaoMetadataSuccess(args.metadata, args.daoAddress);
       },
     }
   );
 };
+
+export const useVote = () => {
+  const getSender = useGetSender();
+  const { refetch } = useProposalPageQuery(true);
+  const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
+  const proposalAddress = useProposalAddress();
+  const errorToast = useErrorToast();
+
+  return useMutation(
+    async (vote: string) => {
+      const sender = getSender();
+      const client = await getClientV2();
+
+      await proposalSendMessage(
+        sender,
+        client,
+        TX_FEES.VOTE_FEE.toString(),
+        proposalAddress,
+        vote
+      );
+
+      const { data } = await refetch();
+      setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
+    },
+    {
+      onSuccess: (_, vote) => {
+        analytics.voteSuccess(proposalAddress, vote);
+      },
+      onError: (error: Error, vote) => {
+        errorToast(error);
+        analytics.voteError(proposalAddress, vote, error.message);
+      },
+    }
+  );
+};
+
