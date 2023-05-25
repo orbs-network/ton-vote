@@ -5,7 +5,12 @@ import {
   useEffect,
   useRef,
 } from "react";
-import { matchRoutes, useLocation, useParams, useSearchParams } from "react-router-dom";
+import {
+  matchRoutes,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
@@ -16,13 +21,14 @@ import {
 } from "ton-core";
 import { releaseMode } from "config";
 import { showSuccessToast } from "toasts";
-import { ProposalStatus } from "types";
+import { ProposalStatus, ThemeType } from "types";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
 import { DaoRoles, ReleaseMode } from "ton-vote-contracts-sdk";
 import { useDaoQuery } from "query/getters";
-import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { useSettingsStore } from "store";
 
 export const useDaoAddressFromQueryParam = () => {
   return useParams().daoId as string;
@@ -173,7 +179,7 @@ enum Params {
   PROPOSAL_STATE = "proposal-state",
   SEARCH = "search",
   DEV = "dev",
-  MODE = 'mode'
+  MODE = "mode",
 }
 
 export const useAppQueryParams = () => {
@@ -208,8 +214,6 @@ export const useMobile = () => {
   return macthes;
 };
 
-
-
 export const useDevFeatures = () => {
   const dev = useAppQueryParams().query.dev;
 
@@ -232,5 +236,27 @@ export const useRole = (roles?: DaoRoles) => {
   };
 };
 
+export const useAppSettings = () => {
+  const store = useSettingsStore();
+  const [_, setOptions] = useTonConnectUI();
 
+  const toggleTheme = () => {
+    setThemeMode(store.themeMode === "dark" ? "light" : "dark");
+  };
 
+  const setThemeMode = (mode: ThemeType) => {
+    store.setThemeMode(mode);
+    setOptions({
+      uiPreferences: {
+        theme: mode === "dark" ? THEME.DARK : THEME.LIGHT,
+      },
+    });
+  };
+
+  return {
+    isDarkMode: store.themeMode === "dark",
+    toggleTheme,
+    setThemeMode,
+    themeMode: store.themeMode,
+  };
+};

@@ -1,4 +1,5 @@
 import { createTheme, Theme } from "@mui/material";
+import { useAppSettings } from "hooks";
 import { useEffect } from "react";
 import { useSettingsStore } from "store";
 
@@ -96,11 +97,11 @@ export const getBorderColor = (mode: "light" | "dark") => {
 };
 
 export const useInitThemeMode = () => {
-  const { themeMode, setThemeMode } = useSettingsStore();
+  const { themeMode, setThemeMode } = useAppSettings();
 
   useEffect(() => {
     if (themeMode) return;
     const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     setThemeMode(isDark ? "dark" : "light");
-  }, [themeMode]);
+  }, []);
 };
