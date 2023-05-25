@@ -128,7 +128,7 @@ const StyledOption = styled(StyledFlexRow)<{
   border: selected
     ? `1.5px solid ${theme.palette.primary.main}`
     : "1.5px solid rgba(114, 138, 150, 0.24)",
-  color: theme.palette.primary.main,
+  color: theme.palette.mode === 'light' ?  theme.palette.primary.main : 'white',
   p: {
     color: "inherit",
     fontWeight: 600,

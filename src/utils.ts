@@ -253,8 +253,7 @@ export const getVoteStrategyType = (
     : votingPowerStrategy[0].type;
 };
 
-export const getTxFee = (value: number, baseFee: number): string => {
-  if(IS_DEV) return baseFee.toString();
+export const getTxFee = (value: number = 0, baseFee: number = 0): string => {
   return Math.max(Number(value), baseFee).toString();
 };
 
