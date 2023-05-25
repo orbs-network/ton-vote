@@ -1,31 +1,26 @@
 import { GlobalStyles, ThemeProvider } from '@mui/material';
 import { THEME, TonConnectUIProvider } from '@tonconnect/ui-react';
 import { APP_NAME, manifestUrl } from 'config';
+import { useAppSettings } from 'hooks';
 import { Suspense, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { RouterProvider } from 'react-router-dom';
 import { router } from 'router/router';
-import { useSettingsStore } from 'store';
 import { getGlobalStyles } from 'styles';
 import { darkTheme, lightTheme, useInitThemeMode } from 'theme';
 
 
 function App() {  
   useInitThemeMode();
- const { themeMode } = useSettingsStore();
+ const { isDarkMode } = useAppSettings();
 
   const theme = useMemo(
-    () => (themeMode === 'dark' ? darkTheme : lightTheme),
-    [themeMode]
-  );
-
-  console.log(themeMode);
+    () => (isDarkMode ? darkTheme : lightTheme),
+    [isDarkMode]
+  );;
   
   return (
-    <TonConnectUIProvider
-      manifestUrl={manifestUrl}
-      uiPreferences={{ theme: themeMode === "dark" ? THEME.DARK : THEME.LIGHT }}
-    >
+  
       <ThemeProvider theme={theme}>
         <Suspense>
           <GlobalStyles styles={getGlobalStyles(theme)} />
@@ -35,7 +30,6 @@ function App() {
           <RouterProvider router={router} />
         </Suspense>
       </ThemeProvider>
-    </TonConnectUIProvider>
   );
 }
 

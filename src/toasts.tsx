@@ -74,7 +74,7 @@ export const useErrorToast = () => {
 export const errorToast = (message: string | Error) => {
   const msg = message instanceof Error ? message.message : message;
   toast.error((t) => <ToastContent message={msg} id={t.id} />, {
-    duration: 400000,
+    duration: 4000,
   });
 };
 

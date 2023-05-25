@@ -11,7 +11,7 @@ import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
-import { useDevFeatures } from "hooks";
+import { useAppSettings, useDevFeatures } from "hooks";
 import { APP_NAME, LANGUAGES } from "config";
 import { useTranslation } from "react-i18next";
 import { BsGlobeAmericas } from "react-icons/bs";
@@ -46,11 +46,11 @@ export function Navbar() {
 }
 
 const ThemeToggle = () => {
-  const { toggleThemeMode, themeMode } = useSettingsStore();
+  const { toggleTheme, isDarkMode } = useAppSettings();
   return (
-    <AppTooltip text={themeMode === "dark" ? "Light mode" : "Dark more"}>
-      <StyledThemeToggle onClick={toggleThemeMode}>
-        {themeMode === "dark" ? <FiSun /> : <FiMoon />}
+    <AppTooltip text={isDarkMode ? "Light mode" : "Dark more"}>
+      <StyledThemeToggle onClick={toggleTheme}>
+        {isDarkMode ? <FiSun /> : <FiMoon />}
       </StyledThemeToggle>
     </AppTooltip>
   );
@@ -59,7 +59,7 @@ const ThemeToggle = () => {
 const StyledThemeToggle = styled(IconButton)(({ theme }) => ({
   color: theme.palette.mode === "dark" ? theme.palette.primary.main : "black",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    padding: 3
+    padding: 3,
   },
 }));
 

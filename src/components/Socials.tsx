@@ -12,7 +12,6 @@ interface Props {
   telegram?: string;
   github?: string;
   website?: string;
-  coingecko?: string;
   className?: string;
   whitepaper?: string
   about?: string;
@@ -22,7 +21,6 @@ export function Socials({
   telegram,
   github,
   website,
-  coingecko,
   className = "",
   whitepaper,
   about,
@@ -70,7 +68,7 @@ const Social = ({
 const StyledSocial = styled("a")(({ theme }) => ({
   svg: {
    
-    color: theme.palette.primary.main
+    color: theme.palette.mode === 'dark' ? 'white' :  theme.palette.primary.main
   },
 }));
 

@@ -21,6 +21,7 @@ import {  useAppNavigation } from "router/navigation";
 import { useNewDataStore } from "store";
 import { useRegistryStateQuery } from "query/getters";
 import { isZeroAddress } from "utils";
+import { getBorderColor } from "theme";
 
 const useCreateDao = () => {
   const { rolesForm, metadataAddress, reset } = useCreatDaoStore();
@@ -148,9 +149,9 @@ const InputPreview = ({
   );
 };
 
-const StyledInputPreviewComponent = styled(Box)(({theme}) => ({
+const StyledInputPreviewComponent = styled(Box)(({ theme }) => ({
   borderRadius: 10,
-  border: theme.palette.mode === 'light' ?  "1px solid rgba(0, 0, 0, 0.23)" : "1px solid rgba(255, 255, 255, 0.23)",
+  border: `1px solid ${getBorderColor(theme.palette.mode)}`,
   width: "100%",
   padding: 10,
 }));
@@ -170,14 +171,15 @@ const StyledMd = styled(Markdown)({
   width: "100%",
 });
 
-const StyledInputPreview = styled(StyledFlexColumn)({
+const StyledInputPreview = styled(StyledFlexColumn)(({ theme }) => ({
   flexWrap: "wrap",
   alignItems: "flex-start",
   justifyContent: "flex-start",
   gap: 5,
   fontSize: 16,
+  color: theme.palette.text.primary,
   ".label": {
     fontSize: 14,
     fontWeight: 600,
   },
-});
+}));
