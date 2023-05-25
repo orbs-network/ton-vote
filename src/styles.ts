@@ -149,11 +149,11 @@ export const StyledPage = styled(Box)({
   paddingTop: 100,
 });
 
-export const StyledSkeletonLoader = styled(Skeleton)({
+export const StyledSkeletonLoader = styled(Skeleton)(({theme}) => ({
   width: "100%",
   transform: "unset",
-  background: "rgba(0,0,0, 0.07)",
-});
+  background: theme.palette.mode === 'light' ?   "rgba(0,0,0, 0.07)" : "rgba(255,255,255, 0.07)"
+}));
 
 export const StyledOneLine = styled(Typography)({
   display: "inline-block",

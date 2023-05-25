@@ -281,7 +281,7 @@ export const useCreateProposalQuery = () => {
   const showErrorToast = useErrorToast();
 
   const allowed = isOwner || isProposalPublisher;
-
+  
   return useMutation(
     async (args: CreateProposalArgs) => {
       const { metadata } = args;

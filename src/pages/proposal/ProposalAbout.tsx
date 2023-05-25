@@ -272,7 +272,6 @@ const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
     boxShadow: open === 1 ? "unset" : shadow,
     background: theme.palette.mode === "light" ?  "white" : "#222830",
     paddingTop: 20,
-    // transition: "color 0.2s",
   };
 });
 
