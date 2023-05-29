@@ -54,8 +54,8 @@ const Social = ({
   url?: string;
   icon: ReactElement;
   tooltip: string;
-}) => {
-  if (!url) return null;
+}) => {  
+  if (!url || !url.startsWith('https')) return null;
   return (
     <AppTooltip text={tooltip}>
       <StyledSocial href={url} target="_blank">
