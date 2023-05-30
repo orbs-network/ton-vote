@@ -10,6 +10,7 @@ import {
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import {
+  Proposal,
   ProposalResults,
   ProposalStatus,
   RawVote,
@@ -299,4 +300,48 @@ export const validateServerUpdateTime = (
   const now = moment().valueOf();
   const diff = server - local;
   return diff >= value;
+};
+
+export const getProposalResultTonAmount = (
+  proposal: Proposal,
+  choice: string,
+  percent: number,
+  totalWeight: string
+) => {
+  let result = "0";
+  if (proposal?.sumCoins) {
+    const value =
+      proposal.sumCoins[choice] || proposal.sumCoins[choice.toLowerCase()];
+    result = getTonAmounFromSumCoins(value as BigNumber);
+  } else {
+    result = calculateTonAmount(percent, totalWeight) || "0";
+  }
+  return result;
+};
+
+export const getproposalResult = (proposal: Proposal, choice: string) => {
+  return (
+    proposal?.proposalResult?.[choice] ||
+    proposal?.proposalResult?.[choice.toLowerCase()]
+  );
+};
+
+export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
+  let votes = 0;
+  if (proposal.sumVotes) {
+    votes =
+      proposal.sumVotes[choice] || proposal.sumVotes[choice.toLowerCase()];
+  } else {
+    const votesCount = _.mapValues(
+      _.groupBy(proposal.votes, "vote"),
+      (value) => {
+        return _.size(value);
+      }
+    );
+
+    votes =
+      votesCount[choice as keyof typeof votesCount] ||
+      votesCount[choice.toLowerCase() as keyof typeof votesCount] || 0;
+  }
+  return votes;
 };

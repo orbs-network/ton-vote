@@ -12,29 +12,40 @@ import { appNavigation } from "router/navigation";
 import { useDaoAddressFromQueryParam } from "hooks";
 import { ProposalStatus } from "types";
 import { ProposalAbout } from "./ProposalAbout";
-import { useProposalPageStatus } from "./hooks";
+import { useProposalPageQuery, useProposalPageStatus } from "./hooks";
 import { parseLanguage } from "utils";
 import { useEffect, useState } from "react";
-import { useProposalPageQuery } from "query/getters";
 
-const gap = 15
+const gap = 15;
 
 const useComponents = () => {
   const isLoading = useProposalPageQuery().isLoading;
 
-  const status = useProposalPageStatus();
+  const { proposalStatus } = useProposalPageStatus();
 
   return {
     proposalDescription: <ProposalAbout />,
-    votes: !status || status === ProposalStatus.NOT_STARTED ? null : <Votes />,
+    votes:
+      !proposalStatus ||
+      proposalStatus === ProposalStatus.NOT_STARTED ? null : (
+        <Votes />
+      ),
     vote:
-      !status || status !== ProposalStatus.ACTIVE || isLoading ? null : (
+      !proposalStatus ||
+      proposalStatus !== ProposalStatus.ACTIVE ||
+      isLoading ? null : (
         <Vote />
       ),
-    deadline: !status || status === ProposalStatus.CLOSED ? null : <Deadline />,
+    deadline:
+      !proposalStatus || proposalStatus === ProposalStatus.CLOSED ? null : (
+        <Deadline />
+      ),
     metadata: <Metadata />,
     results:
-      !status || status === ProposalStatus.NOT_STARTED ? null : <Results />,
+      !proposalStatus ||
+      proposalStatus === ProposalStatus.NOT_STARTED ? null : (
+        <Results />
+      ),
   };
 };
 
@@ -90,20 +101,25 @@ const Meta = () => {
 export function ProposalPage() {
   const mobile = useMediaQuery("(max-width:800px)");
   const daoAddress = useDaoAddressFromQueryParam();
-  const [showError, setShowError] = useState(false)
+  const [showError, setShowError] = useState(false);
   const error = useProposalPageQuery().error;
 
   useEffect(() => {
-    if(error) {
+    if (error) {
       setShowError(true);
     }
   }, [error]);
-  
 
   return (
     <Page back={appNavigation.daoPage.root(daoAddress)}>
       <Meta />
-      {showError ? <ErrorContainer text="Proposal not found" /> : mobile ? <Mobile /> : <Destop />}
+      {showError ? (
+        <ErrorContainer text="Proposal not found" />
+      ) : mobile ? (
+        <Mobile />
+      ) : (
+        <Destop />
+      )}
     </Page>
   );
 }

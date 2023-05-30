@@ -68,7 +68,7 @@ const Social = ({
 const StyledSocial = styled("a")(({ theme }) => ({
   svg: {
    
-    color: theme.palette.mode === 'dark' ? 'white' :  theme.palette.primary.main
+    color: theme.palette.mode === 'dark' ? 'white' :  'rgba(0,0,0, 0.4)'
   },
 }));
 

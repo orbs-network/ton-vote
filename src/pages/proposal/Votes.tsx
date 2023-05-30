@@ -28,8 +28,8 @@ import {
 } from "ton-vote-contracts-sdk";
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { useProposalPageQuery } from "query/getters";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { useProposalPageQuery } from "./hooks";
 
 const ContainerHeader = () => {
   const { data } = useProposalPageQuery();

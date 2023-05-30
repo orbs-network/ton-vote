@@ -27,6 +27,7 @@ import {
   useNewDataStore,
   useProposalPersistedStore,
   useSyncStore,
+  useVoteStore,
 } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
@@ -41,11 +42,13 @@ export const useRegistryStateQuery = () => {
   return useQuery(
     [QueryKeys.REGISTRY_STATE],
     async () => {
-      const result = await getRegistryState(clients!.clientV2, releaseMode);      
-        
+      const result = await getRegistryState(clients!.clientV2, releaseMode);
+
       return {
         ...result,
-        deployAndInitDaoFee: result ? fromNano(result!.deployAndInitDaoFee) : '',
+        deployAndInitDaoFee: result
+          ? fromNano(result!.deployAndInitDaoFee)
+          : "",
       };
     },
     {
@@ -103,7 +106,6 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
               dao.daoMetadata.metadataAddress
             );
             console.log(metadataArgs);
-            
           }
 
           return {
@@ -120,7 +122,7 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
         promise.map((it) => {
           if (it.status === "fulfilled") {
             return it.value;
-          } else {            
+          } else {
             return null;
           }
         })
@@ -164,7 +166,7 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
     },
     {
       refetchInterval: config?.refetchInterval,
-      staleTime: config?.staleTime
+      staleTime: config?.staleTime,
     }
   );
 };
@@ -257,22 +259,6 @@ export const useDaoFromQueryParam = (
   return useDaoQuery(address, refetchInterval, staleTime);
 };
 
-export const useProposalStatusQuery = (
-  proposalMetadata?: ProposalMetadata,
-  proposalAddress?: string
-) => {
-  const query = useQuery(
-    [QueryKeys.PROPOSAL_TIMELINE, proposalAddress],
-    () => getProposalStatus(proposalMetadata!),
-    {
-      refetchInterval: 1_000,
-      enabled: !!proposalMetadata && !!proposalAddress,
-    }
-  );
-
-  return query.data as ProposalStatus | null;
-};
-
 export const useGetClients = () => {
   return useQuery(
     [QueryKeys.CLIENTS],
@@ -331,35 +317,29 @@ export const useConnectedWalletVotingPowerQuery = (
   );
 };
 
-export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
-  const address = useProposalAddress();
-  return useProposalQuery(address, {
-    refetchInterval: 30_000,
-    isCustomEndpoint,
-    validateMaxLt: true,
-    validateResults: true,
-  });
-};
-
 export const useProposalQuery = (
-  proposalAddress?: string,
+  _proposalAddress?: string,
   args?: GetProposalArgs
 ) => {
+  const proposalAddressFromURL = useProposalAddress();
+
+  const proposalAddress = _proposalAddress || proposalAddressFromURL;
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
   const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
     useProposalPersistedStore();
-
-  const queryKey = [QueryKeys.PROPOSAL, proposalAddress];
+  const { isVoting } = useVoteStore();
 
   return useQuery(
-    queryKey,
+    [QueryKeys.PROPOSAL, proposalAddress],
     async ({ signal }) => {
       const isMockProposal = mock.getMockProposal(proposalAddress!);
       if (isMockProposal) {
         return isMockProposal;
       }
-      const latestMaxLtAfterTx = getLatestMaxLtAfterTx(proposalAddress!);
+      const latestMaxLtAfterTx = !args?.ignoreMaxLt
+        ? getLatestMaxLtAfterTx(proposalAddress!)
+        : undefined;
 
       const foundationProposal = proposals[proposalAddress!];
       if (foundationProposal) {
@@ -396,7 +376,7 @@ export const useProposalQuery = (
         return getContractState();
       }
 
-      if (args?.validateMaxLt && latestMaxLtAfterTx) {
+      if (args?.validateServerMaxLt && latestMaxLtAfterTx) {
         const serverMaxLt = await api.getMaxLt(proposalAddress!, signal);
 
         if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
@@ -413,15 +393,16 @@ export const useProposalQuery = (
 
         return getContractState();
       }
-      if (args?.validateResults && _.isEmpty(proposal.proposalResult)) {
-        Logger("Proposal result is not synced, fetching from contract");
-        return getContractState();
-      }
+
       return proposal;
     },
     {
       enabled:
-        !!proposalAddress && !!clients?.clientV2 && !!clients.clientV4 && !args?.disabled,
+        !!proposalAddress &&
+        !!clients?.clientV2 &&
+        !!clients.clientV4 &&
+        !args?.disabled &&
+        !isVoting,
       staleTime: args?.staleTime !== undefined ? args?.staleTime : 10_000,
       retry: isWhitelisted ? 3 : false,
       refetchInterval: args?.refetchInterval,
