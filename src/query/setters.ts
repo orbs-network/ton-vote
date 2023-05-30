@@ -23,15 +23,14 @@ import {
   useDaoFromQueryParam,
   useDaosQuery,
   useDaoStateQuery,
-  useProposalPageQuery,
   useRegistryStateQuery,
 } from "./getters";
-import { useProposalPersistedStore, useSyncStore } from "store";
+import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
 import { getTxFee, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
-import { Sender } from "ton-core";
+import { useProposalPageQuery } from "pages/proposal/hooks";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -210,7 +209,7 @@ export const useCreateDaoQuery = () => {
         args.ownerAddress,
         args.proposalOwner
       );
-            
+
       if (typeof address !== "string") {
         throw new Error("Failed to create Dao");
       }
@@ -281,7 +280,7 @@ export const useCreateProposalQuery = () => {
   const showErrorToast = useErrorToast();
 
   const allowed = isOwner || isProposalPublisher;
-  
+
   return useMutation(
     async (args: CreateProposalArgs) => {
       const { metadata } = args;
@@ -471,9 +470,11 @@ export const useVote = () => {
   const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
   const proposalAddress = useProposalAddress();
   const errorToast = useErrorToast();
+  const { setIsVoting } = useVoteStore();
 
   return useMutation(
     async (vote: string) => {
+      setIsVoting(true);
       const sender = getSender();
       const client = await getClientV2();
 
@@ -486,11 +487,15 @@ export const useVote = () => {
       );
 
       const { data } = await refetch();
+
       setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
     },
     {
       onSuccess: (_, vote) => {
         analytics.voteSuccess(proposalAddress, vote);
+      },
+      onSettled: () => {
+        setIsVoting(false);
       },
       onError: (error: Error, vote) => {
         errorToast(error);
@@ -499,4 +504,3 @@ export const useVote = () => {
     }
   );
 };
-

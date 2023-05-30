@@ -520,9 +520,8 @@ export const ListInputs = ({
             const isLast = index === values.length - 1;
             return (
               <StyledFlexRow justifyContent="flex-start" key={index}>
-                <StyledListTextInput>
+                <StyledListTextInput disabled={disabled ? 1 : 0}>
                   <TextInput
-                    disabled={disabled}
                     placeholder={placeholder}
                     endAdornment={
                       !disabled &&

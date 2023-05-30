@@ -8,7 +8,7 @@ import { useProposalAddress } from "hooks";
 import { getStrategyArgument, getVoteStrategyType } from "utils";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useProposalPageQuery } from "query/getters";
+import { useProposalPageQuery } from "./hooks";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {  
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -16,7 +16,7 @@ const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
 
 export const Metadata = () => {
   const proposalAddress = useProposalAddress();
-  const { isLoading, data } = useProposalPageQuery(false);
+  const { isLoading, data } = useProposalPageQuery();
   const translations = useProposalPageTranslations();
   const proposalMetadata = data?.metadata;
   const votingPowerStrategies = data?.metadata?.votingPowerStrategies;

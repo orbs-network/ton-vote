@@ -142,3 +142,13 @@ export const useSettingsStore = create(
     }
   )
 );
+
+interface VoteStore {
+  isVoting: boolean;
+  setIsVoting: (isVoting: boolean) => void;
+}
+
+export const useVoteStore = create<VoteStore>((set, get) => ({
+  isVoting: false,
+  setIsVoting: (isVoting) => set({ isVoting }),
+}));

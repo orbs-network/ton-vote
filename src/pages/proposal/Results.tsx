@@ -11,90 +11,52 @@ import {
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { useEffect, useMemo, useState } from "react";
-import {
-  calculateTonAmount,
-  getSymbol,
-  getTonAmounFromSumCoins,
-  getVoteStrategyType,
-  nFormatter,
-  normalizeResults,
-} from "utils";
+import { useEffect, useState } from "react";
+import { getSymbol, getVoteStrategyType, nFormatter } from "utils";
 import _ from "lodash";
-import { useVerifyProposalResults } from "./hooks";
+import { useProposalPageQuery, useVerifyProposalResults } from "./hooks";
 import { EndpointPopup } from "./EndpointPopup";
-import BigNumber from "bignumber.js";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { useProposalPageQuery } from "query/getters";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
-import { useProposalAddress } from "hooks";
+import { useProposalAddress, useProposalResults } from "hooks";
+const LIMIT = 5;
 
 export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery();
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
-  const proposalResult = data?.proposalResult;
-  const sumCoins = data?.sumCoins;
-  const sumVotes = data?.sumVotes;
-
-  const votes = data?.votes;
-
+  console.log({ data });
+  
+  const results = useProposalResults(data, dataUpdatedAt);
   const votingPowerStrategy = getVoteStrategyType(
     data?.metadata?.votingPowerStrategies
   );
   const symbol = getSymbol(votingPowerStrategy);
 
-  const votesCount = useMemo(() => {
-    const result = _.mapValues(_.groupBy(votes, "vote"), (value, key) => {
-      return _.size(value);
-    });
-
-    return _.mapKeys(result, (_, key) => {
-      return key.toLowerCase();
-    });
-  }, [dataUpdatedAt]);
-
   if (isLoading) {
     return <LoadingContainer />;
   }
 
-  const totalWeight = proposalResult?.totalWeight;
-
-  const LIMIT = 5;
-
-  const normalizedResults = useMemo(
-    () => normalizeResults(proposalResult),
-    [dataUpdatedAt]
-  );
-
   return (
     <StyledResults title={translations.results}>
       <StyledFlexColumn gap={15}>
-        {normalizedResults.map((item, index) => {
+        {results.map((result, index) => {
           if (index >= LIMIT && !showAllResults) return null;
-          const { title, percent } = item;
-
-          const votes = sumVotes
-            ? sumVotes[title]
-            : votesCount[title as keyof typeof votesCount];
-          const tonAmount = sumCoins
-            ? getTonAmounFromSumCoins(sumCoins[title] as BigNumber)
-            : calculateTonAmount(percent, totalWeight as string);
 
           return (
             <ResultRow
-              key={title}
+              key={result.choice}
               symbol={symbol}
-              name={title}
-              percent={percent}
-              tonAmount={tonAmount}
-              votes={votes}
+              name={result.choice}
+              percent={result.percent}
+              tonAmount={result.tonAmount}
+              votes={result.votesCount}
             />
           );
         })}
 
-        {_.size(normalizedResults) > LIMIT && (
+        {_.size(results) > LIMIT && (
           <ToggleResultsButton
             toggle={setShowAllResults}
             value={showAllResults}

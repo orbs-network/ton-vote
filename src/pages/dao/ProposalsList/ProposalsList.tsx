@@ -1,28 +1,23 @@
-import { Box, Typography } from "@mui/material";
-import { Container, Header, List, LoadMore } from "components";
+import { Box } from "@mui/material";
+import { Header, List, LoadMore } from "components";
 import { DAO_REFETCH_INTERVAL, IS_DEV } from "config";
-import {
-  useAppQueryParams,
-  useDaoAddressFromQueryParam,
-  useMobile,
-} from "hooks";
+import { useAppQueryParams, useMobile } from "hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { mock } from "mock/mock";
 import { useDaoFromQueryParam } from "query/getters";
 import { useState } from "react";
 import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { ProposalLoader } from "../ProposalLoader";
-import { ProposalComponent as Proposal } from "./Proposal";
+import { ProposalComponent as Proposal } from "./Proposal/Proposal";
 import {
   StyledEmptyList,
   StyledProposalsContainer,
   StyledProposalsHeader,
   StyledSearch,
 } from "./styles";
-const LIMIT = IS_DEV ? Infinity : 10;
+const LIMIT = 10;
 
 interface Option extends SelectOption {
   value: ProposalStatus | string;

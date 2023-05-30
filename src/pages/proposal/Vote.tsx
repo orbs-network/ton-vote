@@ -1,75 +1,78 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
 import { Button, ConnectButton, TitleContainer } from "components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { ProposalStatus } from "types";
-import { useProposalPageStatus } from "./hooks";
+import { useProposalPageQuery } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useVote } from "query/setters";
-import { useProposalPageQuery } from "query/getters";
 import { mock } from "mock/mock";
 import { useProposalAddress } from "hooks";
 import { errorToast } from "toasts";
+import _ from "lodash";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
-  const proposalStatus = useProposalPageStatus();
   const translations = useProposalPageTranslations();
-  const choices = useProposalPageQuery().data?.metadata?.votingSystem.choices;
+  const { data, dataUpdatedAt } = useProposalPageQuery();
+  const choices = data?.metadata?.votingSystem.choices;
   const proposalAddress = useProposalAddress();
+  const walletAddress = useTonAddress();
+
+  useEffect(() => {
+    if (!vote) {
+      setVote(
+        _.find(data?.votes, (it) => it.address === walletAddress)
+          ?.vote as string
+      );
+    }
+  }, [dataUpdatedAt, walletAddress, vote]);
 
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
-      errorToast("You can't vote on mock proposals")
+      errorToast("You can't vote on mock proposals");
     } else {
       setConfirmation(true);
     }
   };
 
   return (
-    <>
-      <StyledContainer title={translations.castVote}>
-        <StyledFlexColumn>
-          {choices?.map((option) => {
-            return (
-              <StyledOption
-                selected={option.toLowerCase() === vote}
-                key={option}
-                onClick={() => setVote(option.toLowerCase())}
-              >
-                <Fade in={option.toLowerCase() === vote}>
-                  <StyledFlexRow className="icon">
-                    <FiCheck style={{ width: 20, height: 20 }} />
-                  </StyledFlexRow>
-                </Fade>
-                <Typography>{option}</Typography>
-              </StyledOption>
-            );
-          })}
-        </StyledFlexColumn>
-        {proposalStatus === ProposalStatus.ACTIVE && (
-          <>
-            <VoteButton
-              isLoading={isLoading}
-              disabled={!vote || isLoading}
-              onSubmit={onSubmit}
-            />
-            <VoteConfirmation
-              open={confirmation}
-              vote={vote}
-              onClose={() => setConfirmation(false)}
-              onSubmit={() => mutate(vote!)}
-            />
-          </>
-        )}
-      </StyledContainer>
-    </>
+    <StyledContainer title={translations.castVote}>
+      <StyledFlexColumn>
+        {choices?.map((option) => {
+          return (
+            <StyledOption
+              selected={option === vote}
+              key={option}
+              onClick={() => setVote(option)}
+            >
+              <Fade in={option === vote}>
+                <StyledFlexRow className="icon">
+                  <FiCheck style={{ width: 20, height: 20 }} />
+                </StyledFlexRow>
+              </Fade>
+              <Typography>{option}</Typography>
+            </StyledOption>
+          );
+        })}
+      </StyledFlexColumn>
+      <VoteButton
+        isLoading={isLoading}
+        disabled={!vote || isLoading}
+        onSubmit={onSubmit}
+      />
+      <VoteConfirmation
+        open={confirmation}
+        vote={vote}
+        onClose={() => setConfirmation(false)}
+        onSubmit={() => mutate(vote!)}
+      />
+    </StyledContainer>
   );
 }
 
@@ -128,7 +131,7 @@ const StyledOption = styled(StyledFlexRow)<{
   border: selected
     ? `1.5px solid ${theme.palette.primary.main}`
     : "1.5px solid rgba(114, 138, 150, 0.24)",
-  color: theme.palette.mode === 'light' ?  theme.palette.primary.main : 'white',
+  color: theme.palette.mode === "light" ? theme.palette.primary.main : "white",
   p: {
     color: "inherit",
     fontWeight: 600,

@@ -58,9 +58,12 @@ export const StyledAddMoreButton = styled(Button)({
   justifyContent: "center",
 });
 
-export const StyledListTextInput = styled(StyledFlexRow)({
-  maxWidth: 400,
-});
+export const StyledListTextInput = styled(StyledFlexRow)<{ disabled: number }>(
+  ({ disabled }) => ({
+    maxWidth: 400,
+    pointerEvents: disabled ? "none" : "unset",
+  })
+);
 
 export const StyledListInputPrefix = styled(Typography)({
   whiteSpace: "nowrap",

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useProposalAddress } from "hooks";
+import { useProposalAddress, useProposalStatus } from "hooks";
 import _ from "lodash";
 import { Logger } from "utils";
 import { useEnpointsStore } from "./store";
@@ -13,9 +13,9 @@ import { Endpoints, ProposalResults } from "types";
 import { lib } from "lib/lib";
 import { Transaction } from "ton-core";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { useProposalPageQuery, useProposalStatusQuery } from "query/getters";
 import {  errorToast, usePromiseToast } from "toasts";
 import { mock } from "mock/mock";
+import { useProposalQuery } from "query/getters";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -104,5 +104,16 @@ export const useVerifyProposalResults = () => {
 export const useProposalPageStatus = () => {
   const { data } = useProposalPageQuery();
   const proposalAddress = useProposalAddress();
-  return useProposalStatusQuery(data?.metadata, proposalAddress);
+  return useProposalStatus(proposalAddress, data?.metadata);
+};
+
+
+export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
+  const address = useProposalAddress();
+  return useProposalQuery(address, {
+    refetchInterval: 30_000,
+    isCustomEndpoint,
+    validateServerMaxLt: true,
+    ignoreMaxLt: isCustomEndpoint,
+  });
 };

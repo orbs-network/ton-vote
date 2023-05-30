@@ -19,10 +19,10 @@ import {
   OverflowWithTooltip,
 } from "components";
 import { makeElipsisAddress, parseLanguage } from "utils";
-import { useProposalPageStatus } from "./hooks";
+import { useProposalPageQuery, useProposalPageStatus } from "./hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
-import { useDaoFromQueryParam, useProposalPageQuery } from "query/getters";
+import { useDaoFromQueryParam } from "query/getters";
 import { mock } from "mock/mock";
 
 const MIN_DESCRIPTION_HEIGHT = 200;
@@ -178,9 +178,9 @@ const StyledHeader = styled(Header)({
 });
 
 const ProposalStatus = () => {
-  const status = useProposalPageStatus();
+  const {proposalStatusText} = useProposalPageStatus();
 
-  return <Status status={status} />;
+  return <Status status={proposalStatusText} />;
 };
 
 const StyledShareButton = styled(ShareButton)({

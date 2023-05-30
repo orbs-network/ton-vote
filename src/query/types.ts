@@ -30,7 +30,7 @@ export interface ReactQueryConfig {
 export interface GetProposalArgs extends ReactQueryConfig {
   validateUpdateTime?: boolean;
   isCustomEndpoint?: boolean;
-  validateMaxLt?: boolean;
-  validateResults?: boolean;
+  validateServerMaxLt?: boolean;
+  ignoreMaxLt?: boolean;
   
 }

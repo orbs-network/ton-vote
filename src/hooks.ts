@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useMemo,
 } from "react";
 import {
   matchRoutes,
@@ -19,16 +20,23 @@ import {
   SenderArguments,
   storeStateInit,
 } from "ton-core";
-import { IS_BETA, IS_DEV, releaseMode } from "config";
+import { IS_BETA, IS_DEV } from "config";
 import { showSuccessToast } from "toasts";
-import { ProposalStatus, ThemeType } from "types";
+import { Proposal, ProposalStatus, ThemeType } from "types";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
-import { DaoRoles, ReleaseMode } from "ton-vote-contracts-sdk";
-import { useDaoQuery } from "query/getters";
+import { DaoRoles, ProposalMetadata } from "ton-vote-contracts-sdk";
 import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { useSettingsStore } from "store";
+import _ from "lodash";
+import {
+  getproposalResult,
+  getProposalResultTonAmount,
+  getProposalResultVotes,
+  getProposalStatus,
+} from "utils";
+import { useQuery } from "@tanstack/react-query";
 
 export const useDaoAddressFromQueryParam = () => {
   return useParams().daoId as string;
@@ -161,20 +169,6 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
   );
 };
 
-export const useProposalStatusText = (status?: ProposalStatus | null) => {
-  const t = useCommonTranslations();
-  switch (status) {
-    case ProposalStatus.CLOSED:
-      return t.ended;
-    case ProposalStatus.ACTIVE:
-      return t.active;
-    case ProposalStatus.NOT_STARTED:
-      return t.notStarted;
-    default:
-      break;
-  }
-};
-
 enum Params {
   PROPOSAL_STATE = "proposal-state",
   SEARCH = "search",
@@ -260,3 +254,70 @@ export const useAppSettings = () => {
     themeMode: store.themeMode,
   };
 };
+
+export const useProposalResults = (
+  proposal?: Proposal | null,
+  lastUpdateTime?: number
+) => {
+  return useMemo(() => {
+    if (!proposal) return [];
+
+    const choices = proposal?.metadata?.votingSystem.choices;
+
+    return _.map(choices, (choice, key) => {
+      const result = getproposalResult(proposal, choice);
+      const percent = result ? Number(result) : 0;
+      return {
+        votesCount: getProposalResultVotes(proposal, choice),
+        choice,
+        percent,
+        tonAmount: getProposalResultTonAmount(
+          proposal,
+          choice,
+          percent,
+          proposal.proposalResult["totalWeight"]
+        ),
+      };
+    });
+  }, [lastUpdateTime]);
+};
+
+export const useProposalStatus = (
+  proposalAddress?: string,
+  metadata?: ProposalMetadata
+) => {
+  const t = useCommonTranslations();
+  const query = useQuery(
+    ["useProposalStatus", proposalAddress],
+    () => {
+      const status = getProposalStatus(metadata!);
+      let text;
+      switch (status) {
+        case ProposalStatus.CLOSED:
+          text = t.ended;
+        case ProposalStatus.ACTIVE:
+          text = t.active;
+        case ProposalStatus.NOT_STARTED:
+          text = t.notStarted;
+        default:
+          break;
+      }
+
+      return {
+        proposalStatus: status,
+        proposalStatusText: text,
+      };
+    },
+    {
+      refetchInterval: 1_000,
+      enabled: !!metadata && !!proposalAddress,
+      initialData: {
+        proposalStatus: ProposalStatus.NOT_STARTED,
+        proposalStatusText: t.notStarted,
+      },
+    }
+  );
+
+  return query.data;
+};
+

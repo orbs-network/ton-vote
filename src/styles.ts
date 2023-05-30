@@ -59,6 +59,9 @@ export const StyledFlexColumn = styled(Box)(
 
 export const getGlobalStyles = (theme: Theme) => {
   return {
+    ".MuiMenu-paper":{
+      backgroundImage:'unset!important',
+    },
     body: {
       background: theme.palette.background.default,
       overflowX: "hidden",
