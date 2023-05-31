@@ -34,7 +34,6 @@ const getProposal = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<Proposal> => {
-  Logger(`Fetching proposal from api ${proposalAddress}`);
 
   const [result, maxLt] = await Promise.all([
     axiosInstance.get(`/proposal/${proposalAddress}`, {

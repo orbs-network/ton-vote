@@ -26,11 +26,3 @@ export interface ReactQueryConfig {
   staleTime?: number;
   disabled?: boolean;
 }
-
-export interface GetProposalArgs extends ReactQueryConfig {
-  validateUpdateTime?: boolean;
-  isCustomEndpoint?: boolean;
-  validateServerMaxLt?: boolean;
-  ignoreMaxLt?: boolean;
-  
-}

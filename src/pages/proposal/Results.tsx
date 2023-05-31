@@ -26,7 +26,6 @@ export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery();
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
-  console.log({ data });
   
   const results = useProposalResults(data, dataUpdatedAt);
   const votingPowerStrategy = getVoteStrategyType(

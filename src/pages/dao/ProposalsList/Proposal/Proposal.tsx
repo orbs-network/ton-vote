@@ -127,7 +127,7 @@ export const ProposalComponent = ({
             </StyledFlexColumn>
 
             {!proposal?.hardcoded &&
-              status === ProposalStatus.CLOSED &&
+              proposalStatus === ProposalStatus.CLOSED &&
               proposal && <Results proposalQuery={proposalQuery} />}
             <ProposalTimeline
               proposalMetadata={proposal?.metadata}

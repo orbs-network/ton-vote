@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { releaseMode, QueryKeys, IS_DEV } from "config";
-import { Dao, Proposal, ProposalStatus } from "types";
+import { Dao, Proposal } from "types";
 import _ from "lodash";
 import {
   filterTxByTimestamp,
@@ -9,12 +9,10 @@ import {
   getDaoMetadata,
   getSingleVoterPower,
   getTransactions,
-  ProposalMetadata,
   getDaoState,
   getRegistryState,
 } from "ton-vote-contracts-sdk";
 import {
-  getProposalStatus,
   getVoteStrategyType,
   isDaoWhitelisted,
   isProposalWhitelisted,
@@ -23,17 +21,12 @@ import {
   validateServerUpdateTime,
 } from "utils";
 import { FOUNDATION_DAO, proposals } from "data/foundation/data";
-import {
-  useNewDataStore,
-  useProposalPersistedStore,
-  useSyncStore,
-  useVoteStore,
-} from "store";
+import { useNewDataStore, useSyncStore } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
 import { useDaoAddressFromQueryParam, useProposalAddress } from "hooks";
 import { fromNano, Transaction } from "ton-core";
-import { GetProposalArgs, ReactQueryConfig } from "./types";
+import { ReactQueryConfig } from "./types";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 
@@ -318,17 +311,12 @@ export const useConnectedWalletVotingPowerQuery = (
 };
 
 export const useProposalQuery = (
-  _proposalAddress?: string,
-  args?: GetProposalArgs
+  proposalAddress?: string,
+  args?: ReactQueryConfig
 ) => {
-  const proposalAddressFromURL = useProposalAddress();
-
-  const proposalAddress = _proposalAddress || proposalAddressFromURL;
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
-  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
-    useProposalPersistedStore();
-  const { isVoting } = useVoteStore();
+  const getContractStateCallback = useGetContractState();
 
   return useQuery(
     [QueryKeys.PROPOSAL, proposalAddress],
@@ -337,63 +325,21 @@ export const useProposalQuery = (
       if (isMockProposal) {
         return isMockProposal;
       }
-      const latestMaxLtAfterTx = !args?.ignoreMaxLt
-        ? getLatestMaxLtAfterTx(proposalAddress!)
-        : undefined;
-
       const foundationProposal = proposals[proposalAddress!];
       if (foundationProposal) {
         return foundationProposal;
       }
+
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
       }
 
-      const getContractState = async () => {
-        let transactions: Transaction[] = [];
-        if (latestMaxLtAfterTx) {
-          const result = await getTransactions(
-            clients!.clientV2,
-            proposalAddress!
-          );
-          transactions = filterTxByTimestamp(
-            result.allTxns,
-            latestMaxLtAfterTx
-          );
-        }
-
-        return lib.getProposalFromContract(
-          clients!.clientV2,
-          clients!.clientV4,
-          proposalAddress!,
-          undefined,
-          transactions
-        );
-      };
-
-      if (args?.isCustomEndpoint) {
-        Logger("isCustomEndpoint selected");
-        return getContractState();
-      }
-
-      if (args?.validateServerMaxLt && latestMaxLtAfterTx) {
-        const serverMaxLt = await api.getMaxLt(proposalAddress!, signal);
-
-        if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-          Logger(
-            `server latestMaxLtAfterTx is outdated, fetching from contract, latestMaxLtAfterTx: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
-          );
-          return getContractState();
-        }
-      }
-      setLatestMaxLtAfterTx(proposalAddress!, undefined);
       const proposal = await api.getProposal(proposalAddress!, signal);
       if (_.isEmpty(proposal.metadata)) {
-        Logger("Proposal not found is server, fetching from contract");
-
-        return getContractState();
+         Logger("List proposal not found in server, fetching from contract");
+        return getContractStateCallback(proposalAddress!);
       }
-
+      Logger(`List, fetching proposal from api ${proposalAddress}`);
       return proposal;
     },
     {
@@ -401,11 +347,10 @@ export const useProposalQuery = (
         !!proposalAddress &&
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
-        !args?.disabled &&
-        !isVoting,
-      staleTime: args?.staleTime !== undefined ? args?.staleTime : 10_000,
+        !args?.disabled,
+      staleTime: args?.staleTime || 30_000,
       retry: isWhitelisted ? 3 : false,
-      refetchInterval: args?.refetchInterval,
+      refetchInterval: isWhitelisted ? args?.refetchInterval : undefined,
     }
   );
 };
@@ -422,4 +367,23 @@ export const useWalletsQuery = () => {
       enabled: !!tonConnectUI,
     }
   );
+};
+
+export const useGetContractState = () => {
+  const clients = useGetClients().data;
+  return async (proposalAddress: string, latestMaxLtAfterTx?: string) => {
+    let transactions: Transaction[] = [];
+    if (latestMaxLtAfterTx) {
+      const result = await getTransactions(clients!.clientV2, proposalAddress!);
+      transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
+    }
+
+    return lib.getProposalFromContract(
+      clients!.clientV2,
+      clients!.clientV4,
+      proposalAddress!,
+      undefined,
+      transactions
+    );
+  };
 };

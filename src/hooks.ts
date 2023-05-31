@@ -292,15 +292,15 @@ export const useProposalStatus = (
     () => {
       const status = getProposalStatus(metadata!);
       let text;
-      switch (status) {
-        case ProposalStatus.CLOSED:
-          text = t.ended;
-        case ProposalStatus.ACTIVE:
-          text = t.active;
-        case ProposalStatus.NOT_STARTED:
-          text = t.notStarted;
-        default:
-          break;
+
+      if (status === ProposalStatus.ACTIVE) {
+        text = t.active;
+      }
+      if (status === ProposalStatus.CLOSED) {
+        text = t.ended;
+      }
+      if (status === ProposalStatus.NOT_STARTED) {
+        text = t.notStarted;
       }
 
       return {
@@ -320,4 +320,3 @@ export const useProposalStatus = (
 
   return query.data;
 };
-
