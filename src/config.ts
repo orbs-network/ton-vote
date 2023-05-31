@@ -47,6 +47,10 @@ export const LANGUAGES = { en: "English", ru: "Русский" };
 
 export const VERIFIED_DAOS = [
   "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
+  "EQD9754NzYELn6nvvTLQgx8DZoty1b6pg-WtORm2wT2AFoS_",
+  "EQAa88_6qsCmpSMBwNpUN6e2EdqFk9e8fSzJwLZv0biP1ujC",
+  "EQDH7C0aDDhEPuKki6t0ZzMv3eRpF55N-FWFa48v8E6e1410",
+  "EQApNS5tcAcfdM638yWIlHrsam08LJpOtpN8sMxZy4HjYkGy",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING

@@ -100,7 +100,13 @@ const DaoTitle = () => {
   const dao = useDaoFromQueryParam().data;
   
   return (
-    <StyledTitle placement="top" text={parseLanguage(dao?.daoMetadata?.metadataArgs.name)} />
+    <StyledFlexRow>
+      <StyledTitle
+        placement="top"
+        text={parseLanguage(dao?.daoMetadata?.metadataArgs.name)}
+      />
+      <VerifiedDao daoAddress={dao?.daoAddress} />
+    </StyledFlexRow>
   );
 };
 
@@ -114,7 +120,6 @@ const DaoDNS = () => {
   return (
     <StyledDNS>
       <Typography>{dao?.daoMetadata.metadataArgs.dns}</Typography>
-      <VerifiedDao daoAddress={dao.daoAddress} />
     </StyledDNS>
   );
 };

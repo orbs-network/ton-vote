@@ -20,7 +20,7 @@ export function VerifiedDao({ daoAddress = "" }: { daoAddress?: string }) {
 
 const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
   svg: {
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.main, 
     width: 22,
     height: 22,
   },
