@@ -20,12 +20,17 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import { useProposalAddress, useProposalResults } from "hooks";
+import { proposals } from "data/foundation/data";
 const LIMIT = 5;
 
 export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery();
+  
+  const address = useProposalAddress()
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
+
+  const hideVerify = proposals[address];
   
   const results = useProposalResults(data, dataUpdatedAt);
   const votingPowerStrategy = getVoteStrategyType(
@@ -62,7 +67,7 @@ export const Results = () => {
           />
         )}
       </StyledFlexColumn>
-      <VerifyResults />
+      {!hideVerify && <VerifyResults />}
     </StyledResults>
   );
 };

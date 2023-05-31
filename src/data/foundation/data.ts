@@ -47,7 +47,18 @@ export const proposals: { [key: string]: Proposal } = {
       proposalEndTime: 1680195600,
       proposalSnapshotTime: 1680012000,
       votingSystem: {
-        choices: [],
+        choices: [
+          "DeDust",
+          "Punk City",
+          "Evaa",
+          "1ton",
+          "Nujan IDE",
+          "re:doubt",
+          "Tsunami Exchange",
+          "Tonic Lounge",
+          "TonEase",
+          "Genlock",
+        ],
         votingSystemType: 0,
       },
       votingPowerStrategies: [
@@ -73,7 +84,7 @@ export const proposals: { [key: string]: Proposal } = {
       proposalEndTime: 1676984400,
       proposalSnapshotTime: 1676160000,
       votingSystem: {
-        choices: [],
+        choices: ["Yes", "No", "Abstain"],
         votingSystemType: 0,
       },
       votingPowerStrategies: [

@@ -13,9 +13,11 @@ export const Results = ({
   proposalQuery: ReturnType<typeof useProposalQuery>;
 }) => {
   const { data: proposal, dataUpdatedAt } = proposalQuery;
+  
   const totalWeight = proposal?.proposalResult.totalWeight;
   const translations = useDaoPageTranslations();
   const results = useProposalResults(proposal, dataUpdatedAt);
+
   if (Number(totalWeight) === 0) {
     return (
       <StyledAlert severity="warning">

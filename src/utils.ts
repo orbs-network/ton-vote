@@ -314,6 +314,7 @@ export const getProposalResultTonAmount = (
       proposal.sumCoins[choice] || proposal.sumCoins[choice.toLowerCase()];
     result = getTonAmounFromSumCoins(value as BigNumber);
   } else {
+    
     result = calculateTonAmount(percent, totalWeight) || "0";
   }
   return result;

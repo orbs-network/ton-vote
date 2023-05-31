@@ -259,9 +259,10 @@ export const useProposalResults = (
   proposal?: Proposal | null,
   lastUpdateTime?: number
 ) => {
+  
   return useMemo(() => {
     if (!proposal) return [];
-
+    
     const choices = proposal?.metadata?.votingSystem.choices;
 
     return _.map(choices, (choice, key) => {

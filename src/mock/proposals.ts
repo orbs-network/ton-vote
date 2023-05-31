@@ -1,4 +1,6 @@
+import _ from "lodash";
 import moment from "moment";
+import { toNano } from "ton-core";
 import {
   VotingPowerStrategy,
   VotingPowerStrategyType,
@@ -9,6 +11,23 @@ const description = `Contrary to popular belief, Lorem Ipsum is not simply rando
 
 The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.`;
 const choices = ["Yes", "No", "Abstain"];
+
+const VOTES_AMOUNT = 300;
+
+
+const votingPower = [...Array(VOTES_AMOUNT).keys()].map((i) => {
+  return _.random(0, 3000)
+});
+
+const votes = [...Array(VOTES_AMOUNT).keys()].map((i) => ({
+  address: `EQDehfd8rzzlqsQlVNPf9_svoBcWJ3eRbz-eqgswjNEKRIwo-${i + 1}`,
+  vote: _.shuffle(choices)[0],
+  votingPower: votingPower[i].toString(),
+  timestamp: 1685519298,
+  hash: "11357872275052426155389012383971883445063156358606972107667992596580446754291",
+}));
+
+const total = _.reduce(votingPower, (sum, n) => sum + n, 0);
 
 const defaultProposal = {
   daoAddress: "EQCh4ksBLF4bHmqPqzZT9AlnKgh49luRGqhpVdm3dZ0m1XTN",
@@ -34,11 +53,21 @@ const defaultProposal = {
     description: JSON.stringify({ en: description }),
   },
   votingPower: {},
-  votes: [],
+  votes,
   proposalResult: {
-    yes: 0,
-    no: 0,
-    abstain: 0,
+    yes: (
+      (_.countBy(votes, (v) => v.vote === "Yes").true / VOTES_AMOUNT) *
+      100
+    ).toFixed(2),
+    no: (
+      (_.countBy(votes, (v) => v.vote === "No").true / VOTES_AMOUNT) *
+      100
+    ).toFixed(2),
+    abstain: (
+      (_.countBy(votes, (v) => v.vote === "Abstain").true / VOTES_AMOUNT) *
+      100
+    ).toFixed(2),
+    totalWeight: toNano(total),
   },
 };
 

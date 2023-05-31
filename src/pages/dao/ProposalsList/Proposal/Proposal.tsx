@@ -1,6 +1,10 @@
 import { styled } from "@mui/material";
 import { Status, AppTooltip } from "components";
-import { useAppQueryParams, useDaoAddressFromQueryParam, useProposalStatus } from "hooks";
+import {
+  useAppQueryParams,
+  useDaoAddressFromQueryParam,
+  useProposalStatus,
+} from "hooks";
 import _ from "lodash";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -66,7 +70,10 @@ export const ProposalComponent = ({
 
   const { data: proposal, isLoading } = proposalQuery;
 
-  const { proposalStatus, proposalStatusText } = useProposalStatus(proposalAddress, proposal?.metadata);
+  const { proposalStatus, proposalStatusText } = useProposalStatus(
+    proposalAddress,
+    proposal?.metadata
+  );
   const hideProposal = useHideProposal(
     proposalAddress,
     proposal,
@@ -126,9 +133,9 @@ export const ProposalComponent = ({
               </StyledMarkdown>
             </StyledFlexColumn>
 
-            {!proposal?.hardcoded &&
-              proposalStatus === ProposalStatus.CLOSED &&
-              proposal && <Results proposalQuery={proposalQuery} />}
+            {proposalStatus === ProposalStatus.CLOSED && proposal && (
+              <Results proposalQuery={proposalQuery} />
+            )}
             <ProposalTimeline
               proposalMetadata={proposal?.metadata}
               status={proposalStatus}
