@@ -15,7 +15,6 @@ export interface CreateMetadataArgs {
 
 
 export interface UpdateMetadataArgs {
-  onSuccess: () => void;
   metadata: DaoMetadataForm;
   daoAddress: string;
 }

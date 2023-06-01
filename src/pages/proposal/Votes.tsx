@@ -29,7 +29,7 @@ import {
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useProposalPageQuery } from "./hooks";
+import { useProposalPageQuery, useWalletVote } from "./hooks";
 
 const ContainerHeader = () => {
   const { data } = useProposalPageQuery();
@@ -72,10 +72,8 @@ const ConnectedWalletVote = () => {
   const address = useTonAddress();
 
   const { data, dataUpdatedAt } = useProposalPageQuery();
+  const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
 
-  const walletVote = useMemo(() => {
-    return _.find(data?.votes, (it) => it.address === address);
-  }, [dataUpdatedAt, address]);
 
   return (
     <VoteComponent

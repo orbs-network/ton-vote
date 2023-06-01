@@ -9,17 +9,23 @@ import {
   getClientV4,
   getTransactions,
 } from "ton-vote-contracts-sdk";
-import { Endpoints, ProposalResults } from "types";
+import { Endpoints, ProposalResults, Vote } from "types";
 import { lib } from "lib/lib";
 import { Transaction } from "ton-core";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import {  errorToast, usePromiseToast } from "toasts";
+import { errorToast, usePromiseToast } from "toasts";
 import { mock } from "mock/mock";
-import { useGetClients, useGetContractState, useProposalQuery } from "query/getters";
+import {
+  useGetClients,
+  useGetContractState,
+  useProposalQuery,
+} from "query/getters";
 import { QueryKeys } from "config";
 import { api } from "api";
 import { useProposalPersistedStore, useVoteStore } from "store";
 import { proposals } from "data/foundation/data";
+import { useTonAddress } from "@tonconnect/ui-react";
+import { useEffect, useMemo } from "react";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -42,12 +48,10 @@ export const useVerifyProposalResults = () => {
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations();
 
-
   const promiseToast = usePromiseToast();
 
   return useMutation(
     async (customEndpoints: Endpoints) => {
-     
       setEndpoints(customEndpoints);
       const promiseFn = async () => {
         const clientV2 = await getClientV2(
@@ -111,7 +115,6 @@ export const useProposalPageStatus = () => {
   return useProposalStatus(proposalAddress, data?.metadata);
 };
 
-
 export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
   const proposalAddress = useProposalAddress();
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
@@ -143,7 +146,7 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       const contractState = () =>
         getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
 
-      if (isCustomEndpoint) {
+      if (true) {
         Logger("custom endpoint selected");
         return contractState();
       }
@@ -161,11 +164,13 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       setLatestMaxLtAfterTx(proposalAddress!, undefined);
       const proposal = await api.getProposal(proposalAddress!, signal);
       if (_.isEmpty(proposal.metadata)) {
-        Logger("proposal page, Proposal not found in server, fetching from contract");
+        Logger(
+          "proposal page, Proposal not found in server, fetching from contract"
+        );
 
         return contractState();
       }
-       Logger(`proposal page, fetching proposal from api ${proposalAddress}`);
+      Logger(`proposal page, fetching proposal from api ${proposalAddress}`);
       return proposal;
     },
     {
@@ -179,4 +184,11 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       refetchInterval: isWhitelisted ? 30_000 : undefined,
     }
   );
+};
+
+export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
+  const walletAddress = useTonAddress();
+  return useMemo(() => {
+    return _.find(votes, (it) => it.address === walletAddress);
+  }, [dataUpdatedAt]);
 };

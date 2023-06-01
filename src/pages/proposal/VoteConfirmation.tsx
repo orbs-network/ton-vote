@@ -18,6 +18,7 @@ interface Props {
 export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const translations = useProposalPageTranslations();
 
+
   const { data } = useProposalPageQuery();
   const proposalAddress = useProposalAddress();
 
@@ -84,7 +85,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   );
 }
 
-const StyledMessage = styled(Box)({});
 
 const StyledButtons = styled(StyledFlexRow)({
   button: {

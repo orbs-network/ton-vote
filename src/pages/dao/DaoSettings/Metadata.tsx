@@ -15,7 +15,7 @@ import { useTonAddress } from "@tonconnect/ui-react";
 export function MetadataForm() {
   const Schema = useDaoMetadataSchema();
   const updateDaoForm = useMetadataForm();
-  const { data, refetch } = useDaoFromQueryParam();
+  const data = useDaoFromQueryParam().data;
   const daoAddress = useDaoAddressFromQueryParam();
   const { mutate: updateMetadata, isLoading } = useUpdateDaoMetadataQuery();
 
@@ -28,7 +28,6 @@ export function MetadataForm() {
       updateMetadata({
         metadata: prepareMetadata(values),
         daoAddress,
-        onSuccess: refetch,
       });
     },
   });

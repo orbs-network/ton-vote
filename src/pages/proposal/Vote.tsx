@@ -1,10 +1,10 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
-import { Button, ConnectButton, TitleContainer } from "components";
+import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useProposalPageQuery } from "./hooks";
+import { useProposalPageQuery, useWalletVote } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -22,16 +22,17 @@ export function Vote() {
   const { data, dataUpdatedAt } = useProposalPageQuery();
   const choices = data?.metadata?.votingSystem.choices;
   const proposalAddress = useProposalAddress();
-  const walletAddress = useTonAddress();
+
+  const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
+  const currentVote = walletVote?.vote as string;
 
   useEffect(() => {
-    if (!vote) {
-      setVote(
-        _.find(data?.votes, (it) => it.address === walletAddress)
-          ?.vote as string
-      );
+    if(!vote) {
+       setVote(walletVote?.vote as string)
     }
-  }, [dataUpdatedAt, walletAddress, vote]);
+   
+  }, [walletVote?.vote])
+  
 
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
@@ -61,11 +62,13 @@ export function Vote() {
           );
         })}
       </StyledFlexColumn>
-      <VoteButton
-        isLoading={isLoading}
-        disabled={!vote || isLoading}
-        onSubmit={onSubmit}
-      />
+      <AppTooltip  text={currentVote === vote ? `You already voted ${vote}` : ''}>
+        <VoteButton
+          isLoading={isLoading}
+          disabled={!vote || isLoading || currentVote === vote}
+          onSubmit={onSubmit}
+        />
+      </AppTooltip>
       <VoteConfirmation
         open={confirmation}
         vote={vote}

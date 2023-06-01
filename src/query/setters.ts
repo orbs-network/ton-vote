@@ -18,7 +18,7 @@ import {
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
 import { useGetSender, useProposalAddress, useRole } from "hooks";
-import { useErrorToast } from "toasts";
+import { showSuccessToast, useErrorToast } from "toasts";
 import {
   useDaoFromQueryParam,
   useDaosQuery,
@@ -411,7 +411,9 @@ export const useSetDaoPublisherQuery = () => {
 export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
-  const refetch = useDaosQuery().refetch;
+  const refetchDaos = useDaosQuery().refetch;
+  const refetchUpdatedDao = useDaoFromQueryParam().refetch;
+  
   const errorToast = useErrorToast();
 
   return useMutation(
@@ -455,9 +457,10 @@ export const useUpdateDaoMetadataQuery = () => {
         );
       },
       onSuccess: (_, args) => {
-        args.onSuccess();
+        showSuccessToast("Metadata updated")
         setDaoUpdateMillis(args.daoAddress);
-        refetch();
+        refetchDaos();
+        refetchUpdatedDao();
         analytics.updateDaoMetadataSuccess(args.metadata, args.daoAddress);
       },
     }

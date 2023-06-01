@@ -8,6 +8,7 @@ import { router } from "router/router";
 import { getGlobalStyles } from "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 
+
 function App() {
   useInitThemeMode();
   const { isDarkMode } = useAppSettings();

@@ -57,7 +57,9 @@ const translations = useCommonTranslations();
 }
 
 export const filterError = (error?: string) => {
-  if (error?.includes("UserRejectsError")) {
+  console.log(error);
+  
+  if (error?.includes("TON_CONNECT_SDK_ERROR")) {
     return true;
   }
   return false;

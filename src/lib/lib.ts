@@ -27,6 +27,7 @@ const getProposalFromContract = async (
 
   if (!_transactions || _.isEmpty(_transactions)) {
     const result = await getTransactions(clientV2, proposalAddress);
+    
     maxLt = result.maxLt;
     transactions = result.allTxns;
   } else {

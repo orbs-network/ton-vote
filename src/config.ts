@@ -68,7 +68,7 @@ export const TX_FEES = {
   CREATE_METADATA: DEV_FEES ? 0.05 : 1,
   FORWARD_MSG: DEV_FEES ? 0.25 : 1,
   SET_METADATA: DEV_FEES ? 0.05 : 1,
-  VOTE_FEE: 0.0065,
+  VOTE_FEE: 0.01,
   BASE: 0.05,
 };
 

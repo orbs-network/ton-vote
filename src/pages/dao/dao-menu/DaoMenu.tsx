@@ -1,6 +1,5 @@
 import { Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
-import { IS_DEV } from "config";
 import { routes } from "consts";
 import {
   useCurrentRoute,
@@ -98,7 +97,7 @@ const DaoLogo = () => {
 
 const DaoTitle = () => {
   const dao = useDaoFromQueryParam().data;
-  
+
   return (
     <StyledFlexRow>
       <StyledTitle
@@ -156,15 +155,16 @@ const DesktopNavigation = () => {
   return (
     <StyledNavigation>
       {navigations.map((navigation, index) => {
-        return (
-          <StyledNavigationLink
-            to={navigation.path}
-            key={index}
-            selected={!!navigation.selected}
-          >
-            {navigation.title}
-          </StyledNavigationLink>
-        );
+        if (navigation.hide) return null
+          return (
+            <StyledNavigationLink
+              to={navigation.path}
+              key={index}
+              selected={!!navigation.selected}
+            >
+              {navigation.title}
+            </StyledNavigationLink>
+          );
       })}
     </StyledNavigation>
   );
@@ -222,54 +222,34 @@ const useNavigationLinks = () => {
     return null;
   }
 
-  const result = [
+  return [
     {
       title: translations.proposals,
       path: appNavigation.daoPage.root(daoAddress),
       selected: route === routes.space,
       route: routes.space,
-      owner: false,
-      publisher: false,
+      hide: false,
     },
-
     {
       title: translations.about,
       path: appNavigation.daoPage.about(daoAddress),
       selected: route === routes.spaceAbout,
       route: routes.spaceAbout,
-      owner: false,
-      publisher: false,
+      hide: false,
     },
     {
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
       selected: route === routes.createProposal,
-      owner: true,
-      publisher: true,
+      hide: !isOwner && !isProposalPublisher,
       route: routes.createProposal,
     },
-  ];
-
-  const modified = _.filter(result, (it) => {
-    if (it.owner && !isOwner) {
-      return false;
-    }
-    if (it.publisher && !isProposalPublisher && it.publisher && !isOwner) {
-      return false;
-    }
-    return true;
-  });
-
-  if (showDev) {
-    modified.push({
+    {
       title: translations.settings,
       path: appNavigation.daoPage.settings(daoAddress),
       selected: route === routes.spaceSettings,
-      owner: true,
-      publisher: false,
       route: routes.spaceSettings,
-    });
-  }
-
-  return modified;
+      hide: !showDev,
+    },
+  ];
 };

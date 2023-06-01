@@ -59,8 +59,8 @@ export const StyledFlexColumn = styled(Box)(
 
 export const getGlobalStyles = (theme: Theme) => {
   return {
-    ".MuiMenu-paper":{
-      backgroundImage:'unset!important',
+    ".MuiMenu-paper": {
+      backgroundImage: "unset!important",
     },
     body: {
       background: theme.palette.background.default,
@@ -84,6 +84,8 @@ export const getGlobalStyles = (theme: Theme) => {
           : `1px solid rgba(255,255,255, 0.2)`,
       "*": {
         color: theme.palette.text.secondary,
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, Tahoma, Verdana, sans-serif",
       },
       "[role=status]": {
         marginRight: 0,

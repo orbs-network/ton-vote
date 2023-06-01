@@ -148,7 +148,7 @@ export const StyledInputContainer = styled(Box)<{
     textarea: {
       fontFamily: markdown && !preview ? "monospace!important" : "inherit",
       color: markdown && !preview ? color : theme.palette.text.primary,
-      paddingTop: markdown ? "25px" : "unset",
+      paddingTop: markdown ? "15px" : "unset",
     },
     input: {
       background: "transparent!important",

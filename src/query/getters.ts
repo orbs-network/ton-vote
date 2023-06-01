@@ -377,6 +377,7 @@ export const useGetContractState = () => {
       const result = await getTransactions(clients!.clientV2, proposalAddress!);
       transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
     }
+    
 
     return lib.getProposalFromContract(
       clients!.clientV2,
