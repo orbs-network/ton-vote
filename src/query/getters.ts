@@ -20,7 +20,11 @@ import {
   nFormatter,
   validateServerUpdateTime,
 } from "utils";
-import { FOUNDATION_DAO_ADDRESS, FOUNDATION_PROPOSALS, FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
+import {
+  FOUNDATION_DAO_ADDRESS,
+  FOUNDATION_PROPOSALS,
+  FOUNDATION_PROPOSALS_ADDRESSES,
+} from "data/foundation/data";
 import { useNewDataStore, useSyncStore } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
@@ -121,7 +125,6 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
         })
       );
 
-
       const daos = IS_DEV ? _.concat(prodDaos, mock.daos) : prodDaos;
 
       if (_.size(newDaosAddresses)) {
@@ -154,7 +157,15 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
         daos.splice(1, 0, ...newDaos);
       }
 
-      return _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
+      let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
+      
+      const daoIndex = _.findIndex(result, {
+        daoAddress: FOUNDATION_DAO_ADDRESS,
+      });
+
+     const foundationDao = result.splice(daoIndex, 1);
+      
+      return [...foundationDao, ...result]
     },
     {
       refetchInterval: config?.refetchInterval,
@@ -207,7 +218,6 @@ export const useDaoQuery = (
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
       }
-    
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
       let fetchFromContract = false;
@@ -336,7 +346,7 @@ export const useProposalQuery = (
 
       const proposal = await api.getProposal(proposalAddress!, signal);
       if (_.isEmpty(proposal.metadata)) {
-         Logger("List proposal not found in server, fetching from contract");
+        Logger("List proposal not found in server, fetching from contract");
         return getContractStateCallback(proposalAddress!);
       }
       Logger(`List, fetching proposal from api ${proposalAddress}`);
@@ -377,7 +387,6 @@ export const useGetContractState = () => {
       const result = await getTransactions(clients!.clientV2, proposalAddress!);
       transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
     }
-    
 
     return lib.getProposalFromContract(
       clients!.clientV2,
