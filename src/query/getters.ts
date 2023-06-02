@@ -230,7 +230,9 @@ export const useDaoQuery = (
       return {
         ...dao,
         daoProposals:
-          daoAddress === FOUNDATION_DAO_ADDRESS ? [...FOUNDATION_PROPOSALS_ADDRESSES, ...daoProposals] : daoProposals,
+          daoAddress === FOUNDATION_DAO_ADDRESS
+            ? [...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES]
+            : daoProposals,
       };
     },
     {
