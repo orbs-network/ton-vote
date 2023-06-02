@@ -191,7 +191,7 @@ export const StyledContainer = styled(Box)(({theme}) => ({
 }));
 
 export const StyledHoverContainer = styled(StyledContainer)(({ theme }) => {
-  const color = theme.palette.mode === 'light' ? theme.palette.primary.main : 'white';
+  const color = theme.palette.mode === 'light' ? theme.palette.primary.main : 'rgba(255,255,255, 0.7)';
   return {
     transition: "border-color 0.2s",
     svg: {

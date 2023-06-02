@@ -46,11 +46,12 @@ export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
 export const LANGUAGES = { en: "English", ru: "Русский" };
 
 export const VERIFIED_DAOS = [
-  "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
-  "EQD9754NzYELn6nvvTLQgx8DZoty1b6pg-WtORm2wT2AFoS_",
-  "EQAa88_6qsCmpSMBwNpUN6e2EdqFk9e8fSzJwLZv0biP1ujC",
-  "EQDH7C0aDDhEPuKki6t0ZzMv3eRpF55N-FWFa48v8E6e1410",
-  "EQApNS5tcAcfdM638yWIlHrsam08LJpOtpN8sMxZy4HjYkGy",
+  "EQBcWmVMuby9kFuB0bAyLQpDvCeosTX3h4m7lct0c8GI8QOG",
+  "EQCxbXzrtDQ9ZHvFL91xnCm6YtFYO1Lks9tImMHJHVICKD9X",
+  "EQD4GRGo2Exp0yt3L9-2TW7KPM8GK5gzyhJ1tEweIVz4jIQY",
+  "EQCEnW_oq1RmMJ4ciTTsccLIzu2vy0VVLo_hfa84tZZfh_Qy",
+  "EQC5E53rXLTWHzsYAdudAG3p6n45c0MuvoKDCGDFnu4OmuMb",
+  "EQBt1SfQ3IuMlCBlr0RstEbJUeun57f8q_9-ZqWNgm1CA8s9",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING

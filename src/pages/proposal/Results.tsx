@@ -20,7 +20,7 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import { useProposalAddress, useProposalResults } from "hooks";
-import { proposals } from "data/foundation/data";
+import { FOUNDATION_DAO_ADDRESS, FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
 const LIMIT = 5;
 
 export const Results = () => {
@@ -30,7 +30,7 @@ export const Results = () => {
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
 
-  const hideVerify = proposals[address];
+  const hideVerify = FOUNDATION_PROPOSALS_ADDRESSES.includes(address);
   
   const results = useProposalResults(data, dataUpdatedAt);
   const votingPowerStrategy = getVoteStrategyType(

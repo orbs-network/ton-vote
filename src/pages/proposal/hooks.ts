@@ -23,9 +23,9 @@ import {
 import { QueryKeys } from "config";
 import { api } from "api";
 import { useProposalPersistedStore, useVoteStore } from "store";
-import { proposals } from "data/foundation/data";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
+import { FOUNDATION_PROPOSALS } from "data/foundation/data";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -131,7 +131,7 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       if (isMockProposal) {
         return isMockProposal;
       }
-      const foundationProposal = proposals[proposalAddress!];
+      const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
       if (foundationProposal) {
         return foundationProposal;
       }

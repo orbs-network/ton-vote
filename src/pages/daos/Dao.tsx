@@ -57,11 +57,11 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
               <TextOverflow text={`${name}${mockPrefix}`} />
             </Typography>
             <Address dao={dao} />
-            <Container className="members">
+            {/* <Container className="members">
               <Typography>
                 {nFormatter(100000)} {t.members}
               </Typography>
-            </Container>
+            </Container> */}
           </StyledFlexColumn>
         ) : null}
       </StyledDaoContent>

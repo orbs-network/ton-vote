@@ -54,7 +54,7 @@ export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
   },
 
   "&:hover": {
-    border: theme.palette.mode === 'light'  ?  `1px solid ${theme.palette.primary.main}` : '1px solid white',
+    border: theme.palette.mode === 'light'  ?  `1px solid ${theme.palette.primary.main}` : '1px solid rgba(255,255,255, 0.7)',
   },
 }));
 

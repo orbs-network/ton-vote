@@ -28,7 +28,7 @@ export const StyledDaoAvatar = styled(Img)({
 
 export const StyledDao = styled(Box)(({ theme }) => ({
   width: "calc(100% / 4 - 15px)",
-  height: 280,
+  height: 250,
 
   cursor: "pointer",
   ".container": {

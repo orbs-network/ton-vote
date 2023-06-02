@@ -20,7 +20,7 @@ import {
   nFormatter,
   validateServerUpdateTime,
 } from "utils";
-import { FOUNDATION_DAO, proposals } from "data/foundation/data";
+import { FOUNDATION_DAO_ADDRESS, FOUNDATION_PROPOSALS, FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
 import { useNewDataStore, useSyncStore } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
@@ -111,7 +111,7 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
         })
       );
 
-      const res = _.compact(
+      const prodDaos = _.compact(
         promise.map((it) => {
           if (it.status === "fulfilled") {
             return it.value;
@@ -121,7 +121,6 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
         })
       );
 
-      const prodDaos = [FOUNDATION_DAO, ...res];
 
       const daos = IS_DEV ? _.concat(prodDaos, mock.daos) : prodDaos;
 
@@ -208,9 +207,7 @@ export const useDaoQuery = (
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
       }
-      if (daoAddress === FOUNDATION_DAO.daoAddress) {
-        return FOUNDATION_DAO;
-      }
+    
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
       let fetchFromContract = false;
@@ -232,7 +229,8 @@ export const useDaoQuery = (
         : proposals;
       return {
         ...dao,
-        daoProposals,
+        daoProposals:
+          daoAddress === FOUNDATION_DAO_ADDRESS ? [...FOUNDATION_PROPOSALS_ADDRESSES, ...daoProposals] : daoProposals,
       };
     },
     {
@@ -325,7 +323,7 @@ export const useProposalQuery = (
       if (isMockProposal) {
         return isMockProposal;
       }
-      const foundationProposal = proposals[proposalAddress!];
+      const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
       if (foundationProposal) {
         return foundationProposal;
       }
