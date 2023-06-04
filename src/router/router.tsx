@@ -22,7 +22,7 @@ export const useRouter = () => {
             },
             {
               path: routes.createSpace,
-              element: <CreateDao />,
+              element: devFeatures ?  <CreateDao /> : <Navigate to={routes.spaces} />,
             },
 
             {
@@ -31,7 +31,7 @@ export const useRouter = () => {
               children: [
                 {
                   path: routes.createProposal,
-                  element: <CreateProposal />
+                  element: devFeatures ?  <CreateProposal /> : <Navigate to={routes.space} />,
                 },
                 {
                   index: true,
@@ -39,7 +39,7 @@ export const useRouter = () => {
                 },
                 {
                   path: routes.spaceSettings,
-                  element: <DaoSettings />
+                  element:devFeatures ?  <DaoSettings /> : <Navigate to={routes.space} />,
                 },
                 {
                   path: routes.spaceAbout,
@@ -57,7 +57,7 @@ export const useRouter = () => {
                 },
                 {
                   path: routes.editProposal,
-                  element: <EditProposal />
+                  element:devFeatures ?  <EditProposal /> : <Navigate to={routes.proposal} />,
                 },
               ],
             },

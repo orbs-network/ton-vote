@@ -242,7 +242,7 @@ const useNavigationLinks = () => {
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
       selected: route === routes.createProposal,
-      hide: !isOwner && !isProposalPublisher,
+      hide: !showDev ? true : !isOwner && !isProposalPublisher,
       route: routes.createProposal,
     },
     {

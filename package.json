@@ -8,12 +8,12 @@
     "prod": "vite",
     "force-dev": "VITE_STAGING=1 vite --force",
     "force-prod": "vite --force",
-    "build": "tsc && VITE_STAGING=1 vite build && cp dist/index.html dist/404.html",
+    "build": "tsc && vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
+  "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.11.6",
     "@mui/x-date-pickers": "^6.0.2",
     "@mui/x-date-pickers-pro": "^6.0.2",

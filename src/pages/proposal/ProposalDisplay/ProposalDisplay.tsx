@@ -7,7 +7,7 @@ import { Results } from "./Results";
 import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { appNavigation, useAppNavigation } from "router/navigation";
-import { useDaoAddressFromQueryParam, useProposalAddress, useRole } from "hooks";
+import { useDaoAddressFromQueryParam, useDevFeatures, useProposalAddress, useRole } from "hooks";
 import { ProposalStatus } from "types";
 import { ProposalAbout } from "./ProposalAbout";
 import { useProposalPageQuery, useProposalPageStatus } from "../hooks";
@@ -119,11 +119,13 @@ const EditButton = () => {
   const {proposalPage} = useAppNavigation()
   const {data: dao} = useDaoFromQueryParam()
   const proposalAddress = useProposalAddress()
+  const devFeatures = useDevFeatures()
 
 
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
 
-  if(!isOwner && !isProposalPublisher) return null
+  if (!devFeatures) return null;
+   if (!isOwner && !isProposalPublisher) return null;
 
 
   return (
