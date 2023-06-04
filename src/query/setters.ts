@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { releaseMode, TX_FEES } from "config";
-import _ from "lodash";
+import _, { overArgs } from "lodash";
 import {
   daoSetOwner,
   daoSetProposalOwner,
@@ -16,6 +16,7 @@ import {
   setFwdMsgFee,
   setMetadata,
   setRegistryAdmin,
+  updateProposal,
 } from "ton-vote-contracts-sdk";
 import { useGetSender, useProposalAddress, useRole } from "hooks";
 import { showSuccessToast, useErrorToast } from "toasts";
@@ -23,11 +24,17 @@ import {
   useDaoFromQueryParam,
   useDaosQuery,
   useDaoStateQuery,
+  useGetClients,
   useRegistryStateQuery,
 } from "./getters";
 import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
 import { getTxFee, validateAddress } from "utils";
-import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
+import {
+  CreateDaoArgs,
+  CreateMetadataArgs,
+  UpdateMetadataArgs,
+  UpdateProposalArgs,
+} from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
 import { useProposalPageQuery } from "pages/proposal/hooks";
@@ -413,7 +420,7 @@ export const useUpdateDaoMetadataQuery = () => {
   const { setDaoUpdateMillis } = useSyncStore();
   const refetchDaos = useDaosQuery().refetch;
   const refetchUpdatedDao = useDaoFromQueryParam().refetch;
-  
+
   const errorToast = useErrorToast();
 
   return useMutation(
@@ -457,7 +464,7 @@ export const useUpdateDaoMetadataQuery = () => {
         );
       },
       onSuccess: (_, args) => {
-        showSuccessToast("Metadata updated")
+        showSuccessToast("Metadata updated");
         setDaoUpdateMillis(args.daoAddress);
         refetchDaos();
         refetchUpdatedDao();
@@ -503,6 +510,38 @@ export const useVote = () => {
       onError: (error: Error, vote) => {
         errorToast(error);
         analytics.voteError(proposalAddress, vote, error.message);
+      },
+    }
+  );
+};
+
+export const useUpdateProposalMutation = () => {
+  const getSender = useGetSender();
+  const errorToast = useErrorToast();
+
+  return useMutation(
+    async (args: UpdateProposalArgs) => {
+      const sender = getSender();
+      const client = await getClientV2();
+
+      await updateProposal(
+        sender,
+        client,
+        TX_FEES.FORWARD_MSG.toString(),
+        args.daoAddress,
+        args.proposalAddr,
+        args.title,
+        args.description
+      );
+    },
+    {
+      onSuccess: () => {
+        showSuccessToast("Proposal updated");
+      },
+      onError: (error: Error, vote) => {
+        console.log(error);
+        
+        errorToast(error);
       },
     }
   );

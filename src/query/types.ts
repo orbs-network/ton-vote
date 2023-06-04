@@ -25,3 +25,12 @@ export interface ReactQueryConfig {
   staleTime?: number;
   disabled?: boolean;
 }
+
+
+export interface UpdateProposalArgs {
+  daoAddress: string;
+  proposalAddr: string;
+  title: string;
+  description: string;
+  onSuccess?: () => void;
+}

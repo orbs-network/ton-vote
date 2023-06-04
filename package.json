@@ -8,12 +8,12 @@
     "prod": "vite",
     "force-dev": "VITE_STAGING=1 vite --force",
     "force-prod": "vite --force",
-    "build": "tsc && vite build && cp dist/index.html dist/404.html",
+    "build": "tsc && VITE_STAGING=1 vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
-  "@emotion/styled": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.11.6",
     "@mui/x-date-pickers": "^6.0.2",
     "@mui/x-date-pickers-pro": "^6.0.2",
@@ -66,7 +66,7 @@
     "remove-markdown": "^0.5.0",
     "ton": "^13.4.1",
     "ton-core": "^0.48.0",
-    "ton-vote-contracts-sdk": "^1.0.0-beta.48",
+    "ton-vote-contracts-sdk": "^1.0.0-beta.49",
     "tonweb": "^0.0.60",
     "use-query-params": "^2.2.0",
     "yup": "^1.1.1",

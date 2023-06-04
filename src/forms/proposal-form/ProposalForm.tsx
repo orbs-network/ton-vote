@@ -67,7 +67,7 @@ export function ProposalForm({
       <StyledContainer alignItems="flex-start">
         <FormikInputsForm<ProposalFormType>
           formik={formik}
-          form={form}
+          form={editMode ? form[0] : form}
           customInputHandler={customInputHandler}
         >
           <CreateProposalButton

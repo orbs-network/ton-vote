@@ -1,13 +1,15 @@
-import { styled } from "@mui/material";
-import { LoadingContainer } from "components";
+import { styled, Typography } from "@mui/material";
+import { Header, LoadingContainer } from "components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
-import { useProposalAddress, useRole } from "hooks";
+import { prepareMetadata } from "forms/proposal-form/utils";
+import { useProposalAddress, useProposalStatus } from "hooks";
 import { useDaoFromQueryParam } from "query/getters";
-import React from "react";
+import { useUpdateProposalMutation } from "query/setters";
+import React, { ReactNode } from "react";
 import { appNavigation } from "router/navigation";
-import { StyledFlexColumn } from "styles";
+import { StyledContainer, StyledFlexColumn } from "styles";
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
-import { ProposalForm as ProposalFormType } from "types";
+import { ProposalForm as ProposalFormType, ProposalStatus } from "types";
 import { Page } from "wrappers";
 import { useProposalPageQuery } from "./hooks";
 
@@ -30,10 +32,76 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
 export function EditProposal() {
   const { data: dao } = useDaoFromQueryParam();
   const proposalAddress = useProposalAddress();
+  const { data: proposal } = useProposalPageQuery();
+  const { proposalStatus } = useProposalStatus(
+    proposalAddress,
+    proposal?.metadata
+  );
 
-  const { data: proposal } = useProposalPageQuery(false, {staleTime: Infinity, refetchInterval: Infinity});
+  const { mutate, isLoading } = useUpdateProposalMutation();
 
-  const isLoading = !proposal || !dao;
+  const update = (values: ProposalFormType) => {
+    const data = prepareMetadata(values);
+    mutate({
+      title: data.title!,
+      description: data.description!,
+      proposalAddr: proposalAddress,
+      daoAddress: dao!.daoAddress,
+    });
+  };
+
+  if (!proposal || !dao) {
+    return (
+      <Container>
+        <LoadingContainer loaderAmount={5} />
+      </Container>
+    );
+  }
+
+  if (proposalStatus === ProposalStatus.CLOSED) {
+    return (
+      <Container>
+        <StyledWarning>
+          <StyledWarningFlex>
+            <Typography>Closed proposal cant be updated</Typography>
+          </StyledWarningFlex>
+        </StyledWarning>
+      </Container>
+    );
+  }
+
+  return (
+    <Container>
+      <ProposalForm
+        submitText="Update"
+        initialFormData={parseMetadata(proposal?.metadata)}
+        onSubmit={update}
+        isLoading={isLoading}
+        dao={dao!}
+        editMode={true}
+      />
+    </Container>
+  );
+}
+
+const StyledWarning = styled(StyledContainer)({
+  width: "100%",
+  p: {
+    fontSize: 18,
+    fontWeight: 600,
+  },
+});
+
+const StyledWarningFlex = styled(StyledFlexColumn)({
+  height: "100%",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 100,
+});
+
+const Container = ({ children }: { children: ReactNode }) => {
+  const { data: dao } = useDaoFromQueryParam();
+  const proposalAddress = useProposalAddress();
 
   const back = () => {
     if (!dao) return "";
@@ -43,23 +111,16 @@ export function EditProposal() {
   return (
     <Page back={back()}>
       <StyledContent>
-        {isLoading ? (
-          <LoadingContainer loaderAmount={5} />
-        ) : (
-          <ProposalForm
-            submitText="Update"
-            initialFormData={parseMetadata(proposal?.metadata)}
-            persistForm={() => {}}
-            onSubmit={() => {}}
-            isLoading={false}
-            dao={dao!}
-            editMode={true}
-          />
-        )}
+        <StyledHeader title="Edit proposal" />
+        {children}
       </StyledContent>
     </Page>
   );
-}
+};
+
+const StyledHeader = styled(Header)({
+  marginTop: 10,
+});
 
 const StyledContent = styled(StyledFlexColumn)({
   justifyContent: "center",
