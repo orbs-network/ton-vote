@@ -6,10 +6,9 @@ import { useMemo } from "react";
 import { useDevFeatures } from "hooks";
 import { BadRoute } from "pages";
 
-
 export const useRouter = () => {
   const devFeatures = useDevFeatures();
-  
+
   return useMemo(
     () =>
       createBrowserRouter([
@@ -86,6 +85,24 @@ export const useRouter = () => {
                 let page = await import("../pages/proposal/Proposal");
                 return { Component: page.default };
               },
+              children: [
+                {
+                  path: routes.proposal,
+                  async lazy() {
+                    let page = await import(
+                      "../pages/proposal/ProposalDisplay/ProposalDisplay"
+                    );
+                    return { Component: page.default };
+                  },
+                },
+                {
+                  path: routes.editProposal,
+                  async lazy() {
+                    let page = await import("../pages/proposal/EditProposal");
+                    return { Component: page.default };
+                  },
+                },
+              ],
             },
           ],
           errorElement: <BadRoute />,
@@ -95,8 +112,6 @@ export const useRouter = () => {
   );
 };
 
-
-
 const ForbiddenRoute = () => {
   return <Navigate to={routes.spaces} />;
-}
+};

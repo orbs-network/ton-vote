@@ -26,6 +26,7 @@ import { useProposalPersistedStore, useVoteStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
 import { FOUNDATION_PROPOSALS } from "data/foundation/data";
+import { ReactQueryConfig } from "query/types";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -115,7 +116,7 @@ export const useProposalPageStatus = () => {
   return useProposalStatus(proposalAddress, data?.metadata);
 };
 
-export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
+export const useProposalPageQuery = (isCustomEndpoint: boolean = false, config?: ReactQueryConfig) => {
   const proposalAddress = useProposalAddress();
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
@@ -179,9 +180,9 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
         !isVoting,
-      staleTime: 10_000,
+      staleTime: config?.staleTime ||  10_000,
       retry: isWhitelisted ? 3 : false,
-      refetchInterval: isWhitelisted ? 30_000 : undefined,
+      refetchInterval: config?.refetchInterval || isWhitelisted ? 30_000 : undefined,
     }
   );
 };

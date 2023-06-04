@@ -14,6 +14,10 @@ export const appNavigation = {
       routes.proposal
         .replace(":daoId", daoId)
         .replace(":proposalId", proposalId),
+    edit: (daoId: string, proposalId: string) =>
+      routes.editProposal
+        .replace(":daoId", daoId)
+        .replace(":proposalId", proposalId),
   },
 };
 
@@ -28,6 +32,9 @@ export const useAppNavigation = () => {
       about: (daoId: string) => navigate(appNavigation.daoPage.about(daoId)),
     },
     proposalPage: {
+      edit: (daoId: string, proposalId: string) =>
+        navigate(appNavigation.proposalPage.edit(daoId, proposalId)),
+      
       root: (daoId: string, proposalId: string) =>
         navigate(appNavigation.proposalPage.root(daoId, proposalId)),
     },

@@ -4,7 +4,7 @@ import moment from "moment";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ProposalStatus } from "types";
-import { useProposalPageQuery, useProposalPageStatus } from "./hooks";
+import { useProposalPageQuery, useProposalPageStatus } from "../hooks";
 
 const handleDate = (endDate?: number) => {
   if (!endDate) return 0;

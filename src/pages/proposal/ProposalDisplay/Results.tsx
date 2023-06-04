@@ -14,7 +14,7 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { getSymbol, getVoteStrategyType, nFormatter } from "utils";
 import _ from "lodash";
-import { useProposalPageQuery, useVerifyProposalResults } from "./hooks";
+import { useProposalPageQuery, useVerifyProposalResults } from "../hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";

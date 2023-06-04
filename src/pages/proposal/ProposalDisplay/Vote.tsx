@@ -4,7 +4,7 @@ import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useProposalPageQuery, useWalletVote } from "./hooks";
+import { useProposalPageQuery, useWalletVote } from "../hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";

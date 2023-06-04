@@ -1,21 +1,33 @@
 import _ from "lodash";
 import moment from "moment";
-import { ProposalMetadata, VotingPowerStrategy, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
+import {
+  ProposalMetadata,
+  VotingPowerStrategy,
+  VotingPowerStrategyType,
+} from "ton-vote-contracts-sdk";
 import { Dao, ProposalForm, ProposalInputArgs } from "types";
-import { isZeroAddress, utcMoment } from "utils";
+import { fromUtcMoment, isZeroAddress, utcMoment } from "utils";
 
 const initialChoices = ["Yes", "No", "Abstain"];
 
-
-
-export const getInitialValues = (formData: ProposalForm, dao?: Dao): ProposalForm => {
+export const getInitialValues = (
+  formData: ProposalForm,
+  dao?: Dao,
+  editMode?: boolean
+): ProposalForm => {
   const { proposalEndTime, proposalSnapshotTime, proposalStartTime } =
     getInitialTimestamps();
 
   return {
-    proposalStartTime,
-    proposalEndTime,
-    proposalSnapshotTime,
+    proposalStartTime: editMode
+      ? fromUtcMoment(formData.proposalStartTime).valueOf()
+      : proposalStartTime,
+    proposalEndTime: editMode
+      ? fromUtcMoment(formData.proposalEndTime).valueOf()
+      : proposalEndTime,
+    proposalSnapshotTime: editMode
+      ? fromUtcMoment(formData.proposalSnapshotTime).valueOf()
+      : proposalSnapshotTime,
     votingChoices: formData.votingChoices || initialChoices,
     description_en: formData.description_en,
     description_ru: formData.description_ru,
@@ -27,8 +39,6 @@ export const getInitialValues = (formData: ProposalForm, dao?: Dao): ProposalFor
     ),
   };
 };
-
-
 
 const handleInitialVotingPowerStrategies = (
   votingPowerStrategies?: VotingPowerStrategy[],
@@ -125,8 +135,6 @@ export const handleDefaults = (
       return input;
   }
 };
-
-
 
 export const prepareMetadata = (
   formValues: ProposalForm

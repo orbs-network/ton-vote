@@ -1,11 +1,9 @@
-import { styled, Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { routes } from "consts";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useTranslation } from "react-i18next";
 import { HiOutlineArrowLeft } from "react-icons/hi";
-import { useLocation, useNavigate, useNavigation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { StyledFlexRow } from "styles";
-import { Button } from "./Button";
 
 function Back({ to, func }: { to?: string; func?: () => void }) {
   const navigate = useNavigate();
@@ -25,7 +23,7 @@ const t = useCommonTranslations()
 
   if (pathname === routes.spaces) return null;
   return (
-    <StyledContainer onClick={onClick} variant="transparent">
+    <StyledContainer onClick={onClick}>
       <StyledFlexRow gap={5}>
         <HiOutlineArrowLeft />
         <Typography>{t.back}</Typography>
@@ -36,10 +34,18 @@ const t = useCommonTranslations()
 
 export { Back };
 
-const StyledContainer = styled(Button)({
-  padding:'8px 14px',
-  height:'auto',
+const StyledContainer = styled(Box)({
+  cursor: "pointer",
+  padding: "8px 14px",
+  height: "auto",
+  background: "#0088CC",
+  borderRadius: 20,
+  "*":{
+     color:'white'
+  },
   p: {
     fontSize: 14,
+    fontWeight: 600,
+   
   },
 });

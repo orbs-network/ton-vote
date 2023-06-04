@@ -29,7 +29,7 @@ import {
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useProposalPageQuery, useWalletVote } from "./hooks";
+import { useProposalPageQuery, useWalletVote } from "../hooks";
 
 const ContainerHeader = () => {
   const { data } = useProposalPageQuery();

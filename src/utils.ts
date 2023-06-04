@@ -290,6 +290,17 @@ export const utcMoment = (value?: number) => {
     : dt.add(offset, "minutes");
 };
 
+
+export const fromUtcMoment = (value?: number) => {
+  const dt = value ? moment(value) : moment();
+
+  const offset = dt.parseZone().utcOffset();
+
+  return offset < 0
+    ? dt.add(Math.abs(offset), "minutes")
+    : dt.subtract(offset, "minutes");
+};
+
 export const validateServerUpdateTime = (
   server: number,
   local: number,

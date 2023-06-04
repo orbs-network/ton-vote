@@ -4,6 +4,7 @@ export const routes = {
   spaces: "/",
   createSpace: "/setup",
   proposal: "/:daoId/proposal/:proposalId",
+  editProposal: "/:daoId/proposal/:proposalId/edit",
   space: "/:daoId",
   spaceAbout: "/:daoId/about",
   spaceSettings: "/:daoId/settings",

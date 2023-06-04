@@ -6,7 +6,7 @@ import { useConnectedWalletVotingPowerQuery } from "query/getters";
 import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getSymbol, getVoteStrategyType } from "utils";
-import { useProposalPageQuery } from "./hooks";
+import { useProposalPageQuery } from "../hooks";
 
 interface Props {
   open: boolean;

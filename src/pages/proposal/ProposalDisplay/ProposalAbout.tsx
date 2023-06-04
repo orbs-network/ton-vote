@@ -19,7 +19,7 @@ import {
   OverflowWithTooltip,
 } from "components";
 import { makeElipsisAddress, parseLanguage } from "utils";
-import { useProposalPageQuery, useProposalPageStatus } from "./hooks";
+import { useProposalPageQuery, useProposalPageStatus } from "../hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
 import { useDaoFromQueryParam } from "query/getters";

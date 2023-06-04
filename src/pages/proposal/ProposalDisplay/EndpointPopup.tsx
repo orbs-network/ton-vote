@@ -12,7 +12,7 @@ import { Endpoints, FormArgs } from "types";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Button, FormikInputsForm, Markdown, Popup } from "components";
-import { useEnpointsStore } from "./store";
+import { useEnpointsStore } from "../store";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 

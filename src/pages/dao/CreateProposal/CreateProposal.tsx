@@ -34,6 +34,7 @@ export const CreateProposal = () => {
   return (
     <LayoutSection title="Create proposal" isLoading={daoLoading}>
       <ProposalForm
+        submitText="Create"
         initialFormData={formData}
         persistForm={setFormData}
         onSubmit={onSubmit}

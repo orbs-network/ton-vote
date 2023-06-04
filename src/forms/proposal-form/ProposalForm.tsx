@@ -2,9 +2,9 @@ import { Box, Fade, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { Button, ConnectButton, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
-import { useDaoAddressFromQueryParam, useDebouncedCallback } from "hooks";
+import { useDebouncedCallback } from "hooks";
 import { mock } from "mock/mock";
-import { useDaoFromQueryParam, useDaoStateQuery } from "query/getters";
+import {  useDaoStateQuery } from "query/getters";
 import { useEffect } from "react";
 import { StyledFlexRow } from "styles";
 import { errorToast } from "toasts";
@@ -21,19 +21,23 @@ export function ProposalForm({
   initialFormData,
   persistForm,
   dao,
+  editMode = false,
+  submitText,
 }: {
   onSubmit: (values: ProposalFormType) => void;
   isLoading: boolean;
   initialFormData: ProposalFormType;
   persistForm?: (values: ProposalFormType) => void;
   dao: Dao;
+  editMode?: boolean;
+  submitText: string;
 }) {
   const form = useCreateProposalForm(initialFormData);
   const daoState = useDaoStateQuery(dao.daoAddress).data;
   const FormSchema = useFormSchema();
 
   const formik = useFormik<ProposalFormType>({
-    initialValues: getInitialValues(initialFormData, dao),
+    initialValues: getInitialValues(initialFormData, dao, editMode),
     validationSchema: FormSchema,
     onSubmit,
     validateOnChange: false,
@@ -51,7 +55,7 @@ export function ProposalForm({
 
   const onSubmitClick = () => {
     if (mock.isMockDao(dao.daoAddress)) {
-      errorToast("You can't create proposals on mock DAOs");
+      errorToast("This is a mock DAO. You cannot create/edit proposals.");
     } else {
       formik.submitForm();
       validateFormik(formik);
@@ -67,6 +71,7 @@ export function ProposalForm({
           customInputHandler={customInputHandler}
         >
           <CreateProposalButton
+            submitText={submitText}
             isLoading={isLoading || daoState?.fwdMsgFee === undefined}
             onSubmit={onSubmitClick}
           />
@@ -88,9 +93,11 @@ const StyledContainer = styled(StyledFlexRow)({
 function CreateProposalButton({
   onSubmit,
   isLoading,
+  submitText,
 }: {
   onSubmit?: () => void;
   isLoading: boolean;
+  submitText: string;
 }) {
   const address = useTonAddress();
   return (
@@ -99,7 +106,7 @@ function CreateProposalButton({
         <StyledConnect />
       ) : (
         <StyledButton isLoading={isLoading} onClick={onSubmit}>
-          Create
+          {submitText}
         </StyledButton>
       )}
     </StyledSubmit>
