@@ -1,7 +1,7 @@
 import { Fade, styled } from "@mui/material";
-import React, { ReactNode } from "react";
+import { Back } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Back } from "./Back";
+import { PageProps } from "types";
 
 function Page({
   children,
@@ -10,15 +10,7 @@ function Page({
   headerComponent,
   hideBack = false,
   backFunc,
-}: {
-  children: ReactNode;
-  className?: string;
-  back?: string;
-  headerComponent?: ReactNode;
-  hideBack?: boolean;
-  isProtected?: boolean;
-  backFunc?: () => void;
-}) {
+}: PageProps) {
   return (
     <StyledContainer className={className}>
       {!hideBack && (

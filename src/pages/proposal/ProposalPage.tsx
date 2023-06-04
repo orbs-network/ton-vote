@@ -1,5 +1,5 @@
 import { styled, useMediaQuery } from "@mui/material";
-import { ErrorContainer, Page } from "components";
+import { ErrorContainer } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
@@ -15,6 +15,7 @@ import { ProposalAbout } from "./ProposalAbout";
 import { useProposalPageQuery, useProposalPageStatus } from "./hooks";
 import { parseLanguage } from "utils";
 import { useEffect, useState } from "react";
+import { Page } from "wrappers";
 
 const gap = 15;
 

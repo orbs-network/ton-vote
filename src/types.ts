@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { FormikProps } from "formik";
-import { FunctionComponent, ReactElement } from "react";
+import { FunctionComponent, ReactElement, ReactNode } from "react";
 import { Address, Transaction } from "ton";
 import {
   DaoRoles,
@@ -165,3 +165,15 @@ export interface DaoRolesForm {
 
 
 export type ThemeType = "light" | "dark";
+
+
+
+export type PageProps = {
+  children: ReactNode;
+  className?: string;
+  back?: string;
+  headerComponent?: ReactNode;
+  hideBack?: boolean;
+  isProtected?: boolean;
+  backFunc?: () => void;
+};

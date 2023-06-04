@@ -1,8 +1,8 @@
 import {
   DaosPage,
   CreateDaoPage,
-  DaoPage,
-  SpaceMenuLayout,
+  Dao,
+  DaoLayout,
   ProposalsList,
   DaoPageAbout,
   ProposalPage,
@@ -16,12 +16,8 @@ import _ from "lodash";
 
 import { routes } from "consts";
 
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import { IS_DEV, IS_BETA } from "config";
-
-
-const showBetaRoute = IS_BETA || IS_DEV;
-
+import { createBrowserRouter } from "react-router-dom";
+  
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -33,20 +29,20 @@ export const router = createBrowserRouter([
       },
       {
         path: routes.createSpace,
-        element: showBetaRoute ? <CreateDaoPage /> : <Navigate to={"/"} />,
+        element: <CreateDaoPage />,
       },
 
       {
         path: routes.space,
-        element: <DaoPage />,
+        element: <Dao />,
         children: [
           {
             path: routes.createProposal,
-            element: showBetaRoute ? <CreateProposal /> : <Navigate to={"/"} />,
+            element: <CreateProposal />,
           },
           {
             path: routes.space,
-            element: <SpaceMenuLayout />,
+            element: <DaoLayout />,
             children: [
               {
                 index: true,

@@ -20,7 +20,7 @@ import {
   SenderArguments,
   storeStateInit,
 } from "ton-core";
-import { IS_BETA, IS_DEV } from "config";
+import { IS_DEV } from "config";
 import { showSuccessToast } from "toasts";
 import { Proposal, ProposalStatus, ThemeType } from "types";
 import { StringParam, useQueryParams } from "use-query-params";
@@ -209,9 +209,8 @@ export const useMobile = () => {
 };
 
 export const useDevFeatures = () => {
-  const dev = useAppQueryParams().query.dev;
-
-  return dev || IS_DEV || IS_BETA;
+  const beta = useAppSettings().beta;
+  return IS_DEV || beta;
 };
 
 export const useRole = (roles?: DaoRoles) => {
@@ -252,6 +251,8 @@ export const useAppSettings = () => {
     toggleTheme,
     setThemeMode,
     themeMode: store.themeMode,
+    beta: store.beta,
+    setBeta: store.setBeta,
   };
 };
 
@@ -259,10 +260,9 @@ export const useProposalResults = (
   proposal?: Proposal | null,
   lastUpdateTime?: number
 ) => {
-  
   return useMemo(() => {
     if (!proposal) return [];
-    
+
     const choices = proposal?.metadata?.votingSystem.choices;
 
     return _.map(choices, (choice, key) => {
@@ -321,3 +321,5 @@ export const useProposalStatus = (
 
   return query.data;
 };
+
+

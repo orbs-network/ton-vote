@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 import { parseLanguage } from "utils";
 
-export function DaoPage() {
+export function Dao() {
   const { data, error } = useDaoFromQueryParam();
   const [showError, setShowError] = useState(false);
   const translations = useDaoPageTranslations()

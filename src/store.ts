@@ -121,11 +121,15 @@ interface SettingsStore {
   themeMode?: ThemeType;
   setThemeMode: (theme: ThemeType) => void;
   toggleThemeMode: () => void;
+  beta: boolean;
+  setBeta: (beta: boolean) => void;
 }
 
 export const useSettingsStore = create(
   persist<SettingsStore>(
     (set, get) => ({
+      beta: false,
+      setBeta: (beta) => set({ beta }),
       themeMode: undefined,
       setThemeMode: (themeMode) => set({ themeMode }),
       toggleThemeMode: () => {

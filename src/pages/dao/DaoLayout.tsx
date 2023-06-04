@@ -1,12 +1,12 @@
 import { Box, Fade, styled } from "@mui/material";
-import { Page } from "components";
 import { MOBILE_WIDTH } from "consts";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { StyledFlexRow } from "styles";
+import { Page } from "wrappers";
 import { DaoMenu } from "./dao-menu/DaoMenu";
 
-export function SpaceMenuLayout() {
+export function DaoLayout() {
   return (
     <Page hideBack={true}>
       <Fade in={true}>

@@ -1,6 +1,5 @@
 import { Skeleton, styled, Theme, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 import { getBorderColor } from "theme";
 
@@ -74,21 +73,31 @@ export const getGlobalStyles = (theme: Theme) => {
       border: "unset!important",
     },
     ".toast": {
+      padding: "10px 13px",
+      borderRadius: 15,
+      boxShadow:
+        theme.palette.mode === "light"
+          ? "0 4px 24px rgba(0, 0, 0, 0.16)"
+          : "unset",
       background:
         theme.palette.mode === "light"
           ? theme.palette.background.paper
-          : "#212023",
-      border:
-        theme.palette.mode === "light"
-          ? "unset"
-          : `1px solid rgba(255,255,255, 0.2)`,
+          : "black",
+      border: `unset`,
+      ".go685806154": {
+        order: 2,
+      },
+      ".go3958317564": {
+        margin: "0px 10px 0px 0px",
+      },
       "*": {
-        color: theme.palette.text.secondary,
+        color:
+          theme.palette.mode === "light"
+            ? theme.palette.text.secondary
+            : "white",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, Tahoma, Verdana, sans-serif",
-      },
-      "[role=status]": {
-        marginRight: 0,
+        fontWeight: 500,
       },
     },
     input: {

@@ -1,4 +1,4 @@
-import { Fade, styled, Typography } from "@mui/material";
+import { Fade, styled } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
@@ -8,14 +8,30 @@ import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
 import { Toolbar } from "./Toolbar";
-import { ReactNode, Suspense } from "react";
+import { ReactNode, Suspense, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
+import { useAppQueryParams, useAppSettings } from "hooks";
+
+const useIsBeta = () => {
+  const {
+    query: { dev },
+  } = useAppQueryParams();
+  const setBeta = useAppSettings().setBeta;
+
+  useEffect(() => {
+    if (dev) {
+      setBeta(true);
+    }
+  }, [dev, setBeta]);
+};
 
 function Layout({ children }: { children?: ReactNode }) {
+  useIsBeta();
+
   return (
-    <QueryParamProvider adapter={ReactRouter6Adapter}>
+    <>
       <Fade in={true} timeout={500}>
         <StyledContainer>
           <Toolbar />
@@ -39,9 +55,17 @@ function Layout({ children }: { children?: ReactNode }) {
           className: "toast",
         }}
       />
-    </QueryParamProvider>
+    </>
   );
 }
+
+const Wrapped = ({ children }: { children?: ReactNode }) => {
+  return (
+    <QueryParamProvider adapter={ReactRouter6Adapter}>
+      <Layout>{children}</Layout>
+    </QueryParamProvider>
+  );
+};
 
 const StyledContent = styled(StyledGrid)({
   paddingTop: 100,
@@ -57,4 +81,4 @@ const StyledContainer = styled(StyledFlexColumn)({
   display: "flex",
 });
 
-export default Layout;
+export default Wrapped;

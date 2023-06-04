@@ -1,13 +1,12 @@
 import { IconButton, styled } from "@mui/material";
 import _ from "lodash";
 import toast, { ToastPosition } from "react-hot-toast";
-import { IoMdClose } from "react-icons/io";
 import { StyledFlexRow } from "styles";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useTonWallet } from "@tonconnect/ui-react";
 
 export function usePromiseToast<T>() {
-const translations = useCommonTranslations();
+  const translations = useCommonTranslations();
   const wallet = useTonWallet();
   return (args: {
     promise: Promise<T>;
@@ -58,7 +57,7 @@ const translations = useCommonTranslations();
 
 export const filterError = (error?: string) => {
   console.log(error);
-  
+
   if (error?.includes("TON_CONNECT_SDK_ERROR")) {
     return true;
   }
@@ -70,7 +69,7 @@ export const useErrorToast = () => {
     if (filterError(err instanceof Error ? err.message : err)) return;
     toast.dismiss();
     return errorToast(err);
-  };  
+  };
 };
 
 export const errorToast = (message: string | Error) => {
@@ -107,25 +106,8 @@ const ToastContent = ({
   id?: string;
   customClick?: () => void;
 }) => {
-  const showButton = customClick || id;
-  return (
-    <StyledContainer className="test">
-      {message}
-      {showButton && (
-        <StyledIconButton
-          onClick={() => (customClick ? customClick() : toast.dismiss(id))}
-        >
-          <IoMdClose style={{ width: 20, height: 20, cursor: "pointer" }} />
-        </StyledIconButton>
-      )}
-    </StyledContainer>
-  );
+  return <StyledContainer className="test">{message}</StyledContainer>;
 };
-
-const StyledIconButton = styled(IconButton)(({theme}) => ({
-  padding: 5,
-  background: theme.palette.mode === 'light' ?   "rgba(0, 0, 0, 0.03)" : "rgba(255, 255, 255, 0.03)",
-}));
 
 export const clearAllToasts = () => toast.dismiss();
 

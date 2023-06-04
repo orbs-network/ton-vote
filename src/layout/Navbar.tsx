@@ -35,7 +35,7 @@ export function Navbar() {
           <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
-          {devFeatures && <StyledDev label="Dev" />}
+          <EnvModeIndication />
           <ConnectButton />
           <ThemeToggle />
           {!mobile && <Github />}
@@ -44,6 +44,22 @@ export function Navbar() {
     </StyledContainer>
   );
 }
+
+const EnvModeIndication = () => {
+  const devFeatures = useDevFeatures();
+  const {setBeta, beta} = useAppSettings()
+
+  const onClick = () => {
+    if(beta) {
+      setBeta(false)
+    }
+  }
+
+  if (devFeatures) {
+    return <StyledDev label="Dev" onClick={onClick} />;
+  }
+  return null;
+};
 
 const ThemeToggle = () => {
   const { toggleTheme, isDarkMode } = useAppSettings();

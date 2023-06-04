@@ -10,7 +10,6 @@ export * from "./Coundown";
 export * from "./Github";
 export * from "./Tooltip";
 export * from "./Back";
-export * from "./Page";
 export * from "./LoadMore";
 export * from "./FadeElement";
 export * from './Loader'

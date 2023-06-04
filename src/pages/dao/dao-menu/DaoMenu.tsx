@@ -155,16 +155,16 @@ const DesktopNavigation = () => {
   return (
     <StyledNavigation>
       {navigations.map((navigation, index) => {
-        if (navigation.hide) return null
-          return (
-            <StyledNavigationLink
-              to={navigation.path}
-              key={index}
-              selected={!!navigation.selected}
-            >
-              {navigation.title}
-            </StyledNavigationLink>
-          );
+        if (navigation.hide) return null;
+        return (
+          <StyledNavigationLink
+            to={navigation.path}
+            key={index}
+            selected={!!navigation.selected}
+          >
+            {navigation.title}
+          </StyledNavigationLink>
+        );
       })}
     </StyledNavigation>
   );
@@ -194,13 +194,14 @@ const MobileNavigation = () => {
           },
         }}
       >
-        {navigations?.map((it, index) => {
+        {navigations?.map((navigation, index) => {
+          if (navigation.hide) return null;
           return (
             <StyledTab
-              onClick={() => navigate(it.path)}
-              key={it.path}
-              value={it.route}
-              label={it.title}
+              onClick={() => navigate(navigation.path)}
+              key={navigation.path}
+              value={navigation.route}
+              label={navigation.title}
               {...a11yProps(index)}
             />
           );

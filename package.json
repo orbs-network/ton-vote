@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "VITE_STAGING=1 vite",
-    "prod": "VITE_BETA=1 vite",
-    "force": "VITE_STAGING=1 vite --force",
+    "prod": "vite",
+    "force-dev": "VITE_STAGING=1 vite --force",
+    "force-prod": "vite --force",
     "build": "tsc && vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview"
   },

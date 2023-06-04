@@ -1,4 +1,4 @@
-import {  List, LoadMore, Page } from "components";
+import {  List, LoadMore } from "components";
 import {
   StyledEmptyText,
   StyledFlexColumn,
@@ -16,6 +16,7 @@ import { useAppQueryParams, useMobile } from "hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
+import { Page } from "wrappers";
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;

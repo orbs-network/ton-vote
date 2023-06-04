@@ -3,11 +3,14 @@ import {
   Button,
   ConnectButton,
   FormikInputsForm,
-  LoadingContainer,
-  Page,
+  LoadingContainer
 } from "components";
 import { FormikProps, useFormik } from "formik";
-import { useDaoAddressFromQueryParam, useDebouncedCallback } from "hooks";
+import {
+  useDaoAddressFromQueryParam,
+  useDebouncedCallback,
+  useDevFeatures,
+} from "hooks";
 import { StyledFlexRow } from "styles";
 import { useCreateProposalStore } from "./store";
 import _ from "lodash";
@@ -26,6 +29,8 @@ import { useNewDataStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
+import { Navigate } from "react-router-dom";
+import { DevPage } from "wrappers";
 
 function Form() {
   const daoAddress = useDaoAddressFromQueryParam();
@@ -44,7 +49,7 @@ function Form() {
     validationSchema: FormSchema,
     onSubmit: (formValues) => {
       const metadata = prepareMetadata(formValues);
-      
+
       createProposal({
         metadata,
         onSuccess: (proposalAddress: string) => {
@@ -130,7 +135,7 @@ export const CreateProposal = () => {
   );
 };
 
-const StyledPage = styled(Page)({
+const StyledPage = styled(DevPage)({
   maxWidth: 800,
 });
 

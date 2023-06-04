@@ -1,10 +1,8 @@
-import { IS_BETA, IS_DEV, TONSCAN_ADDRESS_URL } from "config";
+import { TONSCAN_ADDRESS_URL } from "config";
 import _ from "lodash";
-import timeZoneMoment from "moment-timezone";
 import moment from "moment";
 import { Address, fromNano } from "ton";
 import {
-  DaoRoles,
   ProposalMetadata,
   VotingPowerStrategy,
   VotingPowerStrategyType,
