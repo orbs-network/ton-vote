@@ -2,6 +2,7 @@ import { ErrorContainer } from "components";
 import { APP_NAME } from "config";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoFromQueryParam } from "query/getters";
+import { Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 import { parseLanguage } from "utils";
@@ -9,7 +10,7 @@ import { Page } from "wrappers";
 import { DaoLayout } from "./components";
 
 
-function Dao() {
+export function Dao() {
   const { data, isError } = useDaoFromQueryParam();
   const translations = useDaoPageTranslations();
 

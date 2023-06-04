@@ -29,9 +29,7 @@ function App() {
       </Helmet>
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={getGlobalStyles(theme)} />
-        <Suspense>
-          <RouterProvider router={router} />
-        </Suspense>
+        <RouterProvider router={router} />
       </ThemeProvider>
     </>
   );

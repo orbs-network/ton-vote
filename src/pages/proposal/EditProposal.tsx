@@ -27,7 +27,7 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
   } as ProposalFormType;
 };
 
-function EditProposal() {
+export function EditProposal() {
   const { data: dao } = useDaoFromQueryParam();
   const proposalAddress = useProposalAddress();
 

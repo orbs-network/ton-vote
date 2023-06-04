@@ -4,7 +4,7 @@ import { routes } from "consts";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { useMemo } from "react";
 import { useDevFeatures } from "hooks";
-import { BadRoute } from "pages";
+import { BadRoute, CreateDao, CreateProposal, Dao, DaoAbout, DaoSettings, DaosPage, EditProposal, Proposal, ProposalDisplay, ProposalsList } from "pages";
 
 export const useRouter = () => {
   const devFeatures = useDevFeatures();
@@ -18,89 +18,46 @@ export const useRouter = () => {
           children: [
             {
               path: routes.spaces,
-              async lazy() {
-                let page = await import("../pages/daos/DaosPage");
-                return { Component: page.default };
-              },
+              element: <DaosPage />,
             },
             {
               path: routes.createSpace,
-              async lazy() {
-                let page = await import("../pages/create-dao/CreateDao");
-                return {
-                  Component: devFeatures ? page.default : ForbiddenRoute,
-                };
-              },
+              element: <CreateDao />,
             },
 
             {
               path: routes.space,
-              async lazy() {
-                let page = await import("../pages/dao/Dao");
-                return { Component: page.default };
-              },
-
+              element: <Dao />,
               children: [
                 {
                   path: routes.createProposal,
-                  async lazy() {
-                    let page = await import(
-                      "../pages/dao/CreateProposal/CreateProposal"
-                    );
-                    return {
-                      Component: devFeatures ? page.default : ForbiddenRoute,
-                    };
-                  },
+                  element: <CreateProposal />
                 },
                 {
                   index: true,
-                  async lazy() {
-                    let page = await import(
-                      "../pages/dao/ProposalsList/ProposalsList"
-                    );
-                    return { Component: page.default };
-                  },
+                 element: <ProposalsList />
                 },
                 {
                   path: routes.spaceSettings,
-                  async lazy() {
-                    let page = await import(
-                      "../pages/dao/DaoSettings/DaoSettings"
-                    );
-                    return { Component: page.default };
-                  },
+                  element: <DaoSettings />
                 },
                 {
                   path: routes.spaceAbout,
-                  async lazy() {
-                    let page = await import("../pages/dao/DaoAbout");
-                    return { Component: page.default };
-                  },
+                  element: <DaoAbout />
                 },
               ],
             },
             {
               path: routes.proposal,
-              async lazy() {
-                let page = await import("../pages/proposal/Proposal");
-                return { Component: page.default };
-              },
+              element: <Proposal />,
               children: [
                 {
                   path: routes.proposal,
-                  async lazy() {
-                    let page = await import(
-                      "../pages/proposal/ProposalDisplay/ProposalDisplay"
-                    );
-                    return { Component: page.default };
-                  },
+                  element: <ProposalDisplay />,
                 },
                 {
                   path: routes.editProposal,
-                  async lazy() {
-                    let page = await import("../pages/proposal/EditProposal");
-                    return { Component: page.default };
-                  },
+                  element: <EditProposal />
                 },
               ],
             },
@@ -110,8 +67,4 @@ export const useRouter = () => {
       ]),
     [devFeatures]
   );
-};
-
-const ForbiddenRoute = () => {
-  return <Navigate to={routes.spaces} />;
 };

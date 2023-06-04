@@ -31,7 +31,7 @@ function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
 
   return (
-    <>
+    <Suspense fallback={<div>LAODING....</div>}>
       <Fade in={true} timeout={500}>
         <StyledContainer>
           <Toolbar />
@@ -55,7 +55,7 @@ function Layout({ children }: { children?: ReactNode }) {
           className: "toast",
         }}
       />
-    </>
+    </Suspense>
   );
 }
 
