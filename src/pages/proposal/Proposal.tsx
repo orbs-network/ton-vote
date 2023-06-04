@@ -99,7 +99,7 @@ const Meta = () => {
   );
 };
 
-export function ProposalPage() {
+export function Proposal() {
   const mobile = useMediaQuery("(max-width:800px)");
   const daoAddress = useDaoAddressFromQueryParam();
   const [showError, setShowError] = useState(false);
@@ -124,6 +124,8 @@ export function ProposalPage() {
     </Page>
   );
 }
+
+export default Proposal;
 
 const StyledWrapper = styled(StyledFlexRow)({
   gap,

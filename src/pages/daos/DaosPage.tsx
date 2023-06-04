@@ -100,6 +100,8 @@ export function DaosPage() {
   );
 }
 
+export default DaosPage;
+
 
 const ListLoader = () => {
   return (

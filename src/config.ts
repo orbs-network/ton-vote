@@ -1,4 +1,5 @@
-import { ReleaseMode } from "ton-vote-contracts-sdk";
+import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
+import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 export const APP_NAME = "TON VOTE";
@@ -70,3 +71,33 @@ export const TX_FEES = {
 };
 
 
+
+
+
+export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
+  [VotingPowerStrategyType.TonBalance]: { name: "TON coin balance", args: [] },
+  [VotingPowerStrategyType.JettonBalance]: {
+    name: "Jetton balance",
+    args: [
+      {
+        type: "text",
+        label: "Jetton address",
+        tooltip: "The address of the Jetton",
+        required: true,
+        name: "jetton-address",
+      },
+    ],
+  },
+  [VotingPowerStrategyType.NftCcollection]: {
+    name: "Number of owned NFTs",
+    args: [
+      {
+        type: "text",
+        label: "NFT collection address",
+        tooltip: "The address of the Jetton",
+        required: true,
+        name: "nft-address",
+      },
+    ],
+  },
+};

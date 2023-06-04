@@ -1,70 +1,102 @@
-import {
-  DaosPage,
-  CreateDaoPage,
-  Dao,
-  DaoLayout,
-  ProposalsList,
-  DaoPageAbout,
-  ProposalPage,
-  CreateProposal,
-  BadRoute,
-  DaoSettings,
-} from "pages";
 import Layout from "layout/Layout";
-
 import _ from "lodash";
-
 import { routes } from "consts";
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useDevFeatures } from "hooks";
+import { BadRoute } from "pages";
 
-import { createBrowserRouter } from "react-router-dom";
+
+export const useRouter = () => {
+  const devFeatures = useDevFeatures();
   
-export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Layout />,
-    children: [
-      {
-        path: routes.spaces,
-        element: <DaosPage />,
-      },
-      {
-        path: routes.createSpace,
-        element: <CreateDaoPage />,
-      },
+  return useMemo(
+    () =>
+      createBrowserRouter([
+        {
+          path: "/",
+          element: <Layout />,
+          children: [
+            {
+              path: routes.spaces,
+              async lazy() {
+                let page = await import("../pages/daos/DaosPage");
+                return { Component: page.default };
+              },
+            },
+            {
+              path: routes.createSpace,
+              async lazy() {
+                let page = await import("../pages/create-dao/CreateDao");
+                return {
+                  Component: devFeatures ? page.default : ForbiddenRoute,
+                };
+              },
+            },
 
-      {
-        path: routes.space,
-        element: <Dao />,
-        children: [
-          {
-            path: routes.createProposal,
-            element: <CreateProposal />,
-          },
-          {
-            path: routes.space,
-            element: <DaoLayout />,
-            children: [
-              {
-                index: true,
-                element: <ProposalsList />,
+            {
+              path: routes.space,
+              async lazy() {
+                let page = await import("../pages/dao/Dao");
+                return { Component: page.default };
               },
-              {
-                path: routes.spaceSettings,
-                element: <DaoSettings />,
+
+              children: [
+                {
+                  path: routes.createProposal,
+                  async lazy() {
+                    let page = await import(
+                      "../pages/dao/CreateProposal/CreateProposal"
+                    );
+                    return {
+                      Component: devFeatures ? page.default : ForbiddenRoute,
+                    };
+                  },
+                },
+                {
+                  index: true,
+                  async lazy() {
+                    let page = await import(
+                      "../pages/dao/ProposalsList/ProposalsList"
+                    );
+                    return { Component: page.default };
+                  },
+                },
+                {
+                  path: routes.spaceSettings,
+                  async lazy() {
+                    let page = await import(
+                      "../pages/dao/DaoSettings/DaoSettings"
+                    );
+                    return { Component: page.default };
+                  },
+                },
+                {
+                  path: routes.spaceAbout,
+                  async lazy() {
+                    let page = await import("../pages/dao/DaoAbout");
+                    return { Component: page.default };
+                  },
+                },
+              ],
+            },
+            {
+              path: routes.proposal,
+              async lazy() {
+                let page = await import("../pages/proposal/Proposal");
+                return { Component: page.default };
               },
-              {
-                path: routes.spaceAbout,
-                element: <DaoPageAbout />,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: routes.proposal,
-        element: <ProposalPage />,
-      },
-    ],
-    errorElement: <BadRoute />,
-  },
-]);
+            },
+          ],
+          errorElement: <BadRoute />,
+        },
+      ]),
+    [devFeatures]
+  );
+};
+
+
+
+const ForbiddenRoute = () => {
+  return <Navigate to={routes.spaces} />;
+}

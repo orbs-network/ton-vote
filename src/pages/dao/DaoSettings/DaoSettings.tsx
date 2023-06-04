@@ -2,7 +2,7 @@ import { Header, LoadingContainer } from "components";
 import { useMobile, useRole } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoFromQueryParam } from "query/getters";
-import { StyledFlexColumn } from "styles";
+import { LayoutSection } from "../components";
 import { MetadataForm } from "./Metadata";
 import { RolesForm } from "./Roles";
 import { SetFwdMsgFee } from "./SetFwdMsgFee";
@@ -15,24 +15,19 @@ export function DaoSettings() {
 
   const showAll = isOwner || isProposalPublisher;
 
-  const mobile = useMobile();
-
   return (
-    <StyledFlexColumn>
-      {!mobile && <Header title={translations.settings} />}
-      {isLoading ? (
-        <LoadingContainer loaderAmount={5} />
-      ) : (
-        <>
-          <SetFwdMsgFee />
-          {showAll && (
-            <>
-              <RolesForm />
-              <MetadataForm />
-            </>
-          )}
-        </>
-      )}
-    </StyledFlexColumn>
+    <LayoutSection title={translations.settings} isLoading={isLoading}>
+      <>
+        <SetFwdMsgFee />
+        {showAll && (
+          <>
+            <RolesForm />
+            <MetadataForm />
+          </>
+        )}
+      </>
+    </LayoutSection>
   );
 }
+
+export default DaoSettings;

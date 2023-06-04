@@ -63,7 +63,8 @@ const ProposalsSearch = () => {
 
 export function ProposalsList() {
   const [amount, setAmount] = useState(LIMIT);
-
+  const translations = useDaoPageTranslations();
+  const mobile = useMobile();
   const showMore = () => {
     setAmount((prev) => prev + LIMIT);
   };
@@ -74,8 +75,11 @@ export function ProposalsList() {
   );
 
   return (
-    <StyledProposalsContainer>
-      <ProposalsHeader />
+    <StyledProposalsContainer
+      title={translations.proposals}
+      headerChildren={!mobile ? <ProposalsSearch /> : undefined}
+    >
+      {mobile && <ProposalsSearch />}
       <Box style={{ position: "relative", width: "100%" }}>
         {!isLoading && <EmptyList />}
         <StyledFlexColumn gap={15} style={{ zIndex: 10, position: "relative" }}>
@@ -102,24 +106,6 @@ export function ProposalsList() {
   );
 }
 
-const ProposalsHeader = () => {
-  const mobile = useMobile();
-  const translations = useDaoPageTranslations();
-
-  return (
-    <StyledProposalsHeader>
-      {mobile ? (
-        <ProposalsSearch />
-      ) : (
-        <Header
-          title={translations.proposals}
-          component={<ProposalsSearch />}
-        />
-      )}
-    </StyledProposalsHeader>
-  );
-};
-
 const EmptyList = () => {
   const translations = useDaoPageTranslations();
   return (
@@ -140,3 +126,6 @@ const ListLoader = () => {
     </>
   );
 };
+
+
+export default ProposalsList;

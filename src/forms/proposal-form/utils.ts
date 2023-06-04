@@ -1,42 +1,14 @@
 import _ from "lodash";
 import moment from "moment";
-import {
-  ProposalMetadata,
-  VotingPowerStrategy,
-  VotingPowerStrategyType,
-} from "ton-vote-contracts-sdk";
-import { Dao } from "types";
+import { ProposalMetadata, VotingPowerStrategy, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
+import { Dao, ProposalForm, ProposalInputArgs } from "types";
 import { isZeroAddress, utcMoment } from "utils";
-import { CreateProposalForm, CreateProposalInputArgs } from "./types";
 
-export const prepareMetadata = (
-  formValues: CreateProposalForm
-): Partial<ProposalMetadata> => {
-  return {
-    proposalStartTime: Math.floor(
-      utcMoment(formValues.proposalStartTime).valueOf() / 1_000
-    ),
-    proposalEndTime: Math.floor(
-      utcMoment(formValues.proposalEndTime).valueOf() / 1_000
-    ),
-    proposalSnapshotTime: Math.floor(
-      utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000
-    ),
-    votingSystem: {
-      votingSystemType: formValues.votingSystemType,
-      choices: formValues.votingChoices,
-    },
-    title: JSON.stringify({ en: formValues.title_en }),
-    description: JSON.stringify({ en: formValues.description_en }),
-    votingPowerStrategies: formValues.votingPowerStrategies,
-    quorum: "",
-  };
-};
+const initialChoices = ["Yes", "No", "Abstain"];
 
-export const getInitialValues = (
-  formData: CreateProposalForm,
-  dao?: Dao
-): CreateProposalForm => {
+
+
+export const getInitialValues = (formData: ProposalForm, dao?: Dao): ProposalForm => {
   const { proposalEndTime, proposalSnapshotTime, proposalStartTime } =
     getInitialTimestamps();
 
@@ -55,6 +27,8 @@ export const getInitialValues = (
     ),
   };
 };
+
+
 
 const handleInitialVotingPowerStrategies = (
   votingPowerStrategies?: VotingPowerStrategy[],
@@ -94,8 +68,6 @@ const handleInitialVotingPowerStrategies = (
   return [{ type: VotingPowerStrategyType.TonBalance, arguments: [] }];
 };
 
-const initialChoices = ["Yes", "No", "Abstain"];
-
 const getInitialTimestamps = () => {
   const now = moment().valueOf();
 
@@ -124,9 +96,9 @@ const getInitialTimestamps = () => {
 };
 
 export const handleDefaults = (
-  input: CreateProposalInputArgs,
+  input: ProposalInputArgs,
   dao?: Dao
-): CreateProposalInputArgs => {
+): ProposalInputArgs => {
   const metadataArgs = dao?.daoMetadata.metadataArgs;
   const nftAddress =
     metadataArgs?.nft && !isZeroAddress(metadataArgs?.nft)
@@ -152,4 +124,30 @@ export const handleDefaults = (
     default:
       return input;
   }
+};
+
+
+
+export const prepareMetadata = (
+  formValues: ProposalForm
+): Partial<ProposalMetadata> => {
+  return {
+    proposalStartTime: Math.floor(
+      utcMoment(formValues.proposalStartTime).valueOf() / 1_000
+    ),
+    proposalEndTime: Math.floor(
+      utcMoment(formValues.proposalEndTime).valueOf() / 1_000
+    ),
+    proposalSnapshotTime: Math.floor(
+      utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000
+    ),
+    votingSystem: {
+      votingSystemType: formValues.votingSystemType,
+      choices: formValues.votingChoices,
+    },
+    title: JSON.stringify({ en: formValues.title_en }),
+    description: JSON.stringify({ en: formValues.description_en }),
+    votingPowerStrategies: formValues.votingPowerStrategies,
+    quorum: "",
+  };
 };

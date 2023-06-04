@@ -3,11 +3,11 @@ import { useCreateProposalTranslations } from "i18n/hooks/useCreateProposalTrans
 import _ from "lodash";
 import moment from "moment";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
+import { ProposalForm } from "types";
 import { getVoteStrategyType, utcMoment, validateAddress } from "utils";
 import * as Yup from "yup";
-import { CreateProposalForm } from "../types";
 
-const getVotingPowerStrategyArgument = (parent: CreateProposalForm) => {
+const getVotingPowerStrategyArgument = (parent: ProposalForm) => {
   try {
     return parent.votingPowerStrategies[0].arguments[0].value;
   } catch (error) {
@@ -31,7 +31,7 @@ export const useFormSchema = () => {
       }),
     "jetton-address": Yup.string()
       .test("", translations.errors.invalidJettonAddress, (_, context) => {
-        const parent = context.parent as CreateProposalForm;
+        const parent = context.parent as ProposalForm;
         return getVoteStrategyType(parent.votingPowerStrategies) ==
           VotingPowerStrategyType.JettonBalance
           ? validateAddress(getVotingPowerStrategyArgument(parent))
@@ -41,7 +41,7 @@ export const useFormSchema = () => {
         "",
         translations.errors.isRequired(translations.jettonAddress),
         (value, context) => {
-          const parent = context.parent as CreateProposalForm;
+          const parent = context.parent as ProposalForm;
           return getVoteStrategyType(parent.votingPowerStrategies) ==
             VotingPowerStrategyType.JettonBalance
             ? !!getVotingPowerStrategyArgument(parent)
@@ -50,7 +50,7 @@ export const useFormSchema = () => {
       ),
     "nft-address": Yup.string()
       .test("", translations.errors.invalidNFTAddress, (_, context) => {
-        const parent = context.parent as CreateProposalForm;
+        const parent = context.parent as ProposalForm;
 
         return getVoteStrategyType(parent.votingPowerStrategies) ==
           VotingPowerStrategyType.NftCcollection
@@ -61,7 +61,7 @@ export const useFormSchema = () => {
         "",
         translations.errors.isRequired(translations.nftAddress),
         (_, context) => {
-          const parent = context.parent as CreateProposalForm;
+          const parent = context.parent as ProposalForm;
 
           return getVoteStrategyType(parent.votingPowerStrategies) ==
             VotingPowerStrategyType.NftCcollection

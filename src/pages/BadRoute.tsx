@@ -21,6 +21,8 @@ export function BadRoute() {
   );
 }
 
+export default BadRoute;
+
 const StyledContainer = styled(Container)({
   width: "100%",
   maxWidth: 500,

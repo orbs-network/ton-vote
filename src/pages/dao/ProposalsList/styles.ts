@@ -9,6 +9,7 @@ import {
 import { MOBILE_WIDTH } from "consts";
 import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
 import { getBorderColor } from "theme";
+import { LayoutSection } from "../components";
 
 export const StyledProposalResultProgress = styled("div")(({ theme }) => ({
   height: "100%",
@@ -125,8 +126,10 @@ export const StyledAddressDisplay = styled(AddressDisplay)({
   },
 });
 
-export const StyledProposalsContainer = styled(StyledFlexColumn)({
-  gap: 20,
+export const StyledProposalsContainer = styled(LayoutSection)({
+  ".header": {
+    marginBottom: 16,
+  }
 });
 
 export const StyledTonAmount = styled(Typography)({

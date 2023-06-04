@@ -5,7 +5,7 @@ import { StyledFlexRow } from "styles";
 import { useSteps } from "./steps";
 import { useCreatDaoStore } from "./store";
 import Confirmation from "./Confirmation";
-import { DevPage } from "wrappers";
+import {Page } from "wrappers";
 
 const SelectedStep = () => {
   const steps = useSteps();
@@ -19,16 +19,19 @@ const SelectedStep = () => {
   );
 };
 
-export function CreateDaoPage() {
+export function CreateDao() {
   return (
-    <DevPage back={routes.spaces}>
+    <Page back={routes.spaces}>
       <StyledContainer>
         <CreateDaoMenu />
         <SelectedStep />
       </StyledContainer>
-    </DevPage>
+    </Page>
   );
 }
+
+
+export default CreateDao;
 
 const StyledStep = styled(Box)({
   flex: 1,

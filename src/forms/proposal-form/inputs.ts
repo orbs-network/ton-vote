@@ -1,13 +1,12 @@
 import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import _ from "lodash";
 import moment from "moment";
-import { FormArgs } from "types";
-import { CreateProposalForm } from "../types";
+import { FormArgs, ProposalForm } from "types";
 import { useMemo } from "react";
 import { useCreateProposalTranslations } from "i18n/hooks/useCreateProposalTranslations";
 export const useCreateProposalForm = (
-  formData: CreateProposalForm
-): FormArgs<CreateProposalForm>[] => {
+  formData: ProposalForm
+): FormArgs<ProposalForm>[] => {
   const translations = useCreateProposalTranslations();
   const { proposalStartTime, proposalEndTime } = formData;
 
@@ -25,7 +24,7 @@ export const useCreateProposalForm = (
       : `${days} days ${hours ? `and ${hours} hours` : ""} `;
     return [
       {
-        title: translations.formTitle,
+        title: "",
         subTitle: translations.subTitle,
         inputs: [
           {

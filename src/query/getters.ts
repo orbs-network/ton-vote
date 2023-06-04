@@ -201,6 +201,7 @@ export const useDaoQuery = (
   refetchInterval?: number,
   staleTime: number = Infinity
 ) => {
+  
   const handleProposal = useHandleNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();

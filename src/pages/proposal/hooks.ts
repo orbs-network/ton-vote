@@ -146,7 +146,7 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
       const contractState = () =>
         getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
 
-      if (true) {
+      if (isCustomEndpoint) {
         Logger("custom endpoint selected");
         return contractState();
       }

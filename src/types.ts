@@ -6,6 +6,7 @@ import {
   DaoRoles,
   MetadataArgs,
   ProposalMetadata,
+  VotingPowerStrategy,
 } from "ton-vote-contracts-sdk";
 
 export type ProposalResults = { [key: string]: any };
@@ -177,3 +178,25 @@ export type PageProps = {
   isProtected?: boolean;
   backFunc?: () => void;
 };
+
+
+export interface ProposalForm {
+  proposalStartTime?: number;
+  proposalEndTime?: number;
+  proposalSnapshotTime?: number;
+  votingPowerStrategies: VotingPowerStrategy[];
+  votingChoices: string[];
+  description_en?: string;
+  description_ru?: string;
+  title_en?: string;
+  votingSystemType: number;
+
+}
+
+export type ProposalInputArgs = InputArgs<ProposalForm>;
+
+export interface StrategyOption<T> {
+  name: string;
+  args?: InputArgs<T>[];
+}
+

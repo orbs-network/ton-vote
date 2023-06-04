@@ -10,17 +10,21 @@ import {
 } from "@mui/material";
 import { InputHeader, MapInput } from "components";
 import { StyledSelectBoxInput } from "components/inputs/styles";
+import { STRATEGIES } from "config";
 import { FormikProps } from "formik";
+import { useDaoAddressFromQueryParam } from "hooks";
 import _ from "lodash";
-import { useRef } from "react";
+import { useDaoQuery } from "query/getters";
+import { useMemo, useRef } from "react";
 import { BsFillTrash3Fill } from "react-icons/bs";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {
   VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import { useStrategies } from "./hooks";
-import { CreateProposalForm } from "./types";
+import { ProposalForm } from "types";
+import { handleDefaults } from "./utils";
+
 
 const getValue = (
   selectedStrategies: VotingPowerStrategy[],
@@ -39,6 +43,22 @@ const getValue = (
   return _.find(strategy.arguments, (it) => it.name === name)?.value;
 };
 
+const useStrategies = () => {
+  const daoAddress = useDaoAddressFromQueryParam();
+  const { data, dataUpdatedAt } = useDaoQuery(daoAddress);
+
+  return useMemo(() => {
+    return _.mapValues(STRATEGIES, (strategy) => {
+      return {
+        ...strategy,
+        args: _.map(strategy.args, (it) => handleDefaults(it, data)),
+      };
+    });
+  }, [dataUpdatedAt]);
+};
+
+
+
 interface Props<T> {
   selectedStrategies: VotingPowerStrategy[];
   label: string;
@@ -48,7 +68,7 @@ interface Props<T> {
   name: string;
 }
 
-export function StrategySelect(props: Props<CreateProposalForm>) {
+export function StrategySelect(props: Props<ProposalForm>) {
   const {
     selectedStrategies = [],
     label,
@@ -195,7 +215,7 @@ export function StrategySelect(props: Props<CreateProposalForm>) {
                   key={input.name}
                   style={{ maxWidth: "600px", width: "100%" }}
                 >
-                  <MapInput<CreateProposalForm>
+                  <MapInput<ProposalForm>
                     formik={formik}
                     args={input}
                     value={value}
