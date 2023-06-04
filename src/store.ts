@@ -53,6 +53,12 @@ interface SyncStore {
   getDaoUpdateMillis: (daoAddress: string) => number | undefined;
   setDaoUpdateMillis: (daoAddress: string) => void;
   removeDaoUpdateMillis: (daoAddress: string) => void;
+
+  proposalUpdateMillis: { [key: string]: number | undefined };
+  getProposalUpdateMillis: (proposalAddress: string) => number | undefined;
+  setProposalUpdateMillis: (proposalAddress: string) => void;
+  removeProposalUpdateMillis: (proposalAddress: string) => void;
+
 }
 
 export const useSyncStore = create(
@@ -78,6 +84,27 @@ export const useSyncStore = create(
           [daoAddress]: moment().valueOf(),
         };
         set({ daoUpdateMillis: newValue });
+      },
+      proposalUpdateMillis: {},
+      getProposalUpdateMillis: (address) => {
+        const proposalUpdateMillisMap = get().proposalUpdateMillis;
+        return proposalUpdateMillisMap[address];
+      },
+      removeProposalUpdateMillis: (address) => {
+        const proposalUpdateMillisMap = get().proposalUpdateMillis;
+        const newValue = {
+          ...proposalUpdateMillisMap,
+          [address]: undefined,
+        };
+        set({ proposalUpdateMillis: _.omit(newValue) });
+      },
+      setProposalUpdateMillis: (address) => {
+        const proposalUpdateMillisMap = get().proposalUpdateMillis;
+        const newValue = {
+          ...proposalUpdateMillisMap,
+          [address]: moment().valueOf(),
+        };
+        set({ proposalUpdateMillis: newValue });
       },
     }),
     {

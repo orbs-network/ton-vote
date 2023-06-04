@@ -158,14 +158,14 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
       }
 
       let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
-      
+
       const daoIndex = _.findIndex(result, {
         daoAddress: FOUNDATION_DAO_ADDRESS,
       });
 
-     const foundationDao = result.splice(daoIndex, 1);
-      
-      return [...foundationDao, ...result]
+      const foundationDao = result.splice(daoIndex, 1);
+
+      return [...foundationDao, ...result];
     },
     {
       refetchInterval: config?.refetchInterval,
@@ -201,7 +201,6 @@ export const useDaoQuery = (
   refetchInterval?: number,
   staleTime: number = Infinity
 ) => {
-  
   const handleProposal = useHandleNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
@@ -221,19 +220,15 @@ export const useDaoQuery = (
       }
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
-      let fetchFromContract = false;
 
-      if (metadataLastUpdate) {
-        const serverLastUpdate = await api.getUpdateTime();
-        if (!validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)) {
-          Logger("metadataLastUpdate is not valid in server");
-          fetchFromContract = true;
-        } else {
-          removeDaoUpdateMillis(daoAddress!);
-        }
+
+      const serverUpToDate = await getIsServerUpToDate(metadataLastUpdate); 
+
+      if (serverUpToDate) {
+        removeDaoUpdateMillis(daoAddress!);
       }
 
-      const dao = await lib.getDao(daoAddress!, fetchFromContract, signal);
+      const dao = await lib.getDao(daoAddress!, !serverUpToDate, signal);
       const proposals = handleProposal(daoAddress!, dao.daoProposals);
       const daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
@@ -397,4 +392,18 @@ export const useGetContractState = () => {
       transactions
     );
   };
+};
+
+export const getIsServerUpToDate = async (itemLastUpdateTime?: number) => {
+  if (!itemLastUpdateTime) return true
+    if (itemLastUpdateTime) {
+      const serverLastUpdate = await api.getUpdateTime();
+      
+      if (!validateServerUpdateTime(serverLastUpdate, itemLastUpdateTime)) {
+        Logger("server is not updated, fetching from contract");
+        return false;
+      } else {
+        return true;
+      }
+    }
 };

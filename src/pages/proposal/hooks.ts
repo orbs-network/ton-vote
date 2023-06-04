@@ -16,13 +16,14 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { errorToast, usePromiseToast } from "toasts";
 import { mock } from "mock/mock";
 import {
+  getIsServerUpToDate,
   useGetClients,
   useGetContractState,
   useProposalQuery,
 } from "query/getters";
 import { QueryKeys } from "config";
 import { api } from "api";
-import { useProposalPersistedStore, useVoteStore } from "store";
+import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
 import { FOUNDATION_PROPOSALS } from "data/foundation/data";
@@ -116,7 +117,10 @@ export const useProposalPageStatus = () => {
   return useProposalStatus(proposalAddress, data?.metadata);
 };
 
-export const useProposalPageQuery = (isCustomEndpoint: boolean = false, config?: ReactQueryConfig) => {
+export const useProposalPageQuery = (
+  isCustomEndpoint: boolean = false,
+  config?: ReactQueryConfig
+) => {
   const proposalAddress = useProposalAddress();
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
@@ -124,6 +128,9 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false, config?:
     useProposalPersistedStore();
   const getContractStateCallback = useGetContractState();
   const { isVoting } = useVoteStore();
+
+  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
+    useSyncStore();
 
   return useQuery(
     [QueryKeys.PROPOSAL, proposalAddress],
@@ -151,6 +158,15 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false, config?:
         Logger("custom endpoint selected");
         return contractState();
       }
+
+      const isServerUpToDate = await getIsServerUpToDate(
+        getProposalUpdateMillis(proposalAddress)
+      );
+
+      if (!isServerUpToDate) {
+        return contractState();
+      }
+      removeProposalUpdateMillis(proposalAddress);
 
       if (latestMaxLtAfterTx) {
         const serverMaxLt = await api.getMaxLt(proposalAddress!, signal);
@@ -180,9 +196,10 @@ export const useProposalPageQuery = (isCustomEndpoint: boolean = false, config?:
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
         !isVoting,
-      staleTime: config?.staleTime ||  10_000,
+      staleTime: config?.staleTime || 10_000,
       retry: isWhitelisted ? 3 : false,
-      refetchInterval: config?.refetchInterval || isWhitelisted ? 30_000 : undefined,
+      refetchInterval:
+        config?.refetchInterval || isWhitelisted ? 30_000 : undefined,
     }
   );
 };

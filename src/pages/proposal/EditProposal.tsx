@@ -3,6 +3,7 @@ import { Header, LoadingContainer } from "components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
 import { prepareMetadata } from "forms/proposal-form/utils";
 import { useProposalAddress, useProposalStatus } from "hooks";
+import moment from "moment";
 import { useDaoFromQueryParam } from "query/getters";
 import { useUpdateProposalMutation } from "query/setters";
 import React, { ReactNode } from "react";
@@ -37,8 +38,7 @@ export function EditProposal() {
     proposalAddress,
     proposal?.metadata
   );
-
-  const { mutate, isLoading } = useUpdateProposalMutation();
+   const { mutate, isLoading } = useUpdateProposalMutation();
 
   const update = (values: ProposalFormType) => {
     const data = prepareMetadata(values);

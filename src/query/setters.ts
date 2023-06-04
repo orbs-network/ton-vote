@@ -518,6 +518,7 @@ export const useVote = () => {
 export const useUpdateProposalMutation = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
+  const { setProposalUpdateMillis } = useSyncStore();
 
   return useMutation(
     async (args: UpdateProposalArgs) => {
@@ -535,12 +536,13 @@ export const useUpdateProposalMutation = () => {
       );
     },
     {
-      onSuccess: () => {
+      onSuccess: (_, args) => {
         showSuccessToast("Proposal updated");
+        setProposalUpdateMillis(args.proposalAddr);
       },
       onError: (error: Error, vote) => {
         console.log(error);
-        
+
         errorToast(error);
       },
     }
