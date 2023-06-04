@@ -16,9 +16,6 @@ export function usePromiseToast<T>() {
     isSuccess?: (value: any) => boolean;
   }) => {
     let infoToast = "";
-    if (wallet?.provider !== "injected") {
-      infoToast = showToast(translations.checkWalletForTx);
-    }
     toast.promise(
       args.promise,
       {
