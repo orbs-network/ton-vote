@@ -7,7 +7,6 @@ import { useTonWallet } from "@tonconnect/ui-react";
 
 export function usePromiseToast<T>() {
   const translations = useCommonTranslations();
-  const wallet = useTonWallet();
   return (args: {
     promise: Promise<T>;
     loading?: string;
