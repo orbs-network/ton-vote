@@ -68,7 +68,7 @@ export const ProposalComponent = ({
     disabled: !isVisible,
   });
 
-  const { data: proposal, isLoading } = proposalQuery;
+  const { data: proposal, isLoading, error } = proposalQuery;
 
   const { proposalStatus, proposalStatusText } = useProposalStatus(
     proposalAddress,
@@ -100,51 +100,57 @@ export const ProposalComponent = ({
     }
   };
 
-  return (
-    <div onClick={onClick} ref={ref} style={{ width: "100%" }}>
-      {isLoading ? (
-        <ProposalLoader />
-      ) : hideProposal || !proposal ? null : (
-        <StyledProposal>
-          <StyledFlexColumn alignItems="flex-start" gap={20}>
-            <StyledFlexRow justifyContent="space-between">
-              <AppTooltip text="Proposal address" placement="right">
-                <StyledProposalAddress address={proposalAddress} padding={10} />
-              </AppTooltip>
-              <Status status={proposalStatusText} />
-            </StyledFlexRow>
+  if (error) {
+    return null
+  }
+    return (
+      <div onClick={onClick} ref={ref} style={{ width: "100%" }}>
+        {isLoading ? (
+          <ProposalLoader />
+        ) : hideProposal || !proposal ? null : (
+          <StyledProposal>
+            <StyledFlexColumn alignItems="flex-start" gap={20}>
+              <StyledFlexRow justifyContent="space-between">
+                <AppTooltip text="Proposal address" placement="right">
+                  <StyledProposalAddress
+                    address={proposalAddress}
+                    padding={10}
+                  />
+                </AppTooltip>
+                <Status status={proposalStatusText} />
+              </StyledFlexRow>
 
-            <StyledFlexColumn alignItems="flex-start">
-              <StyledProposalTitle variant="h4">
-                {title}
-                {isMock && <small style={{ opacity: 0.5 }}> (Mock)</small>}
-              </StyledProposalTitle>
-              <StyledMarkdown
-                sx={{
-                  display: "-webkit-box",
-                  overflow: "hidden",
-                  WebkitBoxOrient: "vertical",
-                  WebkitLineClamp: 3,
-                }}
-              >
-                {removeMd(description || "", {
-                  useImgAltText: true,
-                })}
-              </StyledMarkdown>
+              <StyledFlexColumn alignItems="flex-start">
+                <StyledProposalTitle variant="h4">
+                  {title}
+                  {isMock && <small style={{ opacity: 0.5 }}> (Mock)</small>}
+                </StyledProposalTitle>
+                <StyledMarkdown
+                  sx={{
+                    display: "-webkit-box",
+                    overflow: "hidden",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 3,
+                  }}
+                >
+                  {removeMd(description || "", {
+                    useImgAltText: true,
+                  })}
+                </StyledMarkdown>
+              </StyledFlexColumn>
+
+              {proposalStatus === ProposalStatus.CLOSED && proposal && (
+                <Results proposalQuery={proposalQuery} />
+              )}
+              <ProposalTimeline
+                proposalMetadata={proposal?.metadata}
+                status={proposalStatus}
+              />
             </StyledFlexColumn>
-
-            {proposalStatus === ProposalStatus.CLOSED && proposal && (
-              <Results proposalQuery={proposalQuery} />
-            )}
-            <ProposalTimeline
-              proposalMetadata={proposal?.metadata}
-              status={proposalStatus}
-            />
-          </StyledFlexColumn>
-        </StyledProposal>
-      )}
-    </div>
-  );
+          </StyledProposal>
+        )}
+      </div>
+    );
 };
 
 const StyledProposalAddress = styled(StyledAddressDisplay)({
