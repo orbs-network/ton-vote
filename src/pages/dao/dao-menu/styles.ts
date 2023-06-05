@@ -1,5 +1,12 @@
 import { Box, styled, Tab } from "@mui/material";
-import { Socials, SideMenu, Img, Container, OverflowWithTooltip, AddressDisplay } from "components";
+import {
+  Socials,
+  SideMenu,
+  Img,
+  Container,
+  OverflowWithTooltip,
+  AddressDisplay,
+} from "components";
 import { MOBILE_WIDTH } from "consts";
 import { StyledSkeletonLoader, StyledFlexColumn, StyledFlexRow } from "styles";
 import { Link as RouterLink } from "react-router-dom";
@@ -25,36 +32,40 @@ export const StyledNavigation = styled(StyledFlexColumn)({
 
 export const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
   ({ selected, theme }) => {
-    const color = theme.palette.mode === 'light' ?  theme.palette.primary.main : 'white'
-    return ({
-    width: "100%",
-    paddingLeft: 15,
-    transition: "0.2s all",
-    textDecoration: "unset",
-    height: 43,
-    display: "flex",
-    alignItems: "center",
-    color,
-    fontWeight: 700,
-    borderLeft: selected
-      ? `5px solid ${color}`
-      : "5px solid transparent",
-    "&:hover": {
-      background: "rgba(0, 136, 204, 0.05)",
-    },
-  })
+    const color =
+      theme.palette.mode === "light" ? theme.palette.primary.main : "white";
+    return {
+      width: "100%",
+      paddingLeft: 15,
+      transition: "0.2s all",
+      textDecoration: "unset",
+      height: 43,
+      display: "flex",
+      alignItems: "center",
+      color,
+      fontWeight: 700,
+      borderLeft: selected ? `5px solid ${color}` : "5px solid transparent",
+      "&:hover": {
+        background: "rgba(0, 136, 204, 0.05)",
+      },
+    };
   }
 );
 
 export const StyledSocials = styled(Socials)({
-  marginTop: 20,
-  justifyContent: "center",
-  padding: 20,
+  marginTop: 15,
+  justifyContent: "flex-start",
+  padding: 0,
+  paddingLeft: 20,
+  gap: 20,
+  a: {
+    transform: "scale(1.4)",
+  },
 
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-   margin: 0,
-   padding: 0,
-   justifyContent: "flex-end",
+    margin: 0,
+    padding: 0,
+    justifyContent: "flex-end",
   },
 });
 
@@ -62,6 +73,7 @@ export const StyledSideMenu = styled(SideMenu)({
   padding: 0,
   width: "100%",
   maxWidth: 280,
+  paddingBottom: 40,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     maxWidth: "unset",
     paddingBottom: 0,
@@ -78,11 +90,10 @@ export const StyledLogo = styled(Img)({
   },
 });
 
-
 export const StyledMobileNavigation = styled(Box)({
   padding: "0px 10px 0px 10px",
   width: "100%",
-  marginTop: 20
+  marginTop: 20,
 });
 
 export const StyledTab = styled(Tab)({
