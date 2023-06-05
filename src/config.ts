@@ -101,3 +101,7 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
     ],
   },
 };
+
+
+
+export const PROD_TEST_DAOS = ['EQBt1SfQ3IuMlCBlr0RstEbJUeun57f8q_9-ZqWNgm1CA8s9']

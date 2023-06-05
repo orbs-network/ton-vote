@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { releaseMode, QueryKeys, IS_DEV } from "config";
+import { releaseMode, QueryKeys, IS_DEV, PROD_TEST_DAOS } from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
 import {
@@ -28,7 +28,11 @@ import {
 import { useNewDataStore, useSyncStore } from "store";
 import { getDaoFromContract, lib } from "lib/lib";
 import { api } from "api";
-import { useDaoAddressFromQueryParam, useProposalAddress } from "hooks";
+import {
+  useDaoAddressFromQueryParam,
+  useDevFeatures,
+  useProposalAddress,
+} from "hooks";
 import { fromNano, Transaction } from "ton-core";
 import { ReactQueryConfig } from "./types";
 import { mock } from "mock/mock";
@@ -83,11 +87,13 @@ export const useDaoStateQuery = (daoAddress?: string) => {
 export const useDaosQuery = (config?: ReactQueryConfig) => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
   const { getDaoUpdateMillis } = useSyncStore();
+  const devFeatures = useDevFeatures();
 
   return useQuery(
-    [QueryKeys.DAOS],
+    [QueryKeys.DAOS, devFeatures],
     async ({ signal }) => {
       const payload = (await lib.getDaos(signal)) || [];
+
       const promise = await Promise.allSettled(
         _.map(payload, async (dao): Promise<Dao> => {
           const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
@@ -164,7 +170,15 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
 
       const foundationDao = result.splice(daoIndex, 1);
 
-      return [...foundationDao, ...result];
+      let allDaos = [...foundationDao, ...result];
+
+      if (!devFeatures) {
+        allDaos = _.filter(
+          allDaos,
+          (it) => !PROD_TEST_DAOS.includes(it.daoAddress)
+        );
+      }
+      return allDaos;
     },
     {
       refetchInterval: config?.refetchInterval,
