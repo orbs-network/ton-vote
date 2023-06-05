@@ -1,4 +1,4 @@
-# TON Community DAO Vote
+# Open source React frontend for ton.vote website
 
 ## Background
 
