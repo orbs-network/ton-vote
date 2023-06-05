@@ -11,13 +11,14 @@ import { Dao } from "types";
 import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
+import { DAOS_PAGE_REFETCH_INTERVAL, TELEGRAM_SUPPORT_GROUP } from "config";
 import { useAppQueryParams, useMobile } from "hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { Page } from "wrappers";
-
+import { styled, Typography } from "@mui/material";
+import { RxPlus } from "react-icons/rx";
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
   const nameFilter = _.filter(daos, (it) =>
@@ -85,6 +86,7 @@ export function DaosPage() {
                 if (index > limit) return null;
                 return <DaoListItem key={dao.daoAddress} dao={dao} />;
               })}
+              <NewDao />
             </StyledDaosList>
           </List>
 
@@ -101,6 +103,32 @@ export function DaosPage() {
 }
 
 export default DaosPage;
+
+
+const NewDao = () => {
+  return (
+    <StyledNewDao onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, '_blank')}>
+      <StyledDaoContent hover>
+        <StyledFlexColumn className="flex">
+          <Typography>Create a space for your DAO</Typography>
+        </StyledFlexColumn>
+      </StyledDaoContent>
+    </StyledNewDao>
+  );
+}
+
+const StyledNewDao = styled(StyledDao)({
+  p: {
+    textAlign: "center",
+    fontWight: 600,
+    fontSize: 17,
+  },
+  ".flex": {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+  },
+});
 
 
 const ListLoader = () => {

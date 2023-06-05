@@ -1,7 +1,13 @@
 import { Typography, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { AppTooltip, Container, OverflowWithTooltip, VerifiedDao } from "components";
+import {
+  AppTooltip,
+  Container,
+  Link,
+  OverflowWithTooltip,
+  VerifiedDao,
+} from "components";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { mock } from "mock/mock";
 import { AiFillEyeInvisible } from "react-icons/ai";
@@ -10,7 +16,12 @@ import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
-import { makeElipsisAddress, nFormatter, parseLanguage } from "utils";
+import {
+  getIsVerifiedDao,
+  makeElipsisAddress,
+  nFormatter,
+  parseLanguage,
+} from "utils";
 import {
   StyledDao,
   StyledDaoAvatar,
@@ -25,7 +36,6 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const metadataArgs = dao.daoMetadata?.metadataArgs;
   const walletAddress = useTonAddress();
   const theme = useTheme();
-  const t = useCommonTranslations();
 
   const isOwner =
     dao.daoRoles.owner === walletAddress ||
@@ -36,6 +46,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const mockPrefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
 
   const name = parseLanguage(metadataArgs?.name) || "";
+  const website = dao.daoMetadata.metadataArgs.website;
 
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
@@ -57,11 +68,19 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
               <TextOverflow text={`${name}${mockPrefix}`} />
             </Typography>
             <Address dao={dao} />
-            {/* <Container className="members">
-              <Typography>
-                {nFormatter(100000)} {t.members}
-              </Typography>
-            </Container> */}
+            {getIsVerifiedDao(dao.daoAddress) && website && (
+              <button
+                className="website"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(website, "_blank");
+                }}
+              >
+                <Typography>
+                  <TextOverflow text={website} />
+                </Typography>
+              </button>
+            )}
           </StyledFlexColumn>
         ) : null}
       </StyledDaoContent>

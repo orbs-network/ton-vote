@@ -42,6 +42,15 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     textAlign: "center",
     color: theme.typography.h2.color,
   },
+  ".website": {
+    background:'transparent',
+    border:'none',
+    cursor:'pointer',
+   p: {
+     fontSize: 14,
+   }
+    
+  },
   ".address-value": {
     textAlign: "center",
     fontSize: 16,
@@ -64,6 +73,7 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     ".title": {
       fontSize: 16,
     },
+
     ".address-value": {
       fontSize: 14,
     },

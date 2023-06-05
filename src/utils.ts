@@ -1,4 +1,4 @@
-import { TONSCAN_ADDRESS_URL } from "config";
+import { TONSCAN_ADDRESS_URL, VERIFIED_DAOS } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
@@ -355,3 +355,10 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
   }
   return votes;
 };
+
+
+
+export const getIsVerifiedDao = (address?: string) => {
+  return true
+  return VERIFIED_DAOS.includes(address || '');
+}

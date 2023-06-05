@@ -4,9 +4,10 @@ import { VscVerifiedFilled } from "react-icons/vsc";
 import { VERIFIED_DAOS } from "config";
 import { Box, styled } from "@mui/material";
 import { StyledFlexRow } from "styles";
+import { getIsVerifiedDao } from "utils";
 
 export function VerifiedDao({ daoAddress = "" }: { daoAddress?: string }) {
-  if (!VERIFIED_DAOS.includes(daoAddress)) {
+  if (!getIsVerifiedDao(daoAddress)) {
     return null;
   }
   return (
