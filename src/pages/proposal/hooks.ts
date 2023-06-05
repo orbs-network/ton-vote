@@ -16,10 +16,8 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { errorToast, usePromiseToast } from "toasts";
 import { mock } from "mock/mock";
 import {
-  getIsServerUpToDate,
   useGetClients,
   useGetContractState,
-  useProposalQuery,
 } from "query/getters";
 import { QueryKeys } from "config";
 import { api } from "api";
@@ -28,6 +26,7 @@ import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
 import { FOUNDATION_PROPOSALS } from "data/foundation/data";
 import { ReactQueryConfig } from "query/types";
+import { getIsServerUpToDate } from "query/logic";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {

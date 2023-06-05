@@ -37,6 +37,7 @@ import { fromNano, Transaction } from "ton-core";
 import { ReactQueryConfig } from "./types";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { getIsServerUpToDate, useIsDaosUpToDate, useNewDaoAddresses } from "./logic";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -85,83 +86,24 @@ export const useDaoStateQuery = (daoAddress?: string) => {
 };
 
 export const useDaosQuery = (config?: ReactQueryConfig) => {
-  const { daos: newDaosAddresses, removeDao } = useNewDataStore();
-  const { getDaoUpdateMillis } = useSyncStore();
   const devFeatures = useDevFeatures();
 
+  const handleNewDaoAddresses = useNewDaoAddresses();
+  const handleDaosUpToDate = useIsDaosUpToDate();
   return useQuery(
     [QueryKeys.DAOS, devFeatures],
     async ({ signal }) => {
       const payload = (await lib.getDaos(signal)) || [];
 
-      const promise = await Promise.allSettled(
-        _.map(payload, async (dao): Promise<Dao> => {
-          const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
-          let metadataArgs = dao.daoMetadata.metadataArgs;
-          const isServerUpToDate = await getIsServerUpToDate(
-            metadataLastUpdate
-          );
+      const prodDaos = await handleDaosUpToDate(payload);
 
-          if (!isServerUpToDate) {
-            metadataArgs = await getDaoMetadata(
-              await getClientV2(),
-              dao.daoMetadata.metadataAddress
-            );
-            console.log(metadataArgs);
-          }
+      // add mock daos if dev mode
+      let daos = IS_DEV ? _.concat(prodDaos, mock.daos) : prodDaos;
 
-          return {
-            ...dao,
-            daoMetadata: {
-              metadataAddress: "",
-              metadataArgs,
-            },
-          };
-        })
-      );
+      // add new dao addresses, if exist in local storage
+      daos = await handleNewDaoAddresses(daos);
 
-      const prodDaos = _.compact(
-        promise.map((it) => {
-          if (it.status === "fulfilled") {
-            return it.value;
-          } else {
-            return null;
-          }
-        })
-      );
-
-      const daos = IS_DEV ? _.concat(prodDaos, mock.daos) : prodDaos;
-
-      if (_.size(newDaosAddresses)) {
-        const addresses = _.map(daos, (it) => it.daoAddress);
-        const client = await getClientV2();
-
-        let promise = Promise.allSettled(
-          _.map(newDaosAddresses, async (newDaoAddress) => {
-            if (addresses.includes(newDaoAddress)) {
-              removeDao(newDaoAddress);
-            } else {
-              Logger(`New DAO: ${newDaoAddress}`);
-
-              return getDaoFromContract(newDaoAddress, client);
-            }
-          })
-        );
-
-        const newDaosMap = await promise;
-
-        const newDaos = _.compact(
-          newDaosMap.map((it, index) => {
-            if (it.status === "fulfilled") {
-              return it.value;
-            } else {
-              removeDao(newDaosAddresses[index]);
-            }
-          })
-        );
-        daos.splice(1, 0, ...newDaos);
-      }
-
+      // filter daos by whitelist
       let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
 
       const daoIndex = _.findIndex(result, {
@@ -409,18 +351,4 @@ export const useGetContractState = () => {
       transactions
     );
   };
-};
-
-export const getIsServerUpToDate = async (itemLastUpdateTime?: number) => {
-  if (!itemLastUpdateTime) return true;
-  if (itemLastUpdateTime) {
-    const serverLastUpdate = await api.getUpdateTime();
-
-    if (!validateServerUpdateTime(serverLastUpdate, itemLastUpdateTime)) {
-      Logger("server is not updated, fetching from contract");
-      return false;
-    } else {
-      return true;
-    }
-  }
 };
