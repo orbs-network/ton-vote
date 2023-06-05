@@ -179,8 +179,13 @@ export const useProposalPageQuery = (
         }
       }
       setLatestMaxLtAfterTx(proposalAddress!, undefined);
-      const proposal = await api.getProposal(proposalAddress!, signal);
-      if (_.isEmpty(proposal.metadata)) {
+      let proposal;
+      try {
+        proposal = await api.getProposal(proposalAddress!, signal);
+      } catch (error) {
+        proposal = await contractState();
+      }
+      if (_.isEmpty(proposal?.metadata)) {
         Logger(
           "proposal page, Proposal not found in server, fetching from contract"
         );

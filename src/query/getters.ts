@@ -87,17 +87,16 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
   return useQuery(
     [QueryKeys.DAOS],
     async ({ signal }) => {
-      const serverLastUpdate = await api.getUpdateTime();
-
       const payload = (await lib.getDaos(signal)) || [];
       const promise = await Promise.allSettled(
         _.map(payload, async (dao): Promise<Dao> => {
           const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
           let metadataArgs = dao.daoMetadata.metadataArgs;
-          if (
-            metadataLastUpdate &&
-            !validateServerUpdateTime(serverLastUpdate, metadataLastUpdate)
-          ) {
+          const isServerUpToDate = await getIsServerUpToDate(
+            metadataLastUpdate
+          );
+
+          if (!isServerUpToDate) {
             metadataArgs = await getDaoMetadata(
               await getClientV2(),
               dao.daoMetadata.metadataAddress
@@ -221,8 +220,7 @@ export const useDaoQuery = (
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
 
-
-      const serverUpToDate = await getIsServerUpToDate(metadataLastUpdate); 
+      const serverUpToDate = await getIsServerUpToDate(metadataLastUpdate);
 
       if (serverUpToDate) {
         removeDaoUpdateMillis(daoAddress!);
@@ -340,8 +338,13 @@ export const useProposalQuery = (
         throw new Error("Proposal not whitelisted");
       }
 
-      const proposal = await api.getProposal(proposalAddress!, signal);
-      if (_.isEmpty(proposal.metadata)) {
+      let proposal;
+      try {
+        proposal = await api.getProposal(proposalAddress!, signal);
+      } catch (error) {
+        proposal = await getContractStateCallback(proposalAddress!);
+      }
+      if (_.isEmpty(proposal?.metadata)) {
         Logger("List proposal not found in server, fetching from contract");
         return getContractStateCallback(proposalAddress!);
       }
@@ -395,15 +398,15 @@ export const useGetContractState = () => {
 };
 
 export const getIsServerUpToDate = async (itemLastUpdateTime?: number) => {
-  if (!itemLastUpdateTime) return true
-    if (itemLastUpdateTime) {
-      const serverLastUpdate = await api.getUpdateTime();
-      
-      if (!validateServerUpdateTime(serverLastUpdate, itemLastUpdateTime)) {
-        Logger("server is not updated, fetching from contract");
-        return false;
-      } else {
-        return true;
-      }
+  if (!itemLastUpdateTime) return true;
+  if (itemLastUpdateTime) {
+    const serverLastUpdate = await api.getUpdateTime();
+
+    if (!validateServerUpdateTime(serverLastUpdate, itemLastUpdateTime)) {
+      Logger("server is not updated, fetching from contract");
+      return false;
+    } else {
+      return true;
     }
+  }
 };
