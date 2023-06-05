@@ -59,7 +59,6 @@ export const StyledSocials = styled(Socials)(({theme}) => ({
   paddingLeft: 21,
   gap: 15,
   a: {
-    opacity: theme.palette.mode === "light" ? 1 : 0.7,
     svg: {
       width: 27,
       height: 27,

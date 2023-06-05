@@ -70,7 +70,7 @@ const Social = ({
 const StyledSocial = styled("a")(({ theme }) => ({
   svg: {
    
-    color: theme.palette.mode === 'dark' ? 'white' :  'rgba(0,0,0, 0.4)'
+    color: theme.palette.mode === 'dark' ? 'rgba(255,255,255, 0.7)' :  'rgba(0,0,0, 0.6)'
   },
 }));
 
