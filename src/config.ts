@@ -104,4 +104,4 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
 
 
 
-export const PROD_TEST_DAOS = []
+export const PROD_TEST_DAOS: string[] = []
