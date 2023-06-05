@@ -4,11 +4,7 @@ import { routes } from "consts";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense, useMemo } from "react";
 import { useDevFeatures } from "hooks";
-import {
-  BadRoute,
-} from "pages";
-import { StyledFlexColumn } from "styles";
-import { LoadingContainer } from "components";
+import { BadRoute } from "pages";
 import { DaoPageFallback, DaosPageFallback, PageFallback } from "./fallbacks";
 
 const Dao = lazy(() => import("pages/dao/Dao"));
@@ -17,16 +13,13 @@ const EditProposal = lazy(() => import("pages/proposal/EditProposal"));
 const DaosPage = lazy(() => import("pages/daos/DaosPage"));
 const DaoAbout = lazy(() => import("pages/dao/DaoAbout"));
 
-
 const CreateProposal = lazy(
   () => import("pages/dao/CreateProposal/CreateProposal")
 );
 
 const DaoSettings = lazy(() => import("pages/dao/DaoSettings/DaoSettings"));
 
-const CreateDao = lazy(
-  () => import("pages/create-dao/CreateDao")
-);
+const CreateDao = lazy(() => import("pages/create-dao/CreateDao"));
 
 const ProposalsList = lazy(
   () => import("pages/dao/ProposalsList/ProposalsList")
@@ -35,7 +28,6 @@ const ProposalsList = lazy(
 const ProposalDisplay = lazy(
   () => import("pages/proposal/ProposalDisplay/ProposalDisplay")
 );
-
 
 export const useRouter = () => {
   const devFeatures = useDevFeatures();
@@ -52,7 +44,6 @@ export const useRouter = () => {
               element: (
                 <Suspense fallback={<DaosPageFallback />}>
                   <DaosPage />
-                  DaosPageFallback
                 </Suspense>
               ),
             },
@@ -148,4 +139,3 @@ export const useRouter = () => {
     [devFeatures]
   );
 };
-

@@ -4,10 +4,9 @@ import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
 import moment from "moment";
 import { LAST_FETCH_UPDATE_LIMIT, IS_DEV } from "config";
-const baseURL =
-  IS_DEV
-    ? "https://dev-ton-vote-cache.herokuapp.com"
-    : "https://ton-vote-cache.herokuapp.com/";
+const baseURL = IS_DEV
+  ? "https://dev-ton-vote-cache.herokuapp.com"
+  : "https://api.ton.vote/";
 
 const axiosInstance = axios.create({
   baseURL,
