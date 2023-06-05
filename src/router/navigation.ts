@@ -8,6 +8,7 @@ export const appNavigation = {
     about: (daoId: string) => `${routes.spaceAbout.replace(":daoId", daoId)}`,
     create: (daoId: string) => routes.createProposal.replace(":daoId", daoId),
     settings: (daoId: string) => routes.spaceSettings.replace(":daoId", daoId),
+    website: (daoId: string) => routes.website.replace(":daoId", daoId),
   },
   proposalPage: {
     root: (daoId: string, proposalId: string) =>

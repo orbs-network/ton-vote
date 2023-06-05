@@ -17,6 +17,7 @@ import {
   ProposalDisplay,
   ProposalsList,
 } from "pages";
+import { ProjectWebsite } from "pages/dao/LinkPage";
 
 export const useRouter = () => {
   const devFeatures = useDevFeatures();
@@ -69,6 +70,10 @@ export const useRouter = () => {
                   path: routes.spaceAbout,
                   element: <DaoAbout />,
                 },
+                {
+                  path: routes.website,
+                  element: <ProjectWebsite />
+                }
               ],
             },
             {

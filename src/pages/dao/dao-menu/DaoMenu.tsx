@@ -64,7 +64,7 @@ const DesktopMenu = () => {
         </StyledFlexColumn>
       </StyledTop>
       <DesktopNavigation />
-      <DaoSocials />
+      {/* <DaoSocials /> */}
     </StyledSideMenu>
   );
 };
@@ -251,6 +251,12 @@ const useNavigationLinks = () => {
       selected: route === routes.spaceSettings,
       route: routes.spaceSettings,
       hide: !showDev,
+    },
+    {
+      title: "Project website",
+      path: appNavigation.daoPage.website(daoAddress),
+      selected: route === routes.website,
+      route: routes.website,
     },
   ];
 };

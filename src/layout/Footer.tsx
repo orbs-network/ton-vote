@@ -1,10 +1,8 @@
 import { styled, Typography } from '@mui/material'
-import React from 'react'
 import { StyledFlexColumn, StyledFlexRow } from 'styles'
 import OrbsLogo from 'assets/orbs.svg'
 import HearLogo from "assets/heart.svg";
-import { AppSocials, Github } from 'components';
-import { ABOUT_URL, TELETGRAM_URL, WHITEPAPER_URL } from 'consts';
+import { AppSocials } from 'components';
 
 export function Footer() {
   return (

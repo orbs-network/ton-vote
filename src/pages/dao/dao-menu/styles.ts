@@ -61,6 +61,7 @@ export const StyledSocials = styled(Socials)({
 export const StyledSideMenu = styled(SideMenu)({
   padding: 0,
   width: "100%",
+  paddingBottom: 50,
   maxWidth: 280,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     maxWidth: "unset",
