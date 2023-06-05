@@ -1,4 +1,4 @@
-import { Tabs, Typography } from "@mui/material";
+import { styled, Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
 import { routes } from "consts";
 import {
@@ -29,6 +29,7 @@ import {
   StyledLoader,
   StyledTitle,
   StyledTop,
+  StyledOuterLink,
 } from "./styles";
 
 export function DaoMenu() {
@@ -64,7 +65,7 @@ const DesktopMenu = () => {
         </StyledFlexColumn>
       </StyledTop>
       <DesktopNavigation />
-      <DaoSocials />
+      <SocialDesktopLinks />
     </StyledSideMenu>
   );
 };
@@ -181,6 +182,7 @@ const MobileNavigation = () => {
   const navigations = useNavigationLinks();
   const currentRoute = useCurrentRoute();
   const navigate = useNavigate();
+  const links = useDaoSocials();
 
   return (
     <StyledMobileNavigation>
@@ -202,6 +204,17 @@ const MobileNavigation = () => {
               key={navigation.path}
               value={navigation.route}
               label={navigation.title}
+              {...a11yProps(index)}
+            />
+          );
+        })}
+        {links.map((link, index) => {
+          return (
+            <StyledTab
+              onClick={() => window.open(link?.value, "_blank")}
+              key={link?.value}
+              value={link?.value}
+              label={link?.title}
               {...a11yProps(index)}
             />
           );
@@ -254,3 +267,58 @@ const useNavigationLinks = () => {
     },
   ];
 };
+
+const options = [
+  { name: "website", title: "Wesbiet" },
+  { name: "github", title: "Github" },
+  { name: "telegram", title: "Telegram" },
+];
+const useDaoSocials = () => {
+  const { data, isLoading } = useDaoFromQueryParam();
+
+  if (isLoading) return [];
+
+  return options
+    .map((option) => {
+      const metadata = data?.daoMetadata?.metadataArgs as any;
+      const value = metadata[option.name];
+      if (!value) return null;
+      return {
+        title: option.title,
+        value,
+      };
+    })
+    .filter(Boolean);
+};
+
+const SocialDesktopLinks = () => {
+  const links = useDaoSocials();
+
+  return (
+    <StyleDesktopSocials gap={0}>
+      {links.map((link) => {
+       return (
+         <StyledOuterLink key={link?.value} target="_blank" href={link?.value}>
+           {link?.title}
+         </StyledOuterLink>
+       );
+      })}
+    </StyleDesktopSocials>
+  );
+};
+
+const StyleDesktopSocials = styled(StyledFlexColumn)({
+  paddingTop: 10,
+  marginTop: 10,
+  position: "relative",
+  "&::after": {
+    top: "0px",
+    position: "absolute",
+    left: "50%",
+    transform: "translate(-50%)",
+    width: "calc(100% - 40px)",
+    height: 2,
+    content: "''",
+    background: "#EDEDED",
+  },
+});
