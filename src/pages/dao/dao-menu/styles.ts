@@ -52,14 +52,18 @@ export const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
   }
 );
 
-export const StyledSocials = styled(Socials)({
-  marginTop: 15,
+export const StyledSocials = styled(Socials)(({theme}) => ({
+  marginTop: 13,
   justifyContent: "flex-start",
   padding: 0,
-  paddingLeft: 20,
-  gap: 20,
+  paddingLeft: 21,
+  gap: 15,
   a: {
-    transform: "scale(1.4)",
+    opacity: theme.palette.mode === "light" ? 1 : 0.7,
+    svg: {
+      width: 27,
+      height: 27,
+    },
   },
 
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
@@ -67,13 +71,13 @@ export const StyledSocials = styled(Socials)({
     padding: 0,
     justifyContent: "flex-end",
   },
-});
+}));
 
 export const StyledSideMenu = styled(SideMenu)({
   padding: 0,
   width: "100%",
   maxWidth: 280,
-  paddingBottom: 40,
+  paddingBottom: 16,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     maxWidth: "unset",
     paddingBottom: 0,
