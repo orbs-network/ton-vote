@@ -250,12 +250,10 @@ export const useProposalQuery = (
 ) => {
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
-  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
-    useSyncStore();
+
   const getContractStateCallback = useGetContractState();
   const isPropoaslPage = useIsProposalPage();
-  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
-    useProposalPersistedStore();
+  
   const { isVoting } = useVoteStore();
 
   const proposalPageExtendedLogic = useProposalPageLogic(

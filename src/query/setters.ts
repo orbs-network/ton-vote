@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { releaseMode, TX_FEES } from "config";
 import _, { overArgs } from "lodash";
 import {
@@ -18,7 +18,12 @@ import {
   setRegistryAdmin,
   updateProposal,
 } from "ton-vote-contracts-sdk";
-import { useAppParams, useGetSender, useRole } from "hooks";
+import {
+  useAppParams,
+  useGetProposalStatusCallback,
+  useGetSender,
+  useRole,
+} from "hooks";
 import { showSuccessToast, useErrorToast } from "toasts";
 import {
   useDaoQuery,
@@ -38,6 +43,7 @@ import {
 } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
+import { ProposalStatus } from "types";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -527,9 +533,25 @@ export const useUpdateProposalMutation = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
   const { setProposalUpdateMillis } = useSyncStore();
+  const { proposalAddress } = useAppParams();
+
+  const getProposalStatus = useGetProposalStatusCallback();
+
+  const { refetch } = useProposalQuery(proposalAddress);
 
   return useMutation(
     async (args: UpdateProposalArgs) => {
+      const proposalQuery = await refetch();
+      const { proposalStatus } = getProposalStatus(
+        proposalQuery.data?.metadata!
+      );
+
+      if (proposalStatus !== ProposalStatus.NOT_STARTED) {
+        throw new Error(
+          "Proposal is already started, you cant edit it anymore"
+        );
+      }
+
       const sender = getSender();
       const client = await getClientV2();
 
@@ -538,18 +560,16 @@ export const useUpdateProposalMutation = () => {
         client,
         TX_FEES.FORWARD_MSG.toString(),
         args.daoAddress,
-        args.proposalAddr,
-        {} as any
+        proposalAddress,
+        args.metadata
       );
     },
     {
-      onSuccess: (_, args) => {
+      onSuccess: () => {
         showSuccessToast("Proposal updated");
-        setProposalUpdateMillis(args.proposalAddr);
+        setProposalUpdateMillis(proposalAddress);
       },
-      onError: (error: Error, vote) => {
-        console.log(error);
-
+      onError: (error: Error) => {
         errorToast(error);
       },
     }

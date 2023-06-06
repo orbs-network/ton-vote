@@ -1,4 +1,5 @@
-import { DaoMetadataForm } from "types";
+import { ProposalMetadata } from "ton-vote-contracts-sdk";
+import { DaoMetadataForm, Proposal } from "types";
 
 export interface CreateDaoArgs {
   metadataAddress: string;
@@ -21,8 +22,6 @@ export interface UpdateMetadataArgs {
 
 export interface UpdateProposalArgs {
   daoAddress: string;
-  proposalAddr: string;
-  title: string;
-  description: string;
+  metadata: ProposalMetadata;
   onSuccess?: () => void;
 }

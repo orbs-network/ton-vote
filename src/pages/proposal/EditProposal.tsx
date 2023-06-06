@@ -18,9 +18,6 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
     return {} as ProposalFormType;
   }
 
-  console.log(metadata);
-  
-
   return {
     title_en: JSON.parse(metadata.title).en,
     description_en: JSON.parse(metadata.description).en,
@@ -46,11 +43,10 @@ export function EditProposal() {
   const { mutate, isLoading } = useUpdateProposalMutation();
 
   const update = (values: ProposalFormType) => {
-    const data = prepareMetadata(values);
+    const metadata = prepareMetadata(values) as ProposalMetadata;
+
     mutate({
-      title: data.title!,
-      description: data.description!,
-      proposalAddr: proposalAddress,
+      metadata,
       daoAddress: dao!.daoAddress,
     });
   };
@@ -63,12 +59,12 @@ export function EditProposal() {
     );
   }
 
-  if (proposalStatus === ProposalStatus.CLOSED) {
+  if (proposalStatus !== ProposalStatus.NOT_STARTED) {
     return (
       <Container>
         <StyledWarning>
           <StyledWarningFlex>
-            <Typography>Closed proposal cant be updated</Typography>
+            <Typography>Only pending proposals can be edited</Typography>
           </StyledWarningFlex>
         </StyledWarning>
       </Container>

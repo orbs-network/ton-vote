@@ -178,7 +178,8 @@ export const useDaosQueryConfig = () => {
 };
 
 export const useIsProposalPage = () => {
-  return useCurrentRoute() === routes.proposal;
+  const route =  useCurrentRoute()
+  return route === routes.proposal || route === routes.editProposal
 };
 
 export const useProposalPageLogic = (

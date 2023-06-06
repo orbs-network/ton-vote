@@ -38,7 +38,6 @@ import {
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 
-
 export const useCurrentRoute = () => {
   const location = useLocation();
   const route = matchRoutes(flatRoutes, location);
@@ -281,27 +280,11 @@ export const useProposalStatus = (
   metadata?: ProposalMetadata
 ) => {
   const t = useCommonTranslations();
+
+  const getStatus = useGetProposalStatusCallback();
   const query = useQuery(
     ["useProposalStatus", proposalAddress],
-    () => {
-      const status = getProposalStatus(metadata!);
-      let text;
-
-      if (status === ProposalStatus.ACTIVE) {
-        text = t.active;
-      }
-      if (status === ProposalStatus.CLOSED) {
-        text = t.ended;
-      }
-      if (status === ProposalStatus.NOT_STARTED) {
-        text = t.notStarted;
-      }
-
-      return {
-        proposalStatus: status,
-        proposalStatusText: text,
-      };
-    },
+    () => getStatus(metadata!),
     {
       refetchInterval: 1_000,
       enabled: !!metadata && !!proposalAddress,
@@ -313,6 +296,29 @@ export const useProposalStatus = (
   );
 
   return query.data;
+};
+
+export const useGetProposalStatusCallback = () => {
+  const t = useCommonTranslations();
+  return (metadata: ProposalMetadata) => {
+    const status = getProposalStatus(metadata!);
+    let text;
+
+    if (status === ProposalStatus.ACTIVE) {
+      text = t.active;
+    }
+    if (status === ProposalStatus.CLOSED) {
+      text = t.ended;
+    }
+    if (status === ProposalStatus.NOT_STARTED) {
+      text = t.notStarted;
+    }
+
+    return {
+      proposalStatus: status,
+      proposalStatusText: text,
+    };
+  };
 };
 
 export const useAppParams = () => {
