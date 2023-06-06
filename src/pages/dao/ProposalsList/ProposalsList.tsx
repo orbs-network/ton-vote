@@ -1,20 +1,18 @@
 import { Box } from "@mui/material";
-import { Header, List, LoadMore } from "components";
-import { DAO_REFETCH_INTERVAL, IS_DEV } from "config";
-import { useAppQueryParams, useMobile } from "hooks";
+import { List, LoadMore } from "components";
+import { useAppParams, useAppQueryParams, useMobile } from "hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { useState } from "react";
 import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { ProposalLoader } from "../ProposalLoader";
-import { ProposalComponent as Proposal } from "./Proposal/Proposal";
+import { Proposal } from "./Proposal/Proposal";
 import {
   StyledEmptyList,
   StyledProposalsContainer,
-  StyledProposalsHeader,
   StyledSearch,
 } from "./styles";
 const LIMIT = 10;
@@ -68,11 +66,9 @@ export function ProposalsList() {
   const showMore = () => {
     setAmount((prev) => prev + LIMIT);
   };
+  const { daoAddress } = useAppParams();
 
-  const { data, isLoading } = useDaoFromQueryParam(
-    DAO_REFETCH_INTERVAL,
-    10_000
-  );
+  const { data, isLoading } = useDaoQuery(daoAddress);
 
   return (
     <StyledProposalsContainer
@@ -126,6 +122,5 @@ const ListLoader = () => {
     </>
   );
 };
-
 
 export default ProposalsList;

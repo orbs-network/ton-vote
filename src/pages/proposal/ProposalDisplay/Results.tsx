@@ -19,18 +19,18 @@ import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
-import { useProposalAddress, useProposalResults } from "hooks";
+import {  useAppParams, useProposalResults } from "hooks";
 import { FOUNDATION_DAO_ADDRESS, FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
 const LIMIT = 5;
 
 export const Results = () => {
   const { data, dataUpdatedAt, isLoading } = useProposalPageQuery();
   
-  const address = useProposalAddress()
+  const {proposalAddress} = useAppParams()
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
 
-  const hideVerify = FOUNDATION_PROPOSALS_ADDRESSES.includes(address);
+  const hideVerify = FOUNDATION_PROPOSALS_ADDRESSES.includes(proposalAddress);
   
   const results = useProposalResults(data, dataUpdatedAt);
   const votingPowerStrategy = getVoteStrategyType(
@@ -176,7 +176,7 @@ export function VerifyResults() {
     reset,
   } = useVerifyProposalResults();
   const translations = useProposalPageTranslations();
-  const proposalAddress = useProposalAddress();
+  const {proposalAddress} = useAppParams();
   useEffect(() => {
     if (isSuccess || error) {
       setTimeout(() => {

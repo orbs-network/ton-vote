@@ -19,14 +19,6 @@ export interface UpdateMetadataArgs {
   daoAddress: string;
 }
 
-
-export interface ReactQueryConfig {
-  refetchInterval?: number;
-  staleTime?: number;
-  disabled?: boolean;
-}
-
-
 export interface UpdateProposalArgs {
   daoAddress: string;
   proposalAddr: string;

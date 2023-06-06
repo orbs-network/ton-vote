@@ -42,7 +42,7 @@ export enum QueryKeys {
 }
 
 
-export const DAO_REFETCH_INTERVAL = 20_000;
+export const DAO_REFETCH_INTERVAL = 50_000;
 export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
 export const LANGUAGES = { en: "English", ru: "Русский" };
 

@@ -10,9 +10,9 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useVote } from "query/setters";
 import { mock } from "mock/mock";
-import { useProposalAddress } from "hooks";
 import { errorToast } from "toasts";
 import _ from "lodash";
+import { useAppParams } from "hooks";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
@@ -21,7 +21,7 @@ export function Vote() {
   const translations = useProposalPageTranslations();
   const { data, dataUpdatedAt } = useProposalPageQuery();
   const choices = data?.metadata?.votingSystem.choices;
-  const proposalAddress = useProposalAddress();
+  const {proposalAddress} = useAppParams();
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;

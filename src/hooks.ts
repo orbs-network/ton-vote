@@ -38,13 +38,6 @@ import {
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 
-export const useDaoAddressFromQueryParam = () => {
-  return useParams().daoId as string;
-};
-
-export const useProposalAddress = () => {
-  return useParams().proposalId!;
-};
 
 export const useCurrentRoute = () => {
   const location = useLocation();
@@ -322,4 +315,10 @@ export const useProposalStatus = (
   return query.data;
 };
 
-
+export const useAppParams = () => {
+  const params = useParams();
+  return {
+    daoAddress: params.daoId as string,
+    proposalAddress: params.proposalId as string,
+  };
+};

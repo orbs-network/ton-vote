@@ -2,9 +2,9 @@ import { styled, Typography } from "@mui/material";
 import { Header, LoadingContainer } from "components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
 import { prepareMetadata } from "forms/proposal-form/utils";
-import { useProposalAddress, useProposalStatus } from "hooks";
+import { useAppParams, useProposalStatus } from "hooks";
 import moment from "moment";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { useUpdateProposalMutation } from "query/setters";
 import React, { ReactNode } from "react";
 import { appNavigation } from "router/navigation";
@@ -31,14 +31,16 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
 };
 
 export function EditProposal() {
-  const { data: dao } = useDaoFromQueryParam();
-  const proposalAddress = useProposalAddress();
+  const { daoAddress } = useAppParams();
+  const { data: dao } = useDaoQuery(daoAddress);
+  const { proposalAddress } = useAppParams();
+
   const { data: proposal } = useProposalPageQuery();
   const { proposalStatus } = useProposalStatus(
     proposalAddress,
     proposal?.metadata
   );
-   const { mutate, isLoading } = useUpdateProposalMutation();
+  const { mutate, isLoading } = useUpdateProposalMutation();
 
   const update = (values: ProposalFormType) => {
     const data = prepareMetadata(values);
@@ -100,8 +102,11 @@ const StyledWarningFlex = styled(StyledFlexColumn)({
 });
 
 const Container = ({ children }: { children: ReactNode }) => {
-  const { data: dao } = useDaoFromQueryParam();
-  const proposalAddress = useProposalAddress();
+  const { daoAddress } = useAppParams();
+
+  const { data: dao } = useDaoQuery(daoAddress);
+  const { proposalAddress } = useAppParams();
+
 
   const back = () => {
     if (!dao) return "";

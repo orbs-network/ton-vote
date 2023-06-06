@@ -1,6 +1,6 @@
 import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
-import { useProposalAddress } from "hooks";
+import { useAppParams } from "hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useConnectedWalletVotingPowerQuery } from "query/getters";
 import React, { ReactNode, useEffect } from "react";
@@ -18,9 +18,8 @@ interface Props {
 export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const translations = useProposalPageTranslations();
 
-
   const { data } = useProposalPageQuery();
-  const proposalAddress = useProposalAddress();
+  const { proposalAddress } = useAppParams();
 
   const {
     data: votingData,
@@ -85,7 +84,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   );
 }
 
-
 const StyledButtons = styled(StyledFlexRow)({
   button: {
     width: "50%",
@@ -120,7 +118,6 @@ const Row = ({
   );
 };
 
-
 const StyledRow = styled(StyledFlexRow)({
   ".label": {
     fontWeight: 700,
@@ -130,12 +127,10 @@ const StyledRow = styled(StyledFlexRow)({
   },
 });
 
-
 const StyledVote = styled(Row)({
   ".value": {
     textTransform: "capitalize",
   },
 });
-
 
 const StyledContainer = styled(StyledFlexColumn)({});

@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useDaoAddressFromQueryParam, useMobile, useProposalAddress } from "hooks";
+import { useAppParams, useMobile } from "hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
@@ -22,7 +22,7 @@ import { makeElipsisAddress, parseLanguage } from "utils";
 import { useProposalPageQuery, useProposalPageStatus } from "../hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { mock } from "mock/mock";
 
 const MIN_DESCRIPTION_HEIGHT = 200;
@@ -77,11 +77,11 @@ function MobileAbout() {
 }
 
 const ProposalHeader = () => {
-  const proposalAddress = useProposalAddress();
+  const { proposalAddress } = useAppParams();
   const data = useProposalPageQuery(false).data;
 
-  const mockPrefix = mock.isMockProposal(proposalAddress)  ? ' (Mock)' : '';
-  
+  const mockPrefix = mock.isMockProposal(proposalAddress) ? " (Mock)" : "";
+
   const title = parseLanguage(data?.metadata?.title);
 
   return (
@@ -178,7 +178,7 @@ const StyledHeader = styled(Header)({
 });
 
 const ProposalStatus = () => {
-  const {proposalStatusText} = useProposalPageStatus();
+  const { proposalStatusText } = useProposalPageStatus();
 
   return <Status status={proposalStatusText} />;
 };
@@ -188,8 +188,9 @@ const StyledShareButton = styled(ShareButton)({
 });
 
 const DaoInfo = () => {
-  const daoAddress = useDaoAddressFromQueryParam();
-  const daoMetadata = useDaoFromQueryParam().data?.daoMetadata;
+  const { daoAddress } = useAppParams();
+
+  const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
 
   return (
     <StyledFlexRow style={{ width: "auto" }}>
@@ -198,15 +199,18 @@ const DaoInfo = () => {
         to={appNavigation.daoPage.root(daoAddress)}
         className="dao-name"
       >
-        <OverflowWithTooltip text={parseLanguage(daoMetadata?.metadataArgs.name)} />
+        <OverflowWithTooltip
+          text={parseLanguage(daoMetadata?.metadataArgs.name)}
+        />
       </StyledLink>
     </StyledFlexRow>
   );
 };
 
 const ByProposalOwner = () => {
-  const daoAddress = useDaoAddressFromQueryParam();
-  const daoRoles = useDaoFromQueryParam().data?.daoRoles;
+  const { daoAddress } = useAppParams();
+
+  const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
   if (!daoRoles?.proposalOwner) {
     return null;
   }
@@ -270,7 +274,7 @@ const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
     width: "100%",
     position: "relative",
     boxShadow: open === 1 ? "unset" : shadow,
-    background: theme.palette.mode === "light" ?  "white" : "#222830",
+    background: theme.palette.mode === "light" ? "white" : "#222830",
     paddingTop: 20,
   };
 });

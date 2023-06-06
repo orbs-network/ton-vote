@@ -36,7 +36,7 @@ export function DaosPage() {
     data = [],
     isLoading,
     dataUpdatedAt,
-  } = useDaosQuery({ refetchInterval: DAOS_PAGE_REFETCH_INTERVAL });
+  } = useDaosQuery();
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
   const mobile = useMobile()

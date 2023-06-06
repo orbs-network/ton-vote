@@ -1,22 +1,23 @@
-import { useDaoAddressFromQueryParam } from "hooks";
+import { useAppParams } from "hooks";
 import { useCreateProposalStore } from "./store";
 import _ from "lodash";
 import { useAppNavigation } from "router/navigation";
-import { useDaoFromQueryParam } from "query/getters";
 import { useCreateProposalQuery } from "query/setters";
 import { useNewDataStore } from "store";
 import { LayoutSection } from "../components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
 import { ProposalForm as ProposalFormType } from "types";
 import { prepareMetadata } from "forms/proposal-form/utils";
+import { useDaoQuery } from "query/getters";
 
 export const CreateProposal = () => {
-  const daoLoading = useDaoFromQueryParam().isLoading;
-  const dao = useDaoFromQueryParam();
+  const { daoAddress } = useAppParams();
+
+  const { data: dao, isLoading: daoLoading } = useDaoQuery(daoAddress);
   const { setFormData, formData } = useCreateProposalStore();
   const appNavigation = useAppNavigation();
   const { mutate: createProposal, isLoading } = useCreateProposalQuery();
-    const { addProposal } = useNewDataStore();
+  const { addProposal } = useNewDataStore();
 
   const onSubmit = (formValues: ProposalFormType) => {
     const metadata = prepareMetadata(formValues);
@@ -24,9 +25,9 @@ export const CreateProposal = () => {
     createProposal({
       metadata,
       onSuccess: (proposalAddress: string) => {
-        appNavigation.proposalPage.root(dao.data!.daoAddress, proposalAddress);
+        appNavigation.proposalPage.root(dao!.daoAddress, proposalAddress);
         setFormData({} as ProposalFormType);
-        addProposal(dao.data!.daoAddress, proposalAddress);
+        addProposal(dao!.daoAddress, proposalAddress);
       },
     });
   };
@@ -39,7 +40,7 @@ export const CreateProposal = () => {
         persistForm={setFormData}
         onSubmit={onSubmit}
         isLoading={isLoading}
-        dao={dao.data!}
+        dao={dao!}
       />
     </LayoutSection>
   );

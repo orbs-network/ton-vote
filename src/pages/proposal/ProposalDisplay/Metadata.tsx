@@ -4,18 +4,18 @@ import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import moment from "moment";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
-import { useProposalAddress } from "hooks";
 import { getStrategyArgument, getVoteStrategyType } from "utils";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useProposalPageQuery } from "../hooks";
+import { useAppParams } from "hooks";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {  
   return `${moment.unix(time).utc().format(format)} UTC`;
 };
 
 export const Metadata = () => {
-  const proposalAddress = useProposalAddress();
+  const {proposalAddress} = useAppParams();
   const { isLoading, data } = useProposalPageQuery();
   const translations = useProposalPageTranslations();
   const proposalMetadata = data?.metadata;

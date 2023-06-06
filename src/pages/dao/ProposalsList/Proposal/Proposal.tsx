@@ -1,14 +1,14 @@
 import { styled } from "@mui/material";
 import { Status, AppTooltip } from "components";
 import {
+  useAppParams,
   useAppQueryParams,
-  useDaoAddressFromQueryParam,
   useProposalStatus,
 } from "hooks";
 import _ from "lodash";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Proposal, ProposalStatus } from "types";
+import { Proposal as ProposalType, ProposalStatus } from "types";
 import { parseLanguage } from "utils";
 import { ProposalLoader } from "../../ProposalLoader";
 import removeMd from "remove-markdown";
@@ -28,7 +28,7 @@ import { Results } from "./Results";
 
 const useHideProposal = (
   proposalAddress: string,
-  proposal?: Proposal | null,
+  proposal?: ProposalType | null,
   status?: ProposalStatus | null
 ) => {
   const { query } = useAppQueryParams();
@@ -54,19 +54,17 @@ const useHideProposal = (
   return false;
 };
 
-export const ProposalComponent = ({
+export const Proposal = ({
   proposalAddress,
 }: {
   proposalAddress: string;
 }) => {
   const { proposalPage } = useAppNavigation();
-  const daoAddress = useDaoAddressFromQueryParam();
+  const {daoAddress} = useAppParams();
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
 
-  const proposalQuery = useProposalQuery(proposalAddress, {
-    disabled: !isVisible,
-  });
+  const proposalQuery = useProposalQuery(proposalAddress, !isVisible);
 
   const { data: proposal, isLoading, error } = proposalQuery;
 
@@ -80,10 +78,6 @@ export const ProposalComponent = ({
     proposalStatus
   );
 
-  const isMock = useMemo(
-    () => mock.isMockProposal(proposalAddress),
-    [proposalAddress]
-  );
 
   const description = useMemo(
     () => parseLanguage(proposal?.metadata?.description, "en"),
@@ -123,7 +117,7 @@ export const ProposalComponent = ({
               <StyledFlexColumn alignItems="flex-start">
                 <StyledProposalTitle variant="h4">
                   {title}
-                  {isMock && <small style={{ opacity: 0.5 }}> (Mock)</small>}
+                  {mock.isMockProposal(proposalAddress) && <small style={{ opacity: 0.5 }}> (Mock)</small>}
                 </StyledProposalTitle>
                 <StyledMarkdown
                   sx={{

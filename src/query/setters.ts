@@ -18,10 +18,10 @@ import {
   setRegistryAdmin,
   updateProposal,
 } from "ton-vote-contracts-sdk";
-import { useGetSender, useProposalAddress, useRole } from "hooks";
+import { useAppParams, useGetSender, useRole } from "hooks";
 import { showSuccessToast, useErrorToast } from "toasts";
 import {
-  useDaoFromQueryParam,
+  useDaoQuery,
   useDaosQuery,
   useDaoStateQuery,
   useGetClients,
@@ -280,7 +280,9 @@ interface CreateProposalArgs {
 }
 
 export const useCreateProposalQuery = () => {
-  const dao = useDaoFromQueryParam().data;
+  const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
   const getSender = useGetSender();
   const daoState = useDaoStateQuery(dao?.daoAddress).data;
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
@@ -419,7 +421,9 @@ export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
   const refetchDaos = useDaosQuery().refetch;
-  const refetchUpdatedDao = useDaoFromQueryParam().refetch;
+  const { daoAddress } = useAppParams();
+
+  const refetchUpdatedDao = useDaoQuery(daoAddress).refetch;
 
   const errorToast = useErrorToast();
 
@@ -478,7 +482,8 @@ export const useVote = () => {
   const getSender = useGetSender();
   const { refetch } = useProposalPageQuery(true);
   const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
-  const proposalAddress = useProposalAddress();
+  const { proposalAddress } = useAppParams();
+
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
 

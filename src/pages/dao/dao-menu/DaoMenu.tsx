@@ -2,15 +2,15 @@ import { styled, Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
 import { routes } from "consts";
 import {
+  useAppParams,
   useCurrentRoute,
-  useDaoAddressFromQueryParam,
   useDevFeatures,
   useMobile,
   useRole,
 } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
@@ -34,7 +34,9 @@ import {
 } from "./styles";
 
 export function DaoMenu() {
-  const isLoading = useDaoFromQueryParam().isLoading;
+  const { daoAddress } = useAppParams();
+
+  const isLoading = useDaoQuery(daoAddress).isLoading;
   const mobile = useMobile();
   if (isLoading) {
     return (
@@ -51,7 +53,7 @@ export function DaoMenu() {
       </StyledSideMenu>
     );
   }
-  return mobile ? <MobilepMenu /> : <DesktopMenu />;
+  return mobile ? <MobileMenu /> : <DesktopMenu />;
 }
 
 const DesktopMenu = () => {
@@ -71,11 +73,10 @@ const DesktopMenu = () => {
   );
 };
 
-const MobilepMenu = () => {
+const MobileMenu = () => {
   return (
     <StyledSideMenu>
       <StyledTop>
-        <DaoSocials />
         <StyledFlexRow gap={20} alignItems="flex-start">
           <DaoLogo />
           <StyledFlexColumn alignItems="flex-start" style={{ flex: 1 }}>
@@ -93,12 +94,16 @@ const MobilepMenu = () => {
 };
 
 const DaoLogo = () => {
-  const dao = useDaoFromQueryParam().data;
+  const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
   return <StyledLogo src={dao?.daoMetadata?.metadataArgs.avatar} />;
 };
 
 const DaoTitle = () => {
-  const dao = useDaoFromQueryParam().data;
+  const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
 
   return (
     <StyledFlexRow>
@@ -112,7 +117,9 @@ const DaoTitle = () => {
 };
 
 const DaoDNS = () => {
-  const dao = useDaoFromQueryParam().data;
+  const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
 
   if (!dao?.daoMetadata.metadataArgs?.dns) {
     return null;
@@ -126,19 +133,10 @@ const DaoDNS = () => {
 };
 
 const DaoAddress = () => {
-  const dao = useDaoFromQueryParam().data;
-  return <StyledAddressDisplay address={dao?.daoAddress} padding={8} />;
-};
+  const { daoAddress } = useAppParams();
 
-const DaoSocials = () => {
-  const dao = useDaoFromQueryParam().data;
-  return (
-    <StyledSocials
-      github={dao?.daoMetadata?.metadataArgs.github || "/"}
-      telegram={dao?.daoMetadata?.metadataArgs.telegram || "/"}
-      website={dao?.daoMetadata?.metadataArgs.website || "/"}
-    />
-  );
+  const dao = useDaoQuery(daoAddress).data;
+  return <StyledAddressDisplay address={dao?.daoAddress} padding={8} />;
 };
 
 const DesktopNavigation = () => {
@@ -227,10 +225,10 @@ const MobileNavigation = () => {
 
 const useNavigationLinks = () => {
   const showDev = useDevFeatures();
+  const { daoAddress } = useAppParams();
 
   const translations = useDaoPageTranslations();
-  const daoAddress = useDaoAddressFromQueryParam();
-  const { data, isLoading } = useDaoFromQueryParam();
+  const { data, isLoading } = useDaoQuery(daoAddress);
   const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
   const route = useCurrentRoute();
   if (isLoading) {
@@ -275,10 +273,11 @@ const options = [
   { name: "telegram", title: "Telegram group" },
 ];
 const useDaoSocials = () => {
-  const { data, isLoading, dataUpdatedAt } = useDaoFromQueryParam();
+  const { daoAddress } = useAppParams();
+
+  const { data, isLoading, dataUpdatedAt } = useDaoQuery(daoAddress);
 
   return useMemo(() => {
-
     return options
       .map((option) => {
         const metadata = data?.daoMetadata?.metadataArgs as any;
@@ -295,6 +294,8 @@ const useDaoSocials = () => {
 
 const SocialDesktopLinks = () => {
   const links = useDaoSocials();
+
+  if(_.size(links) === 0) return null;
 
   return (
     <StyleDesktopSocials gap={0}>

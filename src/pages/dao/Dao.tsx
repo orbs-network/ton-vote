@@ -1,7 +1,8 @@
 import { ErrorContainer } from "components";
 import { APP_NAME } from "config";
+import { useAppParams } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
@@ -11,7 +12,8 @@ import { DaoLayout } from "./components";
 
 
 export function Dao() {
-  const { data, isError } = useDaoFromQueryParam();
+  const {daoAddress} = useAppParams();
+  const { data, isError } = useDaoQuery(daoAddress);
   const translations = useDaoPageTranslations();
 
   return (

@@ -143,7 +143,7 @@ export function DevParametersModal() {
   const [open, setOpen] = useState(false);
   const registryState = useRegistryStateQuery().data;
 
-  const { isLoading: daosLoading } = useDaosQuery({staleTime: Infinity});
+  const { isLoading: daosLoading } = useDaosQuery();
   const show = useDevFeatures();
   const formik = useFormik<IForm>({
     enableReinitialize: true,

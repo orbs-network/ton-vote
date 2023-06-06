@@ -1,7 +1,6 @@
-import { Header, LoadingContainer } from "components";
-import { useMobile, useRole } from "hooks";
+import { useAppParams, useRole } from "hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
-import { useDaoFromQueryParam } from "query/getters";
+import {useDaoQuery } from "query/getters";
 import { LayoutSection } from "../components";
 import { MetadataForm } from "./Metadata";
 import { RolesForm } from "./Roles";
@@ -9,7 +8,9 @@ import { SetFwdMsgFee } from "./SetFwdMsgFee";
 
 export function DaoSettings() {
   const translations = useDaoPageTranslations();
-  const { isLoading, data } = useDaoFromQueryParam();
+    const { daoAddress } = useAppParams();
+
+  const { isLoading, data } = useDaoQuery(daoAddress);
 
   const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
 

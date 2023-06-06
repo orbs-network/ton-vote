@@ -3,12 +3,9 @@ import { releaseMode, QueryKeys, IS_DEV, PROD_TEST_DAOS } from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
 import {
-  filterTxByTimestamp,
   getClientV2,
   getClientV4,
-  getDaoMetadata,
   getSingleVoterPower,
-  getTransactions,
   getDaoState,
   getRegistryState,
 } from "ton-vote-contracts-sdk";
@@ -18,26 +15,28 @@ import {
   isProposalWhitelisted,
   Logger,
   nFormatter,
-  validateServerUpdateTime,
 } from "utils";
 import {
   FOUNDATION_DAO_ADDRESS,
   FOUNDATION_PROPOSALS,
   FOUNDATION_PROPOSALS_ADDRESSES,
 } from "data/foundation/data";
-import { useNewDataStore, useSyncStore } from "store";
-import { getDaoFromContract, lib } from "lib/lib";
+import { useSyncStore } from "store";
+import { lib } from "lib/lib";
 import { api } from "api";
-import {
-  useDaoAddressFromQueryParam,
-  useDevFeatures,
-  useProposalAddress,
-} from "hooks";
-import { fromNano, Transaction } from "ton-core";
-import { ReactQueryConfig } from "./types";
+import { useDevFeatures } from "hooks";
+import { fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { getIsServerUpToDate, useIsDaosUpToDate, useNewDaoAddresses } from "./logic";
+import {
+  getIsServerUpToDate,
+  useDaoNewProposals,
+  useDaoQueryConfig,
+  useDaosQueryConfig,
+  useGetContractState,
+  useIsDaosUpToDate,
+  useNewDaoAddresses,
+} from "./logic";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -85,11 +84,12 @@ export const useDaoStateQuery = (daoAddress?: string) => {
   );
 };
 
-export const useDaosQuery = (config?: ReactQueryConfig) => {
+export const useDaosQuery = () => {
   const devFeatures = useDevFeatures();
 
   const handleNewDaoAddresses = useNewDaoAddresses();
   const handleDaosUpToDate = useIsDaosUpToDate();
+  const config = useDaosQueryConfig();
   return useQuery(
     [QueryKeys.DAOS, devFeatures],
     async ({ signal }) => {
@@ -123,55 +123,30 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
       return allDaos;
     },
     {
-      refetchInterval: config?.refetchInterval,
-      staleTime: config?.staleTime,
+      refetchInterval: config.refetchInterval,
+      staleTime: config.staleTime,
     }
   );
 };
 
-const useHandleNewProposals = () => {
-  const { proposals: newProposals, removeProposal } = useNewDataStore();
-
-  return (daoAddress: string, proposals: string[]) => {
-    const newDaoPoposals = newProposals[daoAddress];
-
-    // if no new proposals reutrn current proposals
-    if (!_.size(newDaoPoposals)) return proposals;
-    _.forEach(newDaoPoposals, (newDaoProposal) => {
-      // if server already return new proposal, delete from local storage
-      if (proposals.includes(newDaoProposal)) {
-        removeProposal(daoAddress, newDaoProposal);
-      } else {
-        // if server dont return new proposal, add to proposals
-        proposals.push(newDaoProposal);
-      }
-    });
-
-    return _.uniq(proposals);
-  };
-};
-
-export const useDaoQuery = (
-  daoAddress?: string,
-  refetchInterval?: number,
-  staleTime: number = Infinity
-) => {
-  const handleProposal = useHandleNewProposals();
+export const useDaoQuery = (daoAddress: string) => {
+  const addNewProposals = useDaoNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
-
+  const config = useDaoQueryConfig();
   return useQuery<Dao>(
     [QueryKeys.DAO, daoAddress],
     async ({ signal }) => {
+      if (!isWhitelisted) {
+        throw new Error("DAO not whitelisted");
+      }
+
       const mockDao = mock.isMockDao(daoAddress!);
       if (mockDao) {
         return {
           ...mockDao,
           daoProposals: mock.proposalAddresses,
         };
-      }
-      if (!isWhitelisted) {
-        throw new Error("DAO not whitelisted");
       }
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
@@ -183,7 +158,7 @@ export const useDaoQuery = (
       }
 
       const dao = await lib.getDao(daoAddress!, !serverUpToDate, signal);
-      const proposals = handleProposal(daoAddress!, dao.daoProposals);
+      const proposals = addNewProposals(daoAddress!, dao.daoProposals);
       const daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
         : proposals;
@@ -197,19 +172,11 @@ export const useDaoQuery = (
     },
     {
       retry: isWhitelisted ? 3 : false,
-      staleTime,
-      refetchInterval: isWhitelisted ? refetchInterval : undefined,
+      staleTime: config.staleTime,
+      refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
       enabled: !!daoAddress,
     }
   );
-};
-
-export const useDaoFromQueryParam = (
-  refetchInterval?: number,
-  staleTime: number = Infinity
-) => {
-  const address = useDaoAddressFromQueryParam();
-  return useDaoQuery(address, refetchInterval, staleTime);
 };
 
 export const useGetClients = () => {
@@ -272,7 +239,7 @@ export const useConnectedWalletVotingPowerQuery = (
 
 export const useProposalQuery = (
   proposalAddress?: string,
-  args?: ReactQueryConfig
+  disabled?: boolean
 ) => {
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
@@ -281,17 +248,17 @@ export const useProposalQuery = (
   return useQuery(
     [QueryKeys.PROPOSAL, proposalAddress],
     async ({ signal }) => {
-      const isMockProposal = mock.getMockProposal(proposalAddress!);
-      if (isMockProposal) {
-        return isMockProposal;
+      if (!isWhitelisted) {
+        throw new Error("Proposal not whitelisted");
+      }
+
+      const mockProposal = mock.getMockProposal(proposalAddress!);
+      if (mockProposal) {
+        return mockProposal;
       }
       const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
       if (foundationProposal) {
         return foundationProposal;
-      }
-
-      if (!isWhitelisted) {
-        throw new Error("Proposal not whitelisted");
       }
 
       let proposal;
@@ -312,43 +279,18 @@ export const useProposalQuery = (
         !!proposalAddress &&
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
-        !args?.disabled,
-      staleTime: args?.staleTime || 30_000,
+        !disabled,
+      staleTime: 30_000,
       retry: isWhitelisted ? 3 : false,
-      refetchInterval: isWhitelisted ? args?.refetchInterval : undefined,
+      refetchInterval: isWhitelisted ? 30_000 : undefined,
     }
   );
 };
 
 export const useWalletsQuery = () => {
   const [tonConnectUI] = useTonConnectUI();
-  return useQuery(
-    ["useWalletsQuery"],
-    () => {
-      return tonConnectUI.getWallets();
-    },
-    {
-      staleTime: Infinity,
-      enabled: !!tonConnectUI,
-    }
-  );
-};
-
-export const useGetContractState = () => {
-  const clients = useGetClients().data;
-  return async (proposalAddress: string, latestMaxLtAfterTx?: string) => {
-    let transactions: Transaction[] = [];
-    if (latestMaxLtAfterTx) {
-      const result = await getTransactions(clients!.clientV2, proposalAddress!);
-      transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
-    }
-
-    return lib.getProposalFromContract(
-      clients!.clientV2,
-      clients!.clientV4,
-      proposalAddress!,
-      undefined,
-      transactions
-    );
-  };
+  return useQuery(["useWalletsQuery"], () => tonConnectUI.getWallets(), {
+    staleTime: Infinity,
+    enabled: !!tonConnectUI,
+  });
 };

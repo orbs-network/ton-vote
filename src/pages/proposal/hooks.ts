@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useProposalAddress, useProposalStatus } from "hooks";
+import { useAppParams, useProposalStatus } from "hooks";
 import _ from "lodash";
 import { isProposalWhitelisted, Logger } from "utils";
 import { useEnpointsStore } from "./store";
@@ -15,18 +15,14 @@ import { Transaction } from "ton-core";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { errorToast, usePromiseToast } from "toasts";
 import { mock } from "mock/mock";
-import {
-  useGetClients,
-  useGetContractState,
-} from "query/getters";
+import { useGetClients } from "query/getters";
 import { QueryKeys } from "config";
 import { api } from "api";
 import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
 import { FOUNDATION_PROPOSALS } from "data/foundation/data";
-import { ReactQueryConfig } from "query/types";
-import { getIsServerUpToDate } from "query/logic";
+import { getIsServerUpToDate, useGetContractState } from "query/logic";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -44,7 +40,7 @@ const handleNulls = (result?: ProposalResults) => {
 };
 
 export const useVerifyProposalResults = () => {
-  const proposalAddress = useProposalAddress();
+  const { proposalAddress } = useAppParams();
   const { data } = useProposalPageQuery(false);
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations();
@@ -112,15 +108,14 @@ export const useVerifyProposalResults = () => {
 
 export const useProposalPageStatus = () => {
   const { data } = useProposalPageQuery();
-  const proposalAddress = useProposalAddress();
+  const { proposalAddress } = useAppParams();
+
   return useProposalStatus(proposalAddress, data?.metadata);
 };
 
-export const useProposalPageQuery = (
-  isCustomEndpoint: boolean = false,
-  config?: ReactQueryConfig
-) => {
-  const proposalAddress = useProposalAddress();
+export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
+  const { proposalAddress } = useAppParams();
+
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
   const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
@@ -200,10 +195,9 @@ export const useProposalPageQuery = (
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
         !isVoting,
-      staleTime: config?.staleTime || 10_000,
+      staleTime: 10_000,
       retry: isWhitelisted ? 3 : false,
-      refetchInterval:
-        config?.refetchInterval || isWhitelisted ? 30_000 : undefined,
+      refetchInterval: isWhitelisted ? 30_000 : undefined,
     }
   );
 };
