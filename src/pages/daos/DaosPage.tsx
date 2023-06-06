@@ -1,11 +1,20 @@
-import {  List, LoadMore } from "components";
+import { List, LoadMore } from "components";
 import {
   StyledEmptyText,
   StyledFlexColumn,
   StyledFlexRow,
   StyledSkeletonLoader,
 } from "styles";
-import { StyledDao, StyledDaoContent, StyledDaosAmount, StyledDaosList, StyledEmptyList, StyledHeader, StyledSearch } from "./styles";
+import {
+  StyledDao,
+  StyledDaoContent,
+  StyledDaosAmount,
+  StyledDaosList,
+  StyledEmptyList,
+  StyledHeader,
+  StyledNewDao,
+  StyledSearch,
+} from "./styles";
 import { nFormatter } from "utils";
 import { Dao } from "types";
 import { useMemo, useState } from "react";
@@ -22,7 +31,9 @@ import { RxPlus } from "react-icons/rx";
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
   const nameFilter = _.filter(daos, (it) =>
-    it.daoMetadata.metadataArgs.name.toLowerCase().includes(searchValue.toLowerCase())
+    it.daoMetadata.metadataArgs.name
+      .toLowerCase()
+      .includes(searchValue.toLowerCase())
   );
   const addressFilter = _.filter(daos, (it) =>
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
@@ -32,14 +43,10 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
 };
 
 export function DaosPage() {
-  const {
-    data = [],
-    isLoading,
-    dataUpdatedAt,
-  } = useDaosQuery();
+  const { data = [], isLoading, dataUpdatedAt } = useDaosQuery();
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
-  const mobile = useMobile()
+  const mobile = useMobile();
 
   const { query, setSearch } = useAppQueryParams();
 
@@ -47,7 +54,7 @@ export function DaosPage() {
     setSearchValue(value);
     setSearch(value);
   };
-  const translations = useDaosPageTranslations()
+  const translations = useDaosPageTranslations();
 
   const filteredDaos = useMemo(
     () => filterDaos(data, searchValue),
@@ -104,31 +111,18 @@ export function DaosPage() {
 
 export default DaosPage;
 
-
 const NewDao = () => {
   return (
-    <StyledNewDao onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, '_blank')}>
-      <StyledDaoContent hover>
+    <StyledNewDao onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_blank")}>
+      <StyledDaoContent hover className="container">
         <StyledFlexColumn className="flex">
           <Typography>Create a new space for your DAO</Typography>
         </StyledFlexColumn>
       </StyledDaoContent>
     </StyledNewDao>
   );
-}
+};
 
-const StyledNewDao = styled(StyledDao)({
-  p: {
-    textAlign: "center",
-    fontWight: 600,
-    fontSize: 17,
-  },
-  ".flex": {
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100%",
-  },
-});
 
 
 const ListLoader = () => {

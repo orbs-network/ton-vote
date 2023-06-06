@@ -178,14 +178,5 @@ export const proposals: Proposal[] = [
   activeProposal({ strategyType: VotingPowerStrategyType.NftCcollection }),
   endedProposal({ strategyType: VotingPowerStrategyType.TonBalance }),
   pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
-  pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
+
 ];

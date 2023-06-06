@@ -29,7 +29,6 @@ export const StyledDaoAvatar = styled(Img)({
 export const StyledDao = styled(Box)(({ theme }) => ({
   width: "calc(100% / 4 - 15px)",
   height: 270,
-
   cursor: "pointer",
   ".container": {
     height: "100%",
@@ -43,15 +42,25 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     color: theme.typography.h2.color,
   },
   ".website": {
-    background:'transparent',
-    border:'none',
-    cursor:'pointer',
-   p: {
-     fontSize: 14,
-     fontWeight: 600,
-   },
-   
-    
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    width:'fit-content',
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    borderBottom: "1px solid transparent",
+    transition: "0.2s all",
+    padding: 0,
+    marginTop: 'auto',
+    p: {
+      fontSize: 14,
+      fontWeight: 600,
+      lineHeight: "normal",
+      color: theme.palette.primary.main,
+    },
+    "&:hover": {
+      borderBottom: `1px solid ${theme.palette.primary.main}`,
+    },
   },
   ".address-value": {
     textAlign: "center",
@@ -151,3 +160,30 @@ export const StyledSearch = styled(Search)({
     maxWidth: 'unset',
   },
 });
+
+
+
+export const StyledNewDao = styled(StyledDao)(({ theme }) => ({
+  ".container": {
+    boxShadow: "none",
+    padding: 50,
+    backgroundColor: "transparent",
+    border:
+      theme.palette.mode === "light"
+        ? "1px dashed rgba(0,0,0 , 0.15)"
+        : "1px dashed rgba(255,255,255, 0.2)",
+    "&:hover": {
+      border: `1px dashed ${theme.palette.primary.main}`,
+    },
+  },
+  p: {
+    textAlign: "center",
+    fontWight: 600,
+    fontSize: 17,
+  },
+  ".flex": {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+  },
+}));

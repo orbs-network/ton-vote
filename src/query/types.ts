@@ -20,8 +20,3 @@ export interface UpdateMetadataArgs {
   daoAddress: string;
 }
 
-export interface UpdateProposalArgs {
-  daoAddress: string;
-  metadata: ProposalMetadata;
-  onSuccess?: () => void;
-}

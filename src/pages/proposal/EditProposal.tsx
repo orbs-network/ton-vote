@@ -45,10 +45,7 @@ export function EditProposal() {
   const update = (values: ProposalFormType) => {
     const metadata = prepareMetadata(values) as ProposalMetadata;
 
-    mutate({
-      metadata,
-      daoAddress: dao!.daoAddress,
-    });
+    mutate(metadata);
   };
 
   if (!proposal || !dao) {

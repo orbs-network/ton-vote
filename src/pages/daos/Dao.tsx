@@ -1,5 +1,4 @@
-import { Chip, Typography, useTheme } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
+import { Typography, useTheme } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import {
   AppTooltip,
@@ -8,10 +7,9 @@ import {
   OverflowWithTooltip,
   VerifiedDao,
 } from "components";
-import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import _ from "lodash";
 import { mock } from "mock/mock";
 import { AiFillEyeInvisible } from "react-icons/ai";
-import { BsGlobeAmericas } from "react-icons/bs";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
@@ -20,7 +18,6 @@ import { Dao } from "types";
 import {
   getIsVerifiedDao,
   makeElipsisAddress,
-  nFormatter,
   parseLanguage,
 } from "utils";
 import {
@@ -28,8 +25,17 @@ import {
   StyledDaoAvatar,
   StyledDaoContent,
   StyledHiddenIcon,
-  StyledWebsiteChip,
 } from "./styles";
+
+const parseWesbite = (website: string) => {
+  let value = website.replace("https://", "").replace("www.", "");
+
+  if (_.last(value.split("")) === "/") {
+    value = value.replace("/", "");
+  }
+
+  return value;
+};
 
 export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
@@ -48,7 +54,6 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const mockPrefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
 
   const name = parseLanguage(metadataArgs?.name) || "";
-  const website = dao.daoMetadata.metadataArgs.website;
 
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
@@ -70,31 +75,32 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
               <TextOverflow text={`${name}${mockPrefix}`} />
             </Typography>
             <Address dao={dao} />
-            {getIsVerifiedDao(dao.daoAddress) && website && (
-              <button
-                className="website"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(website, "_blank");
-                }}
-              >
-                <StyledWebsiteChip
-                  label={
-                    <StyledFlexRow>
-                      <OverflowWithTooltip text={website} />
-                      <BsGlobeAmericas style={{minWidth: 15, minHeight: 15}} />
-                    </StyledFlexRow>
-                  }
-                />
-              </button>
-            )}
           </StyledFlexColumn>
         ) : null}
+        <Website dao={dao} />
       </StyledDaoContent>
     </StyledDao>
   );
 };
 
+const Website = ({ dao }: { dao: Dao }) => {
+  const website = dao.daoMetadata.metadataArgs.website;
+
+  if (getIsVerifiedDao(dao.daoAddress) && website) {
+    return (
+      <button
+        className="website"
+        onClick={(e) => {
+          e.stopPropagation();
+          window.open(website, "_blank");
+        }}
+      >
+        <OverflowWithTooltip text={parseWesbite(website)} />
+      </button>
+    );
+  }
+  return null;
+};
 
 const Address = ({ dao }: { dao: Dao }) => {
   const metadataArgs = dao.daoMetadata?.metadataArgs;

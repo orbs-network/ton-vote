@@ -36,6 +36,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <App />
     </TonConnectUIProvider>
 
-    <ReactQueryDevtools />
+    {/* <ReactQueryDevtools /> */}
   </QueryClientProvider>
 );

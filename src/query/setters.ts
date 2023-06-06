@@ -39,11 +39,11 @@ import {
   CreateDaoArgs,
   CreateMetadataArgs,
   UpdateMetadataArgs,
-  UpdateProposalArgs,
 } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
 import { ProposalStatus } from "types";
+import { useAppNavigation } from "router/navigation";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -533,14 +533,15 @@ export const useUpdateProposalMutation = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
   const { setProposalUpdateMillis } = useSyncStore();
-  const { proposalAddress } = useAppParams();
+  const { proposalAddress, daoAddress } = useAppParams();
 
   const getProposalStatus = useGetProposalStatusCallback();
 
   const { refetch } = useProposalQuery(proposalAddress);
+  const { proposalPage } = useAppNavigation();
 
   return useMutation(
-    async (args: UpdateProposalArgs) => {
+    async (metadata: ProposalMetadata) => {
       const proposalQuery = await refetch();
       const { proposalStatus } = getProposalStatus(
         proposalQuery.data?.metadata!
@@ -559,15 +560,16 @@ export const useUpdateProposalMutation = () => {
         sender,
         client,
         TX_FEES.FORWARD_MSG.toString(),
-        args.daoAddress,
+        daoAddress,
         proposalAddress,
-        args.metadata
+        metadata
       );
     },
     {
       onSuccess: () => {
         showSuccessToast("Proposal updated");
         setProposalUpdateMillis(proposalAddress);
+        proposalPage.root(daoAddress, proposalAddress);
       },
       onError: (error: Error) => {
         errorToast(error);

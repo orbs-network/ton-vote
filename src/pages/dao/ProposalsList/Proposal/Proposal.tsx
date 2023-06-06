@@ -1,9 +1,10 @@
-import { styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { Status, AppTooltip } from "components";
 import {
   useAppParams,
   useAppQueryParams,
   useProposalStatus,
+  useRole,
 } from "hooks";
 import _ from "lodash";
 import { useAppNavigation } from "router/navigation";
@@ -19,19 +20,25 @@ import {
   StyledProposal,
   StyledProposalTitle,
 } from "../styles";
-import { useProposalQuery } from "query/getters";
+import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
 import { useMemo } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { ProposalTimeline } from "./ProposalTimeline";
 import { Results } from "./Results";
+import { AiFillEyeInvisible, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const useHideProposal = (
   proposalAddress: string,
+  daoAddress: string,
   proposal?: ProposalType | null,
   status?: ProposalStatus | null
 ) => {
   const { query } = useAppQueryParams();
+
+  const { data: dao } = useDaoQuery(daoAddress);
+
+  const { isProposalPublisher, isOwner } = useRole(dao?.daoRoles);
 
   const title = proposal?.metadata?.title.toLowerCase();
   const description = proposal?.metadata?.description.toLowerCase();
@@ -51,16 +58,20 @@ const useHideProposal = (
     return true;
   }
 
-  return false;
+  if (!proposal?.metadata?.hide) {
+    return false;
+  }
+
+  if (!isProposalPublisher || !isOwner) {
+    return true;
+  }
+
+  return false
 };
 
-export const Proposal = ({
-  proposalAddress,
-}: {
-  proposalAddress: string;
-}) => {
+export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
   const { proposalPage } = useAppNavigation();
-  const {daoAddress} = useAppParams();
+  const { daoAddress } = useAppParams();
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
 
@@ -76,10 +87,10 @@ export const Proposal = ({
   );
   const hideProposal = useHideProposal(
     proposalAddress,
+    daoAddress,
     proposal,
     proposalStatus
   );
-
 
   const description = useMemo(
     () => parseLanguage(proposal?.metadata?.description, "en"),
@@ -96,58 +107,82 @@ export const Proposal = ({
     }
   };
 
-  if (error) {
-    return null
+  if (error || hideProposal) {
+    return null;
   }
-    return (
-      <div onClick={onClick} ref={ref} style={{ width: "100%" }}>
-        {isLoading ? (
-          <ProposalLoader />
-        ) : hideProposal || !proposal ? null : (
-          <StyledProposal>
-            <StyledFlexColumn alignItems="flex-start" gap={20}>
-              <StyledFlexRow justifyContent="space-between">
-                <AppTooltip text="Proposal address" placement="right">
-                  <StyledProposalAddress
-                    address={proposalAddress}
-                    padding={10}
-                  />
-                </AppTooltip>
+  return (
+    <div onClick={onClick} ref={ref} style={{ width: "100%" }}>
+      {isLoading ? (
+        <ProposalLoader />
+      ) : !proposal ? null : (
+        <StyledProposal>
+          <StyledFlexColumn alignItems="flex-start" gap={20}>
+            <StyledFlexRow justifyContent="space-between">
+              <AppTooltip text="Proposal address" placement="right">
+                <StyledProposalAddress address={proposalAddress} padding={10} />
+              </AppTooltip>
+              <StyledFlexRow style={{ width: "auto" }} gap={15}>
+                <HiddenIndicator proposal={proposal} />
                 <Status status={proposalStatusText} />
               </StyledFlexRow>
+            </StyledFlexRow>
 
-              <StyledFlexColumn alignItems="flex-start">
-                <StyledProposalTitle variant="h4">
-                  {title}
-                  {mock.isMockProposal(proposalAddress) && <small style={{ opacity: 0.5 }}> (Mock)</small>}
-                </StyledProposalTitle>
-                <StyledMarkdown
-                  sx={{
-                    display: "-webkit-box",
-                    overflow: "hidden",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 3,
-                  }}
-                >
-                  {removeMd(description || "", {
-                    useImgAltText: true,
-                  })}
-                </StyledMarkdown>
-              </StyledFlexColumn>
-
-              {proposalStatus === ProposalStatus.CLOSED && proposal && (
-                <Results proposalQuery={proposalQuery} />
-              )}
-              <ProposalTimeline
-                proposalMetadata={proposal?.metadata}
-                status={proposalStatus}
-              />
+            <StyledFlexColumn alignItems="flex-start">
+              <StyledProposalTitle variant="h4">
+                {title}
+                {mock.isMockProposal(proposalAddress) && (
+                  <small style={{ opacity: 0.5 }}> (Mock)</small>
+                )}
+              </StyledProposalTitle>
+              <StyledMarkdown
+                sx={{
+                  display: "-webkit-box",
+                  overflow: "hidden",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 3,
+                }}
+              >
+                {removeMd(description || "", {
+                  useImgAltText: true,
+                })}
+              </StyledMarkdown>
             </StyledFlexColumn>
-          </StyledProposal>
-        )}
-      </div>
-    );
+
+            {proposalStatus === ProposalStatus.CLOSED && proposal && (
+              <Results proposalQuery={proposalQuery} />
+            )}
+            <ProposalTimeline
+              proposalMetadata={proposal?.metadata}
+              status={proposalStatus}
+            />
+          </StyledFlexColumn>
+        </StyledProposal>
+      )}
+    </div>
+  );
 };
+
+const HiddenIndicator = ({ proposal }: { proposal: ProposalType }) => {
+  if (!proposal.metadata?.hide) {
+    return null;
+  }
+  return (
+    <StyledHiddenProposal>
+      <AppTooltip text="This proposal is hidden">
+        <AiFillEyeInvisible />
+      </AppTooltip>
+    </StyledHiddenProposal>
+  );
+};
+
+const StyledHiddenProposal = styled(Box)(({ theme }) => ({
+  width: 25,
+  height: 25,
+  svg: {
+    width: "100%",
+    height: "100%",
+  },
+}));
 
 const StyledProposalAddress = styled(StyledAddressDisplay)({
   opacity: 0.7,

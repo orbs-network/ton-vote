@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { IconButton, styled, useTheme, useThemeProps } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
@@ -13,13 +13,13 @@ import { appNavigation, useAppNavigation } from "router/navigation";
 import { StyledFlexColumn } from "styles";
 import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
-
+import { IoHelpSharp } from "react-icons/io5";
 export function Toolbar() {
   const navigation = useAppNavigation();
   const translations = useDaosPageTranslations();
   const devFeatures = useDevFeatures();
   const mobile = useMobile();
-
+  const theme = useTheme();
   if (mobile) return null;
 
   return (
@@ -28,7 +28,11 @@ export function Toolbar() {
         <DevParametersModal />
         <AppTooltip text={translations.createDao} placement="right">
           <StyledButton
-            onClick={ () => devFeatures ?  navigation.createSpace.root() :  window.open(TELEGRAM_SUPPORT_GROUP, '_blank')}
+            onClick={() =>
+              devFeatures
+                ? navigation.createSpace.root()
+                : window.open(TELEGRAM_SUPPORT_GROUP, "_blank")
+            }
             variant="transparent"
           >
             <AiOutlinePlus />
@@ -36,9 +40,25 @@ export function Toolbar() {
         </AppTooltip>
       </StyledFlexColumn>
       <UserDaos />
+      <StyledSupportTooltip placement="right" text="Telegram support group">
+        <StyledSupport
+          variant="transparent"
+          onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_target")}
+        >
+          <IoHelpSharp
+            style={{ width: 30, height: 30, color: theme.palette.primary.main }}
+          />
+        </StyledSupport>
+      </StyledSupportTooltip>
     </StyledToolbar>
   );
 }
+
+const StyledSupportTooltip = styled(AppTooltip)({
+  marginTop: "auto",
+  cursor: "pointer",
+  marginBottom: 20,
+});
 
 const StyledButton = styled(Button)({
   borderRadius: "50%",
@@ -54,7 +74,8 @@ const StyledButton = styled(Button)({
     height: 20,
   },
 });
-
+const StyledSupport = styled(StyledButton)({
+});
 const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
   width: TOOLBAR_WIDTH,
   height: "100%",
