@@ -70,7 +70,9 @@ export const useDaoMetadataInputs = (): InputArgs<DaoMetadataForm>[] => {
   ];
 };
 
-export const useDaoRolesInputs = (EndAdornment?: any): InputArgs<DaoRolesForm>[] => {
+export const useDaoRolesInputs = (
+  EndAdornment?: any
+): InputArgs<DaoRolesForm>[] => {
   const translations = useCreateDaoTranslations();
 
   return [
@@ -119,6 +121,7 @@ export const useDaoMetadataSchema = () => {
       }
     ),
     avatar: Yup.string()
+      .trim()
       .url(commonTranslations.isInvalid(createDaoTranslations.logoURL))
       .required(commonTranslations.isRequired(createDaoTranslations.logoURL))
       .test("", createDaoTranslations.errors.logoURL1, (value) => {
@@ -128,37 +131,43 @@ export const useDaoMetadataSchema = () => {
         return value.endsWith(".png");
       }),
 
-    dns: Yup.string().test("", createDaoTranslations.errors.tonDNS, (value) => {
-      return !value ? true : value?.endsWith(".ton") && value?.length > 4;
-    }),
+    dns: Yup.string()
+      .trim()
+      .test("", createDaoTranslations.errors.tonDNS, (value) => {
+        return !value ? true : value?.endsWith(".ton") && value?.length > 4;
+      }),
 
-    github: Yup.string().test(
-      "",
-      commonTranslations.isInvalid(createDaoTranslations.github),
-      (value) => {
-        return value ? value.includes("github") : true;
-      }
-    ),
-    telegram: Yup.string().test(
-      "",
-      createDaoTranslations.errors.telegram,
-      (value) => {
+    github: Yup.string()
+      .trim()
+      .test(
+        "",
+        commonTranslations.isInvalid(createDaoTranslations.github),
+        (value) => {
+          return value ? value.includes("github") : true;
+        }
+      ),
+    telegram: Yup.string()
+      .trim()
+      .test("", createDaoTranslations.errors.telegram, (value) => {
         return !value ? true : value.startsWith("https://t.me");
-      }
-    ),
-    website: Yup.string().url(
-      commonTranslations.isInvalid(createDaoTranslations.website)
-    ),
-    jetton: Yup.string().test(
-      "address",
-      commonTranslations.isInvalid(createDaoTranslations.jetton),
-      validateAddress
-    ),
-    nft: Yup.string().test(
-      "address",
-      commonTranslations.isInvalid(createDaoTranslations.nft),
-      validateAddress
-    ),
+      }),
+    website: Yup.string()
+      .trim()
+      .url(commonTranslations.isInvalid(createDaoTranslations.website)),
+    jetton: Yup.string()
+      .trim()
+      .test(
+        "address",
+        commonTranslations.isInvalid(createDaoTranslations.jetton),
+        validateAddress
+      ),
+    nft: Yup.string()
+      .trim()
+      .test(
+        "address",
+        commonTranslations.isInvalid(createDaoTranslations.nft),
+        validateAddress
+      ),
   });
 };
 

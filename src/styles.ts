@@ -208,7 +208,6 @@ export const StyledHoverContainer = styled(StyledContainer)(({ theme }) => {
     },
     "&:hover": {
       border: `1px solid ${color}`,
-      
     },
   };
 });

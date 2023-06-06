@@ -37,8 +37,6 @@ const useCreateDao = () => {
       onSuccess: (address: string) => {
         appNavigation.daoPage.root(address);
         addDao(address);
-        // setCreateDaoSuccessModal(true);
-        // setDaoAddress(address);
         reset();
       },
     }),
