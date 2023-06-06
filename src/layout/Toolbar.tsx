@@ -30,7 +30,7 @@ export function Toolbar() {
           text={
             devFeatures
               ? translations.createDao
-              : `${translations.createDao} (comming soon)`
+              : `${translations.createDao} (coming soon)`
           }
           placement="right"
         >
