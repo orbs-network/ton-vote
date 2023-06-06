@@ -6,9 +6,11 @@ import { useCreateProposalQuery } from "query/setters";
 import { useNewDataStore } from "store";
 import { LayoutSection } from "../components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
-import { ProposalForm as ProposalFormType } from "types";
+import { ProposalForm as ProposalFormType, ProposalHidePopupVariant } from "types";
 import { prepareMetadata } from "forms/proposal-form/utils";
 import { useDaoQuery } from "query/getters";
+import ProposalHidePopup from "forms/proposal-form/ProposalHidePopup";
+import { useState } from "react";
 
 export const CreateProposal = () => {
   const { daoAddress } = useAppParams();
@@ -34,6 +36,7 @@ export const CreateProposal = () => {
 
   return (
     <LayoutSection title="Create proposal" isLoading={daoLoading}>
+      
       <ProposalForm
         submitText="Create"
         initialFormData={formData}

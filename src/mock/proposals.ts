@@ -32,6 +32,7 @@ const total = _.reduce(votingPower, (sum, n) => sum + n, 0);
 const defaultProposal = {
   daoAddress: "EQCh4ksBLF4bHmqPqzZT9AlnKgh49luRGqhpVdm3dZ0m1XTN",
   metadata: {
+    hide: false,
     quorum: "",
     id: 0,
     proposalDeployer: "EQAoNPahsAn7qra-u1489Wd8zgs4SDmReXNscv3Iu4cjYBBf",

@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
-import { IS_DEV } from "config";
+import { IS_DEV, TELEGRAM_SUPPORT_GROUP } from "config";
 import { TOOLBAR_WIDTH } from "consts";
 import { useDevFeatures, useMobile, useRole } from "hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
@@ -17,7 +17,7 @@ import { parseLanguage } from "utils";
 export function Toolbar() {
   const navigation = useAppNavigation();
   const translations = useDaosPageTranslations();
-  const devFeatures = useDevFeatures()
+  const devFeatures = useDevFeatures();
   const mobile = useMobile();
 
   if (mobile) return null;
@@ -26,17 +26,9 @@ export function Toolbar() {
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
-        <AppTooltip
-          text={
-            devFeatures
-              ? translations.createDao
-              : `${translations.createDao} (comming soon)`
-          }
-          placement="right"
-        >
+        <AppTooltip text={translations.createDao} placement="right">
           <StyledButton
-            disabled={!devFeatures}
-            onClick={devFeatures ? navigation.createSpace.root : () => {}}
+            onClick={ () => devFeatures ?  navigation.createSpace.root() :  window.open(TELEGRAM_SUPPORT_GROUP, '_blank')}
             variant="transparent"
           >
             <AiOutlinePlus />
@@ -69,8 +61,7 @@ const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
   background: theme.palette.background.paper,
   position: "fixed",
   left: 0,
-  borderRight: `0.5px solid ${
-    getBorderColor(theme.palette.mode)}`,
+  borderRight: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
   zIndex: 30,
   top: 0,
   justifyContent: "flex-start",
@@ -94,9 +85,9 @@ const UserDaos = () => {
     <StyledUserDaos>
       {daos &&
         daos?.map((dao) => {
-          const {isOwner, isProposalPublisher} = getRole(dao.daoRoles);
-          
-          if ((isOwner || isProposalPublisher)) {
+          const { isOwner, isProposalPublisher } = getRole(dao.daoRoles);
+
+          if (isOwner || isProposalPublisher) {
             const selected = daoId === dao.daoAddress;
             return (
               <StyledLink

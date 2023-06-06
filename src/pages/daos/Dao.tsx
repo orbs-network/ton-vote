@@ -81,10 +81,8 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
                 <StyledWebsiteChip
                   label={
                     <StyledFlexRow>
-                      <Typography>
-                        <TextOverflow text="Project website" />
-                      </Typography>
-                      <BsGlobeAmericas />
+                      <OverflowWithTooltip text={website} />
+                      <BsGlobeAmericas style={{minWidth: 15, minHeight: 15}} />
                     </StyledFlexRow>
                   }
                 />
@@ -97,9 +95,6 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   );
 };
 
-const useJoinDao = () => {
-  return useMutation(async () => {});
-};
 
 const Address = ({ dao }: { dao: Dao }) => {
   const metadataArgs = dao.daoMetadata?.metadataArgs;

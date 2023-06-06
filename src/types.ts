@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { FormikProps } from "formik";
-import { FunctionComponent, ReactElement, ReactNode } from "react";
+import { CSSProperties, FunctionComponent, ReactElement, ReactNode } from "react";
 import { Address, Transaction } from "ton";
 import {
   DaoRoles,
@@ -93,6 +93,7 @@ export type InputType =
   | "list"
   | "custom"
   | "number"
+  | 'display-text'
 
 export interface InputArgs<T> {
   label: string;
@@ -113,7 +114,8 @@ export interface InputArgs<T> {
   prefix?: string;
   suffix?: string;
   EndAdornment?: FormikInputEndAdorment<T>;
-
+  text?: string;
+  style?: CSSProperties;
 }
 
 export type FormikInputEndAdorment<T> = FunctionComponent<{
@@ -190,7 +192,7 @@ export interface ProposalForm {
   description_ru?: string;
   title_en?: string;
   votingSystemType: number;
-
+  hide: boolean;
 }
 
 export type ProposalInputArgs = InputArgs<ProposalForm>;
@@ -200,3 +202,6 @@ export interface StrategyOption<T> {
   args?: InputArgs<T>[];
 }
 
+
+
+export type ProposalHidePopupVariant = "hide" | "changed-to-hide" | "changed-to-show" | undefined;

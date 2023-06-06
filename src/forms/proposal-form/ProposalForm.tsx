@@ -1,16 +1,24 @@
 import { Box, Fade, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { Button, ConnectButton, FormikInputsForm } from "components";
+import { AppTooltip, Button, ConnectButton, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDebouncedCallback } from "hooks";
+import _ from "lodash";
 import { mock } from "mock/mock";
-import {  useDaoStateQuery } from "query/getters";
-import { useEffect } from "react";
+import { useDaoStateQuery } from "query/getters";
+import { useEffect, useMemo, useState } from "react";
 import { StyledFlexRow } from "styles";
 import { errorToast } from "toasts";
-import { Dao, ProposalForm as ProposalFormType, ProposalInputArgs } from "types";
+import {
+  Dao,
+  ProposalForm as ProposalFormType,
+  ProposalHidePopupVariant,
+  ProposalInputArgs,
+  ProposalStatus,
+} from "types";
 import { validateFormik } from "utils";
 import { useCreateProposalForm } from "./inputs";
+import ProposalHidePopup from "./ProposalHidePopup";
 import { StrategySelect } from "./StrategySelect";
 import { getInitialValues } from "./utils";
 import { useFormSchema } from "./validation";
@@ -23,6 +31,7 @@ export function ProposalForm({
   dao,
   editMode = false,
   submitText,
+  status,
 }: {
   onSubmit: (values: ProposalFormType) => void;
   isLoading: boolean;
@@ -31,8 +40,9 @@ export function ProposalForm({
   dao: Dao;
   editMode?: boolean;
   submitText: string;
+  status?: ProposalStatus;
 }) {
-  const form = useCreateProposalForm(initialFormData);
+  const form = useCreateProposalForm(initialFormData, editMode, status);
   const daoState = useDaoStateQuery(dao.daoAddress).data;
   const FormSchema = useFormSchema();
 
@@ -44,7 +54,7 @@ export function ProposalForm({
     validateOnBlur: true,
   });
   const customInputHandler = useCustomInputHandler(formik);
-
+  const [variant, setVariant] = useState<ProposalHidePopupVariant>();
   const saveForm = useDebouncedCallback(() => {
     persistForm?.(formik.values);
   });
@@ -53,29 +63,63 @@ export function ProposalForm({
     saveForm();
   }, [formik.values]);
 
-  const onSubmitClick = () => {
+  const onSubmitClick = async () => {
+    const hide = formik.values.hide;
+    const prevHide = initialFormData.hide;
+
+    const errors = await formik.validateForm(formik.values);
+    if (!_.isEmpty(errors)) {
+      validateFormik(formik);
+      return;
+    }
+
     if (mock.isMockDao(dao.daoAddress)) {
       errorToast("This is a mock DAO. You cannot create/edit proposals.");
+      return;
+    }
+
+    if (!editMode && hide) {
+      setVariant("hide");
+    } else if (editMode && hide && !prevHide) {
+      setVariant("changed-to-hide");
+    } else if (editMode && !hide && prevHide) {
+      setVariant("changed-to-show");
     } else {
       formik.submitForm();
-      validateFormik(formik);
     }
   };
+
+  const onPopupSubmit = () => {
+    setVariant(undefined);
+    formik.submitForm();
+  };
+
+  
+  const disableButton = !editMode
+    ? false
+    : _.isEqual(formik.values, formik.initialValues);
 
   return (
     <Fade in={true}>
       <StyledContainer alignItems="flex-start">
         <FormikInputsForm<ProposalFormType>
           formik={formik}
-          form={editMode ? form[0] : form}
+          form={form}
           customInputHandler={customInputHandler}
         >
           <CreateProposalButton
             submitText={submitText}
             isLoading={isLoading || daoState?.fwdMsgFee === undefined}
             onSubmit={onSubmitClick}
+            disabled={disableButton}
           />
         </FormikInputsForm>
+        <ProposalHidePopup
+          variant={variant}
+          onClose={() => setVariant(undefined)}
+          open={!!variant}
+          onSubmit={onPopupSubmit}
+        />
       </StyledContainer>
     </Fade>
   );
@@ -94,22 +138,30 @@ function CreateProposalButton({
   onSubmit,
   isLoading,
   submitText,
+  disabled
 }: {
   onSubmit?: () => void;
   isLoading: boolean;
   submitText: string;
+  disabled?: boolean;
 }) {
   const address = useTonAddress();
   return (
-    <StyledSubmit>
-      {!address ? (
-        <StyledConnect />
-      ) : (
-        <StyledButton isLoading={isLoading} onClick={onSubmit}>
-          {submitText}
-        </StyledButton>
-      )}
-    </StyledSubmit>
+    <AppTooltip text={disabled ? 'You need to change at least 1 input to proceed.' : ''}>
+      <StyledSubmit>
+        {!address ? (
+          <StyledConnect />
+        ) : (
+          <StyledButton
+            disabled={disabled}
+            isLoading={isLoading}
+            onClick={onSubmit}
+          >
+            {submitText}
+          </StyledButton>
+        )}
+      </StyledSubmit>
+    </AppTooltip>
   );
 }
 
@@ -128,7 +180,6 @@ const StyledConnect = styled(ConnectButton)({
 const StyledButton = styled(Button)({
   width: "100%",
 });
-
 
 const useCustomInputHandler = (formik: FormikProps<ProposalFormType>) => {
   return (args: ProposalInputArgs) => {

@@ -24,7 +24,7 @@ import dayjs from "dayjs";
 import { FormArgs, InputArgs } from "types";
 import { FormikProps } from "formik";
 import { AppTooltip } from "../Tooltip";
-import _ from "lodash";
+import _, { String } from "lodash";
 import { Markdown } from "../Markdown";
 import { AiOutlinePlus } from "react-icons/ai";
 import {
@@ -44,6 +44,7 @@ import {
   StyledUploadImg,
   StyledTitle,
   StyledInputContainer,
+  StyledDisplayText,
 } from "./styles";
 import { TitleContainer } from "components/TitleContainer";
 import { NumericFormat } from "react-number-format";
@@ -248,9 +249,17 @@ export function UploadInput({
   );
 }
 
-const Title = ({ title, required }: { title: string; required?: boolean }) => {
+const Title = ({
+  title,
+  required,
+  className,
+}: {
+  title: string;
+  required?: boolean;
+  className?: string;
+}) => {
   return (
-    <StyledTitle className="input-title">
+    <StyledTitle className={`input-title ${className}`}>
       {title}
       <small className="input-title-required" style={{ fontSize: 14 }}>
         {required ? " (required)" : " (optional)"}
@@ -444,30 +453,42 @@ export function MapInput<T>({
   if (args.type === "custom" && customInputHandler) {
     return customInputHandler(args);
   }
+  if (args.type === "display-text") {
+    return <StyledDisplayText>{args.text}</StyledDisplayText>;
+  }
   return null;
 }
+
+
+
+
+
 
 const CheckboxInput = ({
   title,
   onChange,
   value = false,
   required,
+  tooltip,
 }: {
   title: string;
   onChange: (value: boolean) => void;
   value: boolean;
   required?: boolean;
+  tooltip?: string;
 }) => {
   return (
     <StycheckBoxInput justifyContent="flex-start" gap={2}>
       <Checkbox checked={value} onChange={() => onChange(!value)} />
       {title && <StyledCheckBoxTitle title={title} required={required} />}
+      {tooltip && <AppTooltip placement="right" info markdown={tooltip} />}
     </StycheckBoxInput>
   );
 };
 
 const StyledCheckBoxTitle = styled(Title)({
   width: "unset",
+  marginRight: 10
 });
 
 const StycheckBoxInput = styled(StyledFlexRow)({});
@@ -607,7 +628,9 @@ export function FormikInputsForm<T>({
                       key={input.name}
                       className="form-input"
                       style={{
-                        width: mobile ? '100%' :  it.inputsInRow
+                        width:input.style?.width ||  mobile
+                          ? "100%"
+                          : it.inputsInRow
                           ? `calc(${100 / it.inputsInRow}% - ${
                               it.inputsInRow * 7
                             }px)`

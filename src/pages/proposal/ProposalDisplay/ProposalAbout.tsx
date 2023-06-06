@@ -230,6 +230,8 @@ const StyledLink = styled(Link)({
 });
 
 const StyledDaoImg = styled(Img)({
+  minWidth: 30,
+  minHeight: 30,
   width: 30,
   height: 30,
   borderRadius: "50%",

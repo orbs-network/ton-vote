@@ -197,3 +197,9 @@ export const StyledDatepicker = styled(StyledContainer)<{ error: number }>(
     },
   })
 );
+
+
+export const StyledDisplayText = styled(Typography)({
+  fontSize: 16,
+  fontWeight: 500
+});

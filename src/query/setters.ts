@@ -539,8 +539,7 @@ export const useUpdateProposalMutation = () => {
         TX_FEES.FORWARD_MSG.toString(),
         args.daoAddress,
         args.proposalAddr,
-        args.title,
-        args.description
+        {} as any
       );
     },
     {

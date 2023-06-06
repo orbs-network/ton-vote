@@ -103,5 +103,5 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
 };
 
 
-export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup";
+export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
 export const PROD_TEST_DAOS: string[] = []

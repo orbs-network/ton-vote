@@ -110,7 +110,7 @@ const NewDao = () => {
     <StyledNewDao onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, '_blank')}>
       <StyledDaoContent hover>
         <StyledFlexColumn className="flex">
-          <Typography>Create a space for your DAO</Typography>
+          <Typography>Create a new space for your DAO</Typography>
         </StyledFlexColumn>
       </StyledDaoContent>
     </StyledNewDao>

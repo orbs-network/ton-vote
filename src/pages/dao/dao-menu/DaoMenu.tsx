@@ -269,8 +269,8 @@ const useNavigationLinks = () => {
 
 const options = [
   { name: "website", title: "Project website" },
-  { name: "github", title: "GitHub" },
   { name: "telegram", title: "Telegram group" },
+  { name: "github", title: "GitHub" },
 ];
 const useDaoSocials = () => {
   const { daoAddress } = useAppParams();

@@ -37,6 +37,7 @@ export const getInitialValues = (
       formData.votingPowerStrategies,
       dao
     ),
+    hide: formData.hide || false,
   };
 };
 
@@ -157,5 +158,6 @@ export const prepareMetadata = (
     description: JSON.stringify({ en: formValues.description_en }),
     votingPowerStrategies: formValues.votingPowerStrategies,
     quorum: "",
+    hide: formValues.hide,
   };
 };

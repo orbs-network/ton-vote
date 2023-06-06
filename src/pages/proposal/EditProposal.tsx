@@ -18,6 +18,9 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
     return {} as ProposalFormType;
   }
 
+  console.log(metadata);
+  
+
   return {
     title_en: JSON.parse(metadata.title).en,
     description_en: JSON.parse(metadata.description).en,
@@ -26,6 +29,7 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
     proposalSnapshotTime: metadata.proposalSnapshotTime * 1000,
     votingSystemType: metadata.votingSystem.votingSystemType,
     votingPowerStrategies: metadata.votingPowerStrategies,
+    hide: metadata.hide,
   } as ProposalFormType;
 };
 
@@ -78,8 +82,9 @@ export function EditProposal() {
         initialFormData={parseMetadata(proposal?.metadata)}
         onSubmit={update}
         isLoading={isLoading}
-        dao={dao!}
+        dao={dao}
         editMode={true}
+        status={proposalStatus || undefined}
       />
     </Container>
   );
