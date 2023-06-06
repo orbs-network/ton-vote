@@ -37,6 +37,7 @@ import {
   getProposalStatus,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
+import { useDaoQuery, useProposalQuery } from "query/getters";
 
 export const useCurrentRoute = () => {
   const location = useLocation();
@@ -327,4 +328,18 @@ export const useAppParams = () => {
     daoAddress: params.daoId as string,
     proposalAddress: params.proposalId as string,
   };
+};
+
+export const useHiddenProposal = (proposalAddress: string) => {
+  const { data: proposal } = useProposalQuery(proposalAddress);
+
+  const { data: dao } = useDaoQuery(proposal?.daoAddress || "");
+  const address = useTonAddress();
+
+  const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
+
+
+  if(!proposal || !dao) return false;
+
+  return !isOwner &&  !isProposalPublisher;
 };

@@ -7,7 +7,12 @@ import { Results } from "./Results";
 import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { appNavigation, useAppNavigation } from "router/navigation";
-import { useAppParams, useDevFeatures, useRole } from "hooks";
+import {
+  useAppParams,
+  useDevFeatures,
+  useHiddenProposal,
+  useRole,
+} from "hooks";
 import { ProposalStatus } from "types";
 import { ProposalAbout } from "./ProposalAbout";
 import { useProposalPageStatus } from "../hooks";
@@ -19,7 +24,7 @@ import { useDaoQuery, useProposalQuery } from "query/getters";
 const gap = 15;
 
 const useComponents = () => {
-  const {proposalAddress} = useAppParams()
+  const { proposalAddress } = useAppParams();
   const isLoading = useProposalQuery(proposalAddress).isLoading;
 
   const { proposalStatus } = useProposalPageStatus();
@@ -89,9 +94,10 @@ const Mobile = () => {
 export function ProposalDisplay() {
   const mobile = useMediaQuery("(max-width:800px)");
   const [showError, setShowError] = useState(false);
-    const { daoAddress, proposalAddress} = useAppParams();
+  const { daoAddress, proposalAddress } = useAppParams();
 
   const error = useProposalQuery(proposalAddress).error;
+  const hideProposal = useHiddenProposal(proposalAddress);
 
   useEffect(() => {
     if (error) {
@@ -104,7 +110,9 @@ export function ProposalDisplay() {
       back={appNavigation.daoPage.root(daoAddress)}
       headerComponent={<EditButton />}
     >
-      {showError ? (
+      {hideProposal ? (
+        <ErrorContainer text="Proposal not found" />
+      ) : showError ? (
         <ErrorContainer text="Proposal not found" />
       ) : mobile ? (
         <Mobile />

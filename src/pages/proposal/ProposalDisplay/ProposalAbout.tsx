@@ -17,6 +17,7 @@ import {
   ShareButton,
   Status,
   OverflowWithTooltip,
+  HiddenProposal,
 } from "components";
 import { makeElipsisAddress, parseLanguage } from "utils";
 import {  useProposalPageStatus } from "../hooks";
@@ -86,11 +87,19 @@ const ProposalHeader = () => {
   const title = parseLanguage(data?.metadata?.title);
 
   return (
-    <>
+    <StyledFlexRow>
       <StyledHeader title={`${title}${mockPrefix}`} />
-    </>
+      {data && <StyledHiddenProposal proposal={data} />}
+    </StyledFlexRow>
   );
 };
+
+const StyledHiddenProposal = styled(HiddenProposal)({
+  position:'absolute',
+  top: 7,
+  right: 7
+});
+
 
 const ShowMoreButton = ({
   onClick,
@@ -286,6 +295,7 @@ const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
 const StyledContainer = styled(Container)({
   width: "100%",
   padding: 30,
+  paddingTop: 40,
   position: "relative",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     padding: 20,

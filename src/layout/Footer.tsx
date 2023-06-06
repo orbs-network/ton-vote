@@ -4,7 +4,6 @@ import { StyledFlexColumn, StyledFlexRow } from 'styles'
 import OrbsLogo from 'assets/orbs.svg'
 import HearLogo from "assets/heart.svg";
 import { AppSocials, Github } from 'components';
-import { ABOUT_URL, TELETGRAM_URL, WHITEPAPER_URL } from 'consts';
 
 export function Footer() {
   return (
@@ -44,7 +43,7 @@ const StyledContainer = styled(StyledFlexColumn)(({ theme }) => ({
   },
   "*": {
     fontWeight: 500,
-    fontSize: 14,
+    fontSize: '14px!important',
   },
   img: {
     width: 12,

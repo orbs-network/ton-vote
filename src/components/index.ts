@@ -34,3 +34,4 @@ export * from "./ErrorContainer";
 export * from "./ShareButton";
 export * from "./OverflowWithTooltip";
 export * from "./VerifiedDao";
+export * from "./HiddenProposal";

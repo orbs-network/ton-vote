@@ -1,5 +1,5 @@
 import { Box, styled } from "@mui/material";
-import { Status, AppTooltip } from "components";
+import { Status, AppTooltip, HiddenProposal } from "components";
 import {
   useAppParams,
   useAppQueryParams,
@@ -26,26 +26,29 @@ import { useMemo } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { ProposalTimeline } from "./ProposalTimeline";
 import { Results } from "./Results";
-import { AiFillEyeInvisible, AiOutlineEyeInvisible } from "react-icons/ai";
 
-const useHideProposal = (
-  proposalAddress: string,
-  daoAddress: string,
-  proposal?: ProposalType | null,
-  status?: ProposalStatus | null
-) => {
+const useHideProposal = (proposalAddress: string) => {
   const { query } = useAppQueryParams();
 
-  const { data: dao } = useDaoQuery(daoAddress);
+  const { data: proposal } = useProposalQuery(proposalAddress);
+  const { data: dao } = useDaoQuery(proposal?.daoAddress || "");
+  
 
-  const { isProposalPublisher, isOwner } = useRole(dao?.daoRoles);
-
+  const { proposalStatus } = useProposalStatus(
+    proposalAddress,
+    proposal?.metadata
+  );
   const title = proposal?.metadata?.title.toLowerCase();
   const description = proposal?.metadata?.description.toLowerCase();
 
-  const filters = [title, description, proposalAddress];
+  const { isProposalPublisher, isOwner } = useRole(dao?.daoRoles);
 
-  if (query.proposalState && query.proposalState !== status) {
+  const filters = useMemo(
+    () => [title, description, proposalAddress],
+    [title, description, proposalAddress]
+  );
+
+  if (query.proposalState && query.proposalState !== proposalStatus) {
     return true;
   }
 
@@ -66,7 +69,7 @@ const useHideProposal = (
     return true;
   }
 
-  return false
+  return false;
 };
 
 export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
@@ -85,12 +88,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
     proposalAddress,
     proposal?.metadata
   );
-  const hideProposal = useHideProposal(
-    proposalAddress,
-    daoAddress,
-    proposal,
-    proposalStatus
-  );
+  const hideProposal = useHideProposal(proposalAddress);
 
   const description = useMemo(
     () => parseLanguage(proposal?.metadata?.description, "en"),
@@ -122,7 +120,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
                 <StyledProposalAddress address={proposalAddress} padding={10} />
               </AppTooltip>
               <StyledFlexRow style={{ width: "auto" }} gap={15}>
-                <HiddenIndicator proposal={proposal} />
+                <HiddenProposal proposal={proposal} />
                 <Status status={proposalStatusText} />
               </StyledFlexRow>
             </StyledFlexRow>
@@ -161,28 +159,6 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
     </div>
   );
 };
-
-const HiddenIndicator = ({ proposal }: { proposal: ProposalType }) => {
-  if (!proposal.metadata?.hide) {
-    return null;
-  }
-  return (
-    <StyledHiddenProposal>
-      <AppTooltip text="This proposal is hidden">
-        <AiFillEyeInvisible />
-      </AppTooltip>
-    </StyledHiddenProposal>
-  );
-};
-
-const StyledHiddenProposal = styled(Box)(({ theme }) => ({
-  width: 25,
-  height: 25,
-  svg: {
-    width: "100%",
-    height: "100%",
-  },
-}));
 
 const StyledProposalAddress = styled(StyledAddressDisplay)({
   opacity: 0.7,
