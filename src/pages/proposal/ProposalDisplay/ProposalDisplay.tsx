@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import { useDaoQuery, useProposalQuery } from "query/getters";
+import { mock } from "mock/mock";
 
 const gap = 15;
 
@@ -105,14 +106,16 @@ export function ProposalDisplay() {
     }
   }, [error]);
 
+  const errorContainer = hideProposal || showError;
+
+  const isMock = mock.isMockProposal(proposalAddress);
+
   return (
     <Page
       back={appNavigation.daoPage.root(daoAddress)}
-      headerComponent={<EditButton />}
+      headerComponent={!isMock && <EditButton />}
     >
-      {hideProposal ? (
-        <ErrorContainer text="Proposal not found" />
-      ) : showError ? (
+      {errorContainer ? (
         <ErrorContainer text="Proposal not found" />
       ) : mobile ? (
         <Mobile />

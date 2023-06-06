@@ -5,8 +5,6 @@ import { Outlet } from "react-router-dom";
 import { useProposalQuery } from "query/getters";
 import { useAppParams } from "hooks";
 
-const gap = 15;
-
 
 const Meta = () => {
   const {proposalAddress} = useAppParams()

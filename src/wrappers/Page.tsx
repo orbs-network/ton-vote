@@ -1,5 +1,6 @@
 import { Fade, styled } from "@mui/material";
 import { Back } from "components";
+import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { PageProps } from "types";
 
@@ -11,6 +12,11 @@ function Page({
   hideBack = false,
   backFunc,
 }: PageProps) {
+
+  useEffect(() => {
+    window.scrollTo(0,0)
+  }, [])
+  
   return (
     <StyledContainer className={className}>
       {!hideBack && (
