@@ -1,4 +1,4 @@
-import { Typography, useTheme } from "@mui/material";
+import { Chip, Typography, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { useTonAddress } from "@tonconnect/ui-react";
 import {
@@ -11,6 +11,7 @@ import {
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { mock } from "mock/mock";
 import { AiFillEyeInvisible } from "react-icons/ai";
+import { BsGlobeAmericas } from "react-icons/bs";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
@@ -27,6 +28,7 @@ import {
   StyledDaoAvatar,
   StyledDaoContent,
   StyledHiddenIcon,
+  StyledWebsiteChip,
 } from "./styles";
 
 export const DaoListItem = ({ dao }: { dao: Dao }) => {
@@ -76,9 +78,16 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
                   window.open(website, "_blank");
                 }}
               >
-                <Typography>
-                  <TextOverflow text={website} />
-                </Typography>
+                <StyledWebsiteChip
+                  label={
+                    <StyledFlexRow>
+                      <Typography>
+                        <TextOverflow text="Project website" />
+                      </Typography>
+                      <BsGlobeAmericas />
+                    </StyledFlexRow>
+                  }
+                />
               </button>
             )}
           </StyledFlexColumn>

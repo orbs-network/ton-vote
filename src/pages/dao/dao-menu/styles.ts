@@ -58,7 +58,7 @@ export const StyledOuterLink = styled('a')(
       height: 43,
       display: "flex",
       alignItems: "center",
-      color: theme.palette.text.primary,
+      color: color,
       fontWeight: 700,
       borderLeft: "5px solid transparent",
       "&:hover": {

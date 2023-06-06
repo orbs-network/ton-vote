@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from "@mui/material";
+import { Box, Chip, styled, Typography } from "@mui/material";
 import { Button, Container, Img, Search } from "components";
 import { MOBILE_WIDTH } from "consts";
 import { StyledFlexRow } from "styles";
@@ -48,7 +48,9 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     cursor:'pointer',
    p: {
      fontSize: 14,
-   }
+     fontWeight: 600,
+   },
+   
     
   },
   ".address-value": {
@@ -98,6 +100,16 @@ export const StyledHeader = styled(StyledFlexRow)({
   },
 });
 
+
+export const StyledWebsiteChip = styled(Chip)(({ theme }) => ({
+  cursor: "pointer",
+  "&:hover": {
+    background: theme.palette.primary.main,
+    "*": {
+      color: "white",
+    },
+  },
+}));
 
 export const StyledDaosList = styled(StyledFlexRow)({
   marginLeft: "auto",

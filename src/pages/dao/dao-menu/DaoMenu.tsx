@@ -11,6 +11,7 @@ import {
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
 import { useDaoFromQueryParam } from "query/getters";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
@@ -269,26 +270,27 @@ const useNavigationLinks = () => {
 };
 
 const options = [
-  { name: "website", title: "Wesbiet" },
-  { name: "github", title: "Github" },
-  { name: "telegram", title: "Telegram" },
+  { name: "website", title: "Project website" },
+  { name: "github", title: "GitHub" },
+  { name: "telegram", title: "Telegram group" },
 ];
 const useDaoSocials = () => {
-  const { data, isLoading } = useDaoFromQueryParam();
+  const { data, isLoading, dataUpdatedAt } = useDaoFromQueryParam();
 
-  if (isLoading) return [];
+  return useMemo(() => {
 
-  return options
-    .map((option) => {
-      const metadata = data?.daoMetadata?.metadataArgs as any;
-      const value = metadata[option.name];
-      if (!value) return null;
-      return {
-        title: option.title,
-        value,
-      };
-    })
-    .filter(Boolean);
+    return options
+      .map((option) => {
+        const metadata = data?.daoMetadata?.metadataArgs as any;
+        const value = metadata[option.name];
+        if (!value) return null;
+        return {
+          title: option.title,
+          value,
+        };
+      })
+      .filter(Boolean);
+  }, [dataUpdatedAt]);
 };
 
 const SocialDesktopLinks = () => {
@@ -297,11 +299,11 @@ const SocialDesktopLinks = () => {
   return (
     <StyleDesktopSocials gap={0}>
       {links.map((link) => {
-       return (
-         <StyledOuterLink key={link?.value} target="_blank" href={link?.value}>
-           {link?.title}
-         </StyledOuterLink>
-       );
+        return (
+          <StyledOuterLink key={link?.value} target="_blank" href={link?.value}>
+            {link?.title}
+          </StyledOuterLink>
+        );
       })}
     </StyleDesktopSocials>
   );

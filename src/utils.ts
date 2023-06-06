@@ -359,6 +359,5 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
 
 
 export const getIsVerifiedDao = (address?: string) => {
-  return true
   return VERIFIED_DAOS.includes(address || '');
 }
