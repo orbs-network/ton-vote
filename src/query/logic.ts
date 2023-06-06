@@ -5,7 +5,11 @@ import { useCurrentRoute } from "hooks";
 import { getDaoFromContract, lib } from "lib/lib";
 import _ from "lodash";
 import { useMemo } from "react";
-import { useNewDataStore, useSyncStore } from "store";
+import {
+  useNewDataStore,
+  useProposalPersistedStore,
+  useSyncStore,
+} from "store";
 import { Transaction } from "ton-core";
 import {
   filterTxByTimestamp,
@@ -171,4 +175,51 @@ export const useDaosQueryConfig = () => {
         route === routes.spaces ? DAOS_PAGE_REFETCH_INTERVAL : undefined,
     };
   }, [route]);
+};
+
+export const useIsProposalPage = () => {
+  return useCurrentRoute() === routes.proposal;
+};
+
+export const useProposalPageLogic = (
+  proposalAddress: string,
+  isCustomEndpoint?: boolean
+) => {
+  const getContractStateCallback = useGetContractState();
+  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
+    useProposalPersistedStore();
+  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
+    useSyncStore();
+
+  return async (signal?: AbortSignal) => {
+    const latestMaxLtAfterTx = !isCustomEndpoint
+      ? getLatestMaxLtAfterTx(proposalAddress!)
+      : undefined;
+
+    if (isCustomEndpoint) {
+      Logger("custom endpoint selected");
+      return getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
+    }
+
+    const isServerUpToDate = await getIsServerUpToDate(
+      getProposalUpdateMillis(proposalAddress)
+    );
+
+    if (!isServerUpToDate) {
+      return getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
+    }
+    removeProposalUpdateMillis(proposalAddress);
+
+    if (latestMaxLtAfterTx) {
+      const serverMaxLt = await api.getMaxLt(proposalAddress!, signal);
+
+      if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
+        Logger(
+          `server maxLt is outdated, fetching from contract, maxLt: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
+        );
+        return getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
+      }
+    }
+    setLatestMaxLtAfterTx(proposalAddress!, undefined);
+  };
 };

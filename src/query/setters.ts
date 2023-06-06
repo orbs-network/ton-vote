@@ -25,6 +25,7 @@ import {
   useDaosQuery,
   useDaoStateQuery,
   useGetClients,
+  useProposalQuery,
   useRegistryStateQuery,
 } from "./getters";
 import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
@@ -37,7 +38,6 @@ import {
 } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
-import { useProposalPageQuery } from "pages/proposal/hooks";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -480,9 +480,12 @@ export const useUpdateDaoMetadataQuery = () => {
 
 export const useVote = () => {
   const getSender = useGetSender();
-  const { refetch } = useProposalPageQuery(true);
-  const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
   const { proposalAddress } = useAppParams();
+
+  const { refetch } = useProposalQuery(proposalAddress, {
+    isCustomEndpoint: true,
+  });
+  const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();

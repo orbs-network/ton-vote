@@ -4,7 +4,7 @@ import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useProposalPageQuery, useWalletVote } from "../hooks";
+import { useWalletVote } from "../hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -13,15 +13,17 @@ import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import _ from "lodash";
 import { useAppParams } from "hooks";
+import { useProposalQuery } from "query/getters";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
   const translations = useProposalPageTranslations();
-  const { data, dataUpdatedAt } = useProposalPageQuery();
+    const { proposalAddress } = useAppParams();
+
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const choices = data?.metadata?.votingSystem.choices;
-  const {proposalAddress} = useAppParams();
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;

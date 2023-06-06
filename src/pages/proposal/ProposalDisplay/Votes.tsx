@@ -29,10 +29,13 @@ import {
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useProposalPageQuery, useWalletVote } from "../hooks";
+import {  useWalletVote } from "../hooks";
+import { useAppParams } from "hooks";
+import { useProposalQuery } from "query/getters";
 
 const ContainerHeader = () => {
-  const { data } = useProposalPageQuery();
+  const {proposalAddress} = useAppParams()
+  const { data } = useProposalQuery(proposalAddress);
 
   const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
@@ -69,9 +72,9 @@ const ContainerHeader = () => {
 };
 
 const ConnectedWalletVote = () => {
-  const address = useTonAddress();
+  const { proposalAddress } = useAppParams();
 
-  const { data, dataUpdatedAt } = useProposalPageQuery();
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
 
 
@@ -102,8 +105,9 @@ export function Votes() {
   const connectedAddress = useTonAddress();
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const translations = useProposalPageTranslations();
+  const { proposalAddress } = useAppParams();
 
-  const { data, isLoading } = useProposalPageQuery();
+  const { data, isLoading } = useProposalQuery(proposalAddress);
 
   const votingPowerStrategy = getVoteStrategyType(
     data?.metadata?.votingPowerStrategies
@@ -171,9 +175,9 @@ const Empty = () => {
 
 const DownloadCSV = () => {
   const translations = useProposalPageTranslations();
+  const { proposalAddress } = useAppParams();
 
-  const theme = useTheme();
-  const { data, dataUpdatedAt } = useProposalPageQuery(false);
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
   const csvData = useMemo(() => {
     const values = _.map(data?.votes, (vote) => {

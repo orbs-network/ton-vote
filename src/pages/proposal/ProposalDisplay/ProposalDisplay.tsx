@@ -10,16 +10,17 @@ import { appNavigation, useAppNavigation } from "router/navigation";
 import { useAppParams, useDevFeatures, useRole } from "hooks";
 import { ProposalStatus } from "types";
 import { ProposalAbout } from "./ProposalAbout";
-import { useProposalPageQuery, useProposalPageStatus } from "../hooks";
+import { useProposalPageStatus } from "../hooks";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { MdOutlineModeEditOutline } from "react-icons/md";
-import { useDaoQuery } from "query/getters";
+import { useDaoQuery, useProposalQuery } from "query/getters";
 
 const gap = 15;
 
 const useComponents = () => {
-  const isLoading = useProposalPageQuery().isLoading;
+  const {proposalAddress} = useAppParams()
+  const isLoading = useProposalQuery(proposalAddress).isLoading;
 
   const { proposalStatus } = useProposalPageStatus();
 
@@ -88,8 +89,9 @@ const Mobile = () => {
 export function ProposalDisplay() {
   const mobile = useMediaQuery("(max-width:800px)");
   const [showError, setShowError] = useState(false);
-  const error = useProposalPageQuery().error;
-  const { daoAddress } = useAppParams();
+    const { daoAddress, proposalAddress} = useAppParams();
+
+  const error = useProposalQuery(proposalAddress).error;
 
   useEffect(() => {
     if (error) {

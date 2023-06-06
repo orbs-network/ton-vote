@@ -2,11 +2,10 @@ import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
 import { useAppParams } from "hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { useConnectedWalletVotingPowerQuery } from "query/getters";
+import { useConnectedWalletVotingPowerQuery, useProposalQuery } from "query/getters";
 import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getSymbol, getVoteStrategyType } from "utils";
-import { useProposalPageQuery } from "../hooks";
 
 interface Props {
   open: boolean;
@@ -18,8 +17,8 @@ interface Props {
 export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const translations = useProposalPageTranslations();
 
-  const { data } = useProposalPageQuery();
   const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
 
   const {
     data: votingData,

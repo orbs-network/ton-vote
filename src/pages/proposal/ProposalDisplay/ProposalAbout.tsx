@@ -19,16 +19,17 @@ import {
   OverflowWithTooltip,
 } from "components";
 import { makeElipsisAddress, parseLanguage } from "utils";
-import { useProposalPageQuery, useProposalPageStatus } from "../hooks";
+import {  useProposalPageStatus } from "../hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
-import { useDaoQuery } from "query/getters";
+import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
 
 const MIN_DESCRIPTION_HEIGHT = 200;
 
 export const ProposalAbout = () => {
-  const { isLoading } = useProposalPageQuery(false);
+  const {proposalAddress} = useAppParams()
+  const { isLoading } = useProposalQuery(proposalAddress);
   const mobile = useMobile();
 
   if (isLoading) {
@@ -78,7 +79,7 @@ function MobileAbout() {
 
 const ProposalHeader = () => {
   const { proposalAddress } = useAppParams();
-  const data = useProposalPageQuery(false).data;
+  const data = useProposalQuery(proposalAddress).data;
 
   const mockPrefix = mock.isMockProposal(proposalAddress) ? " (Mock)" : "";
 
@@ -117,7 +118,8 @@ const ShowMoreButton = ({
 const Description = () => {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const elRef = useRef<any>();
-  const { data, isLoading } = useProposalPageQuery(false);
+  const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
   const [showMore, setShowMore] = useState(false);
 
   useLayoutEffect(() => {

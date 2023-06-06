@@ -4,7 +4,7 @@ import { ProposalForm } from "forms/proposal-form/ProposalForm";
 import { prepareMetadata } from "forms/proposal-form/utils";
 import { useAppParams, useProposalStatus } from "hooks";
 import moment from "moment";
-import { useDaoQuery } from "query/getters";
+import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useUpdateProposalMutation } from "query/setters";
 import React, { ReactNode } from "react";
 import { appNavigation } from "router/navigation";
@@ -12,7 +12,6 @@ import { StyledContainer, StyledFlexColumn } from "styles";
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import { ProposalForm as ProposalFormType, ProposalStatus } from "types";
 import { Page } from "wrappers";
-import { useProposalPageQuery } from "./hooks";
 
 const parseMetadata = (metadata?: ProposalMetadata) => {
   if (!metadata) {
@@ -35,7 +34,7 @@ export function EditProposal() {
   const { data: dao } = useDaoQuery(daoAddress);
   const { proposalAddress } = useAppParams();
 
-  const { data: proposal } = useProposalPageQuery();
+  const { data: proposal } = useProposalQuery(proposalAddress);
   const { proposalStatus } = useProposalStatus(
     proposalAddress,
     proposal?.metadata

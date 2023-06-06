@@ -7,8 +7,8 @@ import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { getStrategyArgument, getVoteStrategyType } from "utils";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useProposalPageQuery } from "../hooks";
 import { useAppParams } from "hooks";
+import { useProposalQuery } from "query/getters";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {  
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -16,7 +16,7 @@ const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
 
 export const Metadata = () => {
   const {proposalAddress} = useAppParams();
-  const { isLoading, data } = useProposalPageQuery();
+  const { isLoading, data } = useProposalQuery(proposalAddress);
   const translations = useProposalPageTranslations();
   const proposalMetadata = data?.metadata;
   const votingPowerStrategies = data?.metadata?.votingPowerStrategies;

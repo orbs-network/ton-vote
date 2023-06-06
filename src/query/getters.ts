@@ -21,7 +21,7 @@ import {
   FOUNDATION_PROPOSALS,
   FOUNDATION_PROPOSALS_ADDRESSES,
 } from "data/foundation/data";
-import { useSyncStore } from "store";
+import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
 import { lib } from "lib/lib";
 import { api } from "api";
 import { useDevFeatures } from "hooks";
@@ -35,7 +35,9 @@ import {
   useDaosQueryConfig,
   useGetContractState,
   useIsDaosUpToDate,
+  useIsProposalPage,
   useNewDaoAddresses,
+  useProposalPageLogic,
 } from "./logic";
 
 export const useRegistryStateQuery = () => {
@@ -237,13 +239,29 @@ export const useConnectedWalletVotingPowerQuery = (
   );
 };
 
+interface ProposalQueryArgs {
+  disabled?: boolean;
+  isCustomEndpoint?: boolean;
+}
+
 export const useProposalQuery = (
-  proposalAddress?: string,
-  disabled?: boolean
+  proposalAddress: string,
+  args?: ProposalQueryArgs
 ) => {
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
+  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
+    useSyncStore();
   const getContractStateCallback = useGetContractState();
+  const isPropoaslPage = useIsProposalPage();
+  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
+    useProposalPersistedStore();
+  const { isVoting } = useVoteStore();
+
+  const proposalPageExtendedLogic = useProposalPageLogic(
+    proposalAddress,
+    args?.isCustomEndpoint
+  );
 
   return useQuery(
     [QueryKeys.PROPOSAL, proposalAddress],
@@ -259,6 +277,11 @@ export const useProposalQuery = (
       const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
       if (foundationProposal) {
         return foundationProposal;
+      }
+
+      if (isPropoaslPage) {
+        const proposal = await proposalPageExtendedLogic(signal);
+        if (proposal) return proposal;
       }
 
       let proposal;
@@ -279,7 +302,8 @@ export const useProposalQuery = (
         !!proposalAddress &&
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
-        !disabled,
+        !args?.disabled &&
+        !isVoting,
       staleTime: 30_000,
       retry: isWhitelisted ? 3 : false,
       refetchInterval: isWhitelisted ? 30_000 : undefined,

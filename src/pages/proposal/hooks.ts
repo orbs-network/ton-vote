@@ -15,7 +15,7 @@ import { Transaction } from "ton-core";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { errorToast, usePromiseToast } from "toasts";
 import { mock } from "mock/mock";
-import { useGetClients } from "query/getters";
+import { useGetClients, useProposalQuery } from "query/getters";
 import { QueryKeys } from "config";
 import { api } from "api";
 import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
@@ -41,7 +41,7 @@ const handleNulls = (result?: ProposalResults) => {
 
 export const useVerifyProposalResults = () => {
   const { proposalAddress } = useAppParams();
-  const { data } = useProposalPageQuery(false);
+  const { data } = useProposalQuery(proposalAddress);
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations();
 
@@ -107,99 +107,10 @@ export const useVerifyProposalResults = () => {
 };
 
 export const useProposalPageStatus = () => {
-  const { data } = useProposalPageQuery();
   const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
 
   return useProposalStatus(proposalAddress, data?.metadata);
-};
-
-export const useProposalPageQuery = (isCustomEndpoint: boolean = false) => {
-  const { proposalAddress } = useAppParams();
-
-  const isWhitelisted = isProposalWhitelisted(proposalAddress);
-  const clients = useGetClients().data;
-  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
-    useProposalPersistedStore();
-  const getContractStateCallback = useGetContractState();
-  const { isVoting } = useVoteStore();
-
-  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
-    useSyncStore();
-
-  return useQuery(
-    [QueryKeys.PROPOSAL, proposalAddress],
-    async ({ signal }) => {
-      const isMockProposal = mock.getMockProposal(proposalAddress!);
-      if (isMockProposal) {
-        return isMockProposal;
-      }
-      const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
-      if (foundationProposal) {
-        return foundationProposal;
-      }
-
-      if (!isWhitelisted) {
-        throw new Error("Proposal not whitelisted");
-      }
-      const latestMaxLtAfterTx = !isCustomEndpoint
-        ? getLatestMaxLtAfterTx(proposalAddress!)
-        : undefined;
-
-      const contractState = () =>
-        getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
-
-      if (isCustomEndpoint) {
-        Logger("custom endpoint selected");
-        return contractState();
-      }
-
-      const isServerUpToDate = await getIsServerUpToDate(
-        getProposalUpdateMillis(proposalAddress)
-      );
-
-      if (!isServerUpToDate) {
-        return contractState();
-      }
-      removeProposalUpdateMillis(proposalAddress);
-
-      if (latestMaxLtAfterTx) {
-        const serverMaxLt = await api.getMaxLt(proposalAddress!, signal);
-
-        if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-          Logger(
-            `server maxLt is outdated, fetching from contract, maxLt: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
-          );
-          return contractState();
-        }
-      }
-      setLatestMaxLtAfterTx(proposalAddress!, undefined);
-      let proposal;
-      try {
-        proposal = await api.getProposal(proposalAddress!, signal);
-      } catch (error) {
-        proposal = await contractState();
-      }
-      if (_.isEmpty(proposal?.metadata)) {
-        Logger(
-          "proposal page, Proposal not found in server, fetching from contract"
-        );
-
-        return contractState();
-      }
-      Logger(`proposal page, fetching proposal from api ${proposalAddress}`);
-      return proposal;
-    },
-    {
-      enabled:
-        !!proposalAddress &&
-        !!clients?.clientV2 &&
-        !!clients.clientV4 &&
-        !isVoting,
-      staleTime: 10_000,
-      retry: isWhitelisted ? 3 : false,
-      refetchInterval: isWhitelisted ? 30_000 : undefined,
-    }
-  );
 };
 
 export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {

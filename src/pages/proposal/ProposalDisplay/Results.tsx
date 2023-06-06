@@ -14,19 +14,21 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { getSymbol, getVoteStrategyType, nFormatter } from "utils";
 import _ from "lodash";
-import { useProposalPageQuery, useVerifyProposalResults } from "../hooks";
+import {  useVerifyProposalResults } from "../hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import {  useAppParams, useProposalResults } from "hooks";
 import { FOUNDATION_DAO_ADDRESS, FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
+import { useProposalQuery } from "query/getters";
 const LIMIT = 5;
 
 export const Results = () => {
-  const { data, dataUpdatedAt, isLoading } = useProposalPageQuery();
+    const { proposalAddress } = useAppParams();
+
+  const { data, dataUpdatedAt, isLoading } = useProposalQuery(proposalAddress);
   
-  const {proposalAddress} = useAppParams()
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
 

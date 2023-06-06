@@ -64,7 +64,9 @@ export const Proposal = ({
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
 
-  const proposalQuery = useProposalQuery(proposalAddress, !isVisible);
+  const proposalQuery = useProposalQuery(proposalAddress, {
+    disabled: !isVisible,
+  });
 
   const { data: proposal, isLoading, error } = proposalQuery;
 
