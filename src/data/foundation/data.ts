@@ -48,6 +48,7 @@ export const FOUNDATION_PROPOSALS: { [key: string]: Proposal } = {
     url: "https://ton.vote",
     sumCoins: dora.proposalResult.sumCoins,
     sumVotes: dora.proposalResult.sumVotes,
+    rawVotes: {}
   },
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS": {
     daoAddress: FOUNDATION_DAO_ADDRESS,
@@ -70,6 +71,7 @@ export const FOUNDATION_PROPOSALS: { [key: string]: Proposal } = {
       title: "Proposal of TON Tokenomics Optimization",
       description: TOKENOMICS_ABOUT,
     },
+    rawVotes: {},
     votingPower: tokenomics.votingPower,
     votes: tokenomics.votes,
     proposalResult: tokenomics.proposalResults,

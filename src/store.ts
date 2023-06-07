@@ -1,6 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
-import { ThemeType } from "types";
+import { ProposalResult } from "ton-vote-contracts-sdk";
+import { ThemeType, Vote } from "types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -58,7 +59,6 @@ interface SyncStore {
   getProposalUpdateMillis: (proposalAddress: string) => number | undefined;
   setProposalUpdateMillis: (proposalAddress: string) => void;
   removeProposalUpdateMillis: (proposalAddress: string) => void;
-
 }
 
 export const useSyncStore = create(
@@ -113,30 +113,75 @@ export const useSyncStore = create(
   )
 );
 
-interface ProposalPersistedStore {
-  serverUpdateTime?: number;
-  setSrverUpdateTime: (value: number) => void;
+interface VotePersistedStore {
   latestMaxLtAfterTx: { [key: string]: string | undefined };
-  getLatestMaxLtAfterTx: (proposalAddress: string) => string | undefined;
-  setLatestMaxLtAfterTx: (contractAddress: string, value?: string) => void;
+  vote: { [key: string]: Vote | undefined };
+  results: { [key: string]: ProposalResult | undefined };
+
+  getValues: (proposalAddress: string) => {
+    results: ProposalResult | undefined;
+    vote: Vote | undefined;
+    latestMaxLtAfterTx: string | undefined;
+  };
+
+  setValues: (
+    proposalAddress: string,
+    latestMaxLtAfterTx?: string,
+    vote?: Vote,
+    results?: ProposalResult
+  ) => void;
+
+  resetValues: (proposalAddress: string) => void;
 }
 
-export const useProposalPersistedStore = create(
-  persist<ProposalPersistedStore>(
+export const useVotePersistedStore = create(
+  persist<VotePersistedStore>(
     (set, get) => ({
+      vote: {},
+      results: {},
       latestMaxLtAfterTx: {},
-      getLatestMaxLtAfterTx: (proposalAddress) =>
-        get().latestMaxLtAfterTx
-          ? get().latestMaxLtAfterTx[proposalAddress]
-          : undefined,
-      setLatestMaxLtAfterTx: (contractAddress, value) => {
-        const prev = { ...get().latestMaxLtAfterTx, [contractAddress]: value };
+      resetValues: (proposalAddress) => {
         set({
-          latestMaxLtAfterTx: prev,
+          results: _.omitBy(
+            { ...get().results, [proposalAddress]: undefined },
+            _.isUndefined
+          ),
+          latestMaxLtAfterTx: _.omitBy(
+            { ...get().latestMaxLtAfterTx, [proposalAddress]: undefined },
+            _.isUndefined
+          ),
+          vote: _.omitBy(
+            { ...get().vote, [proposalAddress]: undefined },
+            _.isUndefined
+          ),
         });
       },
-      serverUpdateTime: undefined,
-      setSrverUpdateTime: (serverUpdateTime) => set({ serverUpdateTime }),
+      setValues: (proposalAddress, latestMaxLtAfterTx, vote, results) => {
+        set({
+          results: _.omitBy(
+            { ...get().results, [proposalAddress]: results },
+            _.isUndefined
+          ),
+          latestMaxLtAfterTx: _.omitBy(
+            {
+              ...get().latestMaxLtAfterTx,
+              [proposalAddress]: latestMaxLtAfterTx,
+            },
+            _.isUndefined
+          ),
+          vote: _.omitBy(
+            { ...get().vote, [proposalAddress]: vote },
+            _.isUndefined
+          ),
+        });
+      },
+      getValues: (proposalAddress) => {
+        return {
+          results: get().results[proposalAddress],
+          vote: get().vote[proposalAddress],
+          latestMaxLtAfterTx: get().latestMaxLtAfterTx[proposalAddress],
+        };
+      },
     }),
     {
       name: "ton_vote_proposal_persisted_store", // name of the item in the storage (must be unique)

@@ -11,6 +11,7 @@ import {
 import { Dao, Proposal } from "types";
 import { getVoteStrategyType, Logger, parseVotes } from "utils";
 import { api } from "api";
+import retry from "async-retry";
 
 const getProposalFromContract = async (
   clientV2: TonClient,
@@ -27,7 +28,7 @@ const getProposalFromContract = async (
 
   if (!_transactions || _.isEmpty(_transactions)) {
     const result = await getTransactions(clientV2, proposalAddress);
-    
+
     maxLt = result.maxLt;
     transactions = result.allTxns;
   } else {
@@ -64,6 +65,7 @@ const getProposalFromContract = async (
     votes: parseVotes(votes, votingPower),
     metadata,
     maxLt,
+    rawVotes: votes,
   };
 };
 
@@ -83,49 +85,55 @@ export const getDaoFromContract = async (
   daoAddress: string,
   clientV2?: TonClient
 ) => {
-  Logger("Fetching dao from contract");
-  const client = clientV2 || (await getClientV2());
+  const promise = async (bail: any, attempt: number) => {
+    Logger(
+      `Fetching dao from contract, address ${daoAddress}, attempt: ${attempt}`
+    );
+    const client = clientV2 || (await getClientV2());
 
-  const daoState = await TonVoteSDK.getDaoState(client, daoAddress);
-  const metadataArgs = await TonVoteSDK.getDaoMetadata(
-    client,
-    daoState.metadata
-  );
+    const daoState = await TonVoteSDK.getDaoState(client, daoAddress);
 
-  const daoFromContract: Dao = {
-    daoAddress: daoAddress,
-    daoRoles: { owner: daoState.owner, proposalOwner: daoState.proposalOwner },
-    daoMetadata: {
-      metadataAddress: "",
-      metadataArgs,
-    },
-    daoId: daoState.daoIndex,
-    daoProposals:
-      (await TonVoteSDK.getDaoProposals(client, daoAddress))
-        .proposalAddresses || [],
+    const metadataArgs = await TonVoteSDK.getDaoMetadata(
+      client,
+      daoState.metadata
+    );
+
+    const daoFromContract: Dao = {
+      daoAddress: daoAddress,
+      daoRoles: {
+        owner: daoState.owner,
+        proposalOwner: daoState.proposalOwner,
+      },
+      daoMetadata: {
+        metadataAddress: "",
+        metadataArgs,
+      },
+      daoId: daoState.daoIndex,
+      daoProposals:
+        (await TonVoteSDK.getDaoProposals(client, daoAddress))
+          .proposalAddresses || [],
+    };
+    return daoFromContract;
   };
-  return daoFromContract;
+
+  return retry(promise, { retries: 2 });
 };
 
 const getDao = async (
   daoAddress: string,
   fetchFromContract: boolean,
   signal?: AbortSignal
-): Promise<Dao> => {
+): Promise<Dao | undefined> => {
   // return Dao from api if exist
   if (fetchFromContract) {
     return getDaoFromContract(daoAddress);
   }
-  try {
-    Logger(`Fetching dao from api  ${daoAddress}`);
-    const dao = await api.getDao(daoAddress, signal);
-    if (_.isEmpty(dao)) {
-      throw new Error("dao not found");
-    }
-    return dao;
-  } catch (error) {
-    // return Dao from contract
 
+  const dao = await api.getDao(daoAddress, signal);
+
+  if (dao) {
+    return dao;
+  } else {
     return getDaoFromContract(daoAddress);
   }
 };

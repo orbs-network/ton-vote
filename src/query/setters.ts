@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { releaseMode, TX_FEES } from "config";
+import { Updater, useMutation, useQueryClient } from "@tanstack/react-query";
+import { QueryKeys, releaseMode, TX_FEES } from "config";
 import _, { overArgs } from "lodash";
 import {
   daoSetOwner,
@@ -29,21 +29,17 @@ import {
   useDaoQuery,
   useDaosQuery,
   useDaoStateQuery,
-  useGetClients,
   useProposalQuery,
   useRegistryStateQuery,
 } from "./getters";
-import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
+import { useVotePersistedStore, useSyncStore, useVoteStore } from "store";
 import { getTxFee, validateAddress } from "utils";
-import {
-  CreateDaoArgs,
-  CreateMetadataArgs,
-  UpdateMetadataArgs,
-} from "./types";
+import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
-import { ProposalStatus } from "types";
+import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
+import { useVoteSuccessCallback } from "./logic";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -488,16 +484,13 @@ export const useVote = () => {
   const getSender = useGetSender();
   const { proposalAddress } = useAppParams();
 
-  const { refetch } = useProposalQuery(proposalAddress, {
-    isCustomEndpoint: true,
-  });
-  const { setLatestMaxLtAfterTx } = useProposalPersistedStore();
+  const successCallback = useVoteSuccessCallback(proposalAddress);
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
 
   return useMutation(
-    async (vote: string) => {
+    async ({ vote, proposal }: { vote: string; proposal: Proposal }) => {
       setIsVoting(true);
       const sender = getSender();
       const client = await getClientV2();
@@ -510,20 +503,18 @@ export const useVote = () => {
         vote
       );
 
-      const { data } = await refetch();
-
-      setLatestMaxLtAfterTx(proposalAddress, data?.maxLt);
+      return successCallback(proposal);
     },
     {
-      onSuccess: (_, vote) => {
-        analytics.voteSuccess(proposalAddress, vote);
+      onSuccess: (_, args) => {
+        analytics.voteSuccess(proposalAddress, args.vote);
       },
       onSettled: () => {
         setIsVoting(false);
       },
-      onError: (error: Error, vote) => {
+      onError: (error: Error, args) => {
         errorToast(error);
-        analytics.voteError(proposalAddress, vote, error.message);
+        analytics.voteError(proposalAddress, args.vote, error.message);
       },
     }
   );

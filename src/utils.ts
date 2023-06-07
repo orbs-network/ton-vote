@@ -1,4 +1,4 @@
-import { TONSCAN_ADDRESS_URL, VERIFIED_DAOS } from "config";
+import { IS_DEV, TONSCAN_ADDRESS_URL, VERIFIED_DAOS } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
@@ -29,9 +29,9 @@ export const makeElipsisAddress = (address?: string, padding = 6): string => {
   )}`;
 };
 
-export const Logger = (log: any) => {
-  if (import.meta.env.DEV) {
-    console.log(log);
+export const Logger = (...args: any) => {
+  if (IS_DEV) {
+    console.log(...args);
   }
 };
 
@@ -290,7 +290,6 @@ export const utcMoment = (value?: number) => {
     : dt.add(offset, "minutes");
 };
 
-
 export const fromUtcMoment = (value?: number) => {
   const dt = value ? moment(value) : moment();
 
@@ -323,7 +322,6 @@ export const getProposalResultTonAmount = (
       proposal.sumCoins[choice] || proposal.sumCoins[choice.toLowerCase()];
     result = getTonAmounFromSumCoins(value as BigNumber);
   } else {
-    
     result = calculateTonAmount(percent, totalWeight) || "0";
   }
   return result;
@@ -351,15 +349,13 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
 
     votes =
       votesCount[choice as keyof typeof votesCount] ||
-      votesCount[choice.toLowerCase() as keyof typeof votesCount] || 0;
+      votesCount[choice.toLowerCase() as keyof typeof votesCount] ||
+      0;
   }
   return votes;
 };
 
-
-
 export const getIsVerifiedDao = (address?: string) => {
-  return VERIFIED_DAOS.includes(address || '');
-}
-
+  return VERIFIED_DAOS.includes(address || "");
+};
 

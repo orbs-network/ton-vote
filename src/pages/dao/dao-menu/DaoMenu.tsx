@@ -281,6 +281,7 @@ const useDaoSocials = () => {
     return options
       .map((option) => {
         const metadata = data?.daoMetadata?.metadataArgs as any;
+        if (!metadata) return null;
         const value = metadata[option.name];
         if (!value) return null;
         return {
@@ -295,7 +296,7 @@ const useDaoSocials = () => {
 const SocialDesktopLinks = () => {
   const links = useDaoSocials();
 
-  if(_.size(links) === 0) return null;
+  if (_.size(links) === 0) return null;
 
   return (
     <StyleDesktopSocials gap={0}>

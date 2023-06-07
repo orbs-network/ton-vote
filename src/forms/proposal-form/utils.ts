@@ -108,7 +108,7 @@ const getInitialTimestamps = () => {
 
 export const handleDefaults = (
   input: ProposalInputArgs,
-  dao?: Dao
+  dao?: Dao | null
 ): ProposalInputArgs => {
   const metadataArgs = dao?.daoMetadata.metadataArgs;
   const nftAddress =

@@ -20,7 +20,7 @@ export function Vote() {
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
   const translations = useProposalPageTranslations();
-    const { proposalAddress } = useAppParams();
+  const { proposalAddress } = useAppParams();
 
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const choices = data?.metadata?.votingSystem.choices;
@@ -29,12 +29,10 @@ export function Vote() {
   const currentVote = walletVote?.vote as string;
 
   useEffect(() => {
-    if(!vote) {
-       setVote(walletVote?.vote as string)
+    if (!vote) {
+      setVote(walletVote?.vote as string);
     }
-   
-  }, [walletVote?.vote])
-  
+  }, [walletVote?.vote]);
 
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
@@ -64,7 +62,9 @@ export function Vote() {
           );
         })}
       </StyledFlexColumn>
-      <AppTooltip  text={currentVote === vote ? `You already voted ${vote}` : ''}>
+      <AppTooltip
+        text={currentVote === vote ? `You already voted ${vote}` : ""}
+      >
         <VoteButton
           isLoading={isLoading}
           disabled={!vote || isLoading || currentVote === vote}
@@ -75,7 +75,10 @@ export function Vote() {
         open={confirmation}
         vote={vote}
         onClose={() => setConfirmation(false)}
-        onSubmit={() => mutate(vote!)}
+        onSubmit={() => {
+          if (!vote || !data) return;
+          mutate({ vote: vote, proposal: data });
+        }}
       />
     </StyledContainer>
   );

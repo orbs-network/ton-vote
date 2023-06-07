@@ -334,12 +334,11 @@ export const useHiddenProposal = (proposalAddress: string) => {
   const { data: proposal } = useProposalQuery(proposalAddress);
 
   const { data: dao } = useDaoQuery(proposal?.daoAddress || "");
-  const address = useTonAddress();
 
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
 
+  if (!proposal?.metadata?.hide) return false;
+  if (!proposal || !dao) return false;
 
-  if(!proposal || !dao) return false;
-
-  return !isOwner &&  !isProposalPublisher;
+  return !isOwner && !isProposalPublisher;
 };

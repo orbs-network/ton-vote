@@ -6,6 +6,7 @@ import {
   DaoRoles,
   MetadataArgs,
   ProposalMetadata,
+  Votes,
   VotingPowerStrategy,
 } from "ton-vote-contracts-sdk";
 
@@ -42,16 +43,7 @@ export interface Dao {
   daoProposals: string[];
 }
 
-export interface DaoProposal {
-  startDate: number;
-  endDate: number;
-  title: string;
-  description: string;
-  ownerAvatar: string;
-  ownerAddress: string;
-  contractAddress: string;
-  id: string;
-}
+
 
 export enum ProposalStatus {
   CLOSED = "ENDED",
@@ -67,6 +59,7 @@ export interface SelectOption {
 export interface Proposal {
   votingPower?: VotingPower;
   votes: Vote[];
+  rawVotes: Votes;
   proposalResult: ProposalResults;
   maxLt?: string;
   transactions?: Transaction[];

@@ -18,7 +18,7 @@ import { mock } from "mock/mock";
 import { useGetClients, useProposalQuery } from "query/getters";
 import { QueryKeys } from "config";
 import { api } from "api";
-import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
+import { useVotePersistedStore, useSyncStore, useVoteStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
 import { FOUNDATION_PROPOSALS } from "data/foundation/data";

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { releaseMode, QueryKeys, IS_DEV, PROD_TEST_DAOS } from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
@@ -18,10 +18,9 @@ import {
 } from "utils";
 import {
   FOUNDATION_DAO_ADDRESS,
-  FOUNDATION_PROPOSALS,
   FOUNDATION_PROPOSALS_ADDRESSES,
 } from "data/foundation/data";
-import { useProposalPersistedStore, useSyncStore, useVoteStore } from "store";
+import { useSyncStore, useVoteStore } from "store";
 import { lib } from "lib/lib";
 import { api } from "api";
 import { useDevFeatures } from "hooks";
@@ -33,11 +32,9 @@ import {
   useDaoNewProposals,
   useDaoQueryConfig,
   useDaosQueryConfig,
-  useGetContractState,
+  useGetProposal,
   useIsDaosUpToDate,
-  useIsProposalPage,
   useNewDaoAddresses,
-  useProposalPageLogic,
 } from "./logic";
 
 export const useRegistryStateQuery = () => {
@@ -136,8 +133,10 @@ export const useDaoQuery = (daoAddress: string) => {
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
   const config = useDaoQueryConfig();
-  return useQuery<Dao>(
-    [QueryKeys.DAO, daoAddress],
+  const queryClient = useQueryClient();
+  const key = [QueryKeys.DAO, daoAddress];
+  return useQuery<Dao | null>(
+    key,
     async ({ signal }) => {
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
@@ -153,13 +152,17 @@ export const useDaoQuery = (daoAddress: string) => {
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
 
-      const serverUpToDate = await getIsServerUpToDate(metadataLastUpdate);
+      const isMetadataUpToDate = await getIsServerUpToDate(metadataLastUpdate);
 
-      if (serverUpToDate) {
+      if (isMetadataUpToDate) {
         removeDaoUpdateMillis(daoAddress!);
       }
+      const dao = await lib.getDao(daoAddress!, !isMetadataUpToDate, signal);
 
-      const dao = await lib.getDao(daoAddress!, !serverUpToDate, signal);
+      if (!dao) {
+        return queryClient.getQueryData<Dao>(key) || null;
+      }
+
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
       const daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
@@ -173,8 +176,7 @@ export const useDaoQuery = (daoAddress: string) => {
       };
     },
     {
-      retry: isWhitelisted ? 3 : false,
-      staleTime: config.staleTime,
+      staleTime: config.staleTime || 10_000,
       refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
       enabled: !!daoAddress,
     }
@@ -248,51 +250,30 @@ export const useProposalQuery = (
   proposalAddress: string,
   args?: ProposalQueryArgs
 ) => {
-  const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
 
-  const getContractStateCallback = useGetContractState();
-  const isPropoaslPage = useIsProposalPage();
-  
   const { isVoting } = useVoteStore();
 
-  const proposalPageExtendedLogic = useProposalPageLogic(
-    proposalAddress,
-    args?.isCustomEndpoint
-  );
+  const getProposal = useGetProposal(proposalAddress);
+
+  const isWhitelisted = isProposalWhitelisted(proposalAddress);
+
+  const queryClient = useQueryClient();
+  const key = [QueryKeys.PROPOSAL, proposalAddress];
 
   return useQuery(
-    [QueryKeys.PROPOSAL, proposalAddress],
+    key,
     async ({ signal }) => {
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
       }
+      const proposal = await getProposal(signal);
 
-      const mockProposal = mock.getMockProposal(proposalAddress!);
-      if (mockProposal) {
-        return mockProposal;
-      }
-      const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
-      if (foundationProposal) {
-        return foundationProposal;
+      if (!proposal) {
+        Logger(`Proposal ${proposalAddress} not found`);
+        return queryClient.getQueryData<Proposal>(key);
       }
 
-      if (isPropoaslPage) {
-        const proposal = await proposalPageExtendedLogic(signal);
-        if (proposal) return proposal;
-      }
-
-      let proposal;
-      try {
-        proposal = await api.getProposal(proposalAddress!, signal);
-      } catch (error) {
-        proposal = await getContractStateCallback(proposalAddress!);
-      }
-      if (_.isEmpty(proposal?.metadata)) {
-        Logger("List proposal not found in server, fetching from contract");
-        return getContractStateCallback(proposalAddress!);
-      }
-      Logger(`List, fetching proposal from api ${proposalAddress}`);
       return proposal;
     },
     {
@@ -303,7 +284,6 @@ export const useProposalQuery = (
         !args?.disabled &&
         !isVoting,
       staleTime: 30_000,
-      retry: isWhitelisted ? 3 : false,
       refetchInterval: isWhitelisted ? 30_000 : undefined,
     }
   );

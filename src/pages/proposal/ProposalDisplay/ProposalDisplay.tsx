@@ -99,6 +99,7 @@ export function ProposalDisplay() {
 
   const error = useProposalQuery(proposalAddress).error;
   const hideProposal = useHiddenProposal(proposalAddress);
+  
 
   useEffect(() => {
     if (error) {

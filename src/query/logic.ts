@@ -1,25 +1,41 @@
+import { useTonAddress } from "@tonconnect/ui-react";
 import { api } from "api";
-import { DAOS_PAGE_REFETCH_INTERVAL, DAO_REFETCH_INTERVAL } from "config";
+import {
+  DAOS_PAGE_REFETCH_INTERVAL,
+  DAO_REFETCH_INTERVAL,
+  QueryKeys,
+} from "config";
 import { routes } from "consts";
+import { FOUNDATION_PROPOSALS } from "data/foundation/data";
 import { useCurrentRoute } from "hooks";
 import { getDaoFromContract, lib } from "lib/lib";
 import _ from "lodash";
+import { mock } from "mock/mock";
 import { useMemo } from "react";
-import {
-  useNewDataStore,
-  useProposalPersistedStore,
-  useSyncStore,
-} from "store";
+import { useNewDataStore, useVotePersistedStore, useSyncStore } from "store";
+import { TonClient } from "ton";
 import { Transaction } from "ton-core";
 import {
   filterTxByTimestamp,
+  getAllVotes,
   getClientV2,
   getDaoMetadata,
   getTransactions,
+  getSingleVoterPower,
+  getClientV4,
+  calcProposalResult,
 } from "ton-vote-contracts-sdk";
-import { Dao } from "types";
-import { Logger, validateServerUpdateTime } from "utils";
+import { Dao, Proposal } from "types";
+import {
+  getVoteStrategyType,
+  Logger,
+  parseVotes,
+  validateServerUpdateTime,
+} from "utils";
 import { useGetClients } from "./getters";
+
+import retry from "async-retry";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useNewDaoAddresses = () => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -137,19 +153,29 @@ export const useDaoNewProposals = () => {
 export const useGetContractState = () => {
   const clients = useGetClients().data;
   return async (proposalAddress: string, latestMaxLtAfterTx?: string) => {
-    let transactions: Transaction[] = [];
-    if (latestMaxLtAfterTx) {
-      const result = await getTransactions(clients!.clientV2, proposalAddress!);
-      transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
-    }
+    const promise = async (bail: any, attempt: number) => {
+      Logger(
+        `fetching proposal from contract, address: ${proposalAddress}, attempt ${attempt}`
+      );
+      let transactions: Transaction[] = [];
+      if (latestMaxLtAfterTx) {
+        const result = await getTransactions(
+          clients!.clientV2,
+          proposalAddress!
+        );
+        transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
+      }
 
-    return lib.getProposalFromContract(
-      clients!.clientV2,
-      clients!.clientV4,
-      proposalAddress!,
-      undefined,
-      transactions
-    );
+      return lib.getProposalFromContract(
+        clients!.clientV2,
+        clients!.clientV4,
+        proposalAddress!,
+        undefined,
+        transactions
+      );
+    };
+
+    return await retry(promise, { retries: 3 });
   };
 };
 
@@ -177,50 +203,152 @@ export const useDaosQueryConfig = () => {
   }, [route]);
 };
 
-export const useIsProposalPage = () => {
-  const route =  useCurrentRoute()
-  return route === routes.proposal || route === routes.editProposal
+const useGetServerProposal = (address: string) => {
+  const getContractStateCallback = useGetContractState();
+
+  return async (maxLt?: string, signal?: AbortSignal) => {
+    const proposal = await api.getProposal(address!, signal);
+
+    if (proposal) {
+      return proposal;
+    }
+
+    return getContractStateCallback(address!, maxLt);
+  };
 };
 
-export const useProposalPageLogic = (
-  proposalAddress: string,
-  isCustomEndpoint?: boolean
-) => {
-  const getContractStateCallback = useGetContractState();
-  const { getLatestMaxLtAfterTx, setLatestMaxLtAfterTx } =
-    useProposalPersistedStore();
+export const useGetProposal = (proposalAddress: string) => {
+  const votePersistStore = useVotePersistedStore();
   const { getProposalUpdateMillis, removeProposalUpdateMillis } =
     useSyncStore();
 
-  return async (signal?: AbortSignal) => {
-    const latestMaxLtAfterTx = !isCustomEndpoint
-      ? getLatestMaxLtAfterTx(proposalAddress!)
-      : undefined;
+  const getServerProposal = useGetServerProposal(proposalAddress!);
 
-    if (isCustomEndpoint) {
-      Logger("custom endpoint selected");
-      return getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
+  const getContractStateCallback = useGetContractState();
+
+  return async (signal?: AbortSignal): Promise<Proposal | null> => {
+    const mockProposal = mock.getMockProposal(proposalAddress!);
+    if (mockProposal) {
+      return mockProposal;
+    }
+    const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
+    if (foundationProposal) {
+      return foundationProposal;
     }
 
-    const isServerUpToDate = await getIsServerUpToDate(
+    const latestMaxLtAfterTx = votePersistStore.getValues(
+      proposalAddress!
+    ).latestMaxLtAfterTx;
+
+    const isMetadataUpToDateInServer = await getIsServerUpToDate(
       getProposalUpdateMillis(proposalAddress)
     );
 
-    if (!isServerUpToDate) {
+    if (!isMetadataUpToDateInServer) {
       return getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
+    } else {
+      removeProposalUpdateMillis(proposalAddress);
     }
-    removeProposalUpdateMillis(proposalAddress);
 
-    if (latestMaxLtAfterTx) {
-      const serverMaxLt = await api.getMaxLt(proposalAddress!, signal);
+    const proposal = await getServerProposal(latestMaxLtAfterTx, signal);
 
-      if (Number(serverMaxLt) < Number(latestMaxLtAfterTx)) {
-        Logger(
-          `server maxLt is outdated, fetching from contract, maxLt: ${latestMaxLtAfterTx}, serverMaxLt: ${serverMaxLt}`
-        );
-        return getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
+    if (!proposal) return null;
+
+    if (
+      !latestMaxLtAfterTx ||
+      Number(proposal?.maxLt) >= Number(latestMaxLtAfterTx)
+    ) {
+      votePersistStore.resetValues(proposalAddress!);
+
+      return proposal;
+    }
+
+    Logger(
+      `server proposal is not up to date, getting results and vote from local storage, proposal maxLt: ${proposal?.maxLt}, latestMaxLtAfterTx: ${latestMaxLtAfterTx}`
+    );
+
+    // if latestMaxLtAfterTx greater then proposal maxLt, that means that user voted, and
+    // we need to get his vote and proposal result from local storage, because server is not up to date
+
+    const values = votePersistStore.getValues(proposalAddress!);
+    if (!values.results) {
+      return proposal;
+    }
+
+    return {
+      ...proposal,
+      proposalResult: values.results,
+      votes: values.vote ? [values.vote, ...proposal.votes] : proposal.votes,
+    };
+  };
+};
+
+export const useVoteSuccessCallback = (proposalAddress: string) => {
+  const walletAddress = useTonAddress();
+  const clients = useGetClients().data;
+  const store = useVotePersistedStore();
+
+  const queryClient = useQueryClient();
+
+  return async (proposal: Proposal) => {
+    const clientV2 = clients?.clientV2 || (await getClientV2());
+    const clientV4 = clients?.clientV4 || (await getClientV4());
+    const { allTxns, maxLt } = await getTransactions(
+      clientV2,
+      proposalAddress,
+      proposal.maxLt
+    );
+
+    const tx = _.find(allTxns, (tx) => {
+      return tx.inMessage?.info.src?.toString() === walletAddress;
+    });
+
+    if (!tx) return;
+
+    const nftItemsHolders = await lib.getAllNftHolders(
+      proposalAddress,
+      clientV4,
+      proposal.metadata!
+    );
+
+    const singleVotingPower = await getSingleVoterPower(
+      clientV4,
+      walletAddress,
+      proposal.metadata!,
+      getVoteStrategyType(proposal.metadata!.votingPowerStrategies),
+      nftItemsHolders
+    );
+
+    const rawVotes = getAllVotes([tx], proposal.metadata!);
+    const votingPower = proposal.votingPower || {};
+
+    const votes = {
+      ...proposal.rawVotes,
+      [walletAddress]: rawVotes[walletAddress],
+    };
+
+    votingPower[walletAddress] = singleVotingPower;
+
+    const results = calcProposalResult(votes, votingPower);
+    const walletVote = parseVotes(rawVotes, votingPower)[0];
+
+    queryClient.setQueryData(
+      [QueryKeys.PROPOSAL, proposalAddress],
+      (prev?: any) => {
+        return {
+          ...prev,
+          proposalResult: results,
+          votes: walletVote ? [walletVote, ...prev?.votes] : prev?.votes,
+        };
       }
-    }
-    setLatestMaxLtAfterTx(proposalAddress!, undefined);
+    );
+
+    Logger(`vote success manual state update`);
+    Logger(tx, "tx");
+    Logger(maxLt, "maxLt");
+    Logger(walletVote, "walletVote");
+    Logger(results, "results");
+    // we save this data in local storage, adn display it untill the server is up to date
+    store.setValues(proposalAddress, maxLt, walletVote, results);
   };
 };

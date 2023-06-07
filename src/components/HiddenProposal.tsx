@@ -10,7 +10,7 @@ export const HiddenProposal = ({
 }: {
   proposal: Proposal;
   className?: string;
-}) => {
+}) => {  
   if (!proposal.metadata?.hide) {
     return null;
   }

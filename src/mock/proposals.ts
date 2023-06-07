@@ -55,6 +55,7 @@ const defaultProposal = {
   },
   votingPower: {},
   votes,
+  rawVotes: {},
   proposalResult: {
     yes: (
       (_.countBy(votes, (v) => v.vote === "Yes").true / VOTES_AMOUNT) *

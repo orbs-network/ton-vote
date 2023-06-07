@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Dao, Proposal } from "types";
 import { proposals } from "./proposals";
 import { daos } from "./daos";
-const ADDRESS = "EQCh4ksBLF4bHmqPqzZT9AlnKgh49luRGqhpVdm3dZ0m1XTN-mock-";
+const ADDRESS = "EQCh4ksBLF4bHmqPqzZT9AlnKgh49luRGqhpVdm3dZ0m1XTN";
 
 const proposalAddresses = _.compact(
   _.map(proposals, (_, index) => `${ADDRESS}${index}`)
@@ -20,6 +20,7 @@ const isMockProposal = (address: string): boolean => {
 
 const isMockDao = (address: string): Dao | null => {
   const result =  _.find(daos, (it) => it.daoAddress === address)
+  
   return result ? result : null;
 };
 
