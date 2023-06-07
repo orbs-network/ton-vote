@@ -34,7 +34,7 @@ There are many wallets on TON, we made sure that you can use any of them and tha
 
 1. Use the client in https://ton.vote which supports TonHub, TonKeeper and OpenMask (via TonConnect2)
 
-2. Transfer 0.01 TON manually to the contract address `EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS` and add a comment with your vote - `yes` or `no` or `abstain`
+2. Transfer 0.01 TON manually to the proposal's contract address and add a comment with your vote - `yes` or `no` or `abstain`. The proposal's address is available in the client on the proposal page under the information section.
 
 3. Open the relevant ton:// deep link with a supporting wallet:
     * yes - `ton://transfer/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS?amount=10000000&text=yes`
@@ -43,14 +43,14 @@ There are many wallets on TON, we made sure that you can use any of them and tha
   
 After voting, you can open the client in https://ton.vote to see your vote counted. It will appear in the top of the recent votes list.
 
-Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/dao-vote/blob/e14d9e301297d4c47f221742bb030bf800d3150f/src/contracts-api/whales.js). 
+Note that we only allow users to use their own voting assets. This means we do not count votes from known custodial services such as exchanges, custodial wallets, etc. You can check the list of blacklisted addresses [here](https://github.com/orbs-network/ton-vote-contracts-sdk/blob/7f57da46b66cbdab23ad597cb8f665f500e2b60e/src/custodian.ts). 
 If you are an owner of an address from this list and want to know how to vote, you can contact us via Telegram: https://t.me/TONVoteSupportGroup.
 
 ## How can you verify the results?
 
 We took great care to make sure the voting process and calculation is decentralized and trustless. You can verify the results by yourself and you are not required to trust anyone in the process.
 
-1. Votes are sent as on-chain transactions to a smart contract on mainnet: https://tonscan.org/address/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS
+1. Votes are sent as on-chain transactions to a smart contract on mainnet. The smart contract address can be obtained from the proposal page on the information section.
 
 2. You can open this contract in an explorer and see all transactions sent to it with their votes as comments. You can also see the contract code since it is [verified](https://verifier.ton.org/EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS). The source includes parameters of the vote like its duration and which addresses are subject to the freeze.
 
