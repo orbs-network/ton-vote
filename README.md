@@ -74,6 +74,15 @@ We took great care to make sure the voting process and calculation is decentrali
 ## How to get verified as a DAO space?
 The [UI](https://ton.vote) displays a blue checkmark next to verified DAOs, indicating that their ownership of the domain has been verified. Verified DAO spaces on [ton.vote](https://ton.vote) can be trusted as they accurately represent the claimed domain. When a DAO is verified, its website is featured in the DAO space on the homepage of [ton.vote](https://ton.vote).
 
+To verify your DAO space on ton.vote, please follow these steps:
+1. Upload a txt file to your website.
+2. Name the file ton-vote.txt.
+3. Place your DAO address inside the txt file.
+4. Ensure the file is accessible through a URL following this format: https://yourdomain.com/ton-vote.txt.
+   (Replace "yourdomain.com" with the actual domain of your website)
+
+You can find your Dao address on the Dao page after creating the DAO. By completing these steps, your DAO will be marked as verified by ton.vote.
+
 ## How to make test proposals?
 We have built a dedicated platform for testing proposals and its available [here](https://dev.ton.vote). 
 It is advisable to refrain from spamming your DAO with testing proposals. If you wish to create a test proposal, you can utilize dev.ton.vote. Just create a new DAO and create as many testing proposals as needed.
