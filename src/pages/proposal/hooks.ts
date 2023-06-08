@@ -22,7 +22,7 @@ import { useVotePersistedStore, useSyncStore, useVoteStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
 import { FOUNDATION_PROPOSALS } from "data/foundation/data";
-import { getIsServerUpToDate, useGetContractState } from "query/logic";
+import { getIsServerUpToDate, useGetContractProposal } from "query/hooks";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {

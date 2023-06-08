@@ -13,7 +13,6 @@ import _ from "lodash";
 import { mock } from "mock/mock";
 import { useMemo } from "react";
 import { useNewDataStore, useVotePersistedStore, useSyncStore } from "store";
-import { TonClient } from "ton";
 import { Transaction } from "ton-core";
 import {
   filterTxByTimestamp,
@@ -150,9 +149,9 @@ export const useDaoNewProposals = () => {
   };
 };
 
-export const useGetContractState = () => {
+export const useGetContractProposal = (proposalAddress: string) => {
   const clients = useGetClients().data;
-  return async (proposalAddress: string, latestMaxLtAfterTx?: string) => {
+  return async (latestMaxLtAfterTx?: string) => {
     const promise = async (bail: any, attempt: number) => {
       Logger(
         `fetching proposal from contract, address: ${proposalAddress}, attempt ${attempt}`
@@ -203,8 +202,8 @@ export const useDaosQueryConfig = () => {
   }, [route]);
 };
 
-const useGetServerProposal = (address: string) => {
-  const getContractStateCallback = useGetContractState();
+const useGetServerProposalWithFallback = (address: string) => {
+  const getContractStateCallback = useGetContractProposal(address);
 
   return async (maxLt?: string, signal?: AbortSignal) => {
     const proposal = await api.getProposal(address!, signal);
@@ -213,7 +212,7 @@ const useGetServerProposal = (address: string) => {
       return proposal;
     }
 
-    return getContractStateCallback(address!, maxLt);
+    return getContractStateCallback(maxLt);
   };
 };
 
@@ -222,9 +221,9 @@ export const useGetProposal = (proposalAddress: string) => {
   const { getProposalUpdateMillis, removeProposalUpdateMillis } =
     useSyncStore();
 
-  const getServerProposal = useGetServerProposal(proposalAddress!);
+  const getServerProposal = useGetServerProposalWithFallback(proposalAddress!);
 
-  const getContractStateCallback = useGetContractState();
+  const getContractProposal = useGetContractProposal(proposalAddress);
 
   return async (signal?: AbortSignal): Promise<Proposal | null> => {
     const mockProposal = mock.getMockProposal(proposalAddress!);
@@ -236,16 +235,16 @@ export const useGetProposal = (proposalAddress: string) => {
       return foundationProposal;
     }
 
-    const latestMaxLtAfterTx = votePersistStore.getValues(
-      proposalAddress!
-    ).latestMaxLtAfterTx;
+    const votePersistValues = votePersistStore.getValues(proposalAddress!);
+
+    const latestMaxLtAfterTx = votePersistValues.latestMaxLtAfterTx;
 
     const isMetadataUpToDateInServer = await getIsServerUpToDate(
       getProposalUpdateMillis(proposalAddress)
     );
 
     if (!isMetadataUpToDateInServer) {
-      return getContractStateCallback(proposalAddress, latestMaxLtAfterTx);
+      return getContractProposal(latestMaxLtAfterTx);
     } else {
       removeProposalUpdateMillis(proposalAddress);
     }
@@ -270,15 +269,16 @@ export const useGetProposal = (proposalAddress: string) => {
     // if latestMaxLtAfterTx greater then proposal maxLt, that means that user voted, and
     // we need to get his vote and proposal result from local storage, because server is not up to date
 
-    const values = votePersistStore.getValues(proposalAddress!);
-    if (!values.results) {
+    if (!votePersistValues.results) {
       return proposal;
     }
 
     return {
       ...proposal,
-      proposalResult: values.results,
-      votes: values.vote ? [values.vote, ...proposal.votes] : proposal.votes,
+      proposalResult: votePersistValues.results,
+      votes: votePersistValues.vote
+        ? [votePersistValues.vote, ...proposal.votes]
+        : proposal.votes,
     };
   };
 };
@@ -299,11 +299,11 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
       proposal.maxLt
     );
 
-    const tx = _.find(allTxns, (tx) => {
+    const userTx = _.find(allTxns, (tx) => {
       return tx.inMessage?.info.src?.toString() === walletAddress;
     });
 
-    if (!tx) return;
+    if (!userTx) return;
 
     const nftItemsHolders = await lib.getAllNftHolders(
       proposalAddress,
@@ -319,7 +319,7 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
       nftItemsHolders
     );
 
-    const rawVotes = getAllVotes([tx], proposal.metadata!);
+    const rawVotes = getAllVotes([userTx], proposal.metadata!);
     const votingPower = proposal.votingPower || {};
 
     const votes = {
@@ -344,11 +344,11 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
     );
 
     Logger(`vote success manual state update`);
-    Logger(tx, "tx");
+    Logger(userTx, "user tx");
     Logger(maxLt, "maxLt");
     Logger(walletVote, "walletVote");
     Logger(results, "results");
-    // we save this data in local storage, adn display it untill the server is up to date
+    // we save this data in local storage, and display it untill the server is up to date
     store.setValues(proposalAddress, maxLt, walletVote, results);
   };
 };

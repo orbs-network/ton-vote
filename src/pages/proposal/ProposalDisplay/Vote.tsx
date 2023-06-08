@@ -76,8 +76,8 @@ export function Vote() {
         vote={vote}
         onClose={() => setConfirmation(false)}
         onSubmit={() => {
-          if (!vote || !data) return;
-          mutate({ vote: vote, proposal: data });
+          if (!vote) return;
+          mutate(vote);
         }}
       />
     </StyledContainer>

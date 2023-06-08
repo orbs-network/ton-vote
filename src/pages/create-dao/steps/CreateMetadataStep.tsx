@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, FormikInputsForm } from "components";
+import { Button, CheckboxInput, FormikInputsForm } from "components";
 import { useFormik } from "formik";
 import { useCreatDaoStore } from "../store";
 import _ from "lodash";
@@ -14,6 +14,8 @@ import { useDaoMetadataForm } from "../form";
 import { DaoMetadataForm } from "types";
 import { useCreateMetadataQuery } from "query/setters";
 import { ZERO_ADDRESS } from "consts";
+
+
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateMetadataQuery();
@@ -36,6 +38,7 @@ export function CreateMetadataStep() {
       jetton: formData.jetton || ZERO_ADDRESS,
       nft: formData.nft || ZERO_ADDRESS,
       dns: formData.dns || "",
+      dev: formData.dev,
     };
 
     createMetadata({
@@ -64,6 +67,7 @@ export function CreateMetadataStep() {
       dns: daoMetadataForm.dns,
       about_en: daoMetadataForm.about_en,
       name_en: daoMetadataForm.name_en,
+      dev: true,
     },
     validationSchema: Schema,
     validateOnChange: false,
@@ -74,6 +78,9 @@ export function CreateMetadataStep() {
   const saveForm = useDebouncedCallback(() => {
     store.setDaoMetadataForm(formik.values);
   });
+
+  console.log(daoMetadataForm);
+  
 
   useEffect(() => {
     saveForm();

@@ -260,7 +260,7 @@ const Title = ({
 }) => {
   return (
     <StyledTitle className={`input-title ${className}`}>
-      {title}
+      <Markdown className="md">{title}</Markdown>
       <small className="input-title-required" style={{ fontSize: 14 }}>
         {required ? " (required)" : " (optional)"}
       </small>
@@ -464,7 +464,7 @@ export function MapInput<T>({
 
 
 
-const CheckboxInput = ({
+export const CheckboxInput = ({
   title,
   onChange,
   value = false,

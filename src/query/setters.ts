@@ -32,14 +32,14 @@ import {
   useProposalQuery,
   useRegistryStateQuery,
 } from "./getters";
-import { useVotePersistedStore, useSyncStore, useVoteStore } from "store";
+import { useSyncStore, useVoteStore } from "store";
 import { getTxFee, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
 import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
-import { useVoteSuccessCallback } from "./logic";
+import { useVoteSuccessCallback } from "./hooks";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -484,13 +484,18 @@ export const useVote = () => {
   const getSender = useGetSender();
   const { proposalAddress } = useAppParams();
 
+  const {data: proposal} = useProposalQuery(proposalAddress);
+
   const successCallback = useVoteSuccessCallback(proposalAddress);
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
 
   return useMutation(
-    async ({ vote, proposal }: { vote: string; proposal: Proposal }) => {
+    async (vote: string) => {
+      if (!proposal) {
+        throw new Error("Proposal not found");
+      }
       setIsVoting(true);
       const sender = getSender();
       const client = await getClientV2();
@@ -506,15 +511,15 @@ export const useVote = () => {
       return successCallback(proposal);
     },
     {
-      onSuccess: (_, args) => {
-        analytics.voteSuccess(proposalAddress, args.vote);
+      onSuccess: (_, vote) => {
+        analytics.voteSuccess(proposalAddress, vote);
       },
       onSettled: () => {
         setIsVoting(false);
       },
-      onError: (error: Error, args) => {
+      onError: (error: Error, vote) => {
         errorToast(error);
-        analytics.voteError(proposalAddress, args.vote, error.message);
+        analytics.voteError(proposalAddress, vote, error.message);
       },
     }
   );

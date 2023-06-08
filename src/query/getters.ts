@@ -35,7 +35,8 @@ import {
   useGetProposal,
   useIsDaosUpToDate,
   useNewDaoAddresses,
-} from "./logic";
+} from "./hooks";
+import { showToast } from "toasts";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
