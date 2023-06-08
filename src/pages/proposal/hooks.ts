@@ -44,7 +44,7 @@ export const useVerifyProposalResults = () => {
   const { data } = useProposalQuery(proposalAddress);
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations();
-
+  const votePersistStore = useVotePersistedStore();
   const promiseToast = usePromiseToast();
 
   return useMutation(
@@ -61,7 +61,14 @@ export const useVerifyProposalResults = () => {
 
         const result = await getTransactions(clientV2, proposalAddress);
 
-        transactions = filterTxByTimestamp(result.allTxns, data?.maxLt || "");
+
+        // if user voted, we need to get transactions after his vote
+        const voteMaxLt =
+          votePersistStore.getValues(proposalAddress).latestMaxLtAfterTx;
+
+        const maxLt = voteMaxLt || data?.maxLt || "";
+
+        transactions = filterTxByTimestamp(result.allTxns, maxLt);
 
         const contractState = await lib.getProposalFromContract(
           clientV2,
@@ -101,7 +108,7 @@ export const useVerifyProposalResults = () => {
       return promise;
     },
     {
-      onError: (error: Error) => errorToast(error.message),
+      onError: (error: Error) => console.log(error.message),
     }
   );
 };
