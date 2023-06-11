@@ -20,7 +20,7 @@ import { Dao } from "types";
 import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import { DAOS_PAGE_REFETCH_INTERVAL, TELEGRAM_SUPPORT_GROUP } from "config";
+import {  TELEGRAM_SUPPORT_GROUP } from "config";
 import { useAppQueryParams, useMobile } from "hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";

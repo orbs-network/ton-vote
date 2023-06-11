@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { releaseMode, QueryKeys, IS_DEV, PROD_TEST_DAOS } from "config";
+import { releaseMode, QueryKeys, IS_DEV, PROD_TEST_DAOS, REFETCH_INTERVALS } from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
 import {
@@ -285,7 +285,7 @@ export const useProposalQuery = (
         !args?.disabled &&
         !isVoting,
       staleTime: 30_000,
-      refetchInterval: isWhitelisted ? 30_000 : undefined,
+      refetchInterval: isWhitelisted ? REFETCH_INTERVALS.proposal : undefined,
     }
   );
 };

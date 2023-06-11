@@ -15,8 +15,7 @@ import { FormikProps } from "formik";
 import { useAppParams } from "hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/getters";
-import { useMemo, useRef } from "react";
-import { BsFillTrash3Fill } from "react-icons/bs";
+import { useMemo } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {
   VotingPowerStrategy,

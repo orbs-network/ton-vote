@@ -1,9 +1,8 @@
 import { useTonAddress } from "@tonconnect/ui-react";
 import { api } from "api";
 import {
-  DAOS_PAGE_REFETCH_INTERVAL,
-  DAO_REFETCH_INTERVAL,
   QueryKeys,
+  REFETCH_INTERVALS,
 } from "config";
 import { routes } from "consts";
 import { FOUNDATION_PROPOSALS } from "data/foundation/data";
@@ -185,7 +184,7 @@ export const useDaoQueryConfig = () => {
     return {
       staleTime: route === routes.proposal ? Infinity : 10_000,
       refetchInterval:
-        route === routes.proposal ? undefined : DAO_REFETCH_INTERVAL,
+        route === routes.proposal ? undefined : REFETCH_INTERVALS.dao,
     };
   }, [route]);
 };
@@ -196,8 +195,7 @@ export const useDaosQueryConfig = () => {
   return useMemo(() => {
     return {
       staleTime: 10_000,
-      refetchInterval:
-        route === routes.spaces ? DAOS_PAGE_REFETCH_INTERVAL : undefined,
+      refetchInterval: route === routes.spaces ? REFETCH_INTERVALS.daos : undefined,
     };
   }, [route]);
 };
