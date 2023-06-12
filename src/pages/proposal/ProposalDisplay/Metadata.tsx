@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { Link, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
   LoadingContainer,
@@ -11,10 +11,12 @@ import moment from "moment";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import {
   useAppParams,
+  useIsOneWalletOneVote,
   useProposalStrategyName,
   useStrategyArguments,
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
+import { ONE_WALLET_ONE_VOTE_URL } from "consts";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -29,6 +31,8 @@ export const Metadata = () => {
   const strategyArgs = useStrategyArguments(proposalAddress);
   const jettonAddress = strategyArgs.jetton;
   const nftAddress = strategyArgs.nft;
+
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress)
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -58,7 +62,13 @@ export const Metadata = () => {
             <AddressDisplay address={proposalAddress} />
           </InformationRow>
           <InformationRow label={translations.votingStrategy}>
-            <OverflowWithTooltip text={strategyName} />
+            {isOneWalletOneVote ? (
+              <Link style={{textDecoration:'unset'}} href={ONE_WALLET_ONE_VOTE_URL} target='_blank'>
+                <OverflowWithTooltip text={strategyName} />
+              </Link>
+            ) : (
+              <OverflowWithTooltip text={strategyName} />
+            )}
           </InformationRow>
           {jettonAddress && (
             <InformationRow label="Jetton Address">
