@@ -13,8 +13,7 @@ import { useSettingsStore } from "store";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      retry: 3,
+      refetchOnWindowFocus: false
     },
     mutations: {
       onMutate: () => clearAllToasts(),
@@ -36,6 +35,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <App />
     </TonConnectUIProvider>
 
-    <ReactQueryDevtools />
+    {/* <ReactQueryDevtools /> */}
   </QueryClientProvider>
 );

@@ -2,7 +2,7 @@ import { Box, styled, Tab } from "@mui/material";
 import { Socials, SideMenu, Img, Container, OverflowWithTooltip, AddressDisplay } from "components";
 import { MOBILE_WIDTH } from "consts";
 import { StyledSkeletonLoader, StyledFlexColumn, StyledFlexRow } from "styles";
-import { Link as RouterLink } from "react-router-dom";
+import { Link, Link as RouterLink } from "react-router-dom";
 
 export const StyledNavigationLoader = styled(StyledSkeletonLoader)({
   width: "calc(100% - 30px)",
@@ -46,6 +46,28 @@ export const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
   }
 );
 
+export const StyledOuterLink = styled('a')(
+  ({ theme }) => {
+    const color =
+      theme.palette.mode === "light" ? theme.palette.primary.main : "white";
+    return {
+      width: "100%",
+      paddingLeft: 15,
+      transition: "0.2s all",
+      textDecoration: "unset",
+      height: 43,
+      display: "flex",
+      alignItems: "center",
+      color: color,
+      fontWeight: 700,
+      borderLeft: "5px solid transparent",
+      "&:hover": {
+        background: "rgba(0, 136, 204, 0.05)",
+      },
+    };
+  }
+);
+
 export const StyledSocials = styled(Socials)({
   marginTop: 20,
   justifyContent: "center",
@@ -62,6 +84,7 @@ export const StyledSideMenu = styled(SideMenu)({
   padding: 0,
   width: "100%",
   maxWidth: 280,
+  paddingBottom: 20,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     maxWidth: "unset",
     paddingBottom: 0,

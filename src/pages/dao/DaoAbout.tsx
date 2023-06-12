@@ -1,13 +1,16 @@
 import { Chip, styled } from "@mui/material";
 import { AddressDisplay, TitleContainer } from "components";
+import { useAppParams } from "hooks/hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { LayoutSection } from "./components";
 import { DaoDescription } from "./DaoDescription";
 
 export function DaoAbout() {
-  const roles = useDaoFromQueryParam().data?.daoRoles;
+    const { daoAddress } = useAppParams();
+
+  const roles = useDaoQuery(daoAddress).data?.daoRoles;
   const translations = useCommonTranslations();
 
   return (

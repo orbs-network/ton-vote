@@ -1,5 +1,5 @@
 import { styled, Typography, useTheme } from "@mui/material";
-import { useCopyToClipboard } from "hooks";
+import { useCopyToClipboard } from "hooks/hooks";
 import { StyledFlexRow } from "styles";
 import { IoCopyOutline } from "react-icons/io5";
 import { getTonScanContractUrl, makeElipsisAddress } from "utils";

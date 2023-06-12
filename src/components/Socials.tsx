@@ -1,10 +1,10 @@
 import { Avatar, styled } from "@mui/material";
 import React from "react";
 import { StyledFlexRow } from "styles";
-import {  AiFillGithub } from "react-icons/ai";
-import {BsInfoCircleFill, BsTelegram} from 'react-icons/bs'
+import { AiFillGithub } from "react-icons/ai";
+import { BsInfoCircleFill, BsTelegram } from "react-icons/bs";
 import { ReactElement } from "react";
-import {BsGlobe} from 'react-icons/bs'
+import { BsGlobe } from "react-icons/bs";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { AppTooltip } from "./Tooltip";
 
@@ -13,7 +13,7 @@ interface Props {
   github?: string;
   website?: string;
   className?: string;
-  whitepaper?: string
+  whitepaper?: string;
   about?: string;
 }
 
@@ -25,7 +25,6 @@ export function Socials({
   whitepaper,
   about,
 }: Props) {
-
   return (
     <StyledContainer className={className}>
       <Social
@@ -40,11 +39,14 @@ export function Socials({
         url={whitepaper}
         icon={<IoNewspaperOutline size={20} />}
       />
-      <Social tooltip="About" url={about} icon={<BsInfoCircleFill size={20} />} />
+      <Social
+        tooltip="About"
+        url={about}
+        icon={<BsInfoCircleFill size={20} />}
+      />
     </StyledContainer>
   );
 }
-
 
 const Social = ({
   url,
@@ -54,8 +56,8 @@ const Social = ({
   url?: string;
   icon: ReactElement;
   tooltip: string;
-}) => {  
-  if (!url || !url.startsWith('https')) return null;
+}) => {
+  if (!url || !url?.startsWith("https")) return null;
   return (
     <AppTooltip text={tooltip}>
       <StyledSocial href={url} target="_blank">
@@ -67,11 +69,10 @@ const Social = ({
 
 const StyledSocial = styled("a")(({ theme }) => ({
   svg: {
-   
-    color: theme.palette.mode === 'dark' ? 'white' :  'rgba(0,0,0, 0.4)'
+    color: theme.palette.mode === "dark" ? "white" : "rgba(0,0,0, 0.55)",
   },
 }));
 
 const StyledContainer = styled(StyledFlexRow)({
-  gap:10
+  gap: 10,
 });

@@ -1,43 +1,50 @@
-import { useQuery } from "@tanstack/react-query";
-import { releaseMode, QueryKeys, IS_DEV, PROD_TEST_DAOS } from "config";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  releaseMode,
+  QueryKeys,
+  IS_DEV,
+  PROD_TEST_DAOS,
+  REFETCH_INTERVALS,
+} from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
 import {
-  filterTxByTimestamp,
   getClientV2,
   getClientV4,
-  getDaoMetadata,
   getSingleVoterPower,
-  getTransactions,
   getDaoState,
   getRegistryState,
 } from "ton-vote-contracts-sdk";
 import {
+  getIsOneWalletOneVote,
+  getProposalSymbol,
   getVoteStrategyType,
   isDaoWhitelisted,
   isProposalWhitelisted,
   Logger,
   nFormatter,
-  validateServerUpdateTime,
 } from "utils";
 import {
   FOUNDATION_DAO_ADDRESS,
   FOUNDATION_PROPOSALS,
   FOUNDATION_PROPOSALS_ADDRESSES,
 } from "data/foundation/data";
-import { useNewDataStore, useSyncStore } from "store";
-import { getDaoFromContract, lib } from "lib/lib";
-import { api } from "api";
-import {
-  useDaoAddressFromQueryParam,
-  useDevFeatures,
-  useProposalAddress,
-} from "hooks";
-import { fromNano, Transaction } from "ton-core";
-import { ReactQueryConfig } from "./types";
+import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
+import { contract } from "contract";
+import { useCurrentRoute, useDevFeatures } from "hooks/hooks";
+import { fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { getIsServerUpToDate, useIsDaosUpToDate, useNewDaoAddresses } from "./logic";
+import {
+  getIsServerUpToDate,
+  useDaoNewProposals,
+  useIsDaosUpToDate,
+  useNewDaoAddresses,
+} from "./hooks";
+import { api } from "api";
+import { useMemo, useState } from "react";
+import { routes } from "consts";
+import { lib } from "lib";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -85,15 +92,25 @@ export const useDaoStateQuery = (daoAddress?: string) => {
   );
 };
 
-export const useDaosQuery = (config?: ReactQueryConfig) => {
+export const useDaosQuery = () => {
   const devFeatures = useDevFeatures();
 
   const handleNewDaoAddresses = useNewDaoAddresses();
   const handleDaosUpToDate = useIsDaosUpToDate();
+  const route = useCurrentRoute();
+
+  const config = useMemo(() => {
+    return {
+      staleTime: 10_000,
+      refetchInterval:
+        route === routes.spaces ? REFETCH_INTERVALS.daos : undefined,
+    };
+  }, [route]);
+
   return useQuery(
     [QueryKeys.DAOS, devFeatures],
     async ({ signal }) => {
-      const payload = (await lib.getDaos(signal)) || [];
+      const payload = (await api.getDaos(signal)) || [];
 
       const prodDaos = await handleDaosUpToDate(payload);
 
@@ -123,46 +140,36 @@ export const useDaosQuery = (config?: ReactQueryConfig) => {
       return allDaos;
     },
     {
-      refetchInterval: config?.refetchInterval,
-      staleTime: config?.staleTime,
+      refetchInterval: config.refetchInterval,
+      staleTime: Infinity,
     }
   );
 };
 
-const useHandleNewProposals = () => {
-  const { proposals: newProposals, removeProposal } = useNewDataStore();
-
-  return (daoAddress: string, proposals: string[]) => {
-    const newDaoPoposals = newProposals[daoAddress];
-
-    // if no new proposals reutrn current proposals
-    if (!_.size(newDaoPoposals)) return proposals;
-    _.forEach(newDaoPoposals, (newDaoProposal) => {
-      // if server already return new proposal, delete from local storage
-      if (proposals.includes(newDaoProposal)) {
-        removeProposal(daoAddress, newDaoProposal);
-      } else {
-        // if server dont return new proposal, add to proposals
-        proposals.push(newDaoProposal);
-      }
-    });
-
-    return _.uniq(proposals);
-  };
-};
-
-export const useDaoQuery = (
-  daoAddress?: string,
-  refetchInterval?: number,
-  staleTime: number = Infinity
-) => {
-  const handleProposal = useHandleNewProposals();
+export const useDaoQuery = (daoAddress: string) => {
+  const addNewProposals = useDaoNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
 
-  return useQuery<Dao>(
-    [QueryKeys.DAO, daoAddress],
+  const route = useCurrentRoute();
+
+  const config = useMemo(() => {
+    return {
+      staleTime: route === routes.proposal ? Infinity : 10_000,
+      refetchInterval:
+        route === routes.proposal ? undefined : REFETCH_INTERVALS.dao,
+    };
+  }, [route]);
+
+  const queryClient = useQueryClient();
+  const key = [QueryKeys.DAO, daoAddress];
+  return useQuery<Dao | null>(
+    key,
     async ({ signal }) => {
+      if (!isWhitelisted) {
+        throw new Error("DAO not whitelisted");
+      }
+
       const mockDao = mock.isMockDao(daoAddress!);
       if (mockDao) {
         return {
@@ -170,20 +177,31 @@ export const useDaoQuery = (
           daoProposals: mock.proposalAddresses,
         };
       }
-      if (!isWhitelisted) {
-        throw new Error("DAO not whitelisted");
-      }
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
 
-      const serverUpToDate = await getIsServerUpToDate(metadataLastUpdate);
+      const isMetadataUpToDate = await getIsServerUpToDate(metadataLastUpdate);
 
-      if (serverUpToDate) {
+      const getDaoFromContract = () => contract.getDao(daoAddress);
+
+      let dao;
+      if (!isMetadataUpToDate) {
+        dao = await getDaoFromContract();
+      } else {
         removeDaoUpdateMillis(daoAddress!);
+        dao = await api.getDao(daoAddress!, signal);
+        if (!dao) {
+          // fallback
+          dao = await getDaoFromContract();
+        }
       }
 
-      const dao = await lib.getDao(daoAddress!, !serverUpToDate, signal);
-      const proposals = handleProposal(daoAddress!, dao.daoProposals);
+      // try to return dao from cache
+      if (!dao) {
+        return queryClient.getQueryData<Dao>(key) || null;
+      }
+
+      const proposals = addNewProposals(daoAddress!, dao.daoProposals);
       const daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
         : proposals;
@@ -191,25 +209,16 @@ export const useDaoQuery = (
         ...dao,
         daoProposals:
           daoAddress === FOUNDATION_DAO_ADDRESS
-            ? [...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES]
+            ? FOUNDATION_PROPOSALS_ADDRESSES
             : daoProposals,
       };
     },
     {
-      retry: isWhitelisted ? 3 : false,
-      staleTime,
-      refetchInterval: isWhitelisted ? refetchInterval : undefined,
+      staleTime: Infinity,
+      refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
       enabled: !!daoAddress,
     }
   );
-};
-
-export const useDaoFromQueryParam = (
-  refetchInterval?: number,
-  staleTime: number = Infinity
-) => {
-  const address = useDaoAddressFromQueryParam();
-  return useDaoQuery(address, refetchInterval, staleTime);
 };
 
 export const useGetClients = () => {
@@ -232,15 +241,13 @@ export const useConnectedWalletVotingPowerQuery = (
   proposalAddress?: string
 ) => {
   const connectedWallet = useTonAddress();
-
   const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.SIGNLE_VOTING_POWER, connectedWallet, proposalAddress],
     async ({ signal }) => {
-      const allNftHolders = await lib.getAllNftHolders(
+      const allNftHolders = await lib.getAllNFTHolders(
         proposalAddress!,
-        clients!.clientV4,
-        proposal!.metadata!,
+        proposal?.metadata!,
         signal
       );
 
@@ -258,97 +265,170 @@ export const useConnectedWalletVotingPowerQuery = (
         allNftHolders
       );
 
-      return nFormatter(Number(fromNano(result)));
+      const symbol = getProposalSymbol(
+        proposal?.metadata?.votingPowerStrategies
+      );
+
+      if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
+        return result;
+      }
+
+      return `${nFormatter(Number(fromNano(result)))} ${symbol}`;
     },
     {
-      enabled:
-        !!connectedWallet &&
-        !!proposal &&
-        !!clients?.clientV4 &&
-        !!proposalAddress,
+      enabled: !!connectedWallet && !!proposal && !!proposalAddress,
     }
   );
 };
 
+interface ProposalQueryArgs {
+  disabled?: boolean;
+  isCustomEndpoint?: boolean;
+}
+
 export const useProposalQuery = (
-  proposalAddress?: string,
-  args?: ReactQueryConfig
+  proposalAddress: string,
+  args?: ProposalQueryArgs
 ) => {
-  const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const clients = useGetClients().data;
-  const getContractStateCallback = useGetContractState();
+  const votePersistStore = useVotePersistedStore();
+  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
+    useSyncStore();
+  const { isVoting } = useVoteStore();
+  const key = [QueryKeys.PROPOSAL, proposalAddress];
+  const isWhitelisted = isProposalWhitelisted(proposalAddress);
+  const [error, setError] = useState(false);
+
+  const route = useCurrentRoute();
+
+  const config = useMemo(() => {
+    return {
+      refetchInterval: route === routes.proposal ? 15_000 : 30_000,
+    };
+  }, [route]);
+
+  const queryClient = useQueryClient();
 
   return useQuery(
-    [QueryKeys.PROPOSAL, proposalAddress],
+    key,
     async ({ signal }) => {
-      const isMockProposal = mock.getMockProposal(proposalAddress!);
-      if (isMockProposal) {
-        return isMockProposal;
+      if (!isWhitelisted) {
+        throw new Error("Proposal not whitelisted");
+      }
+      const mockProposal = mock.getMockProposal(proposalAddress!);
+      if (mockProposal) {
+        return mockProposal;
       }
       const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
       if (foundationProposal) {
         return foundationProposal;
       }
 
-      if (!isWhitelisted) {
-        throw new Error("Proposal not whitelisted");
+      const currentProposal = queryClient.getQueryData<Proposal | undefined>(
+        key
+      );
+
+      const votePersistValues = votePersistStore.getValues(proposalAddress!);
+
+      // maxLtAfterVote is maxLt after voting
+      const maxLtAfterVote = votePersistValues.maxLtAfterVote;
+
+      const maxLt = maxLtAfterVote || currentProposal?.maxLt;
+
+      const getProposalFromContract = () =>
+        contract.getProposal({ proposalAddress, maxLt });
+
+      const isMetadataUpToDateInServer = await getIsServerUpToDate(
+        getProposalUpdateMillis(proposalAddress)
+      );
+
+      // if updated proposal metadata, and sever is not up to date, get proposal from contract
+      if (!isMetadataUpToDateInServer) {
+        return getProposalFromContract();
+      } else {
+        removeProposalUpdateMillis(proposalAddress);
+      }
+      let proposal;
+
+      // try to fetch proposal from server
+      proposal = await api.getProposal(proposalAddress!, signal);
+      if (!proposal) {
+        // fetch from contract if proposal is not found in server
+        proposal = await getProposalFromContract();
       }
 
-      let proposal;
-      try {
-        proposal = await api.getProposal(proposalAddress!, signal);
-      } catch (error) {
-        proposal = await getContractStateCallback(proposalAddress!);
+      // failed to fetch proposal from server and contract
+      if (!proposal) {
+        // try to return proposal from cache
+        if (currentProposal) return currentProposal;
+
+        // proposal not found in cache, throw error
+        throw new Error("Proposal not found");
       }
-      if (_.isEmpty(proposal?.metadata)) {
-        Logger("List proposal not found in server, fetching from contract");
-        return getContractStateCallback(proposalAddress!);
+
+      //  if proposal is up to date, return proposal, and clear local storage stored values
+
+      const serverMaxLtUpToDate =
+        Number(proposal?.maxLt) >= Number(maxLtAfterVote);
+      const persistedResult = votePersistValues.results;
+      const persistedVote = votePersistValues.vote;
+
+      if (
+        !maxLtAfterVote ||
+        serverMaxLtUpToDate ||
+        !persistedResult ||
+        !persistedVote
+      ) {
+        votePersistStore.resetValues(proposalAddress!);
+
+        return proposal;
       }
-      Logger(`List, fetching proposal from api ${proposalAddress}`);
-      return proposal;
+
+      Logger(
+        `server proposal is not up to date, getting results and vote from local storage, proposal maxLt: ${proposal?.maxLt}, latestMaxLtAfterTx: ${maxLtAfterVote}`
+      );
+
+      // if maxLtAfterVote greater then proposal maxLt, that means that user voted, and
+      // we need to get his vote and proposal result from local storage, because server is not up to date
+
+      const filteredVotes = _.filter(
+        proposal.votes,
+        (it) => it.address !== persistedVote.address
+      );
+
+      return {
+        ...proposal,
+        proposalResult: persistedResult,
+        votes: [persistedVote, ...filteredVotes],
+      };
     },
     {
+      onError: (error: Error) => {
+        console.log(error);
+
+        setError(true);
+      },
       enabled:
         !!proposalAddress &&
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
-        !args?.disabled,
-      staleTime: args?.staleTime || 30_000,
-      retry: isWhitelisted ? 3 : false,
-      refetchInterval: isWhitelisted ? args?.refetchInterval : undefined,
+        !args?.disabled &&
+        !isVoting,
+      staleTime: Infinity,
+      refetchInterval: error
+        ? undefined
+        : isWhitelisted
+        ? config.refetchInterval
+        : undefined,
+      retry: false,
     }
   );
 };
 
 export const useWalletsQuery = () => {
   const [tonConnectUI] = useTonConnectUI();
-  return useQuery(
-    ["useWalletsQuery"],
-    () => {
-      return tonConnectUI.getWallets();
-    },
-    {
-      staleTime: Infinity,
-      enabled: !!tonConnectUI,
-    }
-  );
-};
-
-export const useGetContractState = () => {
-  const clients = useGetClients().data;
-  return async (proposalAddress: string, latestMaxLtAfterTx?: string) => {
-    let transactions: Transaction[] = [];
-    if (latestMaxLtAfterTx) {
-      const result = await getTransactions(clients!.clientV2, proposalAddress!);
-      transactions = filterTxByTimestamp(result.allTxns, latestMaxLtAfterTx);
-    }
-
-    return lib.getProposalFromContract(
-      clients!.clientV2,
-      clients!.clientV4,
-      proposalAddress!,
-      undefined,
-      transactions
-    );
-  };
+  return useQuery(["useWalletsQuery"], () => tonConnectUI.getWallets(), {
+    staleTime: Infinity,
+    enabled: !!tonConnectUI,
+  });
 };

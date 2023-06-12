@@ -2,17 +2,19 @@ import { Typography } from "@mui/material";
 import { Button, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import _ from "lodash";
-import { useDaoAddressFromQueryParam } from "hooks";
+import { useAppParams } from "hooks/hooks";
 
 import { useRolesForm } from "./form";
 import { DaoRolesForm } from "types";
 import { StyledEndAdornment } from "styles";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { useSetDaoOwnerQuery, useSetDaoPublisherQuery } from "query/setters";
 
 export function RolesForm() {
   const form = useRolesForm(EndAdornment);
-  const dao = useDaoFromQueryParam().data;
+      const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
 
   const formik = useFormik<DaoRolesForm>({
     initialValues: {
@@ -43,8 +45,9 @@ export const EndAdornment = ({
     useSetDaoOwnerQuery();
   const { mutateAsync: setPublisher, isLoading: setPublisherloading } =
     useSetDaoPublisherQuery();
-  const { refetch: refetchDao } = useDaoFromQueryParam();
-  const daoAddress = useDaoAddressFromQueryParam();
+
+    const {daoAddress} = useAppParams()
+  const { refetch: refetchDao } = useDaoQuery(daoAddress);
   const value = formik.values[name as keyof DaoRolesForm];
   const initialValue = formik.initialValues[name as keyof DaoRolesForm];
 

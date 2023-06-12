@@ -1,8 +1,13 @@
 import { Typography, useTheme } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { AppTooltip, Container, OverflowWithTooltip, VerifiedDao } from "components";
-import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import {
+  AppTooltip,
+  Container,
+  Link,
+  OverflowWithTooltip,
+  VerifiedDao,
+} from "components";
+import _ from "lodash";
 import { mock } from "mock/mock";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
@@ -10,13 +15,27 @@ import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
-import { makeElipsisAddress, nFormatter, parseLanguage } from "utils";
+import {
+  getIsVerifiedDao,
+  makeElipsisAddress,
+  parseLanguage,
+} from "utils";
 import {
   StyledDao,
   StyledDaoAvatar,
   StyledDaoContent,
   StyledHiddenIcon,
 } from "./styles";
+
+const parseWesbite = (website: string) => {
+  let value = website.replace("https://", "").replace("www.", "");
+
+  if (_.last(value.split("")) === "/") {
+    value = value.replace("/", "");
+  }
+
+  return value;
+};
 
 export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
@@ -25,7 +44,6 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const metadataArgs = dao.daoMetadata?.metadataArgs;
   const walletAddress = useTonAddress();
   const theme = useTheme();
-  const t = useCommonTranslations();
 
   const isOwner =
     dao.daoRoles.owner === walletAddress ||
@@ -57,20 +75,31 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
               <TextOverflow text={`${name}${mockPrefix}`} />
             </Typography>
             <Address dao={dao} />
-            {/* <Container className="members">
-              <Typography>
-                {nFormatter(100000)} {t.members}
-              </Typography>
-            </Container> */}
           </StyledFlexColumn>
         ) : null}
+        <Website dao={dao} />
       </StyledDaoContent>
     </StyledDao>
   );
 };
 
-const useJoinDao = () => {
-  return useMutation(async () => {});
+const Website = ({ dao }: { dao: Dao }) => {
+  const website = dao.daoMetadata.metadataArgs.website;
+
+  if (getIsVerifiedDao(dao.daoAddress) && website) {
+    return (
+      <button
+        className="website"
+        onClick={(e) => {
+          e.stopPropagation();
+          window.open(website, "_blank");
+        }}
+      >
+        <OverflowWithTooltip text={parseWesbite(website)} />
+      </button>
+    );
+  }
+  return null;
 };
 
 const Address = ({ dao }: { dao: Dao }) => {

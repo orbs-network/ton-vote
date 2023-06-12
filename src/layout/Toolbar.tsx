@@ -1,10 +1,10 @@
-import { styled } from "@mui/material";
+import { IconButton, styled, useTheme, useThemeProps } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
-import { IS_DEV } from "config";
+import { IS_DEV, TELEGRAM_SUPPORT_GROUP } from "config";
 import { TOOLBAR_WIDTH } from "consts";
-import { useDevFeatures, useMobile, useRole } from "hooks";
+import { useDevFeatures, useMobile, useRole } from "hooks/hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -13,30 +13,26 @@ import { appNavigation, useAppNavigation } from "router/navigation";
 import { StyledFlexColumn } from "styles";
 import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
-
+import { IoHelpSharp } from "react-icons/io5";
 export function Toolbar() {
   const navigation = useAppNavigation();
   const translations = useDaosPageTranslations();
-  const devFeatures = useDevFeatures()
+  const devFeatures = useDevFeatures();
   const mobile = useMobile();
-
+  const theme = useTheme();
   if (mobile) return null;
 
   return (
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
-        <AppTooltip
-          text={
-            devFeatures
-              ? translations.createDao
-              : `${translations.createDao} (coming soon)`
-          }
-          placement="right"
-        >
+        <AppTooltip text={translations.createDao} placement="right">
           <StyledButton
-            disabled={!devFeatures}
-            onClick={devFeatures ? navigation.createSpace.root : () => {}}
+            onClick={() =>
+              devFeatures
+                ? navigation.createSpace.root()
+                : window.open(TELEGRAM_SUPPORT_GROUP, "_blank")
+            }
             variant="transparent"
           >
             <AiOutlinePlus />
@@ -44,9 +40,25 @@ export function Toolbar() {
         </AppTooltip>
       </StyledFlexColumn>
       <UserDaos />
+      <StyledSupportTooltip placement="right" text="Telegram support group">
+        <StyledSupport
+          variant="transparent"
+          onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_target")}
+        >
+          <IoHelpSharp
+            style={{ width: 30, height: 30, color: theme.palette.primary.main }}
+          />
+        </StyledSupport>
+      </StyledSupportTooltip>
     </StyledToolbar>
   );
 }
+
+const StyledSupportTooltip = styled(AppTooltip)({
+  marginTop: "auto",
+  cursor: "pointer",
+  marginBottom: 20,
+});
 
 const StyledButton = styled(Button)({
   borderRadius: "50%",
@@ -62,15 +74,15 @@ const StyledButton = styled(Button)({
     height: 20,
   },
 });
-
+const StyledSupport = styled(StyledButton)({
+});
 const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
   width: TOOLBAR_WIDTH,
   height: "100%",
   background: theme.palette.background.paper,
   position: "fixed",
   left: 0,
-  borderRight: `0.5px solid ${
-    getBorderColor(theme.palette.mode)}`,
+  borderRight: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
   zIndex: 30,
   top: 0,
   justifyContent: "flex-start",
@@ -94,9 +106,9 @@ const UserDaos = () => {
     <StyledUserDaos>
       {daos &&
         daos?.map((dao) => {
-          const {isOwner, isProposalPublisher} = getRole(dao.daoRoles);
-          
-          if ((isOwner || isProposalPublisher)) {
+          const { isOwner, isProposalPublisher } = getRole(dao.daoRoles);
+
+          if (isOwner || isProposalPublisher) {
             const selected = daoId === dao.daoAddress;
             return (
               <StyledLink

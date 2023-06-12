@@ -1,22 +1,20 @@
 import { styled, Typography } from "@mui/material";
-import { useProposalResults } from "hooks";
+import { useGetProposalSymbol, useProposalResults } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useProposalQuery } from "query/getters";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
-import { getSymbol, getVoteStrategyType } from "utils";
 import { StyledAlert, StyledProposalPercent, StyledProposalResult, StyledProposalResultContent, StyledProposalResultProgress, StyledResultName, StyledTonAmount } from "../styles";
 
 export const Results = ({
-  proposalQuery,
+  proposalAddress,
 }: {
-  proposalQuery: ReturnType<typeof useProposalQuery>;
+  proposalAddress: string;
 }) => {
-  const { data: proposal, dataUpdatedAt } = proposalQuery;
-  
+  const { data: proposal } = useProposalQuery(proposalAddress);
+
   const totalWeight = proposal?.proposalResult.totalWeight;
   const translations = useDaoPageTranslations();
-  const results = useProposalResults(proposal, dataUpdatedAt);
+  const results = useProposalResults(proposalAddress);
 
   if (Number(totalWeight) === 0) {
     return (
@@ -31,13 +29,10 @@ export const Results = ({
       {results.map((result) => {
         return (
           <Result
-            votingPowerStrategy={getVoteStrategyType(
-              proposal?.metadata?.votingPowerStrategies
-            )}
             key={result.choice}
             title={result.choice}
             percent={result.percent}
-            tonAmount={result.tonAmount}
+            amount={result.amount}
           />
         );
       })}
@@ -48,13 +43,11 @@ export const Results = ({
 const Result = ({
   title,
   percent = 0,
-  tonAmount = "0",
-  votingPowerStrategy,
+  amount = "",
 }: {
   title: string;
   percent?: number;
-  tonAmount?: string;
-  votingPowerStrategy?: VotingPowerStrategyType;
+  amount?: string;
 }) => {
   return (
     <StyledProposalResult>
@@ -63,7 +56,7 @@ const Result = ({
         <StyledFlexRow justifyContent="flex-start">
           <StyledResultName text={title} />
           <StyledTonAmount>
-            {tonAmount} {getSymbol(votingPowerStrategy)}
+            {amount}
           </StyledTonAmount>
         </StyledFlexRow>
         <StyledProposalPercent>{percent}%</StyledProposalPercent>

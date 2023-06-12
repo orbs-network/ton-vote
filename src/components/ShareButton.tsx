@@ -1,5 +1,5 @@
 import { Box, MenuItem, styled, Typography } from "@mui/material";
-import { useCopyToClipboard } from "hooks";
+import { useCopyToClipboard } from "hooks/hooks";
 import React, { useState } from "react";
 import { BsReddit, BsTwitter } from "react-icons/bs";
 import { FaTelegramPlane } from "react-icons/fa";

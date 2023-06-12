@@ -1,11 +1,11 @@
 import { styled, Typography } from "@mui/material";
-import { Button, FormikInputsForm } from "components";
+import { Button, CheckboxInput, FormikInputsForm } from "components";
 import { useFormik } from "formik";
 import { useCreatDaoStore } from "../store";
 import _ from "lodash";
 import { Submit } from "./Submit";
 import { useEffect } from "react";
-import { useDebouncedCallback } from "hooks";
+import { useDebouncedCallback } from "hooks/hooks";
 import { validateFormik } from "utils";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
@@ -14,6 +14,8 @@ import { useDaoMetadataForm } from "../form";
 import { DaoMetadataForm } from "types";
 import { useCreateMetadataQuery } from "query/setters";
 import { ZERO_ADDRESS } from "consts";
+
+
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateMetadataQuery();
@@ -36,6 +38,7 @@ export function CreateMetadataStep() {
       jetton: formData.jetton || ZERO_ADDRESS,
       nft: formData.nft || ZERO_ADDRESS,
       dns: formData.dns || "",
+      dev: formData.dev,
     };
 
     createMetadata({
@@ -64,6 +67,7 @@ export function CreateMetadataStep() {
       dns: daoMetadataForm.dns,
       about_en: daoMetadataForm.about_en,
       name_en: daoMetadataForm.name_en,
+      dev: true,
     },
     validationSchema: Schema,
     validateOnChange: false,
@@ -74,6 +78,7 @@ export function CreateMetadataStep() {
   const saveForm = useDebouncedCallback(() => {
     store.setDaoMetadataForm(formik.values);
   });
+  
 
   useEffect(() => {
     saveForm();

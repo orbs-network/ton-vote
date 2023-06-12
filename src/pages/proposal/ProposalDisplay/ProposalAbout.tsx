@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useDaoAddressFromQueryParam, useMobile, useProposalAddress } from "hooks";
+import { useAppParams, useMobile, useProposalStatus } from "hooks/hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
@@ -17,18 +17,19 @@ import {
   ShareButton,
   Status,
   OverflowWithTooltip,
+  HiddenProposal,
 } from "components";
 import { makeElipsisAddress, parseLanguage } from "utils";
-import { useProposalPageQuery, useProposalPageStatus } from "../hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
 
 const MIN_DESCRIPTION_HEIGHT = 200;
 
 export const ProposalAbout = () => {
-  const { isLoading } = useProposalPageQuery(false);
+  const {proposalAddress} = useAppParams()
+  const { isLoading } = useProposalQuery(proposalAddress);
   const mobile = useMobile();
 
   if (isLoading) {
@@ -77,19 +78,27 @@ function MobileAbout() {
 }
 
 const ProposalHeader = () => {
-  const proposalAddress = useProposalAddress();
-  const data = useProposalPageQuery(false).data;
+  const { proposalAddress } = useAppParams();
+  const data = useProposalQuery(proposalAddress).data;
 
-  const mockPrefix = mock.isMockProposal(proposalAddress)  ? ' (Mock)' : '';
-  
+  const mockPrefix = mock.isMockProposal(proposalAddress) ? " (Mock)" : "";
+
   const title = parseLanguage(data?.metadata?.title);
 
   return (
-    <>
+    <StyledFlexRow>
       <StyledHeader title={`${title}${mockPrefix}`} />
-    </>
+      {data && <StyledHiddenProposal proposal={data} />}
+    </StyledFlexRow>
   );
 };
+
+const StyledHiddenProposal = styled(HiddenProposal)({
+  position:'absolute',
+  top: 7,
+  right: 7
+});
+
 
 const ShowMoreButton = ({
   onClick,
@@ -117,7 +126,8 @@ const ShowMoreButton = ({
 const Description = () => {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const elRef = useRef<any>();
-  const { data, isLoading } = useProposalPageQuery(false);
+  const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
   const [showMore, setShowMore] = useState(false);
 
   useLayoutEffect(() => {
@@ -178,7 +188,8 @@ const StyledHeader = styled(Header)({
 });
 
 const ProposalStatus = () => {
-  const {proposalStatusText} = useProposalPageStatus();
+  const {proposalAddress} = useAppParams()
+  const { proposalStatusText } = useProposalStatus(proposalAddress);
 
   return <Status status={proposalStatusText} />;
 };
@@ -188,8 +199,9 @@ const StyledShareButton = styled(ShareButton)({
 });
 
 const DaoInfo = () => {
-  const daoAddress = useDaoAddressFromQueryParam();
-  const daoMetadata = useDaoFromQueryParam().data?.daoMetadata;
+  const { daoAddress } = useAppParams();
+
+  const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
 
   return (
     <StyledFlexRow style={{ width: "auto" }}>
@@ -198,15 +210,18 @@ const DaoInfo = () => {
         to={appNavigation.daoPage.root(daoAddress)}
         className="dao-name"
       >
-        <OverflowWithTooltip text={parseLanguage(daoMetadata?.metadataArgs.name)} />
+        <OverflowWithTooltip
+          text={parseLanguage(daoMetadata?.metadataArgs.name)}
+        />
       </StyledLink>
     </StyledFlexRow>
   );
 };
 
 const ByProposalOwner = () => {
-  const daoAddress = useDaoAddressFromQueryParam();
-  const daoRoles = useDaoFromQueryParam().data?.daoRoles;
+  const { daoAddress } = useAppParams();
+
+  const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
   if (!daoRoles?.proposalOwner) {
     return null;
   }
@@ -224,6 +239,8 @@ const StyledLink = styled(Link)({
 });
 
 const StyledDaoImg = styled(Img)({
+  minWidth: 30,
+  minHeight: 30,
   width: 30,
   height: 30,
   borderRadius: "50%",
@@ -270,7 +287,7 @@ const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
     width: "100%",
     position: "relative",
     boxShadow: open === 1 ? "unset" : shadow,
-    background: theme.palette.mode === "light" ?  "white" : "#222830",
+    background: theme.palette.mode === "light" ? "white" : "#222830",
     paddingTop: 20,
   };
 });
@@ -278,6 +295,7 @@ const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
 const StyledContainer = styled(Container)({
   width: "100%",
   padding: 30,
+  paddingTop: 40,
   position: "relative",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     padding: 20,

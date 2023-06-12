@@ -34,8 +34,10 @@ export function usePromiseToast<T>() {
         },
         error: (err: any) => {
           infoToast && toast.dismiss(infoToast);
+          const message = args.error || err;
+          const msg = message instanceof Error ? message.message : message;
 
-          return <ToastContent customClick={toast.dismiss} message={err} />;
+          return <ToastContent customClick={toast.dismiss} message={msg} />;
         },
       },
       {

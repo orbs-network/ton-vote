@@ -15,7 +15,7 @@ export const getInitialValues = (metadata?: MetadataArgs) => {
     avatar: metadata?.avatar || "",
     hide: metadata?.hide || false,
     jetton: isZeroAddress(metadata?.jetton) ? "" : metadata?.jetton || "",
-    nft: isZeroAddress(metadata?.nft) ? "" : "",
+    nft: isZeroAddress(metadata?.nft) ? "" : metadata?.nft || "",
     dns: metadata?.dns || "",
     about_en: parseLanguage(metadata?.about) || "",
     name_en: parseLanguage(metadata?.name) || "",

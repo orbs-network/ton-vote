@@ -32,6 +32,7 @@ const total = _.reduce(votingPower, (sum, n) => sum + n, 0);
 const defaultProposal = {
   daoAddress: "EQCh4ksBLF4bHmqPqzZT9AlnKgh49luRGqhpVdm3dZ0m1XTN",
   metadata: {
+    hide: false,
     quorum: "",
     id: 0,
     proposalDeployer: "EQAoNPahsAn7qra-u1489Wd8zgs4SDmReXNscv3Iu4cjYBBf",
@@ -54,6 +55,7 @@ const defaultProposal = {
   },
   votingPower: {},
   votes,
+  rawVotes: {},
   proposalResult: {
     yes: (
       (_.countBy(votes, (v) => v.vote === "Yes").true / VOTES_AMOUNT) *
@@ -177,4 +179,5 @@ export const proposals: Proposal[] = [
   activeProposal({ strategyType: VotingPowerStrategyType.NftCcollection }),
   endedProposal({ strategyType: VotingPowerStrategyType.TonBalance }),
   pendingProposal({ strategyType: VotingPowerStrategyType.JettonBalance }),
+
 ];

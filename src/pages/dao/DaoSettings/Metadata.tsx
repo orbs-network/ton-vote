@@ -6,17 +6,18 @@ import { useDaoMetadataSchema } from "forms/dao-form";
 import { useMetadataForm } from "./form";
 import { DaoMetadataForm } from "types";
 import { StyledFlexRow } from "styles";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
 import { useUpdateDaoMetadataQuery } from "query/setters";
-import { useDaoAddressFromQueryParam } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import { getInitialValues, prepareMetadata } from "./utils";
 import { useTonAddress } from "@tonconnect/ui-react";
 
 export function MetadataForm() {
   const Schema = useDaoMetadataSchema();
   const updateDaoForm = useMetadataForm();
-  const data = useDaoFromQueryParam().data;
-  const daoAddress = useDaoAddressFromQueryParam();
+  const { daoAddress } = useAppParams();
+
+  const data = useDaoQuery(daoAddress).data;
   const { mutate: updateMetadata, isLoading } = useUpdateDaoMetadataQuery();
 
   const formik = useFormik<DaoMetadataForm>({
@@ -66,7 +67,7 @@ const SubmitButton = ({
 
 const StyledSubmit = styled(StyledFlexRow)({
   marginTop: 40,
-  button:{
-    width:'100%'
-  }
+  button: {
+    width: "100%",
+  },
 });

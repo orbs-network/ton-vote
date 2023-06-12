@@ -41,7 +41,7 @@ const StyledContainer = styled(Box)({
   background: "#0088CC",
   borderRadius: 20,
   "*":{
-     color:'white'
+     color:'white!important'
   },
   p: {
     fontSize: 14,

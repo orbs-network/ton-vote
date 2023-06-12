@@ -1,5 +1,5 @@
 import { createTheme, Theme } from "@mui/material";
-import { useAppSettings } from "hooks";
+import { useAppSettings } from "hooks/hooks";
 import { useEffect } from "react";
 import { useSettingsStore } from "store";
 

@@ -4,35 +4,35 @@ import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useProposalPageQuery, useWalletVote } from "../hooks";
+import { useWalletVote } from "../hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useVote } from "query/setters";
 import { mock } from "mock/mock";
-import { useProposalAddress } from "hooks";
 import { errorToast } from "toasts";
 import _ from "lodash";
+import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
+import { useProposalQuery } from "query/getters";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
   const translations = useProposalPageTranslations();
-  const { data, dataUpdatedAt } = useProposalPageQuery();
+  const { proposalAddress } = useAppParams();
+
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const choices = data?.metadata?.votingSystem.choices;
-  const proposalAddress = useProposalAddress();
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;
 
   useEffect(() => {
-    if(!vote) {
-       setVote(walletVote?.vote as string)
+    if (!vote) {
+      setVote(walletVote?.vote as string);
     }
-   
-  }, [walletVote?.vote])
-  
+  }, [walletVote?.vote]);
 
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
@@ -62,7 +62,9 @@ export function Vote() {
           );
         })}
       </StyledFlexColumn>
-      <AppTooltip  text={currentVote === vote ? `You already voted ${vote}` : ''}>
+      <AppTooltip
+        text={currentVote === vote ? `You already voted ${vote}` : ""}
+      >
         <VoteButton
           isLoading={isLoading}
           disabled={!vote || isLoading || currentVote === vote}
@@ -73,7 +75,10 @@ export function Vote() {
         open={confirmation}
         vote={vote}
         onClose={() => setConfirmation(false)}
-        onSubmit={() => mutate(vote!)}
+        onSubmit={() => {
+          if (!vote) return;
+          mutate(vote);
+        }}
       />
     </StyledContainer>
   );

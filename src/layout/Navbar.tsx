@@ -11,7 +11,7 @@ import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
-import { useAppSettings, useDevFeatures } from "hooks";
+import { useAppSettings, useDevFeatures } from "hooks/hooks";
 import { APP_NAME, LANGUAGES } from "config";
 import { useTranslation } from "react-i18next";
 import { BsGlobeAmericas } from "react-icons/bs";

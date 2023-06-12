@@ -1,10 +1,16 @@
 import { api } from "api";
-import { getDaoFromContract } from "lib/lib";
+import { contract } from "contract";
 import _ from "lodash";
 import { useNewDataStore, useSyncStore } from "store";
-import { getClientV2, getDaoMetadata } from "ton-vote-contracts-sdk";
+import {
+  getClientV2,
+  getDaoMetadata,
+} from "ton-vote-contracts-sdk";
 import { Dao } from "types";
-import { Logger, validateServerUpdateTime } from "utils";
+import {
+  Logger,
+  validateServerUpdateTime,
+} from "utils";
 
 export const useNewDaoAddresses = () => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -13,7 +19,7 @@ export const useNewDaoAddresses = () => {
     if (_.size(newDaosAddresses)) {
       const addresses = _.map(daos, (it) => it.daoAddress);
       const client = await getClientV2();
-        
+
       let promise = Promise.allSettled(
         _.map(newDaosAddresses, async (newDaoAddress) => {
           if (addresses.includes(newDaoAddress)) {
@@ -21,7 +27,7 @@ export const useNewDaoAddresses = () => {
           } else {
             Logger(`New DAO: ${newDaoAddress}`);
 
-            return getDaoFromContract(newDaoAddress, client);
+            return contract.getDao(newDaoAddress, client);
           }
         })
       );
@@ -96,3 +102,26 @@ export const getIsServerUpToDate = async (itemLastUpdateTime?: number) => {
     }
   }
 };
+
+export const useDaoNewProposals = () => {
+  const { proposals: newProposals, removeProposal } = useNewDataStore();
+
+  return (daoAddress: string, proposals: string[]) => {
+    const newDaoPoposals = newProposals[daoAddress];
+
+    // if no new proposals reutrn current proposals
+    if (!_.size(newDaoPoposals)) return proposals;
+    _.forEach(newDaoPoposals, (newDaoProposal) => {
+      // if server already return new proposal, delete from local storage
+      if (proposals.includes(newDaoProposal)) {
+        removeProposal(daoAddress, newDaoProposal);
+      } else {
+        // if server dont return new proposal, add to proposals
+        proposals.push(newDaoProposal);
+      }
+    });
+
+    return _.uniq(proposals);
+  };
+};
+

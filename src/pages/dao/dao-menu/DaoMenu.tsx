@@ -1,16 +1,17 @@
-import { Tabs, Typography } from "@mui/material";
+import { styled, Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
 import { routes } from "consts";
 import {
+  useAppParams,
   useCurrentRoute,
-  useDaoAddressFromQueryParam,
   useDevFeatures,
   useMobile,
   useRole,
-} from "hooks";
+} from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery } from "query/getters";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
@@ -29,10 +30,13 @@ import {
   StyledLoader,
   StyledTitle,
   StyledTop,
+  StyledOuterLink,
 } from "./styles";
 
 export function DaoMenu() {
-  const isLoading = useDaoFromQueryParam().isLoading;
+  const { daoAddress } = useAppParams();
+
+  const isLoading = useDaoQuery(daoAddress).isLoading;
   const mobile = useMobile();
   if (isLoading) {
     return (
@@ -49,7 +53,7 @@ export function DaoMenu() {
       </StyledSideMenu>
     );
   }
-  return mobile ? <MobilepMenu /> : <DesktopMenu />;
+  return mobile ? <MobileMenu /> : <DesktopMenu />;
 }
 
 const DesktopMenu = () => {
@@ -64,16 +68,15 @@ const DesktopMenu = () => {
         </StyledFlexColumn>
       </StyledTop>
       <DesktopNavigation />
-      <DaoSocials />
+      <SocialDesktopLinks />
     </StyledSideMenu>
   );
 };
 
-const MobilepMenu = () => {
+const MobileMenu = () => {
   return (
     <StyledSideMenu>
       <StyledTop>
-        <DaoSocials />
         <StyledFlexRow gap={20} alignItems="flex-start">
           <DaoLogo />
           <StyledFlexColumn alignItems="flex-start" style={{ flex: 1 }}>
@@ -91,12 +94,16 @@ const MobilepMenu = () => {
 };
 
 const DaoLogo = () => {
-  const dao = useDaoFromQueryParam().data;
+  const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
   return <StyledLogo src={dao?.daoMetadata?.metadataArgs.avatar} />;
 };
 
 const DaoTitle = () => {
-  const dao = useDaoFromQueryParam().data;
+  const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
 
   return (
     <StyledFlexRow>
@@ -110,7 +117,9 @@ const DaoTitle = () => {
 };
 
 const DaoDNS = () => {
-  const dao = useDaoFromQueryParam().data;
+  const { daoAddress } = useAppParams();
+
+  const dao = useDaoQuery(daoAddress).data;
 
   if (!dao?.daoMetadata.metadataArgs?.dns) {
     return null;
@@ -124,19 +133,10 @@ const DaoDNS = () => {
 };
 
 const DaoAddress = () => {
-  const dao = useDaoFromQueryParam().data;
-  return <StyledAddressDisplay address={dao?.daoAddress} padding={8} />;
-};
+  const { daoAddress } = useAppParams();
 
-const DaoSocials = () => {
-  const dao = useDaoFromQueryParam().data;
-  return (
-    <StyledSocials
-      github={dao?.daoMetadata?.metadataArgs.github || "/"}
-      telegram={dao?.daoMetadata?.metadataArgs.telegram || "/"}
-      website={dao?.daoMetadata?.metadataArgs.website || "/"}
-    />
-  );
+  const dao = useDaoQuery(daoAddress).data;
+  return <StyledAddressDisplay address={dao?.daoAddress} padding={8} />;
 };
 
 const DesktopNavigation = () => {
@@ -181,6 +181,7 @@ const MobileNavigation = () => {
   const navigations = useNavigationLinks();
   const currentRoute = useCurrentRoute();
   const navigate = useNavigate();
+  const links = useDaoSocials();
 
   return (
     <StyledMobileNavigation>
@@ -206,6 +207,17 @@ const MobileNavigation = () => {
             />
           );
         })}
+        {links.map((link, index) => {
+          return (
+            <StyledTab
+              onClick={() => window.open(link?.value, "_blank")}
+              key={link?.value}
+              value={link?.value}
+              label={link?.title}
+              {...a11yProps(index)}
+            />
+          );
+        })}
       </Tabs>
     </StyledMobileNavigation>
   );
@@ -213,10 +225,10 @@ const MobileNavigation = () => {
 
 const useNavigationLinks = () => {
   const showDev = useDevFeatures();
+  const { daoAddress } = useAppParams();
 
   const translations = useDaoPageTranslations();
-  const daoAddress = useDaoAddressFromQueryParam();
-  const { data, isLoading } = useDaoFromQueryParam();
+  const { data, isLoading } = useDaoQuery(daoAddress);
   const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
   const route = useCurrentRoute();
   if (isLoading) {
@@ -254,3 +266,63 @@ const useNavigationLinks = () => {
     },
   ];
 };
+
+const options = [
+  { name: "website", title: "Project website" },
+  { name: "telegram", title: "Telegram group" },
+  { name: "github", title: "GitHub" },
+];
+const useDaoSocials = () => {
+  const { daoAddress } = useAppParams();
+
+  const { data, isLoading, dataUpdatedAt } = useDaoQuery(daoAddress);
+
+  return useMemo(() => {
+    return options
+      .map((option) => {
+        const metadata = data?.daoMetadata?.metadataArgs as any;
+        if (!metadata) return null;
+        const value = metadata[option.name];
+        if (!value) return null;
+        return {
+          title: option.title,
+          value,
+        };
+      })
+      .filter(Boolean);
+  }, [dataUpdatedAt]);
+};
+
+const SocialDesktopLinks = () => {
+  const links = useDaoSocials();
+
+  if (_.size(links) === 0) return null;
+
+  return (
+    <StyleDesktopSocials gap={0}>
+      {links.map((link) => {
+        return (
+          <StyledOuterLink key={link?.value} target="_blank" href={link?.value}>
+            {link?.title}
+          </StyledOuterLink>
+        );
+      })}
+    </StyleDesktopSocials>
+  );
+};
+
+const StyleDesktopSocials = styled(StyledFlexColumn)({
+  paddingTop: 10,
+  marginTop: 10,
+  position: "relative",
+  "&::after": {
+    top: "0px",
+    position: "absolute",
+    left: "50%",
+    transform: "translate(-50%)",
+    width: "calc(100% - 40px)",
+    height: 2,
+    content: "''",
+    background: "#EDEDED",
+  },
+});

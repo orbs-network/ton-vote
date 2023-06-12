@@ -2,9 +2,9 @@ import { styled, Typography } from "@mui/material";
 import { Header, LoadingContainer } from "components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
 import { prepareMetadata } from "forms/proposal-form/utils";
-import { useProposalAddress, useProposalStatus } from "hooks";
+import { useAppParams, useProposalStatus } from "hooks/hooks";
 import moment from "moment";
-import { useDaoFromQueryParam } from "query/getters";
+import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useUpdateProposalMutation } from "query/setters";
 import React, { ReactNode } from "react";
 import { appNavigation } from "router/navigation";
@@ -12,7 +12,6 @@ import { StyledContainer, StyledFlexColumn } from "styles";
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import { ProposalForm as ProposalFormType, ProposalStatus } from "types";
 import { Page } from "wrappers";
-import { useProposalPageQuery } from "./hooks";
 
 const parseMetadata = (metadata?: ProposalMetadata) => {
   if (!metadata) {
@@ -27,27 +26,23 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
     proposalSnapshotTime: metadata.proposalSnapshotTime * 1000,
     votingSystemType: metadata.votingSystem.votingSystemType,
     votingPowerStrategies: metadata.votingPowerStrategies,
+    hide: metadata.hide,
   } as ProposalFormType;
 };
 
 export function EditProposal() {
-  const { data: dao } = useDaoFromQueryParam();
-  const proposalAddress = useProposalAddress();
-  const { data: proposal } = useProposalPageQuery();
-  const { proposalStatus } = useProposalStatus(
-    proposalAddress,
-    proposal?.metadata
-  );
-   const { mutate, isLoading } = useUpdateProposalMutation();
+  const { daoAddress } = useAppParams();
+  const { data: dao } = useDaoQuery(daoAddress);
+  const { proposalAddress } = useAppParams();
+
+  const { data: proposal } = useProposalQuery(proposalAddress);
+  const { proposalStatus } = useProposalStatus(proposalAddress);
+  const { mutate, isLoading } = useUpdateProposalMutation();
 
   const update = (values: ProposalFormType) => {
-    const data = prepareMetadata(values);
-    mutate({
-      title: data.title!,
-      description: data.description!,
-      proposalAddr: proposalAddress,
-      daoAddress: dao!.daoAddress,
-    });
+    const metadata = prepareMetadata(values) as ProposalMetadata;
+
+    mutate(metadata);
   };
 
   if (!proposal || !dao) {
@@ -58,12 +53,12 @@ export function EditProposal() {
     );
   }
 
-  if (proposalStatus === ProposalStatus.CLOSED) {
+  if (proposalStatus !== ProposalStatus.NOT_STARTED) {
     return (
       <Container>
         <StyledWarning>
           <StyledWarningFlex>
-            <Typography>Closed proposal cant be updated</Typography>
+            <Typography>Only pending proposals can be edited</Typography>
           </StyledWarningFlex>
         </StyledWarning>
       </Container>
@@ -77,8 +72,9 @@ export function EditProposal() {
         initialFormData={parseMetadata(proposal?.metadata)}
         onSubmit={update}
         isLoading={isLoading}
-        dao={dao!}
+        dao={dao}
         editMode={true}
+        status={proposalStatus || undefined}
       />
     </Container>
   );
@@ -100,8 +96,10 @@ const StyledWarningFlex = styled(StyledFlexColumn)({
 });
 
 const Container = ({ children }: { children: ReactNode }) => {
-  const { data: dao } = useDaoFromQueryParam();
-  const proposalAddress = useProposalAddress();
+  const { daoAddress } = useAppParams();
+
+  const { data: dao } = useDaoQuery(daoAddress);
+  const { proposalAddress } = useAppParams();
 
   const back = () => {
     if (!dao) return "";

@@ -178,11 +178,17 @@ export const StyledInputHeader = styled(StyledFlexRow)({
   justifyContent: "flex-start",
 });
 
-export const StyledTitle = styled(Typography)({
+export const StyledTitle = styled(StyledFlexRow)(({theme}) => ({
+  justifyContent: "flex-start",
+  width: "auto",
   textAlign: "left",
-  fontSize: 14,
-  fontWeight: 600,
-});
+  color: theme.palette.text.primary,
+  "*": {
+    fontSize: 14,
+    fontWeight: 600,
+    color:'inherit'
+  },
+}));
 
 export const StyledDatepicker = styled(StyledContainer)<{ error: number }>(
   ({ error }) => ({
@@ -190,10 +196,15 @@ export const StyledDatepicker = styled(StyledContainer)<{ error: number }>(
     flex: 1,
     fieldset: {
       borderRadius: 10,
-      // borderColor: error ? "#d32f2f" : "rgba(0, 0, 0, 0.23)",
     },
     input: {
       fontSize: 14,
     },
   })
 );
+
+
+export const StyledDisplayText = styled(Typography)({
+  fontSize: 16,
+  fontWeight: 500
+});

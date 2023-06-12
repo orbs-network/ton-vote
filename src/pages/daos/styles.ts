@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from "@mui/material";
+import { Box, Chip, styled, Typography } from "@mui/material";
 import { Button, Container, Img, Search } from "components";
 import { MOBILE_WIDTH } from "consts";
 import { StyledFlexRow } from "styles";
@@ -28,8 +28,7 @@ export const StyledDaoAvatar = styled(Img)({
 
 export const StyledDao = styled(Box)(({ theme }) => ({
   width: "calc(100% / 4 - 15px)",
-  height: 250,
-
+  height: 270,
   cursor: "pointer",
   ".container": {
     height: "100%",
@@ -41,6 +40,27 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     width: "100%",
     textAlign: "center",
     color: theme.typography.h2.color,
+  },
+  ".website": {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    width:'fit-content',
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    borderBottom: "1px solid transparent",
+    transition: "0.2s all",
+    padding: 0,
+    marginTop: 'auto',
+    p: {
+      fontSize: 14,
+      fontWeight: 600,
+      lineHeight: "normal",
+      color: theme.palette.primary.main,
+    },
+    "&:hover": {
+      borderBottom: `1px solid ${theme.palette.primary.main}`,
+    },
   },
   ".address-value": {
     textAlign: "center",
@@ -64,6 +84,7 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     ".title": {
       fontSize: 16,
     },
+
     ".address-value": {
       fontSize: 14,
     },
@@ -88,6 +109,16 @@ export const StyledHeader = styled(StyledFlexRow)({
   },
 });
 
+
+export const StyledWebsiteChip = styled(Chip)(({ theme }) => ({
+  cursor: "pointer",
+  "&:hover": {
+    background: theme.palette.primary.main,
+    "*": {
+      color: "white",
+    },
+  },
+}));
 
 export const StyledDaosList = styled(StyledFlexRow)({
   marginLeft: "auto",
@@ -129,3 +160,30 @@ export const StyledSearch = styled(Search)({
     maxWidth: 'unset',
   },
 });
+
+
+
+export const StyledNewDao = styled(StyledDao)(({ theme }) => ({
+  ".container": {
+    boxShadow: "none",
+    padding: 50,
+    backgroundColor: "transparent",
+    border:
+      theme.palette.mode === "light"
+        ? "1px dashed rgba(0,0,0 , 0.15)"
+        : "1px dashed rgba(255,255,255, 0.2)",
+    "&:hover": {
+      border: `1px dashed ${theme.palette.primary.main}`,
+    },
+  },
+  p: {
+    textAlign: "center",
+    fontWight: 600,
+    fontSize: 17,
+  },
+  ".flex": {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+  },
+}));

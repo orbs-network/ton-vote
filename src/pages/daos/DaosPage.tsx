@@ -1,27 +1,39 @@
-import {  List, LoadMore } from "components";
+import { List, LoadMore } from "components";
 import {
   StyledEmptyText,
   StyledFlexColumn,
   StyledFlexRow,
   StyledSkeletonLoader,
 } from "styles";
-import { StyledDao, StyledDaoContent, StyledDaosAmount, StyledDaosList, StyledEmptyList, StyledHeader, StyledSearch } from "./styles";
+import {
+  StyledDao,
+  StyledDaoContent,
+  StyledDaosAmount,
+  StyledDaosList,
+  StyledEmptyList,
+  StyledHeader,
+  StyledNewDao,
+  StyledSearch,
+} from "./styles";
 import { nFormatter } from "utils";
 import { Dao } from "types";
 import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import { DAOS_PAGE_REFETCH_INTERVAL } from "config";
-import { useAppQueryParams, useMobile } from "hooks";
+import {  TELEGRAM_SUPPORT_GROUP } from "config";
+import { useAppQueryParams, useMobile } from "hooks/hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { Page } from "wrappers";
-
+import { styled, Typography } from "@mui/material";
+import { RxPlus } from "react-icons/rx";
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
   const nameFilter = _.filter(daos, (it) =>
-    it.daoMetadata.metadataArgs.name.toLowerCase().includes(searchValue.toLowerCase())
+    it.daoMetadata.metadataArgs.name
+      .toLowerCase()
+      .includes(searchValue.toLowerCase())
   );
   const addressFilter = _.filter(daos, (it) =>
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
@@ -31,14 +43,10 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
 };
 
 export function DaosPage() {
-  const {
-    data = [],
-    isLoading,
-    dataUpdatedAt,
-  } = useDaosQuery({ refetchInterval: DAOS_PAGE_REFETCH_INTERVAL });
+  const { data = [], isLoading, dataUpdatedAt } = useDaosQuery();
   const { limit, loadMore } = useDaosListLimit();
   const [searchValue, setSearchValue] = useState("");
-  const mobile = useMobile()
+  const mobile = useMobile();
 
   const { query, setSearch } = useAppQueryParams();
 
@@ -46,7 +54,7 @@ export function DaosPage() {
     setSearchValue(value);
     setSearch(value);
   };
-  const translations = useDaosPageTranslations()
+  const translations = useDaosPageTranslations();
 
   const filteredDaos = useMemo(
     () => filterDaos(data, searchValue),
@@ -85,6 +93,7 @@ export function DaosPage() {
                 if (index > limit) return null;
                 return <DaoListItem key={dao.daoAddress} dao={dao} />;
               })}
+              <NewDao />
             </StyledDaosList>
           </List>
 
@@ -101,6 +110,19 @@ export function DaosPage() {
 }
 
 export default DaosPage;
+
+const NewDao = () => {
+  return (
+    <StyledNewDao onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_blank")}>
+      <StyledDaoContent hover className="container">
+        <StyledFlexColumn className="flex">
+          <Typography>Create a new space for your DAO</Typography>
+        </StyledFlexColumn>
+      </StyledDaoContent>
+    </StyledNewDao>
+  );
+};
+
 
 
 const ListLoader = () => {

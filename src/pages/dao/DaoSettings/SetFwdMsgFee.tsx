@@ -2,11 +2,11 @@ import { Typography } from "@mui/material";
 import { Button, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
 import _ from "lodash";
-import { useDaoAddressFromQueryParam } from "hooks";
+import { useAppParams } from "hooks/hooks";
 
 import { FormArgs, FormikInputEndAdorment } from "types";
 import { StyledEndAdornment } from "styles";
-import { useDaoFromQueryParam, useDaoStateQuery } from "query/getters";
+import { useDaoQuery, useDaoStateQuery } from "query/getters";
 import { useSetDaoFwdMsgFee } from "query/setters";
 
 interface IForm {
@@ -29,7 +29,7 @@ const useForm = (): FormArgs<IForm> => {
 
 export function SetFwdMsgFee() {
   const form = useForm();
-  const daoAddress = useDaoAddressFromQueryParam();
+  const { daoAddress } = useAppParams();
   const { data: daoState } = useDaoStateQuery(daoAddress);
 
   const formik = useFormik<IForm>({
@@ -54,9 +54,11 @@ export const EndAdornment = ({
   name: string;
   formik: FormikProps<IForm>;
 }) => {
+  const { daoAddress } = useAppParams();
+
   const value = formik.values[name as keyof IForm];
   const initialValue = formik.initialValues[name as keyof IForm];
-  const data = useDaoFromQueryParam().data;
+  const data = useDaoQuery(daoAddress).data;
   const { mutate: setCreateProposalFee, isLoading } = useSetDaoFwdMsgFee();
 
   const { refetch } = useDaoStateQuery(data?.daoAddress);

@@ -1,4 +1,5 @@
-import { DaoMetadataForm } from "types";
+import { ProposalMetadata } from "ton-vote-contracts-sdk";
+import { DaoMetadataForm, Proposal } from "types";
 
 export interface CreateDaoArgs {
   metadataAddress: string;
@@ -19,18 +20,3 @@ export interface UpdateMetadataArgs {
   daoAddress: string;
 }
 
-
-export interface ReactQueryConfig {
-  refetchInterval?: number;
-  staleTime?: number;
-  disabled?: boolean;
-}
-
-
-export interface UpdateProposalArgs {
-  daoAddress: string;
-  proposalAddr: string;
-  title: string;
-  description: string;
-  onSuccess?: () => void;
-}

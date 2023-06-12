@@ -12,11 +12,10 @@ import { InputHeader, MapInput } from "components";
 import { StyledSelectBoxInput } from "components/inputs/styles";
 import { STRATEGIES } from "config";
 import { FormikProps } from "formik";
-import { useDaoAddressFromQueryParam } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/getters";
-import { useMemo, useRef } from "react";
-import { BsFillTrash3Fill } from "react-icons/bs";
+import { useMemo } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {
   VotingPowerStrategy,
@@ -44,7 +43,7 @@ const getValue = (
 };
 
 const useStrategies = () => {
-  const daoAddress = useDaoAddressFromQueryParam();
+  const {daoAddress} = useAppParams();
   const { data, dataUpdatedAt } = useDaoQuery(daoAddress);
 
   return useMemo(() => {

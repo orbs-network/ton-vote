@@ -1,3 +1,4 @@
+import { IS_DEV } from "config";
 import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
@@ -67,10 +68,18 @@ export const useDaoMetadataInputs = (): InputArgs<DaoMetadataForm>[] => {
       type: "url",
       name: "github",
     },
+    {
+      label:
+        "Create DAO space also on dev.ton.vote. [Read mode](https://github.com/orbs-network/ton-vote/blob/main/README.md)",
+      type: "checkbox",
+      name: "dev",
+    },
   ];
 };
 
-export const useDaoRolesInputs = (EndAdornment?: any): InputArgs<DaoRolesForm>[] => {
+export const useDaoRolesInputs = (
+  EndAdornment?: any
+): InputArgs<DaoRolesForm>[] => {
   const translations = useCreateDaoTranslations();
 
   return [
@@ -119,46 +128,53 @@ export const useDaoMetadataSchema = () => {
       }
     ),
     avatar: Yup.string()
+      .trim()
       .url(commonTranslations.isInvalid(createDaoTranslations.logoURL))
       .required(commonTranslations.isRequired(createDaoTranslations.logoURL))
       .test("", createDaoTranslations.errors.logoURL1, (value) => {
         return value.startsWith("https://");
       })
       .test("", createDaoTranslations.errors.logoURL2, (value) => {
-        return value.endsWith(".png");
+        return IS_DEV ? true :  value.endsWith(".png");
       }),
 
-    dns: Yup.string().test("", createDaoTranslations.errors.tonDNS, (value) => {
-      return !value ? true : value?.endsWith(".ton") && value?.length > 4;
-    }),
+    dns: Yup.string()
+      .trim()
+      .test("", createDaoTranslations.errors.tonDNS, (value) => {
+        return !value ? true : value?.endsWith(".ton") && value?.length > 4;
+      }),
 
-    github: Yup.string().test(
-      "",
-      commonTranslations.isInvalid(createDaoTranslations.github),
-      (value) => {
-        return value ? value.includes("github") : true;
-      }
-    ),
-    telegram: Yup.string().test(
-      "",
-      createDaoTranslations.errors.telegram,
-      (value) => {
+    github: Yup.string()
+      .trim()
+      .test(
+        "",
+        commonTranslations.isInvalid(createDaoTranslations.github),
+        (value) => {
+          return value ? value.includes("github") : true;
+        }
+      ),
+    telegram: Yup.string()
+      .trim()
+      .test("", createDaoTranslations.errors.telegram, (value) => {
         return !value ? true : value.startsWith("https://t.me");
-      }
-    ),
-    website: Yup.string().url(
-      commonTranslations.isInvalid(createDaoTranslations.website)
-    ),
-    jetton: Yup.string().test(
-      "address",
-      commonTranslations.isInvalid(createDaoTranslations.jetton),
-      validateAddress
-    ),
-    nft: Yup.string().test(
-      "address",
-      commonTranslations.isInvalid(createDaoTranslations.nft),
-      validateAddress
-    ),
+      }),
+    website: Yup.string()
+      .trim()
+      .url(commonTranslations.isInvalid(createDaoTranslations.website)),
+    jetton: Yup.string()
+      .trim()
+      .test(
+        "address",
+        commonTranslations.isInvalid(createDaoTranslations.jetton),
+        validateAddress
+      ),
+    nft: Yup.string()
+      .trim()
+      .test(
+        "address",
+        commonTranslations.isInvalid(createDaoTranslations.nft),
+        validateAddress
+      ),
   });
 };
 

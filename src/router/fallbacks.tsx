@@ -1,6 +1,7 @@
 import { styled } from "@mui/material";
 import { LoadingContainer } from "components";
-import { useMobile } from "hooks";
+import { useMobile } from "hooks/hooks";
+import { StyledDao } from "pages/daos/styles";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
 export const PageFallback = () => {
@@ -27,7 +28,9 @@ export const DaoPageFallback = () => {
 export const DaosPageFallback = () => {
   return (
     <StyledContainer>
-      <StyledDaoLoader />
+      <StyledDao>
+        <StyledDaoLoader />
+      </StyledDao>
     </StyledContainer>
   );
 };
@@ -35,8 +38,7 @@ export const DaosPageFallback = () => {
 
 const StyledDaoLoader = styled(LoadingContainer)({
     width: '100%',
-    maxWidth: 270,
-    height: 250
+    height: '100%'
 })
 
 const StyledLeft = styled(LoadingContainer)({

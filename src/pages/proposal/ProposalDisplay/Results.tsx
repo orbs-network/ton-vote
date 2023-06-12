@@ -12,31 +12,30 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
-import { getSymbol, getVoteStrategyType, nFormatter } from "utils";
+import { nFormatter } from "utils";
 import _ from "lodash";
-import { useProposalPageQuery, useVerifyProposalResults } from "../hooks";
+import {  useVerifyProposalResults } from "../hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
-import { useProposalAddress, useProposalResults } from "hooks";
-import { FOUNDATION_DAO_ADDRESS, FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
+import {  useAppParams, useProposalResults } from "hooks/hooks";
+import {  FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
+import { useProposalQuery } from "query/getters";
 const LIMIT = 5;
 
 export const Results = () => {
-  const { data, dataUpdatedAt, isLoading } = useProposalPageQuery();
+    const { proposalAddress } = useAppParams();
+
+  const { isLoading } = useProposalQuery(proposalAddress);
   
-  const address = useProposalAddress()
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
 
-  const hideVerify = FOUNDATION_PROPOSALS_ADDRESSES.includes(address);
+  const hideVerify = FOUNDATION_PROPOSALS_ADDRESSES.includes(proposalAddress);
   
-  const results = useProposalResults(data, dataUpdatedAt);
-  const votingPowerStrategy = getVoteStrategyType(
-    data?.metadata?.votingPowerStrategies
-  );
-  const symbol = getSymbol(votingPowerStrategy);
+  const results = useProposalResults(proposalAddress);
+
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -51,10 +50,9 @@ export const Results = () => {
           return (
             <ResultRow
               key={result.choice}
-              symbol={symbol}
               name={result.choice}
               percent={result.percent}
-              tonAmount={result.tonAmount}
+              amount={result.amount}
               votes={result.votesCount}
             />
           );
@@ -99,16 +97,15 @@ const StyledToggleResultsButton = styled(Button)({
 const ResultRow = ({
   name,
   percent = 0,
-  tonAmount = "0",
+  amount = "",
   votes,
-  symbol,
 }: {
   name: string;
   percent?: number;
-  tonAmount?: string;
+  amount?: string;
   votes: number;
-  symbol?: string | null;
 }) => {
+
   const translations = useProposalPageTranslations();
   return (
     <StyledResultRow>
@@ -121,9 +118,9 @@ const ResultRow = ({
         </StyledFlexRow>
 
         <StyledResultRowRight justifyContent="flex-end">
-          {symbol && (
+          {amount && (
             <Typography fontSize={13} style={{ whiteSpace: "nowrap" }}>
-              {tonAmount} {symbol}
+              {amount}
             </Typography>
           )}
 
@@ -176,7 +173,7 @@ export function VerifyResults() {
     reset,
   } = useVerifyProposalResults();
   const translations = useProposalPageTranslations();
-  const proposalAddress = useProposalAddress();
+  const {proposalAddress} = useAppParams();
   useEffect(() => {
     if (isSuccess || error) {
       setTimeout(() => {

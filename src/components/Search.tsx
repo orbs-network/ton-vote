@@ -1,5 +1,5 @@
 import { styled, useTheme } from "@mui/material";
-import { useDebounce } from "hooks";
+import { useDebounce } from "hooks/hooks";
 import { useEffect, useState } from "react";
 import { StyledFlexRow } from "styles";
 import { HiMagnifyingGlass } from "react-icons/hi2";

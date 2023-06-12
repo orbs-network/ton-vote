@@ -1,14 +1,14 @@
 import { Helmet } from "react-helmet";
 import { APP_NAME } from "config";
-import { useProposalPageQuery } from "./hooks";
 import { parseLanguage } from "utils";
 import { Outlet } from "react-router-dom";
-
-const gap = 15;
+import { useProposalQuery } from "query/getters";
+import { useAppParams } from "hooks/hooks";
 
 
 const Meta = () => {
-  const title = useProposalPageQuery().data?.metadata?.title;
+  const {proposalAddress} = useAppParams()
+  const title = useProposalQuery(proposalAddress).data?.metadata?.title;
 
   return (
     <Helmet>

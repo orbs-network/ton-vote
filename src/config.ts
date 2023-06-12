@@ -1,9 +1,9 @@
+import _ from "lodash";
 import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 export const APP_NAME = "TON VOTE";
-
 
 export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
 
@@ -13,7 +13,6 @@ export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 
 export const CLIENT_V2_API_KEY =
   "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
-
 
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 
@@ -37,13 +36,10 @@ export enum QueryKeys {
   DAO = "DAO",
   SIGNLE_VOTING_POWER = "SIGNLE_VOTING_POWER",
   CLIENTS = "CLIENTS",
-  DAO_STATE = 'DAO_STATE',
-  REGISTRY_STATE = 'REGISTRY_STATE',
+  DAO_STATE = "DAO_STATE",
+  REGISTRY_STATE = "REGISTRY_STATE",
 }
 
-
-export const DAO_REFETCH_INTERVAL = 20_000;
-export const DAOS_PAGE_REFETCH_INTERVAL = 20_000;
 export const LANGUAGES = { en: "English", ru: "Русский" };
 
 export const VERIFIED_DAOS = [
@@ -52,15 +48,14 @@ export const VERIFIED_DAOS = [
   "EQD4GRGo2Exp0yt3L9-2TW7KPM8GK5gzyhJ1tEweIVz4jIQY",
   "EQCEnW_oq1RmMJ4ciTTsccLIzu2vy0VVLo_hfa84tZZfh_Qy",
   "EQC5E53rXLTWHzsYAdudAG3p6n45c0MuvoKDCGDFnu4OmuMb",
-  "EQBSnMyKtNlgmlcgRMrQlHH_asDSRV8jmtpbHZqM6sWp1YYp",
+  "EQCVwkPuxX7sVe_ajaYIQgsrXTCmQJmEf1LemIbl_OWC3_wF",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING
   ? ReleaseMode.DEVELOPMENT
   : ReleaseMode.PRODUCTION;
 
-export const IS_DEV =
-  releaseMode === ReleaseMode.DEVELOPMENT
+export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
 
 export const TX_FEES = {
   CREATE_DAO: IS_DEV ? 0.085 : 1,
@@ -70,10 +65,6 @@ export const TX_FEES = {
   VOTE_FEE: 0.01,
   BASE: 0.05,
 };
-
-
-
-
 
 export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
   [VotingPowerStrategyType.TonBalance]: { name: "TON coin balance", args: [] },
@@ -101,8 +92,51 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
       },
     ],
   },
+  [VotingPowerStrategyType.TonBalance_1Wallet1Vote]: {
+    name: "TON coin balance, 1 wallet 1 vote",
+    args: [],
+  },
+  [VotingPowerStrategyType.JettonBalance_1Wallet1Vote]: {
+    name: "Jetton balance, 1 wallet 1 vote",
+    args: [
+      {
+        type: "text",
+        label: "Jetton address",
+        tooltip: "The address of the Jetton",
+        required: true,
+        name: "jetton-address",
+      },
+    ],
+  },
+  [VotingPowerStrategyType.NftCcollection_1Wallet1Vote]: {
+    name: "Number of owned NFTs, 1 wallet 1 vote",
+    args: [
+      {
+        type: "text",
+        label: "NFT collection address",
+        tooltip: "The address of the Jetton",
+        required: true,
+        name: "nft-address",
+      },
+    ],
+  },
 };
 
+export const STRATEGY_ARGUMENTS = [
+  { name: "jetton", key: "jetton-address" },
+  { name: "nft", key: "nft-address" },
+];
+  
+export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
+export const PROD_TEST_DAOS: string[] = [];
 
+export const REFETCH_INTERVALS = {
+  proposal: 15_000,
+  dao: 15_000,
+  daos: 60_000,
+};
 
-export const PROD_TEST_DAOS: string[] = []
+export const API_RETRIES = 2;
+export const CONTRACT_RETRIES = 2;
+
+export const RETRY_DELAY = 1000;

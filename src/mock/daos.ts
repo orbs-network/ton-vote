@@ -18,7 +18,7 @@ const data: Dao[] = [
         website: "",
         jetton: "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
         nft: "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
-        dns:''
+        dns: "",
       },
     },
     daoRoles: {
@@ -32,6 +32,6 @@ const data: Dao[] = [
 export const daos = _.map(data, (dao, index) => {
   return {
     ...dao,
-    daoAddress: `${dao.daoAddress}-mock-${index}`,
+    daoAddress: !index ? dao.daoAddress : `${dao.daoAddress}${index}`,
   };
 });

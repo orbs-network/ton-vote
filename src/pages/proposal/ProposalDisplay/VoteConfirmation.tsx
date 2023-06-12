@@ -1,12 +1,13 @@
 import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
-import { useProposalAddress } from "hooks";
+import { useAppParams, useGetProposalSymbol } from "hooks/hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { useConnectedWalletVotingPowerQuery } from "query/getters";
+import {
+  useConnectedWalletVotingPowerQuery,
+  useProposalQuery,
+} from "query/getters";
 import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { getSymbol, getVoteStrategyType } from "utils";
-import { useProposalPageQuery } from "../hooks";
 
 interface Props {
   open: boolean;
@@ -18,9 +19,8 @@ interface Props {
 export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const translations = useProposalPageTranslations();
 
-
-  const { data } = useProposalPageQuery();
-  const proposalAddress = useProposalAddress();
+  const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
 
   const {
     data: votingData,
@@ -54,9 +54,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
           <Row
             isLoading={votingDataLoading}
             label={translations.yourVotingPower}
-            value={`${votingData} ${getSymbol(
-              Number(getVoteStrategyType(data?.metadata?.votingPowerStrategies))
-            )}`}
+            value={votingData}
           />
         </StyledFlexColumn>
         {NoVotingPower && (
@@ -84,7 +82,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     </StyledPopup>
   );
 }
-
 
 const StyledButtons = styled(StyledFlexRow)({
   button: {
@@ -120,7 +117,6 @@ const Row = ({
   );
 };
 
-
 const StyledRow = styled(StyledFlexRow)({
   ".label": {
     fontWeight: 700,
@@ -130,12 +126,10 @@ const StyledRow = styled(StyledFlexRow)({
   },
 });
 
-
 const StyledVote = styled(Row)({
   ".value": {
     textTransform: "capitalize",
   },
 });
-
 
 const StyledContainer = styled(StyledFlexColumn)({});
