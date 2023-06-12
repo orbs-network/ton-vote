@@ -65,9 +65,9 @@ export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
 
 export const TX_FEES = {
   CREATE_DAO: IS_DEV ? 0.085 : 1,
-  CREATE_METADATA: IS_DEV ? 0.05 : 1,
-  FORWARD_MSG: IS_DEV ? 0.25 : 1,
-  SET_METADATA: IS_DEV ? 0.05 : 1,
+  CREATE_METADATA: IS_DEV ? 0.05 : 0.05,
+  FORWARD_MSG: IS_DEV ? 0.25 : 0.25,
+  SET_METADATA: IS_DEV ? 0.05 : 0.05,
   VOTE_FEE: 0.01,
   BASE: 0.05,
 };
