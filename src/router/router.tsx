@@ -50,6 +50,7 @@ export const useRouter = () => {
             },
             {
               path: routes.createSpace,
+              errorElement: <Navigate to={routes.spaces} />,
               element: devFeatures ? (
                 <Suspense fallback={<PageFallback />}>
                   <CreateDao />
@@ -61,6 +62,7 @@ export const useRouter = () => {
 
             {
               path: routes.space,
+              errorElement: <Navigate to={routes.spaces} />,
               element: (
                 <Suspense fallback={<DaoPageFallback />}>
                   <Dao />
