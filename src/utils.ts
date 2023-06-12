@@ -318,7 +318,7 @@ export const getProposalResultTonAmount = (
   return result;
 };
 
-export const getproposalResult = (proposal: Proposal, choice: string) => {
+export const getproposalResult = (proposal: Proposal, choice: string) => {  
   return (
     proposal?.proposalResult?.[choice] ||
     proposal?.proposalResult?.[choice.toLowerCase()]

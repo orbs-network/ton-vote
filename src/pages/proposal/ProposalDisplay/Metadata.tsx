@@ -11,7 +11,7 @@ import moment from "moment";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import {
   useAppParams,
-  useGetProposalStrategyName,
+  useProposalStrategyName,
   useStrategyArguments,
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
@@ -25,7 +25,7 @@ export const Metadata = () => {
   const { isLoading, data } = useProposalQuery(proposalAddress);
   const translations = useProposalPageTranslations();
   const proposalMetadata = data?.metadata;
-  const strategyName = useGetProposalStrategyName(proposalAddress);
+  const strategyName = useProposalStrategyName(proposalAddress);
   const strategyArgs = useStrategyArguments(proposalAddress);
   const jettonAddress = strategyArgs.jetton;
   const nftAddress = strategyArgs.nft;

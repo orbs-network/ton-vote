@@ -48,6 +48,7 @@ import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
 import { lib } from "lib";
+import retry from "async-retry";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -335,7 +336,7 @@ export const useCreateProposalQuery = () => {
           args.metadata as ProposalMetadata,
           address
         );
-        showSuccessToast('Proposal created successfully')
+        showSuccessToast("Proposal created successfully");
         args.onSuccess(address);
       },
     }
@@ -609,17 +610,22 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
   const walletAddress = useTonAddress();
 
   return async (proposal: Proposal) => {
-    if (!proposal.metadata || !walletAddress) return;
+    const promise = async (bail: any, attempt: number) => {
+      Logger(`getting proposal results after vote, attempt ${attempt} `);
+      if (!proposal.metadata || !walletAddress) return;
 
-    const nftItemsHolders = await lib.getAllNFTHolders(
-      proposalAddress,
-      proposal.metadata
-    );
-    return contract.getProposalResultsAfterVote({
-      proposalAddress,
-      walletAddress,
-      proposal,
-      nftItemsHolders,
-    });
+      const nftItemsHolders = await lib.getAllNFTHolders(
+        proposalAddress,
+        proposal.metadata
+      );
+      return contract.getProposalResultsAfterVote({
+        proposalAddress,
+        walletAddress,
+        proposal,
+        nftItemsHolders,
+      });
+    };
+
+    return retry(promise, { retries: 2 });
   };
 };

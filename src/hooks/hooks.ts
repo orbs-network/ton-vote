@@ -270,7 +270,10 @@ export const useProposalResults = (proposalAddress: string) => {
 
     return _.map(choices, (choice, key) => {
       const result = getproposalResult(proposal, choice);
+      
       const percent = result ? Number(result) : 0;
+      console.log(proposal);
+      
 
       const amount = getProposalResultTonAmount(
         proposal,
@@ -363,7 +366,7 @@ export const useGetProposalSymbol = (proposalAddress: string) => {
   );
 };
 
-export const useGetProposalStrategyName = (proposalAddress: string) => {
+export const useProposalStrategyName = (proposalAddress: string) => {
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
   return useMemo(() => {

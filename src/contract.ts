@@ -100,53 +100,50 @@ interface GetProposalResultsAfterVoteArgs {
   nftItemsHolders: { [key: string]: number };
 }
 
-const getProposalResultsAfterVote = (args: GetProposalResultsAfterVoteArgs) => {
+const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs) => {
   const { proposalAddress, walletAddress, proposal } = args;
   const metadata = proposal.metadata;
-  const promise = async (bail: any, attempt: number) => {
-    Logger(`Fetching proposal results after vote, attempt: ${attempt}`);
-    const clientV2 = await getClientV2();
-    const clientV4 = await getClientV4();
-    const { allTxns, maxLt } = await getTransactions(
-      clientV2,
-      proposalAddress,
-      proposal.maxLt
-    );
 
-    const userTx = _.find(allTxns, (tx) => {
-      return tx.inMessage?.info.src?.toString() === walletAddress;
-    });
+  const clientV2 = await getClientV2();
+  const clientV4 = await getClientV4();
+  const { allTxns, maxLt } = await getTransactions(
+    clientV2,
+    proposalAddress,
+    proposal.maxLt
+  );
 
-    if (!userTx || !metadata) return;
+  const userTx = _.find(allTxns, (tx) => {
+    return tx.inMessage?.info.src?.toString() === walletAddress;
+  });
 
-    const nftItemsHolders =
-      args.nftItemsHolders || (await getAllNftHolders(clientV4, metadata));
+  if (!userTx || !metadata) return;
 
-    const singleVotingPower = await getSingleVoterPower(
-      clientV4,
-      walletAddress,
-      metadata,
-      getVoteStrategyType(metadata.votingPowerStrategies),
-      nftItemsHolders
-    );
+  const nftItemsHolders =
+    args.nftItemsHolders || (await getAllNftHolders(clientV4, metadata));
 
-    const rawVotes = getAllVotes([userTx], metadata);
-    const votingPower = proposal.votingPower || {};
+  const singleVotingPower = await getSingleVoterPower(
+    clientV4,
+    walletAddress,
+    metadata,
+    getVoteStrategyType(metadata.votingPowerStrategies),
+    nftItemsHolders
+  );
 
-    const votes = {
-      ...proposal.rawVotes,
-      [walletAddress]: rawVotes[walletAddress],
-    };
+  const rawVotes = getAllVotes([userTx], metadata);
+  const votingPower = proposal.votingPower || {};
 
-    votingPower[walletAddress] = singleVotingPower;
-
-    return {
-      proposalResults: calcProposalResult(votes, votingPower),
-      vote: parseVotes(rawVotes, votingPower)[0],
-      maxLt,
-    };
+  const votes = {
+    ...proposal.rawVotes,
+    [walletAddress]: rawVotes[walletAddress],
   };
-  return retry(promise, { retries: CONTRACT_RETRIES });
+
+  votingPower[walletAddress] = singleVotingPower;
+
+  return {
+    proposalResults: calcProposalResult(votes, votingPower),
+    vote: parseVotes(rawVotes, votingPower)[0],
+    maxLt,
+  };
 };
 
 export const getDao = async (daoAddress: string, clientV2?: TonClient) => {
@@ -192,7 +189,7 @@ const _getAllNftHolders = (
     return {} as { [key: string]: number };
   }
   const promise = async (bail: any, attempt: number) => {
-    Logger(`Fetching all nft holders, attempt: ${attempt}`)
+    Logger(`Fetching all nft holders, attempt: ${attempt}`);
     const _clientV4 = clientV4 || (await getClientV4());
     return getAllNftHolders(_clientV4, metadata);
   };

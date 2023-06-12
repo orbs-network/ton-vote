@@ -12,15 +12,15 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
-import { getVoteStrategyType, nFormatter } from "utils";
+import { nFormatter } from "utils";
 import _ from "lodash";
 import {  useVerifyProposalResults } from "../hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
-import {  useAppParams, useGetProposalSymbol, useProposalResults } from "hooks/hooks";
-import { FOUNDATION_DAO_ADDRESS, FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
+import {  useAppParams, useProposalResults } from "hooks/hooks";
+import {  FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
 import { useProposalQuery } from "query/getters";
 const LIMIT = 5;
 
