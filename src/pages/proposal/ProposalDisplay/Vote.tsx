@@ -28,11 +28,6 @@ export function Vote() {
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;
 
-
-  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
-
-
-
   useEffect(() => {
     if (!vote) {
       setVote(walletVote?.vote as string);
@@ -42,9 +37,6 @@ export function Vote() {
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
       errorToast("You can't vote on mock proposals");
-    }
-    else if (isOneWalletOneVote && !!vote) {
-      mutate(vote);
     } else {
       setConfirmation(true);
     }

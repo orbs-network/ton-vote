@@ -59,7 +59,7 @@ const getProposal = async (
       }
       throw new Error("proposal not found in server");
     }
-
+    
     const proposal: Proposal = {
       ...result.data,
       votes: parseVotes(result.data.votes, result.data.votingPower),

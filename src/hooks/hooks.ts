@@ -272,7 +272,6 @@ export const useProposalResults = (proposalAddress: string) => {
       const result = getproposalResult(proposal, choice);
       
       const percent = result ? Number(result) : 0;
-      console.log(proposal);
       
 
       const amount = getProposalResultTonAmount(

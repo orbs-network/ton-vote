@@ -41,7 +41,7 @@ export const parseVotes = (
 ) => {
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
-
+    
     return {
       address: key,
       vote: v.vote,

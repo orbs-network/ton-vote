@@ -16,6 +16,8 @@ import {
   getRegistryState,
 } from "ton-vote-contracts-sdk";
 import {
+  getIsOneWalletOneVote,
+  getProposalSymbol,
   getVoteStrategyType,
   isDaoWhitelisted,
   isProposalWhitelisted,
@@ -255,24 +257,23 @@ export const useConnectedWalletVotingPowerQuery = (
         proposal?.metadata?.votingPowerStrategies
       );
 
-      let result = '';
+      const result = await getSingleVoterPower(
+        clients!.clientV4,
+        connectedWallet!,
+        proposal?.metadata!,
+        strategy,
+        allNftHolders
+      );
 
-      try {
-        result = await getSingleVoterPower(
-          clients!.clientV4,
-          connectedWallet!,
-          proposal?.metadata!,
-          strategy,
-          allNftHolders
-        );
-      } catch (error) {
-        console.log(error);
+      const symbol = getProposalSymbol(
+        proposal?.metadata?.votingPowerStrategies
+      );
+
+      if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
+        return result;
       }
 
-
-          console.log(strategy);
-
-      return nFormatter(Number(fromNano(result)));
+      return `${nFormatter(Number(fromNano(result)))} ${symbol}`;
     },
     {
       enabled: !!connectedWallet && !!proposal && !!proposalAddress,
@@ -302,8 +303,7 @@ export const useProposalQuery = (
 
   const config = useMemo(() => {
     return {
-      refetchInterval:
-        route === routes.proposal ? 15_000 : 30_000,
+      refetchInterval: route === routes.proposal ? 15_000 : 30_000,
     };
   }, [route]);
 
@@ -415,7 +415,11 @@ export const useProposalQuery = (
         !args?.disabled &&
         !isVoting,
       staleTime: Infinity,
-      refetchInterval: error ? undefined : isWhitelisted ? config.refetchInterval : undefined,
+      refetchInterval: error
+        ? undefined
+        : isWhitelisted
+        ? config.refetchInterval
+        : undefined,
       retry: false,
     }
   );

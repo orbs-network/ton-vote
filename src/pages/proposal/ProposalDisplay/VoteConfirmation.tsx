@@ -21,7 +21,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
 
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
-  const symbol = useGetProposalSymbol(proposalAddress);
 
   const {
     data: votingData,
@@ -55,7 +54,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
           <Row
             isLoading={votingDataLoading}
             label={translations.yourVotingPower}
-            value={`${votingData} ${symbol}`}
+            value={votingData}
           />
         </StyledFlexColumn>
         {NoVotingPower && (
