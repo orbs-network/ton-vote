@@ -139,7 +139,7 @@ export const useDaosQuery = () => {
     },
     {
       refetchInterval: config.refetchInterval,
-      staleTime: config.staleTime,
+      staleTime: Infinity,
     }
   );
 };
