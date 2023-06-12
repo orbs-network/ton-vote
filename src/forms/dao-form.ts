@@ -1,3 +1,4 @@
+import { IS_DEV } from "config";
 import { ABOUT_CHARS_LIMIT, TITLE_LIMIT } from "consts";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
@@ -134,7 +135,7 @@ export const useDaoMetadataSchema = () => {
         return value.startsWith("https://");
       })
       .test("", createDaoTranslations.errors.logoURL2, (value) => {
-        return value.endsWith(".png");
+        return IS_DEV ? true :  value.endsWith(".png");
       }),
 
     dns: Yup.string()

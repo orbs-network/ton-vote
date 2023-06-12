@@ -15,7 +15,7 @@ export function DaoSettings() {
   const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
 
   const showAll = isOwner || isProposalPublisher;
-
+  
   return (
     <LayoutSection title={translations.settings} isLoading={isLoading}>
       <>

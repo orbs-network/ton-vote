@@ -298,6 +298,15 @@ export const useProposalQuery = (
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const [error, setError] = useState(false);
 
+  const route = useCurrentRoute();
+
+  const config = useMemo(() => {
+    return {
+      refetchInterval:
+        route === routes.proposal ? 15_000 : 30_000,
+    };
+  }, [route]);
+
   const queryClient = useQueryClient();
 
   return useQuery(
@@ -406,11 +415,7 @@ export const useProposalQuery = (
         !args?.disabled &&
         !isVoting,
       staleTime: Infinity,
-      refetchInterval: error
-        ? undefined
-        : isWhitelisted
-        ? REFETCH_INTERVALS.proposal
-        : undefined,
+      refetchInterval: error ? undefined : isWhitelisted ? config.refetchInterval : undefined,
       retry: false,
     }
   );
