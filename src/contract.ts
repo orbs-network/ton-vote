@@ -103,7 +103,8 @@ interface GetProposalResultsAfterVoteArgs {
 const getProposalResultsAfterVote = (args: GetProposalResultsAfterVoteArgs) => {
   const { proposalAddress, walletAddress, proposal } = args;
   const metadata = proposal.metadata;
-  const promise = async () => {
+  const promise = async (bail: any, attempt: number) => {
+    Logger(`Fetching proposal results after vote, attempt: ${attempt}`);
     const clientV2 = await getClientV2();
     const clientV4 = await getClientV4();
     const { allTxns, maxLt } = await getTransactions(
@@ -190,7 +191,8 @@ const _getAllNftHolders = (
   if (!isNftProposal(metadata.votingPowerStrategies)) {
     return {} as { [key: string]: number };
   }
-  const promise = async () => {
+  const promise = async (bail: any, attempt: number) => {
+    Logger(`Fetching all nft holders, attempt: ${attempt}`)
     const _clientV4 = clientV4 || (await getClientV4());
     return getAllNftHolders(_clientV4, metadata);
   };

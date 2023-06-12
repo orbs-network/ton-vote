@@ -371,16 +371,14 @@ export const useGetProposalStrategyName = (proposalAddress: string) => {
     switch (type) {
       case VotingPowerStrategyType.TonBalance:
         return "TON balance";
-      case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
-        return "TON balance (1 wallet 1 vote)";
       case VotingPowerStrategyType.JettonBalance:
         return "JETTON balance";
-      case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
-        return "JETTON balance (1 wallet 1 vote)";
       case VotingPowerStrategyType.NftCcollection:
         return "NFT collection";
+      case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
-        return "NFT collection (1 wallet 1 vote)";
+      case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
+        return "1 wallet 1 vote";
 
       default:
         break;
