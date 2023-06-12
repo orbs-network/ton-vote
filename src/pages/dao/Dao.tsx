@@ -1,6 +1,6 @@
 import { ErrorContainer } from "components";
 import { APP_NAME } from "config";
-import { useAppParams } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoQuery } from "query/getters";
 import { Suspense } from "react";

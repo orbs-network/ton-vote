@@ -1,7 +1,7 @@
 import { Box, Fade, styled } from "@mui/material";
 import { Header, LoadingContainer } from "components";
 import { MOBILE_WIDTH } from "consts";
-import { useMobile } from "hooks";
+import { useMobile } from "hooks/hooks";
 import React, { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { DaoMenu } from "./dao-menu/DaoMenu";

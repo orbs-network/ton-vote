@@ -2,7 +2,7 @@ import { Box, Fade, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, ConnectButton, FormikInputsForm } from "components";
 import { FormikProps, useFormik } from "formik";
-import { useDebouncedCallback } from "hooks";
+import { useDebouncedCallback } from "hooks/hooks";
 import _ from "lodash";
 import { mock } from "mock/mock";
 import { useDaoStateQuery } from "query/getters";

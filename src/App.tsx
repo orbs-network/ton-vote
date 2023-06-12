@@ -1,6 +1,6 @@
 import { GlobalStyles, ThemeProvider } from "@mui/material";
 import { APP_NAME } from "config";
-import { useAppSettings } from "hooks";
+import { useAppSettings } from "hooks/hooks";
 import { Suspense, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { RouterProvider } from "react-router-dom";

@@ -8,7 +8,7 @@ import { DaoMetadataForm } from "types";
 import { StyledFlexRow } from "styles";
 import { useDaoQuery } from "query/getters";
 import { useUpdateDaoMetadataQuery } from "query/setters";
-import { useAppParams } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import { getInitialValues, prepareMetadata } from "./utils";
 import { useTonAddress } from "@tonconnect/ui-react";
 

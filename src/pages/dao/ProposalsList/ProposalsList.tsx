@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { List, LoadMore } from "components";
-import { useAppParams, useAppQueryParams, useMobile } from "hooks";
+import { useAppParams, useAppQueryParams, useMobile } from "hooks/hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";

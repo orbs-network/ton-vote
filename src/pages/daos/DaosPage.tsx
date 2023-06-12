@@ -21,7 +21,7 @@ import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import {  TELEGRAM_SUPPORT_GROUP } from "config";
-import { useAppQueryParams, useMobile } from "hooks";
+import { useAppQueryParams, useMobile } from "hooks/hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";

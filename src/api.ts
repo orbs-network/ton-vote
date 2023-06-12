@@ -3,7 +3,7 @@ import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
 import moment from "moment";
-import { LAST_FETCH_UPDATE_LIMIT, IS_DEV } from "config";
+import { LAST_FETCH_UPDATE_LIMIT, IS_DEV, API_RETRIES } from "config";
 import axiosRetry from "axios-retry";
 import retry from "async-retry";
 
@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
   baseURL,
 });
 axiosRetry(axiosInstance, {
-  retries: 3,
+  retries: API_RETRIES,
   retryDelay: axiosRetry.exponentialDelay,
 });
 
@@ -53,8 +53,8 @@ const getProposal = async (
     ]);
 
     if (_.isEmpty(result.data?.metadata)) {
-      Logger("proposal not found in server");
-      if (attempt === 3) {
+      if (attempt === API_RETRIES + 1) {
+        Logger("Failed to fetch proposal from server");
         return undefined;
       }
       throw new Error("proposal not found in server");
@@ -69,7 +69,7 @@ const getProposal = async (
 
     return proposal;
   };
-  return retry(promise, { retries: 2 });
+  return retry(promise, { retries: API_RETRIES });
 };
 
 const getMaxLt = async (
@@ -93,7 +93,7 @@ const getDao = async (
 
     if (_.isEmpty(data)) {
       Logger("dao not found is server");
-      if (attempt === 3) {
+      if (attempt === API_RETRIES + 1) {
         return undefined;
       }
       throw new Error("dao not found in server");
@@ -101,7 +101,7 @@ const getDao = async (
     return data;
   };
 
-  return retry(promise, { retries: 2 });
+  return retry(promise, { retries: API_RETRIES });
 };
 
 const validateServerLastUpdate = async (

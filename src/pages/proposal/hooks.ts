@@ -1,28 +1,22 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useAppParams, useProposalStatus } from "hooks";
+import { useMutation } from "@tanstack/react-query";
+import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import _ from "lodash";
-import { isProposalWhitelisted, Logger } from "utils";
+import { Logger } from "utils";
 import { useEnpointsStore } from "./store";
 import {
-  filterTxByTimestamp,
   getClientV2,
   getClientV4,
-  getTransactions,
 } from "ton-vote-contracts-sdk";
-import { Endpoints, ProposalResults, Vote } from "types";
-import { lib } from "lib/lib";
-import { Transaction } from "ton-core";
+import { Endpoints, Proposal, ProposalResults, Vote } from "types";
+import { contract } from "contract";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { errorToast, usePromiseToast } from "toasts";
-import { mock } from "mock/mock";
-import { useGetClients, useProposalQuery } from "query/getters";
-import { QueryKeys } from "config";
-import { api } from "api";
-import { useVotePersistedStore, useSyncStore, useVoteStore } from "store";
+import { usePromiseToast } from "toasts";
+import { useProposalQuery } from "query/getters";
+import { useVotePersistedStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useEffect, useMemo } from "react";
-import { FOUNDATION_PROPOSALS } from "data/foundation/data";
-import { getIsServerUpToDate, useGetContractProposal } from "query/hooks";
+import { useMemo } from "react";
+import moment from "moment";
+import { TFunction } from "i18next";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -57,26 +51,19 @@ export const useVerifyProposalResults = () => {
         );
         const clientV4 = await getClientV4(endpoints?.clientV4Endpoint);
 
-        let transactions: Transaction[] = [];
-
-        const result = await getTransactions(clientV2, proposalAddress);
-
-
         // if user voted, we need to get transactions after his vote
-        const voteMaxLt =
-          votePersistStore.getValues(proposalAddress).latestMaxLtAfterTx;
+        const maxLtAfterVote =
+          votePersistStore.getValues(proposalAddress).maxLtAfterVote;
 
-        const maxLt = voteMaxLt || data?.maxLt || "";
+        const maxLt = maxLtAfterVote || data?.maxLt || "";
 
-        transactions = filterTxByTimestamp(result.allTxns, maxLt);
-
-        const contractState = await lib.getProposalFromContract(
+        const contractState = await contract.getProposal({
           clientV2,
           clientV4,
           proposalAddress,
-          data?.metadata,
-          transactions
-        );
+          metadata: data?.metadata,
+          maxLt,
+        });
         const currentResults = handleNulls(data?.proposalResult);
         const compareToResults = handleNulls(contractState?.proposalResult);
 
@@ -113,16 +100,54 @@ export const useVerifyProposalResults = () => {
   );
 };
 
-export const useProposalPageStatus = () => {
-  const { proposalAddress } = useAppParams();
-  const { data } = useProposalQuery(proposalAddress);
-
-  return useProposalStatus(proposalAddress, data?.metadata);
-};
 
 export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
   const walletAddress = useTonAddress();
   return useMemo(() => {
     return _.find(votes, (it) => it.address === walletAddress);
+  }, [dataUpdatedAt]);
+};
+
+const getCsvConfig = (isOneWalletOneVote: boolean) => {
+  let titles = [];
+  let keys = [];
+  if (isOneWalletOneVote) {
+    titles = ["address", "vote", "date"];
+    keys = ["address", "vote"];
+  } else {
+    titles = ["address", "vote", "votingPower", "date"];
+    keys = ["address", "vote", "votingPower"];
+  }
+
+  return {
+    titles,
+    keys,
+  };
+};
+
+export const useCsvData = () => {
+  const translations = useProposalPageTranslations();
+  const { proposalAddress } = useAppParams();
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+
+  return useMemo(() => {
+    const config = getCsvConfig(isOneWalletOneVote);
+    const values = _.map(data?.votes, (vote) => {
+      const value = config.keys.map((key) => {
+        return vote[key as keyof Vote];
+      });
+
+      return [
+        ...value,
+        moment.unix(vote.timestamp).format("DD/MM/YY HH:mm:ss"),
+      ];
+    });
+
+    values.unshift(
+      config.titles.map((it) => translations[it as keyof TFunction])
+    );
+    return values;
   }, [dataUpdatedAt]);
 };

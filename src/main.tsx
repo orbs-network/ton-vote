@@ -13,8 +13,7 @@ import { useSettingsStore } from "store";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      retry: 2,
+      refetchOnWindowFocus: false
     },
     mutations: {
       onMutate: () => clearAllToasts(),

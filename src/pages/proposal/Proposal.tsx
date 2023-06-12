@@ -3,7 +3,7 @@ import { APP_NAME } from "config";
 import { parseLanguage } from "utils";
 import { Outlet } from "react-router-dom";
 import { useProposalQuery } from "query/getters";
-import { useAppParams } from "hooks";
+import { useAppParams } from "hooks/hooks";
 
 
 const Meta = () => {

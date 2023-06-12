@@ -12,7 +12,7 @@ import { useVote } from "query/setters";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import _ from "lodash";
-import { useAppParams } from "hooks";
+import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 
 export function Vote() {
@@ -28,6 +28,11 @@ export function Vote() {
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;
 
+
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+
+
+
   useEffect(() => {
     if (!vote) {
       setVote(walletVote?.vote as string);
@@ -37,6 +42,9 @@ export function Vote() {
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
       errorToast("You can't vote on mock proposals");
+    }
+    else if (isOneWalletOneVote && !!vote) {
+      mutate(vote);
     } else {
       setConfirmation(true);
     }

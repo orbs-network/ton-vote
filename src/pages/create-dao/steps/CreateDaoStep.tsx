@@ -114,9 +114,10 @@ const InputPreview = ({
   value: any;
 }) => {
   const getValue = () => {
-    if (input.type === "address" && isZeroAddress(value)) {
-      return null;
-    }
+    if (input.name === "dev") return 
+      if (input.type === "address" && isZeroAddress(value)) {
+        return null;
+      }
     if (input.type === "checkbox") {
       return <Typography>{value ? "Yes" : "No"}</Typography>;
     }
@@ -141,7 +142,7 @@ const InputPreview = ({
   if (!component) return null;
   return (
     <StyledInputPreview>
-      <Typography className="label">{`${input.label}`}</Typography>
+      <Markdown className="label">{input.label}</Markdown>
       <StyledInputPreviewComponent>{component}</StyledInputPreviewComponent>
     </StyledInputPreview>
   );

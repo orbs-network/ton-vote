@@ -4,7 +4,7 @@ import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
 import { IS_DEV, TELEGRAM_SUPPORT_GROUP } from "config";
 import { TOOLBAR_WIDTH } from "consts";
-import { useDevFeatures, useMobile, useRole } from "hooks";
+import { useDevFeatures, useMobile, useRole } from "hooks/hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";

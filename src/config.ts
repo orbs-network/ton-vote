@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
@@ -91,8 +92,41 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
       },
     ],
   },
+  [VotingPowerStrategyType.TonBalance_1Wallet1Vote]: {
+    name: "TON coin balance, 1 wallet 1 vote",
+    args: [],
+  },
+  [VotingPowerStrategyType.JettonBalance_1Wallet1Vote]: {
+    name: "Jetton balance, 1 wallet 1 vote",
+    args: [
+      {
+        type: "text",
+        label: "Jetton address",
+        tooltip: "The address of the Jetton",
+        required: true,
+        name: "jetton-address",
+      },
+    ],
+  },
+  [VotingPowerStrategyType.NftCcollection_1Wallet1Vote]: {
+    name: "Number of owned NFTs, 1 wallet 1 vote",
+    args: [
+      {
+        type: "text",
+        label: "NFT collection address",
+        tooltip: "The address of the Jetton",
+        required: true,
+        name: "nft-address",
+      },
+    ],
+  },
 };
 
+export const STRATEGY_ARGUMENTS = [
+  { name: "jetton", key: "jetton-address" },
+  { name: "nft", key: "nft-address" },
+];
+  
 export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
 export const PROD_TEST_DAOS: string[] = [];
 
@@ -101,3 +135,8 @@ export const REFETCH_INTERVALS = {
   dao: 15_000,
   daos: 60_000,
 };
+
+export const API_RETRIES = 2;
+export const CONTRACT_RETRIES = 2;
+
+export const RETRY_DELAY = 1000;

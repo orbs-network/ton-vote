@@ -114,19 +114,19 @@ export const useSyncStore = create(
 );
 
 interface VotePersistedStore {
-  latestMaxLtAfterTx: { [key: string]: string | undefined };
+  maxLtAfterVote: { [key: string]: string | undefined };
   vote: { [key: string]: Vote | undefined };
   results: { [key: string]: ProposalResult | undefined };
 
   getValues: (proposalAddress: string) => {
     results: ProposalResult | undefined;
     vote: Vote | undefined;
-    latestMaxLtAfterTx: string | undefined;
+    maxLtAfterVote: string | undefined;
   };
 
   setValues: (
     proposalAddress: string,
-    latestMaxLtAfterTx?: string,
+    maxLtAfterVote?: string,
     vote?: Vote,
     results?: ProposalResult
   ) => void;
@@ -139,15 +139,15 @@ export const useVotePersistedStore = create(
     (set, get) => ({
       vote: {},
       results: {},
-      latestMaxLtAfterTx: {},
+      maxLtAfterVote: {},
       resetValues: (proposalAddress) => {
         set({
           results: _.omitBy(
             { ...get().results, [proposalAddress]: undefined },
             _.isUndefined
           ),
-          latestMaxLtAfterTx: _.omitBy(
-            { ...get().latestMaxLtAfterTx, [proposalAddress]: undefined },
+          maxLtAfterVote: _.omitBy(
+            { ...get().maxLtAfterVote, [proposalAddress]: undefined },
             _.isUndefined
           ),
           vote: _.omitBy(
@@ -156,16 +156,16 @@ export const useVotePersistedStore = create(
           ),
         });
       },
-      setValues: (proposalAddress, latestMaxLtAfterTx, vote, results) => {
+      setValues: (proposalAddress, maxLtAfterVote, vote, results) => {
         set({
           results: _.omitBy(
             { ...get().results, [proposalAddress]: results },
             _.isUndefined
           ),
-          latestMaxLtAfterTx: _.omitBy(
+          maxLtAfterVote: _.omitBy(
             {
-              ...get().latestMaxLtAfterTx,
-              [proposalAddress]: latestMaxLtAfterTx,
+              ...get().maxLtAfterVote,
+              [proposalAddress]: maxLtAfterVote,
             },
             _.isUndefined
           ),
@@ -179,7 +179,7 @@ export const useVotePersistedStore = create(
         return {
           results: get().results[proposalAddress],
           vote: get().vote[proposalAddress],
-          latestMaxLtAfterTx: get().latestMaxLtAfterTx[proposalAddress],
+          maxLtAfterVote: get().maxLtAfterVote[proposalAddress],
         };
       },
     }),

@@ -12,7 +12,7 @@ import { InputHeader, MapInput } from "components";
 import { StyledSelectBoxInput } from "components/inputs/styles";
 import { STRATEGIES } from "config";
 import { FormikProps } from "formik";
-import { useAppParams } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import _ from "lodash";
 import { useDaoQuery } from "query/getters";
 import { useMemo } from "react";

@@ -1,4 +1,4 @@
-import { useAppParams, useRole } from "hooks";
+import { useAppParams, useRole } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import {useDaoQuery } from "query/getters";
 import { LayoutSection } from "../components";

@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useAppParams, useMobile } from "hooks";
+import { useAppParams, useMobile, useProposalStatus } from "hooks/hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
@@ -20,7 +20,6 @@ import {
   HiddenProposal,
 } from "components";
 import { makeElipsisAddress, parseLanguage } from "utils";
-import {  useProposalPageStatus } from "../hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
 import { useDaoQuery, useProposalQuery } from "query/getters";
@@ -189,7 +188,8 @@ const StyledHeader = styled(Header)({
 });
 
 const ProposalStatus = () => {
-  const { proposalStatusText } = useProposalPageStatus();
+  const {proposalAddress} = useAppParams()
+  const { proposalStatusText } = useProposalStatus(proposalAddress);
 
   return <Status status={proposalStatusText} />;
 };

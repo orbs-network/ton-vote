@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 import { Container, Markdown } from "components";
-import { useAppParams } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import { useDaoQuery } from "query/getters";
 import React, { useMemo } from "react";
 import { parseLanguage } from "utils";

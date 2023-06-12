@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 import { LoadingContainer } from "components";
-import { useMobile } from "hooks";
+import { useMobile } from "hooks/hooks";
 import { StyledDao } from "pages/daos/styles";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 

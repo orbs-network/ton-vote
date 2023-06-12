@@ -11,11 +11,11 @@ import {
   useAppParams,
   useDevFeatures,
   useHiddenProposal,
+  useProposalStatus,
   useRole,
-} from "hooks";
+} from "hooks/hooks";
 import { ProposalStatus } from "types";
 import { ProposalAbout } from "./ProposalAbout";
-import { useProposalPageStatus } from "../hooks";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { MdOutlineModeEditOutline } from "react-icons/md";
@@ -28,7 +28,7 @@ const useComponents = () => {
   const { proposalAddress } = useAppParams();
   const isLoading = useProposalQuery(proposalAddress).isLoading;
 
-  const { proposalStatus } = useProposalPageStatus();
+  const { proposalStatus } = useProposalStatus(proposalAddress);
 
   return {
     proposalDescription: <ProposalAbout />,
@@ -136,9 +136,11 @@ const EditButton = () => {
   const { data: dao } = useDaoQuery(daoAddress);
 
   const devFeatures = useDevFeatures();
+  const {isLoading} = useProposalQuery(proposalAddress)
 
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
 
+  if (isLoading) return null;
   if (!devFeatures) return null;
   if (!isOwner && !isProposalPublisher) return null;
 

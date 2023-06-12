@@ -1,4 +1,4 @@
-import { useAppParams } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import { useCreateProposalStore } from "./store";
 import _ from "lodash";
 import { useAppNavigation } from "router/navigation";

@@ -5,7 +5,7 @@ import { useCreatDaoStore } from "../store";
 import _ from "lodash";
 import { Submit } from "./Submit";
 import { useEffect } from "react";
-import { useDebouncedCallback } from "hooks";
+import { useDebouncedCallback } from "hooks/hooks";
 import { validateFormik } from "utils";
 import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
@@ -78,8 +78,6 @@ export function CreateMetadataStep() {
   const saveForm = useDebouncedCallback(() => {
     store.setDaoMetadataForm(formik.values);
   });
-
-  console.log(daoMetadataForm);
   
 
   useEffect(() => {

@@ -1,36 +1,38 @@
 import { styled, Typography } from "@mui/material";
-import { AddressDisplay, LoadingContainer, TitleContainer } from "components";
+import {
+  AddressDisplay,
+  LoadingContainer,
+  OverflowWithTooltip,
+  TitleContainer,
+} from "components";
 import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import moment from "moment";
-import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
-import { getStrategyArgument, getVoteStrategyType } from "utils";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useAppParams } from "hooks";
+import {
+  useAppParams,
+  useGetProposalStrategyName,
+  useStrategyArguments,
+} from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 
-const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {  
+const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
 };
 
 export const Metadata = () => {
-  const {proposalAddress} = useAppParams();
+  const { proposalAddress } = useAppParams();
   const { isLoading, data } = useProposalQuery(proposalAddress);
   const translations = useProposalPageTranslations();
   const proposalMetadata = data?.metadata;
-  const votingPowerStrategies = data?.metadata?.votingPowerStrategies;
+  const strategyName = useGetProposalStrategyName(proposalAddress);
+  const strategyArgs = useStrategyArguments(proposalAddress);
+  const jettonAddress = strategyArgs.jetton;
+  const nftAddress = strategyArgs.nft;
 
-  const nftAddress = getStrategyArgument("nft-address", votingPowerStrategies);
-  const jettonAddress = getStrategyArgument(
-    "jetton-address",
-    votingPowerStrategies
-  );
-  
-
-      if (isLoading) {
-        return <LoadingContainer />;
-      }
+  if (isLoading) {
+    return <LoadingContainer />;
+  }
 
   return (
     <StyledInformation title={translations.information}>
@@ -56,11 +58,7 @@ export const Metadata = () => {
             <AddressDisplay address={proposalAddress} />
           </InformationRow>
           <InformationRow label={translations.votingStrategy}>
-            <ProposalStrategyLabel
-              strategy={Number(
-                getVoteStrategyType(proposalMetadata.votingPowerStrategies)
-              )}
-            />
+            <OverflowWithTooltip text={strategyName} />
           </InformationRow>
           {jettonAddress && (
             <InformationRow label="Jetton Address">
@@ -78,27 +76,6 @@ export const Metadata = () => {
   );
 };
 
-const ProposalStrategyLabel = ({
-  strategy,
-}: {
-  strategy: VotingPowerStrategyType;
-}) => {
-  const commonTranslations = useCommonTranslations();
-  switch (strategy) {
-    case VotingPowerStrategyType.TonBalance:
-      return <Typography>{commonTranslations.tonBalance}</Typography>;
-
-    case VotingPowerStrategyType.JettonBalance:
-      return <Typography>{commonTranslations.jettonBalance}</Typography>;
-
-    case VotingPowerStrategyType.NftCcollection:
-      return <Typography>{commonTranslations.nftCollection}</Typography>;
-
-    default:
-      return null;
-  }
-};
-
 const InformationRow = ({
   label,
   children,
@@ -107,7 +84,7 @@ const InformationRow = ({
   children: ReactNode;
 }) => {
   return (
-    <StyledRow justifyContent="space-between">
+    <StyledRow justifyContent="space-between" gap={50}>
       <Typography className="row-label">{label}</Typography>
       <div className="row-children">{children}</div>
     </StyledRow>
@@ -119,9 +96,9 @@ const StyledRow = styled(StyledFlexRow)({
   ".row-label": {
     fontSize: 14,
     fontWeight: 700,
+    whiteSpace: "nowrap",
   },
   ".row-children": {
-    maxWidth: "60%",
     "*": {
       fontSize: 14,
       fontWeight: 400,

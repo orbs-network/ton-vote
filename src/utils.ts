@@ -30,7 +30,7 @@ export const makeElipsisAddress = (address?: string, padding = 6): string => {
 };
 
 export const Logger = (...args: any) => {
-  if (IS_DEV) {
+  if (IS_DEV || import.meta.env.DEV) {
     console.log(...args);
   }
 };
@@ -189,18 +189,6 @@ export function validateFormikSingleField<T>(
   return error;
 }
 
-export const getSymbol = (votingPowerStrategy?: VotingPowerStrategyType) => {
-  if (votingPowerStrategy == VotingPowerStrategyType.TonBalance) {
-    return "TON";
-  }
-  if (votingPowerStrategy == VotingPowerStrategyType.JettonBalance) {
-    return "Jetton";
-  }
-  if (votingPowerStrategy == VotingPowerStrategyType.NftCcollection) {
-    return "NFT";
-  }
-};
-
 export const normalizeResults = (
   proposalResult?: ProposalResults
 ): { title: string; percent: number }[] => {
@@ -247,9 +235,12 @@ export const isZeroAddress = (value?: string) => {
 export const getVoteStrategyType = (
   votingPowerStrategy?: VotingPowerStrategy[]
 ) => {
-  return !votingPowerStrategy || !_.size(votingPowerStrategy)
-    ? VotingPowerStrategyType.TonBalance
-    : votingPowerStrategy[0].type;
+  const result =
+    !votingPowerStrategy || !_.size(votingPowerStrategy)
+      ? VotingPowerStrategyType.TonBalance
+      : votingPowerStrategy[0].type;
+
+  return Number(result);
 };
 
 export const getTxFee = (value: number = 0, baseFee: number = 0): string => {
@@ -359,3 +350,49 @@ export const getIsVerifiedDao = (address?: string) => {
   return VERIFIED_DAOS.includes(address || "");
 };
 
+export const isNftProposal = (
+  votingPowerStrategies?: VotingPowerStrategy[]
+) => {
+  const type = getVoteStrategyType(votingPowerStrategies);
+  return (
+    type == VotingPowerStrategyType.NftCcollection ||
+    type == VotingPowerStrategyType.NftCcollection_1Wallet1Vote
+  );
+};
+
+export const getIsOneWalletOneVote = (
+  votingPowerStrategies?: VotingPowerStrategy[]
+) => {
+  const type = getVoteStrategyType(votingPowerStrategies);
+
+  switch (type) {
+    case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
+    case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
+    case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
+      return true;
+
+    default:
+      return false;
+  }
+};
+
+export const getProposalSymbol = (
+  votingPowerStrategies?: VotingPowerStrategy[]
+) => {
+  const type = getVoteStrategyType(votingPowerStrategies);
+
+  switch (type) {
+    case VotingPowerStrategyType.TonBalance:
+    case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
+      return "TON";
+    case VotingPowerStrategyType.JettonBalance:
+    case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
+      return "JETTON";
+    case VotingPowerStrategyType.NftCcollection:
+    case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
+      return "NFT";
+
+    default:
+      break;
+  }
+};

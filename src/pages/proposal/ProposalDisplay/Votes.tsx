@@ -10,42 +10,40 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import {
-  getSymbol,
-  getVoteStrategyType,
-  nFormatter,
-  parseLanguage,
-} from "utils";
+import { isNftProposal, nFormatter, parseLanguage } from "utils";
 import { PAGE_SIZE } from "config";
-import {  Vote } from "types";
+import { Vote } from "types";
 import { fromNano } from "ton";
 import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
-import {
-  VotingPowerStrategyType,
-} from "ton-vote-contracts-sdk";
+
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
-import {  useWalletVote } from "../hooks";
-import { useAppParams } from "hooks";
+import { useCsvData, useWalletVote } from "../hooks";
+import {
+  useAppParams,
+  useGetProposalSymbol,
+  useIsOneWalletOneVote,
+} from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 
 const ContainerHeader = () => {
-  const {proposalAddress} = useAppParams()
+  const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
 
   const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
 
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
-  const isNFT =
-    getVoteStrategyType(data?.metadata?.votingPowerStrategies) ===
-    VotingPowerStrategyType.NftCcollection;
+  const symbol = useGetProposalSymbol(proposalAddress);
+  const isNFT = isNftProposal(data?.metadata?.votingPowerStrategies);
+  const hideSymbol = isNFT || isOneWalletOneVote;
 
   return (
     <StyledContainerHeader>
@@ -57,12 +55,9 @@ const ContainerHeader = () => {
         }
       />
       <StyledFlexRow style={{ width: "unset" }} gap={10}>
-        {!isNFT && (
+        {!hideSymbol && (
           <Typography className="total" style={{ fontWeight: 600 }}>
-            {tonAmount}{" "}
-            {getSymbol(
-              getVoteStrategyType(data?.metadata?.votingPowerStrategies)
-            )}
+            {tonAmount} {symbol}
           </Typography>
         )}
         <DownloadCSV />
@@ -76,13 +71,12 @@ const ConnectedWalletVote = () => {
 
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
-
-
+  const symbol = useGetProposalSymbol(proposalAddress);
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
   return (
     <VoteComponent
-      votingPowerStrategy={getVoteStrategyType(
-        data?.metadata?.votingPowerStrategies
-      )}
+      hideVotingPower={!!isOneWalletOneVote}
+      symbol={symbol}
       data={walletVote}
     />
   );
@@ -109,9 +103,9 @@ export function Votes() {
 
   const { data, isLoading } = useProposalQuery(proposalAddress);
 
-  const votingPowerStrategy = getVoteStrategyType(
-    data?.metadata?.votingPowerStrategies
-  );
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+
+  const symbol = useGetProposalSymbol(proposalAddress);
   const showMoreVotes = () => {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
   };
@@ -137,7 +131,8 @@ export function Votes() {
               return null;
             return (
               <VoteComponent
-                votingPowerStrategy={votingPowerStrategy}
+                hideVotingPower={!!isOneWalletOneVote}
+                symbol={symbol}
                 data={vote}
                 key={vote.address}
               />
@@ -174,28 +169,10 @@ const Empty = () => {
 };
 
 const DownloadCSV = () => {
-  const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
-
-  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
-
-  const csvData = useMemo(() => {
-    const values = _.map(data?.votes, (vote) => {
-      return [
-        vote.address,
-        vote.vote,
-        vote.votingPower,
-        moment.unix(vote.timestamp).format("DD/MM/YY HH:mm:ss"),
-      ];
-    });
-    values.unshift([
-      translations.address,
-      translations.vote,
-      translations.votingPower,
-      translations.date,
-    ]);
-    return values;
-  }, [dataUpdatedAt]);
+  const { data } = useProposalQuery(proposalAddress);
+  const csvData = useCsvData();
+  const translations = useProposalPageTranslations();
 
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
@@ -214,10 +191,12 @@ const StyledIcon = styled(GrDocumentCsv)(({ theme }) => ({
 
 const VoteComponent = ({
   data,
-  votingPowerStrategy,
+  symbol,
+  hideVotingPower,
 }: {
   data?: Vote;
-  votingPowerStrategy?: VotingPowerStrategyType;
+  symbol?: string;
+  hideVotingPower: boolean;
 }) => {
   const connectedAddress = useTonAddress();
   const translations = useProposalPageTranslations();
@@ -236,12 +215,17 @@ const VoteComponent = ({
           address={address}
           displayText={isYou ? translations.you : ""}
         />
-        <Typography className="vote">
+        <Typography
+          className="vote"
+          style={{ textAlign: hideVotingPower ? "right" : "center" }}
+        >
           {_.isArray(vote) ? vote.join(", ") : vote}
         </Typography>
-        <Typography className="voting-power">
-          {nFormatter(Number(votingPower))} {getSymbol(votingPowerStrategy)}
-        </Typography>
+        {!hideVotingPower && (
+          <Typography className="voting-power">
+            {nFormatter(Number(votingPower))} {symbol}
+          </Typography>
+        )}
       </StyledVote>
     </StyledAppTooltip>
   );

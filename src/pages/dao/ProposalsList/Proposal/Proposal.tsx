@@ -5,7 +5,7 @@ import {
   useAppQueryParams,
   useProposalStatus,
   useRole,
-} from "hooks";
+} from "hooks/hooks";
 import _ from "lodash";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -32,12 +32,8 @@ const useHideProposal = (proposalAddress: string) => {
 
   const { data: proposal } = useProposalQuery(proposalAddress);
   const { data: dao } = useDaoQuery(proposal?.daoAddress || "");
-  
 
-  const { proposalStatus } = useProposalStatus(
-    proposalAddress,
-    proposal?.metadata
-  );
+  const { proposalStatus } = useProposalStatus(proposalAddress);
   const title = proposal?.metadata?.title.toLowerCase();
   const description = proposal?.metadata?.description.toLowerCase();
 
@@ -84,10 +80,8 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
 
   const { data: proposal, isLoading, error } = proposalQuery;
 
-  const { proposalStatus, proposalStatusText } = useProposalStatus(
-    proposalAddress,
-    proposal?.metadata
-  );
+  const { proposalStatus, proposalStatusText } =
+    useProposalStatus(proposalAddress);
   const hideProposal = useHideProposal(proposalAddress);
 
   const description = useMemo(
@@ -147,7 +141,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
             </StyledFlexColumn>
 
             {proposalStatus === ProposalStatus.CLOSED && proposal && (
-              <Results proposalQuery={proposalQuery} />
+              <Results proposalAddress={proposalAddress} />
             )}
             <ProposalTimeline
               proposalMetadata={proposal?.metadata}

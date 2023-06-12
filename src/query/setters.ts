@@ -1,6 +1,6 @@
-import { Updater, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys, releaseMode, TX_FEES } from "config";
-import _, { overArgs } from "lodash";
+import _ from "lodash";
 import {
   daoSetOwner,
   daoSetProposalOwner,
@@ -23,23 +23,31 @@ import {
   useGetProposalStatusCallback,
   useGetSender,
   useRole,
-} from "hooks";
+} from "hooks/hooks";
 import { showSuccessToast, useErrorToast } from "toasts";
 import {
   useDaoQuery,
   useDaosQuery,
   useDaoStateQuery,
+  useGetClients,
   useProposalQuery,
   useRegistryStateQuery,
 } from "./getters";
-import { useSyncStore, useVoteStore } from "store";
-import { getTxFee, validateAddress } from "utils";
+import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
+import {
+  getTxFee,
+  getVoteStrategyType,
+  Logger,
+  parseVotes,
+  validateAddress,
+} from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
 import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
-import { useVoteSuccessCallback } from "./hooks";
+import { contract } from "contract";
+import { lib } from "lib";
 
 export const useCreateNewRegistry = () => {
   const getSender = useGetSender();
@@ -233,6 +241,7 @@ export const useCreateDaoQuery = () => {
       onSuccess: (address, args) => {
         args.onSuccess(address);
         analytics.createSpaceSuccess(args.metadataAddress, address);
+        showSuccessToast(`Space created successfully`);
       },
     }
   );
@@ -290,20 +299,18 @@ export const useCreateProposalQuery = () => {
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
 
-  const allowed = isOwner || isProposalPublisher;
-
   return useMutation(
     async (args: CreateProposalArgs) => {
+      const allowed = isOwner || isProposalPublisher;
+
       const { metadata } = args;
       const sender = getSender();
       if (!allowed) {
-        throw new Error("you are not allowed to create a proposal");
+        throw new Error("You are not allowed to create a proposal");
       }
-      const clientV2 = await getClientV2();
-      let address;
-      address = await newProposal(
+      const address = await newProposal(
         sender,
-        clientV2,
+        await getClientV2(),
         getTxFee(Number(daoState?.fwdMsgFee), TX_FEES.FORWARD_MSG),
         dao?.daoAddress!,
         metadata as ProposalMetadata
@@ -328,6 +335,7 @@ export const useCreateProposalQuery = () => {
           args.metadata as ProposalMetadata,
           address
         );
+        showSuccessToast('Proposal created successfully')
         args.onSuccess(address);
       },
     }
@@ -483,9 +491,9 @@ export const useUpdateDaoMetadataQuery = () => {
 export const useVote = () => {
   const getSender = useGetSender();
   const { proposalAddress } = useAppParams();
-
-  const {data: proposal} = useProposalQuery(proposalAddress);
-
+  const store = useVotePersistedStore();
+  const { data: proposal } = useProposalQuery(proposalAddress);
+  const queryClient = useQueryClient();
   const successCallback = useVoteSuccessCallback(proposalAddress);
 
   const errorToast = useErrorToast();
@@ -511,12 +519,35 @@ export const useVote = () => {
       return successCallback(proposal);
     },
     {
-      onSuccess: (_, vote) => {
-        analytics.voteSuccess(proposalAddress, vote);
+      onSuccess: (values, _vote) => {
+        analytics.voteSuccess(proposalAddress, _vote);
+
+        if (!values) return;
+
+        const { proposalResults, vote, maxLt } = values;
+
+        queryClient.setQueryData(
+          [QueryKeys.PROPOSAL, proposalAddress],
+          (prev?: any) => {
+            return {
+              ...prev,
+              proposalResult: proposalResults,
+              votes: vote ? [vote, ...prev?.votes] : prev?.votes,
+            };
+          }
+        );
+
+        Logger(
+          `vote success manually updating proposal query, and setting local storage`
+        );
+        Logger(maxLt, "maxLt");
+        Logger(vote, "walletVote");
+        Logger(proposalResults, "results");
+        // we save this data in local storage, and display it untill the server is up to date
+        store.setValues(proposalAddress, maxLt, vote, proposalResults);
+        showSuccessToast(`Voted ${_vote} successfully`);
       },
-      onSettled: () => {
-        setIsVoting(false);
-      },
+      onSettled: () => setIsVoting(false),
       onError: (error: Error, vote) => {
         errorToast(error);
         analytics.voteError(proposalAddress, vote, error.message);
@@ -572,4 +603,23 @@ export const useUpdateProposalMutation = () => {
       },
     }
   );
+};
+
+export const useVoteSuccessCallback = (proposalAddress: string) => {
+  const walletAddress = useTonAddress();
+
+  return async (proposal: Proposal) => {
+    if (!proposal.metadata || !walletAddress) return;
+
+    const nftItemsHolders = await lib.getAllNFTHolders(
+      proposalAddress,
+      proposal.metadata
+    );
+    return contract.getProposalResultsAfterVote({
+      proposalAddress,
+      walletAddress,
+      proposal,
+      nftItemsHolders,
+    });
+  };
 };

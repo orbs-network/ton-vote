@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import { Header, LoadingContainer } from "components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
 import { prepareMetadata } from "forms/proposal-form/utils";
-import { useAppParams, useProposalStatus } from "hooks";
+import { useAppParams, useProposalStatus } from "hooks/hooks";
 import moment from "moment";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useUpdateProposalMutation } from "query/setters";
@@ -36,10 +36,7 @@ export function EditProposal() {
   const { proposalAddress } = useAppParams();
 
   const { data: proposal } = useProposalQuery(proposalAddress);
-  const { proposalStatus } = useProposalStatus(
-    proposalAddress,
-    proposal?.metadata
-  );
+  const { proposalStatus } = useProposalStatus(proposalAddress);
   const { mutate, isLoading } = useUpdateProposalMutation();
 
   const update = (values: ProposalFormType) => {
@@ -103,7 +100,6 @@ const Container = ({ children }: { children: ReactNode }) => {
 
   const { data: dao } = useDaoQuery(daoAddress);
   const { proposalAddress } = useAppParams();
-
 
   const back = () => {
     if (!dao) return "";

@@ -9,7 +9,7 @@ import { FormikInputsForm } from "./inputs/Inputs";
 import { AppTooltip } from "./Tooltip";
 import { FiSettings } from "react-icons/fi";
 import _ from "lodash";
-import { useDevFeatures } from "hooks";
+import { useDevFeatures } from "hooks/hooks";
 import {
   useDaosQuery,
   useRegistryStateQuery

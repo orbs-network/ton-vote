@@ -8,11 +8,11 @@ import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
 import { Toolbar } from "./Toolbar";
-import { ReactNode, Suspense, useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
-import { useAppQueryParams, useAppSettings } from "hooks";
+import { useAppQueryParams, useAppSettings } from "hooks/hooks";
 
 const useIsBeta = () => {
   const {

@@ -1,6 +1,6 @@
 import { Chip, styled } from "@mui/material";
 import { AddressDisplay, TitleContainer } from "components";
-import { useAppParams } from "hooks";
+import { useAppParams } from "hooks/hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoQuery } from "query/getters";
 import { StyledFlexColumn, StyledFlexRow } from "styles";

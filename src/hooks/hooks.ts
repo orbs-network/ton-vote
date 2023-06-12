@@ -6,12 +6,7 @@ import {
   useRef,
   useMemo,
 } from "react";
-import {
-  matchRoutes,
-  useLocation,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
@@ -20,21 +15,31 @@ import {
   SenderArguments,
   storeStateInit,
 } from "ton-core";
-import { IS_DEV } from "config";
+import { IS_DEV, STRATEGY_ARGUMENTS } from "config";
 import { showSuccessToast } from "toasts";
 import { Proposal, ProposalStatus, ThemeType } from "types";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
-import { DaoRoles, ProposalMetadata } from "ton-vote-contracts-sdk";
+import {
+  DaoRoles,
+  getAllNftHolders,
+  ProposalMetadata,
+  VotingPowerStrategy,
+  VotingPowerStrategyType,
+} from "ton-vote-contracts-sdk";
 import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { useSettingsStore } from "store";
 import _ from "lodash";
 import {
+  getIsOneWalletOneVote,
   getproposalResult,
   getProposalResultTonAmount,
   getProposalResultVotes,
   getProposalStatus,
+  getProposalSymbol,
+  getStrategyArgument,
+  getVoteStrategyType,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
@@ -249,46 +254,51 @@ export const useAppSettings = () => {
   };
 };
 
-export const useProposalResults = (
-  proposal?: Proposal | null,
-  lastUpdateTime?: number
-) => {
+export const useProposalResults = (proposalAddress: string) => {
+  const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
   return useMemo(() => {
     if (!proposal) return [];
 
     const choices = proposal?.metadata?.votingSystem.choices;
+    const symbol = getProposalSymbol(proposal.metadata?.votingPowerStrategies);
+
+    const isOneWalletOneVote = getIsOneWalletOneVote(
+      proposal.metadata?.votingPowerStrategies
+    );
 
     return _.map(choices, (choice, key) => {
       const result = getproposalResult(proposal, choice);
       const percent = result ? Number(result) : 0;
+
+      const amount = getProposalResultTonAmount(
+        proposal,
+        choice,
+        percent,
+        proposal.proposalResult["totalWeight"]
+      );
+
       return {
         votesCount: getProposalResultVotes(proposal, choice),
         choice,
         percent,
-        tonAmount: getProposalResultTonAmount(
-          proposal,
-          choice,
-          percent,
-          proposal.proposalResult["totalWeight"]
-        ),
+        amount: isOneWalletOneVote ? undefined : `${amount} ${symbol}`,
       };
     });
-  }, [lastUpdateTime]);
+  }, [dataUpdatedAt]);
 };
 
-export const useProposalStatus = (
-  proposalAddress?: string,
-  metadata?: ProposalMetadata
-) => {
+export const useProposalStatus = (proposalAddress: string) => {
+  const { data } = useProposalQuery(proposalAddress);
   const t = useCommonTranslations();
 
   const getStatus = useGetProposalStatusCallback();
   const query = useQuery(
     ["useProposalStatus", proposalAddress],
-    () => getStatus(metadata!),
+    () => getStatus(data?.metadata!),
     {
       refetchInterval: 1_000,
-      enabled: !!metadata && !!proposalAddress,
+      enabled: !!data && !!proposalAddress,
       initialData: {
         proposalStatus: ProposalStatus.NOT_STARTED,
         proposalStatusText: t.notStarted,
@@ -341,4 +351,63 @@ export const useHiddenProposal = (proposalAddress: string) => {
   if (!proposal || !dao) return false;
 
   return !isOwner && !isProposalPublisher;
+};
+
+export const useGetProposalSymbol = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(
+    () => getProposalSymbol(data?.metadata?.votingPowerStrategies),
+    [dataUpdatedAt]
+  );
+};
+
+export const useGetProposalStrategyName = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(() => {
+    const type = getVoteStrategyType(data?.metadata?.votingPowerStrategies);
+
+    switch (type) {
+      case VotingPowerStrategyType.TonBalance:
+        return "TON balance";
+      case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
+        return "TON balance (1 wallet 1 vote)";
+      case VotingPowerStrategyType.JettonBalance:
+        return "JETTON balance";
+      case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
+        return "JETTON balance (1 wallet 1 vote)";
+      case VotingPowerStrategyType.NftCcollection:
+        return "NFT collection";
+      case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
+        return "NFT collection (1 wallet 1 vote)";
+
+      default:
+        break;
+    }
+  }, [dataUpdatedAt]);
+};
+
+export const useIsOneWalletOneVote = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(
+    () => getIsOneWalletOneVote(data?.metadata?.votingPowerStrategies),
+    [dataUpdatedAt]
+  );
+};
+
+export const useStrategyArguments = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(() => {
+    const arr = STRATEGY_ARGUMENTS.map((it) => ({
+      name: it.name,
+      value: getStrategyArgument(it.key, data?.metadata?.votingPowerStrategies),
+    }));
+    return _.omitBy(
+      _.chain(arr).keyBy("name").mapValues("value").value(),
+      _.isUndefined
+    );
+  }, [dataUpdatedAt]);
 };

@@ -7,7 +7,7 @@ import {
   useDevFeatures,
   useMobile,
   useRole,
-} from "hooks";
+} from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
 import { useDaoQuery } from "query/getters";

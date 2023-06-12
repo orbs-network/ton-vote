@@ -1,11 +1,13 @@
 import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
-import { useAppParams } from "hooks";
+import { useAppParams, useGetProposalSymbol } from "hooks/hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { useConnectedWalletVotingPowerQuery, useProposalQuery } from "query/getters";
+import {
+  useConnectedWalletVotingPowerQuery,
+  useProposalQuery,
+} from "query/getters";
 import React, { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { getSymbol, getVoteStrategyType } from "utils";
 
 interface Props {
   open: boolean;
@@ -19,6 +21,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
 
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
+  const symbol = useGetProposalSymbol(proposalAddress);
 
   const {
     data: votingData,
@@ -52,9 +55,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
           <Row
             isLoading={votingDataLoading}
             label={translations.yourVotingPower}
-            value={`${votingData} ${getSymbol(
-              Number(getVoteStrategyType(data?.metadata?.votingPowerStrategies))
-            )}`}
+            value={`${votingData} ${symbol}`}
           />
         </StyledFlexColumn>
         {NoVotingPower && (

@@ -3,7 +3,7 @@ import _ from "lodash";
 import { routes } from "consts";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense, useMemo } from "react";
-import { useDevFeatures } from "hooks";
+import { useDevFeatures } from "hooks/hooks";
 import { DaoPageFallback, DaosPageFallback, PageFallback } from "./fallbacks";
 
 
