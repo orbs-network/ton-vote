@@ -40,6 +40,7 @@ import {
   getProposalSymbol,
   getStrategyArgument,
   getVoteStrategyType,
+  isNftProposal,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
@@ -408,4 +409,13 @@ export const useStrategyArguments = (proposalAddress: string) => {
       _.isUndefined
     );
   }, [dataUpdatedAt]);
+};
+
+
+export const useIsNftProposal = (proposalAddress: string) => {
+
+  const {data, dataUpdatedAt} = useProposalQuery(proposalAddress);
+
+  return useMemo(() => isNftProposal(data?.metadata?.votingPowerStrategies), [dataUpdatedAt]);
+
 };

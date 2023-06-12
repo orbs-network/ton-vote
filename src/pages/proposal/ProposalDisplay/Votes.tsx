@@ -10,7 +10,7 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { isNftProposal, nFormatter, parseLanguage } from "utils";
+import { nFormatter, parseLanguage } from "utils";
 import { PAGE_SIZE } from "config";
 import { Vote } from "types";
 import { fromNano } from "ton";
@@ -26,6 +26,7 @@ import { useCsvData, useWalletVote } from "../hooks";
 import {
   useAppParams,
   useGetProposalSymbol,
+  useIsNftProposal,
   useIsOneWalletOneVote,
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
@@ -37,13 +38,12 @@ const ContainerHeader = () => {
   const totalTonAmount = data?.proposalResult?.totalWeight || "0";
   const votesLength = _.size(data?.votes);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
-
+  const isNftProposal = useIsNftProposal(proposalAddress);
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
   const symbol = useGetProposalSymbol(proposalAddress);
-  const isNFT = isNftProposal(data?.metadata?.votingPowerStrategies);
-  const hideSymbol = isNFT || isOneWalletOneVote;
+  const hideSymbol = isNftProposal || isOneWalletOneVote;
 
   return (
     <StyledContainerHeader>
