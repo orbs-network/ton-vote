@@ -71,6 +71,7 @@ export const useRouter = () => {
               children: [
                 {
                   path: routes.createProposal,
+                  errorElement: <Navigate to={routes.spaces} />,
                   element: devFeatures ? (
                     <Suspense fallback={<PageFallback />}>
                       <CreateProposal />
@@ -81,6 +82,7 @@ export const useRouter = () => {
                 },
                 {
                   index: true,
+                  errorElement: <Navigate to={routes.spaces} />,
                   element: (
                     <Suspense fallback={<PageFallback />}>
                       <ProposalsList />
@@ -89,6 +91,7 @@ export const useRouter = () => {
                 },
                 {
                   path: routes.spaceSettings,
+                  errorElement: <Navigate to={routes.spaces} />,
                   element: devFeatures ? (
                     <Suspense fallback={<PageFallback />}>
                       <DaoSettings />
@@ -99,6 +102,7 @@ export const useRouter = () => {
                 },
                 {
                   path: routes.spaceAbout,
+                  errorElement: <Navigate to={routes.spaces} />,
                   element: (
                     <Suspense fallback={<PageFallback />}>
                       <DaoAbout />
@@ -109,6 +113,7 @@ export const useRouter = () => {
             },
             {
               path: routes.proposal,
+              errorElement: <Navigate to={routes.spaces} />,
               element: (
                 <Suspense fallback={<PageFallback />}>
                   <Proposal />
@@ -117,6 +122,7 @@ export const useRouter = () => {
               children: [
                 {
                   path: routes.proposal,
+                  errorElement: <Navigate to={routes.spaces} />,
                   element: (
                     <Suspense fallback={<PageFallback />}>
                       <ProposalDisplay />
@@ -125,6 +131,7 @@ export const useRouter = () => {
                 },
                 {
                   path: routes.editProposal,
+                  errorElement: <Navigate to={routes.spaces} />,
                   element: devFeatures ? (
                     <Suspense fallback={<PageFallback />}>
                       <EditProposal />
