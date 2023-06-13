@@ -1,0 +1,1 @@
+import{b as r,F as n}from"./index-978b2a1b.js";function o({isLoading:t,isEmpty:e,children:i,emptyComponent:s,loader:a}){return e?r(n,{children:s}):t?r(n,{children:a}):r(n,{children:i})}export{o as L};
