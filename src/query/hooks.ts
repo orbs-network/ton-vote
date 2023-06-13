@@ -64,7 +64,6 @@ export const useIsDaosUpToDate = () => {
             await getClientV2(),
             dao.daoMetadata.metadataAddress
           );
-          Logger(metadataArgs);
         }
 
         return {

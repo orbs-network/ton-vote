@@ -347,16 +347,16 @@ export const useSetDaoOwnerQuery = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
   const { setDaoUpdateMillis } = useSyncStore();
+  const { daoAddress } = useAppParams();
+
+  const refetch = useDaoQuery(daoAddress).refetch;
 
   return useMutation(
     async ({
       newOwner,
-      daoAddress,
     }: {
       newOwner?: string;
-      daoAddress: string;
       onError: (value: string) => void;
-      onSuccess: () => void;
     }) => {
       if (!newOwner) {
         throw new Error("Owner address is required");
@@ -365,19 +365,20 @@ export const useSetDaoOwnerQuery = () => {
         throw new Error("Invalid owner address");
       }
       const clientV2 = await getClientV2();
-      return daoSetOwner(
+      await daoSetOwner(
         getSender(),
         clientV2,
         daoAddress,
         TX_FEES.BASE.toString(),
         newOwner
       );
+      setDaoUpdateMillis(daoAddress);
+      return refetch();
     },
     {
-      onError: (error) => errorToast(error),
-      onSuccess: (_, args) => {
-        args.onSuccess();
-        setDaoUpdateMillis(args.daoAddress);
+      onError: (error, args) => {
+        errorToast(error);
+        args.onError("Failed to set new owner");
       },
     }
   );
@@ -386,18 +387,17 @@ export const useSetDaoOwnerQuery = () => {
 export const useSetDaoPublisherQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
+  const { daoAddress } = useAppParams();
+  const { refetch: refetchDao } = useDaoQuery(daoAddress);
 
   const errorToast = useErrorToast();
 
   return useMutation(
     async ({
       newOwner,
-      daoAddress,
     }: {
       newOwner?: string;
-      daoAddress: string;
       onError: (value: string) => void;
-      onSuccess: () => void;
     }) => {
       if (!newOwner) {
         throw new Error("Proposal owner address is required");
@@ -407,22 +407,20 @@ export const useSetDaoPublisherQuery = () => {
       }
 
       const clientV2 = await getClientV2();
-      return daoSetProposalOwner(
+      await daoSetProposalOwner(
         getSender(),
         clientV2,
         TX_FEES.BASE.toString(),
         daoAddress,
         newOwner
       );
+      setDaoUpdateMillis(daoAddress);
+      return refetchDao();
     },
     {
       onError: (error: Error, args) => {
         args.onError(error.message);
         errorToast(error);
-      },
-      onSuccess: (_, args) => {
-        args.onSuccess();
-        setDaoUpdateMillis(args.daoAddress);
       },
     }
   );

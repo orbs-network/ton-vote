@@ -105,7 +105,7 @@ export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
   const walletAddress = useTonAddress();
   return useMemo(() => {
     return _.find(votes, (it) => it.address === walletAddress);
-  }, [dataUpdatedAt]);
+  }, [dataUpdatedAt, walletAddress]);
 };
 
 const getCsvConfig = (isOneWalletOneVote: boolean) => {

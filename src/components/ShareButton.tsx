@@ -44,7 +44,13 @@ const items = [
   },
 ];
 
-export function ShareButton({ url, className = " " }: { url: string; className?: string }) {
+export function ShareButton({
+  url,
+  className = " ",
+}: {
+  url: string;
+  className?: string;
+}) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -82,36 +88,39 @@ const StyledMenuItem = styled(MenuItem)({
     width: 16,
     height: 16,
   },
-  p:{
-    fontSize: 14,
-    fontWeight: 600
-  }
-});
-
-const StyledShareButton = styled("button")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 6,
-  background: "transparent",
-  border: "unset",
-  cursor: "pointer",
-  color: theme.palette.primary.main,
-  "*": {
-    color: theme.palette.primary.main,
-  },
   p: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 600,
   },
-  svg: {
-    width: 20,
-    height: 20,
-    color: theme.palette.primary.main,
-  },
-}));
+});
+
+const StyledShareButton = styled("button")(({ theme }) => {
+  const color =
+    theme.palette.mode === "light" ? theme.palette.primary.main : "white";
+  return {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    background: "transparent",
+    border: "unset",
+    cursor: "pointer",
+    color: color,
+    "*": {
+      color: color,
+    },
+    p: {
+      fontSize: 15,
+      fontWeight: 600,
+    },
+    svg: {
+      width: 20,
+      height: 20,
+      color: color,
+    },
+  };
+});
 
 const StyledBtnContent = styled(StyledFlexRow)(({ theme }) => ({
   height: 25,
- 
 }));

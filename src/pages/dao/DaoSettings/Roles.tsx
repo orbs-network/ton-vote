@@ -45,18 +45,13 @@ export const EndAdornment = ({
     useSetDaoOwnerQuery();
   const { mutateAsync: setPublisher, isLoading: setPublisherloading } =
     useSetDaoPublisherQuery();
-
-    const {daoAddress} = useAppParams()
-  const { refetch: refetchDao } = useDaoQuery(daoAddress);
   const value = formik.values[name as keyof DaoRolesForm];
   const initialValue = formik.initialValues[name as keyof DaoRolesForm];
 
   const update = () => {
     const args = {
-      daoAddress,
       newOwner: value,
       onError: (error: string) => formik.setFieldError(name, error),
-      onSuccess: refetchDao,
     };
 
     if (name === "ownerAddress") {
