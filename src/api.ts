@@ -5,16 +5,12 @@ import { Logger, parseVotes } from "utils";
 import {IS_DEV, API_RETRIES } from "config";
 import axiosRetry from "axios-retry";
 import retry from "async-retry";
-import {
-  FOUNDATION_PROPOSALS_ADDRESSES,
-  OLD_FOUNDATION_ADDRESS,
-} from "data/foundation/data";
+
 
 const baseURL = IS_DEV
   ? "https://dev-ton-vote-cache.herokuapp.com"
-  : "https://ton-vote-cache.herokuapp.com";
+  : "https://api.ton.vote";
 
-const foundationBaseUrl = "https://api.ton.vote";
 
 const axiosInstance = axios.create({
   baseURL,
@@ -51,13 +47,9 @@ const getProposal = async (
       `Fetching proposal from server, address: ${proposalAddress}, attempt: ${attempt}`
     );
 
-    let url = `${baseURL}/proposal/${proposalAddress}`;
-    if (FOUNDATION_PROPOSALS_ADDRESSES.includes(proposalAddress)) {
-      url = `${foundationBaseUrl}/proposal/${proposalAddress}`;
-    }
-
+  
     const [result, maxLt] = await Promise.all([
-      axios.get(url, {
+      axiosInstance.get(`/proposal/${proposalAddress}`, {
         signal,
       }),
       getMaxLt(proposalAddress, signal),
@@ -87,12 +79,9 @@ const getMaxLt = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<string> => {
-  let url = `${baseURL}/maxLt/${proposalAddress}`;
 
-  if (FOUNDATION_PROPOSALS_ADDRESSES.includes(proposalAddress)) {
-    url = `${foundationBaseUrl}/maxLt/${proposalAddress}`;
-  }
-  return (await axios.get(url, { signal })).data;
+  return (await axiosInstance.get(`/maxLt/${proposalAddress}`, { signal }))
+    .data;
 };
 
 const getDao = async (
@@ -100,16 +89,12 @@ const getDao = async (
   signal?: AbortSignal
 ): Promise<Dao | undefined> => {
   const promise = async (bail: any, attempt: number) => {
-    let url = `${baseURL}/dao/${daoAddress}`;
-
-    if (daoAddress === OLD_FOUNDATION_ADDRESS) {
-      url = `${foundationBaseUrl}/dao/${daoAddress}`;
-    }
-
+ 
     Logger(
       `Fetching dao from server, address ${daoAddress}, attempt: ${attempt}`
     );
-    const data = (await axios.get(url, { signal })).data;
+    const data = (await axiosInstance.get(`/dao/${daoAddress}`, { signal }))
+      .data;
 
     if (_.isEmpty(data)) {
       Logger("dao not found is server");
