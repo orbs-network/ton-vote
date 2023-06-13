@@ -63,9 +63,9 @@ export const Metadata = () => {
           </InformationRow>
           <InformationRow label={translations.votingStrategy}>
             {isOneWalletOneVote ? (
-              <Link href={ONE_WALLET_ONE_VOTE_URL} target='_blank'>
+              <StyledLink href={ONE_WALLET_ONE_VOTE_URL} target='_blank'>
                 <OverflowWithTooltip text={strategyName} />
-              </Link>
+              </StyledLink>
             ) : (
               <OverflowWithTooltip text={strategyName} />
             )}
@@ -85,6 +85,15 @@ export const Metadata = () => {
     </StyledInformation>
   );
 };
+
+
+const StyledLink = styled("a")(({ theme }) => ({
+  textDecoration: "unset",
+  "&:hover": {
+    textDecoration: 'underline',
+    textDecorationColor: theme.palette.text.primary,
+  },
+}));
 
 const InformationRow = ({
   label,
