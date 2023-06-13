@@ -2,33 +2,11 @@ import Layout from "layout/Layout";
 import _ from "lodash";
 import { routes } from "consts";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { lazy, Suspense, useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useDevFeatures } from "hooks/hooks";
 import { DaoPageFallback, DaosPageFallback, PageFallback } from "./fallbacks";
+import { BadRoute, CreateDao, CreateProposal, Dao, DaoAbout, DaoSettings, DaosPage, EditProposal, Proposal, ProposalDisplay, ProposalsList } from "pages";
 
-
-const Dao = lazy(() => import("pages/dao/Dao"));
-const Proposal = lazy(() => import("pages/proposal/Proposal"));
-const EditProposal = lazy(() => import("pages/proposal/EditProposal"));
-const DaosPage = lazy(() => import("pages/daos/DaosPage"));
-const DaoAbout = lazy(() => import("pages/dao/DaoAbout"));
-const BadRoute = lazy(() => import("pages/BadRoute"));
-
-const CreateProposal = lazy(
-  () => import("pages/dao/CreateProposal/CreateProposal")
-);
-
-const DaoSettings = lazy(() => import("pages/dao/DaoSettings/DaoSettings"));
-
-const CreateDao = lazy(() => import("pages/create-dao/CreateDao"));
-
-const ProposalsList = lazy(
-  () => import("pages/dao/ProposalsList/ProposalsList")
-);
-
-const ProposalDisplay = lazy(
-  () => import("pages/proposal/ProposalDisplay/ProposalDisplay")
-);
 
 export const useRouter = () => {
   const devFeatures = useDevFeatures();
