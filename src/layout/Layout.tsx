@@ -13,6 +13,7 @@ import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
 import { useAppQueryParams, useAppSettings } from "hooks/hooks";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const useIsBeta = () => {
   const {
@@ -61,6 +62,7 @@ const Wrapped = ({ children }: { children?: ReactNode }) => {
   return (
     <QueryParamProvider adapter={ReactRouter6Adapter}>
       <Layout>{children}</Layout>
+      <ReactQueryDevtools />
     </QueryParamProvider>
   );
 };

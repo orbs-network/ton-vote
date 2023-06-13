@@ -2,14 +2,19 @@ import axios from "axios";
 import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
-import moment from "moment";
-import { LAST_FETCH_UPDATE_LIMIT, IS_DEV, API_RETRIES } from "config";
+import {IS_DEV, API_RETRIES } from "config";
 import axiosRetry from "axios-retry";
 import retry from "async-retry";
+import {
+  FOUNDATION_PROPOSALS_ADDRESSES,
+  OLD_FOUNDATION_ADDRESS,
+} from "data/foundation/data";
 
 const baseURL = IS_DEV
   ? "https://dev-ton-vote-cache.herokuapp.com"
-  : "https://api.ton.vote/";
+  : "https://ton-vote-cache.herokuapp.com";
+
+const foundationBaseUrl = "https://api.ton.vote";
 
 const axiosInstance = axios.create({
   baseURL,
@@ -45,8 +50,14 @@ const getProposal = async (
     Logger(
       `Fetching proposal from server, address: ${proposalAddress}, attempt: ${attempt}`
     );
+
+    let url = `${baseURL}/proposal/${proposalAddress}`;
+    if (FOUNDATION_PROPOSALS_ADDRESSES.includes(proposalAddress)) {
+      url = `${foundationBaseUrl}/proposal/${proposalAddress}`;
+    }
+
     const [result, maxLt] = await Promise.all([
-      axiosInstance.get(`/proposal/${proposalAddress}`, {
+      axios.get(url, {
         signal,
       }),
       getMaxLt(proposalAddress, signal),
@@ -59,7 +70,7 @@ const getProposal = async (
       }
       throw new Error("proposal not found in server");
     }
-    
+
     const proposal: Proposal = {
       ...result.data,
       votes: parseVotes(result.data.votes, result.data.votingPower),
@@ -76,8 +87,12 @@ const getMaxLt = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<string> => {
-  return (await axiosInstance.get(`/maxLt/${proposalAddress}`, { signal }))
-    .data;
+  let url = `${baseURL}/maxLt/${proposalAddress}`;
+
+  if (FOUNDATION_PROPOSALS_ADDRESSES.includes(proposalAddress)) {
+    url = `${foundationBaseUrl}/maxLt/${proposalAddress}`;
+  }
+  return (await axios.get(url, { signal })).data;
 };
 
 const getDao = async (
@@ -85,11 +100,16 @@ const getDao = async (
   signal?: AbortSignal
 ): Promise<Dao | undefined> => {
   const promise = async (bail: any, attempt: number) => {
+    let url = `${baseURL}/dao/${daoAddress}`;
+
+    if (daoAddress === OLD_FOUNDATION_ADDRESS) {
+      url = `${foundationBaseUrl}/dao/${daoAddress}`;
+    }
+
     Logger(
       `Fetching dao from server, address ${daoAddress}, attempt: ${attempt}`
     );
-    const data = (await axiosInstance.get(`/dao/${daoAddress}`, { signal }))
-      .data;
+    const data = (await axios.get(url, { signal })).data;
 
     if (_.isEmpty(data)) {
       Logger("dao not found is server");
@@ -104,14 +124,6 @@ const getDao = async (
   return retry(promise, { retries: API_RETRIES });
 };
 
-const validateServerLastUpdate = async (
-  signal?: AbortSignal
-): Promise<boolean> => {
-  const serverLastUpdate = (await axiosInstance.get("/updateTime", { signal }))
-    .data;
-  return moment().valueOf() - serverLastUpdate < LAST_FETCH_UPDATE_LIMIT;
-};
-
 const getUpdateTime = async (): Promise<number> => {
   const res = await axiosInstance.get("/updateTime");
   return res.data;
@@ -121,7 +133,6 @@ export const api = {
   getDaos,
   getProposal,
   getMaxLt,
-  validateServerLastUpdate,
   getDao,
   getAllNftHolders,
   getUpdateTime,
