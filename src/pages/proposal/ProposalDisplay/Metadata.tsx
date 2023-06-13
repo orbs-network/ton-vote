@@ -63,7 +63,7 @@ export const Metadata = () => {
           </InformationRow>
           <InformationRow label={translations.votingStrategy}>
             {isOneWalletOneVote ? (
-              <Link style={{textDecoration:'unset'}} href={ONE_WALLET_ONE_VOTE_URL} target='_blank'>
+              <Link href={ONE_WALLET_ONE_VOTE_URL} target='_blank'>
                 <OverflowWithTooltip text={strategyName} />
               </Link>
             ) : (

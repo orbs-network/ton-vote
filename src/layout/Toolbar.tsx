@@ -26,7 +26,7 @@ export function Toolbar() {
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
-        <AppTooltip text={translations.createDao} placement="right">
+        <AppTooltip text="Create a new space for your DAO" placement="right">
           <StyledButton
             onClick={() =>
               devFeatures
