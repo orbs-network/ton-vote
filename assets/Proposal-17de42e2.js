@@ -1,1 +1,0 @@
-import{j as r,F as l,b as a,O as n,u as p,c as u,H as c,A as d,p as i}from"./index-b73c198c.js";const m=()=>{var t,e;const{proposalAddress:o}=p(),s=(e=(t=u(o).data)==null?void 0:t.metadata)==null?void 0:e.title;return a(c,{children:r("title",{children:[d,s?` - ${i(s)}`:""]})})};function P(){return r(l,{children:[a(m,{}),a(n,{})]})}export{P as Proposal,P as default};
