@@ -20,12 +20,8 @@ export const FOUNDATION_PROPOSALS_ADDRESSES = [
 
 
 export const shouldHideVerify = (address: string) => {
-  const addresses = _.filter(
-    FOUNDATION_PROPOSALS_ADDRESSES,
-    (a) => a !== "EQAx5JjTHpQ_5EeWBAErl4_AWhh_JFBh2UvuTWAeqdbpC0C1"
-  );
 
-  return addresses.includes(address);
+  return FOUNDATION_PROPOSALS_ADDRESSES.includes(address);
 }
 
 export const FOUNDATION_PROPOSALS: { [key: string]: Proposal } = {
@@ -95,9 +91,9 @@ export const FOUNDATION_PROPOSALS: { [key: string]: Proposal } = {
     proposalResult: tokenomics.proposalResults,
     url: "https://ton.vote/frozen",
   },
-  // "EQAx5JjTHpQ_5EeWBAErl4_AWhh_JFBh2UvuTWAeqdbpC0C1": {
-  //   ...realTimeBurn,
-  //   rawVotes: {},
+  "EQAx5JjTHpQ_5EeWBAErl4_AWhh_JFBh2UvuTWAeqdbpC0C1": {
+    ...realTimeBurn,
+    rawVotes: {},
     
-  // },
+  },
 };
