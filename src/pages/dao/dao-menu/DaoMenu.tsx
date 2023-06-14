@@ -254,7 +254,7 @@ const useNavigationLinks = () => {
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
       selected: route === routes.createProposal,
-      hide: !showDev ? true : !isOwner && !isProposalPublisher,
+      hide: !isOwner && !isProposalPublisher,
       route: routes.createProposal,
     },
     {
@@ -275,7 +275,7 @@ const options = [
 const useDaoSocials = () => {
   const { daoAddress } = useAppParams();
 
-  const { data, isLoading, dataUpdatedAt } = useDaoQuery(daoAddress);
+  const { data, dataUpdatedAt } = useDaoQuery(daoAddress);
 
   return useMemo(() => {
     return options
