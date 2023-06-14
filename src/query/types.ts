@@ -5,7 +5,7 @@ export interface CreateDaoArgs {
   metadataAddress: string;
   ownerAddress: string;
   proposalOwner: string;
-  onSuccess: (address: string) => void;
+  dev: boolean
 }
 
 

@@ -116,7 +116,7 @@ const EmptyList = () => {
 const ListLoader = () => {
   return (
     <>
-      {_.range(0, 2).map((it, i) => {
+      {_.range(0, 1).map((it, i) => {
         return <ProposalLoader key={i} />;
       })}
     </>

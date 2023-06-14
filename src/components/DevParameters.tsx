@@ -10,16 +10,17 @@ import { AppTooltip } from "./Tooltip";
 import { FiSettings } from "react-icons/fi";
 import _ from "lodash";
 import { useDevFeatures } from "hooks/hooks";
-import {
-  useDaosQuery,
-  useRegistryStateQuery
-} from "query/getters";
-import {
-  useCreateNewRegistry,
-  useSetCreateDaoFee,
-  useSetDaoFwdMsgFee,
-  useSetRegistryAdmin,
-} from "query/setters";
+import { useDaosQuery, useRegistryStateQuery } from "query/getters";
+import { registryAdminSetters } from "query/registry-admin";
+
+const inputNames = {
+  createDaoFee: "createDaoFee",
+  registryAdmin: "registryAdmin",
+  fwdMsgFee: "fwdMsgFee",
+  newRegistry: "newRegistry",
+  fwdFeeForNewDaos: "fwdFeeForNewDaos",
+  registryAddress: "registryAddress",
+};
 
 const EndAdornment = ({
   name,
@@ -31,54 +32,62 @@ const EndAdornment = ({
   const value = formik.values[name as keyof IForm];
   const initialValue = formik.initialValues[name as keyof IForm];
   const { mutateAsync: setCreateDaoFee, isLoading: createDaoFeeLoading } =
-    useSetCreateDaoFee();
+    registryAdminSetters.useSetCreateDaoFee();
   const { mutateAsync: setRegistryAdmin, isLoading: setAdminLoading } =
-    useSetRegistryAdmin();
+    registryAdminSetters.useSetRegistryAdmin();
   const { mutateAsync: setCreateProposalFee, isLoading: daoFwdFeeLoading } =
-    useSetDaoFwdMsgFee();
+    registryAdminSetters.useSetDaoFwdMsgFee();
 
   const { mutate: createNewRegistry, isLoading: newRegistryLoading } =
-    useCreateNewRegistry();
+    registryAdminSetters.useCreateNewRegistry();
+
+  const { mutate: setFwdFeeForNewDaos, isLoading: fwdFeeForNewDaosLoading } =
+    registryAdminSetters.useSetFwdFeeForNewDaos();
 
   const daos = useDaosQuery().data;
 
   const onSubmit = () => {
     const onError = (error: string) => formik.setFieldError(name, error);
 
-    if (name === "createDaoFee") {
+    if (name === inputNames.createDaoFee) {
       return setCreateDaoFee({
         value: value as number,
         onError,
       });
     }
-    if (name === "registryAdmin") {
+    if (name === inputNames.registryAdmin) {
       return setRegistryAdmin({
         newRegistryAdmin: value! as string,
         onError,
       });
     }
-    if (name === "fwdMsgFee") {
+    if (name === inputNames.fwdMsgFee) {
       return setCreateProposalFee({
         daoIds: daos!.map((dao) => dao.daoId!),
         amount: value as number,
         onError,
       });
     }
-     if (name === "newRegistry") {
-       return createNewRegistry(value as number);
-     }
+    if (name === inputNames.fwdFeeForNewDaos) {
+      return setFwdFeeForNewDaos(value as string);
+    }
+    if (name === inputNames.newRegistry) {
+      return createNewRegistry(value as number);
+    }
   };
 
   const isLoading = () => {
     switch (name) {
-      case "createDaoFee":
+      case inputNames.createDaoFee:
         return createDaoFeeLoading;
-      case "registryAdmin":
+      case inputNames.registryAdmin:
         return setAdminLoading;
-      case "fwdMsgFee":
+      case inputNames.fwdMsgFee:
         return daoFwdFeeLoading;
-      case "newRegistry":
+      case inputNames.newRegistry:
         return newRegistryLoading;
+      case inputNames.fwdFeeForNewDaos:
+        return fwdFeeForNewDaosLoading;
 
       default:
         return false;
@@ -107,31 +116,37 @@ const form: FormArgs<IForm> = {
     {
       label: "Registry address",
       type: "text",
-      name: "registryAddress",
+      name: inputNames.registryAddress,
       disabled: true,
     },
     {
       label: "Create DAO fee",
       type: "number",
-      name: "createDaoFee",
+      name: inputNames.createDaoFee,
       EndAdornment,
       required: true,
     },
     {
       label: "Registry admin",
       type: "address",
-      name: "registryAdmin",
+      name: inputNames.registryAdmin,
       EndAdornment,
       required: true,
     },
     {
-      name: "fwdMsgFee",
-      label: "Forward Message Fee",
+      name: inputNames.fwdMsgFee,
+      label: "Updated fwd fee for all existing DAOs",
       type: "number",
       EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
     },
     {
-      name: "newRegistry",
+      name: inputNames.fwdFeeForNewDaos,
+      label: "Updated fwd fee new DAOs",
+      type: "number",
+      EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
+    },
+    {
+      name: inputNames.newRegistry,
       label: "Create Registry",
       type: "text",
       EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
@@ -177,7 +192,9 @@ export function DevParametersModal() {
             gap={20}
             style={{ opacity: daosLoading ? 0.5 : 1 }}
           >
-            <StyledRegistryID label={`Registry ID: ${registryState?.registryId}`} />
+            <StyledRegistryID
+              label={`Registry ID: ${registryState?.registryId}`}
+            />
             <FormikInputsForm<IForm>
               form={form}
               formik={formik}

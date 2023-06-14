@@ -17,29 +17,30 @@ import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoMetadataForm, useDaoRolesForm } from "../form";
 import { useCreateDaoQuery } from "query/setters";
-import {  useAppNavigation } from "router/navigation";
-import { useNewDataStore } from "store";
 import { useRegistryStateQuery } from "query/getters";
 import { isZeroAddress } from "utils";
 import { getBorderColor } from "theme";
 
 const useCreateDao = () => {
-  const { rolesForm, metadataAddress, reset } = useCreatDaoStore();
-  const { addDao } = useNewDataStore();
-  const appNavigation = useAppNavigation();
+  const { rolesForm, metadataAddress, reset, daoMetadataForm } =
+    useCreatDaoStore();
 
-  const { mutate, isLoading } = useCreateDaoQuery();
+  const { mutateAsync, isLoading } = useCreateDaoQuery();
+
+  const createDao = async () => {
+    try {
+      await mutateAsync({
+        metadataAddress: metadataAddress!,
+        ownerAddress: rolesForm.ownerAddress,
+        proposalOwner: rolesForm.proposalOwner,
+        dev: !!daoMetadataForm.dev,
+      });
+      reset();
+    } catch (error) {}
+  };
+
   return {
-    createDao: () => mutate({
-      metadataAddress: metadataAddress!,
-      ownerAddress: rolesForm.ownerAddress,
-      proposalOwner: rolesForm.proposalOwner,
-      onSuccess: (address: string) => {
-        appNavigation.daoPage.root(address);
-        addDao(address);
-        reset();
-      },
-    }),
+    createDao,
     isLoading,
   };
 };
@@ -114,10 +115,10 @@ const InputPreview = ({
   value: any;
 }) => {
   const getValue = () => {
-    if (input.name === "dev") return 
-      if (input.type === "address" && isZeroAddress(value)) {
-        return null;
-      }
+    if (input.name === "dev") return;
+    if (input.type === "address" && isZeroAddress(value)) {
+      return null;
+    }
     if (input.type === "checkbox") {
       return <Typography>{value ? "Yes" : "No"}</Typography>;
     }

@@ -1,21 +1,25 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QueryKeys, releaseMode, TX_FEES } from "config";
+import {
+  createDaoDevFee,
+  createDaoProdFee,
+  IS_DEV,
+  QueryKeys,
+  releaseMode,
+  TX_FEES,
+} from "config";
 import _ from "lodash";
 import {
+  createNewDaoOnProdAndDev,
   daoSetOwner,
   daoSetProposalOwner,
   getClientV2,
   newDao,
   newMetdata,
   newProposal,
-  newRegistry,
   ProposalMetadata,
   proposalSendMessage,
   ReleaseMode,
-  setDeployAndInitDaoFee,
-  setFwdMsgFee,
   setMetadata,
-  setRegistryAdmin,
   updateProposal,
 } from "ton-vote-contracts-sdk";
 import {
@@ -29,18 +33,16 @@ import {
   useDaoQuery,
   useDaosQuery,
   useDaoStateQuery,
-  useGetClients,
   useProposalQuery,
   useRegistryStateQuery,
 } from "./getters";
-import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
 import {
-  getTxFee,
-  getVoteStrategyType,
-  Logger,
-  parseVotes,
-  validateAddress,
-} from "utils";
+  useNewDataStore,
+  useSyncStore,
+  useVotePersistedStore,
+  useVoteStore,
+} from "store";
+import { getTxFee, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { analytics } from "analytics";
@@ -50,183 +52,53 @@ import { contract } from "contract";
 import { lib } from "lib";
 import retry from "async-retry";
 
-export const useCreateNewRegistry = () => {
-  const getSender = useGetSender();
-  const address = useTonAddress();
-  const showErrorToast = useErrorToast();
-  const registryState = useRegistryStateQuery().data;
-
-  return useMutation(
-    async (releaseMode: number) => {
-      if (!Object.keys(ReleaseMode).includes(releaseMode.toString())) {
-        throw new Error("Invalid release mode");
-      }
-      if (!registryState?.admin || address !== registryState.admin) {
-        throw new Error("You are not the registry admin");
-      }
-      const clientV2 = await getClientV2();
-      const sender = getSender();
-      return newRegistry(
-        sender,
-        clientV2,
-        releaseMode,
-        TX_FEES.BASE.toString(),
-        address!
-      );
-    },
-    {
-      onError: (error) => showErrorToast(error),
-    }
-  );
-};
-
-export const useSetCreateDaoFee = () => {
-  const getSender = useGetSender();
-  const errorToast = useErrorToast();
-  const address = useTonAddress();
-  const registryState = useRegistryStateQuery().data;
-  const refetch = useDaoStateQuery().refetch;
-
-  return useMutation(
-    async ({ value }: { value: number; onError: (value: string) => void }) => {
-      if (address !== registryState?.admin) {
-        throw new Error("You are not the registry admin");
-      }
-      if (!_.isNumber(value) || value < 0) {
-        throw new Error("Fee must be zero or positive");
-      }
-      const client = await getClientV2();
-      return setDeployAndInitDaoFee(
-        getSender(),
-        client,
-        releaseMode,
-        TX_FEES.BASE.toString(),
-        value.toString()
-      );
-    },
-    {
-      onSuccess: () => refetch(),
-      onError: (error: Error, args) => {
-        args.onError(error.message);
-        errorToast(error);
-      },
-    }
-  );
-};
-
-export const useSetDaoFwdMsgFee = () => {
-  const registryState = useRegistryStateQuery().data;
-  const address = useTonAddress();
-  const errorToast = useErrorToast();
-
-  const getSender = useGetSender();
-  return useMutation(
-    async ({
-      daoIds,
-      amount,
-    }: {
-      daoIds: number[];
-      amount?: number;
-      onError: (error: string) => void;
-      onSuccess?: () => void;
-    }) => {
-      if (registryState?.admin !== address) {
-        throw new Error("You are not the registry admin");
-      }
-
-      if (!_.isNumber(amount)) {
-        throw new Error("Forward Message Fee is required");
-      }
-      if (amount < 0) {
-        throw new Error("Forward Message Fee must be at least 0");
-      }
-      const client = await getClientV2();
-      return setFwdMsgFee(
-        getSender(),
-        client,
-        releaseMode,
-        TX_FEES.BASE.toString(),
-        daoIds.map((it) => it.toString()),
-        amount.toString()
-      );
-    },
-    {
-      onError: (error: Error, args) => {
-        args.onError(error.message);
-        errorToast(error);
-      },
-      onSuccess: (_, args) => args.onSuccess?.(),
-    }
-  );
-};
-
-export const useSetRegistryAdmin = () => {
-  const getSender = useGetSender();
-  const errorToast = useErrorToast();
-
-  const { refetch, data: registryState } = useRegistryStateQuery();
-  const address = useTonAddress();
-
-  return useMutation(
-    async ({
-      newRegistryAdmin,
-    }: {
-      newRegistryAdmin?: string;
-      onError: (newRegistryAdmin: string) => void;
-    }) => {
-      if (address !== registryState?.admin) {
-        throw new Error("You are not the registry admin");
-      }
-      if (!newRegistryAdmin) {
-        throw new Error("Registry admin is required");
-      }
-      if (!validateAddress(newRegistryAdmin)) {
-        throw new Error("Invalid register admin address");
-      }
-      const client = await getClientV2();
-
-      return setRegistryAdmin(
-        getSender(),
-        client,
-        releaseMode,
-        TX_FEES.BASE.toString(),
-        newRegistryAdmin
-      );
-    },
-    {
-      onSuccess: (_, args) => {
-        refetch();
-      },
-      onError: (error: Error, args) => {
-        args.onError(error.message);
-        errorToast(error);
-      },
-    }
-  );
-};
-
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
   const registryState = useRegistryStateQuery().data;
   const showErrorToast = useErrorToast();
+  const appNavigation = useAppNavigation();
+  const { addDao } = useNewDataStore();
 
   return useMutation(
     async (args: CreateDaoArgs) => {
       const sender = getSender();
       const clientV2 = await getClientV2();
 
-      const address = await newDao(
-        sender,
-        clientV2,
-        releaseMode,
-        getTxFee(
-          Number(registryState?.deployAndInitDaoFee),
-          TX_FEES.CREATE_DAO
-        ),
-        args.metadataAddress,
-        args.ownerAddress,
-        args.proposalOwner
-      );
+      let getPromise = () => {
+        console.log(args.dev);
+
+        if (args.dev && !IS_DEV) {
+          return createNewDaoOnProdAndDev(
+            sender,
+            clientV2,
+            getTxFee(
+              Number(registryState?.deployAndInitDaoFee),
+              TX_FEES.CREATE_DAO
+            ),
+            args.metadataAddress,
+            args.ownerAddress,
+            args.proposalOwner,
+            createDaoProdFee.toString(),
+            createDaoDevFee.toString(),
+            ReleaseMode.DEVELOPMENT,
+            ReleaseMode.DEVELOPMENT_2
+          );
+        }
+        return newDao(
+          sender,
+          clientV2,
+          releaseMode,
+          getTxFee(
+            Number(registryState?.deployAndInitDaoFee),
+            TX_FEES.CREATE_DAO
+          ),
+          args.metadataAddress,
+          args.ownerAddress,
+          args.proposalOwner
+        );
+      };
+
+      const address = await getPromise();
 
       if (typeof address !== "string") {
         throw new Error("Failed to create Dao");
@@ -240,7 +112,8 @@ export const useCreateDaoQuery = () => {
         analytics.createSpaceFailed(args.metadataAddress, error.message);
       },
       onSuccess: (address, args) => {
-        args.onSuccess(address);
+        appNavigation.daoPage.root(address);
+        addDao(address);
         analytics.createSpaceSuccess(args.metadataAddress, address);
         showSuccessToast(`Space created successfully`);
       },

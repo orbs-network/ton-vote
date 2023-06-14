@@ -7,7 +7,7 @@ import { useAppParams } from "hooks/hooks";
 import { FormArgs, FormikInputEndAdorment } from "types";
 import { StyledEndAdornment } from "styles";
 import { useDaoQuery, useDaoStateQuery } from "query/getters";
-import { useSetDaoFwdMsgFee } from "query/setters";
+import { registryAdminSetters } from "query/registry-admin";
 
 interface IForm {
   fwdMsgFee?: number;
@@ -59,7 +59,7 @@ export const EndAdornment = ({
   const value = formik.values[name as keyof IForm];
   const initialValue = formik.initialValues[name as keyof IForm];
   const data = useDaoQuery(daoAddress).data;
-  const { mutate: setCreateProposalFee, isLoading } = useSetDaoFwdMsgFee();
+  const { mutate: setCreateProposalFee, isLoading } = registryAdminSetters.useSetDaoFwdMsgFee();
 
   const { refetch } = useDaoStateQuery(data?.daoAddress);
 
