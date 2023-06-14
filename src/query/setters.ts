@@ -67,7 +67,8 @@ export const useCreateDaoQuery = () => {
       let getPromise = () => {
         console.log(args.dev);
 
-        if (args.dev && !IS_DEV) {
+        // after testing we need to pub back, !IS_DEV check
+        if (args.dev) {
           return createNewDaoOnProdAndDev(
             sender,
             clientV2,
