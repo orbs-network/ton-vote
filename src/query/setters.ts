@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createDaoDevFee,
   createDaoProdFee,
+  IS_DEV,
   QueryKeys,
   releaseMode,
   TX_FEES,
@@ -66,8 +67,7 @@ export const useCreateDaoQuery = () => {
       const clientV2 = await getClientV2();
 
       let getPromise = () => {
-        //TODO: after testing we need to pub back, !IS_DEV check
-        if (args.dev) {
+        if (args.dev && !IS_DEV) {
 
           const txFee = createDaoProdFee + createDaoDevFee;
 
@@ -80,8 +80,8 @@ export const useCreateDaoQuery = () => {
             args.proposalOwner,
             createDaoProdFee.toString(),
             createDaoDevFee.toString(),
-            ReleaseMode.DEVELOPMENT,
-            ReleaseMode.DEVELOPMENT_2
+            ReleaseMode.PRODUCTION,
+            ReleaseMode.DEVELOPMENT
           );
         }
         return newDao(
