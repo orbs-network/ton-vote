@@ -76,7 +76,7 @@ export const Metadata = () => {
             </InformationRow>
           )}
           {nftAddress && (
-            <InformationRow label="NFT collection">
+            <InformationRow label="NFT Collection">
               <AddressDisplay address={nftAddress} />
             </InformationRow>
           )}

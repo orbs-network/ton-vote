@@ -42,9 +42,10 @@ import {
   useNewDaoAddresses,
 } from "./hooks";
 import { api } from "api";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { routes } from "consts";
 import { lib } from "lib";
+import { useAnalytics } from "analytics";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -298,7 +299,8 @@ export const useProposalQuery = (
   const key = [QueryKeys.PROPOSAL, proposalAddress];
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const [error, setError] = useState(false);
-
+  const [retries, setRetries] = useState(0);
+  const analytics = useAnalytics();
   const route = useCurrentRoute();
 
   const config = useMemo(() => {
@@ -324,6 +326,9 @@ export const useProposalQuery = (
         return foundationProposal;
       }
 
+      if (isVoting) {
+        return queryClient.getQueryData<Proposal | undefined>(key) || null;
+      }
       const currentProposal = queryClient.getQueryData<Proposal | undefined>(
         key
       );
@@ -351,10 +356,25 @@ export const useProposalQuery = (
       let proposal;
 
       // try to fetch proposal from server
-      proposal = await api.getProposal(proposalAddress!, signal);
+
+      try {
+        proposal = await api.getProposal(proposalAddress!, signal);
+      } catch (error) {
+        analytics.getProposalFromServerFailed(
+          proposalAddress,
+          error instanceof Error ? error.message : ""
+        );
+      }
+      // try to fetch proposal from contract
       if (!proposal) {
-        // fetch from contract if proposal is not found in server
-        proposal = await getProposalFromContract();
+        try {
+          proposal = await getProposalFromContract();
+        } catch (error) {
+          analytics.getProposalFromContractFailed(
+            proposalAddress,
+            error instanceof Error ? error.message : ""
+          );
+        }
       }
 
       // failed to fetch proposal from server and contract
@@ -404,19 +424,16 @@ export const useProposalQuery = (
     },
     {
       onError: (error: Error) => {
-        console.log(error);
-
         setError(true);
       },
       enabled:
         !!proposalAddress &&
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
-        !args?.disabled &&
-        !isVoting,
+        !args?.disabled,
       staleTime: Infinity,
       refetchInterval: error
-        ? undefined
+        ? 0
         : isWhitelisted
         ? config.refetchInterval
         : undefined,
@@ -432,3 +449,5 @@ export const useWalletsQuery = () => {
     enabled: !!tonConnectUI,
   });
 };
+
+

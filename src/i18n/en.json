@@ -42,6 +42,7 @@
     "proposals": "Proposals",
     "about": "About",
     "newProposal": "New Proposal",
+    "newTestProposal": "New Test Proposal",
     "startIn": "Starts in {{value}}",
     "endIn": "Ends in {{value}}",
     "emptyProposals": "No proposals found",
@@ -158,7 +159,7 @@
     "tooltips": {
       "title": "Title of the new proposal, normally 1 sentence. Example: Increase staking reward percentage",
       "description": "All background information needed to help members make a decision in this vote. Normally 3-10 sentences. Formatted as Markdown",
-      "votingPowerStrategy": "How is the voting power of each member counted when calculating the vote result. [Read more about strategies](https://github.com/orbs-network/ton-vote/blob/main/STRATEGIES.md)",
+      "votingPowerStrategy": "How is the voting power of each member counted when calculating the vote result. [Read more about strategies](https://github.com/orbs-network/ton-vote/tree/main#supported-strategies)",
       "jettonAddress": "The address of the Jetton",
       "votingChoices": "The different options each voting member needs to choose from when submitting their vote.",
       "startTime": "The UTC time when the vote goes live and members can start submitting their votes. Must be in the future.",

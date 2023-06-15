@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createDaoDevFee,
   createDaoProdFee,
-  IS_DEV,
   QueryKeys,
   releaseMode,
   TX_FEES,
@@ -42,10 +41,10 @@ import {
   useVotePersistedStore,
   useVoteStore,
 } from "store";
-import { getTxFee, Logger, validateAddress } from "utils";
+import { delay, getTxFee, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { analytics } from "analytics";
+import { useAnalytics } from "analytics";
 import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
@@ -59,15 +58,15 @@ export const useCreateDaoQuery = () => {
   const appNavigation = useAppNavigation();
   const { addDao } = useNewDataStore();
 
+  const analytics = useAnalytics();
+
   return useMutation(
     async (args: CreateDaoArgs) => {
       const sender = getSender();
       const clientV2 = await getClientV2();
 
       let getPromise = () => {
-        console.log(args.dev);
-
-        // after testing we need to pub back, !IS_DEV check
+        //TODO: after testing we need to pub back, !IS_DEV check
         if (args.dev) {
           return createNewDaoOnProdAndDev(
             sender,
@@ -125,6 +124,7 @@ export const useCreateDaoQuery = () => {
 export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
+  const analytics = useAnalytics();
 
   return useMutation(
     async (args: CreateMetadataArgs) => {
@@ -173,6 +173,7 @@ export const useCreateProposalQuery = () => {
   const daoState = useDaoStateQuery(dao?.daoAddress).data;
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
+  const analytics = useAnalytics();
 
   return useMutation(
     async (args: CreateProposalArgs) => {
@@ -309,6 +310,7 @@ export const useUpdateDaoMetadataQuery = () => {
   const refetchUpdatedDao = useDaoQuery(daoAddress).refetch;
 
   const errorToast = useErrorToast();
+  const analytics = useAnalytics();
 
   return useMutation(
     async (args: UpdateMetadataArgs) => {
@@ -371,6 +373,7 @@ export const useVote = () => {
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
+  const analytics = useAnalytics();
 
   return useMutation(
     async (vote: string) => {
@@ -388,7 +391,7 @@ export const useVote = () => {
         proposalAddress,
         vote
       );
-
+      await delay(1000);
       return successCallback(proposal);
     },
     {
@@ -420,7 +423,9 @@ export const useVote = () => {
         store.setValues(proposalAddress, maxLt, vote, proposalResults);
         showSuccessToast(`Voted ${_vote} successfully`);
       },
-      onSettled: () => setIsVoting(false),
+      onSettled: () => {
+        setIsVoting(false);
+      },
       onError: (error: Error, vote) => {
         errorToast(error);
         analytics.voteError(proposalAddress, vote, error.message);
@@ -480,22 +485,34 @@ export const useUpdateProposalMutation = () => {
 
 export const useVoteSuccessCallback = (proposalAddress: string) => {
   const walletAddress = useTonAddress();
+  const analytics = useAnalytics();
 
   return async (proposal: Proposal) => {
     const promise = async (bail: any, attempt: number) => {
       Logger(`getting proposal results after vote, attempt ${attempt} `);
       if (!proposal.metadata || !walletAddress) return;
 
-      const nftItemsHolders = await lib.getAllNFTHolders(
-        proposalAddress,
-        proposal.metadata
-      );
-      return contract.getProposalResultsAfterVote({
-        proposalAddress,
-        walletAddress,
-        proposal,
-        nftItemsHolders,
-      });
+      try {
+        const nftItemsHolders = await lib.getAllNFTHolders(
+          proposalAddress,
+          proposal.metadata
+        );
+        return contract.getProposalResultsAfterVote({
+          proposalAddress,
+          walletAddress,
+          proposal,
+          nftItemsHolders,
+        });
+      } catch (error) {
+        if (attempt > 2) {
+          const message = error instanceof Error ? error.message : "";
+          analytics.getProposalFromContractAfterVotingFailed(
+            proposalAddress,
+            message
+          );
+        }
+        throw error;
+      }
     };
 
     return retry(promise, { retries: 2 });

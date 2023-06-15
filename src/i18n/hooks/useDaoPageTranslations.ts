@@ -14,5 +14,6 @@ export const useDaoPageTranslations = () => {
     proposalEnded: (value: string) => t("proposalEnded", { value }),
     spaceNotFound: t("spaceNotFound"),
     settings: t("settings"),
+    newTestProposal: t("newTestProposal"),
   };
 };

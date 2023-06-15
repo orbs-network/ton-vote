@@ -29,6 +29,10 @@ export const makeElipsisAddress = (address?: string, padding = 6): string => {
   )}`;
 };
 
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export const Logger = (...args: any) => {
   if (IS_DEV || import.meta.env.DEV) {
     console.log(...args);

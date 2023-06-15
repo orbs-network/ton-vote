@@ -13,6 +13,7 @@ const useInitApp = () => {
 };
 
 function App() {
+
   useInitApp();
   const { isDarkMode } = useAppSettings();
   const router = useRouter();

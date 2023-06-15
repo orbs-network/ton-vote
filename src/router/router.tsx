@@ -29,12 +29,10 @@ export const useRouter = () => {
             {
               path: routes.createSpace,
               errorElement: <Navigate to={routes.spaces} />,
-              element: devFeatures ? (
+              element: (
                 <Suspense fallback={<PageFallback />}>
                   <CreateDao />
                 </Suspense>
-              ) : (
-                <Navigate to={routes.spaces} />
               ),
             },
 
@@ -50,12 +48,10 @@ export const useRouter = () => {
                 {
                   path: routes.createProposal,
                   errorElement: <Navigate to={routes.spaces} />,
-                  element: devFeatures ? (
+                  element: (
                     <Suspense fallback={<PageFallback />}>
                       <CreateProposal />
                     </Suspense>
-                  ) : (
-                    <Navigate to={routes.space} />
                   ),
                 },
                 {

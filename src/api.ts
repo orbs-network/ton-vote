@@ -2,15 +2,13 @@ import axios from "axios";
 import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
-import {IS_DEV, API_RETRIES } from "config";
+import { IS_DEV, API_RETRIES } from "config";
 import axiosRetry from "axios-retry";
 import retry from "async-retry";
-
 
 const baseURL = IS_DEV
   ? "https://dev-ton-vote-cache.herokuapp.com"
   : "https://api.ton.vote";
-
 
 const axiosInstance = axios.create({
   baseURL,
@@ -43,43 +41,48 @@ const getProposal = async (
   signal?: AbortSignal
 ): Promise<Proposal | undefined> => {
   const promise = async (bail: any, attempt: number) => {
-    Logger(
-      `Fetching proposal from server, address: ${proposalAddress}, attempt: ${attempt}`
-    );
+    try {
+      Logger(
+        `Fetching proposal from server, address: ${proposalAddress}, attempt: ${attempt}`
+      );
 
-  
-    const [result, maxLt] = await Promise.all([
-      axiosInstance.get(`/proposal/${proposalAddress}`, {
-        signal,
-      }),
-      getMaxLt(proposalAddress, signal),
-    ]);
+      const [result, maxLt] = await Promise.all([
+        axiosInstance.get(`/proposal/${proposalAddress}`, {
+          signal,
+        }),
+        getMaxLt(proposalAddress, signal),
+      ]);
 
-    if (_.isEmpty(result.data?.metadata)) {
+      if (_.isEmpty(result.data?.metadata)) {
+        throw new Error("proposal not found in server");
+      }
+
+      const proposal: Proposal = {
+        ...result.data,
+        votes: parseVotes(result.data.votes, result.data.votingPower),
+        maxLt,
+        rawVotes: result.data.votes,
+      };
+
+      return proposal;
+    } catch (error) {
       if (attempt === API_RETRIES + 1) {
         Logger("Failed to fetch proposal from server");
-        return undefined;
       }
-      throw new Error("proposal not found in server");
+      throw new Error(error instanceof Error ? error.message : "");
     }
-
-    const proposal: Proposal = {
-      ...result.data,
-      votes: parseVotes(result.data.votes, result.data.votingPower),
-      maxLt,
-      rawVotes: result.data.votes,
-    };
-
-    return proposal;
   };
   return retry(promise, { retries: API_RETRIES });
+};
+
+const serverVersion = async () => {
+  return (await axiosInstance.get("/version")).data;
 };
 
 const getMaxLt = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<string> => {
-
   return (await axiosInstance.get(`/maxLt/${proposalAddress}`, { signal }))
     .data;
 };
@@ -89,7 +92,6 @@ const getDao = async (
   signal?: AbortSignal
 ): Promise<Dao | undefined> => {
   const promise = async (bail: any, attempt: number) => {
- 
     Logger(
       `Fetching dao from server, address ${daoAddress}, attempt: ${attempt}`
     );
@@ -121,6 +123,7 @@ export const api = {
   getDao,
   getAllNftHolders,
   getUpdateTime,
+  serverVersion,
 };
 
 export interface GetStateApiPayload {
