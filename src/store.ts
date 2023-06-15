@@ -1,3 +1,4 @@
+import { releaseMode } from "config";
 import _ from "lodash";
 import moment from "moment";
 import { ProposalResult } from "ton-vote-contracts-sdk";
@@ -44,7 +45,7 @@ export const useNewDataStore = create(
         }),
     }),
     {
-      name: "ton_vote_new_data_store",
+      name: `ton_vote_new_data_store_${releaseMode.toString()}`,
     }
   )
 );

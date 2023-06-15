@@ -15,7 +15,7 @@ import {
 export const useNewDaoAddresses = () => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
 
-  return async (daos: Dao[]) => {
+  return async (daos: Dao[]) => {    
     if (_.size(newDaosAddresses)) {
       const addresses = _.map(daos, (it) => it.daoAddress);
       const client = await getClientV2();
@@ -107,7 +107,7 @@ export const useDaoNewProposals = () => {
 
   return (daoAddress: string, proposals: string[]) => {
     const newDaoPoposals = newProposals[daoAddress];
-
+    
     // if no new proposals reutrn current proposals
     if (!_.size(newDaoPoposals)) return proposals;
     _.forEach(newDaoPoposals, (newDaoProposal) => {
