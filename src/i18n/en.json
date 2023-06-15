@@ -42,6 +42,7 @@
     "proposals": "Proposals",
     "about": "About",
     "newProposal": "New Proposal",
+    "newTestProposal": "New Test Proposal",
     "startIn": "Starts in {{value}}",
     "endIn": "Ends in {{value}}",
     "emptyProposals": "No proposals found",

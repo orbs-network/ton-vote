@@ -1,12 +1,14 @@
 import axios from "axios";
-import { GOOGLE_ANALYTICS_KEY } from "config";
+import { GOOGLE_ANALYTICS_KEY, IS_DEV } from "config";
 import ReactGA from "react-ga4";
 import { MetadataArgs, ProposalMetadata } from "ton-vote-contracts-sdk";
 import { ProposalResults } from "types";
 
- ReactGA.initialize(GOOGLE_ANALYTICS_KEY);
+
 
 const sendEvent = (label: string, action: string) => {
+  if(IS_DEV) return 
+
   if (!ReactGA.isInitialized) {
     console.error("GA is Not initialized");
     return;
@@ -17,6 +19,13 @@ const sendEvent = (label: string, action: string) => {
     category: "Main page",
   });
 };
+
+
+if (!IS_DEV) {
+  
+  ReactGA.initialize(GOOGLE_ANALYTICS_KEY);
+}
+
 const verifySuccess = (proposalId: string) => {
   sendEvent("Verify success", "verify success");
   sendLog({ action: "verify success", proposalId });
@@ -61,10 +70,7 @@ const createSpaceSuccess = (metadataAddress: string, daoAddress: string) => {
   sendLog({ action: "create space success", metadataAddress, daoAddress });
 };
 
-const createSpaceFailed = (
-  metadataAddress: string,
-  error: string
-) => {
+const createSpaceFailed = (metadataAddress: string, error: string) => {
   sendEvent("Create space failed", `error: ${error}`);
   sendLog({ action: "create space failed", error, metadataAddress });
 };
@@ -90,12 +96,17 @@ const updateDaoMetadataSuccess = (metadata: MetadataArgs, address: string) => {
   sendLog({ action: "update dao metadata success", metadata, address });
 };
 
-const updateDaoMetatdaFailed = (metadata: MetadataArgs, address: string, error: string) => {
+const updateDaoMetatdaFailed = (
+  metadata: MetadataArgs,
+  address: string,
+  error: string
+) => {
   sendEvent("Update space failed", `error: ${error}, address: ${address}`);
   sendLog({ action: "update space failed", error, metadata, address });
 };
 
 function sendLog<T extends { action: string }>(body: T) {
+  if(IS_DEV) return 
   try {
     axios.post("https://bi.orbs.network/putes/ton-vote", body);
   } catch (error) {}

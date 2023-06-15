@@ -56,6 +56,7 @@ export function usePromiseToast<T>() {
 export const filterError = (error?: string) => {
   console.log(error);
 
+  if (error?.includes("The connection is outdated")) return false;
   if (error?.includes("TON_CONNECT_SDK_ERROR")) {
     return true;
   }

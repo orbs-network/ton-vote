@@ -2,7 +2,7 @@ import React from "react";
 import { AppTooltip } from "./Tooltip";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import { VERIFIED_DAOS } from "config";
-import { Box, styled } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { StyledFlexRow } from "styles";
 import { getIsVerifiedDao } from "utils";
 
@@ -11,7 +11,13 @@ export function VerifiedDao({ daoAddress = "" }: { daoAddress?: string }) {
     return null;
   }
   return (
-    <AppTooltip text="Verified space">
+    <AppTooltip
+      text={
+        <>
+          Verified space. <br /> This space proved ownership of his domain
+        </>
+      }
+    >
       <StyledContainer>
         <VscVerifiedFilled />
       </StyledContainer>

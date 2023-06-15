@@ -35,6 +35,7 @@ import {
 } from "./getters";
 import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
 import {
+  delay,
   getTxFee,
   getVoteStrategyType,
   Logger,
@@ -514,7 +515,7 @@ export const useVote = () => {
         proposalAddress,
         vote
       );
-
+      await delay(1000)
       return successCallback(proposal);
     },
     {
@@ -546,7 +547,9 @@ export const useVote = () => {
         store.setValues(proposalAddress, maxLt, vote, proposalResults);
         showSuccessToast(`Voted ${_vote} successfully`);
       },
-      onSettled: () => setIsVoting(false),
+      onSettled: () => {
+        setIsVoting(false);
+      },
       onError: (error: Error, vote) => {
         errorToast(error);
         analytics.voteError(proposalAddress, vote, error.message);

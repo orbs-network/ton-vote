@@ -324,6 +324,9 @@ export const useProposalQuery = (
         return foundationProposal;
       }
 
+      if (isVoting) {
+        return queryClient.getQueryData<Proposal | undefined>(key) || null;
+      }
       const currentProposal = queryClient.getQueryData<Proposal | undefined>(
         key
       );
@@ -412,8 +415,7 @@ export const useProposalQuery = (
         !!proposalAddress &&
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
-        !args?.disabled &&
-        !isVoting,
+        !args?.disabled,
       staleTime: Infinity,
       refetchInterval: error
         ? undefined
