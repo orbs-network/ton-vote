@@ -145,12 +145,20 @@ const useAnalytics = () => {
    };
 
 
-  const getDaoFromServerFailed = (daoId: string, error: string) => {
-    sendLog({ action: "get dao from server failed", daoId, error });
+  const getDaoFromServerFailed = (daoId: string, error: any) => {
+    sendLog({
+      action: "get dao from server failed",
+      daoId,
+      error: handleError(error),
+    });
   };
 
-  const getDaoFromContractFailed = (daoId: string, error: string) => {
-    sendLog({ action: "get dao from contract failed", daoId, error });
+  const getDaoFromContractFailed = (daoId: string, error: any) => {
+    sendLog({
+      action: "get dao from contract failed",
+      daoId,
+      error: handleError(error),
+    });
   };
 
   return {
@@ -175,7 +183,9 @@ const useAnalytics = () => {
   };
 };
 
-
+const handleError = (error: any) => {
+  return error instanceof Error ? error.message : error;
+}
 
 const useServerVersionQuery = () => {
   return useQuery(["serverVersion"], api.serverVersion)

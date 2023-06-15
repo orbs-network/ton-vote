@@ -31,7 +31,6 @@ const useComponents = () => {
   const { proposalStatus } = useProposalStatus(proposalAddress);
 
   return {
-    proposalDescription: <ProposalAbout />,
     votes:
       !proposalStatus ||
       proposalStatus === ProposalStatus.NOT_STARTED ? null : (
@@ -47,7 +46,6 @@ const useComponents = () => {
       !proposalStatus || proposalStatus === ProposalStatus.CLOSED ? null : (
         <Deadline />
       ),
-    metadata: <Metadata />,
     results:
       !proposalStatus ||
       proposalStatus === ProposalStatus.NOT_STARTED ? null : (
@@ -57,19 +55,19 @@ const useComponents = () => {
 };
 
 const Destop = () => {
-  const { proposalDescription, votes, vote, deadline, metadata, results } =
+  const {  votes, vote, deadline, results } =
     useComponents();
 
   return (
     <StyledWrapper>
       <StyledLeft>
-        {proposalDescription}
+        <ProposalAbout />
         {vote}
         {votes}
       </StyledLeft>
       <StyledRight>
         {deadline}
-        {metadata}
+       <Metadata />
         {results}
       </StyledRight>
     </StyledWrapper>
@@ -77,16 +75,16 @@ const Destop = () => {
 };
 
 const Mobile = () => {
-  const { proposalDescription, votes, vote, deadline, metadata, results } =
+  const { votes, vote, deadline, results } =
     useComponents();
 
   return (
     <StyledWrapper>
       {deadline}
-      {proposalDescription}
+      <ProposalAbout />
       {vote}
       {results}
-      {metadata}
+      <Metadata />
       {votes}
     </StyledWrapper>
   );

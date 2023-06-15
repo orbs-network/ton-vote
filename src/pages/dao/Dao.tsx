@@ -15,6 +15,7 @@ export function Dao() {
   const {daoAddress} = useAppParams();
   const { data, isError } = useDaoQuery(daoAddress);
   const translations = useDaoPageTranslations();
+  
 
   return (
     <>

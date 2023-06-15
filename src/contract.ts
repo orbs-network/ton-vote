@@ -83,10 +83,8 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
       Logger(error);
       if (attempt === CONTRACT_RETRIES + 1) {
         Logger("Failed to fetch proposal from contract");
-
-        return null;
       }
-      throw new Error("Failed to fetch proposal from contract");
+     throw new Error(error instanceof Error ? error.message : "");
     }
   };
 

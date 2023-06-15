@@ -92,20 +92,24 @@ const getDao = async (
   signal?: AbortSignal
 ): Promise<Dao | undefined> => {
   const promise = async (bail: any, attempt: number) => {
-    Logger(
-      `Fetching dao from server, address ${daoAddress}, attempt: ${attempt}`
-    );
-    const data = (await axiosInstance.get(`/dao/${daoAddress}`, { signal }))
-      .data;
+    try {
+      Logger(
+        `Fetching dao from server, address ${daoAddress}, attempt: ${attempt}`
+      );
+      const data = (await axiosInstance.get(`/dao/${daoAddress}`, { signal }))
+        .data;
 
-    if (_.isEmpty(data)) {
-      Logger("dao not found is server");
-      if (attempt === API_RETRIES + 1) {
-        return undefined;
+      if (_.isEmpty(data)) {
+        throw new Error("dao not found in server");
       }
-      throw new Error("dao not found in server");
+      return data;
+    } catch (error) {
+      if (attempt === API_RETRIES + 1) {
+        Logger("dao not found is server");
+      }
+
+      throw new Error(error instanceof Error ? error.message : "");
     }
-    return data;
   };
 
   return retry(promise, { retries: API_RETRIES });

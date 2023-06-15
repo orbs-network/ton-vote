@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { useAppParams, useMobile, useProposalStatus } from "hooks/hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
@@ -18,6 +18,7 @@ import {
   Status,
   OverflowWithTooltip,
   HiddenProposal,
+  Loader,
 } from "components";
 import { makeElipsisAddress, parseLanguage } from "utils";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
@@ -28,13 +29,8 @@ import { mock } from "mock/mock";
 const MIN_DESCRIPTION_HEIGHT = 200;
 
 export const ProposalAbout = () => {
-  const {proposalAddress} = useAppParams()
-  const { isLoading } = useProposalQuery(proposalAddress);
   const mobile = useMobile();
 
-  if (isLoading) {
-    return <LoadingContainer loaderAmount={4} />;
-  }
 
   return (
     <StyledContainer>
@@ -79,18 +75,21 @@ function MobileAbout() {
 
 const ProposalHeader = () => {
   const { proposalAddress } = useAppParams();
-  const data = useProposalQuery(proposalAddress).data;
+  const {data, isLoading} = useProposalQuery(proposalAddress);
 
   const mockPrefix = mock.isMockProposal(proposalAddress) ? " (Mock)" : "";
 
   const title = parseLanguage(data?.metadata?.title);
 
-  return (
-    <StyledFlexRow>
-      <StyledHeader title={`${title}${mockPrefix}`} />
-      {data && <StyledHiddenProposal proposal={data} />}
-    </StyledFlexRow>
-  );
+  if (isLoading) {
+    return <StyledSkeletonLoader />;
+  }
+    return (
+      <StyledFlexRow>
+        <StyledHeader title={`${title}${mockPrefix}`} />
+        {data && <StyledHiddenProposal proposal={data} />}
+      </StyledFlexRow>
+    );
 };
 
 const StyledHiddenProposal = styled(HiddenProposal)({
@@ -127,7 +126,7 @@ const Description = () => {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const elRef = useRef<any>();
   const { proposalAddress } = useAppParams();
-  const { data } = useProposalQuery(proposalAddress);
+  const { data, isLoading } = useProposalQuery(proposalAddress);
   const [showMore, setShowMore] = useState(false);
 
   useLayoutEffect(() => {
@@ -143,6 +142,16 @@ const Description = () => {
     descriptionHeight > MIN_DESCRIPTION_HEIGHT
       ? MIN_DESCRIPTION_HEIGHT
       : descriptionHeight;
+
+
+      if (isLoading) {
+        return (
+          <StyledFlexColumn alignItems='flex-start'>
+            <StyledSkeletonLoader width='70%' />
+            <StyledSkeletonLoader />
+          </StyledFlexColumn>
+        );
+      }
 
   return (
     <StyledDescription>

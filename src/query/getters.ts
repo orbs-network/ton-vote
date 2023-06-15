@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   releaseMode,
   QueryKeys,
@@ -151,7 +151,7 @@ export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
-
+  const analytics = useAnalytics();
   const route = useCurrentRoute();
 
   const config = useMemo(() => {
@@ -186,20 +186,39 @@ export const useDaoQuery = (daoAddress: string) => {
       const getDaoFromContract = () => contract.getDao(daoAddress);
 
       let dao;
-      if (!isMetadataUpToDate) {
-        dao = await getDaoFromContract();
-      } else {
-        removeDaoUpdateMillis(daoAddress!);
-        dao = await api.getDao(daoAddress!, signal);
-        if (!dao) {
-          // fallback
+      try {
+        if (!isMetadataUpToDate) {
           dao = await getDaoFromContract();
+        } else {
+          removeDaoUpdateMillis(daoAddress!);
+        }
+      } catch (error) {
+        analytics.getDaoFromContractFailed(daoAddress!, error);
+      }
+
+      if (!dao) {
+        try {
+          dao = await api.getDao(daoAddress!, signal);
+        } catch (error) {
+          analytics.getDaoFromServerFailed(daoAddress!, error);
+        }
+      }
+
+      if (!dao) {
+        try {
+          dao = await getDaoFromContract();
+        } catch (error) {
+          analytics.getDaoFromContractFailed(daoAddress!, error);
         }
       }
 
       // try to return dao from cache
       if (!dao) {
-        return queryClient.getQueryData<Dao>(key) || null;
+        dao = queryClient.getQueryData<Dao>(key) || null;
+      }
+
+      if (!dao) {
+        throw new Error("DAO not found");
       }
 
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
@@ -218,6 +237,7 @@ export const useDaoQuery = (daoAddress: string) => {
       staleTime: Infinity,
       refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
       enabled: !!daoAddress,
+      retry: false,
     }
   );
 };
@@ -287,6 +307,67 @@ interface ProposalQueryArgs {
   isCustomEndpoint?: boolean;
 }
 
+const useGetProposalWithFallback = (proposalAddress: string) => {
+  const analytics = useAnalytics();
+  const queryClient = useQueryClient();
+  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
+    useSyncStore();
+
+  return async (key: QueryKey, maxLt?: string, signal?: AbortSignal) => {
+    const getProposalFromContract = () =>
+      contract.getProposal({ proposalAddress, maxLt });
+
+    const isMetadataUpToDateInServer = await getIsServerUpToDate(
+      getProposalUpdateMillis(proposalAddress)
+    );
+
+    // if updated proposal metadata, and sever is not up to date, get proposal from contract
+    try {
+      if (!isMetadataUpToDateInServer) {
+        return getProposalFromContract();
+      } else {
+        removeProposalUpdateMillis(proposalAddress);
+      }
+    } catch (error) {
+      analytics.getProposalFromContractFailed(
+        proposalAddress,
+        error instanceof Error ? error.message : ""
+      );
+    }
+
+    let proposal;
+
+    // try to fetch proposal from server
+
+    try {
+      proposal = await api.getProposal(proposalAddress!, signal);
+    } catch (error) {
+      analytics.getProposalFromServerFailed(
+        proposalAddress,
+        error instanceof Error ? error.message : ""
+      );
+    }
+    // try to fetch proposal from contract
+    if (!proposal) {
+      try {
+        proposal = await getProposalFromContract();
+      } catch (error) {
+        analytics.getProposalFromContractFailed(
+          proposalAddress,
+          error instanceof Error ? error.message : ""
+        );
+      }
+    }
+    // failed to fetch proposal from server and contract
+
+    if (!proposal) {
+      proposal = queryClient.getQueryData<Proposal | undefined>(key);
+    }
+
+    return proposal;
+  };
+};
+
 export const useProposalQuery = (
   proposalAddress: string,
   args?: ProposalQueryArgs
@@ -299,9 +380,9 @@ export const useProposalQuery = (
   const key = [QueryKeys.PROPOSAL, proposalAddress];
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const [error, setError] = useState(false);
-  const [retries, setRetries] = useState(0);
-  const analytics = useAnalytics();
   const route = useCurrentRoute();
+
+  const getProposalWithFallback = useGetProposalWithFallback(proposalAddress);
 
   const config = useMemo(() => {
     return {
@@ -340,48 +421,9 @@ export const useProposalQuery = (
 
       const maxLt = maxLtAfterVote || currentProposal?.maxLt;
 
-      const getProposalFromContract = () =>
-        contract.getProposal({ proposalAddress, maxLt });
+      const proposal = await getProposalWithFallback(key, maxLt, signal);
 
-      const isMetadataUpToDateInServer = await getIsServerUpToDate(
-        getProposalUpdateMillis(proposalAddress)
-      );
-
-      // if updated proposal metadata, and sever is not up to date, get proposal from contract
-      if (!isMetadataUpToDateInServer) {
-        return getProposalFromContract();
-      } else {
-        removeProposalUpdateMillis(proposalAddress);
-      }
-      let proposal;
-
-      // try to fetch proposal from server
-
-      try {
-        proposal = await api.getProposal(proposalAddress!, signal);
-      } catch (error) {
-        analytics.getProposalFromServerFailed(
-          proposalAddress,
-          error instanceof Error ? error.message : ""
-        );
-      }
-      // try to fetch proposal from contract
       if (!proposal) {
-        try {
-          proposal = await getProposalFromContract();
-        } catch (error) {
-          analytics.getProposalFromContractFailed(
-            proposalAddress,
-            error instanceof Error ? error.message : ""
-          );
-        }
-      }
-
-      // failed to fetch proposal from server and contract
-      if (!proposal) {
-        // try to return proposal from cache
-        if (currentProposal) return currentProposal;
-
         // proposal not found in cache, throw error
         throw new Error("Proposal not found");
       }
@@ -426,6 +468,7 @@ export const useProposalQuery = (
       onError: (error: Error) => {
         setError(true);
       },
+      refetchOnReconnect: false,
       enabled:
         !!proposalAddress &&
         !!clients?.clientV2 &&
@@ -437,7 +480,7 @@ export const useProposalQuery = (
         : isWhitelisted
         ? config.refetchInterval
         : undefined,
-      retry: false,
+      retry: 0,
     }
   );
 };
@@ -449,5 +492,3 @@ export const useWalletsQuery = () => {
     enabled: !!tonConnectUI,
   });
 };
-
-

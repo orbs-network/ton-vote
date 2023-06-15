@@ -68,13 +68,13 @@ export const useCreateDaoQuery = () => {
       let getPromise = () => {
         //TODO: after testing we need to pub back, !IS_DEV check
         if (args.dev) {
+
+          const txFee = createDaoProdFee + createDaoDevFee;
+
           return createNewDaoOnProdAndDev(
             sender,
             clientV2,
-            getTxFee(
-              Number(registryState?.deployAndInitDaoFee),
-              TX_FEES.CREATE_DAO
-            ),
+            txFee.toString(),
             args.metadataAddress,
             args.ownerAddress,
             args.proposalOwner,
