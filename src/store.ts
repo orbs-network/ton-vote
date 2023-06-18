@@ -45,7 +45,7 @@ export const useNewDataStore = create(
         }),
     }),
     {
-      name: `ton_vote_new_data_store_${releaseMode.toString()}`,
+      name: `new_data_store`,
     }
   )
 );
@@ -109,7 +109,7 @@ export const useSyncStore = create(
       },
     }),
     {
-      name: "ton_vote_sync_store",
+      name: "sync_store",
     }
   )
 );
@@ -185,7 +185,7 @@ export const useVotePersistedStore = create(
       },
     }),
     {
-      name: "ton_vote_proposal_persisted_store", // name of the item in the storage (must be unique)
+      name: "proposals_store", // name of the item in the storage (must be unique)
     }
   )
 );
@@ -215,7 +215,7 @@ export const useSettingsStore = create(
       },
     }),
     {
-      name: "ton_vote_settings",
+      name: "app_settings",
     }
   )
 );

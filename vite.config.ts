@@ -8,8 +8,5 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
     
-  ],
-  server: {
-    port: 3001,
-  },
+  ]
 });

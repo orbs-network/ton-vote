@@ -1,4 +1,5 @@
 import { GlobalStyles, ThemeProvider } from "@mui/material";
+import { useTonWallet } from "@tonconnect/ui-react";
 import { APP_NAME } from "config";
 import { useAppSettings } from "hooks/hooks";
 import { Suspense, useMemo } from "react";
@@ -13,7 +14,6 @@ const useInitApp = () => {
 };
 
 function App() {
-
   useInitApp();
   const { isDarkMode } = useAppSettings();
   const router = useRouter();

@@ -20,14 +20,14 @@ import { Dao } from "types";
 import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import {  TELEGRAM_SUPPORT_GROUP } from "config";
+import { TELEGRAM_SUPPORT_GROUP } from "config";
 import { useAppQueryParams, useMobile } from "hooks/hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { Page } from "wrappers";
-import { styled, Typography } from "@mui/material";
-import { RxPlus } from "react-icons/rx";
+import { Typography } from "@mui/material";
+
 const filterDaos = (daos: Dao[], searchValue: string) => {
   if (!searchValue) return daos;
   const nameFilter = _.filter(daos, (it) =>
@@ -39,19 +39,32 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  return _.uniqBy([...nameFilter, ...addressFilter], "daoAddress");
+  const proposalsFilter = _.filter(daos, (it) => {
+    let res = false;
+    _.forEach(it.daoProposals, (it) => {
+      if (it.toLowerCase().includes(searchValue.toLowerCase())) {
+        res = true;
+      }
+    });
+    return res;
+  });
+
+  return _.uniqBy(
+    [...nameFilter, ...addressFilter, ...proposalsFilter],
+    "daoAddress"
+  );
 };
 
 export function DaosPage() {
   const { data = [], isLoading, dataUpdatedAt } = useDaosQuery();
   const { limit, loadMore } = useDaosListLimit();
-  const [searchValue, setSearchValue] = useState("");
   const mobile = useMobile();
 
   const { query, setSearch } = useAppQueryParams();
 
+  const searchValue = query.search || "";
+
   const onSearchInputChange = (value: string) => {
-    setSearchValue(value);
     setSearch(value);
   };
   const translations = useDaosPageTranslations();
@@ -122,8 +135,6 @@ const NewDao = () => {
     </StyledNewDao>
   );
 };
-
-
 
 const ListLoader = () => {
   return (

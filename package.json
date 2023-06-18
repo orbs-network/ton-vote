@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "VITE_STAGING=1 vite",
-    "prod": "vite",
+    "dev": "VITE_STAGING=1 vite --port 3001",
+    "prod": "vite --port 3002",
     "force-dev": "VITE_STAGING=1 vite --force",
     "force-prod": "vite --force",
     "build": "tsc && vite build && cp dist/index.html dist/404.html",

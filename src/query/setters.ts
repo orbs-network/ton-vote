@@ -13,6 +13,7 @@ import {
   daoSetOwner,
   daoSetProposalOwner,
   getClientV2,
+  metdataExists,
   newDao,
   newMetdata,
   newProposal,
@@ -51,6 +52,7 @@ import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
 import { lib } from "lib";
 import retry from "async-retry";
+
 
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
@@ -132,14 +134,18 @@ export const useCreateMetadataQuery = () => {
       const sender = getSender();
 
       const clientV2 = await getClientV2();
-      // const isMetadataExist = await metdataExists(clientV2, metadata);
-
+      const isMetadataExist = await metdataExists(clientV2, metadata);
+      // console.log({ isMetadataExist });
+      
       const address = await newMetdata(
         sender,
         clientV2,
         TX_FEES.CREATE_METADATA.toString(),
         metadata
       );
+
+      console.log(address);
+      
 
       if (typeof address !== "string") {
         throw new Error("Failed to create Space metadata");
