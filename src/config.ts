@@ -150,4 +150,4 @@ export const RETRY_DELAY = 1000;
 
 
 
-export const BLACKLISTED_DAOS = ["EQCgZ8_3nOTeZhoYzMl-6zClzJQhJtqVAFoQOkfen-rk-WGe"];
+export const BLACKLISTED_DAOS = ["EQAQiTI1QkaCpIYAqdEO4mRTIzACq7WNlhNzt2voUnE4qxKy"];

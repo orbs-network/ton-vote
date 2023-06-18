@@ -26,7 +26,6 @@ import {
 } from "utils";
 import {
   FOUNDATION_DAO_ADDRESS,
-  FOUNDATION_PROPOSALS,
   FOUNDATION_PROPOSALS_ADDRESSES,
 } from "data/foundation/data";
 import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
@@ -319,7 +318,10 @@ export const useProposalQuery = (
       if (mockProposal) {
         return mockProposal;
       }
-      const foundationProposal = FOUNDATION_PROPOSALS[proposalAddress!];
+      const foundationProposals = await (
+        await import("../data/foundation/data")
+      ).getFoundationProposals();
+      const foundationProposal = foundationProposals[proposalAddress!];
       if (foundationProposal) {
         return foundationProposal;
       }

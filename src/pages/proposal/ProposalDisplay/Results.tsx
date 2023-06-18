@@ -20,7 +20,7 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import {  useAppParams, useProposalResults } from "hooks/hooks";
-import {  FOUNDATION_PROPOSALS_ADDRESSES, shouldHideVerify } from "data/foundation/data";
+import {  shouldHideVerify } from "data/foundation/data";
 import { useProposalQuery } from "query/getters";
 const LIMIT = 5;
 
