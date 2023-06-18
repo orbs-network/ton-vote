@@ -94,7 +94,7 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
       {
         type: "text",
         label: "NFT collection address",
-        tooltip: "The address of the Jetton",
+        tooltip: "The address of the NFT collection",
         required: true,
         name: "nft-address",
       },
@@ -122,7 +122,7 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
       {
         type: "text",
         label: "NFT collection address",
-        tooltip: "The address of the Jetton",
+        tooltip: "The address of the NFT collection",
         required: true,
         name: "nft-address",
       },
