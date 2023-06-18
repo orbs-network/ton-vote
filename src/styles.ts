@@ -90,7 +90,7 @@ export const getGlobalStyles = (theme: Theme) => {
       ".go3958317564": {
         margin: "0px 10px 0px 0px",
       },
-      "*": {
+      "*, p": {
         color:
           theme.palette.mode === "light"
             ? theme.palette.text.secondary

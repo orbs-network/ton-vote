@@ -4,6 +4,7 @@ import toast, { ToastPosition } from "react-hot-toast";
 import { StyledFlexRow } from "styles";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useTonWallet } from "@tonconnect/ui-react";
+import { Markdown } from "components";
 
 export function usePromiseToast<T>() {
   const translations = useCommonTranslations();
@@ -54,8 +55,6 @@ export function usePromiseToast<T>() {
 }
 
 export const filterError = (error?: string) => {
-  console.log(error);
-
   if (error?.includes("The connection is outdated")) return false;
   if (error?.includes("TON_CONNECT_SDK_ERROR")) {
     return true;
@@ -64,17 +63,17 @@ export const filterError = (error?: string) => {
 };
 
 export const useErrorToast = () => {
-  return (err: any) => {
+  return (err: any, duration?: number) => {
     if (filterError(err instanceof Error ? err.message : err)) return;
     toast.dismiss();
-    return errorToast(err);
+    return errorToast(err, duration);
   };
 };
 
-export const errorToast = (message: string | Error) => {
+export const errorToast = (message: string | Error, duration = 7000) => {
   const msg = message instanceof Error ? message.message : message;
   toast.error((t) => <ToastContent message={msg} id={t.id} />, {
-    duration: 4000,
+    duration,
   });
 };
 
@@ -105,11 +104,18 @@ const ToastContent = ({
   id?: string;
   customClick?: () => void;
 }) => {
-  return <StyledContainer className="test">{message}</StyledContainer>;
+  return (
+    <StyledContainer>
+      <Markdown>{message}</Markdown>
+    </StyledContainer>
+  );
 };
 
 export const clearAllToasts = () => toast.dismiss();
 
 const StyledContainer = styled(StyledFlexRow)({
   fontSize: 15,
+  p: {
+    fontSize: '15px!important',
+  },
 });

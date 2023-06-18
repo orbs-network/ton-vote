@@ -5,6 +5,7 @@ import {
   IS_DEV,
   QueryKeys,
   releaseMode,
+  TELEGRAM_SUPPORT_GROUP,
   TX_FEES,
 } from "config";
 import _ from "lodash";
@@ -53,7 +54,6 @@ import { contract } from "contract";
 import { lib } from "lib";
 import retry from "async-retry";
 
-
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
   const registryState = useRegistryStateQuery().data;
@@ -70,7 +70,6 @@ export const useCreateDaoQuery = () => {
 
       let getPromise = () => {
         if (args.dev && !IS_DEV) {
-
           const txFee = createDaoProdFee + createDaoDevFee;
 
           return createNewDaoOnProdAndDev(
@@ -103,7 +102,9 @@ export const useCreateDaoQuery = () => {
       const address = await getPromise();
 
       if (typeof address !== "string") {
-        throw new Error("Failed to create Dao");
+        throw new Error(
+          `Failed to create dao, contact [support](${TELEGRAM_SUPPORT_GROUP})`
+        );
       }
 
       return address;
@@ -132,11 +133,8 @@ export const useCreateMetadataQuery = () => {
     async (args: CreateMetadataArgs) => {
       const { metadata } = args;
       const sender = getSender();
-
       const clientV2 = await getClientV2();
-      const isMetadataExist = await metdataExists(clientV2, metadata);
-      // console.log({ isMetadataExist });
-      
+
       const address = await newMetdata(
         sender,
         clientV2,
@@ -144,11 +142,10 @@ export const useCreateMetadataQuery = () => {
         metadata
       );
 
-      console.log(address);
-      
-
       if (typeof address !== "string") {
-        throw new Error("Failed to create Space metadata");
+        throw new Error(
+          `Failed to create space metadata. \n contact [support](${TELEGRAM_SUPPORT_GROUP})`
+        );
       }
 
       return address;
@@ -199,7 +196,9 @@ export const useCreateProposalQuery = () => {
       );
 
       if (typeof address !== "string") {
-        throw new Error("Failed to create Proposal");
+        throw new Error(
+          `Failed to create proposal. \n contact [support](${TELEGRAM_SUPPORT_GROUP})`
+        );
       }
 
       return address;
@@ -382,7 +381,7 @@ export const useVote = () => {
   const analytics = useAnalytics();
 
   return useMutation(
-    async (vote: string) => {
+    async (_vote: string) => {
       if (!proposal) {
         throw new Error("Proposal not found");
       }
@@ -395,45 +394,49 @@ export const useVote = () => {
         client,
         TX_FEES.VOTE_FEE.toString(),
         proposalAddress,
-        vote
+        _vote
       );
       await delay(1000);
-      return successCallback(proposal);
+      const values = await successCallback(proposal);
+
+      if (!values) {
+        throw new Error(
+          `Vote failed, try again or contact [support](${TELEGRAM_SUPPORT_GROUP})`
+        );
+      }
+
+      const { proposalResults, vote, maxLt } = values;
+
+      queryClient.setQueryData(
+        [QueryKeys.PROPOSAL, proposalAddress],
+        (prev?: any) => {
+          return {
+            ...prev,
+            proposalResult: proposalResults,
+            votes: vote ? [vote, ...prev?.votes] : prev?.votes,
+          };
+        }
+      );
+
+      Logger(
+        `vote success manually updating proposal query, and setting local storage`
+      );
+      Logger(maxLt, "maxLt");
+      Logger(vote, "walletVote");
+      Logger(proposalResults, "results");
+      // we save this data in local storage, and display it untill the server is up to date
+      return store.setValues(proposalAddress, maxLt, vote, proposalResults);
     },
     {
-      onSuccess: (values, _vote) => {
+      onSuccess: (_, _vote) => {
         analytics.voteSuccess(proposalAddress, _vote);
-
-        if (!values) return;
-
-        const { proposalResults, vote, maxLt } = values;
-
-        queryClient.setQueryData(
-          [QueryKeys.PROPOSAL, proposalAddress],
-          (prev?: any) => {
-            return {
-              ...prev,
-              proposalResult: proposalResults,
-              votes: vote ? [vote, ...prev?.votes] : prev?.votes,
-            };
-          }
-        );
-
-        Logger(
-          `vote success manually updating proposal query, and setting local storage`
-        );
-        Logger(maxLt, "maxLt");
-        Logger(vote, "walletVote");
-        Logger(proposalResults, "results");
-        // we save this data in local storage, and display it untill the server is up to date
-        store.setValues(proposalAddress, maxLt, vote, proposalResults);
         showSuccessToast(`Voted ${_vote} successfully`);
       },
       onSettled: () => {
         setIsVoting(false);
       },
       onError: (error: Error, vote) => {
-        errorToast(error);
+        errorToast(error, 8_000);
         analytics.voteError(proposalAddress, vote, error.message);
       },
     }
