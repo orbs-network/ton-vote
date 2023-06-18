@@ -56,6 +56,7 @@ export const VERIFIED_DAOS = [
   "EQC75Z49OlHwFvSfa21FMfSe6jMdY4SccRHsGljJR6229u2T",
   "EQCb8dxevgHhBnsTodJKXaCrafplHzAHf1V2Adj0GVlhA5xI",
   "EQBSnMyKtNlgmlcgRMrQlHH_asDSRV8jmtpbHZqM6sWp1YYp",
+  "EQCjkyH0rAibDNadPUoD5nyEdUc_QACmaLyOuuyro3vo8sRV",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING
@@ -150,3 +151,7 @@ export const API_RETRIES = 2;
 export const CONTRACT_RETRIES = 2;
 
 export const RETRY_DELAY = 1000;
+
+
+
+export const BLACKLISTED_DAOS = ["EQAQiTI1QkaCpIYAqdEO4mRTIzACq7WNlhNzt2voUnE4qxKy"];

@@ -1,4 +1,9 @@
-import { IS_DEV, TONSCAN_ADDRESS_URL, VERIFIED_DAOS } from "config";
+import {
+  BLACKLISTED_DAOS,
+  IS_DEV,
+  TONSCAN_ADDRESS_URL,
+  VERIFIED_DAOS,
+} from "config";
 import _ from "lodash";
 import moment from "moment";
 import { Address, fromNano } from "ton";
@@ -45,7 +50,7 @@ export const parseVotes = (
 ) => {
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
-    
+
     return {
       address: key,
       vote: v.vote,
@@ -222,8 +227,14 @@ export const parseLanguage = (json?: string, lang: string = "en") => {
 
 export const isDaoWhitelisted = (address?: string) => {
   if (!address) return false;
+  if (isDaoBlacklisted(address)) return false;
   if (!_.size(WHITELISTED_DAOS)) return true;
   return WHITELISTED_DAOS.includes(address);
+};
+
+export const isDaoBlacklisted = (address?: string) => {
+  if (!address) return false;
+  return BLACKLISTED_DAOS.includes(address);
 };
 
 export const isProposalWhitelisted = (address?: string) => {
@@ -322,7 +333,7 @@ export const getProposalResultTonAmount = (
   return result;
 };
 
-export const getproposalResult = (proposal: Proposal, choice: string) => {  
+export const getproposalResult = (proposal: Proposal, choice: string) => {
   return (
     proposal?.proposalResult?.[choice] ||
     proposal?.proposalResult?.[choice.toLowerCase()]
