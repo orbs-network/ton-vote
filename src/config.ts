@@ -147,3 +147,7 @@ export const API_RETRIES = 2;
 export const CONTRACT_RETRIES = 2;
 
 export const RETRY_DELAY = 1000;
+
+
+
+export const BLACKLISTED_DAOS = ["EQCgZ8_3nOTeZhoYzMl-6zClzJQhJtqVAFoQOkfen-rk-WGe"];
