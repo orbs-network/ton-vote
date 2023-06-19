@@ -515,7 +515,7 @@ export const useVote = () => {
         proposalAddress,
         vote
       );
-      await delay(1000)
+      await delay(2000);
       return successCallback(proposal);
     },
     {
@@ -529,10 +529,14 @@ export const useVote = () => {
         queryClient.setQueryData(
           [QueryKeys.PROPOSAL, proposalAddress],
           (prev?: any) => {
+            const votes = _.filter(
+              prev?.votes,
+              (v) => v.address !== vote.address
+            );
             return {
               ...prev,
               proposalResult: proposalResults,
-              votes: vote ? [vote, ...prev?.votes] : prev?.votes,
+              votes: [vote, ...votes],
             };
           }
         );
