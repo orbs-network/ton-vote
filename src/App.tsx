@@ -2,7 +2,7 @@ import { GlobalStyles, ThemeProvider } from "@mui/material";
 import { useTonWallet } from "@tonconnect/ui-react";
 import { APP_NAME } from "config";
 import { useAppSettings } from "hooks/hooks";
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { RouterProvider } from "react-router-dom";
 import { useRouter } from "router/router";
@@ -15,6 +15,17 @@ const useInitApp = () => {
 
 function App() {
   useInitApp();
+
+  useEffect(() => {
+    const loader = document.querySelector(".app-loader");
+    if (loader) {
+      loader.classList.add("app-loader-hidden");
+      setTimeout(() => {
+        loader.classList.add("app-loader-none");
+      }, 300);
+    }
+  }, []);
+
   const { isDarkMode } = useAppSettings();
   const router = useRouter();
 

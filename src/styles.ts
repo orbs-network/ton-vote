@@ -100,6 +100,12 @@ export const getGlobalStyles = (theme: Theme) => {
         fontWeight: 500,
       },
     },
+    ".app-loader-hidden": {
+      opacity: 0,
+    },
+    ".app-loader-none": {
+      display: "none",
+    },
     input: {
       background: theme.palette.background.paper,
       color: theme.palette.text.primary,
@@ -163,10 +169,13 @@ export const StyledPage = styled(Box)({
   paddingTop: 100,
 });
 
-export const StyledSkeletonLoader = styled(Skeleton)(({theme}) => ({
+export const StyledSkeletonLoader = styled(Skeleton)(({ theme }) => ({
   width: "100%",
   transform: "unset",
-  background: theme.palette.mode === 'light' ?   "rgba(0,0,0, 0.07)" : "rgba(255,255,255, 0.07)"
+  background:
+    theme.palette.mode === "light"
+      ? "rgba(0,0,0, 0.07)"
+      : "rgba(255,255,255, 0.07)",
 }));
 
 export const StyledOneLine = styled(Typography)({
@@ -176,7 +185,8 @@ export const StyledOneLine = styled(Typography)({
 });
 
 export const StyledTitle = styled(Typography)(({ theme }) => ({
-  color: theme.palette.mode === 'light' ? 'black' : theme.palette.text.secondary,
+  color:
+    theme.palette.mode === "light" ? "black" : theme.palette.text.secondary,
   textAlign: "left",
   fontWeight: 700,
   lineHeight: "28px",
@@ -187,10 +197,16 @@ export const StyledTitle = styled(Typography)(({ theme }) => ({
   },
 }));
 
-export const StyledContainer = styled(Box)(({theme}) => ({
+export const StyledContainer = styled(Box)(({ theme }) => ({
   background: theme.palette.background.paper,
-  border: theme.palette.mode === 'light' ?  "1px solid #e0e0e0" : '1px solid rgba(255,255,255, 0.2)',
-  boxShadow: theme.palette.mode === 'light' ? "rgb(114 138 150 / 8%) 0px 2px 16px" : 'unset',
+  border:
+    theme.palette.mode === "light"
+      ? "1px solid #e0e0e0"
+      : "1px solid rgba(255,255,255, 0.2)",
+  boxShadow:
+    theme.palette.mode === "light"
+      ? "rgb(114 138 150 / 8%) 0px 2px 16px"
+      : "unset",
   borderRadius: 10,
   padding: 20,
   transition: "0s all",
@@ -200,7 +216,10 @@ export const StyledContainer = styled(Box)(({theme}) => ({
 }));
 
 export const StyledHoverContainer = styled(StyledContainer)(({ theme }) => {
-  const color = theme.palette.mode === 'light' ? theme.palette.primary.main : 'rgba(255,255,255, 0.7)';
+  const color =
+    theme.palette.mode === "light"
+      ? theme.palette.primary.main
+      : "rgba(255,255,255, 0.7)";
   return {
     transition: "border-color 0.2s",
     svg: {
@@ -238,7 +257,10 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
     borderRadius: `30px!important`,
     transition: "0.2s all",
     "&:hover": {
-      border: theme.palette.mode === 'light' ? `1px solid ${theme.palette.primary.main}` : `1px solid white`,
+      border:
+        theme.palette.mode === "light"
+          ? `1px solid ${theme.palette.primary.main}`
+          : `1px solid white`,
     },
   },
   ".MuiSelect-icon": {

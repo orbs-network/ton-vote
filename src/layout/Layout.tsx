@@ -30,6 +30,7 @@ const useIsBeta = () => {
 
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
+  
 
   return (
     <>
