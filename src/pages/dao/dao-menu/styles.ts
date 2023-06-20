@@ -110,7 +110,9 @@ export const StyledMobileNavigation = styled(Box)({
 
 export const StyledTab = styled(Tab)({
   fontSize: 13,
-  padding: "0px 3px",
+  padding: "0px 10px",
+  position: "relative",
+
 });
 
 export const StyledAddressDisplay = styled(AddressDisplay)({
@@ -124,6 +126,7 @@ export const StyledTitle = styled(OverflowWithTooltip)(({ theme }) => ({
   color: theme.typography.h2.color,
   fontWeight: 800,
   fontSize: 21,
+  flex:1,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 18,
   },
@@ -139,6 +142,9 @@ export const StyledTop = styled(StyledFlexColumn)({
     paddingTop: 10,
     gap: 5,
     alignItems: "flex-start",
+    ".overflow-with-tooltip": {
+      width:'100%'
+    }
   },
 });
 

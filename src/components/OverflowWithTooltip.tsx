@@ -30,7 +30,7 @@ export function OverflowWithTooltip({
   }, []);
 
   return (
-    <StyledContainer ref={parentRef}>
+    <StyledContainer ref={parentRef} className='overflow-with-tooltip'>
       <StyledPlaceholder ref={textRef}>
         <Typography className={className}>{text}</Typography>
       </StyledPlaceholder>

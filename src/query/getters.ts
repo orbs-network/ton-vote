@@ -267,12 +267,19 @@ export const useConnectedWalletVotingPowerQuery = (
       const symbol = getProposalSymbol(
         proposal?.metadata?.votingPowerStrategies
       );
+      
 
       if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
-        return result;
+        return {
+          votingPower: result,
+          votingPowerText: `${nFormatter(Number(result))} ${symbol}`,
+        };
       }
 
-      return `${nFormatter(Number(fromNano(result)))} ${symbol}`;
+      return {
+        votingPowerText: `${nFormatter(Number(fromNano(result)))} ${symbol}`,
+        votingPower: result, 
+      };
     },
     {
       enabled: !!connectedWallet && !!proposal && !!proposalAddress,

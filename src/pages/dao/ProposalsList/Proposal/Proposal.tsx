@@ -132,6 +132,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
                   overflow: "hidden",
                   WebkitBoxOrient: "vertical",
                   WebkitLineClamp: 3,
+                  wordBreak: "break-word",
                 }}
               >
                 {removeMd(description || "", {
