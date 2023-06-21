@@ -263,7 +263,7 @@ export const useProposalResults = (proposalAddress: string) => {
 
     const choices = proposal?.metadata?.votingSystem.choices;
     const symbol = getProposalSymbol(proposal.metadata?.votingPowerStrategies);
-
+    const type = getVoteStrategyType(proposal.metadata?.votingPowerStrategies);
     const isOneWalletOneVote = getIsOneWalletOneVote(
       proposal.metadata?.votingPowerStrategies
     );
@@ -278,7 +278,8 @@ export const useProposalResults = (proposalAddress: string) => {
         proposal,
         choice,
         percent,
-        proposal.proposalResult["totalWeight"]
+        proposal.proposalResult["totalWeight"],
+        type
       );
 
       return {

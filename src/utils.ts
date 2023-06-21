@@ -145,11 +145,18 @@ export const getTonScanContractUrl = (address?: string) => {
   return `${TONSCAN_ADDRESS_URL}/${address}`;
 };
 
-export const calculateTonAmount = (percent?: number, total?: string) => {
+export const calculateTonAmount = (
+  type: VotingPowerStrategyType,
+  percent?: number,
+  total?: string
+) => {
   if (!percent || !total) return;
   const result = (Number(fromNano(total)) * percent) / 100;
-  
-  return nFormatter(Math.round(result), 2);
+
+  if (type === VotingPowerStrategyType.NftCcollection) {
+    return nFormatter(Math.round(result), 2);
+  }
+  return nFormatter(result, 2);
 };
 
 export const getTonAmounFromSumCoins = (value?: BigNumber) => {
@@ -321,7 +328,8 @@ export const getProposalResultTonAmount = (
   proposal: Proposal,
   choice: string,
   percent: number,
-  totalWeight: string
+  totalWeight: string,
+  type: VotingPowerStrategyType
 ) => {
   let result = "0";
   if (proposal?.sumCoins) {
@@ -329,7 +337,7 @@ export const getProposalResultTonAmount = (
       proposal.sumCoins[choice] || proposal.sumCoins[choice.toLowerCase()];
     result = getTonAmounFromSumCoins(value as BigNumber);
   } else {
-    result = calculateTonAmount(percent, totalWeight) || "0";
+    result = calculateTonAmount(type, percent, totalWeight) || "0";
   }
   return result;
 };
