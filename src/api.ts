@@ -8,7 +8,7 @@ import retry from "async-retry";
 
 const baseURL = IS_DEV
   ? "https://dev-ton-vote-cache.herokuapp.com"
-  : "https://api.ton.vote"; //"https://ton-vote-cache.herokuapp.com";
+  : "https://api.ton.vote";
 
 const axiosInstance = axios.create({
   baseURL,

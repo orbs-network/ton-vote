@@ -148,7 +148,8 @@ export const getTonScanContractUrl = (address?: string) => {
 export const calculateTonAmount = (percent?: number, total?: string) => {
   if (!percent || !total) return;
   const result = (Number(fromNano(total)) * percent) / 100;
-  return nFormatter(result, 2);
+  
+  return nFormatter(Math.round(result), 2);
 };
 
 export const getTonAmounFromSumCoins = (value?: BigNumber) => {
