@@ -378,7 +378,7 @@ export const useProposalStrategyName = (proposalAddress: string) => {
       case VotingPowerStrategyType.JettonBalance:
         return "JETTON balance";
       case VotingPowerStrategyType.NftCcollection:
-        return "NFT collection";
+        return "NFT Collection";
       case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
