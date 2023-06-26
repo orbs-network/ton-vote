@@ -506,15 +506,10 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
       if (!proposal.metadata || !walletAddress) return;
 
       try {
-        const nftItemsHolders = await lib.getAllNFTHolders(
-          proposalAddress,
-          proposal.metadata
-        );
         const result = await contract.getProposalResultsAfterVote({
           proposalAddress,
           walletAddress,
           proposal,
-          nftItemsHolders,
         });
 
         if (!result || _.isEmpty(result)) {

@@ -95,7 +95,6 @@ interface GetProposalResultsAfterVoteArgs {
   proposalAddress: string;
   walletAddress: string;
   proposal: Proposal;
-  nftItemsHolders: { [key: string]: number };
 }
 
 const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs) => {
@@ -116,8 +115,7 @@ const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs
 
   if (!userTx || !metadata) return;
 
-  const nftItemsHolders =
-    args.nftItemsHolders || (await getAllNftHolders(clientV4, metadata));
+  const nftItemsHolders = await getAllNftHolders(clientV4, metadata)
 
   const singleVotingPower = await getSingleVoterPower(
     clientV4,
