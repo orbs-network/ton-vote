@@ -263,7 +263,7 @@ export const useProposalResults = (proposalAddress: string) => {
 
     const choices = proposal?.metadata?.votingSystem.choices;
     const symbol = getProposalSymbol(proposal.metadata?.votingPowerStrategies);
-
+    const type = getVoteStrategyType(proposal.metadata?.votingPowerStrategies);
     const isOneWalletOneVote = getIsOneWalletOneVote(
       proposal.metadata?.votingPowerStrategies
     );
@@ -278,7 +278,8 @@ export const useProposalResults = (proposalAddress: string) => {
         proposal,
         choice,
         percent,
-        proposal.proposalResult["totalWeight"]
+        proposal.proposalResult["totalWeight"],
+        type
       );
 
       return {
@@ -377,7 +378,7 @@ export const useProposalStrategyName = (proposalAddress: string) => {
       case VotingPowerStrategyType.JettonBalance:
         return "JETTON balance";
       case VotingPowerStrategyType.NftCcollection:
-        return "NFT collection";
+        return "NFT Collection";
       case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
