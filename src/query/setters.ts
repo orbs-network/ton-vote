@@ -406,7 +406,7 @@ export const useVote = () => {
         showSuccessToast(`Voted ${_vote} successfully`);
         if (!values) {
           throw new Error(
-            `Failed to update results, [support](${TELEGRAM_SUPPORT_GROUP})`
+            `You voted ${_vote} successfully, but we failed to update results, [support](${TELEGRAM_SUPPORT_GROUP})`
           );
         }
 
@@ -510,25 +510,31 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
           proposalAddress,
           proposal.metadata
         );
-        return contract.getProposalResultsAfterVote({
+        const result = await contract.getProposalResultsAfterVote({
           proposalAddress,
           walletAddress,
           proposal,
           nftItemsHolders,
         });
+
+        if (!result || _.isEmpty(result)) {
+          throw new Error("Empty results");
+        }
+
+        return result;
       } catch (error) {
-        if (attempt > 2) {
+        if (attempt > 5) {
           const message = error instanceof Error ? error.message : "";
           analytics.getProposalFromContractAfterVotingFailed(
             proposalAddress,
             message
           );
         }
-        Logger(error instanceof Error ? error.message : "");
+        Logger(error);
         throw error;
       }
     };
 
-    return retry(promise, { retries: 2 });
+    return retry(promise, { retries: 5, minTimeout: 2000 });
   };
 };
