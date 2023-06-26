@@ -107,6 +107,9 @@ export const useDaoNewProposals = () => {
 
   return (daoAddress: string, proposals: string[]) => {
     const newDaoPoposals = newProposals[daoAddress];
+
+    console.log(newDaoPoposals);
+    
     
     // if no new proposals reutrn current proposals
     if (!_.size(newDaoPoposals)) return proposals;

@@ -155,7 +155,7 @@ export const useDaoQuery = (daoAddress: string) => {
 
   const config = useMemo(() => {
     return {
-      staleTime: route === routes.proposal ? Infinity : 10_000,
+      staleTime: route === routes.proposal ? Infinity : 5_000,
       refetchInterval:
         route === routes.proposal ? undefined : REFETCH_INTERVALS.dao,
     };
@@ -233,7 +233,7 @@ export const useDaoQuery = (daoAddress: string) => {
       };
     },
     {
-      staleTime: Infinity,
+      staleTime: config.staleTime,
       refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
       enabled: !!daoAddress,
       retry: false,

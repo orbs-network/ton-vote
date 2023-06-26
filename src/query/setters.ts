@@ -396,45 +396,45 @@ export const useVote = () => {
         proposalAddress,
         _vote
       );
-      await delay(1000);
-      const values = await successCallback(proposal);
 
-      if (!values) {
-        throw new Error(
-          `Vote failed, try again or contact [support](${TELEGRAM_SUPPORT_GROUP})`
-        );
-      }
-
-      const { proposalResults, vote, maxLt } = values;
-
-      queryClient.setQueryData(
-        [QueryKeys.PROPOSAL, proposalAddress],
-        (prev?: any) => {
-           const votes = _.filter(
-             prev?.votes,
-             (v) => v.address !== vote.address
-           );
-          return {
-            ...prev,
-            proposalResult: proposalResults,
-            votes: [vote, ...votes],
-          };
-        }
-      );
-
-      Logger(
-        `vote success manually updating proposal query, and setting local storage`
-      );
-      Logger(maxLt, "maxLt");
-      Logger(vote, "walletVote");
-      Logger(proposalResults, "results");
-      // we save this data in local storage, and display it untill the server is up to date
-      return store.setValues(proposalAddress, maxLt, vote, proposalResults);
+      await delay(2000);
+      return successCallback(proposal);
     },
     {
-      onSuccess: (_, _vote) => {
+      onSuccess: (values, _vote) => {
         analytics.voteSuccess(proposalAddress, _vote);
         showSuccessToast(`Voted ${_vote} successfully`);
+        if (!values) {
+          throw new Error(
+            `Failed to update results, [support](${TELEGRAM_SUPPORT_GROUP})`
+          );
+        }
+
+        const { proposalResults, vote, maxLt } = values;
+
+        queryClient.setQueryData(
+          [QueryKeys.PROPOSAL, proposalAddress],
+          (prev?: any) => {
+            const votes = _.filter(
+              prev?.votes,
+              (v) => v.address !== vote.address
+            );
+            return {
+              ...prev,
+              proposalResult: proposalResults,
+              votes: [vote, ...votes],
+            };
+          }
+        );
+
+        Logger(
+          `vote success manually updating proposal query, and setting local storage`
+        );
+        Logger(maxLt, "maxLt");
+        Logger(vote, "walletVote");
+        Logger(proposalResults, "results");
+        // we save this data in local storage, and display it untill the server is up to date
+        return store.setValues(proposalAddress, maxLt, vote, proposalResults);
       },
       onSettled: () => {
         setIsVoting(false);
@@ -524,6 +524,7 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
             message
           );
         }
+        Logger(error instanceof Error ? error.message : "");
         throw error;
       }
     };
