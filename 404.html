@@ -20,11 +20,75 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="TON Dao Vote" />
     <meta name="twitter:description" content="" />
+    <style>
+      @keyframes glow {
+        from {
+          transform: scale(1);
+        }
+        to {
+          transform: scale(1.1);
+        }
+      }
+
+      .app-loader {
+        opacity: 0;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        transition: 0.2s all;
+      }
+      .app-loader img {
+        width: 140px;
+        height: 140px;
+        -webkit-animation: glow 1s ease-in-out infinite alternate;
+        -moz-animation: glow 1s ease-in-out infinite alternate;
+        animation: glow 1s ease-in-out infinite alternate;
+        opacity: 0;
+        transition: 0.2s opacity;
+      }
+
+      .app-loader-dark {
+        background: #222830;
+        opacity: 1;
+      }
+
+      .app-loader-light {
+        background: #f8f9fb;
+        opacity: 1;
+      }
+    </style>
     <title>TON Vote</title>
-    <script type="module" crossorigin src="/assets/index-21e7f19c.js"></script>
+    <script type="module" crossorigin src="/assets/index-a8a9f96b.js"></script>
   </head>
   <body>
+    <div class="app-loader">
+      <img src="/logo.png" />
+    </div>
+    <script>
+      setTimeout(() => {
+        const loader = document.querySelector(".app-loader");
+        const appSettings = localStorage.getItem("app_settings");
+        var img = new Image();
+        img.onload = function () {
+          loader.querySelector("img").style.opacity = "1";
+        };
+        img.src = "/logo.png";
+
+        const theme = appSettings
+          ? JSON.parse(appSettings).state.themeMode
+          : "light";
+        loader.classList.add(`app-loader-${theme}`);
+      }, 300);
+    </script>
     <div id="root"></div>
+
     
     
   </body>
