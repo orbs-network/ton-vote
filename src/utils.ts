@@ -411,7 +411,7 @@ export const getProposalSymbol = (
       return "TON";
     case VotingPowerStrategyType.JettonBalance:
     case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
-      return "JETTON";
+      return "Jetton";
     case VotingPowerStrategyType.NftCcollection:
     case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       return "NFT";

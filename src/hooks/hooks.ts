@@ -374,9 +374,9 @@ export const useProposalStrategyName = (proposalAddress: string) => {
 
     switch (type) {
       case VotingPowerStrategyType.TonBalance:
-        return "TON balance";
+        return "TON Balance";
       case VotingPowerStrategyType.JettonBalance:
-        return "JETTON balance";
+        return "Jetton Balance";
       case VotingPowerStrategyType.NftCcollection:
         return "NFT Collection";
       case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:

@@ -1,5 +1,6 @@
 import { Fade, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
 import { BsArrowUpShort } from "react-icons/bs";
 function ScrollTop() {
   const [show, setShow] = useState(false);
@@ -27,8 +28,8 @@ export default ScrollTop;
 const StyledContainer = styled("button")(({ theme }) => ({
   zIndex:100,
   position: "fixed",
-  bottom: 40,
-  right: 20,
+  bottom: 20,
+  left: isMobile ? 20 :  70,
   background: theme.palette.primary.main,
   borderRadius: "50%",
   border: "unset",
