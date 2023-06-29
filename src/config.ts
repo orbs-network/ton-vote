@@ -69,8 +69,8 @@ export const releaseMode = import.meta.env.VITE_STAGING
 
 export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
 
-export const createDaoDevFee = 0.1;
-export const createDaoProdFee = 1
+export const createDaoDevFee = 0.2;
+export const createDaoProdFee = 1.1
 
 export const TX_FEES = {
   CREATE_DAO: IS_DEV ? createDaoDevFee : 1,
