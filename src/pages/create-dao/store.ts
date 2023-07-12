@@ -36,11 +36,15 @@ interface State {
   setDaoAddress: (value: string) => void;
   createDaoSuccessModal: boolean;
   setCreateDaoSuccessModal: (value: boolean) => void;
+  createOnDev: boolean;
+  setCreateOnDev: (value: boolean) => void;
 }
 
 export const useCreatDaoStore = create(
   persist<State>(
     (set) => ({
+      createOnDev: true,
+      setCreateOnDev: (createOnDev) => set({ createOnDev }),
       createDaoSuccessModal: false,
       setCreateDaoSuccessModal: (createDaoSuccessModal) =>
         set({ createDaoSuccessModal }),

@@ -68,12 +68,6 @@ export const useDaoMetadataInputs = (): InputArgs<DaoMetadataForm>[] => {
       type: "url",
       name: "github",
     },
-    {
-      label:
-        "Create DAO space also on dev.ton.vote. [Read mode](https://github.com/orbs-network/ton-vote/blob/main/README.md)",
-      type: "checkbox",
-      name: "dev",
-    },
   ];
 };
 

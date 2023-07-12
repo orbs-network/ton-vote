@@ -51,7 +51,6 @@ import { useAnalytics } from "analytics";
 import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
-import { lib } from "lib";
 import retry from "async-retry";
 
 export const useCreateDaoQuery = () => {
@@ -69,6 +68,8 @@ export const useCreateDaoQuery = () => {
       const clientV2 = await getClientV2();
 
       let getPromise = () => {
+        console.log(args.dev);
+        
         if (args.dev && !IS_DEV) {
           const txFee = createDaoProdFee + createDaoDevFee;
 
@@ -119,6 +120,7 @@ export const useCreateDaoQuery = () => {
         addDao(address);
         analytics.createSpaceSuccess(args.metadataAddress, address);
         showSuccessToast(`Space created successfully`);
+        args.onSuccess();
       },
     }
   );

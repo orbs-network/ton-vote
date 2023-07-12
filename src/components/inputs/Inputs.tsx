@@ -470,15 +470,17 @@ export const CheckboxInput = ({
   value = false,
   required,
   tooltip,
+  className = "",
 }: {
   title: string;
   onChange: (value: boolean) => void;
   value: boolean;
   required?: boolean;
   tooltip?: string;
+  className?: string;
 }) => {
   return (
-    <StycheckBoxInput justifyContent="flex-start" gap={2}>
+    <StycheckBoxInput className={className} justifyContent="flex-start" gap={2}>
       <Checkbox checked={value} onChange={() => onChange(!value)} />
       {title && <StyledCheckBoxTitle title={title} required={required} />}
       {tooltip && <AppTooltip placement="right" info markdown={tooltip} />}

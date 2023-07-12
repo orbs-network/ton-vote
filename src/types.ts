@@ -150,7 +150,6 @@ export interface FormArgs<T> {
  export interface DaoMetadataForm extends MetadataArgs {
   about_en?: string;
   name_en?: string;
-  dev?: boolean;
 }
 
 

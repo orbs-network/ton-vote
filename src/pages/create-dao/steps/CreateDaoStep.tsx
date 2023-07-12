@@ -20,23 +20,21 @@ import { useCreateDaoQuery } from "query/setters";
 import { useRegistryStateQuery } from "query/getters";
 import { isZeroAddress } from "utils";
 import { getBorderColor } from "theme";
+import { CheckboxInput } from "components";
 
 const useCreateDao = () => {
-  const { rolesForm, metadataAddress, reset, daoMetadataForm } =
-    useCreatDaoStore();
+  const { rolesForm, metadataAddress, reset, createOnDev } = useCreatDaoStore();
 
-  const { mutateAsync, isLoading } = useCreateDaoQuery();
+  const { mutate, isLoading } = useCreateDaoQuery();
 
-  const createDao = async () => {
-    try {
-      await mutateAsync({
-        metadataAddress: metadataAddress!,
-        ownerAddress: rolesForm.ownerAddress,
-        proposalOwner: rolesForm.proposalOwner,
-        dev: !!daoMetadataForm.dev,
-      });
-      reset();
-    } catch (error) {}
+  const createDao = () => {
+    mutate({
+      metadataAddress: metadataAddress!,
+      ownerAddress: rolesForm.ownerAddress,
+      proposalOwner: rolesForm.proposalOwner,
+      dev: createOnDev,
+      onSuccess: reset,
+    });
   };
 
   return {
@@ -46,11 +44,12 @@ const useCreateDao = () => {
 };
 
 export function CreateDaoStep() {
-  const { createDao, isLoading } = useCreateDao();
   const translations = useCreateDaoTranslations();
   const commonTranslations = useCommonTranslations();
-  const { daoMetadataForm, rolesForm } = useCreatDaoStore();
+  const { daoMetadataForm, rolesForm, createOnDev, setCreateOnDev } =
+    useCreatDaoStore();
   const registryState = useRegistryStateQuery().data;
+  const { createDao, isLoading } = useCreateDao();
 
   const metadata = useDaoMetadataForm();
   const roles = useDaoRolesForm();
@@ -88,6 +87,11 @@ export function CreateDaoStep() {
             })}
           </>
         </StyledInputs>
+        <StyledCheckboxInput
+          title="Create DAO space also on dev.ton.vote. [Read mode](https://github.com/orbs-network/ton-vote/blob/main/README.md)"
+          value={createOnDev}
+          onChange={(value) => setCreateOnDev(value)}
+        />
         <Submit>
           <Button
             isLoading={
@@ -102,6 +106,10 @@ export function CreateDaoStep() {
     </TitleContainer>
   );
 }
+
+const StyledCheckboxInput = styled(CheckboxInput)({
+  marginTop: 10,
+});
 
 const StyledInputs = styled(StyledFlexColumn)({
   gap: 20,

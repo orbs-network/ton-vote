@@ -38,7 +38,6 @@ export function CreateMetadataStep() {
       jetton: formData.jetton || ZERO_ADDRESS,
       nft: formData.nft || ZERO_ADDRESS,
       dns: formData.dns || "",
-      dev: formData.dev,
     };
 
     createMetadata({
@@ -67,7 +66,6 @@ export function CreateMetadataStep() {
       dns: daoMetadataForm.dns,
       about_en: daoMetadataForm.about_en,
       name_en: daoMetadataForm.name_en,
-      dev: true,
     },
     validationSchema: Schema,
     validateOnChange: false,
