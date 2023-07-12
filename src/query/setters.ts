@@ -68,7 +68,6 @@ export const useCreateDaoQuery = () => {
       const clientV2 = await getClientV2();
 
       let getPromise = () => {
-        console.log(args.dev);
         
         if (args.dev && !IS_DEV) {
           const txFee = createDaoProdFee + createDaoDevFee;
