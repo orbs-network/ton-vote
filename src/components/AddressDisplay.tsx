@@ -1,4 +1,4 @@
-import { styled, Typography, useTheme } from "@mui/material";
+import { styled, useTheme } from "@mui/material";
 import { useCopyToClipboard } from "hooks/hooks";
 import { StyledFlexRow } from "styles";
 import { IoCopyOutline } from "react-icons/io5";

@@ -56,6 +56,12 @@ export interface SelectOption {
   value: string;
 }
 
+
+interface ProposalMetadataLocal extends ProposalMetadata {
+  nftMetadata?: any;
+  jettonMetadata?: any;
+}
+
 export interface Proposal {
   votingPower?: VotingPower;
   votes: Vote[];
@@ -63,7 +69,7 @@ export interface Proposal {
   proposalResult: ProposalResults;
   maxLt?: string;
   transactions?: Transaction[];
-  metadata?: ProposalMetadata;
+  metadata?: ProposalMetadataLocal;
   daoAddress?: string;
   hardcoded?: boolean;
   url?: string;

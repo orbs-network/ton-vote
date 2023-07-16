@@ -12,35 +12,39 @@ export function Img({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  console.log(error);
+  
+
   const showPlaceholder = error ? true : isLoading ? false : !src
 
-  if (showPlaceholder) {
-    return (
-      <StyledContainer className={`${className} img`}>
-        <StyledNoSrc />
-      </StyledContainer>
-    );
-  }
+  
   return (
     <StyledContainer className={`${className} img`}>
-      <Fade in={!isLoading}>
-        <StyledImg
-          onError={() => setError(true)}
-          src={src}
-          onLoad={() => setIsLoading(false)}
-        />
-      </Fade>
-      <Fade in={isLoading}>
-        <StyledLoader />
-      </Fade>
+      {showPlaceholder ? (
+        <StyledNoSrc />
+      ) : (
+        <>
+          <Fade in={!isLoading}>
+            <StyledImg
+              onError={() => setError(true)}
+              src={src}
+              onLoad={() => setIsLoading(false)}
+            />
+          </Fade>
+          <Fade in={isLoading}>
+            <StyledLoader />
+          </Fade>
+        </>
+      )}
     </StyledContainer>
   );
 }
 
-const StyledNoSrc = styled(Box)({
-  width: "100",
+const StyledNoSrc = styled("div")({
+  width: "100%",
   height: "100%",
-  background: "rgba(211, 211, 211, 0.6)",
+  background: "rgba(211, 211, 211, 0.5)",
+  position: "absolute",
 });
 
 const StyledImg = styled("img")({
