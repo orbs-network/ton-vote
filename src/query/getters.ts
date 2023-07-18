@@ -14,6 +14,7 @@ import {
   getSingleVoterPower,
   getDaoState,
   getRegistryState,
+  readJettonOrNftMetadata,
 } from "ton-vote-contracts-sdk";
 import {
   getIsOneWalletOneVote,
@@ -23,6 +24,7 @@ import {
   isProposalWhitelisted,
   Logger,
   nFormatter,
+  validateAddress,
 } from "utils";
 import {
   FOUNDATION_DAO_ADDRESS,
@@ -288,7 +290,6 @@ export const useConnectedWalletVotingPowerQuery = (
       const symbol = getProposalSymbol(
         proposal?.metadata?.votingPowerStrategies
       );
-      
 
       if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
         return {
@@ -299,7 +300,7 @@ export const useConnectedWalletVotingPowerQuery = (
 
       return {
         votingPowerText: `${nFormatter(Number(fromNano(result)))} ${symbol}`,
-        votingPower: result, 
+        votingPower: result,
       };
     },
     {
@@ -500,4 +501,25 @@ export const useWalletsQuery = () => {
     staleTime: Infinity,
     enabled: !!tonConnectUI,
   });
+};
+
+export const useEnsureAssetMetadataQuery = () => {
+  const queryClient = useQueryClient();
+  return (assetAddress: string) =>
+    queryClient.ensureQueryData(["useAssetMetadataQuery", assetAddress]);
+};
+
+export const useAssetMetadataQuery = (assetAddress?: string) => {
+  const clientV2 = useGetClients().data?.clientV2;
+  validateAddress(assetAddress);
+
+  return useQuery<any>(
+    ["useAssetMetadataQuery", assetAddress],
+    () => readJettonOrNftMetadata(clientV2!, assetAddress!),
+    {
+      enabled: !!clientV2 && !!assetAddress && validateAddress(assetAddress),
+      staleTime: Infinity,
+      refetchInterval: undefined
+    }
+  );
 };

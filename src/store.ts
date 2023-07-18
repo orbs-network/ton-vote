@@ -230,8 +230,6 @@ export const useVoteStore = create<VoteStore>((set, get) => ({
   setIsVoting: (isVoting) => set({ isVoting }),
 }));
 
-
-
 interface ErrorStore {
   proposalError: boolean;
   setProposalError: (proposalError: boolean) => void;
@@ -241,3 +239,43 @@ export const useErrorStore = create<ErrorStore>((set, get) => ({
   proposalError: false,
   setProposalError: (proposalError) => set({ proposalError }),
 }));
+
+export interface Airdrop {
+  wallets?: string[];
+  currentWalletIndex?: number;
+  address?: string;
+  amount?: number;
+}
+
+export type AirdropUpdateKey = keyof Airdrop;
+
+interface AirdropStore {
+  update: (proposalAddress: string, key: keyof Airdrop, value: any) => void;
+  reset: (address: string) => void;
+  airdrops: { [key: string]: Airdrop | undefined };
+}
+
+export const useAirdropStore = create(
+  persist<AirdropStore>(
+    (set, get) => ({
+      airdrops: {},
+      reset: (address) => {
+        set({ airdrops: _.omit(get().airdrops, address) });
+      },
+      update: (proposalAddress, key,  value) => {
+        set({
+          airdrops: {
+            ...get().airdrops,
+            [proposalAddress]: {
+              ...get().airdrops[proposalAddress],
+              [key]: value,
+            },
+          },
+        });
+      },
+    }),
+    {
+      name: "airdrops",
+    }
+  )
+);

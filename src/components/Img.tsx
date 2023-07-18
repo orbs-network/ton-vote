@@ -11,13 +11,11 @@ export function Img({
 }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-
-  console.log(error);
   
 
   const showPlaceholder = error ? true : isLoading ? false : !src
 
-  
+
   return (
     <StyledContainer className={`${className} img`}>
       {showPlaceholder ? (

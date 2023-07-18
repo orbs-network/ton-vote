@@ -178,6 +178,7 @@ export type PageProps = {
   hideBack?: boolean;
   isProtected?: boolean;
   backFunc?: () => void;
+  title?: string;
 };
 
 

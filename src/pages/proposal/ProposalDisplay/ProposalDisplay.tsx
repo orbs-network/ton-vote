@@ -21,6 +21,7 @@ import { Page } from "wrappers";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
+import ProposalMenu from "./ProposalMenu";
 
 const gap = 15;
 
@@ -107,12 +108,11 @@ export function ProposalDisplay() {
 
   const errorContainer = hideProposal || showError;
 
-  const isMock = mock.isMockProposal(proposalAddress);
 
   return (
     <Page
+    headerComponent={<ProposalMenu />}
       back={appNavigation.daoPage.root(daoAddress)}
-      headerComponent={!isMock && <EditButton />}
     >
       {errorContainer ? (
         <ErrorContainer text="Proposal not found" />
@@ -127,42 +127,7 @@ export function ProposalDisplay() {
 
 export default ProposalDisplay;
 
-const EditButton = () => {
-  const { proposalPage } = useAppNavigation();
-  const { daoAddress, proposalAddress } = useAppParams();
 
-  const { data: dao } = useDaoQuery(daoAddress);
-
-  const devFeatures = useDevFeatures();
-  const {isLoading} = useProposalQuery(proposalAddress)
-
-  const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
-
-  if (isLoading) return null;
-  if (!devFeatures) return null;
-  if (!isOwner && !isProposalPublisher) return null;
-
-  return (
-    <AppTooltip text="Edit">
-      <StyledEditButton
-        onClick={() => proposalPage.edit(daoAddress, proposalAddress)}
-      >
-        <MdOutlineModeEditOutline
-          style={{ width: 20, height: 20, color: "white" }}
-        />
-      </StyledEditButton>
-    </AppTooltip>
-  );
-};
-
-const StyledEditButton = styled(StyledFlexRow)({
-  padding: 0,
-  width: 35,
-  height: 35,
-  borderRadius: "50%",
-  background: "#0088CC",
-  cursor: "pointer",
-});
 
 const StyledWrapper = styled(StyledFlexRow)({
   gap,

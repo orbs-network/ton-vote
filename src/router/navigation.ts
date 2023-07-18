@@ -14,6 +14,10 @@ export const appNavigation = {
       routes.proposal
         .replace(":daoId", daoId)
         .replace(":proposalId", proposalId),
+    airdrop: (daoId: string, proposalId: string) =>
+      routes.airdrop
+        .replace(":daoId", daoId)
+        .replace(":proposalId", proposalId),
     edit: (daoId: string, proposalId: string) =>
       routes.editProposal
         .replace(":daoId", daoId)
@@ -34,7 +38,9 @@ export const useAppNavigation = () => {
     proposalPage: {
       edit: (daoId: string, proposalId: string) =>
         navigate(appNavigation.proposalPage.edit(daoId, proposalId)),
-      
+      airdrop: (daoId: string, proposalId: string) =>
+        navigate(appNavigation.proposalPage.airdrop(daoId, proposalId)),
+
       root: (daoId: string, proposalId: string) =>
         navigate(appNavigation.proposalPage.root(daoId, proposalId)),
     },

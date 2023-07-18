@@ -173,6 +173,7 @@ const DownloadCSV = () => {
   const { data } = useProposalQuery(proposalAddress);
   const csvData = useCsvData();
   const translations = useProposalPageTranslations();
+  
 
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>

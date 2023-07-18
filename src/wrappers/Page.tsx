@@ -1,4 +1,4 @@
-import { Fade, styled } from "@mui/material";
+import { Fade, styled, Typography } from "@mui/material";
 import { Back } from "components";
 import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -11,26 +11,37 @@ function Page({
   headerComponent,
   hideBack = false,
   backFunc,
+  title,
 }: PageProps) {
-
   useEffect(() => {
-    window.scrollTo(0,0)
-  }, [])
-  
+    window.scrollTo(0, 0);
+  }, []);
+
+  const hideTop = !title && !headerComponent && hideBack;
+
   return (
     <StyledContainer className={className}>
-      {!hideBack && (
+      {!hideTop && (
         <StyledTop justifyContent="space-between">
-          <Back func={backFunc} to={back} />
+          <StyledFlexRow style={{ width: "auto" }}>
+            {!hideBack && <Back func={backFunc} to={back} />}
+            <StyledTitle>{title}</StyledTitle>
+          </StyledFlexRow>
           {headerComponent}
         </StyledTop>
       )}
+
       {children}
     </StyledContainer>
   );
 }
 
 export { Page };
+
+const StyledTitle = styled(Typography)({
+  fontWeight: 600,
+  fontSize: 24,
+});
 
 const StyledTop = styled(StyledFlexRow)({
   marginBottom: 15,

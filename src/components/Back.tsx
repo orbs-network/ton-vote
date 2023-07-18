@@ -36,7 +36,7 @@ export { Back };
 
 const StyledContainer = styled(Box)({
   cursor: "pointer",
-  padding: "8px 14px",
+  padding: "6px 12px",
   height: "auto",
   background: "#0088CC",
   borderRadius: 20,
@@ -44,7 +44,7 @@ const StyledContainer = styled(Box)({
      color:'white!important'
   },
   p: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 600,
    
   },

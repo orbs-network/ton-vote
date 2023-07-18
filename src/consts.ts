@@ -9,6 +9,7 @@ export const routes = {
   spaceAbout: "/:daoId/about",
   spaceSettings: "/:daoId/settings",
   createProposal: "/:daoId/create",
+  airdrop: "/:daoId/proposal/:proposalId/airdrop",
 };
 
 export const flatRoutes = _.map(routes, (value) => {

@@ -39,11 +39,13 @@ import {
   getProposalStatus,
   getProposalSymbol,
   getStrategyArgument,
+  getTonScanContractUrl,
   getVoteStrategyType,
   isNftProposal,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
+import { useNumericFormat } from "react-number-format";
 
 export const useCurrentRoute = () => {
   const location = useLocation();
@@ -257,12 +259,12 @@ export const useAppSettings = () => {
 
 export const useProposalResults = (proposalAddress: string) => {
   const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
+    const symbol = useGetProposalSymbol(proposalAddress);
 
   return useMemo(() => {
     if (!proposal) return [];
 
     const choices = proposal?.metadata?.votingSystem.choices;
-    const symbol = getProposalSymbol(proposal.metadata?.votingPowerStrategies);
     const type = getVoteStrategyType(proposal.metadata?.votingPowerStrategies);
     const isOneWalletOneVote = getIsOneWalletOneVote(
       proposal.metadata?.votingPowerStrategies
@@ -270,9 +272,8 @@ export const useProposalResults = (proposalAddress: string) => {
 
     return _.map(choices, (choice, key) => {
       const result = getproposalResult(proposal, choice);
-      
+
       const percent = result ? Number(result) : 0;
-      
 
       const amount = getProposalResultTonAmount(
         proposal,
@@ -390,6 +391,39 @@ export const useProposalStrategyName = (proposalAddress: string) => {
   }, [dataUpdatedAt]);
 };
 
+export const useStrategyAsset = (
+  proposalAddress: string
+): {
+  address: string | undefined;
+  type: string;
+  image?: string;
+  name: string;
+  url: string;
+  onlyAddress: boolean;
+} => {
+  const strategyArgs = useStrategyArguments(proposalAddress);
+
+  const metadata = useProposalQuery(proposalAddress)?.data?.metadata;
+
+  const jetton = strategyArgs?.jetton;
+  const nft = strategyArgs?.nft;
+
+  const aseetMetadata =
+    metadata?.jettonMetadata?.metadata || metadata?.nftMetadata?.metadata;
+
+  const defaultName = jetton ? "Jetton" : nft ? "NFT" : "TON";
+  const address = jetton || nft;
+
+  return {
+    address,
+    type: jetton ? "jetton" : nft ? "nft" : "ton",
+    image: aseetMetadata?.image,
+    name: aseetMetadata?.name || defaultName,
+    url: aseetMetadata?.external_url || getTonScanContractUrl(address),
+    onlyAddress: !aseetMetadata,
+  };
+};
+
 export const useIsOneWalletOneVote = (proposalAddress: string) => {
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
@@ -414,11 +448,25 @@ export const useStrategyArguments = (proposalAddress: string) => {
   }, [dataUpdatedAt]);
 };
 
-
 export const useIsNftProposal = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
-  const {data, dataUpdatedAt} = useProposalQuery(proposalAddress);
+  return useMemo(
+    () => isNftProposal(data?.metadata?.votingPowerStrategies),
+    [dataUpdatedAt]
+  );
+};
 
-  return useMemo(() => isNftProposal(data?.metadata?.votingPowerStrategies), [dataUpdatedAt]);
 
+
+export const useFormatNumber = (value: number, decimalScale = 2) => {
+  const result = useNumericFormat({
+    allowLeadingZeros: true,
+    thousandSeparator: ",",
+    displayType: "text",
+    value: value || "",
+    decimalScale,
+  });
+
+  return result.value?.toString();
 };

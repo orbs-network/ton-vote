@@ -587,6 +587,7 @@ interface FormikInputsFormProps<T> {
   EndAdornment?: any;
   customInputHandler?: (value: InputArgs<T>) => ReactElement;
   children?: ReactNode;
+  className?: string;
 }
 
 export function FormikInputsForm<T>({
@@ -594,6 +595,7 @@ export function FormikInputsForm<T>({
   formik,
   customInputHandler,
   children,
+  className = ''
 }: FormikInputsFormProps<T>) {
   const _form = _.isArray(form) ? form : [form];
   const mobile = useMobile();
@@ -605,7 +607,7 @@ export function FormikInputsForm<T>({
 
         return (
           <TitleContainer
-            className="formik-form"
+            className={`${className} formik-form`}
             key={index}
             title={it.title}
             headerComponent={
@@ -630,13 +632,14 @@ export function FormikInputsForm<T>({
                       key={input.name}
                       className="form-input"
                       style={{
-                        width:input.style?.width ||  mobile
-                          ? "100%"
-                          : it.inputsInRow
-                          ? `calc(${100 / it.inputsInRow}% - ${
-                              it.inputsInRow * 7
-                            }px)`
-                          : "100%",
+                        width:
+                          input.style?.width || mobile
+                            ? "100%"
+                            : it.inputsInRow
+                            ? `calc(${100 / it.inputsInRow}% - ${
+                                it.inputsInRow * 7
+                              }px)`
+                            : "100%",
                       }}
                     >
                       <MapInput<T>
@@ -701,6 +704,8 @@ interface NumberInputProps {
   endAdornment?: React.ReactNode;
   error?: string;
   onFocus?: () => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 export const NumberInput = ({
@@ -715,11 +720,14 @@ export const NumberInput = ({
   endAdornment,
   error,
   onFocus,
+  className,
+  disabled,
 }: NumberInputProps) => {
   return (
-    <StyledInputContainer>
+    <StyledInputContainer className={className}>
       <InputHeader title={title} required={required} tooltip={tooltip} />
       <NumericFormat
+        disabled={disabled}
         prefix={prefix}
         suffix={suffix}
         value={value}
