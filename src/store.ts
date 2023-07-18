@@ -240,19 +240,18 @@ export const useErrorStore = create<ErrorStore>((set, get) => ({
   setProposalError: (proposalError) => set({ proposalError }),
 }));
 
-export interface Airdrop {
+export interface AirdropInterface {
   wallets?: string[];
   currentWalletIndex?: number;
-  address?: string;
-  amount?: number;
+  jettonAddress?: string;
+  jettonsAmount?: number;
+  type?: "jetton" | "nft";
 }
 
-export type AirdropUpdateKey = keyof Airdrop;
-
 interface AirdropStore {
-  update: (proposalAddress: string, key: keyof Airdrop, value: any) => void;
+  update: (proposalAddress: string, values: Partial<AirdropInterface>) => void;
   reset: (address: string) => void;
-  airdrops: { [key: string]: Airdrop | undefined };
+  airdrops: { [key: string]: AirdropInterface | undefined };
 }
 
 export const useAirdropStore = create(
@@ -262,13 +261,13 @@ export const useAirdropStore = create(
       reset: (address) => {
         set({ airdrops: _.omit(get().airdrops, address) });
       },
-      update: (proposalAddress, key,  value) => {
+      update: (proposalAddress, values) => {
         set({
           airdrops: {
             ...get().airdrops,
             [proposalAddress]: {
               ...get().airdrops[proposalAddress],
-              [key]: value,
+              ...values,
             },
           },
         });

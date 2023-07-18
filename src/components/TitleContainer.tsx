@@ -1,10 +1,10 @@
 import { Box, Fade, styled, Typography } from "@mui/material";
-import React from "react";
+import React, { ReactNode } from "react";
 import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
 
 interface Props {
   headerComponent?: React.ReactNode;
-  title: string;
+  title: ReactNode;
   children: React.ReactNode;
   className?: string;
 }

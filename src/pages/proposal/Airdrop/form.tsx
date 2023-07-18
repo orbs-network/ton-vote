@@ -3,7 +3,7 @@ import { Img } from "components";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useAssetMetadataQuery } from "query/getters";
 import { useMemo } from "react";
-import { FormArgs } from "types";
+import { FormArgs, InputArgs } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
 
@@ -11,14 +11,14 @@ export const names = {
   walletsAmount: "walletsAmount",
   assetAmount: "assetAmount",
   address: "address",
-  type: 'type'
+  type: "type",
 };
 
 export interface AirdropForm {
   walletsAmount?: number;
   assetAmount?: number;
   address?: string;
-  type?: 'nft' | 'jetton';
+  type?: "nft" | "jetton";
 }
 
 export function AirdropAssetImg({ address }: { address?: string }) {
@@ -36,51 +36,88 @@ const StyledImg = styled(Img)({
 
 export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
   return useMemo(() => {
+    let inputs: InputArgs<AirdropForm>[] = [
+      {
+        name: names.type,
+        label: "Asset type (Jetton/NFT)",
+        placeholder: "Select",
+        type: "select",
+        required: true,
+        selectOptions: [
+          { value: "nft", text: "NFT" },
+          { value: "jetton", text: "Jetton" },
+        ],
+      },
+      {
+        name: names.walletsAmount,
+        label: "Voters amount",
+        type: "number",
+        required: true,
+      },
+    ];
+
+    const jettonsInputs: InputArgs<AirdropForm>[] = [
+      {
+        name: names.address,
+        label: "Jetton address",
+        type: "text",
+        required: true,
+        EndAdornment: () => <AirdropAssetImg address={values.address} />,
+      },
+      {
+        name: names.assetAmount,
+        label: "Amount of Jetton to airdrop",
+        type: "number",
+        required: true,
+      },
+    ];
+
+    if (values.type === "jetton") {
+      inputs = [...inputs, ...jettonsInputs];
+    }
     return {
       title: "",
-
-      inputs: [
-        {
-          name: names.type,
-          label: "Wallets amount",
-          type: "number",
-          required: true,
-        },
-        {
-          name: names.walletsAmount,
-          label: "Wallets amount",
-          type: "number",
-          required: true,
-        },
-        {
-          name: names.assetAmount,
-          label: "Amount of Jetton/NFT",
-          type: "number",
-          required: true,
-        },
-        {
-          name: names.address,
-          label: "Jetton/NFT address",
-          type: "text",
-          required: true,
-          EndAdornment: () => <AirdropAssetImg address={values.address} />,
-        },
-      ],
+      inputs,
     };
-  }, [values.address]);
+  }, [values.address, values.type]);
 };
 
 export const useFormSchema = () => {
   const commonTranslations = useCommonTranslations();
   return Yup.object().shape({
+    [names.type]: Yup.string().required(
+      commonTranslations.isRequired("Asset type")
+    ),
     [names.walletsAmount]: Yup.string().required(
-      commonTranslations.isRequired("Wallets amount")
+      commonTranslations.isRequired("Voters amount")
     ),
-    [names.assetAmount]: Yup.string().required(
-      commonTranslations.isRequired("Amount of Jetton/NFT")
-    ),
+
     [names.address]: Yup.string()
-      .required(commonTranslations.isRequired("address"))
-      .test("", "Invalid address", validateAddress),
+      .test(
+        "",
+        commonTranslations.isRequired("Jetton address"),
+        (value, context) => {
+          if (context.parent.type === "jetton") {
+            return !!value;
+          }
+          return true;
+        }
+      )
+      .test("", "Invalid address", (value, context) => {
+        if (context.parent.type === "jetton") {
+          return validateAddress(value);
+        }
+        return validateAddress(value);
+      }),
+    [names.assetAmount]: Yup.string().test(
+      "",
+      commonTranslations.isRequired("Jetton amount to airdrop"),
+      (value, context) => {
+        if (context.parent.type === "jetton") {
+          return !!value;
+        }
+        return true;
+      }
+    ),
   });
 };

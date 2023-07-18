@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { StyledFlexRow } from "styles";
 import { HiMagnifyingGlass } from "react-icons/hi2";
 import { Container } from "./Container";
-import { Select } from "./Select";
 import { SelectOption } from "types";
 import _ from "lodash";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { Select } from "./inputs/Inputs";
 
 export function Search({
   className = "",

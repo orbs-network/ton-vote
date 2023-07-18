@@ -244,6 +244,7 @@ export const StyledCreateAbout = styled(Typography)({
 
 export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   position: "relative",
+
   ".MuiInputBase-root": {
     borderRadius: 30,
   },
@@ -253,7 +254,10 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   ".MuiSelect-select": {
     minWidth: 200,
     padding: "8px 15px 8px 15px",
-    border: `1px solid ${getBorderColor(theme.palette.mode)}`,
+    border:
+      theme.palette.mode === "light"
+        ? "1px solid rgba(0, 0, 0, 0.23)"
+        : `1px solid rgba(255, 255, 255, 0.23)`,
     borderRadius: `30px!important`,
     transition: "0.2s all",
     "&:hover": {

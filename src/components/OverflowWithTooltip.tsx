@@ -9,10 +9,12 @@ export function OverflowWithTooltip({
   text = "",
   className = "",
   placement,
+  hideTooltip,
 }: {
   text?: string;
   className?: string;
   placement?: TooltipPlacement;
+  hideTooltip?: boolean;
 }) {
   const textRef = useRef<any>();
   const parentRef = useRef<any>();
@@ -20,21 +22,21 @@ export function OverflowWithTooltip({
 
   useEffect(() => {
     if (textRef && textRef.current) {
-      if (
-        textRef.current.clientWidth >
-        parentRef.current.clientWidth
-      ) {
+      if (textRef.current.clientWidth > parentRef.current.clientWidth) {
         setShow(true);
       }
     }
   }, []);
 
   return (
-    <StyledContainer ref={parentRef} className='overflow-with-tooltip'>
+    <StyledContainer ref={parentRef} className="overflow-with-tooltip">
       <StyledPlaceholder ref={textRef}>
         <Typography className={className}>{text}</Typography>
       </StyledPlaceholder>
-      <StyledTooltip placement={placement} text={show ? text : undefined}>
+      <StyledTooltip
+        placement={placement}
+        text={hideTooltip ? undefined :  show ? text : undefined}
+      >
         <Typography className={className}>
           <TextOverflow text={text} />
         </Typography>

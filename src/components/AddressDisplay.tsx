@@ -12,6 +12,7 @@ export function AddressDisplay({
   padding = 5,
   full,
   customUrl,
+  hideTooltip,
 }: {
   displayText?: string;
   address?: string;
@@ -19,6 +20,7 @@ export function AddressDisplay({
   padding?: number;
   full?: boolean;
   customUrl?: string;
+  hideTooltip?: boolean;
 }) {
   const [_, copy] = useCopyToClipboard();
   const theme = useTheme();
@@ -37,6 +39,7 @@ export function AddressDisplay({
     <StyledContainer className={className} justifyContent="flex-start">
       <StyledButton onClick={onLinkClick} className="address-display-btn">
         <OverflowWithTooltip
+          hideTooltip={hideTooltip}
           text={
             full ? address : displayText || makeElipsisAddress(address, padding)
           }

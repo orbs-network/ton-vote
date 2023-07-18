@@ -4,6 +4,10 @@ import {
   Checkbox,
   IconButton,
   TextField,
+  Select as MuiSelect,
+  useTheme,
+  SelectChangeEvent,
+  MenuItem,
 } from "@mui/material";
 import React, {
   ReactElement,
@@ -13,7 +17,12 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { StyledCreateAbout, StyledFlexColumn, StyledFlexRow } from "styles";
+import {
+  StyledCreateAbout,
+  StyledFlexColumn,
+  StyledFlexRow,
+  StyledSelectContainer,
+} from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
 import { BsFillTrash3Fill, BsUpload } from "react-icons/bs";
@@ -21,7 +30,7 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { FormArgs, InputArgs } from "types";
+import { FormArgs, InputArgs, SelectOption } from "types";
 import { FormikProps } from "formik";
 import { AppTooltip } from "../Tooltip";
 import _, { String } from "lodash";
@@ -52,6 +61,7 @@ import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import moment, { Moment, utc } from "moment";
 import { useMobile } from "hooks/hooks";
+import { MdKeyboardArrowDown } from "react-icons/md";
 
 interface TextInputProps {
   value?: string | number;
@@ -379,7 +389,6 @@ export function MapInput<T>({
         min={args.min}
         max={args.max}
         value={value as any}
-     
       />
     );
   }
@@ -424,6 +433,19 @@ export function MapInput<T>({
       />
     );
   }
+  if (args.type === "select") {
+    return (
+      <Select
+        title={label}
+        options={args.selectOptions || []}
+        selected={value || ""}
+        onSelect={onChange}
+        tooltip={args.tooltip}
+        required={args.required}
+        error={error}
+      />
+    );
+  }
 
   if (
     args.type === "text" ||
@@ -459,11 +481,6 @@ export function MapInput<T>({
   return null;
 }
 
-
-
-
-
-
 export const CheckboxInput = ({
   title,
   onChange,
@@ -490,7 +507,7 @@ export const CheckboxInput = ({
 
 const StyledCheckBoxTitle = styled(Title)({
   width: "unset",
-  marginRight: 10
+  marginRight: 10,
 });
 
 const StycheckBoxInput = styled(StyledFlexRow)({});
@@ -595,7 +612,7 @@ export function FormikInputsForm<T>({
   formik,
   customInputHandler,
   children,
-  className = ''
+  className = "",
 }: FormikInputsFormProps<T>) {
   const _form = _.isArray(form) ? form : [form];
   const mobile = useMobile();
@@ -750,4 +767,72 @@ export const NumberInput = ({
   );
 };
 
+interface SelectProps {
+  options: SelectOption[];
+  selected: string;
+  onSelect: (value: string) => void;
+  className?: string;
+  title?: string;
+  required?: boolean;
+  tooltip?: string;
+  error?: string;
+}
 
+export function Select({
+  options,
+  selected,
+  onSelect,
+  className = "",
+  title,
+  required,
+  tooltip,
+  error,
+}: SelectProps) {
+  const handleChange = (event: SelectChangeEvent) => {
+    onSelect(event.target.value);
+  };
+
+  const theme = useTheme();
+
+  return (
+    <StyledSelectContainer className={`select-box ${className}`}>
+      <InputHeader title={title} required={required} tooltip={tooltip} />
+      <MuiSelect
+        MenuProps={{
+          disableAutoFocusItem: true,
+          PaperProps: {
+            style: {
+              borderRadius: 10,
+              border:
+                theme.palette.mode === "light"
+                  ? "1px solid #e0e0e0"
+                  : "1px solid #424242",
+              boxShadow:
+                theme.palette.mode === "light"
+                  ? "rgb(114 138 150 / 8%) 0px 2px 16px"
+                  : "unset",
+            },
+          },
+        }}
+        defaultValue = ""
+        IconComponent={MdKeyboardArrowDown}
+        value={selected}
+        onChange={handleChange}
+      >
+        {options.map((option) => {
+          return (
+            <MenuItem key={option.value} value={option.value}>
+              {option.text}
+            </MenuItem>
+          );
+        })}
+      </MuiSelect>
+      {error && (
+        <StyledError>
+          <RiErrorWarningLine />
+          <Typography>{error}</Typography>
+        </StyledError>
+      )}
+    </StyledSelectContainer>
+  );
+}

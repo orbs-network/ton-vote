@@ -459,7 +459,7 @@ export const useIsNftProposal = (proposalAddress: string) => {
 
 
 
-export const useFormatNumber = (value: number, decimalScale = 2) => {
+export const useFormatNumber = (value?: number, decimalScale = 2) => {
   const result = useNumericFormat({
     allowLeadingZeros: true,
     thousandSeparator: ",",

@@ -115,6 +115,7 @@ export interface InputArgs<T> {
   EndAdornment?: FormikInputEndAdorment<T>;
   text?: string;
   style?: CSSProperties;
+  selectOptions?: SelectOption[];
 }
 
 export type FormikInputEndAdorment<T> = FunctionComponent<{
