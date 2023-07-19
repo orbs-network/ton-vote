@@ -110,13 +110,13 @@ export const useTransferJetton = () => {
       }
       const clientV2 = await getClientV2();
 
-      return transferJettons(
-        clientV2,
-        tonconnect,
-        toNano(amountPerWallet),
-        jettonAddress,
-        nextVoter
-      );
+      // return transferJettons(
+      //   clientV2,
+      //   tonconnect,
+      //   toNano(amountPerWallet),
+      //   jettonAddress,
+      //   nextVoter
+      // );
     },
     {
       onSuccess: async (args) => {
@@ -141,7 +141,7 @@ export const useTransferNFT = () => {
   return useMutation(
     async (nftAddress: string) => {
       const clientV2 = await getClientV2();
-      return transferNft(clientV2, tonconnect, nftAddress, nextVoter);
+      // return transferNft(clientV2, tonconnect, nftAddress, nextVoter);
     },
     {
       onSuccess: () => {

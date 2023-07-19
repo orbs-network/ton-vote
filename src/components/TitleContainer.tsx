@@ -46,7 +46,8 @@ const StyledTitleContainer = styled(StyledContainer)({
   padding: 0,
   ".title-container-children": {
     padding: "20px",
-    width:'100%'
+    width:'100%',
+    position:'relative',
   },
 });
 

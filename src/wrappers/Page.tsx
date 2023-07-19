@@ -1,5 +1,5 @@
 import { Fade, styled, Typography } from "@mui/material";
-import { Back } from "components";
+import { Back, ErrorContainer } from "components";
 import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { PageProps } from "types";
@@ -12,12 +12,22 @@ function Page({
   hideBack = false,
   backFunc,
   title,
+  error,
+  errorText = 'Something went wrong',
 }: PageProps) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   const hideTop = !title && !headerComponent && hideBack;
+
+  if (error) {
+    return (
+      <StyledContainer className={className}>
+        <ErrorContainer text={errorText} />
+      </StyledContainer>
+    );
+  }
 
   return (
     <StyledContainer className={className}>
@@ -40,7 +50,7 @@ export { Page };
 
 const StyledTitle = styled(Typography)({
   fontWeight: 600,
-  fontSize: 24,
+  fontSize: 20,
 });
 
 const StyledTop = styled(StyledFlexRow)({

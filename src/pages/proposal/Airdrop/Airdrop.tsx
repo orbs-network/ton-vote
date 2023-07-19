@@ -3,7 +3,7 @@ import { useAppParams } from "hooks/hooks";
 import _ from "lodash";
 import { Page } from "wrappers";
 import { appNavigation } from "router/navigation";
-import { Form } from "./AirdropForm";
+import { CreateAirdropForm } from "./CreateAirdropForm";
 import { ActiveAirdrop } from "./ActiveAirdrop";
 import { useAirdrop } from "./hooks";
 
@@ -12,14 +12,15 @@ export function Airdrop() {
   const { airdropExist } = useAirdrop();
   return (
     <StyledPage
+    title="Airdrop"
       back={appNavigation.proposalPage.root(daoAddress, proposalAddress)}
     >
-      {!airdropExist ? <Form /> : <ActiveAirdrop />}
+      {!airdropExist ? <CreateAirdropForm /> : <ActiveAirdrop />}
     </StyledPage>
   );
 }
 const StyledPage = styled(Page)({
-  maxWidth: 800,
+  maxWidth: 700,
   marginLeft: "auto",
   marginRight: "auto",
 });

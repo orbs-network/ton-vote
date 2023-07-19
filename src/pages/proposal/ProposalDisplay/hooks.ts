@@ -1,13 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
-import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
+import {
+  useAppParams,
+  useIsOneWalletOneVote,
+  useProposalStatus,
+} from "hooks/hooks";
 import _ from "lodash";
 import { Logger } from "utils";
-import { useEnpointsStore } from "./store";
+import { useEnpointsStore } from "../store";
+import { getClientV2, getClientV4 } from "ton-vote-contracts-sdk";
 import {
-  getClientV2,
-  getClientV4,
-} from "ton-vote-contracts-sdk";
-import { Endpoints, Proposal, ProposalResults, Vote } from "types";
+  Endpoints,
+  Proposal,
+  ProposalResults,
+  ProposalStatus,
+  Vote,
+} from "types";
 import { contract } from "contract";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { usePromiseToast } from "toasts";
@@ -100,7 +107,6 @@ export const useVerifyProposalResults = () => {
   );
 };
 
-
 export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
   const walletAddress = useTonAddress();
   return useMemo(() => {
@@ -150,4 +156,50 @@ export const useCsvData = () => {
     );
     return values;
   }, [dataUpdatedAt]);
+};
+
+export const useShowComponents = () => {
+  const { proposalAddress } = useAppParams();
+  const isLoading = useProposalQuery(proposalAddress).isLoading;
+
+  const { proposalStatus } = useProposalStatus(proposalAddress);
+
+  const votes = useMemo(() => {
+    if (!proposalStatus || proposalStatus === ProposalStatus.NOT_STARTED) {
+      return false;
+    }
+    return true;
+  }, [proposalStatus]);
+
+  const vote = useMemo(() => {
+    if (
+      !proposalStatus ||
+      proposalStatus !== ProposalStatus.ACTIVE ||
+      isLoading
+    ) {
+      return false;
+    }
+    return true;
+  }, [proposalStatus, isLoading]);
+
+  const deadline = useMemo(() => {
+    if (!proposalStatus || proposalStatus === ProposalStatus.CLOSED) {
+      return false;
+    }
+    return true;
+  }, [proposalStatus]);
+
+  const results = useMemo(() => {
+    if (!proposalStatus || proposalStatus === ProposalStatus.NOT_STARTED) {
+      return false;
+    }
+    return true;
+  }, [proposalStatus]);
+
+  return {
+    votes,
+    vote,
+    deadline,
+    results,
+  };
 };

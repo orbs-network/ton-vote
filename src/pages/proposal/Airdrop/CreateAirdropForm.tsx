@@ -13,7 +13,7 @@ import { validateFormik } from "utils";
 import { AirdropForm, useForm, useFormSchema } from "./form";
 import { useAirdrop, useCreateAirdrop } from "./hooks";
 
-export const Form = () => {
+export const CreateAirdropForm = () => {
   const { mutate, isLoading } = useCreateAirdrop();
   const { amount, jettonAddress, type, votersCount } = useAirdrop();
 
@@ -40,7 +40,7 @@ export const Form = () => {
   };
 
   return (
-    <TitleContainer title="Airdrop">
+    <TitleContainer title="Create airdrop">
       <StyledForm>
         <FormikInputsForm<AirdropForm> form={form} formik={formik}>
           <StyledAction>
@@ -72,8 +72,12 @@ const ActionButton = ({
 
 const StyledForm = styled(StyledFlexColumn)({
   ".select-box": {
+    ".MuiInputBase-root": {
+      width: "100%",
+    },
     ".MuiSelect-select": {
-      borderRadius: '10px!important',
+      borderRadius: "10px!important",
+      width: "100%",
     },
   },
   ".formik-form": {

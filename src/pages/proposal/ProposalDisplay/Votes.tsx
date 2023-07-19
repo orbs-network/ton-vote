@@ -22,7 +22,7 @@ import { CSVLink } from "react-csv";
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useCsvData, useWalletVote } from "../hooks";
+import { useCsvData, useShowComponents, useWalletVote } from "./hooks";
 import {
   useAppParams,
   useGetProposalSymbol,
@@ -44,7 +44,9 @@ const ContainerHeader = () => {
   }, [totalTonAmount]);
   const symbol = useGetProposalSymbol(proposalAddress);
   const hideSymbol = isNftProposal || isOneWalletOneVote;
+  const show = useShowComponents().votes;
 
+  if (!show) return null;
   return (
     <StyledContainerHeader>
       <StyledChip
@@ -173,7 +175,6 @@ const DownloadCSV = () => {
   const { data } = useProposalQuery(proposalAddress);
   const csvData = useCsvData();
   const translations = useProposalPageTranslations();
-  
 
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>

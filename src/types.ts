@@ -180,6 +180,8 @@ export type PageProps = {
   isProtected?: boolean;
   backFunc?: () => void;
   title?: string;
+  error?: boolean;
+  errorText?: string;
 };
 
 

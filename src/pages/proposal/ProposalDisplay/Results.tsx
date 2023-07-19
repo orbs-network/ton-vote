@@ -14,7 +14,7 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { nFormatter } from "utils";
 import _ from "lodash";
-import {  useVerifyProposalResults } from "../hooks";
+import {  useShowComponents, useVerifyProposalResults } from "./hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";
@@ -35,11 +35,13 @@ export const Results = () => {
   const hideVerify = shouldHideVerify(proposalAddress);
   
   const results = useProposalResults(proposalAddress);
+  const show = useShowComponents().results;
 
 
-  if (isLoading) {
-    return <LoadingContainer />;
-  }
+  if (!show) return null;
+    if (isLoading) {
+      return <LoadingContainer />;
+    }
 
   return (
     <StyledResults title={translations.results}>

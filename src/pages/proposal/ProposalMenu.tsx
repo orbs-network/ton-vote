@@ -10,7 +10,7 @@ const Edit = () => {
   return <Option text="Edit Proposal" path="edit" />;
 };
 const Airdrop = () => {
-  return <Option text="Airdrop" path="airdrop" />;
+  return <Option text="New airdrop" path="airdrop" />;
 };
 
 const Option = ({ text, path }: { text: string; path: string }) => {
