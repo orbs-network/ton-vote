@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { FormikProps } from "formik";
-import { CSSProperties, FunctionComponent, ReactElement, ReactNode } from "react";
+import { CSSProperties, FC, FunctionComponent, ReactElement, ReactNode } from "react";
 import { Address, Transaction } from "ton";
 import {
   DaoRoles,
@@ -53,7 +53,8 @@ export enum ProposalStatus {
 
 export interface SelectOption {
   text: string;
-  value: string;
+  value: string | number;
+  data?: any
 }
 
 
@@ -208,3 +209,11 @@ export interface StrategyOption<T> {
 
 
 export type ProposalHidePopupVariant = "hide" | "changed-to-hide" | "changed-to-show" | undefined;
+
+
+
+export interface StepsMenuStep {
+  title?: string;
+  editable?: boolean;
+  component: FC
+}

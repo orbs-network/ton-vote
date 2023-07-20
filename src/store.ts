@@ -240,41 +240,85 @@ export const useErrorStore = create<ErrorStore>((set, get) => ({
   setProposalError: (proposalError) => set({ proposalError }),
 }));
 
-export interface AirdropInterface {
-  wallets?: string[];
+interface AirdropInit {
+  voters: string[];
+  jettonAddress: string;
+  jettonsAmount: number;
+  type: "jetton" | "nft";
+  votersSelectionMethod: number;
+}
+
+interface AirdropStore {
+  reset: () => void;
+  setDaos: (daos: string[]) => void;
+  setProposals: (proposals: string[]) => void;
+  setStep: (step: number) => void;
+  initAirdrop: (values: AirdropInit) => void;
+  incrementCurrentWalletIndex: () => void;
+  deleteProposal: (proposal: string) => void;
+  setVoters: (voters: string[]) => void;
+  nextStep: () => void;
+  voters?: string[];
   currentWalletIndex?: number;
   jettonAddress?: string;
   jettonsAmount?: number;
   type?: "jetton" | "nft";
+  daos?: string[];
+  proposals?: string[];
+  step?: number;
+  votersSelectionMethod?: number;
 }
 
-interface AirdropStore {
-  update: (proposalAddress: string, values: Partial<AirdropInterface>) => void;
-  reset: (address: string) => void;
-  airdrops: { [key: string]: AirdropInterface | undefined };
-}
+const initialAirdropValues = {
+  votersSelectionMethod: undefined,
+  type: undefined,
+  jettonsAmount: undefined,
+  jettonAddress: "",
+  voters: [],
+  currentWalletIndex: 0,
+  daos: [],
+  proposals: [],
+  step: 0,
+};
 
 export const useAirdropStore = create(
   persist<AirdropStore>(
     (set, get) => ({
-      airdrops: {},
-      reset: (address) => {
-        set({ airdrops: _.omit(get().airdrops, address) });
+      nextStep: () => {
+        const step = get().step || 0;
+        set({ step: step + 1 });
       },
-      update: (proposalAddress, values) => {
-        set({
-          airdrops: {
-            ...get().airdrops,
-            [proposalAddress]: {
-              ...get().airdrops[proposalAddress],
-              ...values,
-            },
-          },
-        });
+      setVoters: (voters) => {
+        set({ voters });
       },
+      deleteProposal: (proposal) => {
+        const proposals = get().proposals || [];
+        set({ proposals: _.without(proposals, proposal) });
+      },
+      ...initialAirdropValues,
+      initAirdrop: (values) => {
+        set({ ...values });
+      },
+      incrementCurrentWalletIndex: () => {
+        const index = get().currentWalletIndex || 0;
+        set({ currentWalletIndex: index + 1 });
+      },
+      setStep: (step) => {
+        set({ step });
+      },
+      setProposals: (proposals) => {
+        set({ proposals });
+      },
+      setDaos: (daos) => {
+        if (!_.size(daos) || !_.isEqual(daos, get().daos)) {
+          set({ proposals: [] });
+        }
+        set({ daos });
+      },
+      reset: () => set(initialAirdropValues),
     }),
     {
-      name: "airdrops",
+      name: "airdrop",
     }
   )
 );

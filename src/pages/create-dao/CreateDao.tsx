@@ -1,49 +1,51 @@
-import { Box, styled } from "@mui/material";
-import { CreateDaoMenu } from "./CreateDaoMenu";
-import { MOBILE_WIDTH, routes } from "consts";
-import { StyledFlexRow } from "styles";
-import { useSteps } from "./steps";
+import { routes } from "consts";
 import { useCreatDaoStore } from "./store";
-import Confirmation from "./Confirmation";
-import {Page } from "wrappers";
+import { Page } from "wrappers";
+import { StepsLayout } from "components";
+import { StepsMenuStep } from "types";
+import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
+import { GettingStartedStep } from "./steps/GettingStartedStep";
+import { CreateMetadataStep } from "./steps/CreateMetadataStep";
+import { SetRolesStep } from "./steps/SetRolesStep";
+import { CreateDaoStep } from "./steps/CreateDaoStep";
 
-const SelectedStep = () => {
-  const steps = useSteps();
-  const step = useCreatDaoStore((store) => store.step);
-  const Component = steps[step].component;
-  return (
-    <StyledStep>
-      <Component />
-      <Confirmation />
-    </StyledStep>
-  );
+export const useSteps = (): StepsMenuStep[] => {
+  const translations = useCreateDaoTranslations();
+  return [
+    {
+      title: translations.gettingStarted,
+      component: GettingStartedStep,
+    },
+    {
+      title: translations.spaceMetadata,
+      component: CreateMetadataStep,
+      editable: true,
+    },
+    {
+      title: translations.stage,
+      component: SetRolesStep,
+      editable: true,
+    },
+    {
+      title: translations.createSpace,
+      component: CreateDaoStep,
+    },
+  ];
 };
 
 export function CreateDao() {
+  const { step: currentStep, setStep, setEditMode } = useCreatDaoStore();
+  const steps = useSteps();
   return (
     <Page back={routes.spaces}>
-      <StyledContainer>
-        <CreateDaoMenu />
-        <SelectedStep />
-      </StyledContainer>
+      <StepsLayout
+        steps={steps}
+        currentStep={currentStep}
+        setStep={setStep}
+        onEdit={() => setEditMode(true)}
+      />
     </Page>
   );
 }
 
-
 export default CreateDao;
-
-const StyledStep = styled(Box)({
-  flex: 1,
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    width: "100%",
-  },
-});
-const StyledContainer = styled(StyledFlexRow)({
-  gap: 20,
-  alignItems: "flex-start",
-  width: "100%",
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    flexDirection: "column",
-  },
-});

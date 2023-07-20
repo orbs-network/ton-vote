@@ -314,13 +314,18 @@ interface ProposalQueryArgs {
   isCustomEndpoint?: boolean;
 }
 
-const useGetProposalWithFallback = (proposalAddress: string) => {
+const useGetProposalWithFallback = () => {
   const analytics = useAnalytics();
   const queryClient = useQueryClient();
   const { getProposalUpdateMillis, removeProposalUpdateMillis } =
     useSyncStore();
 
-  return async (key: QueryKey, maxLt?: string, signal?: AbortSignal) => {
+  return async (
+    key: QueryKey,
+    proposalAddress: string,
+    maxLt?: string,
+    signal?: AbortSignal
+  ) => {
     const getProposalFromContract = () =>
       contract.getProposal({ proposalAddress, maxLt });
 
@@ -375,8 +380,20 @@ const useGetProposalWithFallback = (proposalAddress: string) => {
   };
 };
 
+export const useEnsureProposalQuery = () => {
+  const queryClient = useQueryClient();
+  const getProposalWithFallback = useGetProposalWithFallback();
+
+  return (proposalAddress: string) => {
+    const key = [QueryKeys.PROPOSAL, proposalAddress];
+    return queryClient.ensureQueryData(key, () =>
+      getProposalWithFallback(key, proposalAddress)
+    );
+  };
+};
+
 export const useProposalQuery = (
-  proposalAddress: string,
+  proposalAddress?: string,
   args?: ProposalQueryArgs
 ) => {
   const clients = useGetClients().data;
@@ -389,7 +406,7 @@ export const useProposalQuery = (
   const [error, setError] = useState(false);
   const route = useCurrentRoute();
 
-  const getProposalWithFallback = useGetProposalWithFallback(proposalAddress);
+  const getProposalWithFallback = useGetProposalWithFallback();
 
   const config = useMemo(() => {
     return {
@@ -431,7 +448,12 @@ export const useProposalQuery = (
 
       const maxLt = maxLtAfterVote || currentProposal?.maxLt;
 
-      const proposal = await getProposalWithFallback(key, maxLt, signal);
+      const proposal = await getProposalWithFallback(
+        key,
+        proposalAddress!,
+        maxLt,
+        signal
+      );
 
       if (!proposal) {
         // proposal not found in cache, throw error
@@ -472,6 +494,7 @@ export const useProposalQuery = (
         ...proposal,
         proposalResult: persistedResult,
         votes: [persistedVote, ...filteredVotes],
+        enabled: !!proposalAddress,
       };
     },
     {
@@ -519,7 +542,7 @@ export const useAssetMetadataQuery = (assetAddress?: string) => {
     {
       enabled: !!clientV2 && !!assetAddress && validateAddress(assetAddress),
       staleTime: Infinity,
-      refetchInterval: undefined
+      refetchInterval: undefined,
     }
   );
 };

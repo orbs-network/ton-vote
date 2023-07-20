@@ -26,6 +26,11 @@ export function Toolbar() {
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
+        <AppTooltip text="Airdrop" placement="right">
+          <StyledButton onClick={navigation.airdrop} variant="transparent">
+            <AiOutlinePlus />
+          </StyledButton>
+        </AppTooltip>
         <AppTooltip text="Create a new space for your DAO" placement="right">
           <StyledButton
             onClick={() =>
@@ -39,6 +44,7 @@ export function Toolbar() {
           </StyledButton>
         </AppTooltip>
       </StyledFlexColumn>
+
       <UserDaos />
       <StyledSupportTooltip placement="right" text="Telegram support group">
         <StyledSupport

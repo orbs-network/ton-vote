@@ -1,4 +1,4 @@
-import { Chip, CircularProgress, styled, Typography } from "@mui/material";
+import { CircularProgress, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
   AppTooltip,
@@ -13,24 +13,26 @@ import { useDebounce, useFormatNumber } from "hooks/hooks";
 import _ from "lodash";
 import { useAssetMetadataQuery } from "query/getters";
 import { useEffect, useMemo, useState } from "react";
-import { CSVLink } from "react-csv";
-import { BsCheckCircle, BsFillCheckCircleFill } from "react-icons/bs";
+import { BsFillCheckCircleFill } from "react-icons/bs";
+import { useAirdropStore } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-import { errorToast } from "toasts";
-import { validateAddress } from "utils";
-import { useAirdrop, useTransferJetton, useTransferNFT } from "./hooks";
+
+import {
+  useAmount,
+  useAmountPerWallet,
+  useNextVoter,
+  useTransferJetton,
+  useTransferNFT,
+} from "./hooks";
 import { StyledButton } from "./styles";
 
 export const ActiveAirdrop = () => {
-  const { type } = useAirdrop();
+  const { type } = useAirdropStore();
 
   return (
     <StyledContainer>
       <StyledFlexColumn gap={20}>
-        <TitleContainer
-          title="Airdrop details"
-          headerComponent={<ResetButton />}
-        >
+        <TitleContainer title="Airdrop details">
           {type === "nft" ? <NFTDetails /> : <JettonDetails />}
         </TitleContainer>
 
@@ -40,121 +42,16 @@ export const ActiveAirdrop = () => {
   );
 };
 
-const ResetButton = () => {
-  const { reset, finished } = useAirdrop();
-  const [open, setOpen] = useState(false);
-
-  if (finished) {
-    return <StyledResetButton onClick={reset}>New airdrop</StyledResetButton>;
-  }
-  return (
-    <>
-      <StyledResetButton onClick={() => setOpen(true)}>Reset</StyledResetButton>
-      <StyledWarningPopup
-        open={open}
-        onClose={() => setOpen(false)}
-        title="Reset airdrop"
-      >
-        <StyledFlexColumn alignItems="flex-start" gap={20}>
-          <Typography>Proceeding will delete the current airdrop</Typography>
-          <StyledFlexRow>
-            <StyledPopupButton onClick={() => setOpen(false)}>
-              No
-            </StyledPopupButton>
-            <StyledPopupButton onClick={reset}>Yes</StyledPopupButton>
-          </StyledFlexRow>
-        </StyledFlexColumn>
-      </StyledWarningPopup>
-    </>
-  );
-};
-
-const JettonFinished = () => {
-  const { voters, votersCount, amountPerWallet, jettonAddress, amount } =
-    useAirdrop();
-
-  const { data, isLoading } = useAssetMetadataQuery(jettonAddress);
-  const amountPerWalletUI = useFormatNumber(amountPerWallet);
-  const amountUI = useFormatNumber(amount);
-
-  const symbol = data?.metadata?.symbol;
-
-  const csv = useMemo(() => {
-    if (!amountPerWalletUI || !symbol) return [];
-    const result = voters.map((it) => {
-      return [it, `${amountPerWalletUI} ${symbol}`];
-    });
-
-    return [["address", "jettons"], ...result];
-  }, [votersCount, amountPerWalletUI, symbol]);
-
-  if (isLoading) {
-    return (
-      <StyledFlexColumn>
-        <StyledSkeletonLoader />
-        <StyledSkeletonLoader />
-        <StyledSkeletonLoader />
-      </StyledFlexColumn>
-    );
-  }
-  return (
-    <FinishedLayout
-      csv={csv}
-      text={`Successfully sent ${amountUI} ${symbol} to ${votersCount} voters`}
-      filename={`${symbol} airdrop`}
-    />
-  );
-};
-
-const NFTFinished = () => {
-  const { voters, votersCount } = useAirdrop();
-
-  const csv = useMemo(() => {
-    const result = voters.map((it) => {
-      return [it];
-    });
-
-    return [["address"], ...result];
-  }, [votersCount]);
-
-  return (
-    <FinishedLayout
-      csv={csv}
-      text="Succesfully sent NFT to all voters"
-      filename="Airdrop"
-    />
-  );
-};
-
-interface FinishedProps {
-  csv: any;
-  filename: string;
-  text: string;
-}
-
-const FinishedLayout = ({ csv, filename, text }: FinishedProps) => {
-  return (
-    <StyledFinished>
-      <BsCheckCircle />
-      <StyledFlexColumn>
-        <Typography variant="h3">Congratulations!</Typography>
-        <Typography className="text">{text}</Typography>
-      </StyledFlexColumn>
-      <CSVLink data={csv} filename={filename}>
-        <StyledButton>Download CSV</StyledButton>
-      </CSVLink>
-    </StyledFinished>
-  );
-};
-
 const Voters = () => {
-  const { voters, currentWalletIndex, votersCount } = useAirdrop();
+  const { voters, currentWalletIndex = 0 } = useAirdropStore();
 
   const [open, setOpen] = useState(false);
 
   return (
     <StyledFlexRow justifyContent="flex-start">
-      <Typography>{`${currentWalletIndex} / ${votersCount} sent`} </Typography>
+      <Typography>
+        {`${currentWalletIndex} / ${_.size(voters)} sent`}{" "}
+      </Typography>
       <StyledShowAll onClick={() => setOpen(true)}>
         Show all voters
       </StyledShowAll>
@@ -164,7 +61,7 @@ const Voters = () => {
         title="Airdrop Wallets"
       >
         <StyledList>
-          {voters.map((it, index) => {
+          {voters?.map((it, index) => {
             return (
               <StyledListItem key={it}>
                 <StyledAddressDisplay hideTooltip={true} full address={it} />
@@ -183,7 +80,8 @@ const Voters = () => {
 };
 
 const JettonDetails = () => {
-  const { jettonAddress, amountPerWallet, finished } = useAirdrop();
+  const { jettonAddress } = useAirdropStore();
+  const { amountPerWallet } = useAmountPerWallet();
   const { data, isLoading: assetLoading } =
     useAssetMetadataQuery(jettonAddress);
 
@@ -213,7 +111,8 @@ const JettonDetails = () => {
 };
 
 const JettonAction = () => {
-  const { jettonAddress, amountPerWallet, finished } = useAirdrop();
+  const { jettonAddress } = useAirdropStore();
+  const { amountPerWallet } = useAmountPerWallet();
   const { data, isLoading: assetLoading } =
     useAssetMetadataQuery(jettonAddress);
 
@@ -222,14 +121,6 @@ const JettonAction = () => {
   const symbol = data?.metadata?.symbol || "";
 
   if (assetLoading) return null;
-
-  if (finished) {
-    return (
-      <TitleContainer title={`Send ${symbol}`}>
-        <JettonFinished />
-      </TitleContainer>
-    );
-  }
 
   return (
     <TitleContainer title={`Send ${symbol}`}>
@@ -245,26 +136,29 @@ const JettonAction = () => {
 };
 
 const JettonTotalAmount = () => {
-  const { amount, jettonAddress } = useAirdrop();
+  const { jettonAddress } = useAirdropStore();
   const { data } = useAssetMetadataQuery(jettonAddress);
-  const amountUI = useFormatNumber(amount);
+
+  const { amountUI } = useAmount();
+
   return (
     <Typography>{`Total airdrop amount: ${amountUI} ${data?.metadata?.symbol}`}</Typography>
   );
 };
 
 const JettonAmountPerWallet = () => {
-  const { amountPerWallet, jettonAddress } = useAirdrop();
+  const { jettonAddress } = useAirdropStore();
   const { data } = useAssetMetadataQuery(jettonAddress);
-  const amountPerWalleUI = useFormatNumber(amountPerWallet);
+
+  const { amountPerWalletUI } = useAmountPerWallet();
 
   return (
-    <Typography>{`Each voter will receive: ${amountPerWalleUI} ${data?.metadata?.symbol}`}</Typography>
+    <Typography>{`Each voter will receive: ${amountPerWalletUI} ${data?.metadata?.symbol}`}</Typography>
   );
 };
 
 const JettonMetadata = () => {
-  const { jettonAddress } = useAirdrop();
+  const { jettonAddress } = useAirdropStore();
   const { data, isLoading: assetLoading } =
     useAssetMetadataQuery(jettonAddress);
 
@@ -280,12 +174,12 @@ const JettonMetadata = () => {
 };
 
 const Progress = () => {
-  const { votersCount, currentWalletIndex } = useAirdrop();
+  const { voters, currentWalletIndex } = useAirdropStore();
 
   const percent = useMemo(() => {
-    if (!votersCount || !currentWalletIndex) return 0;
-    return (currentWalletIndex / votersCount) * 100;
-  }, [votersCount, currentWalletIndex]);
+    if (!voters || !currentWalletIndex) return 0;
+    return (currentWalletIndex / _.size(voters)) * 100;
+  }, [_.size(voters), currentWalletIndex]);
 
   const percentUI = useFormatNumber(percent, 1);
 
@@ -312,7 +206,7 @@ const Progress = () => {
 };
 
 const NFTDetails = () => {
-  const { amount } = useAirdrop();
+  const { amount } = useAmount();
   return (
     <StyledFlow>
       <StyledFlexColumn alignItems="flex-start" gap={20}>
@@ -329,7 +223,6 @@ const NFTAction = () => {
   const { mutate, isLoading } = useTransferNFT();
   const [nftAddress, setnftAddress] = useState("");
   const [error, setError] = useState("");
-  const { finished } = useAirdrop();
 
   const onSend = () => {
     mutate(nftAddress);
@@ -341,14 +234,6 @@ const NFTAction = () => {
     //   mutate(nftAddress);
     // }
   };
-
-  if (finished) {
-    return (
-      <TitleContainer title="Send NFT">
-        <NFTFinished />
-      </TitleContainer>
-    );
-  }
 
   return (
     <TitleContainer title="Send NFT">
@@ -370,7 +255,7 @@ const NFTAction = () => {
 };
 
 const NextVoter = () => {
-  const { nextVoter } = useAirdrop();
+  const nextVoter = useNextVoter();
 
   return (
     <StyledFlexRow justifyContent="flex-start">
@@ -442,38 +327,6 @@ const StyledPopup = styled(Popup)({
 
 const StyledContainer = styled(StyledFlexColumn)({});
 
-const StyledResetButton = styled(Button)({
-  height: "auto",
-  padding: "7px 13px",
-  "*": {
-    fontSize: 14,
-  },
-});
-
-const StyledPopupButton = styled(Button)({
-  width: "50%",
-});
-
-const StyledWarningPopup = styled(Popup)({
-  maxWidth: 400,
-});
-
-const StyledFinished = styled(StyledFlexColumn)(({ theme }) => ({
-  gap: 30,
-  svg: {
-    width: 50,
-    height: 50,
-    color: theme.palette.primary.main,
-  },
-  h3: {
-    fontSize: 22,
-    fontWeight: 600,
-  },
-  ".text": {
-    fontSize: 18,
-    fontWeight: 500,
-  },
-}));
 
 const StyledSend = styled(StyledButton)({
   marginLeft: "auto",

@@ -40,6 +40,14 @@ export const useRouter = () => {
               ),
             },
             {
+              path: 'airdrop',
+              element: (
+                <Suspense fallback={<DaosPageFallback />}>
+                  <Airdrop />
+                </Suspense>
+              ),
+            },
+            {
               path: routes.createSpace,
               errorElement: <Navigate to={routes.spaces} />,
               element: (

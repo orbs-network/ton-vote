@@ -35,3 +35,4 @@ export * from "./OverflowWithTooltip";
 export * from "./VerifiedDao";
 export * from "./HiddenProposal";
 export * from "./LatestBlock";
+export * from "./StepsLayout";

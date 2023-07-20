@@ -335,6 +335,8 @@ export const DateRangeInput = ({
   );
 };
 
+
+
 export function MapInput<T>({
   args,
   value,
@@ -350,7 +352,7 @@ export function MapInput<T>({
   error?: string;
   className?: string;
   onChange: (value: any) => void;
-  customInputHandler?: (value: InputArgs<T>) => ReactElement;
+  customInputHandler?: (args: InputArgs<T>, value: any,  onChange: (value: any) => void) => ReactElement;
   clearError?: () => void;
   formik: FormikProps<T>;
 }) {
@@ -473,7 +475,7 @@ export function MapInput<T>({
     );
   }
   if (args.type === "custom" && customInputHandler) {
-    return customInputHandler(args);
+    return customInputHandler(args,value,  onChange);
   }
   if (args.type === "display-text") {
     return <StyledDisplayText>{args.text}</StyledDisplayText>;
@@ -602,7 +604,7 @@ interface FormikInputsFormProps<T> {
   form: FormArgs<T>[] | FormArgs<T>;
   formik: FormikProps<T>;
   EndAdornment?: any;
-  customInputHandler?: (value: InputArgs<T>) => ReactElement;
+  customInputHandler?: (args: InputArgs<T>, value: any,  onChange: (value: any) => void ) => ReactElement;
   children?: ReactNode;
   className?: string;
 }
@@ -776,6 +778,7 @@ interface SelectProps {
   required?: boolean;
   tooltip?: string;
   error?: string;
+  renderItem?: (option: SelectOption) => ReactNode;
 }
 
 export function Select({
@@ -787,6 +790,7 @@ export function Select({
   required,
   tooltip,
   error,
+  renderItem,
 }: SelectProps) {
   const handleChange = (event: SelectChangeEvent) => {
     onSelect(event.target.value);
@@ -802,6 +806,7 @@ export function Select({
           disableAutoFocusItem: true,
           PaperProps: {
             style: {
+              maxHeight: 300,
               borderRadius: 10,
               border:
                 theme.palette.mode === "light"
@@ -814,15 +819,15 @@ export function Select({
             },
           },
         }}
-        defaultValue = ""
+        defaultValue=""
         IconComponent={MdKeyboardArrowDown}
         value={selected}
         onChange={handleChange}
       >
-        {options.map((option) => {
+        {options.map((option, index) => {
           return (
-            <MenuItem key={option.value} value={option.value}>
-              {option.text}
+            <MenuItem key={index} value={option.value}>
+              {renderItem ? renderItem(option) : option.text}
             </MenuItem>
           );
         })}

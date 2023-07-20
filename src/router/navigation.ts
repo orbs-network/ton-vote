@@ -29,6 +29,7 @@ export const useAppNavigation = () => {
   const navigate = useNavigate();
 
   return {
+    airdrop: () =>  navigate("/airdrop"),
     daoPage: {
       root: (daoId: string) => navigate(appNavigation.daoPage.root(daoId)),
       createProposal: (daoId: string) =>
