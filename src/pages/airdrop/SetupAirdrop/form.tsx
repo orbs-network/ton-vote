@@ -1,12 +1,16 @@
 import { styled } from "@mui/material";
-import { Img } from "components";
+import { Button, Img } from "components";
+import { FormikProps, FormikValues } from "formik";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
 import { useAssetMetadataQuery } from "query/getters";
 import { useMemo } from "react";
+import { useAirdropStore } from "store";
 import { FormArgs, InputArgs } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
+import { AirdropAssetImg } from "../AirdropAssetImg";
+import { useGetAllVotersAddresses } from "../hooks";
 import { AirdropForm } from "../types";
 
 const names = {
@@ -82,18 +86,29 @@ export const useFormSchema = () => {
   });
 };
 
-function AirdropAssetImg({ address }: { address?: string }) {
-  const { data } = useAssetMetadataQuery(address);
-  if (!data) return null;
+const SelectAllVotersBtn = ({
+  formik,
+}: {
+  formik: FormikProps<AirdropForm>;
+}) => {
+  const allVotersAddresses = useGetAllVotersAddresses();
+  const onClick = async () => {
+    formik.setFieldValue(
+      names.walletsAmount,
+      _.size(await allVotersAddresses())
+    );
+  };
 
-  return <StyledImg src={data?.metadata?.image} />;
-}
+  return <StyledAllButton onClick={onClick}>Max</StyledAllButton>;
+};
 
-const StyledImg = styled(Img)({
-  width: 32,
-  height: 32,
-  borderRadius: "50%",
+const StyledAllButton = styled(Button)({
+  height: 30,
+  "*": {
+    fontSize: 14,
+  },
 });
+
 
 export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
   return useMemo(() => {
@@ -132,6 +147,7 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
       label: "Voters amount",
       type: "number",
       required: true,
+      EndAdornment: SelectAllVotersBtn,
     };
 
     const votersManualSelect: InputArgs<AirdropForm> = {
@@ -169,5 +185,10 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
       title: "",
       inputs,
     };
-  }, [values.address, values.type, values.votersSelectionMethod]);
+  }, [
+    values.address,
+    values.type,
+    values.votersSelectionMethod,
+    values.manualVoters,
+  ]);
 };

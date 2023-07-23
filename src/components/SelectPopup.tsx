@@ -1,30 +1,69 @@
-import { VariableSizeList } from "react-window";
+import { VariableSizeGrid, VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { AppTooltip } from "./Tooltip";
-import { styled, Typography } from "@mui/material";
+import { Checkbox, styled, Typography } from "@mui/material";
 import { Button } from "./Button";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import {
+  StyledContainer,
+  StyledFlexColumn,
+  StyledFlexRow,
+  StyledSkeletonLoader,
+} from "styles";
 import { Popup } from "./Popup";
 import _ from "lodash";
 import { VscChromeClose } from "react-icons/vsc";
+import { TextInput } from "./inputs/Inputs";
+import { Search } from "./Search";
 
-interface SelectPopupProps<T> {
-  data?: T[];
+interface SelectPopupProps {
+  data?: string[];
   title: string;
-  Row: (props: any) => JSX.Element | null;
   selected: string[];
   onlyOne?: boolean;
-  onSave: (selected: string[]) => void;
+  onSave?: (selected: string[]) => void;
   itemSize: number;
   disabled?: boolean;
-  selectButtonText: string;
+  buttonText: string;
   className?: string;
+  RowComponent: (props: any) => JSX.Element | null;
+  filterFn?: (value: string, search: string) => boolean;
 }
 
-function SelectPopup<T>(props: SelectPopupProps<T>) {
+const Row = ({
+  index,
+  style,
+  data: { RowComponent, onSelect, list, selected, displayOnly },
+}: any) => {
+  const value = list[index];
+
+  const isSelected = selected.includes(value);
+
+  return (
+    <StyledRow
+      style={style}
+      onClick={displayOnly ? () => {} : () => onSelect(value)}
+    >
+      <StyledRowChildren selected={isSelected ? 1 : 0}>
+        {!displayOnly && <Checkbox checked={isSelected} />}
+        <RowComponent index={index} value={value} onSelect={onSelect} />
+      </StyledRowChildren>
+    </StyledRow>
+  );
+};
+
+function SelectPopup<T>(props: SelectPopupProps) {
+  const { filterFn } = props;
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     setSelected(props.selected);
@@ -32,32 +71,37 @@ function SelectPopup<T>(props: SelectPopupProps<T>) {
 
   const onSelect = useCallback(
     (value: string) => {
-      if (props.onlyOne) {
-        setSelected([value]);
-        return;
-      }
       setSelected((prev) => {
         if (prev.includes(value)) {
           return prev.filter((v) => v !== value);
         }
-        return [...prev, value];
+
+        return props.onlyOne ? [value] : [...prev, value];
       });
     },
     [setSelected, props]
   );
 
   const onSave = () => {
-    props.onSave(selected);
+    props.onSave?.(selected);
     setOpen(false);
   };
+
+  const filteredData = useMemo(() => {
+    if (!filterFn) return props.data;
+    return _.filter(props.data, (value) => {
+      return filterFn(value, search);
+    });
+  }, [search, _.size(props.data)]);
 
   return (
     <>
       <StyledSelectButton
+        className="select-btn"
         disabled={props.disabled}
         onClick={() => setOpen(true)}
       >
-        {props.selectButtonText}
+        {props.buttonText}
       </StyledSelectButton>
       <StyledPopup
         className={props.className || ""}
@@ -66,35 +110,43 @@ function SelectPopup<T>(props: SelectPopupProps<T>) {
         title={props.title}
       >
         <StyledPopupContent>
+         {filterFn &&  <StyledSearch onChange={setSearch} />}
           <StyledList>
             <AutoSizer>
               {({ height, width }: { height: number; width: number }) => (
                 <VariableSizeList
                   height={height}
                   width={width}
-                  itemCount={props.data?.length || 0}
-                  itemData={{ list: props.data, selected, onSelect }}
+                  itemCount={filteredData?.length || 0}
+                  itemData={{
+                    list: filteredData,
+                    selected,
+                    onSelect,
+                    RowComponent: props.RowComponent,
+                    displayOnly: !props.onSave,
+                  }}
                   itemSize={(index) => props.itemSize}
                   estimatedItemSize={10}
                   overscanCount={10}
                 >
-                  {props.Row}
+                  {Row}
                 </VariableSizeList>
               )}
             </AutoSizer>
           </StyledList>
-          <AppTooltip
-            text={_.isEmpty(selected) ? "Select at leats 1 option" : undefined}
-          >
-            <StyledSaveButton disabled={_.isEmpty(selected)} onClick={onSave}>
-              Save
-            </StyledSaveButton>
-          </AppTooltip>
+
+          {props.onSave && (
+            <StyledSaveButton onClick={onSave}>Save</StyledSaveButton>
+          )}
         </StyledPopupContent>
       </StyledPopup>
     </>
   );
 }
+
+const StyledSearch = styled(Search)({
+  width:'100%'
+});
 
 const StyledSaveButton = styled(Button)({
   minWidth: 200,
@@ -117,39 +169,11 @@ const StyledList = styled("div")({
 const StyledPopupContent = styled(StyledFlexColumn)({});
 
 const StyledPopup = styled(Popup)({
-  maxWidth: 500,
+  maxWidth: 600,
   ".title-container-children": {
     display: "flex",
     flexDirection: "column",
   },
-});
-
-const StyledRowContent = styled(StyledFlexRow)<{ selected: number }>(
-  ({ selected }) => ({
-    justifyContent: "flex-start",
-    height: "calc(100% - 10px)",
-    padding: "0px 15px",
-    cursor: "pointer",
-    borderRadius: 10,
-    background: selected === 1 ? "rgba(255,255,255, 0.1)" : "black",
-    ".img": {
-      width: 30,
-      height: 30,
-      borderRadius: "50%",
-    },
-    ".overflow-with-tooltip": {
-      flex: 1,
-    },
-    p: {
-      fontSize: 14,
-      textAlign: "left",
-    },
-  })
-);
-
-const StyledNotSelected = styled(Typography)({
-  fontWeight: 500,
-  fontSize: 17,
 });
 
 const StyledSelected = styled(StyledFlexRow)({
@@ -157,10 +181,9 @@ const StyledSelected = styled(StyledFlexRow)({
   justifyContent: "flex-start",
   background: "#606368",
   borderRadius: 20,
-  minHeight: 35,
-  maxWidth: "calc(100% / 3 - 7px)",
-  width: "auto",
-  padding: "5px 40px 5px 10px",
+  minHeight: 40,
+  width: "100%s",
+  padding: "10px 40px 10px 15px",
   p: {
     fontSize: 14,
     fontWeight: 500,
@@ -170,6 +193,13 @@ const StyledSelected = styled(StyledFlexRow)({
     height: 25,
     borderRadius: "50%",
   },
+});
+
+const StyledSelectedLoading = styled(StyledSkeletonLoader)({
+  width: "30%",
+  maxWidth: 200,
+  borderRadius: 15,
+  height: 32,
 });
 
 const DeleteButton = ({ onClick }: { onClick: () => void }) => {
@@ -185,10 +215,16 @@ const DeleteButton = ({ onClick }: { onClick: () => void }) => {
 const SelectedChip = ({
   children,
   onDelete,
+  isLoading,
 }: {
   children: ReactNode;
   onDelete: () => void;
+  isLoading?: boolean;
 }) => {
+  if (isLoading) {
+    return <StyledSelectedLoading />;
+  }
+
   return (
     <StyledSelected>
       <DeleteButton onClick={onDelete} />
@@ -197,36 +233,58 @@ const SelectedChip = ({
   );
 };
 
-const Row = ({
-  children,
-  selected,
-  onClick,
-  className = "",
-}: {
-  children: ReactNode;
-  selected: number;
-  onClick: () => void;
-  className?: string;
-}) => {
-  return (
-    <StyledRowContent
-      className={className}
-      onClick={onClick}
-      selected={selected}
-    >
-      {children}
-    </StyledRowContent>
-  );
-};
+const StyledRowChildren = styled(StyledContainer)<{ selected?: number }>(
+  ({ selected }) => {
+    return {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      justifyContent: "flex-start",
+      height: "calc(100% - 10px)",
+      padding: "0px 15px 0px 5px",
+      cursor: "pointer",
+      borderRadius: 10,
+      background: !selected ? "transparent" : "rgba(0, 136, 204, 0.08)",
+      ".MuiSkeleton-root": {
+        width: "100%",
+        height: "100%",
+        borderRadius: 15,
+      },
+
+      ".overflow-with-tooltip": {
+        flex: 1,
+      },
+      p: {
+        fontSize: 14,
+        textAlign: "left",
+      },
+    };
+  }
+);
+
+const StyledRowLoading = styled("div")({
+  width: "100%",
+  height: "100%",
+  padding: "0px 0px 12px 0px",
+  overflow: "hidden",
+  ".MuiSkeleton-root": {
+    width: "100%",
+    height: "100%",
+  },
+});
+
+const StyledRow = styled("div")<{ selected?: number }>({});
 
 const List = ({
   children,
   emptyText,
   isEmpty,
+  className = "",
 }: {
   children: ReactNode;
   emptyText: string;
   isEmpty: boolean;
+  className?: string;
 }) => {
   if (isEmpty) {
     return (
@@ -236,7 +294,9 @@ const List = ({
     );
   }
 
-  return <StyledSelectedList>{children}</StyledSelectedList>;
+  return (
+    <StyledSelectedList className={className}>{children}</StyledSelectedList>
+  );
 };
 
 const StyledEmptyText = styled(StyledFlexRow)({
@@ -251,7 +311,9 @@ const StyledSelectedList = styled(StyledFlexRow)({
   justifyContent: "flex-start",
   gap: 10,
   flexWrap: "wrap",
-  padding: 10,
+  "*": {
+    fontSize: 13,
+  },
 });
 
 SelectPopup.SelectedChip = SelectedChip;

@@ -21,13 +21,6 @@ import { AirdropForm } from "./types";
 
 const votersKey = ["useAirdropVotersQuery"];
 
-const useEnsureAirdropVoters = () => {
-  const queryClient = useQueryClient();
-  const getProposals = useAirdropVoters();
-
-  return () => queryClient.ensureQueryData(votersKey, getProposals);
-};
-
 export const useAirdropVotersQuery = () => {
   const getProposals = useAirdropVoters();
 
@@ -39,17 +32,25 @@ export const useAirdropVotersQuery = () => {
   });
 };
 
-const useAirdropVoters = () => {
+export const useGetAllProposals = () => {
   const { proposals } = useAirdropStore();
   const getProposal = useEnsureProposalQuery();
 
   return async () => {
     if (!proposals) return [];
-    const result = await Promise.all(
+    return Promise.all(
       proposals?.map((address) => {
         return getProposal(address);
       })
     );
+  };
+};
+
+const useAirdropVoters = () => {
+  const getProposals = useGetAllProposals();
+
+  return async () => {
+    const result = await getProposals();
 
     let votes = {};
     result.forEach((proposal) => {
@@ -63,10 +64,20 @@ const useAirdropVoters = () => {
   };
 };
 
+export const useGetAllVotersAddresses = () => {
+  const getAirdropProposalsVoters = useAirdropVoters();
+
+  return async () => {
+    return _.map(_.keys(await getAirdropProposalsVoters()), (it) => {
+      return it;
+    });
+  };
+};
+
 export const useSetupAirdrop = () => {
   const errorToast = useErrorToast();
   const { initAirdrop, nextStep } = useAirdropStore();
-  const getAirdropProposalsVoters = useEnsureAirdropVoters();
+  const getAirdropProposalsVoters = useAirdropVoters();
 
   return useMutation(
     async (formData: AirdropForm) => {
@@ -90,6 +101,8 @@ export const useSetupAirdrop = () => {
       }
 
       const result = await chooseRandomVoters(clientV4, voters, amount);
+      console.log({ result, amount, voters });
+
       if (_.size(result) === 0) {
         throw new Error("Something went wrong");
       }
@@ -150,6 +163,7 @@ export const useTransferJetton = () => {
   const errorToast = useErrorToast();
   const [tonconnect] = useTonConnectUI();
   const onSuccess = useOnTransferSuccess();
+  const nextVoter = useNextVoter();
 
   return useMutation(
     async () => {
@@ -157,7 +171,6 @@ export const useTransferJetton = () => {
         throw new Error("No jetton address found");
       }
       const clientV2 = await getClientV2();
-      const nextVoter = useNextVoter();
       if (!nextVoter) {
         throw new Error("No next voter found");
       }
@@ -204,9 +217,10 @@ export const useTransferNFT = () => {
   const errorToast = useErrorToast();
   const [tonconnect] = useTonConnectUI();
   const onSuccess = useOnTransferSuccess();
+  const nextVoter = useNextVoter();
+
   return useMutation(
     async (nftAddress: string) => {
-      const nextVoter = useNextVoter();
       if (!nextVoter) {
         throw new Error("No next voter found");
       }

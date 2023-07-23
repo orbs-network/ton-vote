@@ -11,7 +11,7 @@ import { useAirdropStore } from "store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { validateFormik } from "utils";
 import { useAirdropVotersQuery, useAmount, useSetupAirdrop } from "../hooks";
-import { CSSProperties } from "react";
+import { CSSProperties, useMemo } from "react";
 import { AirdropForm } from "../types";
 import SelectPopup from "components/SelectPopup";
 import { useForm, useFormSchema } from "./form";
@@ -21,7 +21,6 @@ export const SetupAirdrop = () => {
   const { jettonAddress, type, voters, votersSelectionMethod } =
     useAirdropStore();
 
-  
   const { amount } = useAmount();
 
   const schema = useFormSchema();
@@ -43,12 +42,10 @@ export const SetupAirdrop = () => {
   });
   const form = useForm(formik.values);
 
-
   const onSubmit = () => {
     validateFormik(formik);
     formik.submitForm();
-  }
-
+  };
 
   return (
     <TitleContainer title="Setup airdrop">
@@ -80,29 +77,24 @@ const customInputHandler = (
 };
 
 interface ManualVotersRowProps {
-  index: number;
-  style: CSSProperties;
-  data: {
-    list: any;
-    selected: string[];
-    onSelect: (address: string) => void;
-  };
+  value: string;
 }
 
-function ManualVotersRow(props: ManualVotersRowProps) {
-  const voter = props.data.list ? props.data.list[props.index] : undefined;
+function ManualVotersRow({ value }: ManualVotersRowProps) {
+  const { data: voters, dataUpdatedAt } = useAirdropVotersQuery();
+  const voter = useMemo(
+    () => voters?.find((voter) => voter === value),
+    [dataUpdatedAt]
+  );
 
   return (
-    <div style={props.style}>
-      <SelectPopup.Row
-        selected={props.data.selected.includes(voter) ? 1 : 0}
-        onClick={() => props.data.onSelect(voter)}
-      >
-        <OverflowWithTooltip text={voter} />
-      </SelectPopup.Row>
-    </div>
+    <StyledVoter>
+      <OverflowWithTooltip text={voter} />
+    </StyledVoter>
   );
 }
+
+const StyledVoter = styled(StyledFlexRow)({});
 
 const ManualVotersSelect = ({
   selected,
@@ -122,17 +114,17 @@ const ManualVotersSelect = ({
       title="Manual voters select"
       headerComponent={
         <SelectPopup<string>
-          Row={ManualVotersRow}
-          selectButtonText="Select voters"
+          RowComponent={ManualVotersRow}
+          buttonText="Select voters"
           title="Select voters"
           data={data}
           selected={selected}
           onSave={onSelect}
-          itemSize={50}
+          itemSize={60}
         />
       }
     >
-      <SelectPopup.List
+      <StyledSelectedList
         emptyText="No voters selected"
         isEmpty={!_.size(selected)}
       >
@@ -146,11 +138,14 @@ const ManualVotersSelect = ({
             </SelectPopup.SelectedChip>
           );
         })}
-      </SelectPopup.List>
+      </StyledSelectedList>
     </TitleContainer>
   );
 };
 
+const StyledSelectedList = styled(SelectPopup.List)({
+  padding: 20,
+});
 
 const StyledForm = styled(StyledFlexColumn)({
   ".select-box": {

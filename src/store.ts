@@ -269,16 +269,17 @@ interface AirdropStore {
   votersSelectionMethod?: number;
 }
 
-const initialAirdropValues = {
-  votersSelectionMethod: undefined,
-  type: undefined,
+
+const initialState = {
+  voters: undefined,
+  currentWalletIndex: undefined,
+  jettonAddress: undefined,
   jettonsAmount: undefined,
-  jettonAddress: "",
-  voters: [],
-  currentWalletIndex: 0,
-  daos: [],
-  proposals: [],
-  step: 0,
+  type: undefined,
+  daos: undefined,
+  proposals: undefined,
+  step: undefined,
+  votersSelectionMethod: undefined,
 };
 
 export const useAirdropStore = create(
@@ -295,7 +296,6 @@ export const useAirdropStore = create(
         const proposals = get().proposals || [];
         set({ proposals: _.without(proposals, proposal) });
       },
-      ...initialAirdropValues,
       initAirdrop: (values) => {
         set({ ...values });
       },
@@ -315,7 +315,7 @@ export const useAirdropStore = create(
         }
         set({ daos });
       },
-      reset: () => set(initialAirdropValues),
+      reset: () => set(initialState),
     }),
     {
       name: "airdrop",

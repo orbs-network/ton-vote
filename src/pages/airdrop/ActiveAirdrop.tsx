@@ -9,6 +9,7 @@ import {
   TextInput,
   TitleContainer,
 } from "components";
+import SelectPopup from "components/SelectPopup";
 import { useDebounce, useFormatNumber } from "hooks/hooks";
 import _ from "lodash";
 import { useAssetMetadataQuery } from "query/getters";
@@ -16,6 +17,9 @@ import { useEffect, useMemo, useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { useAirdropStore } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
+import { errorToast } from "toasts";
+import { validateAddress } from "utils";
+import { AirdropAssetImg } from "./AirdropAssetImg";
 
 import {
   useAmount,
@@ -42,48 +46,52 @@ export const ActiveAirdrop = () => {
   );
 };
 
-const Voters = () => {
+const Voter = ({ value, index }: { value: string; index: number }) => {
   const { voters, currentWalletIndex = 0 } = useAirdropStore();
 
-  const [open, setOpen] = useState(false);
+  const voter = voters?.find((it) => it === value);
+
+  return (
+    <StyledListItem>
+      <StyledAddressDisplay hideTooltip={true} full address={voter} />
+      {currentWalletIndex > index ? (
+        <BsFillCheckCircleFill />
+      ) : (
+        <Typography>Not sent</Typography>
+      )}
+    </StyledListItem>
+  );
+};
+
+const Voters = () => {
+  const { voters, currentWalletIndex = 0 } = useAirdropStore();
 
   return (
     <StyledFlexRow justifyContent="flex-start">
       <Typography>
         {`${currentWalletIndex} / ${_.size(voters)} sent`}{" "}
       </Typography>
-      <StyledShowAll onClick={() => setOpen(true)}>
-        Show all voters
-      </StyledShowAll>
-      <StyledPopup
-        open={open}
-        onClose={() => setOpen(false)}
-        title="Airdrop Wallets"
-      >
-        <StyledList>
-          {voters?.map((it, index) => {
-            return (
-              <StyledListItem key={it}>
-                <StyledAddressDisplay hideTooltip={true} full address={it} />
-                {currentWalletIndex > index ? (
-                  <BsFillCheckCircleFill />
-                ) : (
-                  <Typography>Not sent</Typography>
-                )}
-              </StyledListItem>
-            );
-          })}
-        </StyledList>
-      </StyledPopup>
+      <StyledSelectPopup>
+        <SelectPopup
+          RowComponent={Voter}
+          buttonText="Show all"
+          title="Selected Voters"
+          data={voters || []}
+          selected={[]}
+          itemSize={60}
+        />
+      </StyledSelectPopup>
     </StyledFlexRow>
   );
 };
 
+const StyledSelectPopup = styled("div")({
+  ".select-btn": {},
+});
+
 const JettonDetails = () => {
   const { jettonAddress } = useAirdropStore();
-  const { amountPerWallet } = useAmountPerWallet();
-  const { data, isLoading: assetLoading } =
-    useAssetMetadataQuery(jettonAddress);
+  const { isLoading: assetLoading } = useAssetMetadataQuery(jettonAddress);
 
   if (assetLoading) {
     return (
@@ -100,7 +108,7 @@ const JettonDetails = () => {
       <StyledFlexColumn alignItems="flex-start" gap={20}>
         <JettonMetadata />
         <StyledFlexRow>
-          <Progress />
+          {/* <Progress /> */}
           <Voters />
         </StyledFlexRow>
         <JettonTotalAmount />
@@ -210,7 +218,7 @@ const NFTDetails = () => {
   return (
     <StyledFlow>
       <StyledFlexColumn alignItems="flex-start" gap={20}>
-        <Progress />
+        {/* <Progress /> */}
         <Voters />
         <Typography>{`Airdrop amount ${amount} NFT's`}</Typography>
         <Typography>{`Each voter will receive: 1 NFT`}</Typography>
@@ -225,14 +233,13 @@ const NFTAction = () => {
   const [error, setError] = useState("");
 
   const onSend = () => {
-    mutate(nftAddress);
-    // if (!nftAddress || !validateAddress(nftAddress)) {
-    //   const _error = "Please enter a valid NFT address";
-    //   setError(_error);
-    //   errorToast(_error);
-    // } else {
-    //   mutate(nftAddress);
-    // }
+    if (!nftAddress || !validateAddress(nftAddress)) {
+      const _error = "Please enter a valid NFT address";
+      setError(_error);
+      errorToast(_error);
+    } else {
+      mutate(nftAddress);
+    }
   };
 
   return (
@@ -289,6 +296,7 @@ const NFTInput = ({
       title="NFT address"
       value={address}
       onChange={setAddress}
+      endAdornment={<AirdropAssetImg address={debouncedValue} />}
     />
   );
 };
@@ -314,19 +322,7 @@ const StyledListItem = styled(StyledFlexRow)({
   justifyContent: "space-between",
 });
 
-const StyledPopup = styled(Popup)({
-  maxWidth: 600,
-  maxHeight: "70vh",
-  display: "flex",
-  flexDirection: "column",
-  ".title-container-children": {
-    overflowY: "auto",
-    flex: 1,
-  },
-});
-
 const StyledContainer = styled(StyledFlexColumn)({});
-
 
 const StyledSend = styled(StyledButton)({
   marginLeft: "auto",

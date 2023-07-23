@@ -14,7 +14,7 @@ import {
   getSingleVoterPower,
   getDaoState,
   getRegistryState,
-  readJettonOrNftMetadata,
+  readJettonMinterOrNftCollectionMetadata,
 } from "ton-vote-contracts-sdk";
 import {
   getIsOneWalletOneVote,
@@ -123,16 +123,18 @@ export const useDaosQuery = () => {
       daos = await handleNewDaoAddresses(daos);
 
       // filter daos by whitelist
-      let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
+      let allDaos = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
 
-      const daoIndex = _.findIndex(result, {
+      const daoIndex = _.findIndex(allDaos, {
         daoAddress: FOUNDATION_DAO_ADDRESS,
       });
 
-      const foundationDao = result.splice(daoIndex, 1);
+      const foundationDao = _.first(allDaos.splice(daoIndex, 1));
 
-      let allDaos = [...foundationDao, ...result];
-
+      if (foundationDao) {
+        foundationDao.daoProposals = FOUNDATION_PROPOSALS_ADDRESSES;
+        allDaos = [foundationDao, ...allDaos];
+      }
       if (!devFeatures) {
         allDaos = _.filter(
           allDaos,
@@ -326,6 +328,18 @@ const useGetProposalWithFallback = () => {
     maxLt?: string,
     signal?: AbortSignal
   ) => {
+    const mockProposal = mock.getMockProposal(proposalAddress!);
+    if (mockProposal) {
+      return mockProposal;
+    }
+    const foundationProposals = await (
+      await import("../data/foundation/data")
+    ).getFoundationProposals();
+    const foundationProposal = foundationProposals[proposalAddress!];
+    if (foundationProposal) {
+      return foundationProposal;
+    }
+
     const getProposalFromContract = () =>
       contract.getProposal({ proposalAddress, maxLt });
 
@@ -421,17 +435,6 @@ export const useProposalQuery = (
     async ({ signal }) => {
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
-      }
-      const mockProposal = mock.getMockProposal(proposalAddress!);
-      if (mockProposal) {
-        return mockProposal;
-      }
-      const foundationProposals = await (
-        await import("../data/foundation/data")
-      ).getFoundationProposals();
-      const foundationProposal = foundationProposals[proposalAddress!];
-      if (foundationProposal) {
-        return foundationProposal;
       }
 
       if (isVoting) {
@@ -538,7 +541,7 @@ export const useAssetMetadataQuery = (assetAddress?: string) => {
 
   return useQuery<any>(
     ["useAssetMetadataQuery", assetAddress],
-    () => readJettonOrNftMetadata(clientV2!, assetAddress!),
+    () => readJettonMinterOrNftCollectionMetadata(clientV2!, assetAddress!),
     {
       enabled: !!clientV2 && !!assetAddress && validateAddress(assetAddress),
       staleTime: Infinity,

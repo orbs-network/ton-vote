@@ -3,7 +3,7 @@ import _ from "lodash";
 import { Page } from "wrappers";
 import { SetupAirdrop } from "./SetupAirdrop/SetupAirdrop";
 import { ActiveAirdrop } from "./ActiveAirdrop";
-import SelectVoters from "./SelectVoters";
+import SelectVoters from "./SelectVoters/SelectVoters";
 import { StepsMenuStep } from "types";
 import { Button, Popup, StepsLayout } from "components";
 import { useAirdropStore } from "store";
