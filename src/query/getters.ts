@@ -5,6 +5,7 @@ import {
   IS_DEV,
   PROD_TEST_DAOS,
   REFETCH_INTERVALS,
+  BLACKLISTED_PROPOSALS,
 } from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
@@ -221,15 +222,21 @@ export const useDaoQuery = (daoAddress: string) => {
       }
 
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
-      const daoProposals = IS_DEV
+      let daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
         : proposals;
+
+      daoProposals = _.filter(
+        daoProposals,
+        (it) => !BLACKLISTED_PROPOSALS.includes(it)
+      );
+
+      if (daoAddress === FOUNDATION_DAO_ADDRESS) {
+        daoProposals = FOUNDATION_PROPOSALS_ADDRESSES;
+      }
       return {
         ...dao,
-        daoProposals:
-          daoAddress === FOUNDATION_DAO_ADDRESS
-            ? FOUNDATION_PROPOSALS_ADDRESSES
-            : daoProposals,
+        daoProposals,
       };
     },
     {
@@ -288,7 +295,6 @@ export const useConnectedWalletVotingPowerQuery = (
       const symbol = getProposalSymbol(
         proposal?.metadata?.votingPowerStrategies
       );
-      
 
       if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
         return {
@@ -299,7 +305,7 @@ export const useConnectedWalletVotingPowerQuery = (
 
       return {
         votingPowerText: `${nFormatter(Number(fromNano(result)))} ${symbol}`,
-        votingPower: result, 
+        votingPower: result,
       };
     },
     {
@@ -403,6 +409,10 @@ export const useProposalQuery = (
     async ({ signal }) => {
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
+      }
+
+      if (BLACKLISTED_PROPOSALS.includes(proposalAddress)) {
+        throw new Error("Proposal not found");
       }
       const mockProposal = mock.getMockProposal(proposalAddress!);
       if (mockProposal) {
