@@ -1,4 +1,4 @@
-import { CircularProgress, styled, Typography } from "@mui/material";
+import { Chip, CircularProgress, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
   AppTooltip,
@@ -69,7 +69,7 @@ const Voters = () => {
   return (
     <StyledFlexRow justifyContent="flex-start">
       <Typography>
-        {`${currentWalletIndex} / ${_.size(voters)} sent`}{" "}
+        {`${currentWalletIndex} / ${_.size(voters).toLocaleString()} sent`}{" "}
       </Typography>
       <StyledSelectPopup>
         <SelectPopup
@@ -106,7 +106,7 @@ const JettonDetails = () => {
   return (
     <StyledFlow>
       <StyledFlexColumn alignItems="flex-start" gap={20}>
-        <JettonMetadata />
+        <JettonMetadata address={jettonAddress} />
         <StyledFlexRow>
           {/* <Progress /> */}
           <Voters />
@@ -165,17 +165,15 @@ const JettonAmountPerWallet = () => {
   );
 };
 
-const JettonMetadata = () => {
-  const { jettonAddress } = useAirdropStore();
-  const { data, isLoading: assetLoading } =
-    useAssetMetadataQuery(jettonAddress);
+const JettonMetadata = ({ address }: { address?: string }) => {
+  const { data } = useAssetMetadataQuery(address);
 
   return (
     <StyledJettonMetadata>
       <Img src={data?.metadata?.image} />
       <StyledFlexColumn className="right">
         <OverflowWithTooltip text={data?.metadata?.name} />
-        <AddressDisplay padding={10} address={jettonAddress} />
+        <AddressDisplay padding={10} address={address} />
       </StyledFlexColumn>
     </StyledJettonMetadata>
   );
@@ -214,13 +212,10 @@ const Progress = () => {
 };
 
 const NFTDetails = () => {
-  const { amount } = useAmount();
   return (
     <StyledFlow>
       <StyledFlexColumn alignItems="flex-start" gap={20}>
-        {/* <Progress /> */}
-        <Voters />
-        <Typography>{`Airdrop amount ${amount} NFT's`}</Typography>
+               <Voters />
         <Typography>{`Each voter will receive: 1 NFT`}</Typography>
       </StyledFlexColumn>
     </StyledFlow>
@@ -245,7 +240,8 @@ const NFTAction = () => {
   return (
     <TitleContainer title="Send NFT">
       <StyledFlexColumn gap={30}>
-        <StyledFlexColumn>
+        <StyledFlexColumn style={{ alignItems: "flex-start" }}>
+          <JettonMetadata address={nftAddress} />
           <NextVoter />
           <NFTInput
             clearError={() => setError("")}
@@ -265,10 +261,14 @@ const NextVoter = () => {
   const nextVoter = useNextVoter();
 
   return (
-    <StyledFlexRow justifyContent="flex-start">
-      <Typography>Next Voter: </Typography>
-      <AddressDisplay padding={10} address={nextVoter} />
-    </StyledFlexRow>
+    <Chip
+      label={
+        <StyledFlexRow justifyContent="flex-start">
+          <Typography>Next Voter: </Typography>
+          <AddressDisplay padding={10} address={nextVoter} />
+        </StyledFlexRow>
+      }
+    />
   );
 };
 
