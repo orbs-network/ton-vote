@@ -2,14 +2,27 @@ import _ from "lodash";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+
 export enum AirdropFormsKeys {
   votersAmount = "votersAmount",
   jettonsAmount = "jettonsAmount",
-  assetAddress = "assetAddress",
+  jettonAddress = "jettonAddress",
+  nftAddress = "nftAddress",
   assetType = "assetType",
   selectionMethod = "selectionMethod",
   manuallySelectedVoters = "manuallySelectedVoters",
 }
+
+export interface AirdropForm {
+  [AirdropFormsKeys.votersAmount]?: number;
+  [AirdropFormsKeys.jettonsAmount]?: number;
+  [AirdropFormsKeys.jettonAddress]?: string;
+  [AirdropFormsKeys.assetType]?: "nft" | "jetton";
+  [AirdropFormsKeys.selectionMethod]?: number;
+  [AirdropFormsKeys.manuallySelectedVoters]: string[];
+  [AirdropFormsKeys.nftAddress]?: string;
+}
+
 
 interface AirdropInit {
   voters: string[];

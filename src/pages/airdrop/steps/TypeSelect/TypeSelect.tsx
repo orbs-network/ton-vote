@@ -12,12 +12,11 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { validateFormik } from "utils";
 import { useAirdropVotersQuery, useAmount, useSetupAirdrop } from "../../hooks";
 import { CSSProperties, useMemo } from "react";
-import { AirdropForm } from "../../types";
 import { VirtualList } from "components";
 import { useForm, useFormSchema } from "./form";
 import { SubmitButtonContainer } from "../SubmitButton";
 import { Typography } from "@mui/material";
-import { useAirdropStore } from "../../store";
+import { useAirdropStore, AirdropForm, AirdropFormsKeys } from "../../store";
 export const TypeSelect = () => {
   const { mutate, isLoading } = useSetupAirdrop();
   const { jettonAddress, type, voters, votersSelectionMethod } =
@@ -29,12 +28,13 @@ export const TypeSelect = () => {
 
   const formik = useFormik<AirdropForm>({
     initialValues: {
-      walletsAmount: _.size(voters) || undefined,
-      assetAmount: amount || undefined,
-      address: jettonAddress,
-      type,
-      votersSelectionMethod,
-      manualVoters: voters || [],
+      [AirdropFormsKeys.votersAmount]: _.size(voters) || undefined,
+      [AirdropFormsKeys.jettonsAmount]: amount || undefined,
+      [AirdropFormsKeys.jettonAddress]: jettonAddress,
+      [AirdropFormsKeys.nftAddress]: '',
+      [AirdropFormsKeys.assetType]: type,
+      [AirdropFormsKeys.selectionMethod]: votersSelectionMethod,
+      [AirdropFormsKeys.manuallySelectedVoters]: voters || [],
     },
     validationSchema: schema,
     validateOnChange: false,

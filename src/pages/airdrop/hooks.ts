@@ -16,8 +16,7 @@ import {
   transferJettons,
   transferNft,
 } from "ton-vote-contracts-sdk";
-import { useAirdropStore } from "./store";
-import { AirdropForm } from "./types";
+import { useAirdropStore, AirdropForm } from "./store";
 
 export const useAirdropVotersQuery = () => {
   const getVotes = useGetAirdropVotes();

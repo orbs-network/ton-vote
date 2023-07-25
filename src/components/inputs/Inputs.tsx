@@ -8,6 +8,8 @@ import {
   useTheme,
   SelectChangeEvent,
   MenuItem,
+  Radio,
+  Box,
 } from "@mui/material";
 import React, {
   Fragment,
@@ -271,9 +273,9 @@ const Title = ({
   className?: string;
 }) => {
   return (
-    <StyledTitle className={`input-title ${className}`}>
+    <StyledTitle className={`input-title ${className}`} gap={3}> 
       <Markdown className="md">{title}</Markdown>
-      <small className="input-title-required" style={{ fontSize: 14 }}>
+      <small className="input-title-required" style={{ fontSize: 13, position:'relative', top:1 }}>
         {required ? " (required)" : " (optional)"}
       </small>
     </StyledTitle>
@@ -440,7 +442,18 @@ export function MapInput<T>({
     );
   }
 
-
+  if(args.type === 'radio') {
+    return (
+      <RadioSelect
+        title={label}
+        onChange={onChange}
+        tooltip={args.tooltip}
+        required={args.required}
+        options={args.selectOptions || []}
+        value={value}
+      />
+    );
+  }
 
   if (args.type === "select") {
     return (
@@ -857,3 +870,53 @@ export function Select({
     </StyledSelectContainer>
   );
 }
+
+interface RadioSelectProps {
+  options: SelectOption[];
+  title: string;
+  value: string;
+  tooltip?: string;
+  required?: boolean
+  onChange: (value: string) => void;
+}
+
+const RadioSelect = ({
+  options,
+  title,
+  value,
+  required,
+  tooltip,
+  onChange,
+}: RadioSelectProps) => {
+  return (
+    <StyledContainer>
+      <InputHeader tooltip={tooltip} title={title} required={required} />
+      <StyledRadioFlex>
+        {options.map((option) => {
+          return (
+            <StyledFlexRow gap={2} key={option.value} style={{width:'auto'}}>
+              <Radio
+                onChange={() => onChange(option.value as string)}
+                value={option.value}
+                checked={value === option.value}
+              />
+              <Typography>{option.text}</Typography>
+            </StyledFlexRow>
+          );
+        })}
+      </StyledRadioFlex>
+    </StyledContainer>
+  );
+};
+
+
+const StyledRadioFlex = styled(StyledFlexRow)(({ theme }) => ({
+  marginTop: -6,
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
+  ".MuiRadio-root": {
+    "*": {
+      color: theme.palette.primary.main,
+    },
+  },
+}));
