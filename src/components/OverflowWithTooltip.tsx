@@ -10,11 +10,13 @@ export function OverflowWithTooltip({
   className = "",
   placement,
   hideTooltip,
+  tooltipText,
 }: {
   text?: string;
   className?: string;
   placement?: TooltipPlacement;
   hideTooltip?: boolean;
+  tooltipText?: string;
 }) {
   const textRef = useRef<any>();
   const parentRef = useRef<any>();
@@ -31,11 +33,11 @@ export function OverflowWithTooltip({
   return (
     <StyledContainer ref={parentRef} className="overflow-with-tooltip">
       <StyledPlaceholder ref={textRef}>
-        <Typography className={className}>{text}</Typography>
+        <Typography className={className}>{text || '-'}</Typography>
       </StyledPlaceholder>
       <StyledTooltip
         placement={placement}
-        text={hideTooltip ? undefined :  show ? text : undefined}
+        text={hideTooltip ? undefined : show ? tooltipText || text : undefined}
       >
         <Typography className={className}>
           <TextOverflow text={text} />

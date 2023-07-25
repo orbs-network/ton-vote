@@ -13,13 +13,13 @@ export function Img({
   const [error, setError] = useState(false);
   
 
-  const showPlaceholder = error ? true : isLoading ? false : !src
+  const showPlaceholder = error || !src ? true : isLoading ? false : !src;
 
 
   return (
     <StyledContainer className={`${className} img`}>
       {showPlaceholder ? (
-        <StyledNoSrc />
+        <StyledPlaceholder />
       ) : (
         <>
           <Fade in={!isLoading}>
@@ -38,10 +38,10 @@ export function Img({
   );
 }
 
-const StyledNoSrc = styled("div")({
+const StyledPlaceholder = styled("div")({
   width: "100%",
   height: "100%",
-  background: "rgba(211, 211, 211, 0.5)",
+  background: "rgba(211, 211, 211, 0.3)",
   position: "absolute",
 });
 

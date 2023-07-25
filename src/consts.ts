@@ -5,11 +5,11 @@ export const routes = {
   createSpace: "/setup",
   proposal: "/:daoId/proposal/:proposalId",
   editProposal: "/:daoId/proposal/:proposalId/edit",
-  space: "/:daoId",
   spaceAbout: "/:daoId/about",
   spaceSettings: "/:daoId/settings",
   createProposal: "/:daoId/create",
-  airdrop: "/:daoId/proposal/:proposalId/airdrop",
+  airdrop: "/airdrop",
+  space: "/:daoId",
 };
 
 export const flatRoutes = _.map(routes, (value) => {

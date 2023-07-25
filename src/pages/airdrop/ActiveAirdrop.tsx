@@ -9,13 +9,15 @@ import {
   TextInput,
   TitleContainer,
 } from "components";
-import SelectPopup from "components/SelectPopup";
+import { VirtualList } from "components";
 import { useDebounce, useFormatNumber } from "hooks/hooks";
 import _ from "lodash";
-import { useAssetMetadataQuery } from "query/getters";
+import {
+  useReadJettonWalletMedata,
+  useReadNftItemMetadata,
+} from "query/getters";
 import { useEffect, useMemo, useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { useAirdropStore } from "store";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { errorToast } from "toasts";
 import { validateAddress } from "utils";
@@ -28,19 +30,28 @@ import {
   useTransferJetton,
   useTransferNFT,
 } from "./hooks";
+import { useAirdropStore } from "./store";
 import { StyledButton } from "./styles";
 
 export const ActiveAirdrop = () => {
-  const { type } = useAirdropStore();
+  const { type, currentWalletIndex = 0, voters } = useAirdropStore();
 
   return (
     <StyledContainer>
       <StyledFlexColumn gap={20}>
-        <TitleContainer title="Airdrop details">
+        {/* <TitleContainer title="Airdrop details">
           {type === "nft" ? <NFTDetails /> : <JettonDetails />}
+        </TitleContainer> */}
+        <TitleContainer
+          title="Transfer assets"
+          headerComponent={
+            <Typography>
+              {`${currentWalletIndex} / ${_.size(voters).toLocaleString()}`}{" "}
+            </Typography>
+          }
+        >
+          {type === "nft" ? <NFTAction /> : <JettonAction />}
         </TitleContainer>
-
-        {type === "nft" ? <NFTAction /> : <JettonAction />}
       </StyledFlexColumn>
     </StyledContainer>
   );
@@ -72,14 +83,7 @@ const Voters = () => {
         {`${currentWalletIndex} / ${_.size(voters).toLocaleString()} sent`}{" "}
       </Typography>
       <StyledSelectPopup>
-        <SelectPopup
-          RowComponent={Voter}
-          buttonText="Show all"
-          title="Selected Voters"
-          data={voters || []}
-          selected={[]}
-          itemSize={60}
-        />
+        <VirtualList RowComponent={Voter} data={voters || []} itemSize={60} />
       </StyledSelectPopup>
     </StyledFlexRow>
   );
@@ -91,7 +95,7 @@ const StyledSelectPopup = styled("div")({
 
 const JettonDetails = () => {
   const { jettonAddress } = useAirdropStore();
-  const { isLoading: assetLoading } = useAssetMetadataQuery(jettonAddress);
+  const { isLoading: assetLoading } = useReadNftItemMetadata(jettonAddress);
 
   if (assetLoading) {
     return (
@@ -106,7 +110,7 @@ const JettonDetails = () => {
   return (
     <StyledFlow>
       <StyledFlexColumn alignItems="flex-start" gap={20}>
-        <JettonMetadata address={jettonAddress} />
+        <AssetMetadata address={jettonAddress} />
         <StyledFlexRow>
           {/* <Progress /> */}
           <Voters />
@@ -122,7 +126,7 @@ const JettonAction = () => {
   const { jettonAddress } = useAirdropStore();
   const { amountPerWallet } = useAmountPerWallet();
   const { data, isLoading: assetLoading } =
-    useAssetMetadataQuery(jettonAddress);
+    useReadNftItemMetadata(jettonAddress);
 
   const { mutate, isLoading } = useTransferJetton();
   const amountPerWalletUI = useFormatNumber(amountPerWallet);
@@ -145,7 +149,7 @@ const JettonAction = () => {
 
 const JettonTotalAmount = () => {
   const { jettonAddress } = useAirdropStore();
-  const { data } = useAssetMetadataQuery(jettonAddress);
+  const { data } = useReadNftItemMetadata(jettonAddress);
 
   const { amountUI } = useAmount();
 
@@ -156,7 +160,7 @@ const JettonTotalAmount = () => {
 
 const JettonAmountPerWallet = () => {
   const { jettonAddress } = useAirdropStore();
-  const { data } = useAssetMetadataQuery(jettonAddress);
+  const { data } = useReadNftItemMetadata(jettonAddress);
 
   const { amountPerWalletUI } = useAmountPerWallet();
 
@@ -165,17 +169,24 @@ const JettonAmountPerWallet = () => {
   );
 };
 
-const JettonMetadata = ({ address }: { address?: string }) => {
-  const { data } = useAssetMetadataQuery(address);
+const AssetMetadata = ({ address }: { address?: string }) => {
+  const { data } = useReadNftItemMetadata(address);
+  console.log(data);
 
   return (
-    <StyledJettonMetadata>
+    <StyledAssetMetadata>
       <Img src={data?.metadata?.image} />
       <StyledFlexColumn className="right">
-        <OverflowWithTooltip text={data?.metadata?.name} />
-        <AddressDisplay padding={10} address={address} />
+        {data ? (
+          <>
+            <OverflowWithTooltip text={data?.metadata?.name} />
+            <AddressDisplay padding={10} address={address} />
+          </>
+        ) : (
+          <Typography>-</Typography>
+        )}
       </StyledFlexColumn>
-    </StyledJettonMetadata>
+    </StyledAssetMetadata>
   );
 };
 
@@ -215,7 +226,7 @@ const NFTDetails = () => {
   return (
     <StyledFlow>
       <StyledFlexColumn alignItems="flex-start" gap={20}>
-               <Voters />
+        <Voters />
         <Typography>{`Each voter will receive: 1 NFT`}</Typography>
       </StyledFlexColumn>
     </StyledFlow>
@@ -238,39 +249,48 @@ const NFTAction = () => {
   };
 
   return (
-    <TitleContainer title="Send NFT">
-      <StyledFlexColumn gap={30}>
-        <StyledFlexColumn style={{ alignItems: "flex-start" }}>
-          <JettonMetadata address={nftAddress} />
-          <NextVoter />
-          <NFTInput
-            clearError={() => setError("")}
-            error={error}
-            onDebouce={setnftAddress}
-          />
-        </StyledFlexColumn>
-        <StyledSend isLoading={isLoading} onClick={onSend}>
-          Send NFT
-        </StyledSend>
-      </StyledFlexColumn>
-    </TitleContainer>
+    <StyledFlexColumn gap={30}>
+      <NFTInput
+        clearError={() => setError("")}
+        error={error}
+        onDebouce={setnftAddress}
+      />
+      {nftAddress && <AssetMetadata address={nftAddress} />}
+
+      <NextVoter />
+      <StyledSend isLoading={isLoading} onClick={onSend}>
+        Send NFT
+      </StyledSend>
+    </StyledFlexColumn>
   );
 };
 
 const NextVoter = () => {
   const nextVoter = useNextVoter();
+  const { type, jettonAddress } = useAirdropStore();
+  const { data } = useReadNftItemMetadata(jettonAddress);
 
   return (
-    <Chip
-      label={
-        <StyledFlexRow justifyContent="flex-start">
-          <Typography>Next Voter: </Typography>
-          <AddressDisplay padding={10} address={nextVoter} />
-        </StyledFlexRow>
-      }
-    />
+    <StyledNextVoter>
+      {type === "nft" ? (
+        <Typography className="text">NFT will be sent to:</Typography>
+      ) : (
+        <Typography className="text">
+          {data?.metadata?.name} will be sent to:
+        </Typography>
+      )}
+      <AddressDisplay address={nextVoter} padding={10} />
+    </StyledNextVoter>
   );
 };
+
+const StyledNextVoter = styled(StyledFlexRow)({
+  justifyContent: "center",
+  marginTop: 0,
+  ".text": {
+    whiteSpace: "nowrap",
+  },
+});
 
 const NFTInput = ({
   onDebouce,
@@ -293,25 +313,13 @@ const NFTInput = ({
       onFocus={clearError}
       error={error}
       required={true}
-      title="NFT address"
+      title="NFT item address"
       value={address}
       onChange={setAddress}
       endAdornment={<AirdropAssetImg address={debouncedValue} />}
     />
   );
 };
-
-const StyledShowAll = styled(Button)({
-  padding: "5px 10px",
-  height: "auto",
-  "*": {
-    fontSize: 14,
-  },
-});
-
-const StyledList = styled(StyledFlexColumn)({
-  gap: 20,
-});
 
 const StyledAddressDisplay = styled(AddressDisplay)({
   flex: 1,
@@ -360,7 +368,7 @@ const StyledProgress = styled(StyledFlexRow)(({ theme }) => ({
   },
 }));
 
-const StyledJettonMetadata = styled(StyledFlexRow)({
+const StyledAssetMetadata = styled(StyledFlexRow)({
   justifyContent: "flex-start",
   gap: 20,
   p: {

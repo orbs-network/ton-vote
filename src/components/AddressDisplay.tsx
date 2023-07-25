@@ -35,19 +35,25 @@ export function AddressDisplay({
     window.open(customUrl || getTonScanContractUrl(address || ""), "_blank");
   };
 
+
+  const text = full
+    ? address
+    : displayText || makeElipsisAddress(address, padding);
+
   return (
     <StyledContainer className={className} justifyContent="flex-start">
       <StyledButton onClick={onLinkClick} className="address-display-btn">
         <OverflowWithTooltip
           hideTooltip={hideTooltip}
-          text={
-            full ? address : displayText || makeElipsisAddress(address, padding)
-          }
+          tooltipText={address}
+          text={text || '-'}
         />
       </StyledButton>
-      <StyledButton onClick={onCopy}>
-        <IoCopyOutline style={{ color: theme.palette.text.primary }} />
-      </StyledButton>
+      {address && (
+        <StyledButton onClick={onCopy}>
+          <IoCopyOutline style={{ color: theme.palette.text.primary }} />
+        </StyledButton>
+      )}
     </StyledContainer>
   );
 }

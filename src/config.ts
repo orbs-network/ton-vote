@@ -65,6 +65,7 @@ export const VERIFIED_DAOS = [
   "EQAYBkVlx1li1qg8d4S_6T0fvxFDFiiKzgxQouIGxQJck2C0",
   "EQAY-sgFKzGrXO6_0785Et6nMVPK78aJUqaMhR7jwzsEDssX",
   "EQAYBkVlx1li1qg8d4S_6T0fvxFDFiiKzgxQouIGxQJck2C0",
+  "EQDh8EdtTVVUuL50A2p-bzJk1Q9qAVK5fSIyCZ7RwktPwxAN",
   "EQAvYNurOKXnv2ASweTgbdYavcaxnsbZeXXhdJkkvMicOLoZ"
 ];
 
@@ -75,7 +76,7 @@ export const releaseMode = import.meta.env.VITE_STAGING
 export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
 
 export const createDaoDevFee = 0.2;
-export const createDaoProdFee = 1.1
+export const createDaoProdFee = 1.1;
 
 export const TX_FEES = {
   CREATE_DAO: IS_DEV ? createDaoDevFee : 1,
@@ -146,7 +147,7 @@ export const STRATEGY_ARGUMENTS = [
   { name: "jetton", key: "jetton-address" },
   { name: "nft", key: "nft-address" },
 ];
-  
+
 export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
 export const PROD_TEST_DAOS: string[] = [];
 
@@ -161,6 +162,9 @@ export const CONTRACT_RETRIES = 2;
 
 export const RETRY_DELAY = 1000;
 
-
-
-export const BLACKLISTED_DAOS = ["EQAQiTI1QkaCpIYAqdEO4mRTIzACq7WNlhNzt2voUnE4qxKy"];
+export const BLACKLISTED_DAOS = [
+  "EQAQiTI1QkaCpIYAqdEO4mRTIzACq7WNlhNzt2voUnE4qxKy",
+];
+export const BLACKLISTED_PROPOSALS = [
+  "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
+];

@@ -1,13 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { useFormatNumber } from "hooks/hooks";
 import _ from "lodash";
 import {
   useEnsureAssetMetadataQuery,
-  useEnsureProposalQuery,
+  useGetAllProposalsCallback,
 } from "query/getters";
 import { useMemo } from "react";
-import { useAirdropStore } from "store";
 import { showSuccessToast, useErrorToast } from "toasts";
 import { toNano } from "ton-core";
 import {
@@ -17,40 +16,24 @@ import {
   transferJettons,
   transferNft,
 } from "ton-vote-contracts-sdk";
+import { useAirdropStore } from "./store";
 import { AirdropForm } from "./types";
 
-const votersKey = ["useAirdropVotersQuery"];
-
 export const useAirdropVotersQuery = () => {
-  const getProposals = useAirdropVoters();
+  const getVotes = useGetAirdropVotes();
 
-  return useQuery(votersKey, async () => {
-    const result = await getProposals();
-    return _.map(_.keys(result), (it) => {
-      return it;
-    });
+  return useQuery(["useAirdropVotersQuery"], async () => {
+    const votes = await getVotes();
+    return _.keys(votes);
   });
 };
 
-export const useGetAllProposals = () => {
+export const useGetAirdropVotes = () => {
+  const getProposals = useGetAllProposalsCallback();
   const { proposals } = useAirdropStore();
-  const getProposal = useEnsureProposalQuery();
 
   return async () => {
-    if (!proposals) return [];
-    return Promise.all(
-      proposals?.map((address) => {
-        return getProposal(address);
-      })
-    );
-  };
-};
-
-const useAirdropVoters = () => {
-  const getProposals = useGetAllProposals();
-
-  return async () => {
-    const result = await getProposals();
+    const result = await getProposals(proposals);
 
     let votes = {};
     result.forEach((proposal) => {
@@ -64,20 +47,10 @@ const useAirdropVoters = () => {
   };
 };
 
-export const useGetAllVotersAddresses = () => {
-  const getAirdropProposalsVoters = useAirdropVoters();
-
-  return async () => {
-    return _.map(_.keys(await getAirdropProposalsVoters()), (it) => {
-      return it;
-    });
-  };
-};
-
 export const useSetupAirdrop = () => {
   const errorToast = useErrorToast();
   const { initAirdrop, nextStep } = useAirdropStore();
-  const getAirdropProposalsVoters = useAirdropVoters();
+  const getVotes = useGetAirdropVotes();
 
   return useMutation(
     async (formData: AirdropForm) => {
@@ -88,20 +61,19 @@ export const useSetupAirdrop = () => {
       const amount = formData.walletsAmount || 0;
       const clientV4 = await getClientV4();
 
-      const voters = await getAirdropProposalsVoters();
+      const votes = await getVotes();
 
-      if (!voters) {
+      if (!votes) {
         throw new Error("Something went wrong");
       }
 
-      if (_.size(voters) < amount) {
+      if (_.size(votes) < amount) {
         throw new Error(
-          `Max amount of voters in ${_.size(voters).toLocaleString()}`
+          `Max amount of voters in ${_.size(votes).toLocaleString()}`
         );
       }
 
-      const result = await chooseRandomVoters(clientV4, voters, amount);
-      console.log({ result, amount, voters });
+      const result = await chooseRandomVoters(clientV4, votes, amount);
 
       if (_.size(result) === 0) {
         throw new Error("Something went wrong");
@@ -158,7 +130,6 @@ export const useNextVoter = () => {
 
 export const useTransferJetton = () => {
   const { amountPerWallet } = useAmountPerWallet();
-  const prefetchAssetMetadata = useEnsureAssetMetadataQuery();
   const { jettonAddress, voters } = useAirdropStore();
   const errorToast = useErrorToast();
   const [tonconnect] = useTonConnectUI();
@@ -184,8 +155,7 @@ export const useTransferJetton = () => {
     },
     {
       onSuccess: async (args) => {
-        const result: any = await prefetchAssetMetadata(jettonAddress!);
-        showSuccessToast(`Successfully sent ${result?.metadata?.symbol}`);
+        showSuccessToast(`Successfully transfered jetton`);
         onSuccess();
       },
       onError: (error) => {

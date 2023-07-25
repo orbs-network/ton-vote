@@ -7,6 +7,7 @@ interface Props {
   title: ReactNode;
   children: React.ReactNode;
   className?: string;
+  subtitle?: string;
 }
 
 export function TitleContainer({
@@ -14,6 +15,7 @@ export function TitleContainer({
   title,
   children,
   className = '',
+  subtitle
 }: Props) {
 
     const hideHeader = !title && !headerComponent;
@@ -29,11 +31,22 @@ export function TitleContainer({
             {headerComponent}
           </StyledHeader>
         )}
-        <Box className="title-container-children">{children}</Box>
+        <Box className="title-container-children">
+          {subtitle && <StyledSubtitle>{subtitle}</StyledSubtitle>}
+          {children}
+        </Box>
       </StyledTitleContainer>
     </Fade>
   );
 }
+
+export const StyledSubtitle = styled(Typography)({
+  fontSize: 14,
+  opacity: 0.7,
+  width: "100%",
+  textAlign: "left",
+  marginBottom: 30
+});
 
 const StyledTitle = styled(Typography)(({ theme }) => ({
   fontSize: 17,

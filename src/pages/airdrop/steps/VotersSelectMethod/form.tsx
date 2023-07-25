@@ -1,17 +1,15 @@
-import { styled } from "@mui/material";
-import { Button, Img } from "components";
-import { FormikProps, FormikValues } from "formik";
+import { styled, Typography } from "@mui/material";
+import { AppTooltip, Button } from "components";
+import { FormikProps } from "formik";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
-import { useAssetMetadataQuery } from "query/getters";
 import { useMemo } from "react";
-import { useAirdropStore } from "store";
 import { FormArgs, InputArgs } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
-import { AirdropAssetImg } from "../AirdropAssetImg";
-import { useGetAllVotersAddresses } from "../hooks";
-import { AirdropForm } from "../types";
+import { AirdropAssetImg } from "../../AirdropAssetImg";
+import { useGetAirdropVotes } from "../../hooks";
+import { AirdropForm } from "../../types";
 
 const names = {
   walletsAmount: "walletsAmount",
@@ -66,7 +64,7 @@ export const useFormSchema = () => {
       "",
       "Select at least one voter manually",
       (value, context) => {
-        if (context.parent.manualSelect === 2) {
+        if (context.parent.votersSelectionMethod === 2) {
           return _.size(value) > 0;
         }
         return true;
@@ -91,31 +89,33 @@ const SelectAllVotersBtn = ({
 }: {
   formik: FormikProps<AirdropForm>;
 }) => {
-  const allVotersAddresses = useGetAllVotersAddresses();
+  const getVotes = useGetAirdropVotes();
   const onClick = async () => {
-    formik.setFieldValue(
-      names.walletsAmount,
-      _.size(await allVotersAddresses())
-    );
+    const votes = await getVotes();
+    formik.setFieldValue(names.walletsAmount, _.size(votes));
   };
 
-  return <StyledAllButton onClick={onClick}>Max</StyledAllButton>;
+  return (
+    <AppTooltip text="Some text">
+      <StyledAllButton onClick={onClick}>Max</StyledAllButton>
+    </AppTooltip>
+  );
 };
 
-const StyledAllButton = styled(Button)({
+const StyledAllButton = styled('div')({
   height: 30,
+  border:'unset',
   "*": {
     fontSize: 14,
   },
 });
-
 
 export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
   return useMemo(() => {
     let inputs: InputArgs<AirdropForm>[] = [
       {
         name: names.type,
-        label: "Asset type (Jetton/NFT)",
+        label: "Airdrop asset type",
         placeholder: "Select",
         type: "select",
         required: true,
@@ -126,7 +126,7 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
       },
       {
         name: names.votersSelectionMethod,
-        label: "Voters selection method",
+        label: "Select method",
         type: "select",
         required: true,
         selectOptions: [
@@ -165,14 +165,15 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
     const jettonsInputs: InputArgs<AirdropForm>[] = [
       {
         name: names.address,
-        label: "Jetton address",
+        label: "Jetton wallet address",
         type: "text",
         required: true,
         EndAdornment: () => <AirdropAssetImg address={values.address} />,
+        text:'Some text'
       },
       {
         name: names.assetAmount,
-        label: "Amount of Jetton to airdrop",
+        label: "Total amount of jettons",
         type: "number",
         required: true,
       },

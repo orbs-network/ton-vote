@@ -1,13 +1,13 @@
 import { styled, Typography } from "@mui/material";
 import { TitleContainer } from "components";
 import _ from "lodash";
-import { useAssetMetadataQuery } from "query/getters";
+import { useReadNftItemMetadata } from "query/getters";
 import { useMemo } from "react";
 import { CSVLink } from "react-csv";
 import { BsCheckCircle } from "react-icons/bs";
-import { useAirdropStore } from "store";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
 import { useAmountPerWallet, useAmount } from "./hooks";
+import { useAirdropStore } from "./store";
 import { StyledButton } from "./styles";
 
 const NFTFinished = () => {
@@ -54,7 +54,7 @@ const FinishedLayout = ({ csv, filename, text }: FinishedProps) => {
 
 const JettonFinished = () => {
   const { jettonAddress } = useAirdropStore();
-  const { data, isLoading } = useAssetMetadataQuery(jettonAddress);
+  const { data, isLoading } = useReadNftItemMetadata(jettonAddress);
   const { amountPerWalletUI } = useAmountPerWallet();
   const { voters } = useAirdropStore();
   const { amountUI } = useAmount();

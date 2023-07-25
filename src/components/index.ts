@@ -36,3 +36,6 @@ export * from "./VerifiedDao";
 export * from "./HiddenProposal";
 export * from "./LatestBlock";
 export * from "./StepsLayout";
+export * from "./ProposalAbout";
+export * from "./Tabs";
+export * from "./VirtualList";

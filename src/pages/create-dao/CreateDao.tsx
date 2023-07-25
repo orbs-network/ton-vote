@@ -37,7 +37,7 @@ export function CreateDao() {
   const { step: currentStep, setStep, setEditMode } = useCreatDaoStore();
   const steps = useSteps();
   return (
-    <Page back={routes.spaces}>
+    <Page hideBack>
       <StepsLayout
         steps={steps}
         currentStep={currentStep}

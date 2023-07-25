@@ -1,15 +1,16 @@
 import Modal from "@mui/material/Modal";
-import { ReactElement } from "react";
+import { ReactElement, ReactNode } from "react";
 import { DialogContent, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton } from "@mui/material";
 import { TitleContainer } from "components";
+import { StyledFlexRow } from "styles";
 interface Props {
   children: ReactElement;
   onClose?: () => void;
   open: boolean;
   className?: string;
-  title?: string;
+  title?: ReactNode;
   hideCloseButton?: boolean;
   transparent?: boolean;
 }
@@ -24,19 +25,23 @@ export const Popup = ({
   transparent,
 }: Props) => {
   return (
-    <StyledModal open={open} onClose={onClose} componentsProps={{
-      backdrop: {
-        style: {
-         opacity: transparent ?  0 : 1
-        }
-      }
-    }}>
+    <StyledModal
+      open={open}
+      onClose={onClose}
+      componentsProps={{
+        backdrop: {
+          style: {
+            opacity: transparent ? 0 : 1,
+          },
+        },
+      }}
+    >
       <StyledDialogContent>
         <StyledChildren
           title={title || ""}
           className={`popup-children ${className}`}
           headerComponent={
-            !title ? null : onClose && !hideCloseButton && <CloseButton close={onClose} />
+            <CloseButton hideCloseButton={hideCloseButton} close={onClose} />
           }
         >
           {children}
@@ -45,6 +50,10 @@ export const Popup = ({
     </StyledModal>
   );
 };
+
+const StyledAbsoluteCloseButton = styled(CloseButton)({
+  marginLeft: "auto",
+});
 
 const StyledDialogContent = styled(DialogContent)({
   display: "flex",
@@ -55,8 +64,17 @@ const StyledDialogContent = styled(DialogContent)({
 });
 
 const StyledChildren = styled(TitleContainer)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
   ".container-header": {
     alignItems: "center",
+  },
+  ".title-container-header": {
+    padding:'10px 15px 10px 20px'
+  },
+  ".title-container-children": {
+  flex:1,
+  overflowY: "auto", 
   },
   position: "relative",
   padding: "0px",
@@ -83,10 +101,13 @@ const StyledModal = styled(Modal)({
 export function CloseButton({
   close,
   className = "",
+  hideCloseButton,
 }: {
-  close: () => void;
+  close?: () => void;
   className?: string;
+  hideCloseButton?: boolean;
 }) {
+  if (hideCloseButton || !close) return null;
   return (
     <StyledClose className={className} onClick={close}>
       <GrClose style={{ width: 15, height: 15 }} />

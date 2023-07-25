@@ -1,5 +1,5 @@
 import { styled, useMediaQuery } from "@mui/material";
-import { ErrorContainer } from "components";
+import { ProposalAbout } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
@@ -8,7 +8,6 @@ import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { appNavigation } from "router/navigation";
 import { useAppParams, useHiddenProposal } from "hooks/hooks";
-import { ProposalAbout } from "./ProposalAbout";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
@@ -17,10 +16,14 @@ import ProposalMenu from "../ProposalMenu";
 const gap = 15;
 
 const Destop = () => {
+  const { proposalAddress, daoAddress } = useAppParams();
   return (
     <StyledWrapper>
       <StyledLeft>
-        <ProposalAbout />
+        <ProposalAbout
+          proposalAddress={proposalAddress}
+          daoAddress={daoAddress}
+        />
         <Vote />
         <Votes />
       </StyledLeft>
@@ -34,10 +37,15 @@ const Destop = () => {
 };
 
 const Mobile = () => {
+  const { proposalAddress, daoAddress } = useAppParams();
+
   return (
     <StyledWrapper>
       <Deadline />
-      <ProposalAbout />
+      <ProposalAbout
+        proposalAddress={proposalAddress}
+        daoAddress={daoAddress}
+      />
       <Vote />
       <Results />
       <Metadata />

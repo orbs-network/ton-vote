@@ -49,8 +49,9 @@ function Page({
 export { Page };
 
 const StyledTitle = styled(Typography)({
-  fontWeight: 600,
-  fontSize: 20,
+  fontWeight: 700,
+  fontSize: 22,
+  paddingLeft:0
 });
 
 const StyledTop = styled(StyledFlexRow)({

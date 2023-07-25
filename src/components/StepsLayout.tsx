@@ -1,4 +1,4 @@
-import { styled, useTheme } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
 import { Button, OverflowWithTooltip, SideMenu } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
@@ -16,6 +16,12 @@ interface Props {
   children?: React.ReactNode;
   header?: React.ReactNode;
 }
+
+const StepSubtitle = ({ text }: { text: string }) => {
+  return <StyledStepSubtitle>{text}</StyledStepSubtitle>;
+};
+
+StepsLayout.StepSubtitle = StepSubtitle;
 
 export function StepsLayout({
   steps,
@@ -88,6 +94,8 @@ export function StepsLayout({
     </StyledContainer>
   );
 }
+
+const StyledStepSubtitle = styled(Typography)({});
 
 const StyledEdit = styled(Button)({
   padding: "5px 10px",

@@ -10,6 +10,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import React, {
+  Fragment,
   ReactElement,
   ReactNode,
   useCallback,
@@ -62,6 +63,7 @@ import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import moment, { Moment, utc } from "moment";
 import { useMobile } from "hooks/hooks";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { VirtualList } from "components/VirtualList";
 
 interface TextInputProps {
   value?: string | number;
@@ -335,8 +337,6 @@ export const DateRangeInput = ({
   );
 };
 
-
-
 export function MapInput<T>({
   args,
   value,
@@ -352,7 +352,11 @@ export function MapInput<T>({
   error?: string;
   className?: string;
   onChange: (value: any) => void;
-  customInputHandler?: (args: InputArgs<T>, value: any,  onChange: (value: any) => void) => ReactElement;
+  customInputHandler?: (
+    args: InputArgs<T>,
+    value: any,
+    onChange: (value: any) => void
+  ) => ReactElement;
   clearError?: () => void;
   formik: FormikProps<T>;
 }) {
@@ -435,6 +439,9 @@ export function MapInput<T>({
       />
     );
   }
+
+
+
   if (args.type === "select") {
     return (
       <Select
@@ -475,7 +482,7 @@ export function MapInput<T>({
     );
   }
   if (args.type === "custom" && customInputHandler) {
-    return customInputHandler(args,value,  onChange);
+    return customInputHandler(args, value, onChange);
   }
   if (args.type === "display-text") {
     return <StyledDisplayText>{args.text}</StyledDisplayText>;
@@ -604,7 +611,11 @@ interface FormikInputsFormProps<T> {
   form: FormArgs<T>[] | FormArgs<T>;
   formik: FormikProps<T>;
   EndAdornment?: any;
-  customInputHandler?: (args: InputArgs<T>, value: any,  onChange: (value: any) => void ) => ReactElement;
+  customInputHandler?: (
+    args: InputArgs<T>,
+    value: any,
+    onChange: (value: any) => void
+  ) => ReactElement;
   children?: ReactNode;
   className?: string;
 }
@@ -624,64 +635,69 @@ export function FormikInputsForm<T>({
       {_form.map((it, index) => {
         const isLast = _.size(_form) === index + 1;
 
-        return (
-          <TitleContainer
-            className={`${className} formik-form`}
-            key={index}
-            title={it.title}
-            headerComponent={
-              it.warning && (
-                <StyledWarning>
-                  <RiErrorWarningLine />
-                  {it.warning}
-                </StyledWarning>
-              )
-            }
-          >
-            <StyledFlexColumn gap={30}>
-              {it.subTitle && (
-                <StyledCreateAbout>{it.subTitle}</StyledCreateAbout>
-              )}
-              <StyledInputsContainer gap={20}>
-                {it.inputs.map((input) => {
-                  const clearError = () =>
-                    formik.setFieldError(input.name as string, undefined);
-                  return (
-                    <StyledFormInput
-                      key={input.name}
-                      className="form-input"
-                      style={{
-                        width:
-                          input.style?.width || mobile
-                            ? "100%"
-                            : it.inputsInRow
-                            ? `calc(${100 / it.inputsInRow}% - ${
-                                it.inputsInRow * 7
-                              }px)`
-                            : "100%",
+        const content = (
+          <>
+            <StyledInputsContainer gap={20}>
+              {it.inputs.map((input) => {
+                const clearError = () =>
+                  formik.setFieldError(input.name as string, undefined);
+                return (
+                  <StyledFormInput
+                    key={input.name}
+                    className="form-input"
+                    style={{
+                      width:
+                        input.style?.width || mobile
+                          ? "100%"
+                          : it.inputsInRow
+                          ? `calc(${100 / it.inputsInRow}% - ${
+                              it.inputsInRow * 7
+                            }px)`
+                          : "100%",
+                    }}
+                  >
+                    <MapInput<T>
+                      customInputHandler={customInputHandler}
+                      args={input}
+                      value={formik.values[input.name as keyof T]}
+                      error={formik.errors[input.name as keyof T] as string}
+                      clearError={clearError}
+                      onChange={(value: any) => {
+                        formik.setFieldValue(input.name as string, value);
+                        clearError();
                       }}
-                    >
-                      <MapInput<T>
-                        customInputHandler={customInputHandler}
-                        args={input}
-                        value={formik.values[input.name as keyof T]}
-                        error={formik.errors[input.name as keyof T] as string}
-                        clearError={clearError}
-                        onChange={(value: any) => {
-                          formik.setFieldValue(input.name as string, value);
-                          clearError();
-                        }}
-                        formik={formik}
-                      />
-                    </StyledFormInput>
-                  );
-                })}
-              </StyledInputsContainer>
-            </StyledFlexColumn>
+                      formik={formik}
+                    />
+                  </StyledFormInput>
+                );
+              })}
+            </StyledInputsContainer>
             {it.bottomText && <StyledMarkdown>{it.bottomText}</StyledMarkdown>}
             {isLast && children}
-          </TitleContainer>
+          </>
         );
+
+        if (it.title) {
+          return (
+            <TitleContainer
+              className={`${className} formik-form`}
+              key={index}
+              title={it.title}
+              subtitle={it.subTitle}
+              headerComponent={
+                it.warning && (
+                  <StyledWarning>
+                    <RiErrorWarningLine />
+                    {it.warning}
+                  </StyledWarning>
+                )
+              }
+            >
+              {content}
+            </TitleContainer>
+          );
+        }
+        return <Fragment key={index}>{content}</Fragment>;
       })}
     </StyledFlexColumn>
   );

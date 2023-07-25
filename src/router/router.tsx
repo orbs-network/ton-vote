@@ -135,11 +135,6 @@ export const useRouter = () => {
                     <Navigate to={routes.spaces} />
                   ),
                 },
-                {
-                  path: routes.airdrop,
-                  errorElement: <Navigate to={routes.spaces} />,
-                  element: <Airdrop />,
-                },
               ],
             },
           ],

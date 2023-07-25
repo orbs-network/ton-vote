@@ -5,6 +5,7 @@ import {
   IS_DEV,
   PROD_TEST_DAOS,
   REFETCH_INTERVALS,
+  BLACKLISTED_PROPOSALS,
 } from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
@@ -15,13 +16,15 @@ import {
   getDaoState,
   getRegistryState,
   readJettonMinterOrNftCollectionMetadata,
+  readNftItemMetadata,
+  readJettonWalletMedata,
 } from "ton-vote-contracts-sdk";
 import {
   getIsOneWalletOneVote,
   getProposalSymbol,
   getVoteStrategyType,
   isDaoWhitelisted,
-  isProposalWhitelisted,
+  isProposalBlacklisted,
   Logger,
   nFormatter,
   validateAddress,
@@ -225,15 +228,21 @@ export const useDaoQuery = (daoAddress: string) => {
       }
 
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
-      const daoProposals = IS_DEV
+      let daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
         : proposals;
+
+      daoProposals = _.filter(
+        daoProposals,
+        (it) => !BLACKLISTED_PROPOSALS.includes(it)
+      );
+
+      if (daoAddress === FOUNDATION_DAO_ADDRESS) {
+        daoProposals = FOUNDATION_PROPOSALS_ADDRESSES;
+      }
       return {
         ...dao,
-        daoProposals:
-          daoAddress === FOUNDATION_DAO_ADDRESS
-            ? FOUNDATION_PROPOSALS_ADDRESSES
-            : daoProposals,
+        daoProposals,
       };
     },
     {
@@ -316,18 +325,21 @@ interface ProposalQueryArgs {
   isCustomEndpoint?: boolean;
 }
 
-const useGetProposalWithFallback = () => {
+const useGetProposalCallback = () => {
   const analytics = useAnalytics();
-  const queryClient = useQueryClient();
   const { getProposalUpdateMillis, removeProposalUpdateMillis } =
     useSyncStore();
+  const votePersistStore = useVotePersistedStore();
 
   return async (
-    key: QueryKey,
     proposalAddress: string,
-    maxLt?: string,
+    currentData?: Proposal | null,
     signal?: AbortSignal
   ) => {
+    if (isProposalBlacklisted(proposalAddress)) {
+      throw new Error("Proposal not found");
+    }
+
     const mockProposal = mock.getMockProposal(proposalAddress!);
     if (mockProposal) {
       return mockProposal;
@@ -339,9 +351,16 @@ const useGetProposalWithFallback = () => {
     if (foundationProposal) {
       return foundationProposal;
     }
+    const votePersistValues = votePersistStore.getValues(proposalAddress!);
+    // maxLtAfterVote is maxLt after voting
+    const maxLtAfterVote = votePersistValues.maxLtAfterVote;
 
-    const getProposalFromContract = () =>
-      contract.getProposal({ proposalAddress, maxLt });
+    const getProposalFromContract = () => {
+      return contract.getProposal({
+        proposalAddress,
+        maxLt: maxLtAfterVote || currentData?.maxLt,
+      });
+    };
 
     const isMetadataUpToDateInServer = await getIsServerUpToDate(
       getProposalUpdateMillis(proposalAddress)
@@ -364,7 +383,6 @@ const useGetProposalWithFallback = () => {
     let proposal;
 
     // try to fetch proposal from server
-
     try {
       proposal = await api.getProposal(proposalAddress!, signal);
     } catch (error) {
@@ -373,6 +391,7 @@ const useGetProposalWithFallback = () => {
         error instanceof Error ? error.message : ""
       );
     }
+
     // try to fetch proposal from contract
     if (!proposal) {
       try {
@@ -384,11 +403,39 @@ const useGetProposalWithFallback = () => {
         );
       }
     }
-    // failed to fetch proposal from server and contract
+
+    // failed to fetch proposal from server and contract, try to return current data from cache
+    if (!proposal) {
+      proposal = currentData;
+    }
 
     if (!proposal) {
-      proposal = queryClient.getQueryData<Proposal | undefined>(key);
+      throw new Error("Proposal not found");
     }
+
+    // check if server is up to date
+    if (Number(proposal?.maxLt) < Number(maxLtAfterVote)) {
+      Logger("Server is not up to date, return results from cache");
+      const persistedResult = votePersistValues.results;
+      const latestConnectedWalletVote = votePersistValues.vote;
+      const filteredVotes = _.filter(
+        proposal.votes,
+        (it) => it.address !== latestConnectedWalletVote?.address
+      );
+
+      if (!persistedResult) {
+        return proposal;
+      }
+        //server is not up to date, = return results from cache
+        return {
+          ...proposal,
+          proposalResult: persistedResult,
+          votes: latestConnectedWalletVote
+            ? [latestConnectedWalletVote, ...filteredVotes]
+            : filteredVotes,
+        } as Proposal;
+    }
+    votePersistStore.resetValues(proposalAddress!);
 
     return proposal;
   };
@@ -396,13 +443,14 @@ const useGetProposalWithFallback = () => {
 
 export const useEnsureProposalQuery = () => {
   const queryClient = useQueryClient();
-  const getProposalWithFallback = useGetProposalWithFallback();
+  const getProposal = useGetProposalCallback();
 
   return (proposalAddress: string) => {
     const key = [QueryKeys.PROPOSAL, proposalAddress];
-    return queryClient.ensureQueryData(key, () =>
-      getProposalWithFallback(key, proposalAddress)
-    );
+    return queryClient.ensureQueryData(key, () => {
+      const currentData = queryClient.getQueryData<Proposal | undefined>(key);
+      return getProposal(proposalAddress, currentData);
+    });
   };
 };
 
@@ -411,94 +459,37 @@ export const useProposalQuery = (
   args?: ProposalQueryArgs
 ) => {
   const clients = useGetClients().data;
-  const votePersistStore = useVotePersistedStore();
-  const { getProposalUpdateMillis, removeProposalUpdateMillis } =
-    useSyncStore();
-  const { isVoting } = useVoteStore();
-  const key = [QueryKeys.PROPOSAL, proposalAddress];
-  const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const [error, setError] = useState(false);
   const route = useCurrentRoute();
 
-  const getProposalWithFallback = useGetProposalWithFallback();
+  const getProposal = useGetProposalCallback();
 
   const config = useMemo(() => {
+
+    const getRefetchInterval = () => {
+      if(route === routes.proposal) {
+        return 15_000;
+      }      
+       if (route === routes.airdrop) {
+         return undefined;
+       }
+
+      return 30_000;
+    }
+
     return {
-      refetchInterval: route === routes.proposal ? 15_000 : 30_000,
+      refetchInterval: getRefetchInterval(),
     };
   }, [route]);
 
   const queryClient = useQueryClient();
+  const key = [QueryKeys.PROPOSAL, proposalAddress];
 
   return useQuery(
     key,
     async ({ signal }) => {
-      if (!isWhitelisted) {
-        throw new Error("Proposal not whitelisted");
-      }
-
-      if (isVoting) {
-        return queryClient.getQueryData<Proposal | undefined>(key) || null;
-      }
-      const currentProposal = queryClient.getQueryData<Proposal | undefined>(
-        key
-      );
-
-      const votePersistValues = votePersistStore.getValues(proposalAddress!);
-
-      // maxLtAfterVote is maxLt after voting
-      const maxLtAfterVote = votePersistValues.maxLtAfterVote;
-
-      const maxLt = maxLtAfterVote || currentProposal?.maxLt;
-
-      const proposal = await getProposalWithFallback(
-        key,
-        proposalAddress!,
-        maxLt,
-        signal
-      );
-
-      if (!proposal) {
-        // proposal not found in cache, throw error
-        throw new Error("Proposal not found");
-      }
-
-      //  if proposal is up to date, return proposal, and clear local storage stored values
-
-      const serverMaxLtUpToDate =
-        Number(proposal?.maxLt) >= Number(maxLtAfterVote);
-      const persistedResult = votePersistValues.results;
-      const persistedVote = votePersistValues.vote;
-
-      if (
-        !maxLtAfterVote ||
-        serverMaxLtUpToDate ||
-        !persistedResult ||
-        !persistedVote
-      ) {
-        votePersistStore.resetValues(proposalAddress!);
-
-        return proposal;
-      }
-
-      Logger(
-        `server proposal is not up to date, getting results and vote from local storage, proposal maxLt: ${proposal?.maxLt}, latestMaxLtAfterTx: ${maxLtAfterVote}`
-      );
-
-      // if maxLtAfterVote greater then proposal maxLt, that means that user voted, and
-      // we need to get his vote and proposal result from local storage, because server is not up to date
-
-      const filteredVotes = _.filter(
-        proposal.votes,
-        (it) => it.address !== persistedVote.address
-      );
-
-      return {
-        ...proposal,
-        proposalResult: persistedResult,
-        votes: [persistedVote, ...filteredVotes],
-        enabled: !!proposalAddress,
-      };
+      const currentData = queryClient.getQueryData<Proposal | undefined>(key);
+      return getProposal(proposalAddress!, currentData, signal);
     },
     {
       onError: (error: Error) => {
@@ -511,11 +502,7 @@ export const useProposalQuery = (
         !!clients.clientV4 &&
         !args?.disabled,
       staleTime: Infinity,
-      refetchInterval: error
-        ? 0
-        : isWhitelisted
-        ? config.refetchInterval
-        : undefined,
+      refetchInterval: error ? 0 : config.refetchInterval,
       retry: 0,
     }
   );
@@ -535,17 +522,46 @@ export const useEnsureAssetMetadataQuery = () => {
     queryClient.ensureQueryData(["useAssetMetadataQuery", assetAddress]);
 };
 
-export const useAssetMetadataQuery = (assetAddress?: string) => {
+export const useReadJettonWalletMedata = (assetAddress?: string) => {
   const clientV2 = useGetClients().data?.clientV2;
   validateAddress(assetAddress);
 
   return useQuery<any>(
-    ["useAssetMetadataQuery", assetAddress],
-    () => readJettonMinterOrNftCollectionMetadata(clientV2!, assetAddress!),
+    ["readJettonWalletMedata", assetAddress],
+    () => readJettonWalletMedata(clientV2!, assetAddress!),
     {
       enabled: !!clientV2 && !!assetAddress && validateAddress(assetAddress),
       staleTime: Infinity,
       refetchInterval: undefined,
     }
   );
+};
+
+
+export const useReadNftItemMetadata = (assetAddress?: string) => {
+  const clientV2 = useGetClients().data?.clientV2;
+  validateAddress(assetAddress);
+
+  return useQuery<any>(
+    ["useReadNftItemMetadata", assetAddress],
+    () => readNftItemMetadata(clientV2!, assetAddress!),
+    {
+      enabled: !!clientV2 && !!assetAddress && validateAddress(assetAddress),
+      staleTime: Infinity,
+      refetchInterval: undefined,
+    }
+  );
+};
+
+export const useGetAllProposalsCallback = () => {
+  const getProposal = useEnsureProposalQuery();
+
+  return (proposals?: string[]) => {
+    if (!proposals) return [];
+    return Promise.all(
+      proposals?.map((address) => {
+        return getProposal(address);
+      })
+    );
+  };
 };

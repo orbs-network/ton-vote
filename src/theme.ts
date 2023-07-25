@@ -1,7 +1,7 @@
 import { createTheme, Theme } from "@mui/material";
 import { useAppSettings } from "hooks/hooks";
 import { useEffect } from "react";
-import { useSettingsStore } from "store";
+
 
 export const lightTheme = createTheme({
   palette: {
@@ -14,7 +14,7 @@ export const lightTheme = createTheme({
       main: "#d32f2f",
     },
     primary: {
-      main: "#0088CC",
+      main: "#0098ea",
     },
     text: {
       primary: "rgb(114, 138, 150)",
@@ -57,10 +57,10 @@ export const darkTheme = createTheme({
       main: "#d32f2f",
     },
     primary: {
-      main: "#0088CC",
+      main: "#0098ea",
     },
     secondary: {
-      main:'#2B303B'
+      main: "#2B303B",
     },
     text: {
       primary: "rgba(255,255,255,0.8)",

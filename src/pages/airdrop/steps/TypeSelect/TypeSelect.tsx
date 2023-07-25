@@ -4,19 +4,21 @@ import {
   TitleContainer,
   Button,
   OverflowWithTooltip,
+  AddressDisplay,
 } from "components";
 import { useFormik } from "formik";
 import _ from "lodash";
-import { useAirdropStore } from "store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { validateFormik } from "utils";
-import { useAirdropVotersQuery, useAmount, useSetupAirdrop } from "../hooks";
+import { useAirdropVotersQuery, useAmount, useSetupAirdrop } from "../../hooks";
 import { CSSProperties, useMemo } from "react";
-import { AirdropForm } from "../types";
-import SelectPopup from "components/SelectPopup";
+import { AirdropForm } from "../../types";
+import { VirtualList } from "components";
 import { useForm, useFormSchema } from "./form";
 import { SubmitButtonContainer } from "../SubmitButton";
-export const SetupAirdrop = () => {
+import { Typography } from "@mui/material";
+import { useAirdropStore } from "../../store";
+export const TypeSelect = () => {
   const { mutate, isLoading } = useSetupAirdrop();
   const { jettonAddress, type, voters, votersSelectionMethod } =
     useAirdropStore();
@@ -48,7 +50,8 @@ export const SetupAirdrop = () => {
   };
 
   return (
-    <TitleContainer title="Setup airdrop">
+    <TitleContainer title="Choose airdrop type">
+      <Typography>Some text</Typography>
       <StyledForm>
         <FormikInputsForm<AirdropForm>
           form={form}
@@ -110,42 +113,11 @@ const ManualVotersSelect = ({
   };
 
   return (
-    <TitleContainer
-      title="Manual voters select"
-      headerComponent={
-        <SelectPopup<string>
-          RowComponent={ManualVotersRow}
-          buttonText="Select voters"
-          title="Select voters"
-          data={data}
-          selected={selected}
-          onSave={onSelect}
-          itemSize={60}
-        />
-      }
-    >
-      <StyledSelectedList
-        emptyText="No voters selected"
-        isEmpty={!_.size(selected)}
-      >
-        {selected?.map((address) => {
-          return (
-            <SelectPopup.SelectedChip
-              onDelete={() => onDelete(address)}
-              key={address}
-            >
-              <OverflowWithTooltip text={address} className="title" />
-            </SelectPopup.SelectedChip>
-          );
-        })}
-      </StyledSelectedList>
+    <TitleContainer title="Manual voters select">
+      <VirtualList RowComponent={ManualVotersRow} data={data} itemSize={60} />
     </TitleContainer>
   );
 };
-
-const StyledSelectedList = styled(SelectPopup.List)({
-  padding: 20,
-});
 
 const StyledForm = styled(StyledFlexColumn)({
   ".select-box": {

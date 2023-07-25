@@ -1,25 +1,35 @@
 import { styled, Typography } from "@mui/material";
 import _ from "lodash";
 import { Page } from "wrappers";
-import { SetupAirdrop } from "./SetupAirdrop/SetupAirdrop";
+import { TypeSelect } from "./steps/TypeSelect/TypeSelect";
 import { ActiveAirdrop } from "./ActiveAirdrop";
-import SelectVoters from "./SelectVoters/SelectVoters";
 import { StepsMenuStep } from "types";
 import { Button, Popup, StepsLayout } from "components";
-import { useAirdropStore } from "store";
+import { useAirdropStore } from "./store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useState } from "react";
 import { AirdropFinished } from "./AirdropFinished";
+import { SelectDao } from "./steps/SelectDao";
+import { SelectProposals } from "./steps/SelectProposals";
+import GettingsStarted from "./steps/GettingStarted";
 
 const useSteps = (): StepsMenuStep[] => {
   return [
     {
-      title: "Select Voters",
-      component: SelectVoters,
+      title: "Getting started",
+      component: GettingsStarted,
     },
     {
-      title: "Setup airdrop",
-      component: SetupAirdrop,
+      title: "Select a DAO space",
+      component: SelectDao,
+    },
+    {
+      title: "Select proposals",
+      component: SelectProposals,
+    },
+    {
+      title: "Choose airdrop type",
+      component: TypeSelect,
     },
     {
       title: "Transfer assets",
@@ -35,7 +45,7 @@ export function Airdrop() {
   const steps = useSteps();
   const { step, setStep } = useAirdropStore();
   return (
-    <StyledPage title="Airdrop" back={"/"}>
+    <StyledPage title="Airdrop Asistant" hideBack>
       <StepsLayout
         disableBack
         setStep={setStep}
@@ -50,6 +60,7 @@ export function Airdrop() {
 const StyledPage = styled(Page)({
   marginLeft: "auto",
   marginRight: "auto",
+  // maxWidth: 1000
 });
 
 const ResetButton = () => {
@@ -65,7 +76,7 @@ const ResetButton = () => {
 
   return (
     <StyledFlexRow style={{ marginLeft: "auto", marginTop: 20 }}>
-      <StyledResetButton onClick={() => setOpen(true)}>Reset</StyledResetButton>
+      <StyledResetButton onClick={() => setOpen(true)} variant='text'>Reset</StyledResetButton>
       <StyledWarningPopup
         open={open}
         onClose={() => setOpen(false)}
@@ -87,10 +98,10 @@ const ResetButton = () => {
 
 const StyledResetButton = styled(Button)({
   marginLeft: "auto",
-  height: "auto",
-  padding: "7px 13px",
-  "*": {
-    fontSize: 14,
+  cursor: "pointer",
+  "p": {
+    fontSize: 16,
+    fontWeight: 500,
   },
 });
 
