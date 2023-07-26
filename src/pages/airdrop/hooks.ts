@@ -4,14 +4,16 @@ import { useFormik } from "formik";
 import { useDebouncedCallback, useFormatNumber } from "hooks/hooks";
 import _ from "lodash";
 import {
+  useDaosQuery,
   useGetAllProposalsCallback,
   useGetClientsCallback,
   useGetWalletNFTCollectionItemsCallback,
   useReadJettonWalletMedataCallback,
+  useReadNftItemMetadataCallback,
 } from "query/getters";
 import { useEffect, useMemo } from "react";
 import { showSuccessToast, useErrorToast } from "toasts";
-import { toNano } from "ton-core";
+import { fromNano, toNano } from "ton-core";
 import {
   chooseRandomVoters,
   transferJettons,
@@ -21,10 +23,25 @@ import { AnyObjectSchema } from "yup";
 import { useAirdropStore, AirdropForm } from "./store";
 import { AirdropStoreKeys, VoterSelectionMethod } from "./types";
 
+export const useSelectedDaosProposals = () => {
+  const { dataUpdatedAt, data } = useDaosQuery();
+
+  const { daos } = useAirdropStore();
+
+  const daoAddress = daos?.[0];
+
+  return useMemo(() => {
+    return _.find(data, { daoAddress })?.daoProposals || [];
+  }, [dataUpdatedAt, daoAddress]);
+};
+
 export const useAirdropVotersQuery = () => {
   const getVotes = useGetAirdropVotes();
+  const { proposals } = useAirdropStore();
 
-  return useQuery(["useAirdropVotersQuery"], async () => {
+  const _proposals = proposals || [];
+
+  return useQuery(["useAirdropVotersQuery", ..._proposals], async () => {
     const votes = await getVotes();
     return _.keys(votes);
   });
@@ -116,6 +133,7 @@ export const useAmountPerWallet = () => {
 
   const amountPerWallet = useMemo(() => {
     const amount = jettonsAmount || 0;
+    
 
     return assetType === "jetton" ? Math.floor(amount / _.size(voters)) : 1;
   }, [jettonsAmount, _.size(voters), assetType]);
@@ -199,24 +217,37 @@ const useOnTransferSuccess = () => {
 export const useTransferNFT = () => {
   const errorToast = useErrorToast();
   const [tonconnect] = useTonConnectUI();
-  const onSuccess = useOnTransferSuccess();
+  const onSuccessCallback = useOnTransferSuccess();
   const voter = useNextVoter();
   const getClients = useGetClientsCallback();
   const { setNFTItemsRecipients } = useAirdropStore();
+  const getMetadata = useReadNftItemMetadataCallback();
+  const connectedWallet = useTonAddress();
 
   return useMutation(
-    async (nftCollection: string) => {
+    async ({
+      NFTItemAddress,
+    }: {
+      NFTItemAddress: string;
+      onSuccess: () => void;
+    }) => {
       if (!voter) {
         throw new Error("No next voter found");
       }
+      const metadata = await getMetadata(NFTItemAddress);
+      const isOwner = metadata?.nftItemOwner.toString() === connectedWallet;
+      if (!isOwner) {
+        throw new Error("You are not owner of this NFT");
+      }
       // const clientV2 = (await getClients()).clientV2;
-      // return transferNft(clientV2, tonconnect, nftCollection, voter);
+      // return transferNft(clientV2, tonconnect, NFTItemAddress, voter);
     },
     {
-      onSuccess: (_, nftCollection) => {
+      onSuccess: (_, args) => {
         showSuccessToast(`Successfully transferred NFT`);
-        onSuccess();
-        setNFTItemsRecipients(voter!, nftCollection);
+        onSuccessCallback();
+        setNFTItemsRecipients(voter!, args.NFTItemAddress);
+        args.onSuccess();
       },
       onError: (error) => {
         errorToast(error);
@@ -230,7 +261,6 @@ export const useOnAssetTypeSelected = () => {
   const showError = useErrorToast();
   const connectedWallet = useTonAddress();
   const { nextStep } = useAirdropStore();
-  const getWalletNFTCollectionItems = useGetWalletNFTCollectionItemsCallback();
 
   return useMutation(
     async (values: AirdropForm) => {
@@ -240,11 +270,14 @@ export const useOnAssetTypeSelected = () => {
         }
         const metadata = await getMetadata(values.jettonAddress);
         if (metadata.ownerAddress.toString() !== connectedWallet) {
-          throw new Error("You are not the owner of this jetton");
+          throw new Error("You must be owner of this jetton wallet");
         }
-      } else {
-        if (!values.nftCollection) {
-          throw new Error("No NFT address found");
+        const haveBalance =
+          metadata.jettonWalletBalance >= toNano(Math.floor(values.jettonsAmount || 0))
+          
+
+        if (!haveBalance) {
+          throw new Error("You don't have enough jetton balance");
         }
       }
     },

@@ -19,7 +19,6 @@ interface AirdropStore {
   selectProposal: (proposal: string) => void;
   setStep: (step: number) => void;
   incrementCurrentWalletIndex: () => void;
-  deleteProposal: (proposal: string) => void;
   setVoters: (voters: string[]) => void;
   nextStep: () => void;
   setDao: (dao: string) => void;
@@ -54,7 +53,7 @@ const initialState = {
   [AirdropStoreKeys.step]: undefined,
   [AirdropStoreKeys.selectionMethod]: undefined,
   [AirdropStoreKeys.manuallySelectedVoters]: undefined,
-  [AirdropStoreKeys.NFTItemsRecipients]: undefined
+  [AirdropStoreKeys.NFTItemsRecipients]: undefined,
 };
 
 export const useAirdropStore = create(
@@ -84,6 +83,8 @@ export const useAirdropStore = create(
       selectProposal: (proposal) => {
         const proposals = get().proposals || [];
         set({
+          manuallySelectedVoters: [],
+          votersAmount: undefined,
           proposals: proposals.includes(proposal)
             ? _.without(proposals, proposal)
             : [...proposals, proposal],
@@ -96,10 +97,7 @@ export const useAirdropStore = create(
       setVoters: (voters) => {
         set({ voters });
       },
-      deleteProposal: (proposal) => {
-        const proposals = get().proposals || [];
-        set({ proposals: _.without(proposals, proposal) });
-      },
+  
       incrementCurrentWalletIndex: () => {
         const index = get().currentWalletIndex || 0;
         set({ currentWalletIndex: index + 1 });
@@ -111,7 +109,15 @@ export const useAirdropStore = create(
         set({ proposals });
       },
       setDao: (dao) => {
-        set({ daos: [dao] });
+        const daos = get().daos || [];
+        console.log('test');
+        
+        set({
+          daos: daos.includes(dao) ? _.without(daos, dao) : [dao],
+          proposals: [],
+          manuallySelectedVoters: [],
+          votersAmount: undefined,
+        });
       },
       reset: () => set(initialState),
     }),

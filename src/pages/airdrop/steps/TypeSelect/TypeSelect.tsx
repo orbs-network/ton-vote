@@ -81,7 +81,7 @@ const NFTMetadata = ({ address }: { address?: string }) => {
   if (!address || !validateAddress(address)) return null;
 
   return (
-    <StyledAssetDisplay title="Selected NFT">
+    <StyledAssetDisplay title="NFT Collection">
       <Metadata
         address={address}
         image={data?.metadata?.image}

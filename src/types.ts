@@ -55,7 +55,7 @@ export enum ProposalStatus {
 }
 
 export interface SelectOption {
-  text: string;
+  text: ReactNode;
   value: string | number;
   data?: any;
 }

@@ -1,18 +1,14 @@
-import { styled, Typography } from "@mui/material";
+import { IconButton, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
+  AppTooltip,
   OverflowWithTooltip,
   Search,
   TitleContainer,
 } from "components";
 import { Img } from "components";
+import { BiLinkExternal } from "react-icons/bi";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-
-export const StyledAirdropSearch = styled(Search)({
-  height: "70%",
-  flex: 1,
-  maxWidth: 250,
-});
 
 export const StyledAirdropTitleContainer = styled(TitleContainer)({
   ".title-container-header": {
@@ -51,7 +47,11 @@ export const Metadata = ({
           ) : (
             <>
               <OverflowWithTooltip className="name" text={name} />
-              <AddressDisplay className="address" padding={10} address={address} />
+              <AddressDisplay
+                className="address"
+                padding={10}
+                address={address}
+              />
             </>
           )}
         </StyledFlexColumn>
@@ -98,3 +98,24 @@ const StyledAssetMetadata = styled(StyledFlexColumn)({
     height: 20,
   },
 });
+
+export const RowLink = ({ onClick, text }: { onClick: (e: any) => void; text: string }) => {
+  return (
+    <AppTooltip text={text}>
+      <StyledNavigationBtn onClick={onClick}>
+        <BiLinkExternal />
+      </StyledNavigationBtn>
+    </AppTooltip>
+  );
+};
+
+const StyledNavigationBtn = styled(IconButton)(({ theme }) => ({
+  svg: {
+    width: 18,
+    height: 18,
+    color: theme.palette.primary.main,
+  },
+}));
+
+
+

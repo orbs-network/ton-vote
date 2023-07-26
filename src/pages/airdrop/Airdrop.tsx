@@ -9,21 +9,15 @@ import { useAirdropStore } from "./store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useEffect, useState } from "react";
 import { AirdropFinished } from "./AirdropFinished";
-import { SelectDao } from "./steps/SelectDao";
-import { SelectProposals } from "./steps/SelectProposals";
+import { SelectDao } from "./steps/VotersSelect/SelectDao";
+import { SelectProposals } from "./steps/VotersSelect/SelectProposals";
 import GettingsStarted from "./steps/GettingStarted";
-import { VotersSelect } from "./steps/VotersSelect/VotersSelect";
 import {
   useEnsureProposalQuery,
-  useGetWalletNFTCollectionItemsCallback,
-  useProposalQuery,
-  useReadNftCollectionMetadata,
-  useWalletNFTCollectionItemsQuery,
 } from "query/getters";
-import { useTonAddress } from "@tonconnect/ui-react";
-import { useQueryParam } from "use-query-params";
 import { useAppQueryParams } from "hooks/hooks";
 import { validateAddress } from "utils";
+import { VotersSelect } from "./steps/VotersSelect/VotersSelect";
 
 const useSteps = (): StepsMenuStep[] => {
   return [
@@ -34,14 +28,6 @@ const useSteps = (): StepsMenuStep[] => {
     {
       title: "Choose airdrop type",
       component: TypeSelect,
-    },
-    {
-      title: "Select a DAO space",
-      component: SelectDao,
-    },
-    {
-      title: "Select proposals",
-      component: SelectProposals,
     },
     {
       title: "Select voters",
@@ -93,9 +79,8 @@ const useHanldeProposalFromQueryParams = () => {
 };
 
 const Steps = () => {
-  const { step, setStep, nftCollection } = useAirdropStore();
+  const { step, setStep } = useAirdropStore();
   const steps = useSteps();
-  useWalletNFTCollectionItemsQuery(nftCollection);
   useHanldeProposalFromQueryParams();
 
   return (

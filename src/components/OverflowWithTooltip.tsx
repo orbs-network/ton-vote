@@ -1,6 +1,6 @@
 import { Box, styled, Typography } from "@mui/material";
 import _ from "lodash";
-import React, { useEffect, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { AppTooltip } from "./Tooltip";
 import TextOverflow from "react-text-overflow";
 import { TooltipPlacement } from "types";
@@ -16,7 +16,7 @@ export function OverflowWithTooltip({
   className?: string;
   placement?: TooltipPlacement;
   hideTooltip?: boolean;
-  tooltipText?: string;
+  tooltipText?: ReactNode;
 }) {
   const textRef = useRef<any>();
   const parentRef = useRef<any>();

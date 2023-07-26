@@ -120,6 +120,8 @@ const StyledTextButton = styled(StyledBaseButton)(({ theme }) => ({
   border: "unset",
   padding: 0,
   borderBottom: "2px solid transparent",
+  position: "relative",
+  top:2,
   "*, p": {
     color: theme.palette.primary.main,
   },

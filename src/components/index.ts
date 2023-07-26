@@ -39,3 +39,4 @@ export * from "./StepsLayout";
 export * from "./ProposalAbout";
 export * from "./Tabs";
 export * from "./VirtualList";
+export * from "./SelectedChip";

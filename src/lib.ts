@@ -54,7 +54,7 @@ const readNFTItemMetadata = (address: string) => {
     }
     return result;
   };
-  return retry(promise, { retries: 5 });
+  return retry(promise, { retries: 3 });
 };
 
 const readNFTCollectionMetadata = (address: string) => {
@@ -70,7 +70,7 @@ const readNFTCollectionMetadata = (address: string) => {
     }
     return result;
   };
-  return retry(promise, { retries: 5 });
+  return retry(promise, { retries: 3 });
 };
 
 const getWalletNFTCollectionItems = (
@@ -89,11 +89,10 @@ const getWalletNFTCollectionItems = (
     const result = await SDK.getAllNftHoldersFromCollectionAddr(
       clientV4,
       collectionAddr
-    );
-   
+    );      
     return result[connectedWallet as any] || [];
   };
-  return retry(promise, { retries: 5 });
+  return retry(promise, { retries: 3 });
 };
 
 const getClients = async () => {

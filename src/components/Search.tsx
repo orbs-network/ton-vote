@@ -36,7 +36,7 @@ export function Search({
   }, [debouncedValue]);
 
   return (
-    <StyledContainer className={className} hover={true}>
+    <StyledContainer className={`${className} search-input`} hover={true}>
       <StyledFlexRow style={{ height: "100%", paddingLeft: 10, gap: 0 }}>
         <StyledLeft>
           <HiMagnifyingGlass />

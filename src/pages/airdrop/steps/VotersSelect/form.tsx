@@ -2,7 +2,7 @@ import { Button } from "components";
 import { FormikProps } from "formik";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
-import { useGetAirdropVotes } from "pages/airdrop/hooks";
+import { useAirdropVotersQuery, useGetAirdropVotes } from "pages/airdrop/hooks";
 import {  AirdropForm, useAirdropStore } from "pages/airdrop/store";
 import { AirdropStoreKeys, VoterSelectionMethod } from "pages/airdrop/types";
 import { useMemo } from "react";
@@ -47,7 +47,7 @@ export const useFormSchema = () => {
 
 const MaxBtn = ({ formik }: { formik: FormikProps<AirdropForm> }) => {
   const getVotes = useGetAirdropVotes();
-  const {} = useAirdropStore();
+  const {proposals} = useAirdropStore();
 
   const onClick = async () => {
     const votes = await getVotes();
@@ -55,16 +55,18 @@ const MaxBtn = ({ formik }: { formik: FormikProps<AirdropForm> }) => {
     formik.setFieldError(AirdropStoreKeys.votersAmount, undefined);
   };
 
-  return (
-    <Button variant="text" onClick={onClick}>
-      Max
-    </Button>
-  );
+  if (_.isEmpty(proposals)) return null;
+    return (
+      <Button variant="text" onClick={onClick}>
+        Max
+      </Button>
+    );
 };
 
 export const useForm = (
   values: AirdropForm
 ): FormArgs<AirdropForm> => {
+  const {data: voters} = useAirdropVotersQuery()
   return useMemo(() => {
     let inputs: InputArgs<AirdropForm>[] = [
       {
@@ -75,7 +77,14 @@ export const useForm = (
         selectOptions: [
           { value: VoterSelectionMethod.RANDOM, text: "Random" },
           { value: VoterSelectionMethod.MANUALLY, text: "Manual" },
-          { value: VoterSelectionMethod.ALL, text: "All voters" },
+          {
+            value: VoterSelectionMethod.ALL,
+            text: (
+              <>
+                All voters <small>{`(${_.size(voters).toLocaleString()})`}</small>
+              </>
+            ),
+          },
         ],
       },
     ];
@@ -107,5 +116,5 @@ export const useForm = (
     return {
       inputs,
     };
-  }, [values.selectionMethod]);
+  }, [values.selectionMethod, _.size(voters)]);
 };

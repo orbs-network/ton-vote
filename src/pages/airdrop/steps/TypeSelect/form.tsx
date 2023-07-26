@@ -1,12 +1,6 @@
-import { StyledInputImage } from "components";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
 import { AirdropStoreKeys } from "pages/airdrop/types";
-import {
-  useReadJettonWalletMedata,
-  useReadNftCollectionMetadata,
-  useReadNftItemMetadata,
-} from "query/getters";
 import { useMemo } from "react";
 import { FormArgs, InputArgs } from "types";
 import { validateAddress } from "utils";
@@ -47,40 +41,7 @@ export const useFormSchema = () => {
         return true;
       }
     ),
-    [AirdropStoreKeys.nftCollection]: Yup.string()
-      .test(
-        "",
-        commonTranslations.isRequired("NFT address"),
-        (value, context) => {
-          if (context.parent[AirdropStoreKeys.assetType] === "nft") {
-            return !!value;
-          }
-          return true;
-        }
-      )
-      .test("", "Invalid NFT address", (value, context) => {
-        if (context.parent[AirdropStoreKeys.assetType] === "nft") {
-          return validateAddress(value);
-        }
-        return validateAddress(value);
-      }),
   });
-};
-
-const NFTImg = ({ address }: { address?: string }) => {
-  const { data } = useReadNftCollectionMetadata(address);
-
-  if (!data) return null;
-
-  return <StyledInputImage src={data?.metadata.image} />;
-};
-
-const JettonImg = ({ address }: { address?: string }) => {
-  const { data } = useReadJettonWalletMedata(address);
-
-  if (!data) return null;
-
-  return <StyledInputImage src={data.metadata?.image} />;
 };
 
 export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
@@ -123,8 +84,6 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
 
     if (values.assetType === "jetton") {
       inputs = [...inputs, ...jettonsInputs];
-    } else if (values.assetType === "nft") {
-      inputs = [...inputs, nftInput];
     }
     return {
       inputs,
