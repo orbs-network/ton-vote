@@ -1,19 +1,18 @@
-import { IconButton, styled } from "@mui/material";
+import { IconButton, styled, Typography } from "@mui/material";
 import {
-  AddressDisplay,
   AppTooltip,
   Button,
   OverflowWithTooltip,
+  VirtualList,
 } from "components";
 import { useDaosQuery, useProposalQuery } from "query/getters";
 import { useMemo, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useAirdropStore } from "../store";
 import _ from "lodash";
-import { parseLanguage } from "utils";
-import { appNavigation, useAppNavigation } from "router/navigation";
+import { makeElipsisAddress, parseLanguage } from "utils";
+import { appNavigation } from "router/navigation";
 import { SubmitButtonContainer } from "./SubmitButton";
-import { StyledAirdropList } from "../styles";
 import {
   StyledAirdropSearch,
   StyledAirdropTitleContainer,
@@ -23,10 +22,17 @@ import { errorToast } from "toasts";
 
 export const SelectProposals = () => {
   const allProposals = useAllProposals();
-  const { nextStep, selectProposal, proposals } = useAirdropStore();
+  const { nextStep, selectProposal, proposals, setProposals } = useAirdropStore();
   const [filterValue, setFilterValue] = useState("");
 
-  const filteredProposals = useMemo(() => {}, [filterValue, allProposals]);
+  const filteredProposals = useMemo(() => {
+    return _.filter(allProposals, (p) =>
+      _.includes(p.toLowerCase(), filterValue.toLowerCase())
+    );
+  }, [
+    filterValue,
+    _.size(allProposals),
+  ]);
 
   const onNextClick = () => {
     if (_.isEmpty(proposals)) {
@@ -37,25 +43,44 @@ export const SelectProposals = () => {
     }
   };
 
+
+  const selectAll = () => {
+    setProposals(allProposals);
+  }
+
   return (
     <StyledAirdropTitleContainer
       title="Selected proposals"
       headerComponent={<StyledAirdropSearch onChange={setFilterValue} />}
     >
-      <StyledAirdropList
-        disabled={_.isEmpty(allProposals)}
-        RowComponent={ProposalRow}
-        data={allProposals}
-        itemSize={80}
-        selected={proposals}
-        onSelect={selectProposal}
-      />
+      <StyledFlexColumn>
+        <StyledSelectAll onClick={selectAll} variant="text">
+          Select all
+        </StyledSelectAll>
+        <StyledList
+          disabled={_.isEmpty(allProposals)}
+          RowComponent={ProposalRow}
+          data={filteredProposals}
+          itemSize={60}
+          selected={proposals}
+          onSelect={selectProposal}
+        />
+      </StyledFlexColumn>
       <SubmitButtonContainer>
         <Button onClick={onNextClick}>Next</Button>
       </SubmitButtonContainer>
     </StyledAirdropTitleContainer>
   );
 };
+
+const StyledSelectAll = styled(Button)({
+  marginLeft: "auto",
+})
+
+const StyledList = styled(VirtualList)({
+  height: 400,
+  width:'100%'
+});
 
 interface ProposalRowProps {
   value: string;
@@ -89,18 +114,18 @@ function ProposalRow({ value }: ProposalRowProps) {
   return (
     <StyledProposal gap={2}>
       <StyledFlexRow justifyContent="space-between">
-        <AddressDisplay address={proposalAddress} className="address" />
+        <OverflowWithTooltip
+          className="name"
+          text={parseLanguage(proposal?.metadata?.title)}
+          hideTooltip
+        />
+        <Typography>{`(${makeElipsisAddress(proposalAddress)})`}</Typography>
         <AppTooltip text="View proposal">
           <StyledNavigationBtn onClick={onClick}>
             <BiLinkExternal />
           </StyledNavigationBtn>
         </AppTooltip>
       </StyledFlexRow>
-      <OverflowWithTooltip
-        className="name"
-        text={parseLanguage(proposal?.metadata?.title)}
-        hideTooltip
-      />
     </StyledProposal>
   );
 }

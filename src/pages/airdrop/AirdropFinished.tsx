@@ -91,11 +91,11 @@ const JettonFinished = () => {
 };
 
 export const AirdropFinished = () => {
-  const { type } = useAirdropStore();
+  const { assetType } = useAirdropStore();
 
   return (
     <TitleContainer title="Airdrop finished">
-      {type === "nft" ? <NFTFinished /> : <JettonFinished />}
+      {assetType === "nft" ? <NFTFinished /> : <JettonFinished />}
     </TitleContainer>
   );
 };

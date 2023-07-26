@@ -15,9 +15,8 @@ import {
   getSingleVoterPower,
   getDaoState,
   getRegistryState,
-  readJettonMinterOrNftCollectionMetadata,
   readNftItemMetadata,
-  readJettonWalletMedata,
+  readJettonWalletMetadata,
 } from "ton-vote-contracts-sdk";
 import {
   getIsOneWalletOneVote,
@@ -258,15 +257,18 @@ export const useGetClients = () => {
   return useQuery(
     [QueryKeys.CLIENTS],
     async () => {
-      return {
-        clientV2: await getClientV2(),
-        clientV4: await getClientV4(),
-      };
+      return lib.getClients();
     },
     {
       staleTime: Infinity,
     }
   );
+};
+
+export const useGetClientsCallback = () => {
+  const queryClient = useQueryClient();
+
+  return () => queryClient.ensureQueryData([QueryKeys.CLIENTS], lib.getClients);
 };
 
 export const useConnectedWalletVotingPowerQuery = (
@@ -426,14 +428,14 @@ const useGetProposalCallback = () => {
       if (!persistedResult) {
         return proposal;
       }
-        //server is not up to date, = return results from cache
-        return {
-          ...proposal,
-          proposalResult: persistedResult,
-          votes: latestConnectedWalletVote
-            ? [latestConnectedWalletVote, ...filteredVotes]
-            : filteredVotes,
-        } as Proposal;
+      //server is not up to date, = return results from cache
+      return {
+        ...proposal,
+        proposalResult: persistedResult,
+        votes: latestConnectedWalletVote
+          ? [latestConnectedWalletVote, ...filteredVotes]
+          : filteredVotes,
+      } as Proposal;
     }
     votePersistStore.resetValues(proposalAddress!);
 
@@ -465,17 +467,16 @@ export const useProposalQuery = (
   const getProposal = useGetProposalCallback();
 
   const config = useMemo(() => {
-
     const getRefetchInterval = () => {
-      if(route === routes.proposal) {
+      if (route === routes.proposal) {
         return 15_000;
-      }      
-       if (route === routes.airdrop) {
-         return undefined;
-       }
+      }
+      if (route === routes.airdrop) {
+        return undefined;
+      }
 
       return 30_000;
-    }
+    };
 
     return {
       refetchInterval: getRefetchInterval(),
@@ -498,6 +499,7 @@ export const useProposalQuery = (
       refetchOnReconnect: false,
       enabled:
         !!proposalAddress &&
+        validateAddress(proposalAddress) &&
         !!clients?.clientV2 &&
         !!clients.clientV4 &&
         !args?.disabled,
@@ -516,41 +518,62 @@ export const useWalletsQuery = () => {
   });
 };
 
-export const useEnsureAssetMetadataQuery = () => {
-  const queryClient = useQueryClient();
-  return (assetAddress: string) =>
-    queryClient.ensureQueryData(["useAssetMetadataQuery", assetAddress]);
-};
-
 export const useReadJettonWalletMedata = (assetAddress?: string) => {
-  const clientV2 = useGetClients().data?.clientV2;
-  validateAddress(assetAddress);
-
   return useQuery<any>(
-    ["readJettonWalletMedata", assetAddress],
-    () => readJettonWalletMedata(clientV2!, assetAddress!),
+    [QueryKeys.READ_JETTON_WALLET_METADATA, assetAddress],
+    () => lib.readJettonMetadata(assetAddress!),
     {
-      enabled: !!clientV2 && !!assetAddress && validateAddress(assetAddress),
+      enabled: !!assetAddress && validateAddress(assetAddress),
       staleTime: Infinity,
       refetchInterval: undefined,
     }
   );
 };
 
+export const useReadJettonWalletMedataCallback = () => {
+  const queryClient = useQueryClient();
+
+  return async (assetAddress?: string) => {
+    return queryClient.ensureQueryData(
+      [QueryKeys.READ_JETTON_WALLET_METADATA, assetAddress],
+      () => lib.readJettonMetadata(assetAddress!)
+    );
+  };
+};
+
+export const useReadNftCollectionMetadata = (assetAddress?: string) => {
+  return useQuery<any>(
+    [QueryKeys.READ_NFT_ITEM_METADATA, assetAddress],
+    () => lib.readNFTCollectionMetadata(assetAddress!),
+    {
+      enabled: !!assetAddress && validateAddress(assetAddress),
+      staleTime: Infinity,
+      refetchInterval: undefined,
+    }
+  );
+};
 
 export const useReadNftItemMetadata = (assetAddress?: string) => {
-  const clientV2 = useGetClients().data?.clientV2;
-  validateAddress(assetAddress);
-
   return useQuery<any>(
-    ["useReadNftItemMetadata", assetAddress],
-    () => readNftItemMetadata(clientV2!, assetAddress!),
+    [QueryKeys.READ_NFT_ITEM_METADATA, assetAddress],
+    () => lib.readNFTItemMetadata(assetAddress!),
     {
-      enabled: !!clientV2 && !!assetAddress && validateAddress(assetAddress),
+      enabled: !!assetAddress && validateAddress(assetAddress),
       staleTime: Infinity,
       refetchInterval: undefined,
     }
   );
+};
+
+export const useReadNftItemMetadataCallback = () => {
+  const queryClient = useQueryClient();
+
+  return async (assetAddress: string) => {
+    return queryClient.ensureQueryData(
+      [QueryKeys.READ_NFT_ITEM_METADATA, assetAddress],
+      () => lib.readNFTItemMetadata(assetAddress!)
+    );
+  };
 };
 
 export const useGetAllProposalsCallback = () => {
@@ -564,4 +587,28 @@ export const useGetAllProposalsCallback = () => {
       })
     );
   };
+};
+
+export const useWalletNFTCollectionItemsQuery = (address?: string) => {
+  const connectedWallet = useTonAddress();
+  return useQuery(
+    [QueryKeys.WALLET_NFT_COLLECTION_ITEMS],
+    () => {
+      return lib.getWalletNFTCollectionItems(address!, connectedWallet);
+    },
+    {
+      enabled: !!address && validateAddress(address) && !!connectedWallet,
+      staleTime: Infinity,
+    }
+  );
+};
+
+export const useGetWalletNFTCollectionItemsCallback = () => {
+  const queryClient = useQueryClient();
+  const connectedWallet = useTonAddress();
+
+  return (address: string) =>
+    queryClient.ensureQueryData([QueryKeys.WALLET_NFT_COLLECTION_ITEMS], () =>
+      lib.getWalletNFTCollectionItems(address, connectedWallet)
+    );
 };

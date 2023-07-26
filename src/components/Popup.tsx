@@ -64,6 +64,7 @@ const StyledDialogContent = styled(DialogContent)({
 });
 
 const StyledChildren = styled(TitleContainer)(({ theme }) => ({
+  maxHeight:'calc(100vh - 100px)',
   display: "flex",
   flexDirection: "column",
   ".container-header": {

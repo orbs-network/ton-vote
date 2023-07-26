@@ -1,47 +1,20 @@
 import styled from "@emotion/styled";
-import {
-  FormikInputsForm,
-  TitleContainer,
-  Button,
-  OverflowWithTooltip,
-  AddressDisplay,
-} from "components";
-import { useFormik } from "formik";
+import { FormikInputsForm, TitleContainer, Button } from "components";
 import _ from "lodash";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { validateFormik } from "utils";
-import { useAirdropVotersQuery, useAmount, useSetupAirdrop } from "../../hooks";
-import { CSSProperties, useMemo } from "react";
-import { VirtualList } from "components";
+import { validateAddress, validateFormik } from "utils";
+import { useAirdropFormik, useOnAssetTypeSelected } from "../../hooks";
 import { useForm, useFormSchema } from "./form";
 import { SubmitButtonContainer } from "../SubmitButton";
-import { Typography } from "@mui/material";
-import { useAirdropStore, AirdropForm, AirdropFormsKeys } from "../../store";
+import { AirdropForm } from "../../store";
+import { FormikProps } from "formik";
+import { StyledListTitleContainer } from "pages/airdrop/styles";
+import { Metadata } from "pages/airdrop/Components";
+import { useReadJettonWalletMedata, useReadNftCollectionMetadata } from "query/getters";
 export const TypeSelect = () => {
-  const { mutate, isLoading } = useSetupAirdrop();
-  const { jettonAddress, type, voters, votersSelectionMethod } =
-    useAirdropStore();
-
-  const { amount } = useAmount();
-
+  const { mutate } = useOnAssetTypeSelected();
   const schema = useFormSchema();
-
-  const formik = useFormik<AirdropForm>({
-    initialValues: {
-      [AirdropFormsKeys.votersAmount]: _.size(voters) || undefined,
-      [AirdropFormsKeys.jettonsAmount]: amount || undefined,
-      [AirdropFormsKeys.jettonAddress]: jettonAddress,
-      [AirdropFormsKeys.nftAddress]: '',
-      [AirdropFormsKeys.assetType]: type,
-      [AirdropFormsKeys.selectionMethod]: votersSelectionMethod,
-      [AirdropFormsKeys.manuallySelectedVoters]: voters || [],
-    },
-    validationSchema: schema,
-    validateOnChange: false,
-    validateOnBlur: true,
-    enableReinitialize: true,
-    onSubmit: (values: AirdropForm) => mutate(values),
-  });
+  const formik = useAirdropFormik(mutate, schema);
   const form = useForm(formik.values);
 
   const onSubmit = () => {
@@ -50,74 +23,77 @@ export const TypeSelect = () => {
   };
 
   return (
-    <TitleContainer title="Choose airdrop type">
-      <Typography>Some text</Typography>
+    <TitleContainer title="Choose airdrop type" subtitle="Some text">
       <StyledForm>
-        <FormikInputsForm<AirdropForm>
-          form={form}
-          formik={formik}
-          customInputHandler={customInputHandler}
-        >
-          <StyledAction>
-            <SubmitButtonContainer>
-              <Button isLoading={isLoading} onClick={onSubmit}>
-                Next
-              </Button>
-            </SubmitButtonContainer>
-          </StyledAction>
+        <FormikInputsForm<AirdropForm> form={form} formik={formik}>
+          <ShowSelectedAsset formik={formik} />
+          <SubmitButtonContainer>
+            <Button onClick={onSubmit}>Next</Button>
+          </SubmitButtonContainer>
         </FormikInputsForm>
       </StyledForm>
     </TitleContainer>
   );
 };
 
-const customInputHandler = (
-  args: any,
-  value: any,
-  onChange: (value: any) => void
-) => {
-  return <ManualVotersSelect onSelect={onChange} selected={value || []} />;
-};
-
-interface ManualVotersRowProps {
-  value: string;
-}
-
-function ManualVotersRow({ value }: ManualVotersRowProps) {
-  const { data: voters, dataUpdatedAt } = useAirdropVotersQuery();
-  const voter = useMemo(
-    () => voters?.find((voter) => voter === value),
-    [dataUpdatedAt]
-  );
-
-  return (
-    <StyledVoter>
-      <OverflowWithTooltip text={voter} />
-    </StyledVoter>
-  );
-}
-
-const StyledVoter = styled(StyledFlexRow)({});
-
-const ManualVotersSelect = ({
-  selected,
-  onSelect,
+const ShowSelectedAsset = ({
+  formik,
 }: {
-  selected: string[];
-  onSelect: (address: string[]) => void;
+  formik: FormikProps<AirdropForm>;
 }) => {
-  const { data } = useAirdropVotersQuery();
+  const { values } = formik;
 
-  const onDelete = (address: string) => {
-    onSelect(_.filter(selected, (item) => item !== address));
-  };
+  if (
+    !values.jettonAddress &&
+    !values.nftCollection &&
+    !validateAddress(values.jettonAddress) &&
+    !validateAddress(values.nftCollection)
+  )
+    return null;
 
-  return (
-    <TitleContainer title="Manual voters select">
-      <VirtualList RowComponent={ManualVotersRow} data={data} itemSize={60} />
-    </TitleContainer>
+  return values.assetType === "jetton" ? (
+    <JettonMetadata address={values.jettonAddress} />
+  ) : (
+    <NFTMetadata address={values.nftCollection} />
   );
 };
+
+const JettonMetadata = ({ address }: { address?: string }) => {
+  const { data, isLoading } = useReadJettonWalletMedata(address);
+
+  if (!address || !validateAddress(address)) return null;
+
+  return (
+    <StyledAssetDisplay title="Selected jetton">
+      <Metadata
+        address={address}
+        image={data?.metadata?.image}
+        name={data?.metadata?.name}
+        isLoading={isLoading}
+        description={data?.metadata?.description}
+      />
+    </StyledAssetDisplay>
+  );
+};
+
+const NFTMetadata = ({ address }: { address?: string }) => {
+  const { data, isLoading } = useReadNftCollectionMetadata(address);
+  if (!address || !validateAddress(address)) return null;
+
+  return (
+    <StyledAssetDisplay title="Selected NFT">
+      <Metadata
+        address={address}
+        image={data?.metadata?.image}
+        name={data?.metadata?.name}
+        isLoading={isLoading}
+        description={data?.metadata?.description}
+      />
+    </StyledAssetDisplay>
+  );
+};
+
+const StyledAssetDisplay = styled(StyledListTitleContainer)({});
 
 const StyledForm = styled(StyledFlexColumn)({
   ".select-box": {
@@ -137,12 +113,5 @@ const StyledForm = styled(StyledFlexColumn)({
     ".title-container-children": {
       padding: 0,
     },
-  },
-});
-
-const StyledAction = styled(StyledFlexRow)({
-  marginTop: 40,
-  button: {
-    minWidth: 200,
   },
 });

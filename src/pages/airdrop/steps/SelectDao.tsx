@@ -106,7 +106,8 @@ export const SelectDao = () => {
   );
 };
 
-const StyledList = styled(StyledAirdropList)({
+const StyledList = styled(VirtualList)({
+  height: 400,
   ".row-children": {
     paddingLeft: 10,
   },

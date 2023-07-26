@@ -1,14 +1,13 @@
 import { VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { ReactNode } from "react";
-import { Box, styled, Typography } from "@mui/material";
-import { StyledContainer, StyledFlexRow } from "styles";
+import { Box, styled } from "@mui/material";
+import {  StyledFlexRow } from "styles";
 import _ from "lodash";
 
 const Row = ({
   index,
   style,
-  data: { RowComponent, onSelect, list, selected, displayOnly },
+  data: { RowComponent, onSelect, list, selected },
 }: any) => {
   const value = list[index];
 
@@ -18,9 +17,13 @@ const Row = ({
     <StyledRow
       className="row"
       style={style}
-      onClick={displayOnly ? () => {} : () => onSelect(value)}
+      onClick={!onSelect ? () => {} : () => onSelect(value)}
     >
-      <StyledRowChildren className="row-children" selected={isSelected ? 1 : 0}>
+      <StyledRowChildren
+        displayOnly={onSelect ? 0 : 1}
+        className="row-children"
+        selected={isSelected ? 1 : 0}
+      >
         <RowComponent index={index} value={value} onSelect={onSelect} />
       </StyledRowChildren>
     </StyledRow>
@@ -66,9 +69,10 @@ function VirtualList(props: Props) {
   );
 }
 
-const StyledRowChildren = styled(Box)<{
+const StyledRowChildren = styled('div')<{
   selected?: number;
   displayOnly?: number;
+  
 }>(({ selected, displayOnly, theme }) => {
   const isDarkMode = theme.palette.mode === "dark";
 
@@ -102,7 +106,7 @@ const StyledRowChildren = styled(Box)<{
       borderRadius: 15,
     },
     "&:hover": {
-      border: selected ? selectedBorder : hoverBorder,
+      border:displayOnly ? border :  selected ? selectedBorder : hoverBorder,
     },
 
     ".overflow-with-tooltip": {

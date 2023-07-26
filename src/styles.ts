@@ -1,7 +1,6 @@
-import { Skeleton, styled, Theme, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Skeleton, styled, Theme, Typography, Box } from "@mui/material";
+import { Img } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
-import { getBorderColor } from "theme";
 
 export const StyledEndAdornment = styled(Box)({
   button: {
@@ -273,3 +272,6 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
     marginTop: -2,
   },
 }));
+
+
+

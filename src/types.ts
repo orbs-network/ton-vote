@@ -119,6 +119,7 @@ export interface InputArgs<T> {
   text?: string;
   style?: CSSProperties;
   selectOptions?: SelectOption[];
+  helperText?: string;
 }
 
 export type FormikInputEndAdorment<T> = FunctionComponent<{
@@ -210,4 +211,13 @@ export interface StepsMenuStep {
   title?: string;
   editable?: boolean;
   component: FC;
+}
+
+
+export enum AppQueryParams {
+  PROPOSAL_STATE = "proposal-state",
+  SEARCH = "search",
+  DEV = "dev",
+  MODE = "mode",
+  AIRDROP_PROPOSAL = "airdrop_proposal",
 }

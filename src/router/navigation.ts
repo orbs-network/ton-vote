@@ -2,6 +2,7 @@ import { routes } from "consts";
 import { useNavigate } from "react-router-dom";
 
 export const appNavigation = {
+  airdrop: routes.airdrop,
   spaces: routes.spaces,
   daoPage: {
     root: (daoId: string) => routes.space.replace(":daoId", daoId),

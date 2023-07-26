@@ -1,8 +1,12 @@
-import { styled } from "@mui/material";
-import { Search, TitleContainer } from "components";
+import { styled, Typography } from "@mui/material";
+import {
+  AddressDisplay,
+  OverflowWithTooltip,
+  Search,
+  TitleContainer,
+} from "components";
 import { Img } from "components";
-import { useReadNftItemMetadata, useReadJettonWalletMedata } from "query/getters";
-
+import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 
 export const StyledAirdropSearch = styled(Search)({
   height: "70%",
@@ -17,23 +21,80 @@ export const StyledAirdropTitleContainer = styled(TitleContainer)({
   },
 });
 
+export const Metadata = ({
+  image,
+  name,
+  address,
+  isLoading,
+  description,
+}: {
+  image?: string;
+  name?: string;
+  address?: string;
+  isLoading?: boolean;
+  description?: string;
+}) => {
+  return (
+    <StyledAssetMetadata>
+      <StyledFlexRow>
+        {isLoading ? (
+          <StyledSkeletonLoader className="img-loader" />
+        ) : (
+          <Img src={image} />
+        )}
+        <StyledFlexColumn className="right">
+          {isLoading ? (
+            <StyledFlexColumn style={{ alignItems: "flex-start" }}>
+              <StyledSkeletonLoader className="name-loader" />
+              <StyledSkeletonLoader className="address-loader" />
+            </StyledFlexColumn>
+          ) : (
+            <>
+              <OverflowWithTooltip className="name" text={name} />
+              <AddressDisplay className="address" padding={10} address={address} />
+            </>
+          )}
+        </StyledFlexColumn>
+      </StyledFlexRow>
+      {description && (
+        <Typography className="description">{description}</Typography>
+      )}
+    </StyledAssetMetadata>
+  );
+};
 
-export function NFTImg({ address }: { address?: string }) {
-  const { data } = useReadJettonWalletMedata(address);
-  if (!data) return null;
+const StyledAssetMetadata = styled(StyledFlexColumn)({
+  alignItems: "flex-start",
+  justifyContent: "flex-start",
+  gap: 10,
+  p: {
+    fontSize: 16,
+  },
+  ".right": {
+    gap: 4,
+    flex: 1,
+    alignItems: "flex-start",
+  },
+  ".img, .img-loader": {
+    width: 60,
+    height: 60,
+    borderRadius: "50%",
+  },
+  ".name": {
+    fontWeight: 700,
+  },
+  ".address": {
+    p: {
+      fontSize: 14,
+    },
+  },
 
-  return <StyledImg src={data?.metadata?.image} />;
-}
-
-export function JettonImg({ address }: { address?: string }) {
-  const { data } = useReadNftItemMetadata(address);
-  if (!data) return null;
-
-  return <StyledImg src={data?.metadata?.image} />;
-}
-
-const StyledImg = styled(Img)({
-  width: 32,
-  height: 32,
-  borderRadius: "50%",
+  ".name-loader": {
+    width: 100,
+    height: 20,
+  },
+  ".address-loader": {
+    width: 150,
+    height: 20,
+  },
 });

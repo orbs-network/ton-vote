@@ -17,7 +17,7 @@ import {
 } from "ton-core";
 import { IS_DEV, STRATEGY_ARGUMENTS } from "config";
 import { showSuccessToast } from "toasts";
-import { Proposal, ProposalStatus, ThemeType } from "types";
+import { AppQueryParams, Proposal, ProposalStatus, ThemeType } from "types";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
@@ -170,36 +170,36 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
   );
 };
 
-enum Params {
-  PROPOSAL_STATE = "proposal-state",
-  SEARCH = "search",
-  DEV = "dev",
-  MODE = "mode",
-}
+
 
 export const useAppQueryParams = () => {
   const [query, setQuery] = useQueryParams({
-    [Params.PROPOSAL_STATE]: StringParam,
-    [Params.SEARCH]: StringParam,
-    [Params.DEV]: StringParam,
-    [Params.MODE]: StringParam,
+    [AppQueryParams.PROPOSAL_STATE]: StringParam,
+    [AppQueryParams.SEARCH]: StringParam,
+    [AppQueryParams.DEV]: StringParam,
+    [AppQueryParams.MODE]: StringParam,
+    [AppQueryParams.AIRDROP_PROPOSAL]: StringParam,
   });
 
   return {
     query: {
-      proposalState: query[Params.PROPOSAL_STATE] as string | undefined,
+      proposalState: query[AppQueryParams.PROPOSAL_STATE] as string | undefined,
       search: query.search as string | undefined,
       dev: query.dev as string | undefined,
       mode: query.mode as string | undefined,
+      airdropProposal: query.airdrop_proposal as string | undefined,
     },
     setProposalState: (state: string | undefined) => {
-      setQuery({ [Params.PROPOSAL_STATE]: state }, "pushIn");
+      setQuery({ [AppQueryParams.PROPOSAL_STATE]: state }, "pushIn");
     },
     setDev: (state: string | undefined) => {
-      setQuery({ [Params.DEV]: state }, "pushIn");
+      setQuery({ [AppQueryParams.DEV]: state }, "pushIn");
     },
     setSearch: (search: string | undefined) => {
-      setQuery({ [Params.SEARCH]: search || undefined }, "pushIn");
+      setQuery({ [AppQueryParams.SEARCH]: search || undefined }, "pushIn");
+    },
+    setAirdropProposal: (value: string | undefined) => {
+      setQuery({ [AppQueryParams.AIRDROP_PROPOSAL]: value || undefined }, "pushIn");
     },
   };
 };

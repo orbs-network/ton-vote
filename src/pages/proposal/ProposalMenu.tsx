@@ -5,12 +5,20 @@ import { useDaoQuery } from "query/getters";
 import { useMemo } from "react";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { Link } from "react-router-dom";
+import { appNavigation } from "router/navigation";
+import { AppQueryParams } from "types";
 
 const Edit = () => {
   return <Option text="Edit Proposal" path="edit" />;
 };
 const Airdrop = () => {
-  return <Option text="New airdrop" path="airdrop" />;
+  const { proposalAddress } = useAppParams();
+  return (
+    <Option
+      text="New airdrop"
+      path={`${appNavigation.airdrop}?${AppQueryParams.AIRDROP_PROPOSAL}=${proposalAddress}`}
+    />
+  );
 };
 
 const Option = ({ text, path }: { text: string; path: string }) => {
@@ -42,12 +50,7 @@ const useListItems = () => {
 
 function ProposalMenu() {
   const listItems = useListItems();
-  return (
-    <Menu
-      Button={MenuButton}
-      listItems={listItems}
-    />
-  );
+  return <Menu Button={MenuButton} listItems={listItems} />;
 }
 
 const StyledOption = styled(Link)({

@@ -66,6 +66,7 @@ import moment, { Moment, utc } from "moment";
 import { useMobile } from "hooks/hooks";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { VirtualList } from "components/VirtualList";
+import { Img } from "components/Img";
 
 interface TextInputProps {
   value?: string | number;
@@ -87,6 +88,7 @@ interface TextInputProps {
   disabled?: boolean;
   isMarkdown?: boolean;
   defaultValue?: any;
+  helperText?: string;
 }
 
 export function TextInput({
@@ -108,7 +110,7 @@ export function TextInput({
   startAdornment,
   disabled,
   isMarkdown,
-  defaultValue,
+  helperText,
 }: TextInputProps) {
   const translations = useCommonTranslations();
   const [preview, setPreview] = useState(false);
@@ -182,9 +184,18 @@ export function TextInput({
           <Typography>{error}</Typography>
         </StyledError>
       )}
+      {helperText && <StyledHelperText>{helperText}</StyledHelperText>}
     </StyledContainer>
   );
 }
+
+const StyledHelperText = styled(Typography)({
+  fontSize: 14,
+  textAlign: "left",
+  width:'100%',
+  marginTop: 5,
+  paddingLeft: 5
+})
 
 const PreviewInput = ({ md }: { md: string }) => {
   return (
@@ -786,6 +797,7 @@ export const NumberInput = ({
         onValueChange={(value) => {
           onChange(value.floatValue);
         }}
+        error={!!error}
         InputProps={{ endAdornment }}
       />
       {error && (
@@ -920,3 +932,16 @@ const StyledRadioFlex = styled(StyledFlexRow)(({ theme }) => ({
     },
   },
 }));
+
+
+
+
+
+
+
+
+export const StyledInputImage = styled(Img)({
+  width: 32,
+  height: 32,
+  borderRadius: "50%",
+});
