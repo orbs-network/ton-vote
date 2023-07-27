@@ -239,8 +239,8 @@ export const useTransferNFT = () => {
       if (!isOwner) {
         throw new Error("You are not owner of this NFT");
       }
-      // const clientV2 = (await getClients()).clientV2;
-      // return transferNft(clientV2, tonconnect, NFTItemAddress, voter);
+      const clientV2 = (await getClients()).clientV2;
+      return transferNft(clientV2, tonconnect, NFTItemAddress, voter);
     },
     {
       onSuccess: (_, args) => {
