@@ -32,7 +32,8 @@ const readJettonMetadata = (address: string) => {
     );
     const clientV2 = await SDK.getClientV2();
     const result = await SDK.readJettonWalletMetadata(clientV2, address);
-
+      console.log(result);
+      
     if (_.isEmpty(result)) {
       throw new Error("Empty result");
     }

@@ -29,19 +29,6 @@ export const useFormSchema = () => {
         return true;
       }
     ),
-    [AirdropStoreKeys.manuallySelectedVoters]: Yup.array().test(
-      "",
-      commonTranslations.isRequired("Selecte at least one voter"),
-      (value, context) => {
-        if (
-          context.parent[AirdropStoreKeys.selectionMethod] ==
-          VoterSelectionMethod.MANUALLY
-        ) {
-          return !_.isEmpty(value);
-        }
-        return true;
-      }
-    ),
   });
 };
 

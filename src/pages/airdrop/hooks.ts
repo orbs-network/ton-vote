@@ -79,6 +79,9 @@ export const useVotersSelectSubmit = () => {
   return useMutation(
     async (formData: AirdropForm) => {
       if (formData.selectionMethod === VoterSelectionMethod.MANUALLY) {
+        if (_.isEmpty(manuallySelectedVoters)) {
+          throw new Error("Select at least one voter manually");
+        }
         return manuallySelectedVoters;
       }
 
@@ -133,7 +136,6 @@ export const useAmountPerWallet = () => {
 
   const amountPerWallet = useMemo(() => {
     const amount = jettonsAmount || 0;
-    
 
     return assetType === "jetton" ? Math.floor(amount / _.size(voters)) : 1;
   }, [jettonsAmount, _.size(voters), assetType]);
@@ -273,8 +275,8 @@ export const useOnAssetTypeSelected = () => {
           throw new Error("You must be owner of this jetton wallet");
         }
         const haveBalance =
-          metadata.jettonWalletBalance >= toNano(Math.floor(values.jettonsAmount || 0))
-          
+          metadata.jettonWalletBalance >=
+          toNano(Math.floor(values.jettonsAmount || 0));
 
         if (!haveBalance) {
           throw new Error("You don't have enough jetton balance");

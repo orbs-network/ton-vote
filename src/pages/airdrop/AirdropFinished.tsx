@@ -1,7 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import { TitleContainer } from "components";
 import _ from "lodash";
-import { useReadNftItemMetadata } from "query/getters";
+import { useReadJettonWalletMedata, useReadNftItemMetadata } from "query/getters";
 import { useMemo } from "react";
 import { CSVLink } from "react-csv";
 import { BsCheckCircle } from "react-icons/bs";
@@ -25,7 +25,7 @@ const NFTFinished = () => {
   return (
     <FinishedLayout
       csv={csv}
-      text="Succesfully sent NFT to all voters"
+      text={`Succesfully sent NFT to ${_.size(voters).toLocaleString()} voters`}
       filename="Airdrop"
     />
   );
@@ -54,7 +54,7 @@ const FinishedLayout = ({ csv, filename, text }: FinishedProps) => {
 
 const JettonFinished = () => {
   const { jettonAddress } = useAirdropStore();
-  const { data, isLoading } = useReadNftItemMetadata(jettonAddress);
+  const { data, isLoading } = useReadJettonWalletMedata(jettonAddress);
   const { amountPerWalletUI } = useAmountPerWallet();
   const { voters } = useAirdropStore();
   const { amountUI } = useAmount();
@@ -64,17 +64,17 @@ const JettonFinished = () => {
   const csv = useMemo(() => {
     if (!amountPerWalletUI || !symbol || !voters) return [];
     const result = voters.map((it) => {
-      return [it, `${amountPerWalletUI} ${symbol}`];
+      return [it, amountPerWalletUI];
     });
 
-    return [["address", "jettons"], ...result];
+    return [["address", symbol], ...result];
   }, [_.size(voters), amountPerWalletUI, symbol]);
 
   if (isLoading) {
     return (
-      <StyledFlexColumn>
-        <StyledSkeletonLoader />
-        <StyledSkeletonLoader />
+      <StyledFlexColumn style={{alignItems:'flex-start'}}>
+        <StyledSkeletonLoader style={{ width: "40%" }} />
+        <StyledSkeletonLoader style={{ width: "70%" }} />
         <StyledSkeletonLoader />
       </StyledFlexColumn>
     );
@@ -84,7 +84,7 @@ const JettonFinished = () => {
       csv={csv}
       text={`Successfully sent ${amountUI} ${symbol} to ${_.size(
         voters
-      )} voters`}
+      ).toLocaleString()} voters`}
       filename={`${symbol} airdrop`}
     />
   );
@@ -112,7 +112,7 @@ const StyledFinished = styled(StyledFlexColumn)(({ theme }) => ({
     fontWeight: 600,
   },
   ".text": {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 500,
   },
 }));

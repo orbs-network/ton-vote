@@ -1,23 +1,19 @@
 import styled from "@emotion/styled";
 import {
   FormikInputsForm,
-  TitleContainer,
   Button,
   OverflowWithTooltip,
-  AddressDisplay,
   SelectedChip,
   AppTooltip,
 } from "components";
 import _ from "lodash";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { getTonScanContractUrl, validateFormik } from "utils";
+import { getTonScanContractUrl } from "utils";
 import {
-  useAirdropFormik,
   useAirdropVotersQuery,
-  useVotersSelectSubmit,
 } from "../../hooks";
 import { useMemo, useState } from "react";
-import { useForm, useFormSchema } from "./form";
+import { useForm } from "./form";
 import { AirdropForm, useAirdropStore } from "../../store";
 import {
   StyledAirdropList,
