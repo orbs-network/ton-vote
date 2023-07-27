@@ -1,14 +1,17 @@
 import { styled, Typography } from "@mui/material";
-import { TitleContainer } from "components";
+import { Button, TitleContainer } from "components";
 import _ from "lodash";
-import { useReadJettonWalletMedata, useReadNftItemMetadata } from "query/getters";
+import {
+  useReadJettonWalletMedata,
+  useReadNftItemMetadata,
+} from "query/getters";
 import { useMemo } from "react";
 import { CSVLink } from "react-csv";
 import { BsCheckCircle } from "react-icons/bs";
+import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
 import { useAmountPerWallet, useAmount } from "./hooks";
 import { useAirdropStore } from "./store";
-import { StyledButton } from "./styles";
 
 const NFTFinished = () => {
   const { voters } = useAirdropStore();
@@ -38,6 +41,13 @@ interface FinishedProps {
 }
 
 const FinishedLayout = ({ csv, filename, text }: FinishedProps) => {
+  const { reset } = useAirdropStore();
+  const { daosPage } = useAppNavigation();
+
+  const onFinished = () => {
+    reset();
+    daosPage.root();
+  };
   return (
     <StyledFinished>
       <BsCheckCircle />
@@ -45,12 +55,19 @@ const FinishedLayout = ({ csv, filename, text }: FinishedProps) => {
         <Typography variant="h3">Congratulations!</Typography>
         <Typography className="text">{text}</Typography>
       </StyledFlexColumn>
-      <CSVLink data={csv} filename={filename}>
-        <StyledButton>Download CSV</StyledButton>
-      </CSVLink>
+      <StyledFlexColumn gap={20}>
+        <CSVLink data={csv} filename={filename}>
+          <Button variant="text">Download CSV</Button>
+        </CSVLink>
+        <FinishBtn onClick={onFinished}>Finish</FinishBtn>
+      </StyledFlexColumn>
     </StyledFinished>
   );
 };
+
+const FinishBtn = styled(Button)({
+  minWidth: 200,
+});
 
 const JettonFinished = () => {
   const { jettonAddress } = useAirdropStore();
@@ -72,7 +89,7 @@ const JettonFinished = () => {
 
   if (isLoading) {
     return (
-      <StyledFlexColumn style={{alignItems:'flex-start'}}>
+      <StyledFlexColumn style={{ alignItems: "flex-start" }}>
         <StyledSkeletonLoader style={{ width: "40%" }} />
         <StyledSkeletonLoader style={{ width: "70%" }} />
         <StyledSkeletonLoader />
