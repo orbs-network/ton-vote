@@ -96,7 +96,6 @@ export function ProposalDisplay() {
   const { daoAddress, proposalAddress } = useAppParams();
 
   const error = useProposalQuery(proposalAddress).error;
-  const hideProposal = useHiddenProposal(proposalAddress);
   
 
   useEffect(() => {
@@ -105,7 +104,7 @@ export function ProposalDisplay() {
     }
   }, [error]);
 
-  const errorContainer = hideProposal || showError;
+  const errorContainer =  showError;
 
   const isMock = mock.isMockProposal(proposalAddress);
 
