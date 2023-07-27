@@ -60,8 +60,8 @@ const useHideProposal = (proposalAddress: string) => {
   if (!proposal?.metadata?.hide) {
     return false;
   }
-
-  if (!isProposalPublisher || !isOwner) {
+  
+  if (!isProposalPublisher && !isOwner) {
     return true;
   }
 
@@ -83,7 +83,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
   const { proposalStatus, proposalStatusText } =
     useProposalStatus(proposalAddress);
   const hideProposal = useHideProposal(proposalAddress);
-
+  
   const description = useMemo(
     () => parseLanguage(proposal?.metadata?.description, "en"),
     [proposal?.metadata?.description]
