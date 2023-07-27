@@ -225,7 +225,8 @@ const NFTItemInput = ({
     <TextInput
       value={value}
       onChange={setValue}
-      placeholder="Enter NFT address"
+      required={true}
+      title="NFT item address"
     />
   );
 };

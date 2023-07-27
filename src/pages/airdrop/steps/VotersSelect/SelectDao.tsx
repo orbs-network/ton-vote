@@ -113,7 +113,11 @@ export const SelectDao = () => {
             data={filteredDaos || []}
             itemSize={56}
             selected={daos}
-            onSelect={setDao}
+            onSelect={(dao) => {
+              setDao(dao);
+              setOpen(false);
+            }}
+            
           />
           <Button onClick={() => setOpen(false)}>Close</Button>
         </>

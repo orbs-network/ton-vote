@@ -55,6 +55,7 @@ function VirtualList(props: Props) {
                 onSelect: props.onSelect,
                 RowComponent: props.RowComponent,
                 selected: props.selected || [],
+
               }}
               itemSize={(index) => props.itemSize}
               estimatedItemSize={10}
