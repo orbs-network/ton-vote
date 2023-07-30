@@ -32,8 +32,7 @@ const readJettonMetadata = (address: string) => {
     );
     const clientV2 = await SDK.getClientV2();
     const result = await SDK.readJettonWalletMetadata(clientV2, address);
-      console.log(result);
-      
+
     if (_.isEmpty(result)) {
       throw new Error("Empty result");
     }
@@ -90,7 +89,7 @@ const getWalletNFTCollectionItems = (
     const result = await SDK.getAllNftHoldersFromCollectionAddr(
       clientV4,
       collectionAddr
-    );      
+    );
     return result[connectedWallet as any] || [];
   };
   return retry(promise, { retries: 3 });

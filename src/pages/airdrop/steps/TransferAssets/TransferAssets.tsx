@@ -8,6 +8,7 @@ import {
 } from "components";
 import { VirtualList } from "components";
 import { useDebounce } from "hooks/hooks";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import _ from "lodash";
 import { Metadata } from "pages/airdrop/Components";
 import {
@@ -22,6 +23,7 @@ import { validateAddress } from "utils";
 
 import {
   useAmountPerWallet,
+  useDisplayWalletIndex,
   useNextVoter,
   useTransferJetton,
   useTransferNFT,
@@ -35,11 +37,15 @@ import {
 
 export const TransferAssets = () => {
   const { assetType } = useAirdropStore();
+  const t = useAirdropTranslations();
 
   return (
     <StyledContainer>
       <StyledFlexColumn gap={20}>
-        <TitleContainer title="Transfer assets" headerComponent={<Status />}>
+        <TitleContainer
+          title={t.titles.transferAssets}
+          headerComponent={<VotersList />}
+        >
           {assetType === "nft" ? <NFTAction /> : <JettonAction />}
         </TitleContainer>
       </StyledFlexColumn>
@@ -47,19 +53,6 @@ export const TransferAssets = () => {
   );
 };
 
-const Status = ({ className = "" }: { className?: string }) => {
-  const { currentWalletIndex = 0, voters } = useAirdropStore();
-
-  return (
-    <StyledStatus className={className}>
-      {`${currentWalletIndex}/${_.size(voters).toLocaleString()}`}{" "}
-    </StyledStatus>
-  );
-};
-
-const StyledStatus = styled(Typography)({
-  fontSize: 14,
-});
 
 const Voter = ({ value, index }: { value: string; index: number }) => {
   const { voters, currentWalletIndex = 0 } = useAirdropStore();
@@ -80,12 +73,14 @@ const Voter = ({ value, index }: { value: string; index: number }) => {
 
 const VotersList = () => {
   const { voters } = useAirdropStore();
+    const walletIndex = useDisplayWalletIndex();
+
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <Button variant="text" onClick={() => setOpen(true)}>
-        Show all voters
+        {`${walletIndex}/${_.size(voters).toLocaleString()}`}{" "}
       </Button>
       <StyledSelectPopup
         title="All voters"
@@ -97,6 +92,7 @@ const VotersList = () => {
             RowComponent={Voter}
             data={voters || []}
             itemSize={60}
+            displayOnly={true}
           />
           <Button onClick={() => setOpen(false)}>Close</Button>
         </>
@@ -110,45 +106,32 @@ const StyledVirtualList = styled(VirtualList)({
 });
 
 const JettonAction = () => {
-  const { jettonAddress, currentWalletIndex = 0, voters } = useAirdropStore();
+  const { jettonAddress, voters } = useAirdropStore();
+  const walletIndex = useDisplayWalletIndex();
   const { data } = useReadJettonWalletMedata(jettonAddress);
-
   const { amountPerWalletUI } = useAmountPerWallet();
-
   const { mutate, isLoading } = useTransferJetton();
+  const nextVoter = useNextVoter()
   const symbol = data?.metadata?.symbol || "";
-  const nextVoter = useNextVoter();
 
   return (
     <StyledActionContainer>
-      <JettonMetadata />
-      <Typography whiteSpace="nowrap">
-        Each wallet receive {`${amountPerWalletUI} ${symbol}`}
-      </Typography>
-
-      <NextVoter />
+      <StyledNextVoter>
+        <StyledFlexColumn>
+          <Typography className="text">
+            Send {amountPerWalletUI} {symbol} to:
+          </Typography>
+          <AddressDisplay className="address" full address={nextVoter} />
+        </StyledFlexColumn>
+      </StyledNextVoter>
       <StyledSend isLoading={isLoading} onClick={() => mutate()}>
-        Send {`${currentWalletIndex}/${_.size(voters).toLocaleString()}`}
+        Send {`${walletIndex}/${_.size(voters).toLocaleString()}`}
       </StyledSend>
     </StyledActionContainer>
   );
 };
 
-const JettonMetadata = () => {
-  const { jettonAddress } = useAirdropStore();
 
-  const { data, isLoading } = useReadJettonWalletMedata(jettonAddress);
-  return (
-    <StyledListTitleContainer title="Jetton details">
-      <Metadata
-        image={data?.metadata?.image}
-        name={data?.metadata?.name}
-        address={jettonAddress}
-        isLoading={isLoading}
-      />
-    </StyledListTitleContainer>
-  );
-};
 
 const NFTMetadata = ({ address }: { address?: string }) => {
   const { data, isLoading } = useReadNftItemMetadata(address);
@@ -166,7 +149,8 @@ const NFTMetadata = ({ address }: { address?: string }) => {
 };
 
 const NFTAction = () => {
-  const { currentWalletIndex = 0, voters } = useAirdropStore();
+  const { voters } = useAirdropStore();
+const walletIndex = useDisplayWalletIndex();
   const { mutate, isLoading } = useTransferNFT();
   const [nftAddress, setNftAddress] = useState("");
 
@@ -189,7 +173,7 @@ const NFTAction = () => {
       <NextVoter />
 
       <StyledSend isLoading={isLoading} onClick={onSend}>
-        Send {`${currentWalletIndex}/${_.size(voters).toLocaleString()}`}
+        Send {`${walletIndex}/${_.size(voters).toLocaleString()}`}
       </StyledSend>
     </StyledActionContainer>
   );
@@ -245,7 +229,6 @@ const NextVoter = () => {
         )}
         <AddressDisplay className="address" full address={nextVoter} />
       </StyledFlexColumn>
-      <VotersList />
     </StyledNextVoter>
   );
 };
@@ -274,5 +257,4 @@ const StyledContainer = styled(StyledFlexColumn)({});
 const StyledSend = styled(StyledButton)({
   marginLeft: "auto",
   marginRight: "auto",
-  marginTop: 20,
 });

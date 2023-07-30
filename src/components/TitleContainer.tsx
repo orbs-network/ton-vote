@@ -45,7 +45,7 @@ export const StyledSubtitle = styled(Typography)({
   opacity: 0.7,
   width: "100%",
   textAlign: "left",
-  marginBottom: 20
+  marginBottom: 40
 });
 
 const StyledTitle = styled(Typography)(({ theme }) => ({

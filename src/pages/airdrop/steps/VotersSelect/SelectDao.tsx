@@ -1,5 +1,6 @@
 import { styled, Typography } from "@mui/material";
 import {
+  AppTooltip,
   Button,
   Container,
   Img,
@@ -25,13 +26,14 @@ import {
   StyledSelectPopup,
 } from "../../styles";
 import { errorToast } from "toasts";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 
 interface DaoRowProps {
   value: string;
 }
 function DaoRowContent({ value }: DaoRowProps) {
   const { data: daos, dataUpdatedAt } = useDaosQuery();
-
+  const t = useAirdropTranslations();
   const dao = useMemo(() => {
     return _.find(daos, { daoAddress: value });
   }, [dataUpdatedAt, value]);
@@ -39,26 +41,31 @@ function DaoRowContent({ value }: DaoRowProps) {
   if (!dao) return null;
 
   return (
-    <StyledDaoRowContent>
-      <Img src={dao.daoMetadata.metadataArgs.avatar} />
-      <StyledFlexColumn
-        style={{ width: "auto", alignItems: "flex-start" }}
-        gap={0}
-        justifyContent="flex-start"
-      >
-        <OverflowWithTooltip
-          hideTooltip
-          text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
-          className="title"
-        />
-      </StyledFlexColumn>
-    </StyledDaoRowContent>
+    <AppTooltip
+      placement="right"
+      text={_.isEmpty(dao.daoProposals) ? t.disabledSpace : undefined}
+    >
+      <StyledDaoRowContent>
+        <Img src={dao.daoMetadata.metadataArgs.avatar} />
+        <StyledFlexColumn
+          style={{ width: "auto", alignItems: "flex-start" }}
+          gap={0}
+          justifyContent="flex-start"
+        >
+          <OverflowWithTooltip
+            hideTooltip
+            text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
+            className="title"
+          />
+        </StyledFlexColumn>
+      </StyledDaoRowContent>
+    </AppTooltip>
   );
 }
 
 export const SelectDao = () => {
   const { data: allDaos, dataUpdatedAt } = useDaosQuery();
-  const { daos, setDao, nextStep } = useAirdropStore();
+  const { daos, setDao } = useAirdropStore();
   const [filterValue, setFilterValue] = useState("");
   const [open, setOpen] = useState(false);
   const filteredDaos = useMemo(() => {
@@ -77,6 +84,13 @@ export const SelectDao = () => {
     return _.map(result, (it) => it.daoAddress);
   }, [dataUpdatedAt, filterValue]);
 
+  const disabledItems = useMemo(() => {
+    return _.map(
+      _.filter(allDaos, (it) => it.daoProposals.length === 0),
+      (it) => it.daoAddress
+    );
+  }, [dataUpdatedAt]);
+
   return (
     <StyledListTitleContainer
       title="Select a DAO space"
@@ -89,7 +103,6 @@ export const SelectDao = () => {
       {_.isEmpty(daos) ? (
         <StyledFlexColumn className="not-selected">
           <Typography>Dao space not selected</Typography>
-        
         </StyledFlexColumn>
       ) : (
         <StyledFlexColumn>
@@ -113,11 +126,11 @@ export const SelectDao = () => {
             data={filteredDaos || []}
             itemSize={56}
             selected={daos}
+            disabledItems={disabledItems}
             onSelect={(dao) => {
               setDao(dao);
               setOpen(false);
             }}
-            
           />
           <Button onClick={() => setOpen(false)}>Close</Button>
         </>
@@ -125,7 +138,6 @@ export const SelectDao = () => {
     </StyledListTitleContainer>
   );
 };
-
 
 const SelectedDao = ({ address }: { address: string }) => {
   const { data, dataUpdatedAt } = useDaosQuery();

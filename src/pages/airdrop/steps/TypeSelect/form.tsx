@@ -1,3 +1,4 @@
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
 import { AirdropStoreKeys } from "pages/airdrop/types";
@@ -45,6 +46,7 @@ export const useFormSchema = () => {
 };
 
 export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
+  const t = useAirdropTranslations()
   return useMemo(() => {
     let inputs: InputArgs<AirdropForm>[] = [
       {
@@ -59,26 +61,21 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
       },
     ];
 
-    const nftInput: InputArgs<AirdropForm> = {
-      name: AirdropStoreKeys.nftCollection,
-      label: "NFT collection address",
-      type: "text",
-      required: true,
-    };
 
     const jettonsInputs: InputArgs<AirdropForm>[] = [
       {
         name: AirdropStoreKeys.jettonAddress,
-        label: "Jetton wallet address",
+        label: t.jettonWalletAddress.title,
         type: "text",
         required: true,
-        helperText: "Some text",
+        tooltip: t.jettonWalletAddress.tooltip,
       },
       {
         name: AirdropStoreKeys.jettonsAmount,
-        label: "Total jettons amount",
+        label: t.totalJettonAmount.title,
         type: "number",
         required: true,
+        tooltip: t.totalJettonAmount.tooltip,
       },
     ];
 

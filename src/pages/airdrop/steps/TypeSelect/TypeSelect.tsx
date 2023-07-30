@@ -6,16 +6,23 @@ import { validateAddress, validateFormik } from "utils";
 import { useAirdropFormik, useOnAssetTypeSelected } from "../../hooks";
 import { useForm, useFormSchema } from "./form";
 import { SubmitButtonContainer } from "../SubmitButton";
-import { AirdropForm } from "../../store";
+import { AirdropForm, AirdropStoreValues } from "../../store";
 import { FormikProps } from "formik";
 import { StyledListTitleContainer } from "pages/airdrop/styles";
 import { Metadata } from "pages/airdrop/Components";
-import { useReadJettonWalletMedata, useReadNftCollectionMetadata } from "query/getters";
+import {
+  useReadJettonWalletMedata,
+  useReadNftCollectionMetadata,
+} from "query/getters";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 export const TypeSelect = () => {
   const { mutate } = useOnAssetTypeSelected();
   const schema = useFormSchema();
   const formik = useAirdropFormik(mutate, schema);
   const form = useForm(formik.values);
+  const t = useAirdropTranslations();
+
+
 
   const onSubmit = () => {
     validateFormik(formik);
@@ -23,13 +30,11 @@ export const TypeSelect = () => {
   };
 
   return (
-    <TitleContainer title="Choose airdrop type" subtitle="Some text">
+    <TitleContainer title={t.titles.selectedAssetCategory} subtitle="Some text">
       <StyledForm>
         <FormikInputsForm<AirdropForm> form={form} formik={formik}>
           <ShowSelectedAsset formik={formik} />
-          <SubmitButtonContainer>
-            <Button onClick={onSubmit}>Next</Button>
-          </SubmitButtonContainer>
+          <SubmitButtonContainer onClick={onSubmit}>Next</SubmitButtonContainer>
         </FormikInputsForm>
       </StyledForm>
     </TitleContainer>

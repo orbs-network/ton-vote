@@ -2,26 +2,37 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { useFormik } from "formik";
 import { useDebouncedCallback, useFormatNumber } from "hooks/hooks";
-import _ from "lodash";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
+import _, { rest } from "lodash";
 import {
   useDaosQuery,
   useGetAllProposalsCallback,
   useGetClientsCallback,
-  useGetWalletNFTCollectionItemsCallback,
   useReadJettonWalletMedataCallback,
   useReadNftItemMetadataCallback,
 } from "query/getters";
 import { useEffect, useMemo } from "react";
 import { showSuccessToast, useErrorToast } from "toasts";
-import { fromNano, toNano } from "ton-core";
+import { toNano } from "ton-core";
 import {
   chooseRandomVoters,
   transferJettons,
   transferNft,
 } from "ton-vote-contracts-sdk";
 import { AnyObjectSchema } from "yup";
-import { useAirdropStore, AirdropForm } from "./store";
-import { AirdropStoreKeys, VoterSelectionMethod } from "./types";
+import {
+  useAirdropStore,
+  AirdropForm,
+  useAirdropStoreCopy,
+  AirdropStore,
+  AirdropStoreValues,
+} from "./store";
+import { AirdropStoreKeys, Steps, VoterSelectionMethod } from "./types";
+
+export const useDisplayWalletIndex = () => {
+  const res = useAirdropStore().currentWalletIndex || 0;
+  return res + 1;
+};
 
 export const useSelectedDaosProposals = () => {
   const { dataUpdatedAt, data } = useDaosQuery();
@@ -72,13 +83,19 @@ export const useVotersSelectSubmit = () => {
     setValues,
     nextStep,
     manuallySelectedVoters = [],
+    proposals,
   } = useAirdropStore();
   const getVotes = useGetAirdropVotes();
   const getClients = useGetClientsCallback();
+  const t = useAirdropTranslations();
 
   return useMutation(
-    async (formData: AirdropForm) => {
-      if (formData.selectionMethod === VoterSelectionMethod.MANUALLY) {
+    async (args: { formData: AirdropForm; voters: string[] }) => {
+      if (_.isEmpty(proposals)) {
+        throw new Error("Select at least one proposal");
+      }
+
+      if (args.formData.selectionMethod === VoterSelectionMethod.MANUALLY) {
         if (_.isEmpty(manuallySelectedVoters)) {
           throw new Error("Select at least one voter manually");
         }
@@ -87,12 +104,8 @@ export const useVotersSelectSubmit = () => {
 
       const votes = await getVotes();
 
-      if (formData.selectionMethod === VoterSelectionMethod.ALL) {
+      if (args.formData.selectionMethod === VoterSelectionMethod.ALL) {
         return _.keys(votes);
-      }
-
-      if (!formData.votersAmount) {
-        throw new Error("Random voters amount is required");
       }
       const clientV4 = (await getClients()).clientV4;
 
@@ -100,16 +113,22 @@ export const useVotersSelectSubmit = () => {
         throw new Error("Something went wrong");
       }
 
-      if (_.size(votes) < formData.votersAmount) {
+      const randomVotersAmount = args.formData.votersAmount || 0;
+
+      if (!_.isEmpty(args.voters)) {
+        return args.voters;
+      }
+
+      if (_.size(votes) < randomVotersAmount) {
         throw new Error(
-          `Max amount of voters in ${_.size(votes).toLocaleString()}`
+          t.errors.maxVotersAmount(_.size(votes).toLocaleString())
         );
       }
 
       const result = await chooseRandomVoters(
         clientV4,
         votes,
-        formData.votersAmount
+        randomVotersAmount
       );
 
       if (_.size(result) === 0) {
@@ -307,10 +326,12 @@ export const useAirdropFormik = (
     nftCollection,
     manuallySelectedVoters,
     setValues,
+    votersAmount,
   } = useAirdropStore();
   const formik = useFormik<AirdropForm>({
+    enableReinitialize: true,
     initialValues: {
-      [AirdropStoreKeys.votersAmount]: _.size(voters) || undefined,
+      [AirdropStoreKeys.votersAmount]: votersAmount || undefined,
       [AirdropStoreKeys.jettonsAmount]: jettonsAmount,
       [AirdropStoreKeys.jettonAddress]: jettonAddress,
       [AirdropStoreKeys.nftCollection]: nftCollection,
@@ -335,4 +356,72 @@ export const useAirdropFormik = (
   }, [formik.values]);
 
   return formik;
+};
+
+const getStoreValues = (store: AirdropStore): AirdropStoreValues => {
+  const { step, ...rest } = AirdropStoreKeys;
+  return _.reduce(
+    _.map(_.keys(rest), (key) => {
+      return { value: store[key as AirdropStoreKeys], key };
+    }),
+    (acc, { value, key }) => ({ ...acc, [key]: value }),
+    {}
+  );
+};
+
+export const useAirdropStarted = () => {
+  const index = useAirdropStore().currentWalletIndex || 0;
+
+  return index > 0;
+};
+
+export const useRevertAirdropChangesCallback = () => {
+  const store = useAirdropStore();
+  const storeCopy = useAirdropStoreCopy();
+
+  return () => {
+    store.setValues(storeCopy.values);
+  };
+};
+
+export const useMakeAirdropStoreCopy = () => {
+  const store = useAirdropStore();
+  const storeCopy = useAirdropStoreCopy();
+
+  return () => {
+    storeCopy.setValues(getStoreValues(store));
+  };
+};
+
+export const useStartNewAirdropCallback = () => {
+  const store = useAirdropStore();
+  const storeCopy = useAirdropStoreCopy();
+
+  return () => {
+    let values = { ...getStoreValues(store), currentWalletIndex: 0 };
+    if (
+      store.step === Steps.SELECT_VOTERS &&
+      store.votersAmount !== storeCopy.values.votersAmount
+    ) {
+      values = { ...values, voters: [] };
+    }
+
+    store.setValues(values);
+    storeCopy.setValues(values);
+  };
+};
+
+export const useIsAirdropStateChanged = () => {
+  const store = useAirdropStore();
+  const storeCopy = useAirdropStoreCopy();
+  const airdropStarted = useAirdropStarted();
+
+  return () => {
+    if (!airdropStarted) return;
+
+    return !_.isEqual(
+      JSON.stringify(getStoreValues(store)),
+      JSON.stringify(storeCopy.values)
+    );
+  };
 };

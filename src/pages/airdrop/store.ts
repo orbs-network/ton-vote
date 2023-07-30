@@ -13,18 +13,7 @@ export interface AirdropForm {
   [AirdropStoreKeys.nftCollection]?: string;
 }
 
-interface AirdropStore {
-  reset: () => void;
-  setProposals: (proposals: string[]) => void;
-  selectProposal: (proposal: string) => void;
-  setStep: (step: number) => void;
-  incrementCurrentWalletIndex: () => void;
-  setVoters: (voters: string[]) => void;
-  nextStep: () => void;
-  setDao: (dao: string) => void;
-  setValues: (values: Partial<AirdropStore>) => void;
-  setManuallySelectedVoters: (voters: string) => void;
-  setNFTItemsRecipients: (voter: string, nftItem: string) => void;
+export interface AirdropStoreValues {
   [AirdropStoreKeys.votersAmount]?: number;
   [AirdropStoreKeys.voters]?: string[];
   [AirdropStoreKeys.currentWalletIndex]?: number;
@@ -40,7 +29,21 @@ interface AirdropStore {
   [AirdropStoreKeys.NFTItemsRecipients]?: { [key: string]: string };
 }
 
-const initialState = {
+export interface AirdropStore extends AirdropStoreValues {
+  reset: () => void;
+  setProposals: (proposals: string[]) => void;
+  selectProposal: (proposal: string) => void;
+  setStep: (step: number) => void;
+  incrementCurrentWalletIndex: () => void;
+  setVoters: (voters: string[]) => void;
+  nextStep: () => void;
+  setDao: (dao: string) => void;
+  setValues: (values: AirdropStoreValues) => void;
+  setManuallySelectedVoters: (voters: string) => void;
+  setNFTItemsRecipients: (voter: string, nftItem: string) => void;
+}
+
+export const initialState = {
   [AirdropStoreKeys.votersAmount]: undefined,
   [AirdropStoreKeys.voters]: undefined,
   [AirdropStoreKeys.currentWalletIndex]: undefined,
@@ -78,7 +81,7 @@ export const useAirdropStore = create(
         });
       },
       setValues: (values) => {
-        set(values);
+        set(values);      
       },
       selectProposal: (proposal) => {
         const proposals = get().proposals || [];
@@ -97,7 +100,7 @@ export const useAirdropStore = create(
       setVoters: (voters) => {
         set({ voters });
       },
-  
+
       incrementCurrentWalletIndex: () => {
         const index = get().currentWalletIndex || 0;
         set({ currentWalletIndex: index + 1 });
@@ -110,8 +113,7 @@ export const useAirdropStore = create(
       },
       setDao: (dao) => {
         const daos = get().daos || [];
-        console.log('test');
-        
+
         set({
           daos: daos.includes(dao) ? _.without(daos, dao) : [dao],
           proposals: [],
@@ -123,6 +125,25 @@ export const useAirdropStore = create(
     }),
     {
       name: "airdrop",
+    }
+  )
+);
+
+interface AirdropStoreCompare {
+  values: AirdropStoreValues;
+  setValues: (values: AirdropStoreValues) => void;
+}
+
+export const useAirdropStoreCopy = create(
+  persist<AirdropStoreCompare>(
+    (set, get) => ({
+      values: initialState,
+      setValues: (values) => {
+        set({ values });
+      },
+    }),
+    {
+      name: "airdrop-copy",
     }
   )
 );

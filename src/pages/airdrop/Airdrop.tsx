@@ -9,33 +9,32 @@ import { useAirdropStore } from "./store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useEffect, useState } from "react";
 import { AirdropFinished } from "./AirdropFinished";
-import { SelectDao } from "./steps/VotersSelect/SelectDao";
-import { SelectProposals } from "./steps/VotersSelect/SelectProposals";
 import GettingsStarted from "./steps/GettingStarted";
-import {
-  useEnsureProposalQuery,
-} from "query/getters";
+import { useEnsureProposalQuery } from "query/getters";
 import { useAppQueryParams } from "hooks/hooks";
 import { validateAddress } from "utils";
 import { VotersSelect } from "./steps/VotersSelect/VotersSelect";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
+import { useAirdropStarted, useMakeAirdropStoreCopy } from "./hooks";
 
 const useSteps = (): StepsMenuStep[] => {
+  const t = useAirdropTranslations();
   return [
     {
-      title: "Getting started",
+      title: t.titles.gettingStarted,
       component: GettingsStarted,
     },
     {
-      title: "Choose airdrop type",
+      title: t.titles.selectedAssetCategory,
       component: TypeSelect,
     },
     {
-      title: "Select voters",
+      title: t.titles.generateDstWallets,
       component: VotersSelect,
     },
 
     {
-      title: "Transfer assets",
+      title: t.titles.transferAssets,
       component: TransferAssets,
     },
     {
@@ -45,9 +44,27 @@ const useSteps = (): StepsMenuStep[] => {
 };
 
 export function Airdrop() {
+  const { step, setStep } = useAirdropStore();
+  const steps = useSteps();
+  useHanldeProposalFromQueryParams();
+  const airdropStarted = useAirdropStarted();
+  const makeCopy = useMakeAirdropStoreCopy();
+  useEffect(() => {
+    if (airdropStarted) {
+      makeCopy();
+    }
+  }, [airdropStarted]);
+
   return (
     <StyledPage title="Airdrop Asistant" hideBack>
-      <Steps />
+      <StepsLayout
+        disableBack
+        setStep={setStep}
+        currentStep={step || 0}
+        steps={steps}
+      >
+        <ResetButton />
+      </StepsLayout>
     </StyledPage>
   );
 }
@@ -55,19 +72,18 @@ export function Airdrop() {
 const useHanldeProposalFromQueryParams = () => {
   const {
     query: { airdropProposal },
-    setAirdropProposal
+    setAirdropProposal,
   } = useAppQueryParams();
   const { reset, setDao, selectProposal } = useAirdropStore();
   const getProposal = useEnsureProposalQuery();
-
 
   const onProposalFromQuery = async (address: string) => {
     try {
       const result = await getProposal(address);
       reset();
       setDao(result?.daoAddress || "");
-      selectProposal(airdropProposal || '');
-      setAirdropProposal('');
+      selectProposal(airdropProposal || "");
+      setAirdropProposal("");
     } catch (error) {}
   };
 
@@ -78,27 +94,9 @@ const useHanldeProposalFromQueryParams = () => {
   }, [airdropProposal]);
 };
 
-const Steps = () => {
-  const { step, setStep } = useAirdropStore();
-  const steps = useSteps();
-  useHanldeProposalFromQueryParams();
-
-  return (
-    <StepsLayout
-      disableBack
-      setStep={setStep}
-      currentStep={step || 0}
-      steps={steps}
-    >
-      <ResetButton />
-    </StepsLayout>
-  );
-};
-
 const StyledPage = styled(Page)({
   marginLeft: "auto",
   marginRight: "auto",
-  // maxWidth: 1000
 });
 
 const ResetButton = () => {

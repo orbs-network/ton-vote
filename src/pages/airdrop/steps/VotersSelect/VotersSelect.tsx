@@ -1,6 +1,8 @@
-import { Button, TitleContainer } from "components";
+import { TitleContainer } from "components";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import { useAirdropFormik, useVotersSelectSubmit } from "pages/airdrop/hooks";
-import React from "react";
+import { AirdropForm, useAirdropStore } from "pages/airdrop/store";
+import React, { useState } from "react";
 import { StyledFlexColumn } from "styles";
 import { validateFormik } from "utils";
 import { SubmitButtonContainer } from "../SubmitButton";
@@ -11,10 +13,20 @@ import { SelectProposals } from "./SelectProposals";
 
 export function VotersSelect() {
   const { mutate, isLoading } = useVotersSelectSubmit();
+  const t = useAirdropTranslations();
+  const store = useAirdropStore();
+  const [votersAmount] = useState(store.votersAmount);
 
   const schema = useFormSchema();
 
-  const formik = useAirdropFormik(mutate, schema);
+  const submit = (formData: AirdropForm) => {
+    mutate({
+      formData,
+      voters: votersAmount !== formData.votersAmount ? [] : store.voters || [],
+    });
+  };
+
+  const formik = useAirdropFormik(submit, schema);
 
   const onSubmit = () => {
     validateFormik(formik);
@@ -22,16 +34,17 @@ export function VotersSelect() {
   };
 
   return (
-    <TitleContainer title="Voters Select">
+    <TitleContainer
+      subtitle={t.subtitles.generateDstWallets}
+      title={t.titles.generateDstWallets}
+    >
       <StyledFlexColumn gap={20}>
         <SelectDao />
         <SelectProposals />
         <SelectMethod formik={formik} />
       </StyledFlexColumn>
-      <SubmitButtonContainer>
-        <Button isLoading={isLoading} onClick={onSubmit}>
-          Next
-        </Button>
+      <SubmitButtonContainer isLoading={isLoading} onClick={onSubmit}>
+        Next
       </SubmitButtonContainer>
     </TitleContainer>
   );

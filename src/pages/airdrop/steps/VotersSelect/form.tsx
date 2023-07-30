@@ -1,5 +1,6 @@
 import { Button } from "components";
 import { FormikProps } from "formik";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
 import { useAirdropVotersQuery, useGetAirdropVotes } from "pages/airdrop/hooks";
@@ -12,13 +13,14 @@ import * as Yup from "yup";
 
 export const useFormSchema = () => {
   const commonTranslations = useCommonTranslations();
+  const airdropTranslations = useAirdropTranslations();
   return Yup.object().shape({
     [AirdropStoreKeys.selectionMethod]: Yup.string().required(
       commonTranslations.isRequired("Voters selection method")
     ),
     [AirdropStoreKeys.votersAmount]: Yup.number().test(
       "",
-      commonTranslations.isRequired("Random voters amount"),
+      commonTranslations.isRequired(airdropTranslations.randomVotersAmount),
       (value, context) => {
         if (
           context.parent[AirdropStoreKeys.selectionMethod] ==

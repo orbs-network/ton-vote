@@ -1,6 +1,6 @@
 import { styled, Typography, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
-import { Button, OverflowWithTooltip, SideMenu } from "components";
+import { Button, SideMenu } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsCheckLg } from "react-icons/bs";
 import { MOBILE_WIDTH } from "consts";
@@ -33,11 +33,10 @@ export function StepsLayout({
   header,
 }: Props) {
   const theme = useTheme();
-  const translations = useCommonTranslations();
   const Component = steps[currentStep]?.component;
 
   const onClick = (index: number) => {
-    if (!disableBack && index < currentStep) {
+    if (index < currentStep) {
       setStep(index);
     }
   };
@@ -70,19 +69,7 @@ export function StepsLayout({
                   {finished && <BsCheckLg style={{ color: "white" }} />}
                   {isCurrent && <StyledDot />}
                 </StyledIndicator>
-                <div style={{ flex: 1 }}>
-                  <OverflowWithTooltip text={step.title} />
-                </div>
-                {finished && step?.editable && onEdit && (
-                  <StyledEdit
-                    onClick={() => {
-                      setStep(index);
-                      onEdit();
-                    }}
-                  >
-                    {translations.edit}
-                  </StyledEdit>
-                )}
+                <StyledTitle>{step.title}</StyledTitle>
               </StyledStep>
             );
           })}
@@ -94,6 +81,10 @@ export function StepsLayout({
     </StyledContainer>
   );
 }
+
+const StyledTitle = styled(Typography)({
+  flex:1
+})
 
 const StyledStepSubtitle = styled(Typography)({});
 
