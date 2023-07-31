@@ -8,9 +8,13 @@ import { RouterProvider } from "react-router-dom";
 import { useRouter } from "router/router";
 import { getGlobalStyles } from "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
+import twa from '@twa-dev/sdk'
 
 const useInitApp = () => {
   useInitThemeMode();
+
+  // Initialise TWA
+  twa.ready();
 };
 
 function App() {
