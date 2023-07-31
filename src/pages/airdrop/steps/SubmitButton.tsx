@@ -3,14 +3,13 @@ import { useTonAddress } from "@tonconnect/ui-react";
 import { Button, ConnectButton, Popup } from "components";
 import React, { ReactNode, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useIsAirdropStateChanged, useStartNewAirdropCallback } from "../hooks";
-
-import { useRevertAirdropChangesCallback } from "../hooks";
-import { useAirdropStore, useAirdropStoreCopy } from "../store";
-import { Steps } from "../types";
+import {
+  useRevertAirdropChanges,
+  useValidateChangedAfterAirdropStarted,
+} from "../hooks";
 
 export function SubmitButtonContainer({
-  onClick,
+  onClick: onSubmit,
   children,
   isLoading,
 }: {
@@ -19,15 +18,15 @@ export function SubmitButtonContainer({
   isLoading?: boolean;
 }) {
   const address = useTonAddress();
-  const isStateChanged = useIsAirdropStateChanged();
   const [open, setOpen] = useState(false);
+  const validateChanges = useValidateChangedAfterAirdropStarted();
 
-  const _onClick = () => {
-    const changed = isStateChanged();
-    if (changed) {
+  const onClick = () => {
+    const hasChanges = validateChanges();
+    if (hasChanges) {
       setOpen(true);
     } else {
-      onClick();
+      onSubmit();
     }
   };
 
@@ -41,11 +40,11 @@ export function SubmitButtonContainer({
   return (
     <StyledContainer>
       <ChangedStateWarning
-        onSubmit={onClick}
+        onSubmit={onSubmit}
         onClose={() => setOpen(false)}
         open={open}
       />
-      <Button isLoading={isLoading} onClick={_onClick}>
+      <Button isLoading={isLoading} onClick={onClick}>
         {children}
       </Button>
     </StyledContainer>
@@ -61,32 +60,33 @@ const StyledContainer = styled(StyledFlexRow)({
 
 export function ChangedStateWarning({
   open,
-  onClose,
   onSubmit,
+  onClose,
 }: {
   open: boolean;
-  onClose: () => void;
   onSubmit: () => void;
+  onClose: () => void;
 }) {
-  const startNewAirdrop = useStartNewAirdropCallback();
-  const revert = useRevertAirdropChangesCallback();
+  const revertChanges = useRevertAirdropChanges();
   const onCancel = () => {
-    revert();
+    revertChanges();
     onClose();
   };
 
-  const _onSubmit = () => {
-    startNewAirdrop();
-    onSubmit();
-    onClose();
-  };
   return (
     <StyledPopup title="Reset" open={open} onClose={onClose}>
       <StyledFlexColumn gap={30}>
         <Typography>Are you sure?</Typography>
         <StyledFlexRow>
           <StyledButton onClick={onCancel}>No</StyledButton>
-          <StyledButton onClick={_onSubmit}>Yes</StyledButton>
+          <StyledButton
+            onClick={() => {
+              onSubmit();
+              onClose();
+            }}
+          >
+            Yes
+          </StyledButton>
         </StyledFlexRow>
       </StyledFlexColumn>
     </StyledPopup>

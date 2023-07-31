@@ -1,16 +1,49 @@
+import { useFormik } from "formik";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
+import { AssetSelectValues, useAssetSelectStore } from "pages/airdrop/store";
 import { AirdropStoreKeys } from "pages/airdrop/types";
 import { useMemo } from "react";
 import { FormArgs, InputArgs } from "types";
 import { validateAddress } from "utils";
 import * as Yup from "yup";
-import { AirdropForm } from "../../store";
+import { useOnAssetTypeSelected } from "./hooks";
+
+
+
+export const useTypeSelectFormik = () => {
+  const { mutate } = useOnAssetTypeSelected();
+
+  const onSubmit = (values: AssetSelectValues) => {
+    mutate({
+      assetType: values.assetType,
+      jettonAddress: values.jettonAddress,
+      jettonsAmount: values.jettonsAmount,
+    });
+  };
+
+  const store = useAssetSelectStore();
+  const schema = useFormSchema();
+  return useFormik<AssetSelectValues>({
+    enableReinitialize: true,
+    initialValues: {
+      [AirdropStoreKeys.jettonsAmount]: store.jettonsAmount,
+      [AirdropStoreKeys.jettonAddress]: store.jettonAddress,
+      [AirdropStoreKeys.assetType]: store.assetType,
+    },
+    validationSchema: schema,
+    validateOnChange: false,
+    validateOnBlur: true,
+    onSubmit: (values) => {
+      onSubmit(values);
+    },
+  });
+};
 
 export const useFormSchema = () => {
   const commonTranslations = useCommonTranslations();
-  return Yup.object<AirdropForm>().shape({
+  return Yup.object().shape({
     [AirdropStoreKeys.assetType]: Yup.string().required(
       commonTranslations.isRequired("Asset type")
     ),
@@ -45,10 +78,10 @@ export const useFormSchema = () => {
   });
 };
 
-export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
-  const t = useAirdropTranslations()
+export const useForm = (values: AssetSelectValues): FormArgs<AssetSelectValues> => {
+  const t = useAirdropTranslations();
   return useMemo(() => {
-    let inputs: InputArgs<AirdropForm>[] = [
+    let inputs: InputArgs<AssetSelectValues>[] = [
       {
         name: AirdropStoreKeys.assetType,
         label: "Airdrop asset type",
@@ -61,8 +94,7 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
       },
     ];
 
-
-    const jettonsInputs: InputArgs<AirdropForm>[] = [
+    const jettonsInputs: InputArgs<AssetSelectValues>[] = [
       {
         name: AirdropStoreKeys.jettonAddress,
         label: t.jettonWalletAddress.title,
@@ -85,5 +117,5 @@ export const useForm = (values: AirdropForm): FormArgs<AirdropForm> => {
     return {
       inputs,
     };
-  }, [values.jettonAddress, values.nftCollection, values.assetType]);
+  }, [values.jettonAddress, values.assetType]);
 };

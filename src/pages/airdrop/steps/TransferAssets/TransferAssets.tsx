@@ -28,7 +28,7 @@ import {
   useTransferJetton,
   useTransferNFT,
 } from "../../hooks";
-import { useAirdropStore } from "../../store";
+import { useAirdropPersistStore } from "../../store";
 import {
   StyledButton,
   StyledListTitleContainer,
@@ -36,7 +36,7 @@ import {
 } from "../../styles";
 
 export const TransferAssets = () => {
-  const { assetType } = useAirdropStore();
+  const { assetType } = useAirdropPersistStore();
   const t = useAirdropTranslations();
 
   return (
@@ -55,7 +55,7 @@ export const TransferAssets = () => {
 
 
 const Voter = ({ value, index }: { value: string; index: number }) => {
-  const { voters, currentWalletIndex = 0 } = useAirdropStore();
+  const { voters, currentWalletIndex = 0 } = useAirdropPersistStore();
 
   const voter = voters?.find((it) => it === value);
 
@@ -72,7 +72,7 @@ const Voter = ({ value, index }: { value: string; index: number }) => {
 };
 
 const VotersList = () => {
-  const { voters } = useAirdropStore();
+  const { voters } = useAirdropPersistStore();
     const walletIndex = useDisplayWalletIndex();
 
   const [open, setOpen] = useState(false);
@@ -106,7 +106,7 @@ const StyledVirtualList = styled(VirtualList)({
 });
 
 const JettonAction = () => {
-  const { jettonAddress, voters } = useAirdropStore();
+  const { jettonAddress, voters } = useAirdropPersistStore();
   const walletIndex = useDisplayWalletIndex();
   const { data } = useReadJettonWalletMedata(jettonAddress);
   const { amountPerWalletUI } = useAmountPerWallet();
@@ -149,7 +149,7 @@ const NFTMetadata = ({ address }: { address?: string }) => {
 };
 
 const NFTAction = () => {
-  const { voters } = useAirdropStore();
+  const { voters } = useAirdropPersistStore();
 const walletIndex = useDisplayWalletIndex();
   const { mutate, isLoading } = useTransferNFT();
   const [nftAddress, setNftAddress] = useState("");
@@ -217,7 +217,7 @@ const NFTItemInput = ({
 
 const NextVoter = () => {
   const nextVoter = useNextVoter();
-  const { assetType } = useAirdropStore();
+  const { assetType } = useAirdropPersistStore();
 
   return (
     <StyledNextVoter>

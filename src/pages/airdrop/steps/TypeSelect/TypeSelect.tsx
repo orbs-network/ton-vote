@@ -1,28 +1,21 @@
 import styled from "@emotion/styled";
-import { FormikInputsForm, TitleContainer, Button } from "components";
+import { FormikInputsForm, TitleContainer } from "components";
 import _ from "lodash";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn } from "styles";
 import { validateAddress, validateFormik } from "utils";
-import { useAirdropFormik, useOnAssetTypeSelected } from "../../hooks";
-import { useForm, useFormSchema } from "./form";
+import { useForm, useTypeSelectFormik } from "./form";
 import { SubmitButtonContainer } from "../SubmitButton";
-import { AirdropForm, AirdropStoreValues } from "../../store";
 import { FormikProps } from "formik";
 import { StyledListTitleContainer } from "pages/airdrop/styles";
 import { Metadata } from "pages/airdrop/Components";
-import {
-  useReadJettonWalletMedata,
-  useReadNftCollectionMetadata,
-} from "query/getters";
+import { useReadJettonWalletMedata } from "query/getters";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
+import { AssetSelectValues } from "pages/airdrop/store";
+
 export const TypeSelect = () => {
-  const { mutate } = useOnAssetTypeSelected();
-  const schema = useFormSchema();
-  const formik = useAirdropFormik(mutate, schema);
+  const formik = useTypeSelectFormik();
   const form = useForm(formik.values);
   const t = useAirdropTranslations();
-
-
 
   const onSubmit = () => {
     validateFormik(formik);
@@ -30,11 +23,13 @@ export const TypeSelect = () => {
   };
 
   return (
-    <TitleContainer title={t.titles.selectedAssetCategory} subtitle="Some text">
+    <TitleContainer title={t.titles.selectedAssetCategory}>
       <StyledForm>
-        <FormikInputsForm<AirdropForm> form={form} formik={formik}>
+        <FormikInputsForm<AssetSelectValues> form={form} formik={formik}>
           <ShowSelectedAsset formik={formik} />
-          <SubmitButtonContainer onClick={onSubmit}>Next</SubmitButtonContainer>
+          <SubmitButtonContainer onClick={onSubmit}>
+            Next
+          </SubmitButtonContainer>
         </FormikInputsForm>
       </StyledForm>
     </TitleContainer>
@@ -44,23 +39,14 @@ export const TypeSelect = () => {
 const ShowSelectedAsset = ({
   formik,
 }: {
-  formik: FormikProps<AirdropForm>;
+  formik: FormikProps<AssetSelectValues>;
 }) => {
   const { values } = formik;
 
-  if (
-    !values.jettonAddress &&
-    !values.nftCollection &&
-    !validateAddress(values.jettonAddress) &&
-    !validateAddress(values.nftCollection)
-  )
+  if (!values.jettonAddress && !validateAddress(values.jettonAddress))
     return null;
 
-  return values.assetType === "jetton" ? (
-    <JettonMetadata address={values.jettonAddress} />
-  ) : (
-    <NFTMetadata address={values.nftCollection} />
-  );
+  return <JettonMetadata address={values.jettonAddress} />;
 };
 
 const JettonMetadata = ({ address }: { address?: string }) => {
@@ -70,23 +56,6 @@ const JettonMetadata = ({ address }: { address?: string }) => {
 
   return (
     <StyledAssetDisplay title="Selected jetton">
-      <Metadata
-        address={address}
-        image={data?.metadata?.image}
-        name={data?.metadata?.name}
-        isLoading={isLoading}
-        description={data?.metadata?.description}
-      />
-    </StyledAssetDisplay>
-  );
-};
-
-const NFTMetadata = ({ address }: { address?: string }) => {
-  const { data, isLoading } = useReadNftCollectionMetadata(address);
-  if (!address || !validateAddress(address)) return null;
-
-  return (
-    <StyledAssetDisplay title="NFT Collection">
       <Metadata
         address={address}
         image={data?.metadata?.image}

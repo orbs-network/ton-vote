@@ -2,31 +2,25 @@ import { styled, Typography } from "@mui/material";
 import {
   AppTooltip,
   Button,
-  Container,
   Img,
   OverflowWithTooltip,
-  Popup,
   Search,
   SelectedChip,
 } from "components";
 import { useDaosQuery } from "query/getters";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { useAirdropStore } from "../../store";
 import _ from "lodash";
 import { parseLanguage } from "utils";
-
 import { VirtualList } from "components";
-import { SubmitButtonContainer } from "../SubmitButton";
-import { Dao } from "types";
 import {
-  StyledAirdropList,
   StyledListTitleContainer,
   StyledSelectedList,
   StyledSelectPopup,
 } from "../../styles";
-import { errorToast } from "toasts";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
+import { useVotersSelectStore } from "pages/airdrop/store";
+import { useDisabledDaos, useFilteredDaos } from "./hooks";
 
 interface DaoRowProps {
   value: string;
@@ -64,32 +58,11 @@ function DaoRowContent({ value }: DaoRowProps) {
 }
 
 export const SelectDao = () => {
-  const { data: allDaos, dataUpdatedAt } = useDaosQuery();
-  const { daos, setDao } = useAirdropStore();
   const [filterValue, setFilterValue] = useState("");
   const [open, setOpen] = useState(false);
-  const filteredDaos = useMemo(() => {
-    let result = allDaos;
-    if (filterValue) {
-      result = _.filter(allDaos, (dao) => {
-        const name = parseLanguage(
-          dao.daoMetadata.metadataArgs.name
-        ).toLowerCase();
-        return (
-          name.includes(filterValue.toLowerCase()) ||
-          dao.daoAddress.includes(filterValue)
-        );
-      }) as Dao[];
-    }
-    return _.map(result, (it) => it.daoAddress);
-  }, [dataUpdatedAt, filterValue]);
-
-  const disabledItems = useMemo(() => {
-    return _.map(
-      _.filter(allDaos, (it) => it.daoProposals.length === 0),
-      (it) => it.daoAddress
-    );
-  }, [dataUpdatedAt]);
+  const filteredDaos = useFilteredDaos(filterValue);
+  const votersSelectStore = useVotersSelectStore();
+  const disabledDaos = useDisabledDaos();
 
   return (
     <StyledListTitleContainer
@@ -100,14 +73,14 @@ export const SelectDao = () => {
         </Button>
       }
     >
-      {_.isEmpty(daos) ? (
+      {_.isEmpty(votersSelectStore.daos) ? (
         <StyledFlexColumn className="not-selected">
           <Typography>Dao space not selected</Typography>
         </StyledFlexColumn>
       ) : (
         <StyledFlexColumn>
           <StyledSelectedList>
-            {daos?.map((dao) => {
+            {votersSelectStore.daos?.map((dao) => {
               return <SelectedDao address={dao} key={dao} />;
             })}
           </StyledSelectedList>
@@ -125,10 +98,10 @@ export const SelectDao = () => {
             RowComponent={DaoRowContent}
             data={filteredDaos || []}
             itemSize={56}
-            selected={daos}
-            disabledItems={disabledItems}
+            selected={votersSelectStore.daos}
+            disabledItems={disabledDaos}
             onSelect={(dao) => {
-              setDao(dao);
+              votersSelectStore.setDao(dao);
               setOpen(false);
             }}
           />
@@ -141,7 +114,7 @@ export const SelectDao = () => {
 
 const SelectedDao = ({ address }: { address: string }) => {
   const { data, dataUpdatedAt } = useDaosQuery();
-  const { setDao } = useAirdropStore();
+  const { setDao } = useVotersSelectStore();
 
   const dao = useMemo(() => {
     return _.find(data, { daoAddress: address });

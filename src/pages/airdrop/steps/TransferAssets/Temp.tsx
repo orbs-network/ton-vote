@@ -1,7 +1,7 @@
 import { Typography, styled } from "@mui/material";
 import { Img, OverflowWithTooltip, VirtualList } from "components";
 import _ from "lodash";
-import { useAirdropStore } from "pages/airdrop/store";
+import { useAirdropPersistStore } from "pages/airdrop/store";
 import { StyledListTitleContainer } from "pages/airdrop/styles";
 import { useReadNftItemMetadata, useWalletNFTCollectionItemsQuery } from "query/getters";
 import { useMemo, ReactNode } from "react";
@@ -15,7 +15,7 @@ const NFTItemsList = ({
   onSelect: (value: string) => void;
   selected: string;
 }) => {
-  const { nftCollection, NFTItemsRecipients } = useAirdropStore();
+  const { nftCollection, NFTItemsRecipients } = useAirdropPersistStore();
   const {
     data = [],
     isLoading,

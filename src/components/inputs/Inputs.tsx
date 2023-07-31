@@ -900,6 +900,8 @@ const RadioSelect = ({
   tooltip,
   onChange,
 }: RadioSelectProps) => {
+  console.log(value);
+  
   return (
     <StyledContainer>
       <InputHeader tooltip={tooltip} title={title} required={required} />

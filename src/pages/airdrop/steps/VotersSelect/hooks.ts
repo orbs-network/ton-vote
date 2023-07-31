@@ -1,32 +1,37 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import _ from "lodash";
-import { useAirdropStore } from "pages/airdrop/store";
+import { useAirdropPersistStore, useVotersSelectStore } from "pages/airdrop/store";
 import { VoterSelectionMethod } from "pages/airdrop/types";
-import { useGetAllProposalsCallback, useGetClientsCallback } from "query/getters";
+import {
+  useDaoQuery,
+  useDaosQuery,
+  useGetAllProposalsCallback,
+  useGetClientsCallback,
+} from "query/getters";
+import { useMemo } from "react";
 import { useErrorToast } from "toasts";
 import { chooseRandomVoters } from "ton-vote-contracts-sdk";
-import { useVotersSelectContext } from "./context";
+import { Dao } from "types";
+import { parseLanguage } from "utils";
 import { VotersSelectForm } from "./form";
 
 export const useAirdropVotersQuery = () => {
   const getVotes = useGetAirdropVotes();
-  const { proposals } = useVotersSelectContext();
+  const { proposals } = useVotersSelectStore();
 
   const _proposals = proposals || [];
 
   return useQuery(["useAirdropVotersQuery", ..._proposals], async () => {
     const votes = await getVotes();
-    
+
     return _.keys(votes);
   });
 };
 
-
-
 export const useGetAirdropVotes = () => {
   const getProposals = useGetAllProposalsCallback();
-  const { proposals } = useVotersSelectContext();
+  const { proposals } = useVotersSelectStore();
 
   return async () => {
     const result = await getProposals(proposals);
@@ -43,11 +48,10 @@ export const useGetAirdropVotes = () => {
   };
 };
 
-
 export const useVotersSelectSubmit = () => {
   const errorToast = useErrorToast();
-  const context = useVotersSelectContext();
-  const store = useAirdropStore();
+  const context = useVotersSelectStore();
+  const store = useAirdropPersistStore();
   const getVotes = useGetAirdropVotes();
   const getClients = useGetClientsCallback();
   const t = useAirdropTranslations();
@@ -119,4 +123,34 @@ export const useVotersSelectSubmit = () => {
       },
     }
   );
+};
+
+export const useFilteredDaos = (filterValue: string) => {
+  const { data: allDaos, dataUpdatedAt } = useDaosQuery();
+  return useMemo(() => {
+    let result = allDaos;
+    if (filterValue) {
+      result = _.filter(allDaos, (dao) => {
+        const name = parseLanguage(
+          dao.daoMetadata.metadataArgs.name
+        ).toLowerCase();
+        return (
+          name.includes(filterValue.toLowerCase()) ||
+          dao.daoAddress.includes(filterValue)
+        );
+      }) as Dao[];
+    }
+    return _.map(result, (it) => it.daoAddress);
+  }, [dataUpdatedAt, filterValue]);
+};
+
+export const useDisabledDaos = () => {
+  const { data: allDaos, dataUpdatedAt } = useDaosQuery();
+
+  return useMemo(() => {
+    return _.map(
+      _.filter(allDaos, (it) => it.daoProposals.length === 0),
+      (it) => it.daoAddress
+    );
+  }, [dataUpdatedAt]);
 };

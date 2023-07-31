@@ -9,12 +9,9 @@ import {
 import _ from "lodash";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getTonScanContractUrl } from "utils";
-import {
-  useAirdropVotersQuery,
-} from "../../hooks";
 import { useMemo, useState } from "react";
-import { useForm } from "./form";
-import { AirdropForm, useAirdropStore } from "../../store";
+import { useForm, VotersSelectForm } from "./form";
+import { useVotersSelectStore } from "../../store";
 import {
   StyledAirdropList,
   StyledListTitleContainer,
@@ -24,15 +21,19 @@ import {
 import { Typography } from "@mui/material";
 import { RowLink } from "pages/airdrop/Components";
 import { FormikProps } from "formik";
+import { useAirdropVotersQuery } from "./hooks";
 
-export const SelectMethod = ({ formik }: { formik: FormikProps<AirdropForm> }) => {
-
+export const SelectMethod = ({
+  formik,
+}: {
+  formik: FormikProps<VotersSelectForm>;
+}) => {
   const form = useForm(formik.values);
 
   return (
     <StyledListTitleContainer title="Select voters">
       <StyledForm>
-        <FormikInputsForm<AirdropForm>
+        <FormikInputsForm<VotersSelectForm>
           form={form}
           formik={formik}
           customInputHandler={customInputHandler}
@@ -77,9 +78,10 @@ const StyledVoter = styled(StyledFlexRow)({
 const ManualVotersSelect = () => {
   const [open, setOpen] = useState(false);
   const { data } = useAirdropVotersQuery();
+  
   const { manuallySelectedVoters, setManuallySelectedVoters, daos, proposals } =
-    useAirdropStore();
-    const [showMore, setShowMore] = useState(false)
+    useVotersSelectStore();
+  const [showMore, setShowMore] = useState(false);
 
   return (
     <StyledListTitleContainer
@@ -155,7 +157,6 @@ const ManualVotersSelect = () => {
 };
 
 const StyledSelectedVoter = styled(SelectedChip)({
- 
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -188,5 +189,3 @@ const StyledForm = styled(StyledFlexColumn)({
     },
   },
 });
-
-

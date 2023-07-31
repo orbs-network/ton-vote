@@ -5,7 +5,7 @@ import { TypeSelect } from "./steps/TypeSelect/TypeSelect";
 import { TransferAssets } from "./steps/TransferAssets/TransferAssets";
 import { StepsMenuStep } from "types";
 import { Button, Popup, StepsLayout } from "components";
-import { useAirdropStore } from "./store";
+import { useAirdropPersistStore } from "./store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useEffect, useState } from "react";
 import { AirdropFinished } from "./AirdropFinished";
@@ -15,7 +15,7 @@ import { useAppQueryParams } from "hooks/hooks";
 import { validateAddress } from "utils";
 import { VotersSelect } from "./steps/VotersSelect/VotersSelect";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
-import { useAirdropStarted, useMakeAirdropStoreCopy } from "./hooks";
+import { useAirdropStarted } from "./hooks";
 
 const useSteps = (): StepsMenuStep[] => {
   const t = useAirdropTranslations();
@@ -44,16 +44,9 @@ const useSteps = (): StepsMenuStep[] => {
 };
 
 export function Airdrop() {
-  const { step, setStep } = useAirdropStore();
+  const { step, setStep } = useAirdropPersistStore();
   const steps = useSteps();
-  useHanldeProposalFromQueryParams();
-  const airdropStarted = useAirdropStarted();
-  const makeCopy = useMakeAirdropStoreCopy();
-  useEffect(() => {
-    if (airdropStarted) {
-      makeCopy();
-    }
-  }, [airdropStarted]);
+  useHanldeProposalFromQueryParams(); 
 
   return (
     <StyledPage title="Airdrop Asistant" hideBack>
@@ -74,15 +67,15 @@ const useHanldeProposalFromQueryParams = () => {
     query: { airdropProposal },
     setAirdropProposal,
   } = useAppQueryParams();
-  const { reset, setDao, selectProposal } = useAirdropStore();
+  const { reset } = useAirdropPersistStore();
   const getProposal = useEnsureProposalQuery();
 
   const onProposalFromQuery = async (address: string) => {
     try {
       const result = await getProposal(address);
       reset();
-      setDao(result?.daoAddress || "");
-      selectProposal(airdropProposal || "");
+      // setDao(result?.daoAddress || "");
+      // selectProposal(airdropProposal || "");
       setAirdropProposal("");
     } catch (error) {}
   };
@@ -100,7 +93,7 @@ const StyledPage = styled(Page)({
 });
 
 const ResetButton = () => {
-  const { reset, step } = useAirdropStore();
+  const { reset, step } = useAirdropPersistStore();
   const [open, setOpen] = useState(false);
 
   if (!step) return null;

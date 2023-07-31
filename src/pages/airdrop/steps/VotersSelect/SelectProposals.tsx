@@ -1,6 +1,5 @@
 import { IconButton, styled, Typography } from "@mui/material";
 import {
-  AddressDisplay,
   AppTooltip,
   Button,
   OverflowWithTooltip,
@@ -11,24 +10,37 @@ import {
 import { useDaosQuery, useProposalQuery } from "query/getters";
 import { useMemo, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-import { useAirdropStore } from "../../store";
 import _ from "lodash";
 import { makeElipsisAddress, parseLanguage } from "utils";
 import { appNavigation } from "router/navigation";
-import { BiLinkExternal } from "react-icons/bi";
 import {
   StyledListTitleContainer,
   StyledSelectedList,
   StyledSelectPopup,
 } from "pages/airdrop/styles";
-import { useSelectedDaosProposals } from "pages/airdrop/hooks";
 import { RowLink } from "pages/airdrop/Components";
+import { useVotersSelectStore } from "pages/airdrop/store";
+
+export const useSelectedDaosProposals = () => {
+  const { dataUpdatedAt, data } = useDaosQuery();
+
+  const { daos } = useVotersSelectStore();
+
+  const daoAddress = daos?.[0];
+
+  return useMemo(() => {
+    return _.find(data, { daoAddress })?.daoProposals || [];
+  }, [dataUpdatedAt, daoAddress]);
+};
+
+
 
 export const SelectProposals = () => {
   const allProposals = useSelectedDaosProposals();
-  const { selectProposal, proposals, setProposals, daos } = useAirdropStore();
+  const { selectProposal, proposals,setProposals, daos } =
+    useVotersSelectStore();
   const [filterValue, setFilterValue] = useState("");
-  const [showMore, setShowMore] = useState(false)
+  const [showMore, setShowMore] = useState(false);
 
   const filteredProposals = useMemo(() => {
     return _.filter(allProposals, (p) =>
@@ -36,10 +48,9 @@ export const SelectProposals = () => {
     );
   }, [filterValue, _.size(allProposals)]);
 
+  
+
   const [open, setOpen] = useState(false);
-  const selectAll = () => {
-    setProposals(allProposals);
-  };
 
   return (
     <StyledListTitleContainer
@@ -85,7 +96,10 @@ export const SelectProposals = () => {
         open={open}
       >
         <>
-          <StyledSelectAll onClick={selectAll} variant="text">
+          <StyledSelectAll
+            onClick={() => setProposals(allProposals)}
+            variant="text"
+          >
             Select all
           </StyledSelectAll>
           <Search onChange={setFilterValue} />
@@ -112,7 +126,7 @@ export const SelectProposals = () => {
 
 const SelectedProposal = ({ address }: { address: string }) => {
   const { data, isLoading } = useProposalQuery(address);
-  const { selectProposal } = useAirdropStore();
+  const { selectProposal } = useVotersSelectStore();
   return (
     <StyledSelectedPorposal onDelete={() => selectProposal(address)}>
       <StyledFlexColumn style={{ alignItems: "flex-start" }} gap={0}>
@@ -131,15 +145,12 @@ const SelectedProposal = ({ address }: { address: string }) => {
   );
 };
 
-
-
 const StyledSelectedPorposal = styled(SelectedChip)({
   p: {
     fontSize: 12,
     fontWeight: 600,
   },
 });
-
 
 const StyledSelectAll = styled(Button)({
   marginLeft: "auto",
@@ -153,8 +164,6 @@ const StyledList = styled(VirtualList)({
 interface ProposalRowProps {
   value: string;
 }
-
-
 
 function ProposalRow({ value: proposalAddress }: ProposalRowProps) {
   const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
@@ -189,7 +198,6 @@ function ProposalRow({ value: proposalAddress }: ProposalRowProps) {
     </StyledProposal>
   );
 }
-
 
 const StyledProposal = styled(StyledFlexColumn)({
   alignItems: "flex-start",

@@ -11,10 +11,10 @@ import { BsCheckCircle } from "react-icons/bs";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
 import { useAmountPerWallet, useAmount } from "./hooks";
-import { useAirdropStore } from "./store";
+import { useAirdropPersistStore } from "./store";
 
 const NFTFinished = () => {
-  const { voters } = useAirdropStore();
+  const { voters } = useAirdropPersistStore();
 
   const csv = useMemo(() => {
     if (!voters) return [];
@@ -41,7 +41,7 @@ interface FinishedProps {
 }
 
 const FinishedLayout = ({ csv, filename, text }: FinishedProps) => {
-  const { reset } = useAirdropStore();
+  const { reset } = useAirdropPersistStore();
   const { daosPage } = useAppNavigation();
 
   const onFinished = () => {
@@ -70,10 +70,10 @@ const FinishBtn = styled(Button)({
 });
 
 const JettonFinished = () => {
-  const { jettonAddress } = useAirdropStore();
+  const { jettonAddress } = useAirdropPersistStore();
   const { data, isLoading } = useReadJettonWalletMedata(jettonAddress);
   const { amountPerWalletUI } = useAmountPerWallet();
-  const { voters } = useAirdropStore();
+  const { voters } = useAirdropPersistStore();
   const { amountUI } = useAmount();
 
   const symbol = data?.metadata?.symbol;
@@ -108,7 +108,7 @@ const JettonFinished = () => {
 };
 
 export const AirdropFinished = () => {
-  const { assetType } = useAirdropStore();
+  const { assetType } = useAirdropPersistStore();
 
   return (
     <TitleContainer title="Airdrop finished">

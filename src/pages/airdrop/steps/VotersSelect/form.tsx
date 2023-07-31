@@ -1,15 +1,45 @@
 import { Button } from "components";
-import { FormikProps } from "formik";
+import { FormikProps, useFormik } from "formik";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
-import { useAirdropVotersQuery, useGetAirdropVotes } from "pages/airdrop/hooks";
-import {  AirdropForm, useAirdropStore } from "pages/airdrop/store";
+import {
+  useAirdropPersistStore,
+  useVotersSelectStore,
+} from "pages/airdrop/store";
 import { AirdropStoreKeys, VoterSelectionMethod } from "pages/airdrop/types";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { FormArgs, InputArgs } from "types";
 import * as Yup from "yup";
+import { useAirdropVotersQuery } from "./hooks";
 
+export interface VotersSelectForm {
+  [AirdropStoreKeys.votersAmount]?: number;
+  [AirdropStoreKeys.selectionMethod]?: VoterSelectionMethod;
+}
+
+export const useVotersSelectFormik = (
+  onSubmit: (value: VotersSelectForm) => void,
+  initialValues: {
+    votersAmount?: number;
+    selectionMethod?: VoterSelectionMethod;
+  }
+) => {
+  const schema = useFormSchema();
+  return useFormik<VotersSelectForm>({
+    initialValues: {
+      [AirdropStoreKeys.votersAmount]: initialValues.votersAmount,
+      [AirdropStoreKeys.selectionMethod]: initialValues.selectionMethod,
+    },
+    validationSchema: schema,
+    validateOnChange: false,
+    validateOnBlur: true,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      onSubmit(values);
+    },
+  });
+};
 
 export const useFormSchema = () => {
   const commonTranslations = useCommonTranslations();
@@ -34,30 +64,30 @@ export const useFormSchema = () => {
   });
 };
 
-const MaxBtn = ({ formik }: { formik: FormikProps<AirdropForm> }) => {
-  const getVotes = useGetAirdropVotes();
-  const {proposals} = useAirdropStore();
+const MaxBtn = ({ formik }: { formik: FormikProps<VotersSelectForm> }) => {
+  const { data: votes } = useAirdropVotersQuery();
+  const { proposals } = useAirdropPersistStore();
 
   const onClick = async () => {
-    const votes = await getVotes();
     formik.setFieldValue(AirdropStoreKeys.votersAmount, _.size(votes));
     formik.setFieldError(AirdropStoreKeys.votersAmount, undefined);
   };
 
   if (_.isEmpty(proposals)) return null;
-    return (
-      <Button variant="text" onClick={onClick}>
-        Max
-      </Button>
-    );
+  return (
+    <Button variant="text" onClick={onClick}>
+      Max
+    </Button>
+  );
 };
 
 export const useForm = (
-  values: AirdropForm
-): FormArgs<AirdropForm> => {
-  const {data: voters} = useAirdropVotersQuery()
+  values: VotersSelectForm
+): FormArgs<VotersSelectForm> => {
+  const { data: voters } = useAirdropVotersQuery();
+
   return useMemo(() => {
-    let inputs: InputArgs<AirdropForm>[] = [
+    let inputs: InputArgs<VotersSelectForm>[] = [
       {
         name: AirdropStoreKeys.selectionMethod,
         label: "Voters selection method",
@@ -70,7 +100,8 @@ export const useForm = (
             value: VoterSelectionMethod.ALL,
             text: (
               <>
-                All voters <small>{`(${_.size(voters).toLocaleString()})`}</small>
+                All voters{" "}
+                <small>{`(${_.size(voters).toLocaleString()})`}</small>
               </>
             ),
           },
@@ -105,5 +136,5 @@ export const useForm = (
     return {
       inputs,
     };
-  }, [values.selectionMethod, _.size(voters)]);
+  }, [values]);
 };

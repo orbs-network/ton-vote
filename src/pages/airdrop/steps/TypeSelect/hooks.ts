@@ -1,19 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useAirdropStore } from "pages/airdrop/store";
+import { AssetSelectValues, useAirdropPersistStore } from "pages/airdrop/store";
 import { useReadJettonWalletMedataCallback } from "query/getters";
 import { useErrorToast } from "toasts";
 import { toNano } from "ton-core";
-import { TypeSelectForm } from "./form";
 
 export const useOnAssetTypeSelected = () => {
   const getMetadata = useReadJettonWalletMedataCallback();
   const showError = useErrorToast();
   const connectedWallet = useTonAddress();
-  const { nextStep, setValues } = useAirdropStore();
+  const persistStore = useAirdropPersistStore();
 
   return useMutation(
-    async (values: TypeSelectForm) => {
+    async (values: AssetSelectValues) => {
       if (values.assetType === "jetton") {
         if (!values.jettonAddress) {
           throw new Error("No jetton address found");
@@ -33,12 +32,12 @@ export const useOnAssetTypeSelected = () => {
     },
     {
       onSuccess: (_, values) => {
-        nextStep();
-        setValues({
+        persistStore.setValues({
           assetType: values.assetType,
           jettonAddress: values.jettonAddress,
           jettonsAmount: values.jettonsAmount,
         });
+        persistStore.nextStep();
       },
       onError: (err) => {
         showError(err);
