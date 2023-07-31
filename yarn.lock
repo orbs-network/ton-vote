@@ -860,6 +860,18 @@
     classnames "^2.3.2"
     deepmerge "^4.2.2"
 
+"@twa-dev/sdk@^6.7.0":
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/@twa-dev/sdk/-/sdk-6.7.0.tgz#81d2ac5e8d30e829ba1fc68b8df60f1c677aea8c"
+  integrity sha512-/fcEgnMnY8lpWOKQ6LLpSoH/WjPaSYheUBgTYNUuJzP1+Q1QGtC3BwKpwF4qIxkxtPpusn/xjEHQxwrVpQw6oQ==
+  dependencies:
+    "@twa-dev/types" "^6.7.0"
+
+"@twa-dev/types@^6.7.0":
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/@twa-dev/types/-/types-6.7.0.tgz#0a584202ff376195b46b907bd8348de642a1c103"
+  integrity sha512-2QtS8oQeHkZvKAsTxqvFGdZOrR7Jc4N9rzJFEIj5e7lC5dqayIatSAh91qmGULjzxOd4sqyWqq1XF6DwZnwldQ==
+
 "@types/async-retry@^1.4.5":
   version "1.4.5"
   resolved "https://registry.yarnpkg.com/@types/async-retry/-/async-retry-1.4.5.tgz#02680eb366739a327550f6ad38bb898a5571a095"

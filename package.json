@@ -21,6 +21,7 @@
     "@tanstack/react-query": "^4.23.0",
     "@tanstack/react-query-devtools": "^4.23.0",
     "@tonconnect/ui-react": "^1.0.0-beta.6",
+    "@twa-dev/sdk": "^6.7.0",
     "async-retry": "^1.3.3",
     "axios": "^1.3.2",
     "axios-retry": "^3.5.0",
