@@ -81,7 +81,9 @@
    "disabledSpace":"This space does not have any proposal with voters. To choose airdrop destination the space must have at least 1 proposal with voters.",
    "errors":{
     "maxVotersAmount":"The maximum number of voters is {{value}}"
-   }
+   },
+   "emptyProposalTooltip":"This proposal does not have any voters. To choose airdrop destination the proposal must have at least 1 voter.",
+   "proposalsNotSelected":"Select at least one proposal"
   },
   "createDao": {
     "gettingStarted": "Getting Started",

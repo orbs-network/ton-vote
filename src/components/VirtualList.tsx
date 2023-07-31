@@ -1,33 +1,27 @@
 import { VariableSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Box, styled } from "@mui/material";
-import {  StyledFlexRow } from "styles";
+import { StyledFlexRow } from "styles";
 import _ from "lodash";
+import { CSSProperties, ReactNode } from "react";
 
-const Row = ({
-  index,
-  style,
-  data: { RowComponent, displayOnly, onSelect, list, selected, disabledItems },
-}: any) => {
-  const value = list[index];
+export interface VirtualListRowProps {
+  index: number;
+  style: CSSProperties;
+  data: {
+    RowComponent: (props: any) => JSX.Element | null;
+    displayOnly?: boolean;
+    onSelect?: (value: string) => void;
+    list: string[];
+    selected: string[];
+    disabledItems?: string[];
+  };
+}
 
-  const isSelected = selected.includes(value);
-  const disabled = disabledItems?.includes(value);
-
+const ListItem = (props: VirtualListRowProps) => {
   return (
-    <StyledRow
-      className="row"
-      style={style}
-      onClick={!onSelect || disabled ? () => {} : () => onSelect(value)}
-    >
-      <StyledRowChildren
-        disabled={disabled ? 1 : 0}
-        displayOnly={displayOnly ? 1 : 0}
-        className="row-children"
-        selected={isSelected ? 1 : 0}
-      >
-        <RowComponent index={index} value={value} onSelect={onSelect} />
-      </StyledRowChildren>
+    <StyledRow className="row" style={props.style}>
+      <props.data.RowComponent {...props} />
     </StyledRow>
   );
 };
@@ -55,7 +49,7 @@ function VirtualList(props: Props) {
               width={width}
               itemCount={props.data?.length || 0}
               itemData={{
-                list: props.data,
+                list: props.data || [],
                 onSelect: props.onSelect,
                 RowComponent: props.RowComponent,
                 selected: props.selected || [],
@@ -66,7 +60,7 @@ function VirtualList(props: Props) {
               estimatedItemSize={10}
               overscanCount={10}
             >
-              {Row}
+              {ListItem}
             </VariableSizeList>
           )}
         </AutoSizer>
@@ -113,7 +107,7 @@ const StyledRowChildren = styled("div")<{
       borderRadius: 15,
     },
     "&:hover": {
-      border: displayOnly ? border : selected ? selectedBorder : hoverBorder,
+      border: displayOnly || disabled ? border : selected ? selectedBorder : hoverBorder,
     },
 
     ".overflow-with-tooltip": {
@@ -128,24 +122,32 @@ const StyledRowChildren = styled("div")<{
 
 const StyledRow = styled("div")({});
 
+const RowContent = ({
+  disabled,
+  isSelected,
+  displayOnly,
+  children,
+  onClick,
+}: {
+  disabled?: boolean;
+  isSelected?: boolean;
+  displayOnly?: boolean;
+  children: ReactNode;
+  onClick?: () => void;
+}) => {
+  return (
+    <StyledRowChildren
+      onClick={!disabled ? onClick : undefined}
+      disabled={disabled ? 1 : 0}
+      displayOnly={displayOnly ? 1 : 0}
+      className="row-children"
+      selected={isSelected ? 1 : 0}
+    >
+      {children}
+    </StyledRowChildren>
+  );
+};
 
-const StyledEmptyText = styled(StyledFlexRow)({
-  padding: "30px 0px",
-  p: {
-    fontSize: 17,
-    fontWeight: 500,
-  },
-});
-
-const StyledSelectedList = styled(StyledFlexRow)({
-  justifyContent: "flex-start",
-  gap: 10,
-  flexWrap: "wrap",
-  "*": {
-    fontSize: 13,
-  },
-});
-
-VirtualList.Row = Row;
+VirtualList.RowContent = RowContent;
 
 export { VirtualList };

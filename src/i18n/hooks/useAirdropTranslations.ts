@@ -9,7 +9,7 @@ export const useAirdropTranslations = () => {
       selectedAssetCategory: t("titles.selectedAssetCategory"),
       gettingStarted: t("titles.gettingStarted"),
       generateDstWallets: t("titles.generateDstWallets"),
-      transferAssets: t('titles.transferAssets'),
+      transferAssets: t("titles.transferAssets"),
     },
     jettonWalletAddress: {
       title: t("jettonWalletAddress.title"),
@@ -28,5 +28,7 @@ export const useAirdropTranslations = () => {
         t("errors.maxVotersAmount", { value: amount }),
     },
     randomVotersAmount: t("randomVotersAmount"),
+    emptyProposalTooltip: t("emptyProposalTooltip"),
+    proposalsNotSelected: t("proposalsNotSelected"),
   };
 };

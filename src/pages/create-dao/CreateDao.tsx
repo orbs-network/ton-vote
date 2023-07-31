@@ -37,7 +37,7 @@ export function CreateDao() {
   const { step: currentStep, setStep, setEditMode } = useCreatDaoStore();
   const steps = useSteps();
   return (
-    <Page hideBack>
+    <Page hideBack title='Create new dao'>
       <StepsLayout
         steps={steps}
         currentStep={currentStep}

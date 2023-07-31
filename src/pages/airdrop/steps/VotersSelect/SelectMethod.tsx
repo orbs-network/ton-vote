@@ -5,13 +5,13 @@ import {
   OverflowWithTooltip,
   SelectedChip,
   AppTooltip,
+  VirtualList,
+  VirtualListRowProps,
 } from "components";
 import _ from "lodash";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getTonScanContractUrl } from "utils";
-import {
-  useAirdropVotersQuery,
-} from "../../hooks";
+import { useAirdropVotersQuery } from "../../hooks";
 import { useMemo, useState } from "react";
 import { useForm } from "./form";
 import { AirdropForm, useAirdropStore } from "../../store";
@@ -24,33 +24,54 @@ import {
 import { Typography } from "@mui/material";
 import { RowLink } from "pages/airdrop/Components";
 import { FormikProps } from "formik";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 
-export const SelectMethod = ({ formik }: { formik: FormikProps<AirdropForm> }) => {
-
+export const SelectMethod = ({
+  formik,
+}: {
+  formik: FormikProps<AirdropForm>;
+}) => {
   const form = useForm(formik.values);
+  const { proposals } = useAirdropStore();
+  const t = useAirdropTranslations();
+
+  const disabled = _.isEmpty(proposals);
 
   return (
-    <StyledListTitleContainer title="Select voters">
-      <StyledForm>
-        <FormikInputsForm<AirdropForm>
-          form={form}
-          formik={formik}
-          customInputHandler={customInputHandler}
-        ></FormikInputsForm>
-      </StyledForm>
-    </StyledListTitleContainer>
+      <StyledContainer
+        disabled={disabled ? 1 : 0}
+        placement="bottom"
+        text={disabled ? t.proposalsNotSelected : undefined}
+      >
+        <StyledListTitleContainer title="Select voters">
+          <StyledForm>
+            <FormikInputsForm<AirdropForm>
+              form={form}
+              formik={formik}
+              customInputHandler={customInputHandler}
+            ></FormikInputsForm>
+          </StyledForm>
+        </StyledListTitleContainer>
+      </StyledContainer>
   );
 };
+
+const StyledContainer = styled(AppTooltip)<{ disabled: number }>(
+  ({ disabled }) => ({
+    opacity: disabled ? 0.6 : 1,
+    width: "100%",
+    "*": {
+      pointerEvents: disabled ? "none" : "all",
+    },
+  })
+);
 
 const customInputHandler = () => {
   return <ManualVotersSelect />;
 };
 
-interface ManualVotersRowProps {
-  value: string;
-}
-
-function ManualVotersRow({ value }: ManualVotersRowProps) {
+function ManualVotersRow(props: VirtualListRowProps) {
+  const value = props.data.list[props.index];
   const { data: voters, dataUpdatedAt } = useAirdropVotersQuery();
   const voter = useMemo(
     () => voters?.find((voter) => voter === value),
@@ -62,10 +83,19 @@ function ManualVotersRow({ value }: ManualVotersRowProps) {
   };
 
   return (
-    <StyledVoter>
-      <OverflowWithTooltip className="address" text={voter} placement="right" />
-      <RowLink text="View voter" onClick={onClick} />
-    </StyledVoter>
+    <VirtualList.RowContent
+      onClick={() => props.data.onSelect!(value)}
+      isSelected={props.data.selected.includes(value)}
+    >
+      <StyledVoter>
+        <OverflowWithTooltip
+          className="address"
+          text={voter}
+          placement="right"
+        />
+        <RowLink text="View voter" onClick={onClick} />
+      </StyledVoter>
+    </VirtualList.RowContent>
   );
 }
 
@@ -79,29 +109,19 @@ const ManualVotersSelect = () => {
   const { data } = useAirdropVotersQuery();
   const { manuallySelectedVoters, setManuallySelectedVoters, daos, proposals } =
     useAirdropStore();
-    const [showMore, setShowMore] = useState(false)
+  const [showMore, setShowMore] = useState(false);
+  const disabled = _.isEmpty(proposals);
 
+  const t = useAirdropTranslations();
   return (
     <StyledListTitleContainer
       title="Select manually"
       headerComponent={
-        <AppTooltip
-          text={
-            _.isEmpty(daos)
-              ? "Select a DAO space"
-              : _.isEmpty(proposals)
-              ? "Select proposal"
-              : ""
-          }
-        >
-          <Button
-            disabled={_.isEmpty(proposals)}
-            variant="text"
-            onClick={() => setOpen(true)}
-          >
+        !disabled && (
+          <Button variant="text" onClick={() => setOpen(true)}>
             Select
           </Button>
-        </AppTooltip>
+        )
       }
     >
       {_.isEmpty(manuallySelectedVoters) ? (
@@ -155,7 +175,6 @@ const ManualVotersSelect = () => {
 };
 
 const StyledSelectedVoter = styled(SelectedChip)({
- 
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -188,5 +207,3 @@ const StyledForm = styled(StyledFlexColumn)({
     },
   },
 });
-
-

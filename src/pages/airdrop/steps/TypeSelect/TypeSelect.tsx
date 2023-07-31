@@ -30,7 +30,7 @@ export const TypeSelect = () => {
   };
 
   return (
-    <TitleContainer title={t.titles.selectedAssetCategory} subtitle="Some text">
+    <TitleContainer title={t.titles.selectedAssetCategory}>
       <StyledForm>
         <FormikInputsForm<AirdropForm> form={form} formik={formik}>
           <ShowSelectedAsset formik={formik} />

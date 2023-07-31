@@ -8,6 +8,7 @@ import {
   Popup,
   Search,
   SelectedChip,
+  VirtualListRowProps,
 } from "components";
 import { useDaosQuery } from "query/getters";
 import { useCallback, useMemo, useState } from "react";
@@ -31,7 +32,8 @@ import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 interface DaoRowProps {
   value: string;
 }
-function DaoRowContent({ value }: DaoRowProps) {
+function DaoRowContent(props: VirtualListRowProps) {
+  const value = props.data.list[props.index];
   const { data: daos, dataUpdatedAt } = useDaosQuery();
   const t = useAirdropTranslations();
   const dao = useMemo(() => {
@@ -39,29 +41,40 @@ function DaoRowContent({ value }: DaoRowProps) {
   }, [dataUpdatedAt, value]);
 
   if (!dao) return null;
+  const disabled = _.isEmpty(dao.daoProposals);
 
   return (
-    <AppTooltip
-      placement="right"
-      text={_.isEmpty(dao.daoProposals) ? t.disabledSpace : undefined}
+    <VirtualList.RowContent
+      disabled={disabled}
+      onClick={() => props.data.onSelect!(value)}
+      isSelected={props.data.selected.includes(value)}
     >
-      <StyledDaoRowContent>
-        <Img src={dao.daoMetadata.metadataArgs.avatar} />
-        <StyledFlexColumn
-          style={{ width: "auto", alignItems: "flex-start" }}
-          gap={0}
-          justifyContent="flex-start"
-        >
-          <OverflowWithTooltip
-            hideTooltip
-            text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
-            className="title"
-          />
-        </StyledFlexColumn>
-      </StyledDaoRowContent>
-    </AppTooltip>
+      <StyledDisabledTooltip
+        placement="right"
+        text={disabled ? t.disabledSpace : undefined}
+      >
+        <StyledDaoRowContent>
+          <Img src={dao.daoMetadata.metadataArgs.avatar} />
+          <StyledFlexColumn
+            style={{ width: "auto", alignItems: "flex-start" }}
+            gap={0}
+            justifyContent="flex-start"
+          >
+            <OverflowWithTooltip
+              hideTooltip
+              text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
+              className="title"
+            />
+          </StyledFlexColumn>
+        </StyledDaoRowContent>
+      </StyledDisabledTooltip>
+    </VirtualList.RowContent>
   );
 }
+const StyledDisabledTooltip = styled(AppTooltip)({
+  width: "100%",
+  height:'100%'
+});
 
 export const SelectDao = () => {
   const { data: allDaos, dataUpdatedAt } = useDaosQuery();
@@ -181,6 +194,7 @@ const StyledList = styled(VirtualList)({
 });
 
 const StyledDaoRowContent = styled(StyledFlexRow)({
+  width: "100%",
   justifyContent: "flex-start",
   ".title": {
     fontWeight: 600,
