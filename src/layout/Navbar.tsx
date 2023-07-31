@@ -5,11 +5,12 @@ import {
   styled,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppNavigation } from "router/navigation";
 import { useAppSettings, useDevFeatures } from "hooks/hooks";
 import { APP_NAME, LANGUAGES } from "config";
@@ -18,10 +19,12 @@ import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
+import { TonConnectButton, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
-import { useSettingsStore } from "store";
+import { TwaButtonType, useSettingsStore, useTwaStore } from "store";
 import { FiMoon, FiSun } from "react-icons/fi";
+import twa from '@twa-dev/sdk'
+
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -47,10 +50,10 @@ export function Navbar() {
 
 const EnvModeIndication = () => {
   const devFeatures = useDevFeatures();
-  const {setBeta, beta} = useAppSettings()
+  const { setBeta, beta } = useAppSettings()
 
   const onClick = () => {
-    if(beta) {
+    if (beta) {
       setBeta(false)
     }
   }
@@ -194,6 +197,31 @@ const StyledNav = styled(StyledGrid)({
 function ConnectButton() {
   const address = useTonAddress();
 
+  const theme = useTheme()
+  const [tonConnectUI] = useTonConnectUI()
+  const { setTwaButtonType } = useTwaStore()
+
+  tonConnectUI.onStatusChange((wallet) => {
+
+    if (Boolean(wallet)) {
+      if (twa.MainButton.isVisible) {
+        twa.MainButton.hide()
+        setTwaButtonType(undefined)
+      }
+      return
+    }
+
+    twa.MainButton.onClick(() => {
+      tonConnectUI.connectWallet();
+    })
+    twa.MainButton.setParams({
+      color: theme.palette.primary.main,
+      text: 'Connect Wallet',
+      is_visible: true,
+    })
+    setTwaButtonType(TwaButtonType.Connect)
+  })
+
   return (
     <>
       <StyledButton connected={address ? 1 : 0} />
@@ -228,7 +256,7 @@ const SettingsMenu = () => {
     setAnchorEl(null);
   };
 
-  const onClick = () => {};
+  const onClick = () => { };
 
   return (
     <div>

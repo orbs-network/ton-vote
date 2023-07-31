@@ -241,3 +241,25 @@ export const useErrorStore = create<ErrorStore>((set, get) => ({
   proposalError: false,
   setProposalError: (proposalError) => set({ proposalError }),
 }));
+
+
+export enum TwaButtonType {
+  Connect = "Connect",
+  CastVote = "CastVote",
+}
+
+interface TwaStore {
+  twaButtonType?: TwaButtonType;
+  setTwaButtonType: (twaButtonType?: TwaButtonType) => void;
+}
+
+export const useTwaStore = create<TwaStore>((set, get) => ({
+  twaButtonType: undefined,
+  setTwaButtonType: (twaButtonType) => {
+    if (twaButtonType === TwaButtonType.Connect) {
+      return
+    }
+
+    set({ twaButtonType })
+  },
+}));
