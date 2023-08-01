@@ -7,7 +7,7 @@ import axiosRetry from "axios-retry";
 import retry from "async-retry";
 
 const baseURL = IS_DEV
-  ? "https://dev-ton-vote-cache.herokuapp.com"
+  ? "http://ec2-35-156-0-129.eu-central-1.compute.amazonaws.com/"
   : "https://api.ton.vote";
 
 const axiosInstance = axios.create({
