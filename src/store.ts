@@ -5,6 +5,7 @@ import { ProposalResult } from "ton-vote-contracts-sdk";
 import { ThemeType, Vote } from "types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import twa from '@twa-dev/sdk'
 
 interface NewDataStore {
   daos: string[];
@@ -256,10 +257,14 @@ interface TwaStore {
 export const useTwaStore = create<TwaStore>((set, get) => ({
   twaButtonType: undefined,
   setTwaButtonType: (twaButtonType) => {
-    if (twaButtonType === TwaButtonType.Connect) {
+
+    const currentButtonType = get().twaButtonType
+
+    if (currentButtonType === TwaButtonType.Connect) {
       return
     }
 
     set({ twaButtonType })
+
   },
 }));
