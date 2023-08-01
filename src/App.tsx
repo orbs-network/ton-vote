@@ -1,4 +1,4 @@
-import { GlobalStyles, ThemeProvider } from "@mui/material";
+import { GlobalStyles, ThemeProvider, useTheme } from "@mui/material";
 import { useTonWallet } from "@tonconnect/ui-react";
 import { APP_NAME } from "config";
 import { useAppSettings } from "hooks/hooks";
@@ -13,8 +13,13 @@ import twa from '@twa-dev/sdk'
 const useInitApp = () => {
   useInitThemeMode();
 
+  const theme = useTheme()
+
   // Initialise TWA
   twa.ready();
+  twa.MainButton.setParams({
+    color: theme.palette.primary.main,
+  })
 };
 
 function App() {
