@@ -22,6 +22,7 @@ import { MdOutlineModeEditOutline } from "react-icons/md";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
 
+
 const gap = 15;
 
 const useComponents = () => {
@@ -33,13 +34,13 @@ const useComponents = () => {
   return {
     votes:
       !proposalStatus ||
-      proposalStatus === ProposalStatus.NOT_STARTED ? null : (
+        proposalStatus === ProposalStatus.NOT_STARTED ? null : (
         <Votes />
       ),
     vote:
       !proposalStatus ||
-      proposalStatus !== ProposalStatus.ACTIVE ||
-      isLoading ? null : (
+        proposalStatus !== ProposalStatus.ACTIVE ||
+        isLoading ? null : (
         <Vote />
       ),
     deadline:
@@ -48,14 +49,14 @@ const useComponents = () => {
       ),
     results:
       !proposalStatus ||
-      proposalStatus === ProposalStatus.NOT_STARTED ? null : (
+        proposalStatus === ProposalStatus.NOT_STARTED ? null : (
         <Results />
       ),
   };
 };
 
 const Destop = () => {
-  const {  votes, vote, deadline, results } =
+  const { votes, vote, deadline, results } =
     useComponents();
 
   return (
@@ -67,7 +68,7 @@ const Destop = () => {
       </StyledLeft>
       <StyledRight>
         {deadline}
-       <Metadata />
+        <Metadata />
         {results}
       </StyledRight>
     </StyledWrapper>
@@ -97,7 +98,7 @@ export function ProposalDisplay() {
 
   const error = useProposalQuery(proposalAddress).error;
   const hideProposal = useHiddenProposal(proposalAddress);
-  
+
 
   useEffect(() => {
     if (error) {
@@ -134,7 +135,7 @@ const EditButton = () => {
   const { data: dao } = useDaoQuery(daoAddress);
 
   const devFeatures = useDevFeatures();
-  const {isLoading} = useProposalQuery(proposalAddress)
+  const { isLoading } = useProposalQuery(proposalAddress)
 
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
 
