@@ -10,7 +10,7 @@ import {
 import { Box } from "@mui/system";
 import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppNavigation } from "router/navigation";
 import { useAppSettings, useDevFeatures } from "hooks/hooks";
 import { APP_NAME, LANGUAGES } from "config";
@@ -24,6 +24,7 @@ import { getBorderColor } from "theme";
 import { TwaButtonType, useSettingsStore, useTwaStore } from "store";
 import { FiMoon, FiSun } from "react-icons/fi";
 import twa from '@twa-dev/sdk'
+import { hideMainButton, showMainButton, useTwaConnect } from "twa";
 
 
 export function Navbar() {
@@ -197,30 +198,7 @@ const StyledNav = styled(StyledGrid)({
 function ConnectButton() {
   const address = useTonAddress();
 
-  const theme = useTheme()
-  const [tonConnectUI] = useTonConnectUI()
-  const { setTwaButtonType } = useTwaStore()
-
-  tonConnectUI.onStatusChange((wallet) => {
-
-    if (Boolean(wallet)) {
-      if (twa.MainButton.isVisible) {
-        twa.MainButton.hide()
-        setTwaButtonType(undefined)
-      }
-      return
-    }
-
-    twa.MainButton.onClick(() => {
-      tonConnectUI.connectWallet();
-    })
-    twa.MainButton.setParams({
-      color: theme.palette.primary.main,
-      text: 'Connect Wallet',
-      is_visible: true,
-    })
-    setTwaButtonType(TwaButtonType.Connect)
-  })
+  useTwaConnect()
 
   return (
     <>
