@@ -7,7 +7,7 @@ import axiosRetry from "axios-retry";
 import retry from "async-retry";
 
 const baseURL = IS_DEV
-  ? "http://dev-api.ton.vote"
+  ? "https://dev-api.ton.vote"
   : "https://api.ton.vote";
 
 const axiosInstance = axios.create({
