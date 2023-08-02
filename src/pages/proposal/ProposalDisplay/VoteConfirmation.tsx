@@ -1,13 +1,8 @@
-import { Box, CircularProgress, styled, Typography } from "@mui/material";
+import { CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
-import { useAppParams, useGetProposalSymbol } from "hooks/hooks";
-import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import {
-  useConnectedWalletVotingPowerQuery,
-  useProposalQuery,
-} from "query/getters";
-import React, { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { useVoteConfirmation } from "./hooks";
 
 interface Props {
   open: boolean;
@@ -17,18 +12,8 @@ interface Props {
 }
 
 export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
-  const translations = useProposalPageTranslations();
 
-  const { proposalAddress } = useAppParams();
-  const { data } = useProposalQuery(proposalAddress);
-
-  const {
-    data: votingData,
-    isLoading: votingDataLoading,
-    refetch,
-  } = useConnectedWalletVotingPowerQuery(data, proposalAddress);
-
-  
+  const { noVotingPower, refetch, translations, votingData, votingDataLoading, proposal } = useVoteConfirmation()
 
   useEffect(() => {
     if (open) {
@@ -36,23 +21,15 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     }
   }, [open]);
 
-  const votingPower = votingData?.votingPower;
-  
-  const NoVotingPower = !votingPower
-    ? true
-    : votingPower && Number(votingPower) === 0
-    ? true
-    : false;
-
   return (
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
       <StyledContainer gap={30}>
         <StyledFlexColumn>
           <StyledVote label={translations.choice} value={vote} />
-          {data?.metadata?.mcSnapshotBlock && (
+          {proposal?.metadata?.mcSnapshotBlock && (
             <Row
               label={translations.snapshot}
-              value={<NumberDisplay value={data?.metadata?.mcSnapshotBlock} />}
+              value={<NumberDisplay value={proposal?.metadata?.mcSnapshotBlock} />}
             />
           )}
           <Row
@@ -61,10 +38,10 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             value={votingData?.votingPowerText}
           />
         </StyledFlexColumn>
-        {NoVotingPower && (
+        {noVotingPower && (
           <InfoMessage
             message={translations.notEnoughVotingPower(
-              data?.metadata?.mcSnapshotBlock.toLocaleString() || ""
+              proposal?.metadata?.mcSnapshotBlock.toLocaleString() || ""
             )}
           />
         )}
@@ -73,7 +50,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             Cancel
           </Button>
           <Button
-            disabled={NoVotingPower || votingDataLoading}
+            disabled={noVotingPower || votingDataLoading}
             onClick={() => {
               onSubmit();
               onClose();
