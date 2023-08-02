@@ -247,6 +247,7 @@ export const useErrorStore = create<ErrorStore>((set, get) => ({
 export enum TwaButtonType {
   Connect = "Connect",
   CastVote = "CastVote",
+  ConfirmVote = "ConfirmVote",
 }
 
 interface TwaStore {
