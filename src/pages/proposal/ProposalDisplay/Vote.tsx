@@ -1,7 +1,7 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
 import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useWalletVote } from "../hooks";
@@ -12,8 +12,10 @@ import { useVote } from "query/setters";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import _ from "lodash";
-import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
+import { useAppParams, useIsOneWalletOneVote, useProposalStatus } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
+import { useTwaVote } from "twa";
+
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
@@ -27,6 +29,13 @@ export function Vote() {
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;
+
+  const submitVote = useCallback(() => {
+    if (!vote) return;
+    mutate(vote);
+  }, [vote]);
+
+  useTwaVote({ proposalAddress, vote, choices, setVote, submitVote })
 
   useEffect(() => {
     if (!vote) {
@@ -75,10 +84,7 @@ export function Vote() {
         open={confirmation}
         vote={vote}
         onClose={() => setConfirmation(false)}
-        onSubmit={() => {
-          if (!vote) return;
-          mutate(vote);
-        }}
+        onSubmit={submitVote}
       />
     </StyledContainer>
   );
