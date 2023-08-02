@@ -8,18 +8,10 @@ import { RouterProvider } from "react-router-dom";
 import { useRouter } from "router/router";
 import { getGlobalStyles } from "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
-import twa from '@twa-dev/sdk'
+import { TwaInit } from "./TwaInit";
 
 const useInitApp = () => {
   useInitThemeMode();
-
-  const theme = useTheme()
-
-  // Initialise TWA
-  twa.ready();
-  twa.MainButton.setParams({
-    color: theme.palette.primary.main,
-  })
 };
 
 function App() {
@@ -50,6 +42,7 @@ function App() {
       </Helmet>
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={getGlobalStyles(theme)} />
+        <TwaInit />
         <Suspense>
           <RouterProvider router={router} />
         </Suspense>
