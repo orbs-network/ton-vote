@@ -59,15 +59,15 @@
   },
   "airdrop":{
     "gettingStarted":{ 
-      "body":"The Airdrop Assistant facilitates the transfer of assets to users of ton.vote who have participated by voting on proposals. /n Anyone can utilize this feature to transfer assets to these users, whether Jettons or NFTs, to random or specific recipients. /n To transfer an asset, you need to connect with the owner's wallet first. /n Then, you can choose the type of airdrop, either Jetton or NFT, in the initial stage. /n If you are transferring Jettons, you simply input the total amount and the Jetton wallet address. /n If you are transferring NFTs you will need to enter manually in the last step the address of each NFT item that you want to transfer. /n Next, the assistant generates the destination wallets, which will receive the airdrop. /n These wallets are sourced from the users who have actively participated in the ton.vote platform. /n In the final step, you have the option to approve each transfer for all wallets, and afterward, you can download a CSV file containing an airdrop summary. /n This file includes details of all the wallets that received the assets, allowing you to easily share this information with your community. /n Need help? Join the TON.vote Telegram [support channel](https://t.me/TONVoteSupportGroup)."},
+      "body":"The Airdrop Assistant facilitates the transfer of assets to users of ton.vote who have participated by voting on proposals. /n Anyone can utilize this feature to transfer assets to these users, whether Jettons or NFTs, to random or specific recipients. /n To transfer an asset, you first need to connect with the owner's wallet. /n Then, you can choose the type of airdrop, either Jetton or NFT, in the initial stage. /n If you are transferring Jettons, you simply input the total amount and the Jetton wallet address. /n If you are transferring NFTs you will need to enter manually in the last step the address of each NFT item that you want to transfer. /n Next, the assistant generates the destination wallets, which will receive the airdrop. /n These wallets are sourced from among the users who have actively participated in the ton.vote platform. /n In the final step, you have the option to approve each transfer for all wallets, and afterward, you can download a CSV file containing an airdrop summary. /n This file includes details of all the wallets that received the assets, allowing you to easily share this information with your community. /n Need help? Join the TON.vote Telegram [support channel](https://t.me/TONVoteSupportGroup)."},
    "titles": {
     "selectedAssetCategory": "Select asset category for the airdrop",
-    "gettingStarted": "Getting Started",
+    "gettingStarted": "Getting started",
     "generateDstWallets":"Generate destination wallets",
     "transferAssets":"Transfer assets"
    },
    "subtitles":{
-    "generateDstWallets":"In this stage, you will create the destination wallets that will receive the airdrop. These destination wallets will be selected from users who were active in the selected DAO and submitted their votes on the platform. To proceed, you need to choose the proposals within the specific DAO space, from which we will derive the destination wallets. /n From the pool of users who participated in the selected proposals, you will have the option to choose recipients randomly, manually select specific users, or include all users for the airdrop distribution."
+    "generateDstWallets":"In this stage, you will create the destination wallets that will receive the airdrop. These destination wallets will be selected from users who were active in the specified proposals in the selected DAO space and submitted their votes on the platform. To proceed, you need to choose the proposals within the specific DAO space, from which the destination wallets will be derived. /n From the pool of voters who participated in the selected proposals, you will have the option to choose recipients randomly, manually select specific voters, or include all voters for the airdrop distribution."
    },
    "jettonWalletAddress": {
     "title":"Jetton wallet address",
@@ -86,7 +86,7 @@
    "proposalsNotSelected":"Select at least one proposal"
   },
   "createDao": {
-    "gettingStarted": "Getting Started",
+    "gettingStarted": "Getting started",
     "gettingStartedBody": "TON.vote is a completely decentralized on-chain DAO governance platform built exclusively for the TON ecosystem. /n Setting up a space for a DAO is free but requires submitting 2 transactions: /n 1. Space Metadata (DAO name, description, logo, socials) /n 2. Space Administrators (space owner and proposal publisher) /n Every transaction deploys a smart contract on TON blockchain mainnet. Both transactions cost about 1 TON in gas fees. /n Any future changes to one of the above will require submitting an update transaction. /n Need help? Join the TON.vote Telegram [support channel](https://t.me/TONVoteSupportGroup).",
     "spaceMetadata": "Space Metadata",
     "editWarning": "Edits will require to sign a transaction in your wallet",
