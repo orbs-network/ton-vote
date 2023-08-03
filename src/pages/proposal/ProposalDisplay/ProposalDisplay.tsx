@@ -106,7 +106,7 @@ export function ProposalDisplay() {
     }
   }, [error]);
 
-  const errorContainer = hideProposal || showError;
+  const errorContainer = showError;
 
   const isMock = mock.isMockProposal(proposalAddress);
 
