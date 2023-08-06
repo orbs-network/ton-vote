@@ -2,7 +2,6 @@ import { CircularProgress, Fade, styled } from "@mui/material";
 import { Box } from "@mui/system";
 import { MOBILE_WIDTH } from "consts";
 import { ReactNode } from "react";
-import { useSettingsStore } from "store";
 import { StyledFlexRow } from "styles";
 
 type Variant = "transparent";

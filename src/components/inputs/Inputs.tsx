@@ -24,7 +24,7 @@ import dayjs from "dayjs";
 import { FormArgs, InputArgs } from "types";
 import { FormikProps } from "formik";
 import { AppTooltip } from "../Tooltip";
-import _, { String } from "lodash";
+import _ from "lodash";
 import { Markdown } from "../Markdown";
 import { AiOutlinePlus } from "react-icons/ai";
 import {
@@ -379,7 +379,6 @@ export function MapInput<T>({
         min={args.min}
         max={args.max}
         value={value as any}
-     
       />
     );
   }
@@ -459,11 +458,6 @@ export function MapInput<T>({
   return null;
 }
 
-
-
-
-
-
 export const CheckboxInput = ({
   title,
   onChange,
@@ -490,7 +484,7 @@ export const CheckboxInput = ({
 
 const StyledCheckBoxTitle = styled(Title)({
   width: "unset",
-  marginRight: 10
+  marginRight: 10,
 });
 
 const StycheckBoxInput = styled(StyledFlexRow)({});
@@ -503,6 +497,7 @@ interface ListProps {
   disabled?: boolean;
   tooltip?: string;
   placeholder?: string;
+  max?: number;
 }
 
 export const ListInputs = ({
@@ -513,6 +508,7 @@ export const ListInputs = ({
   disabled,
   tooltip,
   placeholder = "",
+  max = 7,
 }: ListProps) => {
   const onInputChange = (index: number, _value: string) => {
     const newValue = values.map((it, _index) => {
@@ -566,7 +562,7 @@ export const ListInputs = ({
                     value={it}
                   />
                 </StyledListTextInput>
-                {!disabled && isLast && (
+                {!disabled && isLast && index < max - 1 && (
                   <AppTooltip text="Add option">
                     <StyledAddMoreButton onClick={addOption}>
                       <AiOutlinePlus style={{ width: 17, height: 17 }} />
@@ -630,13 +626,14 @@ export function FormikInputsForm<T>({
                       key={input.name}
                       className="form-input"
                       style={{
-                        width:input.style?.width ||  mobile
-                          ? "100%"
-                          : it.inputsInRow
-                          ? `calc(${100 / it.inputsInRow}% - ${
-                              it.inputsInRow * 7
-                            }px)`
-                          : "100%",
+                        width:
+                          input.style?.width || mobile
+                            ? "100%"
+                            : it.inputsInRow
+                            ? `calc(${100 / it.inputsInRow}% - ${
+                                it.inputsInRow * 7
+                              }px)`
+                            : "100%",
                       }}
                     >
                       <MapInput<T>
@@ -741,5 +738,3 @@ export const NumberInput = ({
     </StyledInputContainer>
   );
 };
-
-
