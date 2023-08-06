@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
-import { useMobile, useProposalStatus } from "hooks/hooks";
+import { useAppParams, useMobile, useProposalStatus } from "hooks/hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
@@ -32,35 +32,15 @@ import { MOBILE_WIDTH } from "consts";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
 
-interface ContextProps {
-  proposalAddress: string;
-  daoAddress: string;
-  open?: boolean;
-}
-
-const Context = createContext({} as ContextProps);
-
 const MIN_DESCRIPTION_HEIGHT = 200;
 
-export const ProposalAbout = ({
-  proposalAddress,
-  daoAddress,
-  open,
-  className = "",
-}: {
-  proposalAddress: string;
-  daoAddress: string;
-  open?: boolean;
-  className?: string;
-}) => {
+export const About = () => {
   const mobile = useMobile();
 
   return (
-    <Context.Provider value={{ proposalAddress, daoAddress, open }}>
-      <StyledContainer className={className}>
-        {mobile ? <MobileAbout /> : <DesktopAbout />}
-      </StyledContainer>
-    </Context.Provider>
+    <StyledContainer>
+      {mobile ? <MobileAbout /> : <DesktopAbout />}
+    </StyledContainer>
   );
 };
 
@@ -99,7 +79,7 @@ function MobileAbout() {
 }
 
 const ProposalHeader = () => {
-  const { proposalAddress } = useContext(Context);
+  const { proposalAddress } = useAppParams();
 
   const { data, isLoading } = useProposalQuery(proposalAddress);
 
@@ -148,7 +128,7 @@ const ShowMoreButton = ({
 };
 
 const Description = () => {
-  const { proposalAddress, open } = useContext(Context);
+  const { proposalAddress } = useAppParams();
 
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const elRef = useRef<any>();
@@ -162,9 +142,7 @@ const Description = () => {
   }, [data?.metadata?.description]);
   const description = parseLanguage(data?.metadata?.description);
 
-  const showMoreButton = open
-    ? false
-    : descriptionHeight > MIN_DESCRIPTION_HEIGHT;
+  const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
 
   const HEIGHT =
     descriptionHeight > MIN_DESCRIPTION_HEIGHT
@@ -185,7 +163,7 @@ const Description = () => {
       <StyledPlaceholder ref={elRef}>
         <StyledMarkdown open={0}>{description}</StyledMarkdown>
       </StyledPlaceholder>
-      <AnimateHeight height={showMore || open ? "auto" : HEIGHT} duration={0}>
+      <AnimateHeight height={showMore ? "auto" : HEIGHT} duration={0}>
         <StyledMarkdown open={showMore ? 1 : 0}>{description}</StyledMarkdown>
       </AnimateHeight>
       {showMoreButton && (
@@ -224,7 +202,7 @@ const StyledHeader = styled(Header)({
 });
 
 const ProposalStatus = () => {
-  const { proposalAddress, daoAddress } = useContext(Context);
+  const { proposalAddress } = useAppParams();
 
   const { proposalStatusText } = useProposalStatus(proposalAddress);
 
@@ -236,7 +214,7 @@ const StyledShareButton = styled(ShareButton)({
 });
 
 const DaoInfo = () => {
-  const { proposalAddress, daoAddress } = useContext(Context);
+  const { daoAddress } = useAppParams();
 
   const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
 
@@ -256,7 +234,7 @@ const DaoInfo = () => {
 };
 
 const ByProposalOwner = () => {
-  const { proposalAddress, daoAddress } = useContext(Context);
+  const { daoAddress } = useAppParams();
 
   const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
   if (!daoRoles?.proposalOwner) {

@@ -1,5 +1,4 @@
 import { styled, useMediaQuery } from "@mui/material";
-import { ProposalAbout } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
@@ -7,45 +6,43 @@ import { Results } from "./Results";
 import { Vote } from "./Vote";
 import { Votes } from "./Votes";
 import { appNavigation } from "router/navigation";
-import { useAppParams, useHiddenProposal } from "hooks/hooks";
+import {
+  useAppParams,
+  useHiddenProposal,
+  useIsValidatorProposal,
+} from "hooks/hooks";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
 import ProposalMenu from "../ProposalMenu";
+import { About } from "./About";
 
 const gap = 15;
 
 const Destop = () => {
-  const { proposalAddress, daoAddress } = useAppParams();
+  const { proposalAddress } = useAppParams();
+  const isValidatorProposal = useIsValidatorProposal(proposalAddress);
   return (
     <StyledWrapper>
       <StyledLeft>
-        <ProposalAbout
-          proposalAddress={proposalAddress}
-          daoAddress={daoAddress}
-        />
-        <Vote />
+        <About />
+        {!isValidatorProposal && <Vote />}
         <Votes />
       </StyledLeft>
       <StyledRight>
         <Deadline />
         <Metadata />
-        <Results />
+       {!isValidatorProposal &&  <Results />}
       </StyledRight>
     </StyledWrapper>
   );
 };
 
 const Mobile = () => {
-  const { proposalAddress, daoAddress } = useAppParams();
-
   return (
     <StyledWrapper>
       <Deadline />
-      <ProposalAbout
-        proposalAddress={proposalAddress}
-        daoAddress={daoAddress}
-      />
+      <About />
       <Vote />
       <Results />
       <Metadata />

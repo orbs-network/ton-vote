@@ -119,7 +119,7 @@ const MenuButton = ({
   open: boolean;
 }) => {
   return (
-    <StyledShareButton onClick={onClick} variant="transparent">
+    <StyledShareButton onClick={onClick}>
       <StyledFlexRow gap={6}>
         <RxShare2 />
         <Typography>Share</Typography>

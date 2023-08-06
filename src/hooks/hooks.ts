@@ -170,8 +170,6 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
   );
 };
 
-
-
 export const useAppQueryParams = () => {
   const [query, setQuery] = useQueryParams({
     [AppQueryParams.PROPOSAL_STATE]: StringParam,
@@ -199,7 +197,10 @@ export const useAppQueryParams = () => {
       setQuery({ [AppQueryParams.SEARCH]: search || undefined }, "pushIn");
     },
     setAirdropProposal: (value: string | undefined) => {
-      setQuery({ [AppQueryParams.AIRDROP_PROPOSAL]: value || undefined }, "pushIn");
+      setQuery(
+        { [AppQueryParams.AIRDROP_PROPOSAL]: value || undefined },
+        "pushIn"
+      );
     },
   };
 };
@@ -259,7 +260,7 @@ export const useAppSettings = () => {
 
 export const useProposalResults = (proposalAddress: string) => {
   const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
-    const symbol = useGetProposalSymbol(proposalAddress);
+  const symbol = useGetProposalSymbol(proposalAddress);
 
   return useMemo(() => {
     if (!proposal) return [];
@@ -367,6 +368,10 @@ export const useGetProposalSymbol = (proposalAddress: string) => {
   );
 };
 
+export const useIsValidatorProposal = (proposalAddress: string) => {
+  return true;
+};
+
 export const useProposalStrategyName = (proposalAddress: string) => {
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
@@ -456,8 +461,6 @@ export const useIsNftProposal = (proposalAddress: string) => {
     [dataUpdatedAt]
   );
 };
-
-
 
 export const useFormatNumber = (value?: number, decimalScale = 2) => {
   const result = useNumericFormat({

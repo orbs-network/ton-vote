@@ -107,9 +107,8 @@ const Container = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <Page back={back()}>
+    <Page back={back()} title='Edit proposal'>
       <StyledContent>
-        <StyledHeader title="Edit proposal" />
         {children}
       </StyledContent>
     </Page>
