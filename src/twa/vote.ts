@@ -3,7 +3,6 @@
 import { useTwaStore, TwaButtonType } from "store";
 import { ProposalStatus } from "types";
 import twa from '@twa-dev/sdk'
-import { hideMainButton, showMainButton } from "twa";
 import { useProposalStatus } from "hooks/hooks";
 import { useCallback, useEffect } from "react";
 import { PopupButton } from "@twa-dev/types";
@@ -33,7 +32,7 @@ type UseTwaVoteProps = {
 export function useTwaVote({proposalAddress, vote, setVote, confirmVote, choices}: UseTwaVoteProps) {
 
   const { proposalStatus } = useProposalStatus(proposalAddress);
-  const { twaButtonType, setTwaButtonType } = useTwaStore()
+  const { twaButtonType, setMainButton, hideMainButton } = useTwaStore()
 
   const twaVoteButtonHandler = useCallback(() => {
     twa.showPopup({
@@ -55,16 +54,14 @@ export function useTwaVote({proposalAddress, vote, setVote, confirmVote, choices
     setVote(matchedChoice)
     hideMainButton({
       clickHandler: twaVoteButtonHandler,
-      setType: setTwaButtonType,
     })
     twa.offEvent("popupClosed", twaOnVote)
 
     // Confirm vote
-    showMainButton({
+    setMainButton({
       clickHandler: confirmVote,
       text: `Confirm Vote: ${matchedChoice}`,
-      setType: setTwaButtonType,
-      type: TwaButtonType.ConfirmVote
+      twaButtonType: TwaButtonType.ConfirmVote
     })
   }, [choices])
 
@@ -78,7 +75,6 @@ export function useTwaVote({proposalAddress, vote, setVote, confirmVote, choices
 
       hideMainButton({
         clickHandler: twaVoteButtonHandler,
-        setType: setTwaButtonType,
       })
       twa.offEvent("popupClosed", twaOnVote)
 
@@ -89,18 +85,16 @@ export function useTwaVote({proposalAddress, vote, setVote, confirmVote, choices
       return
     }
 
-    showMainButton({
+    setMainButton({
       clickHandler: twaVoteButtonHandler,
-      setType: setTwaButtonType,
       text: 'Cast Vote',
-      type: TwaButtonType.CastVote
+      twaButtonType: TwaButtonType.CastVote
     })
     twa.onEvent("popupClosed", twaOnVote)
 
     return () => {
       hideMainButton({
         clickHandler: twaVoteButtonHandler,
-        setType: setTwaButtonType,
       })
       twa.offEvent("popupClosed", twaOnVote)
     }

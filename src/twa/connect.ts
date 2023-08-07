@@ -1,13 +1,12 @@
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { useCallback, useEffect } from "react";
 import { useTwaStore, TwaButtonType } from "store";
-import { hideMainButton, showMainButton } from "./utils";
 import twa from '@twa-dev/sdk'
 
 export function useTwaConnect() {
 
   const [tonConnectUI] = useTonConnectUI()
-  const { setTwaButtonType, twaButtonType } = useTwaStore()
+  const { setMainButton, hideMainButton, twaButtonType } = useTwaStore()
 
   const twaConnectButtonHandler = useCallback(() => {
     tonConnectUI.connectWallet();
@@ -21,7 +20,6 @@ export function useTwaConnect() {
 
       hideMainButton({
         clickHandler: twaConnectButtonHandler,
-        setType: setTwaButtonType,
       })
 
       return
@@ -31,11 +29,10 @@ export function useTwaConnect() {
       return
     }
 
-    showMainButton({
+    setMainButton({
       clickHandler: twaConnectButtonHandler,
-      setType: setTwaButtonType,
       text: 'Connect Wallet',
-      type: TwaButtonType.Connect,
+      twaButtonType: TwaButtonType.Connect,
     })
 
   }, [tonConnectUI.connected])

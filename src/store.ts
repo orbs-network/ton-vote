@@ -250,18 +250,29 @@ export enum TwaButtonType {
   ConfirmVote = "ConfirmVote",
 }
 
+type SetMainButtonProps = {
+  twaButtonType: TwaButtonType
+  clickHandler: () => void
+  text: string
+}
+
+type HideMainButtonProps = {
+  clickHandler: () => void
+}
+
 interface TwaStore {
   isTwa?: boolean;
   setIsTwa: (isTwa: boolean | undefined) => void;
   twaButtonType?: TwaButtonType;
-  setTwaButtonType: (twaButtonType?: TwaButtonType) => void;
+  setMainButton: (props: SetMainButtonProps) => void;
+  hideMainButton: (props: HideMainButtonProps) => void;
 }
 
 export const useTwaStore = create<TwaStore>((set, get) => ({
   isTwa: undefined,
   setIsTwa: (isTwa) => set({ isTwa }),
   twaButtonType: undefined,
-  setTwaButtonType: (twaButtonType) => {
+  setMainButton: ({twaButtonType, clickHandler, text}) => {
 
     const currentButtonType = get().twaButtonType
 
@@ -269,7 +280,17 @@ export const useTwaStore = create<TwaStore>((set, get) => ({
       return
     }
 
+    twa.MainButton.onClick(clickHandler)
+    twa.MainButton.setParams({
+      text,
+      is_visible: true,
+    })
     set({ twaButtonType })
 
   },
+  hideMainButton: ({clickHandler}) => {
+    twa.MainButton.offClick(clickHandler)
+    twa.MainButton.hide()
+    set({ twaButtonType: undefined })
+  }
 }));
