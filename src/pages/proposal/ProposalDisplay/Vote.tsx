@@ -33,10 +33,17 @@ export function Vote() {
   const submitVote = useCallback(() => {
     if (!vote) return;
     mutate(vote);
-  }, [vote]);
+  }, [vote, mutate]);
 
-  // TODO: uncomment when logic for confimring/submitting vote is implemented
-  // useTwaVote({ proposalAddress, vote, choices, setVote, submitVote })
+  const confirmVote = useCallback(() => {
+    if (mock.isMockProposal(proposalAddress)) {
+      errorToast("You can't vote on mock proposals");
+    } else {
+      setConfirmation(true);
+    }
+  }, [proposalAddress, setConfirmation])
+
+  useTwaVote({ proposalAddress, vote, choices, setVote, confirmVote })
 
   useEffect(() => {
     if (!vote) {
@@ -44,13 +51,7 @@ export function Vote() {
     }
   }, [walletVote?.vote]);
 
-  const onSubmit = () => {
-    if (mock.isMockProposal(proposalAddress)) {
-      errorToast("You can't vote on mock proposals");
-    } else {
-      setConfirmation(true);
-    }
-  };
+
 
   return (
     <StyledContainer title={translations.castVote}>
@@ -78,7 +79,7 @@ export function Vote() {
         <VoteButton
           isLoading={isLoading}
           disabled={!vote || isLoading || currentVote === vote}
-          onSubmit={onSubmit}
+          onSubmit={confirmVote}
         />
       </AppTooltip>
       <VoteConfirmation

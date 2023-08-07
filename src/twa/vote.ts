@@ -26,11 +26,11 @@ type UseTwaVoteProps = {
   proposalAddress: string
   vote: string | undefined
   setVote: (vote: string | undefined) => void
-  submitVote: () => void
+  confirmVote: () => void
   choices: string[] | undefined
 }
 
-export function useTwaVote({proposalAddress, vote, setVote, submitVote, choices}: UseTwaVoteProps) {
+export function useTwaVote({proposalAddress, vote, setVote, confirmVote, choices}: UseTwaVoteProps) {
 
   const { proposalStatus } = useProposalStatus(proposalAddress);
   const { twaButtonType, setTwaButtonType } = useTwaStore()
@@ -58,8 +58,10 @@ export function useTwaVote({proposalAddress, vote, setVote, submitVote, choices}
       setType: setTwaButtonType,
     })
     twa.offEvent("popupClosed", twaOnVote)
+
+    // Confirm vote
     showMainButton({
-      clickHandler: submitVote,
+      clickHandler: confirmVote,
       text: `Confirm Vote: ${matchedChoice}`,
       setType: setTwaButtonType,
       type: TwaButtonType.ConfirmVote
