@@ -270,15 +270,15 @@ export const useProposalResults = (proposalAddress: string) => {
 
     return _.map(choices, (choice, key) => {
       const result = getproposalResult(proposal, choice);
-      
+
       const percent = result ? Number(result) : 0;
-      
 
       const amount = getProposalResultTonAmount(
         proposal,
         choice,
         percent,
-        proposal.proposalResult["totalWeights"],
+        proposal.proposalResult["totalWeight"] ||
+          proposal.proposalResult["totalWeights"],
         type
       );
 
@@ -414,11 +414,11 @@ export const useStrategyArguments = (proposalAddress: string) => {
   }, [dataUpdatedAt]);
 };
 
-
 export const useIsNftProposal = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
-  const {data, dataUpdatedAt} = useProposalQuery(proposalAddress);
-
-  return useMemo(() => isNftProposal(data?.metadata?.votingPowerStrategies), [dataUpdatedAt]);
-
+  return useMemo(
+    () => isNftProposal(data?.metadata?.votingPowerStrategies),
+    [dataUpdatedAt]
+  );
 };
