@@ -5,12 +5,11 @@ import {
   styled,
   Typography,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
 import { useAppSettings, useDevFeatures } from "hooks/hooks";
 import { APP_NAME, LANGUAGES } from "config";
@@ -19,12 +18,10 @@ import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
-import { TonConnectButton, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
-import { TwaButtonType, useSettingsStore, useTwaStore } from "store";
 import { FiMoon, FiSun } from "react-icons/fi";
-import twa from '@twa-dev/sdk'
-import { hideMainButton, showMainButton, useTwaConnect } from "twa";
+import { useTwaConnect } from "twa";
 
 
 export function Navbar() {
