@@ -36,7 +36,7 @@ import dayjs from "dayjs";
 import { FormArgs, InputArgs, SelectOption } from "types";
 import { FormikProps } from "formik";
 import { AppTooltip } from "../Tooltip";
-import _, { String } from "lodash";
+import _ from "lodash";
 import { Markdown } from "../Markdown";
 import { AiOutlinePlus } from "react-icons/ai";
 import {
@@ -553,6 +553,7 @@ interface ListProps {
   disabled?: boolean;
   tooltip?: string;
   placeholder?: string;
+  max?: number;
 }
 
 export const ListInputs = ({
@@ -563,6 +564,7 @@ export const ListInputs = ({
   disabled,
   tooltip,
   placeholder = "",
+  max = 7,
 }: ListProps) => {
   const onInputChange = (index: number, _value: string) => {
     const newValue = values.map((it, _index) => {
@@ -616,7 +618,7 @@ export const ListInputs = ({
                     value={it}
                   />
                 </StyledListTextInput>
-                {!disabled && isLast && (
+                {!disabled && isLast && index < max - 1 && (
                   <AppTooltip text="Add option">
                     <StyledAddMoreButton onClick={addOption}>
                       <AiOutlinePlus style={{ width: 17, height: 17 }} />
