@@ -252,7 +252,7 @@ export enum TwaButtonType {
 
 interface TwaStore {
   isTwa?: boolean;
-  setIsTwa: (isTwa: boolean) => void;
+  setIsTwa: (isTwa: boolean | undefined) => void;
   twaButtonType?: TwaButtonType;
   setTwaButtonType: (twaButtonType?: TwaButtonType) => void;
 }
