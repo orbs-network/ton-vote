@@ -1,8 +1,7 @@
-import { Box, Chip, Fade, styled, Typography, useTheme } from "@mui/material";
+import { Box, Chip, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
   AppTooltip,
-  Button,
   List,
   LoadingContainer,
   LoadMore,
@@ -18,7 +17,6 @@ import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
-
 import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -35,7 +33,7 @@ const ContainerHeader = () => {
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
 
-  const totalTonAmount = data?.proposalResult?.totalWeight || "0";
+  const totalTonAmount = data?.proposalResult?.totalWeights || "0";
   const votesLength = _.size(data?.votes);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
   const isNftProposal = useIsNftProposal(proposalAddress);
