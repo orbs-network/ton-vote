@@ -12,7 +12,7 @@ const getAllNFTHolders = async (
   signal?: AbortSignal
 ) => {
   if (!isNftProposal(metadata.votingPowerStrategies)) {
-    return {} as { [key: string]: number };
+    return {} as { [key: string]: string[] };
   }
   let nftItemsHolders;
 

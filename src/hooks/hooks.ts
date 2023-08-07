@@ -278,7 +278,7 @@ export const useProposalResults = (proposalAddress: string) => {
         proposal,
         choice,
         percent,
-        proposal.proposalResult["totalWeight"],
+        proposal.proposalResult["totalWeights"],
         type
       );
 

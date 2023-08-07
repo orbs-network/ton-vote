@@ -24,7 +24,7 @@ const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
 const getAllNftHolders = async (
   proposalAddress: string,
   signal?: AbortSignal
-): Promise<{ [key: string]: number }> => {
+): Promise<{ [key: string]: string[] }> => {
   const res = await axiosInstance.get(
     `/proposalNftHolders/${proposalAddress}`,
     {

@@ -35,15 +35,18 @@ const ContainerHeader = () => {
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
 
-  const totalTonAmount = data?.proposalResult?.totalWeight || "0";
+  const totalTonAmount = data?.proposalResult?.totalWeights || "0";
+  
   const votesLength = _.size(data?.votes);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
   const isNftProposal = useIsNftProposal(proposalAddress);
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalTonAmount)));
   }, [totalTonAmount]);
+
+
   const symbol = useGetProposalSymbol(proposalAddress);
-  const hideSymbol = isNftProposal || isOneWalletOneVote;
+  const hideSymbol = isOneWalletOneVote;
 
   return (
     <StyledContainerHeader>

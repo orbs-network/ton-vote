@@ -182,7 +182,7 @@ const _getAllNftHolders = (
   clientV4?: TonClient4
 ) => {
   if (!isNftProposal(metadata.votingPowerStrategies)) {
-    return {} as { [key: string]: number };
+    return {} as { [key: string]: string[] };
   }
   const promise = async (bail: any, attempt: number) => {
     Logger(`Fetching all nft holders, attempt: ${attempt}`);
