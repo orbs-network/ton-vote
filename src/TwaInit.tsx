@@ -1,5 +1,5 @@
 import twa from '@twa-dev/sdk'
-import { Alert, useTheme } from "@mui/material";
+import { useTheme } from "@mui/material";
 import { useTwaStore } from 'store';
 import { useEffect } from 'react';
 
