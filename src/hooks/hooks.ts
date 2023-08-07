@@ -274,14 +274,13 @@ export const useProposalResults = (proposalAddress: string) => {
       const result = getproposalResult(proposal, choice);
 
       const percent = result ? Number(result) : 0;
-      console.log(proposal.proposalResult);
-      
 
       const amount = getProposalResultTonAmount(
         proposal,
         choice,
         percent,
-        proposal.proposalResult["totalWeights"],
+        proposal.proposalResult["totalWeight"] ||
+          proposal.proposalResult["totalWeights"],
         type
       );
 
