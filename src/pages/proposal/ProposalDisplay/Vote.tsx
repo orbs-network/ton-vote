@@ -35,7 +35,8 @@ export function Vote() {
     mutate(vote);
   }, [vote]);
 
-  useTwaVote({ proposalAddress, vote, choices, setVote, submitVote })
+  // TODO: uncomment when logic for confimring/submitting vote is implemented
+  // useTwaVote({ proposalAddress, vote, choices, setVote, submitVote })
 
   useEffect(() => {
     if (!vote) {
