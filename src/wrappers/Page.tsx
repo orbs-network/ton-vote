@@ -1,12 +1,9 @@
-import { Fade, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { Back, ErrorContainer } from "components";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { PageProps } from "types";
-import twa from '@twa-dev/sdk'
-import { useNavigate } from "react-router-dom";
 import { useTwaStore } from "store";
-import { useCurrentRoute } from "hooks/hooks";
 
 function Page({
   children,
@@ -20,29 +17,7 @@ function Page({
   errorText = 'Something went wrong',
 }: PageProps) {
 
-  const route = useCurrentRoute()
-  const navigate = useNavigate()
   const { isTwa } = useTwaStore()
-
-  const goBack = useCallback(() => {
-    navigate(-1)
-  }, [])
-
-  useEffect(() => {
-    if (route === '/') {
-      twa.BackButton.hide()
-      return
-    }
-
-    twa.BackButton.onClick(goBack)
-    twa.BackButton.show()
-
-    return () => {
-      twa.BackButton.offClick(goBack)
-      twa.BackButton.hide()
-    }
-  }, [route]);
-
 
   useEffect(() => {
     window.scrollTo(0, 0)
