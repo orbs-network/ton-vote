@@ -1,14 +1,15 @@
 import { Box, styled, Typography } from "@mui/material";
-import { routes } from "consts";
+import { isTwaApp, routes } from "consts";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { HiOutlineArrowLeft } from "react-icons/hi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { StyledFlexRow } from "styles";
+import { BackButton } from "@twa-dev/sdk/react";
 
 function Back({ to, func }: { to?: string; func?: () => void }) {
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
-const t = useCommonTranslations()
+  const t = useCommonTranslations();
   const onClick = () => {
     if (func) {
       func();
@@ -22,6 +23,10 @@ const t = useCommonTranslations()
   };
 
   if (pathname === routes.spaces) return null;
+
+  if (isTwaApp) {
+    return <BackButton onClick={onClick} />;
+  }
   return (
     <StyledContainer onClick={onClick}>
       <StyledFlexRow gap={5}>
@@ -40,12 +45,11 @@ const StyledContainer = styled(Box)({
   height: "auto",
   background: "#0088CC",
   borderRadius: 20,
-  "*":{
-     color:'white!important'
+  "*": {
+    color: "white!important",
   },
   p: {
     fontSize: 13,
     fontWeight: 600,
-   
   },
 });

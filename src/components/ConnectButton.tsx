@@ -1,18 +1,14 @@
 import { styled, Typography } from "@mui/material";
 import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
+import { isTwaApp } from "consts";
+import { MainButton } from "@twa-dev/sdk/react";
 
 import React from "react";
 import { Button } from "./Button";
+import { onConnect } from "utils";
 
 export function ConnectButton({ className = "" }: { className?: string }) {
-  const onConnect = () => {
-    const container = document.getElementById("ton-connect-button");
-    const btn = container?.querySelector("button");
 
-    if (btn) {
-      btn.click();
-    }
-  };
 
   return (
     <Button onClick={onConnect} className={className}>

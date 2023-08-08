@@ -421,3 +421,13 @@ export const getProposalSymbol = (
       break;
   }
 };
+
+
+export const onConnect = () => {
+     const container = document.getElementById("ton-connect-button");
+     const btn = container?.querySelector("button");
+
+     if (btn) {
+       btn.click();
+     }
+   };

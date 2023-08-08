@@ -893,6 +893,18 @@
     classnames "^2.3.2"
     deepmerge "^4.2.2"
 
+"@twa-dev/sdk@^6.7.1":
+  version "6.7.1"
+  resolved "https://registry.yarnpkg.com/@twa-dev/sdk/-/sdk-6.7.1.tgz#00531b7958e6ea1ce6a03931e13ef9afd5add55c"
+  integrity sha512-2ggfVTbbhDIk+5vBv47IPWSetvtkY5VGCP8dmKmP8BVkdW+i2cYgt4o5s4SabBpuq+2inr+7/Jb7M9srMlOtvw==
+  dependencies:
+    "@twa-dev/types" "^6.7.0"
+
+"@twa-dev/types@^6.7.0":
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/@twa-dev/types/-/types-6.7.0.tgz#0a584202ff376195b46b907bd8348de642a1c103"
+  integrity sha512-2QtS8oQeHkZvKAsTxqvFGdZOrR7Jc4N9rzJFEIj5e7lC5dqayIatSAh91qmGULjzxOd4sqyWqq1XF6DwZnwldQ==
+
 "@types/async-retry@^1.4.5":
   version "1.4.5"
   resolved "https://registry.npmjs.org/@types/async-retry/-/async-retry-1.4.5.tgz"

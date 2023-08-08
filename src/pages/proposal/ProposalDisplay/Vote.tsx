@@ -1,7 +1,13 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
-import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
-import { useEffect, useState } from "react";
+import {
+  AppTooltip,
+  Button,
+  ConnectButton,
+  Popup,
+  TitleContainer,
+} from "components";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useShowComponents, useWalletVote } from "./hooks";
@@ -14,6 +20,15 @@ import { errorToast } from "toasts";
 import _ from "lodash";
 import { useAppParams } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
+import { MainButton } from "@twa-dev/sdk/react";
+import { isTwaApp } from "consts";
+import { onConnect } from "utils";
+
+const useChoices = () => {
+  const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
+  return data?.metadata?.votingSystem.choices;
+};
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
@@ -21,9 +36,9 @@ export function Vote() {
   const [confirmation, setConfirmation] = useState(false);
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
+  const [tgModal, setTgModal] = useState(false);
 
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
-  const choices = data?.metadata?.votingSystem.choices;
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;
@@ -42,58 +57,121 @@ export function Vote() {
       setConfirmation(true);
     }
   };
+  const walletAddress = useTonAddress();
+
+  const onTwaClick = () => {
+    if (!walletAddress) {
+      onConnect();
+    } else if (tgModal && !vote) {
+      setTgModal(false);
+    } else if (vote) {
+      mutate(vote);
+    } else {
+      setTgModal(true);
+    }
+  };
+
+  const onOptionSelect = (_vote: string) => {
+    if (isTwaApp) {
+      setConfirmation(true);
+    }
+    setVote(_vote);
+  };
+
+  const onCloseConfirmation = () => {
+    setConfirmation(false);
+    if (isTwaApp) {
+      setVote(undefined);
+    }
+  };
 
   if (!show) return null;
-    return (
-      <StyledContainer title={translations.castVote}>
-        <StyledFlexColumn>
-          {choices?.map((option) => {
-            return (
-              <StyledOption
-                selected={option === vote}
-                key={option}
-                onClick={() => setVote(option)}
-              >
-                <Fade in={option === vote}>
-                  <StyledFlexRow className="icon">
-                    <FiCheck style={{ width: 20, height: 20 }} />
-                  </StyledFlexRow>
-                </Fade>
-                <Typography>{option}</Typography>
-              </StyledOption>
-            );
-          })}
-        </StyledFlexColumn>
-        <AppTooltip
-          text={currentVote === vote ? `You already voted ${vote}` : ""}
-        >
-          <VoteButton
-            isLoading={isLoading}
-            disabled={!vote || isLoading || currentVote === vote}
-            onSubmit={onSubmit}
-          />
-        </AppTooltip>
-        <VoteConfirmation
-          open={confirmation}
-          vote={vote}
-          onClose={() => setConfirmation(false)}
-          onSubmit={() => {
-            if (!vote) return;
-            mutate(vote);
-          }}
+  return (
+    <StyledContainer title={translations.castVote}>
+      <Options selected={vote} onSelect={onOptionSelect} />
+      <TelegramOptionsSelect open={tgModal} onClose={() => setTgModal(false)}>
+        <Options onSelect={onOptionSelect} />
+      </TelegramOptionsSelect>
+      <AppTooltip
+        text={currentVote === vote ? `You already voted ${vote}` : ""}
+      >
+        <VoteButton
+          isLoading={isLoading}
+          disabled={!vote || isLoading || currentVote === vote}
+          onSubmit={onSubmit}
+          onTwaClick={onTwaClick}
         />
-      </StyledContainer>
-    );
+      </AppTooltip>
+      <VoteConfirmation
+        open={confirmation}
+        vote={vote}
+        onClose={onCloseConfirmation}
+        onSubmit={() => {
+          if (!vote) return;
+          mutate(vote);
+        }}
+      />
+      {isTwaApp && (
+        <MainButton
+          // disabled={confirmation}
+          progress={isLoading}
+          onClick={onTwaClick}
+          text={
+            !walletAddress
+              ? "Connect wallet"
+              : tgModal && !vote
+              ? "Close"
+              : confirmation
+              ? "Confirm vote"
+              : "Cast vote"
+          }
+        />
+      )}
+    </StyledContainer>
+  );
 }
+
+const Options = ({
+  onSelect,
+  selected,
+}: {
+  onSelect: (value: string) => void;
+  selected?: string;
+}) => {
+  const choices = useChoices();
+
+  return (
+    <StyledFlexColumn>
+      {choices?.map((option) => {
+        return (
+          <StyledOption
+            selected={option === selected}
+            key={option}
+            onClick={() => onSelect(option)}
+          >
+            <Fade in={option === selected}>
+              <StyledFlexRow className="icon">
+                <FiCheck style={{ width: 20, height: 20 }} />
+              </StyledFlexRow>
+            </Fade>
+            <Typography>{option}</Typography>
+          </StyledOption>
+        );
+      })}
+    </StyledFlexColumn>
+  );
+};
 
 const VoteButton = ({
   onSubmit,
   isLoading,
   disabled,
+  onTwaClick,
 }: {
   onSubmit: () => void;
   isLoading: boolean;
   disabled: boolean;
+  onTwaClick: () => void;
 }) => {
   const walletAddress = useTonAddress();
 
@@ -101,16 +179,40 @@ const VoteButton = ({
     return <StyledConnectButton />;
   }
 
+  if (!isTwaApp) {
+    return (
+      <StyledVoteButton
+        onClick={onSubmit}
+        isLoading={isLoading}
+        disabled={disabled}
+      >
+        Vote
+      </StyledVoteButton>
+    );
+  }
+
+  return null;
+};
+
+const TelegramOptionsSelect = ({
+  onClose,
+  open,
+  children,
+}: {
+  onClose: () => void;
+  open: boolean;
+  children: ReactNode;
+}) => {
   return (
-    <StyledVoteButton
-      onClick={onSubmit}
-      isLoading={isLoading}
-      disabled={disabled}
-    >
-      Vote
-    </StyledVoteButton>
+    <>
+      <StyledMobileSelectModal open={open} onClose={onClose}>
+        <>{children}</>
+      </StyledMobileSelectModal>
+    </>
   );
 };
+
+const StyledMobileSelectModal = styled(Popup)({});
 
 const StyledVoteButton = styled(Button)({
   marginTop: 20,

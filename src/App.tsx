@@ -9,6 +9,8 @@ import { useRouter } from "router/router";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 
+
+
 const useInitApp = () => {
   useInitThemeMode();
 };

@@ -1,10 +1,19 @@
 import Modal from "@mui/material/Modal";
 import { ReactElement, ReactNode } from "react";
-import { DialogContent, styled } from "@mui/material";
+import { DialogContent, Drawer, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton } from "@mui/material";
 import { TitleContainer } from "components";
-import { StyledFlexRow } from "styles";
+import * as React from "react";
+import { Global } from "@emotion/react";
+import CssBaseline from "@mui/material/CssBaseline";
+import { grey } from "@mui/material/colors";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Skeleton from "@mui/material/Skeleton";
+import Typography from "@mui/material/Typography";
+import SwipeableDrawer from "@mui/material/SwipeableDrawer";
+import { useMobile } from "hooks/hooks";
 interface Props {
   children: ReactElement;
   onClose?: () => void;
@@ -24,6 +33,29 @@ export const Popup = ({
   title,
   transparent,
 }: Props) => {
+  const content = (
+    <StyledDialogContent>
+      <StyledChildren
+        title={title || ""}
+        className={`popup-children ${className}`}
+        headerComponent={
+          <CloseButton hideCloseButton={hideCloseButton} close={onClose} />
+        }
+      >
+        {children}
+      </StyledChildren>
+    </StyledDialogContent>
+  );
+
+  const isMobile = useMobile();
+
+  if (isMobile) {
+    return (
+      <SwipeableEdgeDrawer onClose={onClose} open={open}>
+        {content}
+      </SwipeableEdgeDrawer>
+    );
+  }
   return (
     <StyledModal
       open={open}
@@ -36,24 +68,10 @@ export const Popup = ({
         },
       }}
     >
-      <StyledDialogContent>
-        <StyledChildren
-          title={title || ""}
-          className={`popup-children ${className}`}
-          headerComponent={
-            <CloseButton hideCloseButton={hideCloseButton} close={onClose} />
-          }
-        >
-          {children}
-        </StyledChildren>
-      </StyledDialogContent>
+      {content}
     </StyledModal>
   );
 };
-
-const StyledAbsoluteCloseButton = styled(CloseButton)({
-  marginLeft: "auto",
-});
 
 const StyledDialogContent = styled(DialogContent)({
   display: "flex",
@@ -64,18 +82,18 @@ const StyledDialogContent = styled(DialogContent)({
 });
 
 const StyledChildren = styled(TitleContainer)(({ theme }) => ({
-  maxHeight:'calc(100vh - 100px)',
+  maxHeight: "calc(100vh - 100px)",
   display: "flex",
   flexDirection: "column",
   ".container-header": {
     alignItems: "center",
   },
   ".title-container-header": {
-    padding:'10px 15px 10px 20px'
+    padding: "10px 15px 10px 20px",
   },
   ".title-container-children": {
-  flex:1,
-  overflowY: "auto", 
+    flex: 1,
+    overflowY: "auto",
   },
   position: "relative",
   padding: "0px",
@@ -129,3 +147,39 @@ const StyledClose = styled(IconButton)(({ theme }) => ({
     },
   },
 }));
+
+const drawerBleeding = 56;
+
+const Root = styled("div")(({ theme }) => ({
+  height: "100%",
+  backgroundColor:
+    theme.palette.mode === "light"
+      ? grey[100]
+      : theme.palette.background.default,
+}));
+
+export default function SwipeableEdgeDrawer({
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  onClose?: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Root>
+      <Drawer
+        container={document.body}
+        anchor="bottom"
+        open={open}
+        onClose={() => onClose?.()}
+        ModalProps={{
+          keepMounted: true,
+        }}
+      >
+        {children}
+      </Drawer>
+    </Root>
+  );
+}

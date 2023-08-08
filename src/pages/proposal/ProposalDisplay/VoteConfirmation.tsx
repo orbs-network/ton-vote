@@ -1,5 +1,6 @@
 import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
+import { isTwaApp } from "consts";
 import { useAppParams, useGetProposalSymbol } from "hooks/hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import {
@@ -68,7 +69,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             )}
           />
         )}
-        <StyledButtons>
+       {!isTwaApp &&  <StyledButtons>
           <Button variant="transparent" onClick={onClose}>
             Cancel
           </Button>
@@ -81,7 +82,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
           >
             {translations.confirm}
           </Button>
-        </StyledButtons>
+        </StyledButtons>}
       </StyledContainer>
     </StyledPopup>
   );
