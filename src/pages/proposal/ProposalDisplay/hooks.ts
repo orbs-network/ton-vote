@@ -16,9 +16,9 @@ import {
   Vote,
 } from "types";
 import { contract } from "contract";
-import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
+import { ProposalPageTranslations, useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { usePromiseToast } from "toasts";
-import { useProposalQuery } from "query/getters";
+import { useConnectedWalletVotingPowerQuery, useProposalQuery } from "query/getters";
 import { useVotePersistedStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useMemo } from "react";
@@ -203,3 +203,45 @@ export const useShowComponents = () => {
     results,
   };
 };
+
+export type UseVoteConfirmationProps = {
+  proposal: Proposal | null | undefined
+  noVotingPower: boolean
+  votingDataLoading: boolean
+  refetch: () => void
+  translations: ProposalPageTranslations
+  votingData: {
+    votingPower: string;
+    votingPowerText: string;
+} | undefined
+}
+
+export function useVoteConfirmation() {
+  const translations = useProposalPageTranslations();
+
+  const { proposalAddress } = useAppParams();
+  const { data: proposal } = useProposalQuery(proposalAddress);
+
+  const {
+    data: votingData,
+    isLoading: votingDataLoading,
+    refetch,
+  } = useConnectedWalletVotingPowerQuery(proposal, proposalAddress);
+
+  const votingPower = votingData?.votingPower;
+  
+  const noVotingPower = !votingPower
+    ? true
+    : votingPower && Number(votingPower) === 0
+    ? true
+    : false;
+
+  return {
+    proposal,
+    noVotingPower,
+    votingDataLoading,
+    refetch,
+    translations,
+    votingData
+  }
+}
