@@ -1,80 +1,35 @@
-import { Box, Chip, Fade, styled, Typography, useTheme } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
   AppTooltip,
-  Button,
   List,
   LoadingContainer,
   LoadMore,
-  NumberDisplay,
-  TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { nFormatter, parseLanguage } from "utils";
+import { nFormatter } from "utils";
 import { PAGE_SIZE } from "config";
 import { Vote } from "types";
-import { fromNano } from "ton";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import moment from "moment";
 import _ from "lodash";
-import { CSVLink } from "react-csv";
-
-import { GrDocumentCsv } from "react-icons/gr";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useCsvData, useShowComponents, useWalletVote } from "./hooks";
 import {
   useAppParams,
   useGetProposalSymbol,
-  useIsNftProposal,
   useIsOneWalletOneVote,
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
-
-const ContainerHeader = () => {
-  const { proposalAddress } = useAppParams();
-  const { data } = useProposalQuery(proposalAddress);
-
-  const totalTonAmount = data?.proposalResult?.totalWeight || "0";
-  const votesLength = _.size(data?.votes);
-  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
-  const isNftProposal = useIsNftProposal(proposalAddress);
-  const tonAmount = useMemo(() => {
-    return nFormatter(Number(fromNano(totalTonAmount)));
-  }, [totalTonAmount]);
-  const symbol = useGetProposalSymbol(proposalAddress);
-  const hideSymbol = isNftProposal || isOneWalletOneVote;
-  const show = useShowComponents().votes;
-
-  if (!show) return null;
-  return (
-    <StyledContainerHeader>
-      <StyledChip
-        label={
-          <>
-            <NumberDisplay value={votesLength} /> votes
-          </>
-        }
-      />
-      <StyledFlexRow style={{ width: "unset" }} gap={10}>
-        {!hideSymbol && (
-          <Typography className="total" style={{ fontWeight: 600 }}>
-            {tonAmount} {symbol}
-          </Typography>
-        )}
-        <DownloadCSV />
-      </StyledFlexRow>
-    </StyledContainerHeader>
-  );
-};
+import { useWalletVote } from "../hooks";
 
 const ConnectedWalletVote = () => {
   const { proposalAddress } = useAppParams();
-
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const symbol = useGetProposalSymbol(proposalAddress);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+  
   return (
     <VoteComponent
       hideVotingPower={!!isOneWalletOneVote}
@@ -84,29 +39,17 @@ const ConnectedWalletVote = () => {
   );
 };
 
-const StyledContainerHeader = styled(StyledFlexRow)({
-  flex: 1,
-  justifyContent: "space-between",
-  ".total": {
-    fontSize: 14,
-  },
-  "@media (max-width: 600px)": {
-    ".total": {
-      fontSize: 13,
-    },
-  },
-});
-
-export function Votes() {
+export function Votes({
+  votes,
+  isLoading,
+}: {
+  votes: Vote[];
+  isLoading: boolean;
+}) {
   const connectedAddress = useTonAddress();
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
-  const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
-
-  const { data, isLoading } = useProposalQuery(proposalAddress);
-
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
-
   const symbol = useGetProposalSymbol(proposalAddress);
   const showMoreVotes = () => {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
@@ -117,18 +60,15 @@ export function Votes() {
   }
 
   return (
-    <StyledContainer
-      title={translations.recentVotes}
-      headerComponent={<ContainerHeader />}
-    >
+    <>
       <List
         isLoading={isLoading}
-        isEmpty={!isLoading && !_.size(data?.votes)}
+        isEmpty={!isLoading && !_.size(votes)}
         emptyComponent={<Empty />}
       >
         <StyledList gap={0}>
           <ConnectedWalletVote />
-          {data?.votes?.map((vote, index) => {
+          {votes.map((vote, index) => {
             if (index >= votesShowAmount || vote.address === connectedAddress)
               return null;
             return (
@@ -144,12 +84,12 @@ export function Votes() {
       </List>
 
       <StyledLoadMore
-        totalItems={_.size(data?.votes)}
+        totalItems={_.size(votes)}
         amountToShow={votesShowAmount}
         showMore={showMoreVotes}
         limit={PAGE_SIZE}
       />
-    </StyledContainer>
+    </>
   );
 }
 
@@ -169,27 +109,6 @@ const Empty = () => {
     </StyledNoVotes>
   );
 };
-
-const DownloadCSV = () => {
-  const { proposalAddress } = useAppParams();
-  const { data } = useProposalQuery(proposalAddress);
-  const csvData = useCsvData();
-  const translations = useProposalPageTranslations();
-
-  return (
-    <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
-      <AppTooltip text={translations.downloadCsv} placement="top">
-        <StyledIcon style={{ width: 18, height: 18 }} />
-      </AppTooltip>
-    </CSVLink>
-  );
-};
-
-const StyledIcon = styled(GrDocumentCsv)(({ theme }) => ({
-  "*": {
-    stroke: theme.palette.text.primary,
-  },
-}));
 
 const VoteComponent = ({
   data,
@@ -293,17 +212,3 @@ const StyledVote = styled(StyledFlexRow)({
 });
 
 const StyledList = styled(StyledFlexColumn)({});
-
-const StyledContainer = styled(TitleContainer)({
-  ".title-container-children": {
-    padding: 0,
-  },
-});
-
-const StyledChip = styled(Chip)({
-  height: 28,
-  "*": {
-    fontWeight: 600,
-    fontSize: 13,
-  },
-});

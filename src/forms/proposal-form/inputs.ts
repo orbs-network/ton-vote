@@ -61,7 +61,6 @@ export const useCreateProposalForm = (
           type: "list",
           name: "votingChoices",
           required: true,
-          disabled: true,
           tooltip: translations.tooltips.votingChoices,
         },
       ],

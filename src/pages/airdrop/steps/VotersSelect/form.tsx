@@ -83,10 +83,9 @@ export const useForm = (
         ...inputs,
         {
           name: AirdropStoreKeys.votersAmount,
-          label: "Random voters amount",
+          label: "Number of random voters",
           type: "number",
           required: true,
-          EndAdornment: MaxBtn,
         },
       ];
     }

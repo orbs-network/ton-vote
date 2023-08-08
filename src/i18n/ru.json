@@ -56,7 +56,7 @@
     "createDao": "Create DAO space"
   },
   "createDao": {
-    "gettingStarted": "Getting Started",
+    "gettingStarted": "Getting started",
     "gettingStartedBody": "TON.vote is a completely decentralized on-chain DAO governance platform built exclusively for the TON ecosystem. /n Setting up a space for a DAO is free but requires submitting 2 transactions: /n 1. Space Metadata (DAO name, description, logo, socials) /n 2. Space Administrators (space owner and proposal publisher) /n Every transaction deploys a smart contract on TON blockchain mainnet. Both transactions cost about 1 TON in gas fees. /n Any future changes to one of the above will require submitting an update transaction. /n Need help? Join the TON.vote Telegram [support channel](https://t.me/TONVoteSupportGroup).",
     "spaceMetadata": "Space Metadata",
     "editWarning": "Edits will require to sign a transaction in your wallet",

@@ -53,6 +53,7 @@ export function ProposalForm({
     validateOnChange: false,
     validateOnBlur: true,
   });
+  
   const customInputHandler = useCustomInputHandler(formik);
   const [variant, setVariant] = useState<ProposalHidePopupVariant>();
   const saveForm = useDebouncedCallback(() => {

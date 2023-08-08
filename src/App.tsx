@@ -1,12 +1,12 @@
-import { GlobalStyles, ThemeProvider, useTheme } from "@mui/material";
-import { useTonWallet } from "@tonconnect/ui-react";
+import { GlobalStyles, ThemeProvider } from "@mui/material";
 import { APP_NAME } from "config";
 import { useAppSettings } from "hooks/hooks";
 import { Suspense, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { RouterProvider } from "react-router-dom";
-import { useRouter } from "router/router";
 import { getGlobalStyles } from "styles";
+import { useRouter } from "router/router";
+import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { TwaInit } from "./TwaInit";
 

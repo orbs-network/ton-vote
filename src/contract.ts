@@ -136,7 +136,7 @@ const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs
   votingPower[walletAddress] = singleVotingPower;
 
   return {
-    proposalResults: calcProposalResult(votes, votingPower),
+    proposalResults: calcProposalResult(votes, votingPower, proposal.metadata?.votingSystem!),
     vote: parseVotes(rawVotes, votingPower)[0],
     maxLt,
   };

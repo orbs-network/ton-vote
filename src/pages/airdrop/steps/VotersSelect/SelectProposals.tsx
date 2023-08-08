@@ -7,6 +7,7 @@ import {
   Search,
   SelectedChip,
   VirtualList,
+  VirtualListRowProps,
 } from "components";
 import { useDaosQuery, useProposalQuery } from "query/getters";
 import { useMemo, useState } from "react";
@@ -23,12 +24,13 @@ import {
 } from "pages/airdrop/styles";
 import { useSelectedDaosProposals } from "pages/airdrop/hooks";
 import { RowLink } from "pages/airdrop/Components";
+import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 
 export const SelectProposals = () => {
   const allProposals = useSelectedDaosProposals();
   const { selectProposal, proposals, setProposals, daos } = useAirdropStore();
   const [filterValue, setFilterValue] = useState("");
-  const [showMore, setShowMore] = useState(false)
+  const [showMore, setShowMore] = useState(false);
 
   const filteredProposals = useMemo(() => {
     return _.filter(allProposals, (p) =>
@@ -111,7 +113,7 @@ export const SelectProposals = () => {
 };
 
 const SelectedProposal = ({ address }: { address: string }) => {
-  const { data, isLoading } = useProposalQuery(address);
+  const { data } = useProposalQuery(address);
   const { selectProposal } = useAirdropStore();
   return (
     <StyledSelectedPorposal onDelete={() => selectProposal(address)}>
@@ -131,15 +133,12 @@ const SelectedProposal = ({ address }: { address: string }) => {
   );
 };
 
-
-
 const StyledSelectedPorposal = styled(SelectedChip)({
   p: {
     fontSize: 12,
     fontWeight: 600,
   },
 });
-
 
 const StyledSelectAll = styled(Button)({
   marginLeft: "auto",
@@ -150,15 +149,11 @@ const StyledList = styled(VirtualList)({
   width: "100%",
 });
 
-interface ProposalRowProps {
-  value: string;
-}
 
-
-
-function ProposalRow({ value: proposalAddress }: ProposalRowProps) {
+function ProposalRow(props: VirtualListRowProps) {
+  const proposalAddress = props.data.list[props.index];
   const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
-
+  const t = useAirdropTranslations()
   const onClick = (e: any) => {
     e.stopPropagation();
     window.open(
@@ -167,29 +162,43 @@ function ProposalRow({ value: proposalAddress }: ProposalRowProps) {
     );
   };
 
+  const disabled = _.isEmpty(proposal?.rawVotes);
+
+  if (isLoading) {
+    return <StyledSkeletonLoader style={{ borderRadius: 50 }} height={45} />;
+  }
+
   return (
-    <StyledProposal gap={2}>
-      <StyledFlexRow justifyContent="space-between">
-        {isLoading ? (
-          <StyledSkeletonLoader style={{ flex: 1 }} />
-        ) : (
-          <OverflowWithTooltip
-            placement="right"
-            className="name"
-            text={parseLanguage(proposal?.metadata?.title)}
-          />
-        )}
-        <AppTooltip text={proposalAddress} placement="right">
-          <Typography className="address">{`(${makeElipsisAddress(
-            proposalAddress
-          )})`}</Typography>
-        </AppTooltip>
-        <RowLink text="View proposal" onClick={onClick} />
-      </StyledFlexRow>
-    </StyledProposal>
+    <VirtualList.RowContent
+      isSelected={props.data.selected.includes(proposalAddress)}
+      onClick={() => props.data.onSelect?.(proposalAddress)}
+      disabled={disabled}
+    >
+      <AppTooltip
+        text={disabled ? t.emptyProposalTooltip : undefined}
+        placement="right"
+      >
+        <StyledProposal gap={2}>
+          <StyledFlexRow justifyContent="space-between">
+            <OverflowWithTooltip
+              hideTooltip={disabled}
+              placement="right"
+              className="name"
+              text={parseLanguage(proposal?.metadata?.title)}
+            />
+
+            <AppTooltip text={proposalAddress} placement="right">
+              <Typography className="address">{`(${makeElipsisAddress(
+                proposalAddress
+              )})`}</Typography>
+            </AppTooltip>
+            <RowLink text="View proposal" onClick={onClick} />
+          </StyledFlexRow>
+        </StyledProposal>
+      </AppTooltip>
+    </VirtualList.RowContent>
   );
 }
-
 
 const StyledProposal = styled(StyledFlexColumn)({
   alignItems: "flex-start",

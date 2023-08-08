@@ -32,7 +32,14 @@ export function TitleContainer({
           </StyledHeader>
         )}
         <Box className="title-container-children">
-          {subtitle && <StyledSubtitle>{subtitle}</StyledSubtitle>}
+          {subtitle && (
+            <StyledSubtitle>
+              {" "}
+              {subtitle.split("/n").map((it, index) => {
+                return <Typography key={index}>{it}</Typography>;
+              }) || ""}
+            </StyledSubtitle>
+          )}
           {children}
         </Box>
       </StyledTitleContainer>
@@ -40,12 +47,15 @@ export function TitleContainer({
   );
 }
 
-export const StyledSubtitle = styled(Typography)({
-  fontSize: 14,
-  opacity: 0.7,
+export const StyledSubtitle = styled(StyledFlexColumn)({
   width: "100%",
-  textAlign: "left",
-  marginBottom: 40
+
+  marginBottom: 40,
+  p: {
+    fontSize: 14,
+    opacity: 0.7,
+    textAlign: "left",
+  },
 });
 
 const StyledTitle = styled(Typography)(({ theme }) => ({

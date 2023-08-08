@@ -170,8 +170,6 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
   );
 };
 
-
-
 export const useAppQueryParams = () => {
   const [query, setQuery] = useQueryParams({
     [AppQueryParams.PROPOSAL_STATE]: StringParam,
@@ -199,7 +197,10 @@ export const useAppQueryParams = () => {
       setQuery({ [AppQueryParams.SEARCH]: search || undefined }, "pushIn");
     },
     setAirdropProposal: (value: string | undefined) => {
-      setQuery({ [AppQueryParams.AIRDROP_PROPOSAL]: value || undefined }, "pushIn");
+      setQuery(
+        { [AppQueryParams.AIRDROP_PROPOSAL]: value || undefined },
+        "pushIn"
+      );
     },
   };
 };
@@ -259,7 +260,7 @@ export const useAppSettings = () => {
 
 export const useProposalResults = (proposalAddress: string) => {
   const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
-    const symbol = useGetProposalSymbol(proposalAddress);
+  const symbol = useGetProposalSymbol(proposalAddress);
 
   return useMemo(() => {
     if (!proposal) return [];
@@ -279,7 +280,8 @@ export const useProposalResults = (proposalAddress: string) => {
         proposal,
         choice,
         percent,
-        proposal.proposalResult["totalWeight"],
+        proposal.proposalResult["totalWeight"] ||
+          proposal.proposalResult["totalWeights"],
         type
       );
 
@@ -380,6 +382,8 @@ export const useProposalStrategyName = (proposalAddress: string) => {
         return "Jetton Balance";
       case VotingPowerStrategyType.NftCcollection:
         return "NFT Collection";
+      case VotingPowerStrategyType.ValidatorsVote:
+        return "Validators Vote";
       case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
@@ -456,8 +460,6 @@ export const useIsNftProposal = (proposalAddress: string) => {
     [dataUpdatedAt]
   );
 };
-
-
 
 export const useFormatNumber = (value?: number, decimalScale = 2) => {
   const result = useNumericFormat({

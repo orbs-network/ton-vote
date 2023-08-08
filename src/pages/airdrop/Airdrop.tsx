@@ -56,7 +56,7 @@ export function Airdrop() {
   }, [airdropStarted]);
 
   return (
-    <StyledPage title="Airdrop Asistant" hideBack>
+    <StyledPage title="Airdrop Assistant" hideBack>
       <StepsLayout
         disableBack
         setStep={setStep}

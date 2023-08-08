@@ -69,10 +69,21 @@ export const useFormSchema = () => {
             : true;
         }
       ),
+    "validators-proposal-hash": Yup.string().test(
+      "",
+      translations.errors.isRequired("Proposal hash"),
+      (_, context) => {
+        const parent = context.parent as ProposalForm;
+
+        return getVoteStrategyType(parent.votingPowerStrategies) ==
+          VotingPowerStrategyType.ValidatorsVote
+          ? !!getVotingPowerStrategyArgument(parent)
+          : true;
+      }
+    ),
     proposalStartTime: Yup.number()
       .required(translations.errors.isRequired(translations.startTime))
-      .test("", translations.errors.startTime1, (value = 0) => {   
-             
+      .test("", translations.errors.startTime1, (value = 0) => {
         return moment().isBefore(utcMoment(value));
       })
       .test("", translations.errors.startTime2, (value = 0) => {

@@ -5,6 +5,7 @@ import {
   Popup,
   TextInput,
   TitleContainer,
+  VirtualListRowProps,
 } from "components";
 import { VirtualList } from "components";
 import { useDebounce } from "hooks/hooks";
@@ -53,27 +54,29 @@ export const TransferAssets = () => {
   );
 };
 
-
-const Voter = ({ value, index }: { value: string; index: number }) => {
+const Voter = (props: VirtualListRowProps) => {
+  const value = props.data.list[props.index];
   const { voters, currentWalletIndex = 0 } = useAirdropStore();
 
   const voter = voters?.find((it) => it === value);
 
   return (
-    <StyledListItem>
-      <AddressDisplay address={voter} padding={12} />
-      {currentWalletIndex > index ? (
-        <BsFillCheckCircleFill />
-      ) : (
-        <Typography>Not sent</Typography>
-      )}
-    </StyledListItem>
+    <VirtualList.RowContent displayOnly={true}>
+      <StyledListItem>
+        <AddressDisplay address={voter} padding={12} />
+        {currentWalletIndex > props.index ? (
+          <BsFillCheckCircleFill />
+        ) : (
+          <Typography>Not sent</Typography>
+        )}
+      </StyledListItem>
+    </VirtualList.RowContent>
   );
 };
 
 const VotersList = () => {
   const { voters } = useAirdropStore();
-    const walletIndex = useDisplayWalletIndex();
+  const walletIndex = useDisplayWalletIndex();
 
   const [open, setOpen] = useState(false);
 
@@ -91,7 +94,7 @@ const VotersList = () => {
           <StyledVirtualList
             RowComponent={Voter}
             data={voters || []}
-            itemSize={60}
+            itemSize={50}
             displayOnly={true}
           />
           <Button onClick={() => setOpen(false)}>Close</Button>
@@ -111,7 +114,7 @@ const JettonAction = () => {
   const { data } = useReadJettonWalletMedata(jettonAddress);
   const { amountPerWalletUI } = useAmountPerWallet();
   const { mutate, isLoading } = useTransferJetton();
-  const nextVoter = useNextVoter()
+  const nextVoter = useNextVoter();
   const symbol = data?.metadata?.symbol || "";
 
   return (
@@ -131,8 +134,6 @@ const JettonAction = () => {
   );
 };
 
-
-
 const NFTMetadata = ({ address }: { address?: string }) => {
   const { data, isLoading } = useReadNftItemMetadata(address);
 
@@ -150,7 +151,7 @@ const NFTMetadata = ({ address }: { address?: string }) => {
 
 const NFTAction = () => {
   const { voters } = useAirdropStore();
-const walletIndex = useDisplayWalletIndex();
+  const walletIndex = useDisplayWalletIndex();
   const { mutate, isLoading } = useTransferNFT();
   const [nftAddress, setNftAddress] = useState("");
 

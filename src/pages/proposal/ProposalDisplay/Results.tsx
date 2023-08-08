@@ -37,6 +37,8 @@ export const Results = () => {
   const results = useProposalResults(proposalAddress);
   const show = useShowComponents().results;
 
+  
+
 
   if (!show) return null;
     if (isLoading) {

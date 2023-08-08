@@ -78,6 +78,10 @@ const JettonFinished = () => {
 
   const symbol = data?.metadata?.symbol;
 
+  const votersSize = _.size(voters);
+
+  const prefix = votersSize > 1 ? "s" : "";
+
   const csv = useMemo(() => {
     if (!amountPerWalletUI || !symbol || !voters) return [];
     const result = voters.map((it) => {
@@ -85,7 +89,7 @@ const JettonFinished = () => {
     });
 
     return [["address", symbol], ...result];
-  }, [_.size(voters), amountPerWalletUI, symbol]);
+  }, [votersSize, amountPerWalletUI, symbol]);
 
   if (isLoading) {
     return (
@@ -99,9 +103,7 @@ const JettonFinished = () => {
   return (
     <FinishedLayout
       csv={csv}
-      text={`Successfully sent ${amountUI} ${symbol} to ${_.size(
-        voters
-      ).toLocaleString()} voters`}
+      text={`Successfully sent ${amountUI} ${symbol} to ${votersSize.toLocaleString()} voter${prefix}`}
       filename={`${symbol} airdrop`}
     />
   );

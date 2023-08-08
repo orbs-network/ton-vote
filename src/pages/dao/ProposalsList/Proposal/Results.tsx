@@ -12,7 +12,7 @@ export const Results = ({
 }) => {
   const { data: proposal } = useProposalQuery(proposalAddress);
 
-  const totalWeight = proposal?.proposalResult.totalWeight;
+  const totalWeight = proposal?.proposalResult.totalWeights;
   const translations = useDaoPageTranslations();
   const results = useProposalResults(proposalAddress);
 

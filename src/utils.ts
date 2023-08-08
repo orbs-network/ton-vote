@@ -332,6 +332,7 @@ export const getProposalResultTonAmount = (
   type: VotingPowerStrategyType
 ) => {
   let result = "0";
+  
   if (proposal?.sumCoins) {
     const value =
       proposal.sumCoins[choice] || proposal.sumCoins[choice.toLowerCase()];
