@@ -88,10 +88,7 @@ export function Vote() {
         open={confirmation}
         vote={vote}
         onClose={() => setConfirmation(false)}
-        onSubmit={() => {
-          if (!vote) return;
-          mutate(vote);
-        }}
+        onSubmit={submitVote}
       />
     </StyledContainer>
   );
