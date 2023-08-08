@@ -6,7 +6,12 @@ import {
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { Dao, ProposalForm, ProposalInputArgs } from "types";
-import { fromUtcMoment, isZeroAddress, utcMoment } from "utils";
+import {
+  fromUtcMoment,
+  getVoteStrategyType,
+  isZeroAddress,
+  utcMoment,
+} from "utils";
 
 const initialChoices = ["Yes", "No", "Abstain"];
 
@@ -140,16 +145,24 @@ export const handleDefaults = (
 export const prepareMetadata = (
   formValues: ProposalForm
 ): Partial<ProposalMetadata> => {
+  const validatorsVote =
+    getVoteStrategyType(formValues.votingPowerStrategies) ===
+    VotingPowerStrategyType.ValidatorsVote;
+
+  const proposalStartTime = validatorsVote
+    ? utcMoment(moment().valueOf())
+    : utcMoment(formValues.proposalStartTime);
+
   return {
-    proposalStartTime: Math.floor(
-      utcMoment(formValues.proposalStartTime).valueOf() / 1_000
-    ),
-    proposalEndTime: Math.floor(
-      utcMoment(formValues.proposalEndTime).valueOf() / 1_000
-    ),
-    proposalSnapshotTime: Math.floor(
-      utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000
-    ),
+    proposalStartTime: Math.floor(proposalStartTime.valueOf() / 1_000),
+    proposalEndTime: validatorsVote
+      ? 0
+      : Math.floor(utcMoment(formValues.proposalEndTime).valueOf() / 1_000),
+    proposalSnapshotTime: validatorsVote
+      ? 0
+      : Math.floor(
+          utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000
+        ),
     votingSystem: {
       votingSystemType: formValues.votingSystemType,
       choices: formValues.votingChoices,

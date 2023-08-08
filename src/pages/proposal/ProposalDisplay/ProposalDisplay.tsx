@@ -5,7 +5,7 @@ import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
 import { Results } from "./Results";
 import { Vote } from "./Vote";
-import { Votes } from "./Votes";
+import { ProposalVotes } from "./ProposalVotes";
 import { appNavigation } from "router/navigation";
 import { useAppParams, useHiddenProposal } from "hooks/hooks";
 import { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ const Destop = () => {
           daoAddress={daoAddress}
         />
         <Vote />
-        <Votes />
+        <ProposalVotes />
       </StyledLeft>
       <StyledRight>
         <Deadline />
@@ -49,7 +49,7 @@ const Mobile = () => {
       <Vote />
       <Results />
       <Metadata />
-      <Votes />
+      <ProposalVotes />
     </StyledWrapper>
   );
 };

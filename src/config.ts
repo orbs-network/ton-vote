@@ -38,9 +38,9 @@ export enum QueryKeys {
   CLIENTS = "CLIENTS",
   DAO_STATE = "DAO_STATE",
   REGISTRY_STATE = "REGISTRY_STATE",
-  READ_JETTON_WALLET_METADATA='READ_JETTON_WALLET_METADATA',
-  READ_NFT_ITEM_METADATA='READ_NFT_ITEM_METADATA',
-  WALLET_NFT_COLLECTION_ITEMS='WALLET_NFT_COLLECTION_ITEMS',
+  READ_JETTON_WALLET_METADATA = "READ_JETTON_WALLET_METADATA",
+  READ_NFT_ITEM_METADATA = "READ_NFT_ITEM_METADATA",
+  WALLET_NFT_COLLECTION_ITEMS = "WALLET_NFT_COLLECTION_ITEMS",
 }
 
 export const LANGUAGES = { en: "English", ru: "Русский" };
@@ -72,7 +72,7 @@ export const VERIFIED_DAOS = [
   "EQAvYNurOKXnv2ASweTgbdYavcaxnsbZeXXhdJkkvMicOLoZ",
   "EQDI_7Nk7Fe43pilkdt8rh1Ryl8P8d6-8eieCGVs1p6MYkCF",
   "EQCbE-S_Bl4l8CgvosBDEnLDwTgz0qmScodUFt3YeE5JziM5",
-  "EQBmv0LIG56PLOETKV_-Bz5apBMND3gA9BEaysGIluaoHv5i"
+  "EQBmv0LIG56PLOETKV_-Bz5apBMND3gA9BEaysGIluaoHv5i",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING
@@ -147,11 +147,24 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
       },
     ],
   },
+  [VotingPowerStrategyType.ValidatorsVote]: {
+    name: "Validators",
+    args: [
+      {
+        type: "text",
+        label: "Hash",
+        tooltip: "",
+        required: true,
+        name: "validators-proposal-hash",
+      },
+    ],
+  },
 };
 
 export const STRATEGY_ARGUMENTS = [
   { name: "jetton", key: "jetton-address" },
   { name: "nft", key: "nft-address" },
+  { name: "validators-proposal-hash", key: "validators-proposal-hash" },
 ];
 
 export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
