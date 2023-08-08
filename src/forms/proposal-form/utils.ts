@@ -149,12 +149,10 @@ export const prepareMetadata = (
     getVoteStrategyType(formValues.votingPowerStrategies) ===
     VotingPowerStrategyType.ValidatorsVote;
 
-  const proposalStartTime = validatorsVote
-    ? utcMoment(moment().valueOf())
-    : utcMoment(formValues.proposalStartTime);
-
   return {
-    proposalStartTime: Math.floor(proposalStartTime.valueOf() / 1_000),
+    proposalStartTime: Math.floor(
+      utcMoment(formValues.proposalStartTime).valueOf() / 1_000
+    ),
     proposalEndTime: validatorsVote
       ? 0
       : Math.floor(utcMoment(formValues.proposalEndTime).valueOf() / 1_000),
