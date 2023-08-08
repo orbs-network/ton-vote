@@ -1,6 +1,5 @@
-import { Box, MenuItem, styled, Typography } from "@mui/material";
+import { MenuItem, styled, Typography } from "@mui/material";
 import { useCopyToClipboard } from "hooks/hooks";
-import React, { useState } from "react";
 import { BsReddit, BsTwitter } from "react-icons/bs";
 import { FaTelegramPlane } from "react-icons/fa";
 import { IoCopyOutline } from "react-icons/io5";
@@ -13,12 +12,17 @@ import {
   TwitterShareButton,
 } from "react-share";
 import { StyledFlexRow } from "styles";
+import { Button } from "./Button";
 import { Menu } from "./Menu";
 
 const CopyBtn = ({ url, children }: { url: string; children: ReactNode }) => {
   const [_, copy] = useCopyToClipboard();
 
-  return <div onClick={() => copy(url)}>{children}</div>;
+  return (
+    <ListItem onClick={() => copy(url)}>
+      <StyledFlexRow justifyContent='flex-start' gap={6} style={{padding:'0px 16px'}}>{children}</StyledFlexRow>
+    </ListItem>
+  );
 };
 
 const items = [
@@ -44,6 +48,30 @@ const items = [
   },
 ];
 
+const ListItem = ({ children, onClick }: { children: ReactNode; onClick?: () => void }) => {
+  return (
+    <StyledListItem onClick={onClick}>
+      {children}
+    </StyledListItem>
+  );
+};
+
+const StyledListItem = styled(StyledFlexRow)({
+  height: "100%",
+  cursor: "pointer",
+  justifyContent: "flex-start!important",
+  button:{
+    width:'100%',
+    height:'100%',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'flex-start',
+    padding:'0px 16px!important',
+    gap: 10,
+    minWidth: 140,
+  }
+});
+
 export function ShareButton({
   url,
   className = " ",
@@ -51,76 +79,68 @@ export function ShareButton({
   url: string;
   className?: string;
 }) {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const close = () => setAnchorEl(null);
-
   return (
-    <>
-      <StyledShareButton className={className} onClick={handleClick}>
-        <RxShare2 />
-        <Typography>Share</Typography>
-      </StyledShareButton>
-      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        {items.map((it, index) => {
+    <div className={className}>
+      <StyledMenu
+        listItems={items.map((it, index) => {
           return (
-            <StyledMenuItem key={index} onClick={close}>
+            <ListItem key={index}>
               <it.button url={url}>
-                <StyledBtnContent>
-                  <it.icon />
-                  <Typography>{it.text}</Typography>
-                </StyledBtnContent>
+                <it.icon />
+                <Typography>{it.text}</Typography>
               </it.button>
-            </StyledMenuItem>
+            </ListItem>
           );
         })}
-      </Menu>
-    </>
+        Button={MenuButton}
+      />
+    </div>
   );
 }
 
-const StyledMenuItem = styled(MenuItem)({
-  svg: {
-    width: 16,
-    height: 16,
+const StyledMenu = styled(Menu)({
+  ".MuiListItem-root": {
+    svg: {
+      width: 16,
+      height: 16,
+    },
+    p: {
+      fontSize: 14,
+      fontWeight: 600,
+    },
   },
+});
+
+const MenuButton = ({
+  onClick,
+  open,
+}: {
+  onClick: (e: any) => void;
+  open: boolean;
+}) => {
+  return (
+    <StyledShareButton
+      onClick={onClick}
+      variant={open ? undefined : "transparent"}
+    >
+      <StyledFlexRow gap={6}>
+        <RxShare2 />
+        <Typography>Share</Typography>
+      </StyledFlexRow>
+    </StyledShareButton>
+  );
+};
+
+const StyledShareButton = styled(Button)({
+  height: "unset",
+  padding: "6px 15px",
   p: {
     fontSize: 14,
     fontWeight: 600,
   },
+  svg: {
+    width: 16,
+    height: 16,
+  },
 });
 
-const StyledShareButton = styled("button")(({ theme }) => {
-  const color =
-    theme.palette.mode === "light" ? theme.palette.primary.main : "white";
-  return {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    background: "transparent",
-    border: "unset",
-    cursor: "pointer",
-    color: color,
-    "*": {
-      color: color,
-    },
-    p: {
-      fontSize: 15,
-      fontWeight: 600,
-    },
-    svg: {
-      width: 20,
-      height: 20,
-      color: color,
-    },
-  };
-});
-
-const StyledBtnContent = styled(StyledFlexRow)(({ theme }) => ({
-  height: 25,
-}));

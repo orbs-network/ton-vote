@@ -150,7 +150,10 @@ export const StyledInputContainer = styled(Box)<{
       color: markdown && !preview ? color : theme.palette.text.primary,
       paddingTop: markdown ? "15px" : "unset",
     },
+   
     input: {
+      width:'auto',
+      flex:1,
       background: "transparent!important",
       padding: "12.5px 12px",
       fontSize: 16,

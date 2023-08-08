@@ -15,6 +15,7 @@ import {
   Proposal,
   ProposalDisplay,
   ProposalsList,
+  Airdrop,
 } from "pages";
 
 const CreateDao = lazy(() => import("pages/create-dao/CreateDao"));
@@ -35,6 +36,14 @@ export const useRouter = () => {
               element: (
                 <Suspense fallback={<DaosPageFallback />}>
                   <DaosPage />
+                </Suspense>
+              ),
+            },
+            {
+              path: 'airdrop',
+              element: (
+                <Suspense fallback={<DaosPageFallback />}>
+                  <Airdrop />
                 </Suspense>
               ),
             },
@@ -123,7 +132,7 @@ export const useRouter = () => {
                       <EditProposal />
                     </Suspense>
                   ) : (
-                    <Navigate to={routes.proposal} />
+                    <Navigate to={routes.spaces} />
                   ),
                 },
               ],

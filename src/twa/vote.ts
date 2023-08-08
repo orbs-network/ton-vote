@@ -93,9 +93,11 @@ export function useTwaVote({proposalAddress, vote, setVote, confirmVote, choices
     twa.onEvent("popupClosed", twaOnVote)
 
     return () => {
-      hideMainButton({
-        clickHandler: twaVoteButtonHandler,
-      })
+      if (twaButtonType === TwaButtonType.CastVote) {
+        hideMainButton({
+          clickHandler: twaVoteButtonHandler,
+        })
+      }
       twa.offEvent("popupClosed", twaOnVote)
     }
 

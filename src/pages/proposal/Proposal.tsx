@@ -9,7 +9,7 @@ import { useAppParams } from "hooks/hooks";
 const Meta = () => {
   const {proposalAddress} = useAppParams()
   const title = useProposalQuery(proposalAddress).data?.metadata?.title;
-
+  
   return (
     <Helmet>
       <title>
@@ -21,6 +21,7 @@ const Meta = () => {
 };
 
 export function Proposal() {
+
   return (
     <>
       <Meta />

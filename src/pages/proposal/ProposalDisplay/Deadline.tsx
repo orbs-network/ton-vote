@@ -5,6 +5,7 @@ import moment from "moment";
 import { useProposalQuery } from "query/getters";
 import { useMemo } from "react";
 import { ProposalStatus } from "types";
+import { useShowComponents } from "./hooks";
 
 const handleDate = (endDate?: number) => {
   if (!endDate) return 0;
@@ -20,6 +21,7 @@ export function Deadline() {
   const translations = useProposalPageTranslations();
 
   const proposalMetadata = data?.metadata;
+  const show = useShowComponents().deadline
 
   const title = useMemo(() => {
     if (!proposalStatus) {
@@ -35,13 +37,14 @@ export function Deadline() {
     return <LoadingContainer />;
   }
 
-  return (
-    <TitleContainer title={title}>
-      {proposalStatus === ProposalStatus.NOT_STARTED ? (
-        <Countdown date={handleDate(proposalMetadata?.proposalStartTime)} />
-      ) : proposalStatus === ProposalStatus.ACTIVE ? (
-        <Countdown date={handleDate(proposalMetadata?.proposalEndTime)} />
-      ) : null}
-    </TitleContainer>
-  );
+  if (!show) return null
+    return (
+      <TitleContainer title={title}>
+        {proposalStatus === ProposalStatus.NOT_STARTED ? (
+          <Countdown date={handleDate(proposalMetadata?.proposalStartTime)} />
+        ) : proposalStatus === ProposalStatus.ACTIVE ? (
+          <Countdown date={handleDate(proposalMetadata?.proposalEndTime)} />
+        ) : null}
+      </TitleContainer>
+    );
 }

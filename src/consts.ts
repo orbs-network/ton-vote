@@ -5,10 +5,11 @@ export const routes = {
   createSpace: "/setup",
   proposal: "/:daoId/proposal/:proposalId",
   editProposal: "/:daoId/proposal/:proposalId/edit",
-  space: "/:daoId",
   spaceAbout: "/:daoId/about",
   spaceSettings: "/:daoId/settings",
   createProposal: "/:daoId/create",
+  airdrop: "/airdrop",
+  space: "/:daoId",
 };
 
 export const flatRoutes = _.map(routes, (value) => {
@@ -26,7 +27,7 @@ export const ABOUT_CHARS_LIMIT = 2350
 export const TITLE_LIMIT =   180;
 
 
-
+export const corsProxyURL = "https://cors-anywhere.herokuapp.com";
 
 export const MOBILE_WIDTH = 768;
 

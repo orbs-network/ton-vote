@@ -20,10 +20,10 @@ export const Container = React.forwardRef(
     },
     ref: any
   ) => {
-    return !isMobile &&  hover ? (
+    return !isMobile && hover ? (
       <StyledHoverContainer
         onClick={onClick}
-        className={className}
+        className={`${className} container`}
         ref={ref}
       >
         {children}
@@ -31,7 +31,7 @@ export const Container = React.forwardRef(
     ) : (
       <StyledContainer
         onClick={onClick}
-        className={className}
+        className={`${className} container`}
         ref={ref}
       >
         {children}

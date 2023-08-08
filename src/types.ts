@@ -1,6 +1,12 @@
 import BigNumber from "bignumber.js";
 import { FormikProps } from "formik";
-import { CSSProperties, FunctionComponent, ReactElement, ReactNode } from "react";
+import {
+  CSSProperties,
+  FC,
+  FunctionComponent,
+  ReactElement,
+  ReactNode,
+} from "react";
 import { Address, Transaction } from "ton";
 import {
   DaoRoles,
@@ -31,7 +37,6 @@ export type EndpointsArgs = {
   apiKey?: string;
 };
 
-
 export interface Dao {
   daoAddress: string;
   daoId?: number;
@@ -43,8 +48,6 @@ export interface Dao {
   daoProposals: string[];
 }
 
-
-
 export enum ProposalStatus {
   CLOSED = "ENDED",
   NOT_STARTED = "NOT_STARTED",
@@ -52,10 +55,10 @@ export enum ProposalStatus {
 }
 
 export interface SelectOption {
-  text: string;
-  value: string;
+  text: ReactNode;
+  value: string | number;
+  data?: any;
 }
-
 
 interface ProposalMetadataLocal extends ProposalMetadata {
   nftMetadata?: any;
@@ -92,7 +95,7 @@ export type InputType =
   | "list"
   | "custom"
   | "number"
-  | 'display-text'
+  | "display-text"
 
 export interface InputArgs<T> {
   label: string;
@@ -115,6 +118,8 @@ export interface InputArgs<T> {
   EndAdornment?: FormikInputEndAdorment<T>;
   text?: string;
   style?: CSSProperties;
+  selectOptions?: SelectOption[];
+  helperText?: string;
 }
 
 export type FormikInputEndAdorment<T> = FunctionComponent<{
@@ -143,7 +148,7 @@ export type TooltipPlacement =
   | "top-start";
 
 export interface FormArgs<T> {
-  title: string;
+  title?: string;
   subTitle?: string;
   inputs: InputArgs<T>[];
   inputsInRow?: number;
@@ -151,24 +156,17 @@ export interface FormArgs<T> {
   bottomText?: string;
 }
 
-
-
- export interface DaoMetadataForm extends MetadataArgs {
+export interface DaoMetadataForm extends MetadataArgs {
   about_en?: string;
   name_en?: string;
 }
-
 
 export interface DaoRolesForm {
   ownerAddress: string;
   proposalOwner: string;
 }
 
-
-
 export type ThemeType = "light" | "dark";
-
-
 
 export type PageProps = {
   children: ReactNode;
@@ -178,8 +176,10 @@ export type PageProps = {
   hideBack?: boolean;
   isProtected?: boolean;
   backFunc?: () => void;
+  title?: string;
+  error?: boolean;
+  errorText?: string;
 };
-
 
 export interface ProposalForm {
   proposalStartTime?: number;
@@ -201,6 +201,23 @@ export interface StrategyOption<T> {
   args?: InputArgs<T>[];
 }
 
+export type ProposalHidePopupVariant =
+  | "hide"
+  | "changed-to-hide"
+  | "changed-to-show"
+  | undefined;
+
+export interface StepsMenuStep {
+  title?: string;
+  editable?: boolean;
+  component: FC;
+}
 
 
-export type ProposalHidePopupVariant = "hide" | "changed-to-hide" | "changed-to-show" | undefined;
+export enum AppQueryParams {
+  PROPOSAL_STATE = "proposal-state",
+  SEARCH = "search",
+  DEV = "dev",
+  MODE = "mode",
+  AIRDROP_PROPOSAL = "airdrop_proposal",
+}

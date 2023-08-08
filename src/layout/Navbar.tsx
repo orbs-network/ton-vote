@@ -1,24 +1,22 @@
 import {
   Chip,
   IconButton,
-  MenuItem,
   styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { Box } from "@mui/system";
-import { AppTooltip, Button, Github, Menu } from "components";
+import { AppTooltip, Github } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
-import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
 import { useAppSettings, useDevFeatures } from "hooks/hooks";
-import { APP_NAME, LANGUAGES } from "config";
-import { useTranslation } from "react-i18next";
-import { BsGlobeAmericas } from "react-icons/bs";
+import { APP_NAME } from "config";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
+import {
+  TonConnectButton,
+  useTonAddress,
+} from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
 import { FiMoon, FiSun } from "react-icons/fi";
 import { useTwaConnect } from "twa";
@@ -27,7 +25,7 @@ import { useTwaConnect } from "twa";
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
-  const devFeatures = useDevFeatures();
+
   return (
     <StyledContainer>
       <StyledNav>
@@ -48,13 +46,13 @@ export function Navbar() {
 
 const EnvModeIndication = () => {
   const devFeatures = useDevFeatures();
-  const { setBeta, beta } = useAppSettings()
+  const { setBeta, beta } = useAppSettings();
 
   const onClick = () => {
     if (beta) {
-      setBeta(false)
+      setBeta(false);
     }
-  }
+  };
 
   if (devFeatures) {
     return <StyledDev label="Dev" onClick={onClick} />;
@@ -86,60 +84,6 @@ const StyledDev = styled(Chip)({
     ".MuiChip-label": {
       padding: "0px 8px",
     },
-  },
-});
-
-const LanuageSelect = () => {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { i18n } = useTranslation();
-
-  const currentLanguage =
-    LANGUAGES[i18n.language as keyof typeof LANGUAGES] || LANGUAGES.en;
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  return (
-    <>
-      <StyledLanguageSelectButton onClick={handleClick} variant="transparent">
-        <StyledFlexRow>
-          <BsGlobeAmericas />
-          <Typography>{currentLanguage}</Typography>
-        </StyledFlexRow>
-      </StyledLanguageSelectButton>
-      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <StyledLanguages>
-          {_.map(LANGUAGES, (value, key) => {
-            return (
-              <MenuItem
-                onClick={() => {
-                  i18n.changeLanguage(key);
-                  setAnchorEl(null);
-                }}
-                selected={currentLanguage === value}
-                key={key}
-              >
-                {value}
-              </MenuItem>
-            );
-          })}
-        </StyledLanguages>
-      </Menu>
-    </>
-  );
-};
-
-const StyledLanguages = styled(Box)({
-  width: "100%",
-});
-
-const StyledLanguageSelectButton = styled(Button)({
-  height: "unset",
-  padding: "10px 20px",
-  "*": { fontSize: 14 },
-  svg: {
-    width: 17,
-    height: 17,
   },
 });
 
@@ -220,38 +164,3 @@ const StyledButton = styled(TonConnectButton)<{ connected: number }>(
     },
   })
 );
-
-const SettingsMenu = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const onClick = () => { };
-
-  return (
-    <div>
-      <button onClick={handleClick}>Dashboard</button>
-      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <StyledLanguages>
-          {_.map(LANGUAGES, (value, key) => {
-            return (
-              <MenuItem
-                onClick={() => {
-                  setAnchorEl(null);
-                }}
-                key={key}
-              >
-                {value}
-              </MenuItem>
-            );
-          })}
-        </StyledLanguages>
-      </Menu>
-    </div>
-  );
-};

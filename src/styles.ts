@@ -1,7 +1,6 @@
-import { Skeleton, styled, Theme, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Skeleton, styled, Theme, Typography, Box } from "@mui/material";
+import { Img } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
-import { getBorderColor } from "theme";
 
 export const StyledEndAdornment = styled(Box)({
   button: {
@@ -244,6 +243,7 @@ export const StyledCreateAbout = styled(Typography)({
 
 export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   position: "relative",
+
   ".MuiInputBase-root": {
     borderRadius: 30,
   },
@@ -253,7 +253,10 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   ".MuiSelect-select": {
     minWidth: 200,
     padding: "8px 15px 8px 15px",
-    border: `1px solid ${getBorderColor(theme.palette.mode)}`,
+    border:
+      theme.palette.mode === "light"
+        ? "1px solid rgba(0, 0, 0, 0.23)"
+        : `1px solid rgba(255, 255, 255, 0.23)`,
     borderRadius: `30px!important`,
     transition: "0.2s all",
     "&:hover": {
@@ -269,3 +272,6 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
     marginTop: -2,
   },
 }));
+
+
+

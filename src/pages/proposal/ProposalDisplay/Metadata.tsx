@@ -15,10 +15,10 @@ import {
   useIsOneWalletOneVote,
   useProposalStrategyName,
   useStrategyArguments,
+  useStrategyAsset,
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { ONE_WALLET_ONE_VOTE_URL } from "consts";
-import { getTonScanContractUrl } from "utils";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -68,8 +68,7 @@ export const Metadata = () => {
               <OverflowWithTooltip text={strategyName} />
             )}
           </InformationRow>
-          <Jetton />
-          <NFT />
+          <Asset />
         </StyledFlexColumn>
       )}
     </StyledInformation>
@@ -118,66 +117,29 @@ const StyledInformation = styled(TitleContainer)({
   width: "100%",
 });
 
-const NFT = () => {
+const Asset = () => {
   const { proposalAddress } = useAppParams();
-  const data = useProposalQuery(proposalAddress).data;
-  const strategyArgs = useStrategyArguments(proposalAddress);
 
-  return (
-    <Asset
-      metadata={data?.metadata?.nftMetadata?.metadata}
-      address={strategyArgs.nft}
-      label="NFT Collection"
-    />
-  );
-};
+  const { address, type, onlyAddress, name, image, url } = useStrategyAsset(proposalAddress);
 
-const Jetton = () => {
-  const { proposalAddress } = useAppParams();
-  const data = useProposalQuery(proposalAddress).data;
-  console.log(data);
-  
-  const strategyArgs = useStrategyArguments(proposalAddress);
-
-  return (
-    <Asset
-      metadata={data?.metadata?.jettonMetadata?.metadata}
-      address={strategyArgs.jetton}
-      label="Jetton"
-    />
-  );
-};
-
-const Asset = ({
-  address,
-  metadata,
-  label,
-}: {
-  address?: string;
-  metadata?: any;
-  label: string;
-}) => {
-
+  const label = type === "nft" ? "NFT Collection" : "Jetton";
   if (!address) {
     return null;
   }
 
-  if (!metadata) {
+  if (onlyAddress) {
     return (
       <InformationRow label={label}>
         <AddressDisplay address={address} />
       </InformationRow>
     );
   }
-  
+
   return (
     <InformationRow label={label}>
-      <StyledAsset
-        href={metadata.external_url || getTonScanContractUrl(address)}
-        target="_blank"
-      >
-        <OverflowWithTooltip text={metadata.name} />
-        {metadata.image && <Img className="asset-img" src={metadata.image} />}
+      <StyledAsset href={url} target="_blank">
+        <OverflowWithTooltip text={name} />
+        {image && <Img className="asset-img" src={image} />}
       </StyledAsset>
     </InformationRow>
   );

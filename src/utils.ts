@@ -1,5 +1,6 @@
 import {
   BLACKLISTED_DAOS,
+  BLACKLISTED_PROPOSALS,
   IS_DEV,
   TONSCAN_ADDRESS_URL,
   VERIFIED_DAOS,
@@ -22,7 +23,7 @@ import {
 } from "types";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
-import { WHITELISTED_DAOS, WHITELISTED_PROPOSALS } from "whitelisted";
+import { WHITELISTED_DAOS } from "whitelisted";
 import BigNumber from "bignumber.js";
 import { ZERO_ADDRESS } from "consts";
 import { errorToast } from "toasts";
@@ -245,10 +246,9 @@ export const isDaoBlacklisted = (address?: string) => {
   return BLACKLISTED_DAOS.includes(address);
 };
 
-export const isProposalWhitelisted = (address?: string) => {
+export const isProposalBlacklisted = (address?: string) => {
   if (!address) return false;
-  if (!_.size(WHITELISTED_PROPOSALS)) return true;
-  return WHITELISTED_PROPOSALS.includes(address);
+  return BLACKLISTED_PROPOSALS.includes(address);
 };
 
 export const isZeroAddress = (value?: string) => {

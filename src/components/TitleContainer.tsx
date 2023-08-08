@@ -1,12 +1,13 @@
 import { Box, Fade, styled, Typography } from "@mui/material";
-import React from "react";
+import React, { ReactNode } from "react";
 import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
 
 interface Props {
   headerComponent?: React.ReactNode;
-  title: string;
+  title: ReactNode;
   children: React.ReactNode;
   className?: string;
+  subtitle?: string;
 }
 
 export function TitleContainer({
@@ -14,6 +15,7 @@ export function TitleContainer({
   title,
   children,
   className = '',
+  subtitle
 }: Props) {
 
     const hideHeader = !title && !headerComponent;
@@ -29,11 +31,22 @@ export function TitleContainer({
             {headerComponent}
           </StyledHeader>
         )}
-        <Box className="title-container-children">{children}</Box>
+        <Box className="title-container-children">
+          {subtitle && <StyledSubtitle>{subtitle}</StyledSubtitle>}
+          {children}
+        </Box>
       </StyledTitleContainer>
     </Fade>
   );
 }
+
+export const StyledSubtitle = styled(Typography)({
+  fontSize: 14,
+  opacity: 0.7,
+  width: "100%",
+  textAlign: "left",
+  marginBottom: 40
+});
 
 const StyledTitle = styled(Typography)(({ theme }) => ({
   fontSize: 17,
@@ -46,7 +59,8 @@ const StyledTitleContainer = styled(StyledContainer)({
   padding: 0,
   ".title-container-children": {
     padding: "20px",
-    width:'100%'
+    width:'100%',
+    position:'relative',
   },
 });
 

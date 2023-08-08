@@ -1,6 +1,6 @@
 import { Box, styled, Typography } from "@mui/material";
 import _ from "lodash";
-import React, { useEffect, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { AppTooltip } from "./Tooltip";
 import TextOverflow from "react-text-overflow";
 import { TooltipPlacement } from "types";
@@ -9,10 +9,14 @@ export function OverflowWithTooltip({
   text = "",
   className = "",
   placement,
+  hideTooltip,
+  tooltipText,
 }: {
   text?: string;
   className?: string;
   placement?: TooltipPlacement;
+  hideTooltip?: boolean;
+  tooltipText?: ReactNode;
 }) {
   const textRef = useRef<any>();
   const parentRef = useRef<any>();
@@ -20,21 +24,21 @@ export function OverflowWithTooltip({
 
   useEffect(() => {
     if (textRef && textRef.current) {
-      if (
-        textRef.current.clientWidth >
-        parentRef.current.clientWidth
-      ) {
+      if (textRef.current.clientWidth > parentRef.current.clientWidth) {
         setShow(true);
       }
     }
   }, []);
 
   return (
-    <StyledContainer ref={parentRef} className='overflow-with-tooltip'>
+    <StyledContainer ref={parentRef} className="overflow-with-tooltip">
       <StyledPlaceholder ref={textRef}>
-        <Typography className={className}>{text}</Typography>
+        <Typography className={className}>{text || '-'}</Typography>
       </StyledPlaceholder>
-      <StyledTooltip placement={placement} text={show ? text : undefined}>
+      <StyledTooltip
+        placement={placement}
+        text={hideTooltip ? undefined : show ? tooltipText || text : undefined}
+      >
         <Typography className={className}>
           <TextOverflow text={text} />
         </Typography>

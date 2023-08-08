@@ -231,8 +231,6 @@ export const useVoteStore = create<VoteStore>((set, get) => ({
   setIsVoting: (isVoting) => set({ isVoting }),
 }));
 
-
-
 interface ErrorStore {
   proposalError: boolean;
   setProposalError: (proposalError: boolean) => void;

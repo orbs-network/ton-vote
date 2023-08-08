@@ -2,6 +2,7 @@ import { routes } from "consts";
 import { useNavigate } from "react-router-dom";
 
 export const appNavigation = {
+  airdrop: routes.airdrop,
   spaces: routes.spaces,
   daoPage: {
     root: (daoId: string) => routes.space.replace(":daoId", daoId),
@@ -12,6 +13,10 @@ export const appNavigation = {
   proposalPage: {
     root: (daoId: string, proposalId: string) =>
       routes.proposal
+        .replace(":daoId", daoId)
+        .replace(":proposalId", proposalId),
+    airdrop: (daoId: string, proposalId: string) =>
+      routes.airdrop
         .replace(":daoId", daoId)
         .replace(":proposalId", proposalId),
     edit: (daoId: string, proposalId: string) =>
@@ -25,6 +30,7 @@ export const useAppNavigation = () => {
   const navigate = useNavigate();
 
   return {
+    airdrop: () =>  navigate("/airdrop"),
     daoPage: {
       root: (daoId: string) => navigate(appNavigation.daoPage.root(daoId)),
       createProposal: (daoId: string) =>
@@ -34,7 +40,9 @@ export const useAppNavigation = () => {
     proposalPage: {
       edit: (daoId: string, proposalId: string) =>
         navigate(appNavigation.proposalPage.edit(daoId, proposalId)),
-      
+      airdrop: (daoId: string, proposalId: string) =>
+        navigate(appNavigation.proposalPage.airdrop(daoId, proposalId)),
+
       root: (daoId: string, proposalId: string) =>
         navigate(appNavigation.proposalPage.root(daoId, proposalId)),
     },
