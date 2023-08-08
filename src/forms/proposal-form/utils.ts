@@ -153,14 +153,12 @@ export const prepareMetadata = (
     proposalStartTime: Math.floor(
       utcMoment(formValues.proposalStartTime).valueOf() / 1_000
     ),
-    proposalEndTime: validatorsVote
-      ? 0
-      : Math.floor(utcMoment(formValues.proposalEndTime).valueOf() / 1_000),
-    proposalSnapshotTime: validatorsVote
-      ? 0
-      : Math.floor(
-          utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000
-        ),
+    proposalEndTime: Math.floor(
+      utcMoment(formValues.proposalEndTime).valueOf() / 1_000
+    ),
+    proposalSnapshotTime: Math.floor(
+      utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000
+    ),
     votingSystem: {
       votingSystemType: formValues.votingSystemType,
       choices: formValues.votingChoices,
