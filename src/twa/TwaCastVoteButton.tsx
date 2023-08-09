@@ -21,14 +21,14 @@ function generatePopupButtons(choices: string[] | undefined): PopupButton[] {
 }
 
 
-type TwaVoteButtonProps = {
+type TwaCastVoteButtonProps = {
   proposalAddress: string
   vote: string | undefined
   setVote: (vote: string | undefined) => void
   choices: string[] | undefined
 }
 
-export function TwaVoteButton({ proposalAddress, vote, setVote, choices }: TwaVoteButtonProps) {
+export function TwaCastVoteButton({ proposalAddress, vote, setVote, choices }: TwaCastVoteButtonProps) {
 
   const { proposalStatus } = useProposalStatus(proposalAddress);
 

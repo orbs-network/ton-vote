@@ -14,7 +14,8 @@ import { errorToast } from "toasts";
 import _ from "lodash";
 import { useAppParams } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
-import { TwaConfirmVoteButton, TwaVoteButton } from "twa";
+import { TwaConfirmVoteButton, TwaCastVoteButton } from "twa";
+import { useTwaStore } from "store";
 
 
 export function Vote() {
@@ -51,52 +52,61 @@ export function Vote() {
     }
   }, [walletVote?.vote]);
 
-
+  const { isTwa } = useTwaStore();
 
   if (!show) return null;
+
   return (
-    <StyledContainer title={translations.castVote}>
-      <StyledFlexColumn>
-        {choices?.map((option) => {
-          return (
-            <StyledOption
-              selected={option === vote}
-              key={option}
-              onClick={() => setVote(option)}
-            >
-              <Fade in={option === vote}>
-                <StyledFlexRow className="icon">
-                  <FiCheck style={{ width: 20, height: 20 }} />
-                </StyledFlexRow>
-              </Fade>
-              <Typography>{option}</Typography>
-            </StyledOption>
-          );
-        })}
-      </StyledFlexColumn>
-      <AppTooltip
-        text={currentVote === vote ? `You already voted ${vote}` : ""}
-      >
-        <VoteButton
-          isLoading={isLoading}
-          disabled={!vote || isLoading || currentVote === vote}
-          onSubmit={submitVote}
-        />
-      </AppTooltip>
-      <TwaVoteButton
-        proposalAddress={proposalAddress}
-        vote={vote}
-        setVote={setVote}
-        choices={choices}
-      />
-      <TwaConfirmVoteButton vote={vote} confirmVote={confirmVote} />
+    <>
+      {isTwa ? (
+        <>
+          <TwaCastVoteButton
+            proposalAddress={proposalAddress}
+            vote={vote}
+            setVote={setVote}
+            choices={choices}
+          />
+          <TwaConfirmVoteButton vote={vote} confirmVote={confirmVote} isLoading={isLoading} currentVote={currentVote} />
+        </>
+      ) : (
+        <StyledContainer title={translations.castVote}>
+          <StyledFlexColumn>
+            {choices?.map((option) => {
+              return (
+                <StyledOption
+                  selected={option === vote}
+                  key={option}
+                  onClick={() => setVote(option)}
+                >
+                  <Fade in={option === vote}>
+                    <StyledFlexRow className="icon">
+                      <FiCheck style={{ width: 20, height: 20 }} />
+                    </StyledFlexRow>
+                  </Fade>
+                  <Typography>{option}</Typography>
+                </StyledOption>
+              );
+            })}
+          </StyledFlexColumn>
+          <AppTooltip
+            text={currentVote === vote ? `You already voted ${vote}` : ""}
+          >
+            <VoteButton
+              isLoading={isLoading}
+              disabled={!vote || isLoading || currentVote === vote}
+              onSubmit={confirmVote}
+            />
+          </AppTooltip>
+        </StyledContainer>
+      )}
       <VoteConfirmation
         open={confirmation}
         vote={vote}
         onClose={() => setConfirmation(false)}
         onSubmit={submitVote}
       />
-    </StyledContainer>
+    </>
+
   );
 }
 

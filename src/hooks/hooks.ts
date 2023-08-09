@@ -6,7 +6,7 @@ import {
   useRef,
   useMemo,
 } from "react";
-import { matchRoutes, useLocation, useParams } from "react-router-dom";
+import { matchRoutes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
@@ -46,6 +46,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useNumericFormat } from "react-number-format";
+import { routes } from "consts";
 
 export const useCurrentRoute = () => {
   const location = useLocation();
@@ -382,8 +383,9 @@ export const useProposalStrategyName = (proposalAddress: string) => {
         return "Jetton Balance";
       case VotingPowerStrategyType.NftCcollection:
         return "NFT Collection";
-      case VotingPowerStrategyType.ValidatorsVote:
-        return "Validators Vote";
+      // Commented out because ValidatorsVote doesn't exist in enum
+      // case VotingPowerStrategyType.ValidatorsVote:
+      //   return "Validators Vote";
       case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
@@ -472,3 +474,20 @@ export const useFormatNumber = (value?: number, decimalScale = 2) => {
 
   return result.value?.toString();
 };
+
+export function useBack({ to, func }: { to?: string; func?: () => void }) {
+  const navigate = useNavigate();
+  const onClick = () => {
+    if (func) {
+      func();
+    } else if (to) {
+      navigate(to);
+    } else if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate(routes.spaces, { replace: true }); // the current entry in the history stack will be replaced with the new one with { replace: true }
+    }
+  };
+
+  return { onClick };
+}

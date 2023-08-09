@@ -1,4 +1,5 @@
 export * from './TwaConnectButton'
 export * from './TwaMainButtonWrapper'
 export * from './TwaConfirmVoteButton'
-export * from './TwaVoteButton'
+export * from './TwaCastVoteButton'
+export * from './TwaBackButton'

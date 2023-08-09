@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { PageProps } from "types";
 import { useTwaStore } from "store";
+import { TwaBackButton } from "twa";
 
 function Page({
   children,
@@ -44,6 +45,7 @@ function Page({
           {headerComponent}
         </StyledTop>
       )}
+      {!hideBack && isTwa && <TwaBackButton func={backFunc} to={back} />}
 
       {children}
     </StyledContainer>

@@ -7,22 +7,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { StyledFlexRow } from "styles";
 import twa from '@twa-dev/sdk'
 import { BackButton } from "@twa-dev/sdk/react";
+import { useBack } from "hooks/hooks";
 
 function Back({ to, func }: { to?: string; func?: () => void }) {
-  const navigate = useNavigate();
-  const pathname = useLocation().pathname;
+
+  const { onClick } = useBack({ to, func });
   const t = useCommonTranslations()
-  const onClick = () => {
-    if (func) {
-      func();
-    } else if (to) {
-      navigate(to);
-    } else if (window.history.state && window.history.state.idx > 0) {
-      navigate(-1);
-    } else {
-      navigate(routes.spaces, { replace: true }); // the current entry in the history stack will be replaced with the new one with { replace: true }
-    }
-  };
+  const pathname = useLocation().pathname;
 
   if (pathname === routes.spaces) return null;
   return (
@@ -33,7 +24,6 @@ function Back({ to, func }: { to?: string; func?: () => void }) {
           <Typography>{t.back}</Typography>
         </StyledFlexRow>
       </StyledContainer>
-      <BackButton onClick={onClick} />
     </>
   );
 }
