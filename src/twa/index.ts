@@ -1,2 +1,4 @@
-export * from './connect'
-export * from './vote'
+export * from './TwaConnectButton'
+export * from './TwaMainButtonWrapper'
+export * from './TwaConfirmVoteButton'
+export * from './TwaVoteButton'

@@ -15,6 +15,9 @@ import {
   StyledProposalsContainer,
   StyledSearch,
 } from "./styles";
+import { MainButton } from '@twa-dev/sdk/react'
+import { showToast } from "toasts";
+
 const LIMIT = 10;
 
 interface Option extends SelectOption {

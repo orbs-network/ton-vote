@@ -5,13 +5,6 @@ import { useEffect } from 'react';
 
 export function TwaInit() {
   const theme = useTheme()
-
-  twa.ready();
-  twa.MainButton.setParams({
-    color: theme.palette.primary.main,
-  })
-  twa.expand()
-
   const { isTwa, setIsTwa } = useTwaStore()
 
   useEffect(() => {
@@ -28,11 +21,20 @@ export function TwaInit() {
 
     setIsTwa(twa.isVersionAtLeast('6.7'))
 
+    twa.ready();
+    twa.expand()
+
     return () => {
       setIsTwa(undefined)
     }
 
   }, [])
+
+  useEffect(() => {
+    twa.MainButton.setParams({
+      color: theme.palette.primary.main,
+    })
+  }, [theme.palette.primary.main])
 
   return null
 }

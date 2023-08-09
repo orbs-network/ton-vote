@@ -14,7 +14,7 @@ import { errorToast } from "toasts";
 import _ from "lodash";
 import { useAppParams } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
-import { useTwaVote } from "twa";
+import { TwaConfirmVoteButton, TwaVoteButton } from "twa";
 
 
 export function Vote() {
@@ -44,7 +44,6 @@ export function Vote() {
     }
   }, [proposalAddress, setConfirmation])
 
-  useTwaVote({ proposalAddress, vote, choices, setVote, confirmVote })
 
   useEffect(() => {
     if (!vote) {
@@ -84,6 +83,13 @@ export function Vote() {
           onSubmit={submitVote}
         />
       </AppTooltip>
+      <TwaVoteButton
+        proposalAddress={proposalAddress}
+        vote={vote}
+        setVote={setVote}
+        choices={choices}
+      />
+      <TwaConfirmVoteButton vote={vote} confirmVote={confirmVote} />
       <VoteConfirmation
         open={confirmation}
         vote={vote}

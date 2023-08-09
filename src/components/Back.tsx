@@ -6,6 +6,7 @@ import { HiOutlineArrowLeft } from "react-icons/hi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { StyledFlexRow } from "styles";
 import twa from '@twa-dev/sdk'
+import { BackButton } from "@twa-dev/sdk/react";
 
 function Back({ to, func }: { to?: string; func?: () => void }) {
   const navigate = useNavigate();
@@ -23,27 +24,17 @@ function Back({ to, func }: { to?: string; func?: () => void }) {
     }
   };
 
-  useEffect(() => {
-
-    twa.BackButton.onClick(onClick)
-    twa.BackButton.show()
-
-    return () => {
-      twa.BackButton.offClick(onClick)
-      twa.BackButton.hide()
-    }
-  }, []);
-
-
-
   if (pathname === routes.spaces) return null;
   return (
-    <StyledContainer onClick={onClick}>
-      <StyledFlexRow gap={5}>
-        <HiOutlineArrowLeft />
-        <Typography>{t.back}</Typography>
-      </StyledFlexRow>
-    </StyledContainer>
+    <>
+      <StyledContainer onClick={onClick}>
+        <StyledFlexRow gap={5}>
+          <HiOutlineArrowLeft />
+          <Typography>{t.back}</Typography>
+        </StyledFlexRow>
+      </StyledContainer>
+      <BackButton onClick={onClick} />
+    </>
   );
 }
 

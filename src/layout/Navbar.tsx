@@ -19,7 +19,7 @@ import {
 } from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
 import { FiMoon, FiSun } from "react-icons/fi";
-import { useTwaConnect } from "twa";
+import { TwaConnectButton } from "twa";
 
 
 export function Navbar() {
@@ -139,11 +139,10 @@ const StyledNav = styled(StyledGrid)({
 function ConnectButton() {
   const address = useTonAddress();
 
-  useTwaConnect()
-
   return (
     <>
       <StyledButton connected={address ? 1 : 0} />
+      <TwaConnectButton />
     </>
   );
 }
