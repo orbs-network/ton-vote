@@ -3,7 +3,7 @@ import { ProposalAbout } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
-import { Results } from "./Results";
+import { ProposalResults } from "./ProposalResults";
 import { Vote } from "./Vote";
 import { ProposalVotes } from "./ProposalVotes";
 import { appNavigation } from "router/navigation";
@@ -30,7 +30,7 @@ const Destop = () => {
       <StyledRight>
         <Deadline />
         <Metadata />
-        <Results />
+        <ProposalResults />
       </StyledRight>
     </StyledWrapper>
   );
@@ -47,7 +47,7 @@ const Mobile = () => {
         daoAddress={daoAddress}
       />
       <Vote />
-      <Results />
+      <ProposalResults />
       <Metadata />
       <ProposalVotes />
     </StyledWrapper>

@@ -20,7 +20,7 @@ export function TitleContainer({
 
     const hideHeader = !title && !headerComponent;
   return (
-    <Fade in={true}>
+   
       <StyledTitleContainer className={className}>
         {!hideHeader && (
           <StyledHeader
@@ -43,7 +43,7 @@ export function TitleContainer({
           {children}
         </Box>
       </StyledTitleContainer>
-    </Fade>
+  
   );
 }
 

@@ -29,10 +29,10 @@ export const Results = ({
       {results.map((result) => {
         return (
           <Result
-            key={result.choice}
-            title={result.choice}
+            key={result.label}
+            title={result.label}
             percent={result.percent}
-            amount={result.amount}
+            amount={result.assetAmount}
           />
         );
       })}

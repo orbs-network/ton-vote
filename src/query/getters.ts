@@ -612,3 +612,35 @@ export const useGetWalletNFTCollectionItemsCallback = () => {
       lib.getWalletNFTCollectionItems(address, connectedWallet)
     );
 };
+
+export const useGetStatsQuery = () => {
+  const { data: daos } = useDaosQuery();
+  const getProposal = useEnsureProposalQuery();
+
+  return useQuery(
+    ["useGetStatsQuery"],
+    async () => {
+      const proposals = _.flatten(daos?.map((it) => it.daoProposals));
+      const voters = _.filter(
+        _.flatten(
+          _.map(
+            await Promise.allSettled(
+              _.map(proposals, async (it) => {
+                const proposal = await getProposal(it);
+                return proposal?.votes;
+              })
+            ),
+            (it) => (it.status === "fulfilled" ? it.value : undefined)
+          )
+        ),
+        (it) => !!it
+      );
+
+    
+      return { proposals: _.size(proposals), voters: _.size(voters), daos: _.size(daos)};
+    },
+    {
+      enabled: !!daos,
+    }
+  );
+};
