@@ -240,14 +240,4 @@ export const useErrorStore = create<ErrorStore>((set, get) => ({
   proposalError: false,
   setProposalError: (proposalError) => set({ proposalError }),
 }));
-
-
-interface TwaStore {
-  isTwa?: boolean;
-  setIsTwa: (isTwa: boolean | undefined) => void;
-}
-
-export const useTwaStore = create<TwaStore>((set, get) => ({
-  isTwa: undefined,
-  setIsTwa: (isTwa) => set({ isTwa }),
-}));
+  

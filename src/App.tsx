@@ -1,4 +1,4 @@
-import { GlobalStyles, ThemeProvider } from "@mui/material";
+import { Alert, GlobalStyles, ThemeProvider } from "@mui/material";
 import { APP_NAME } from "config";
 import { useAppSettings } from "hooks/hooks";
 import { Suspense, useEffect, useMemo } from "react";
@@ -8,7 +8,9 @@ import { getGlobalStyles } from "styles";
 import { useRouter } from "router/router";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
-import { TwaInit } from "./TwaInit";
+import twa from '@twa-dev/sdk'
+import { isTwa } from "consts";
+
 
 const useInitApp = () => {
   useInitThemeMode();
@@ -35,6 +37,37 @@ function App() {
     [isDarkMode]
   );
 
+  const { setThemeMode } = useAppSettings();
+
+  useEffect(() => {
+    if (!isTwa) {
+      return
+    }
+
+    twa.ready();
+    twa.expand();
+  }, [isTwa])
+
+  useEffect(() => {
+    if (!isTwa) {
+      return
+    }
+
+    setThemeMode(twa.colorScheme)
+  }, [isTwa, twa.colorScheme])
+
+
+  useEffect(() => {
+    if (!isTwa) {
+      return
+    }
+
+    twa.MainButton.setParams({
+      color: theme.palette.primary.main,
+    })
+  }, [isTwa, theme.palette.primary.main])
+
+
   return (
     <>
       <Helmet>
@@ -42,7 +75,6 @@ function App() {
       </Helmet>
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={getGlobalStyles(theme)} />
-        <TwaInit />
         <Suspense>
           <RouterProvider router={router} />
         </Suspense>

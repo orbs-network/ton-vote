@@ -475,19 +475,3 @@ export const useFormatNumber = (value?: number, decimalScale = 2) => {
   return result.value?.toString();
 };
 
-export function useBack({ to, func }: { to?: string; func?: () => void }) {
-  const navigate = useNavigate();
-  const onClick = () => {
-    if (func) {
-      func();
-    } else if (to) {
-      navigate(to);
-    } else if (window.history.state && window.history.state.idx > 0) {
-      navigate(-1);
-    } else {
-      navigate(routes.spaces, { replace: true }); // the current entry in the history stack will be replaced with the new one with { replace: true }
-    }
-  };
-
-  return { onClick };
-}

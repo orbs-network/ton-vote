@@ -15,7 +15,7 @@ import _ from "lodash";
 import { useAppParams } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { TwaConfirmVoteButton, TwaCastVoteButton } from "twa";
-import { useTwaStore } from "store";
+import { isTwa } from "consts";
 
 
 export function Vote() {
@@ -51,8 +51,6 @@ export function Vote() {
       setVote(walletVote?.vote as string);
     }
   }, [walletVote?.vote]);
-
-  const { isTwa } = useTwaStore();
 
   if (!show) return null;
 

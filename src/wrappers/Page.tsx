@@ -3,8 +3,6 @@ import { Back, ErrorContainer } from "components";
 import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { PageProps } from "types";
-import { useTwaStore } from "store";
-import { TwaBackButton } from "twa";
 
 function Page({
   children,
@@ -18,7 +16,6 @@ function Page({
   errorText = 'Something went wrong',
 }: PageProps) {
 
-  const { isTwa } = useTwaStore()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -39,13 +36,12 @@ function Page({
       {!hideTop && (
         <StyledTop justifyContent="space-between">
           <StyledFlexRow style={{ width: "auto" }}>
-            {!hideBack && !isTwa && <Back func={backFunc} to={back} />}
+            {!hideBack && <Back func={backFunc} to={back} />}
             <StyledTitle>{title}</StyledTitle>
           </StyledFlexRow>
           {headerComponent}
         </StyledTop>
       )}
-      {!hideBack && isTwa && <TwaBackButton func={backFunc} to={back} />}
 
       {children}
     </StyledContainer>

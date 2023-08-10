@@ -1,21 +1,35 @@
 import { Box, styled, Typography } from "@mui/material";
-import { routes } from "consts";
+import { isTwa, routes } from "consts";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useEffect } from "react";
 import { HiOutlineArrowLeft } from "react-icons/hi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { StyledFlexRow } from "styles";
-import twa from '@twa-dev/sdk'
 import { BackButton } from "@twa-dev/sdk/react";
-import { useBack } from "hooks/hooks";
 
 function Back({ to, func }: { to?: string; func?: () => void }) {
 
-  const { onClick } = useBack({ to, func });
+  const navigate = useNavigate();
+  const onClick = () => {
+    if (func) {
+      func();
+    } else if (to) {
+      navigate(to);
+    } else if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate(routes.spaces, { replace: true }); // the current entry in the history stack will be replaced with the new one with { replace: true }
+    }
+  };
+
   const t = useCommonTranslations()
   const pathname = useLocation().pathname;
 
   if (pathname === routes.spaces) return null;
+
+  if (isTwa) {
+    return <BackButton onClick={onClick} />
+  }
+
   return (
     <>
       <StyledContainer onClick={onClick}>
