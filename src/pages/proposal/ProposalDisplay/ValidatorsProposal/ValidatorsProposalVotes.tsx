@@ -1,7 +1,7 @@
 import { Chip, styled, Typography } from "@mui/material";
 import { LoadingContainer, TitleContainer } from "components";
 import { nFormatter, parseValidatorVotes } from "utils";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import _ from "lodash";
 
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
@@ -103,6 +103,7 @@ const BasicTabs = () => {
             <StyledFlexColumn>
               <Summary details={it} />
               <Votes
+                small={true}
                 dataUpdatedAt={dataUpdatedAt}
                 hideVotingPower={true}
                 votes={votes || []}
@@ -131,31 +132,56 @@ export function Summary({
   details: ValidatorProposalRoundDetails;
 }) {
   return (
-    <TitleContainer title="Summary">
-      <StyledFlexRow>
-        <Typography>Total weight</Typography>
+    <TitleContainer
+      small={true}
+      title="Summary"
+      headerComponent={<Status status={details.result} />}
+    >
+      <Section label="Total weight">
         <Typography>{nFormatter(fromNano(details.totalWeight))}</Typography>
-      </StyledFlexRow>
-      <StyledFlexRow>
-        <Typography>Start time</Typography>
+      </Section>
+      <Section label="Start time">
         <Typography>
           {moment.unix(details.cycleStartTime).format("DD/MM/YY HH:mm")}
         </Typography>
-      </StyledFlexRow>
-      <StyledFlexRow>
-        <Typography>End time</Typography>
+      </Section>
+      <Section label="End time">
         <Typography>
           {moment.unix(details.cycleEndTime).format("DD/MM/YY HH:mm")}
         </Typography>
-      </StyledFlexRow>
-      <StyledFlexRow>
-        <Typography>Status</Typography>
-        <Typography>{details.result}</Typography>
-      </StyledFlexRow>
-      <StyledFlexRow>
-        <Typography>Voted</Typography>
+      </Section>
+
+      <Section label="Voted">
         <Typography>{_.size(details.votersList)}</Typography>
-      </StyledFlexRow>
+      </Section>
     </TitleContainer>
   );
 }
+
+const Section = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) => {
+  return (
+    <StyledSection>
+      <Typography className="title">{label}</Typography>
+      <StyledSectionChildren>{children}</StyledSectionChildren>
+    </StyledSection>
+  );
+};
+
+const StyledSection = styled(StyledFlexRow)({
+  justifyContent: "flex-start",
+  "*":{
+    fontSize: 14
+  }
+});
+
+const StyledSectionChildren = styled("div")({});
+
+const Status = ({ status }: { status?: string }) => {
+  return <Chip label={status} />;
+};

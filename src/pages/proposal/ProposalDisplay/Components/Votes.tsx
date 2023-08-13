@@ -156,12 +156,14 @@ export function Votes({
   hideVotingPower,
   totalWeight,
   dataUpdatedAt,
+  small,
 }: {
   votes: Vote[];
   isLoading: boolean;
   hideVotingPower?: boolean;
   totalWeight?: string;
   dataUpdatedAt: number;
+  small?: boolean;
 }) {
   const connectedAddress = useTonAddress();
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
@@ -180,6 +182,7 @@ export function Votes({
 
   return (
     <StyledContainer
+      small={small}
       title={translations.recentVotes}
       headerComponent={
         <ContainerHeader
