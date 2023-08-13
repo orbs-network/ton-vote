@@ -37,8 +37,8 @@ function Layout({ children }: { children?: ReactNode }) {
     <>
       <Fade in={true} timeout={500}>
         <StyledContainer>
-          <Toolbar />
-          <Navbar />
+          {/* <Toolbar /> */}
+          {/* <Navbar /> */}
           <ErrorBoundary
             fallbackRender={(props) => <ErrorFallback {...props} />}
           >

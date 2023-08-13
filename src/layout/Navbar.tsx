@@ -13,32 +13,35 @@ import { APP_NAME } from "config";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
-import {
-  TonConnectButton,
-  useTonAddress,
-} from "@tonconnect/ui-react";
+import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
 import { FiMoon, FiSun } from "react-icons/fi";
+import { IonButtons, IonHeader, IonBackButton, IonToolbar } from "@ionic/react";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
 
   return (
-    <StyledContainer>
-      <StyledNav>
-        <StyledLogo onClick={daosPage.root}>
-          <img src={LogoImg} />
-          <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
-        </StyledLogo>
-        <StyledFlexRow style={{ width: "fit-content" }}>
-          <EnvModeIndication />
-          <ConnectButton />
-          <ThemeToggle />
-          {!mobile && <Github />}
+    <IonHeader>
+      <IonToolbar>
+        <IonButtons slot="start">
+          <IonBackButton></IonBackButton>
+        </IonButtons>
+        <StyledFlexRow justifyContent="space-between">
+          <StyledLogo onClick={daosPage.root}>
+            <img src={LogoImg} />
+            <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
+          </StyledLogo>
+          <StyledFlexRow style={{ width: "fit-content" }}>
+            <EnvModeIndication />
+            <ConnectButton />
+            <ThemeToggle />
+            {!mobile && <Github />}
+          </StyledFlexRow>
         </StyledFlexRow>
-      </StyledNav>
-    </StyledContainer>
+      </IonToolbar>
+    </IonHeader>
   );
 }
 

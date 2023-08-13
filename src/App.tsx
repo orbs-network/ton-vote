@@ -8,15 +8,24 @@ import { getGlobalStyles } from "styles";
 import { useRouter } from "router/router";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
+import { setupIonicReact } from "@ionic/react";
+import { IonButton, IonApp } from "@ionic/react";
+import { isTwaApp } from "consts";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import _ from "lodash";
+
 
 
 
 const useInitApp = () => {
   useInitThemeMode();
 };
+setupIonicReact();
 
 function App() {
   useInitApp();
+  
 
   useEffect(() => {
     const loader = document.querySelector(".app-loader");
@@ -36,7 +45,7 @@ function App() {
     [isDarkMode]
   );
 
-  return (
+  const content = (
     <>
       <Helmet>
         <title>{APP_NAME}</title>
@@ -49,6 +58,10 @@ function App() {
       </ThemeProvider>
     </>
   );
+
+  return isTwaApp ? <IonApp>{content}</IonApp> : content;
 }
 
 export default App;
+
+

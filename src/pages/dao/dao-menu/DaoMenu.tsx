@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { parseLanguage } from "utils";
+import { useNavigationLinks } from "../hooks";
 import {
   StyledSideMenu,
   StyledLogo,
@@ -223,49 +224,7 @@ const MobileNavigation = () => {
   );
 };
 
-const useNavigationLinks = () => {
-  const showDev = useDevFeatures();
-  const { daoAddress } = useAppParams();
 
-  const translations = useDaoPageTranslations();
-  const { data, isLoading } = useDaoQuery(daoAddress);
-  const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
-  const route = useCurrentRoute();
-  if (isLoading) {
-    return null;
-  }
-
-  return [
-    {
-      title: translations.proposals,
-      path: appNavigation.daoPage.root(daoAddress),
-      selected: route === routes.space,
-      route: routes.space,
-      hide: false,
-    },
-    {
-      title: translations.about,
-      path: appNavigation.daoPage.about(daoAddress),
-      selected: route === routes.spaceAbout,
-      route: routes.spaceAbout,
-      hide: false,
-    },
-    {
-      title: translations.newProposal,
-      path: appNavigation.daoPage.create(daoAddress),
-      selected: route === routes.createProposal,
-      hide: !isOwner && !isProposalPublisher,
-      route: routes.createProposal,
-    },
-    {
-      title: translations.settings,
-      path: appNavigation.daoPage.settings(daoAddress),
-      selected: route === routes.spaceSettings,
-      route: routes.spaceSettings,
-      hide: !showDev,
-    },
-  ];
-};
 
 const options = [
   { name: "website", title: "Project website" },

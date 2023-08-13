@@ -13,7 +13,7 @@ import {
   StyledEmptyList,
   StyledHeader,
   StyledNewDao,
-  StyledSearch,
+StyledSearch,
 } from "./styles";
 import { nFormatter } from "utils";
 import { Dao } from "types";

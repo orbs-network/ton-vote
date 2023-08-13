@@ -1,7 +1,9 @@
 import { Skeleton, styled, Theme, Typography, Box } from "@mui/material";
 import { Img } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
-
+import {
+  IonPage,
+} from "@ionic/react";
 export const StyledEndAdornment = styled(Box)({
   button: {
     padding: "5px 10px",
@@ -272,6 +274,10 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
     marginTop: -2,
   },
 }));
+
+export const StyledIonPage = styled(IonPage)({
+  paddingTop: 0
+}) ;
 
 
 

@@ -9,17 +9,19 @@ import { THEME, TonConnectUIProvider } from "@tonconnect/ui-react";
 import { manifestUrl } from "config";
 import { clearAllToasts } from "toasts";
 import { useSettingsStore } from "store";
+import './main.css'
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
     },
     mutations: {
       onMutate: () => clearAllToasts(),
     },
   },
 });
+
 const defaultTheme =
   useSettingsStore.getState().themeMode === "dark" ? THEME.DARK : THEME.LIGHT;
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
@@ -34,7 +36,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     >
       <App />
     </TonConnectUIProvider>
-
     {/* <ReactQueryDevtools /> */}
   </QueryClientProvider>
 );

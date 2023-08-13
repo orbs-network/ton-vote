@@ -26,47 +26,7 @@ import { useMemo } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { ProposalTimeline } from "./ProposalTimeline";
 import { Results } from "./Results";
-
-const useHideProposal = (proposalAddress: string) => {
-  const { query } = useAppQueryParams();
-
-  const { data: proposal } = useProposalQuery(proposalAddress);
-  const { data: dao } = useDaoQuery(proposal?.daoAddress || "");
-
-  const { proposalStatus } = useProposalStatus(proposalAddress);
-  const title = proposal?.metadata?.title.toLowerCase();
-  const description = proposal?.metadata?.description.toLowerCase();
-
-  const { isProposalPublisher, isOwner } = useRole(dao?.daoRoles);
-
-  const filters = useMemo(
-    () => [title, description, proposalAddress],
-    [title, description, proposalAddress]
-  );
-
-  if (query.proposalState && query.proposalState !== proposalStatus) {
-    return true;
-  }
-
-  if (
-    query.search &&
-    !filters.some((it) => {
-      return it?.toLowerCase().includes(query.search!.toLowerCase());
-    })
-  ) {
-    return true;
-  }
-
-  if (!proposal?.metadata?.hide) {
-    return false;
-  }
-  
-  if (!isProposalPublisher && !isOwner) {
-    return true;
-  }
-
-  return false;
-};
+import { useHideProposal } from "pages/dao/hooks";
 
 export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
   const { proposalPage } = useAppNavigation();
@@ -83,7 +43,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
   const { proposalStatus, proposalStatusText } =
     useProposalStatus(proposalAddress);
   const hideProposal = useHideProposal(proposalAddress);
-  
+
   const description = useMemo(
     () => parseLanguage(proposal?.metadata?.description, "en"),
     [proposal?.metadata?.description]
@@ -144,10 +104,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
             {proposalStatus === ProposalStatus.CLOSED && proposal && (
               <Results proposalAddress={proposalAddress} />
             )}
-            <ProposalTimeline
-              proposalMetadata={proposal?.metadata}
-              status={proposalStatus}
-            />
+            <ProposalTimeline address={proposalAddress} />
           </StyledFlexColumn>
         </StyledProposal>
       )}

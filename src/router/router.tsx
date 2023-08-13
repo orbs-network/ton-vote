@@ -1,10 +1,13 @@
 import Layout from "layout/Layout";
 import _ from "lodash";
 import { routes } from "consts";
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, Route } from "react-router-dom";
 import { lazy, Suspense, useMemo } from "react";
 import { useDevFeatures } from "hooks/hooks";
 import { DaoPageFallback, DaosPageFallback, PageFallback } from "./fallbacks";
+import { IonApp, IonRouterOutlet } from "@ionic/react";
+import { IonNav } from "@ionic/react";
+
 import {
   BadRoute,
   CreateProposal,
@@ -33,14 +36,10 @@ export const useRouter = () => {
           children: [
             {
               path: routes.spaces,
-              element: (
-                <Suspense fallback={<DaosPageFallback />}>
-                  <DaosPage />
-                </Suspense>
-              ),
+              element: <IonNav root={() => <DaosPage />}></IonNav>,
             },
             {
-              path: 'airdrop',
+              path: "airdrop",
               element: (
                 <Suspense fallback={<DaosPageFallback />}>
                   <Airdrop />
