@@ -17,21 +17,31 @@ import _ from "lodash";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
-import { useAppParams, useProposalResults } from "hooks/hooks";
-import { shouldHideVerify } from "data/foundation/data";
+import {
+  useAppParams,
+  useIsValidatorsProposal,
+  useProposalResults,
+} from "hooks/hooks";
+import { isFoundationProposal } from "data/foundation/data";
 import { useProposalQuery } from "query/getters";
 import { useShowComponents, useVerifyProposalResults } from "../hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { Result } from "types";
 const LIMIT = 5;
 
+const useShowVerified = (proposalAddress?: string) => {
+  const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
+
+  return !isValidatorsProposal && !isFoundationProposal(proposalAddress);
+};
 
 export const Results = ({ results }: { results: Result[] }) => {
   const { proposalAddress } = useAppParams();
+
+  const showVerify = useShowVerified(proposalAddress);
   const { isLoading } = useProposalQuery(proposalAddress);
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
-  const hideVerify = shouldHideVerify(proposalAddress);
   const show = useShowComponents().results;
 
   if (!show) return null;
@@ -63,7 +73,7 @@ export const Results = ({ results }: { results: Result[] }) => {
           />
         )}
       </StyledFlexColumn>
-      {!hideVerify && <VerifyResults />}
+      {showVerify && <VerifyResults />}
     </StyledResults>
   );
 };

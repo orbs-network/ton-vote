@@ -414,7 +414,7 @@ export const useGetProposalSymbol = (proposalAddress: string) => {
   );
 };
 
-export const useIsValidatorsProposal = (proposalAddress: string) => {
+export const useIsValidatorsProposal = (proposalAddress?: string) => {
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
   return useMemo(

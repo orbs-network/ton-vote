@@ -7,7 +7,7 @@ import { ProposalResults } from "./ProposalResults";
 import { Vote } from "./Vote";
 import { ProposalVotes } from "./ProposalVotes";
 import { appNavigation } from "router/navigation";
-import { useAppParams, useHiddenProposal } from "hooks/hooks";
+import { useAppParams, useHiddenProposal, useIsValidatorsProposal } from "hooks/hooks";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
@@ -17,6 +17,7 @@ const gap = 15;
 
 const Destop = () => {
   const { proposalAddress, daoAddress } = useAppParams();
+  const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
   return (
     <StyledWrapper>
       <StyledLeft>
@@ -24,7 +25,7 @@ const Destop = () => {
           proposalAddress={proposalAddress}
           daoAddress={daoAddress}
         />
-        <Vote />
+       {!isValidatorsProposal &&  <Vote />}
         <ProposalVotes />
       </StyledLeft>
       <StyledRight>
@@ -38,6 +39,7 @@ const Destop = () => {
 
 const Mobile = () => {
   const { proposalAddress, daoAddress } = useAppParams();
+  const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
 
   return (
     <StyledWrapper>
@@ -46,7 +48,7 @@ const Mobile = () => {
         proposalAddress={proposalAddress}
         daoAddress={daoAddress}
       />
-      <Vote />
+      {!isValidatorsProposal && <Vote />}
       <ProposalResults />
       <Metadata />
       <ProposalVotes />
