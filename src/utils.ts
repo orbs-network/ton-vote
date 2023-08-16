@@ -371,9 +371,6 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
   return votes;
 };
 
-export const getIsVerifiedDao = (address?: string) => {
-  return VERIFIED_DAOS.includes(address || "");
-};
 
 export const isNftProposal = (
   votingPowerStrategies?: VotingPowerStrategy[]

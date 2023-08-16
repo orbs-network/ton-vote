@@ -102,7 +102,6 @@ export const useDaosQuery = () => {
   const handleNewDaoAddresses = useNewDaoAddresses();
   const handleDaosUpToDate = useIsDaosUpToDate();
   const route = useCurrentRoute();
-
   const config = useMemo(() => {
     return {
       staleTime: 10_000,
@@ -115,7 +114,6 @@ export const useDaosQuery = () => {
     [QueryKeys.DAOS, devFeatures],
     async ({ signal }) => {
       const payload = (await api.getDaos(signal)) || [];
-
       const prodDaos = await handleDaosUpToDate(payload);
 
       // add mock daos if dev mode
@@ -611,4 +609,37 @@ export const useGetWalletNFTCollectionItemsCallback = () => {
     queryClient.ensureQueryData([QueryKeys.WALLET_NFT_COLLECTION_ITEMS], () =>
       lib.getWalletNFTCollectionItems(address, connectedWallet)
     );
+};
+
+export const useVerifiedDaosQuery = () => {
+  return useQuery(
+    [QueryKeys.GET_VERIFIED_DAOS_LIST],
+    ({ signal }) => {
+      return api.getVerifiedDaosList(signal);
+    },
+    {
+      staleTime: Infinity,
+    }
+  );
+};
+
+export const useIsDaoVerified = (address?: string) => {
+  const { data, dataUpdatedAt } = useVerifiedDaosQuery();
+
+  return useMemo(() => {
+    if (!address) return false;
+    return data?.includes(address);
+  }, [dataUpdatedAt, address]);
+};
+
+const useEnsureVerifiedDaos = () => {
+  const queryClient = useQueryClient();
+  const query = useVerifiedDaosQuery();
+
+  return () => {
+    return queryClient.ensureQueryData(
+      [QueryKeys.GET_VERIFIED_DAOS_LIST],
+      () => query.data
+    );
+  };
 };
