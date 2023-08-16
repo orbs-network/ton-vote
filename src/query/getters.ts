@@ -232,7 +232,7 @@ export const useDaoQuery = (daoAddress: string) => {
       );
 
       if (daoAddress === FOUNDATION_DAO_ADDRESS) {
-        daoProposals = FOUNDATION_PROPOSALS_ADDRESSES;
+        daoProposals = [...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES];
       }
       return {
         ...dao,

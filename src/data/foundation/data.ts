@@ -6,8 +6,6 @@ import _ from "lodash";
 
 export const FOUNDATION_DAO_ADDRESS =
   "EQCb8dxevgHhBnsTodJKXaCrafplHzAHf1V2Adj0GVlhA5xI";
-export const OLD_FOUNDATION_ADDRESS =
-  "EQC5E53rXLTWHzsYAdudAG3p6n45c0MuvoKDCGDFnu4OmuMb";
 export const FOUNDATION_PROPOSALS_ADDRESSES = [
   "EQAx5JjTHpQ_5EeWBAErl4_AWhh_JFBh2UvuTWAeqdbpC0C1",
   "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
