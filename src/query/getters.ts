@@ -28,6 +28,7 @@ import {
 import {
   FOUNDATION_DAO_ADDRESS,
   FOUNDATION_PROPOSALS_ADDRESSES,
+  LATEST_FOUNDATION_PROPOSAL_ADDRESS,
 } from "data/foundation/data";
 import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
 import { contract } from "contract";
@@ -46,6 +47,7 @@ import { useMemo, useRef, useState } from "react";
 import { routes } from "consts";
 import { lib } from "lib";
 import { useAnalytics } from "analytics";
+import { LATEST_TF_PROPOSAL_DESCRIPTION } from "data/foundation/description";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -374,6 +376,16 @@ const useGetProposalWithFallback = (proposalAddress: string) => {
 
     if (!proposal) {
       proposal = queryClient.getQueryData<Proposal | undefined>(key);
+    }
+
+    if (proposal && proposalAddress === LATEST_FOUNDATION_PROPOSAL_ADDRESS) {
+      proposal = {
+        ...proposal,
+        metadata: {
+          ...proposal?.metadata,
+          description: LATEST_TF_PROPOSAL_DESCRIPTION,
+        },
+      } as Proposal;
     }
 
     return proposal;

@@ -22,7 +22,7 @@ export const ZERO_ADDRESS = "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";
 export const TELETGRAM_URL = "https://t.me/TONVoteSupportGroup";
 export const WHITEPAPER_URL = 'https://www.orbs.com/white-papers/ton-vote/'
 export const ABOUT_URL = "https://www.orbs.com/Orbs-Introduces-TON-vote/";
-export const ABOUT_CHARS_LIMIT = 2350
+export const ABOUT_CHARS_LIMIT = 4350
 export const TITLE_LIMIT =   180;
 
 

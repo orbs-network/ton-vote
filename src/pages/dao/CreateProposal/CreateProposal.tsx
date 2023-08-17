@@ -22,7 +22,8 @@ export const CreateProposal = () => {
 
   const onSubmit = (formValues: ProposalFormType) => {
     const metadata = prepareMetadata(formValues);
-
+    console.log(metadata);
+    
     createProposal({
       metadata,
       onSuccess: (proposalAddress: string) => {
