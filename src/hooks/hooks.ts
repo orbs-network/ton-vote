@@ -374,6 +374,7 @@ export const useProposalStrategyName = (proposalAddress: string) => {
 
     switch (type) {
       case VotingPowerStrategyType.TonBalance:
+      case VotingPowerStrategyType.TonBalanceWithValidators:
         return "TON Balance";
       case VotingPowerStrategyType.JettonBalance:
         return "Jetton Balance";
