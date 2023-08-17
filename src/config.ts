@@ -66,6 +66,9 @@ export const TX_FEES = {
 
 export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
   [VotingPowerStrategyType.TonBalance]: { name: "TON coin balance", args: [] },
+  [VotingPowerStrategyType.TonBalanceWithValidators]: {
+    name: "TON coin balance, with validators",
+  },
   [VotingPowerStrategyType.JettonBalance]: {
     name: "Jetton balance",
     args: [

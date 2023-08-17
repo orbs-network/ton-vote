@@ -406,12 +406,13 @@ export const getProposalSymbol = (
   switch (type) {
     case VotingPowerStrategyType.TonBalance:
     case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
+    case VotingPowerStrategyType.TonBalanceWithValidators:
       return "TON";
     case VotingPowerStrategyType.JettonBalance:
     case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       return "Jetton";
     case VotingPowerStrategyType.NftCcollection:
-    case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
+  case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       return "NFT";
 
     default:

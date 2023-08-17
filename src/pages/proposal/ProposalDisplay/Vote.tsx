@@ -23,6 +23,8 @@ export function Vote() {
   const { proposalAddress } = useAppParams();
 
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+  console.log({ data });
+  
   const choices = data?.metadata?.votingSystem.choices;
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
