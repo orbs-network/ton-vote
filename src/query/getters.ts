@@ -286,6 +286,9 @@ export const useConnectedWalletVotingPowerQuery = (
         proposal?.metadata?.votingPowerStrategies
       );
 
+      if (!allNftHolders[connectedWallet]) {
+        allNftHolders[connectedWallet] = [];
+      }
       const result = await getSingleVoterPower(
         clients!.clientV4,
         connectedWallet!,
@@ -312,6 +315,7 @@ export const useConnectedWalletVotingPowerQuery = (
     },
     {
       enabled: !!connectedWallet && !!proposal && !!proposalAddress,
+      staleTime: Infinity,
     }
   );
 };

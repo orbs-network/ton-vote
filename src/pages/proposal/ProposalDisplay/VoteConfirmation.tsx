@@ -25,16 +25,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const {
     data: votingData,
     isLoading: votingDataLoading,
-    refetch,
   } = useConnectedWalletVotingPowerQuery(data, proposalAddress);
-
-  
-
-  useEffect(() => {
-    if (open) {
-      refetch();
-    }
-  }, [open]);
 
   const votingPower = votingData?.votingPower;
   
@@ -61,7 +52,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             value={votingData?.votingPowerText}
           />
         </StyledFlexColumn>
-        {NoVotingPower && (
+        {!votingDataLoading && NoVotingPower && (
           <InfoMessage
             message={translations.notEnoughVotingPower(
               data?.metadata?.mcSnapshotBlock.toLocaleString() || ""

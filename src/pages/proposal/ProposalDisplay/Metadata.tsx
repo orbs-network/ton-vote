@@ -135,7 +135,6 @@ const NFT = () => {
 const Jetton = () => {
   const { proposalAddress } = useAppParams();
   const data = useProposalQuery(proposalAddress).data;
-  console.log(data);
   
   const strategyArgs = useStrategyArguments(proposalAddress);
 

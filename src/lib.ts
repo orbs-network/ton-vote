@@ -1,5 +1,6 @@
 import { api } from "api";
 import { contract } from "contract";
+import _ from "lodash";
 import {
   ProposalMetadata,
   VotingPowerStrategyType,
@@ -18,7 +19,7 @@ const getAllNFTHolders = async (
 
   nftItemsHolders = await api.getAllNftHolders(proposalAddress, signal);
 
-  if (nftItemsHolders) {
+  if (!_.isEmpty(nftItemsHolders)) {
     return nftItemsHolders;
   }
 
