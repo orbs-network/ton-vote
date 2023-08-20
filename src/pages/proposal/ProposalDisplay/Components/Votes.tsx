@@ -19,8 +19,8 @@ import {
   useAppParams,
   useGetProposalSymbol,
   useIsOneWalletOneVote,
+  useWalletVote,
 } from "hooks/hooks";
-import { useWalletVote } from "../hooks";
 
 const ConnectedWalletVote = () => {
   const { proposalAddress } = useAppParams();

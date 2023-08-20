@@ -473,3 +473,12 @@ export const useFormatNumber = (value?: number, decimalScale = 2) => {
 
   return result.value?.toString();
 };
+
+
+export const useWalletVote = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+  const walletAddress = useTonAddress();
+  return useMemo(() => {
+    return _.find(data?.votes, (it) => it.address === walletAddress);
+  }, [dataUpdatedAt, walletAddress]);
+};

@@ -114,13 +114,6 @@ export const useVerifyProposalResults = () => {
   );
 };
 
-export const useWalletVote = (proposalAddress: string) => {
-  const {data, dataUpdatedAt} = useProposalQuery(proposalAddress);
-  const walletAddress = useTonAddress();
-  return useMemo(() => {
-    return _.find(data?.votes, (it) => it.address === walletAddress);
-  }, [dataUpdatedAt, walletAddress]);
-};
 
 const getCsvConfig = (isOneWalletOneVote: boolean) => {
   let titles = [];
