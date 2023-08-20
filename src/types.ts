@@ -65,6 +65,9 @@ interface ProposalMetadataLocal extends ProposalMetadata {
   jettonMetadata?: any;
 }
 
+
+
+
 export interface Proposal {
   votingPower?: VotingPower;
   votes: Vote[];

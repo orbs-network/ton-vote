@@ -20,13 +20,11 @@ import {
   useGetProposalSymbol,
   useIsOneWalletOneVote,
 } from "hooks/hooks";
-import { useProposalQuery } from "query/getters";
 import { useWalletVote } from "../hooks";
 
 const ConnectedWalletVote = () => {
   const { proposalAddress } = useAppParams();
-  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
-  const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
+  const walletVote = useWalletVote(proposalAddress);
   const symbol = useGetProposalSymbol(proposalAddress);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
   

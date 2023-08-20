@@ -116,11 +116,11 @@ const StyledRow = styled(StyledFlexRow)({
 const StyledInformation = styled(TitleContainer)({
   width: "100%",
 });
-
 const Asset = () => {
   const { proposalAddress } = useAppParams();
 
-  const { address, type, onlyAddress, name, image, url } = useStrategyAsset(proposalAddress);
+  const { address, type, onlyAddress, name, image, url } =
+    useStrategyAsset(proposalAddress);
 
   const label = type === "nft" ? "NFT Collection" : "Jetton";
   if (!address) {

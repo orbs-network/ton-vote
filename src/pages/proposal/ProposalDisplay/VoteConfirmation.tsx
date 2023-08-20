@@ -3,7 +3,7 @@ import { Button, InfoMessage, NumberDisplay, Popup } from "components";
 import { useAppParams, useGetProposalSymbol } from "hooks/hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import {
-  useConnectedWalletVotingPowerQuery,
+  useWalletVotingPowerQuery,
   useProposalQuery,
 } from "query/getters";
 import React, { ReactNode, useEffect } from "react";
@@ -25,16 +25,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const {
     data: votingData,
     isLoading: votingDataLoading,
-    refetch,
-  } = useConnectedWalletVotingPowerQuery(data, proposalAddress);
-
-  
-
-  useEffect(() => {
-    if (open) {
-      refetch();
-    }
-  }, [open]);
+  } = useWalletVotingPowerQuery(data, proposalAddress);
 
   const votingPower = votingData?.votingPower;
   
@@ -61,7 +52,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             value={votingData?.votingPowerText}
           />
         </StyledFlexColumn>
-        {NoVotingPower && (
+        {!votingDataLoading && NoVotingPower && (
           <InfoMessage
             message={translations.notEnoughVotingPower(
               data?.metadata?.mcSnapshotBlock.toLocaleString() || ""

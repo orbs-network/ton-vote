@@ -66,7 +66,7 @@ const getProposal = async (
 
       const proposal: Proposal = {
         ...result.data,
-        votes: parseVotes(result.data.votes, result.data.votingPower),
+        votes: parseVotes(result.data.metadata  , result.data.votes, result.data.votingPower),
         maxLt,
         rawVotes: result.data.votes,
       };

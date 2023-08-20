@@ -24,6 +24,7 @@ import { useTonAddress } from "@tonconnect/ui-react";
 import { useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
+import { analytics } from "analytics";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -52,6 +53,7 @@ export const useVerifyProposalResults = () => {
     async (customEndpoints: Endpoints) => {
       setEndpoints(customEndpoints);
       const promiseFn = async () => {
+        analytics.verifyResultsRequest(proposalAddress);
         const clientV2 = await getClientV2(
           endpoints?.clientV2Endpoint,
           endpoints?.apiKey
@@ -102,15 +104,21 @@ export const useVerifyProposalResults = () => {
       return promise;
     },
     {
-      onError: (error: Error) => console.log(error.message),
+      onError: (error: Error) => {
+        analytics.verifyResultsError(error.message);
+      },
+      onSuccess: () => {
+        analytics.verifyResultsSuccess();
+      },
     }
   );
 };
 
-export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
+export const useWalletVote = (proposalAddress: string) => {
+  const {data, dataUpdatedAt} = useProposalQuery(proposalAddress);
   const walletAddress = useTonAddress();
   return useMemo(() => {
-    return _.find(votes, (it) => it.address === walletAddress);
+    return _.find(data?.votes, (it) => it.address === walletAddress);
   }, [dataUpdatedAt, walletAddress]);
 };
 

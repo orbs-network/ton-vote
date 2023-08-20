@@ -3,7 +3,6 @@ import {
   BLACKLISTED_PROPOSALS,
   IS_DEV,
   TONSCAN_ADDRESS_URL,
-  VERIFIED_DAOS,
 } from "config";
 import _ from "lodash";
 import moment from "moment";
@@ -46,15 +45,20 @@ export const Logger = (...args: any) => {
 };
 
 export const parseVotes = (
+  metadata: ProposalMetadata,
   rawVotes: TonVoteSDK.Votes,
   votingPower: VotingPower
 ) => {
+  const choices = _.keyBy(metadata.votingSystem.choices, (c) =>
+    c.toLowerCase()
+  );
+
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
 
     return {
       address: key,
-      vote: v.vote,
+      vote: choices[v.vote.toLowerCase()] || v.vote,
       votingPower: _votingPower ? fromNano(_votingPower) : "0",
       timestamp: v.timestamp,
       hash: v.hash,
@@ -332,7 +336,7 @@ export const getProposalResultTonAmount = (
   type: VotingPowerStrategyType
 ) => {
   let result = "0";
-  
+
   if (proposal?.sumCoins) {
     const value =
       proposal.sumCoins[choice] || proposal.sumCoins[choice.toLowerCase()];
@@ -370,7 +374,6 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
   }
   return votes;
 };
-
 
 export const isNftProposal = (
   votingPowerStrategies?: VotingPowerStrategy[]
@@ -412,7 +415,7 @@ export const getProposalSymbol = (
     case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       return "Jetton";
     case VotingPowerStrategyType.NftCcollection:
-  case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
+    case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       return "NFT";
 
     default:
