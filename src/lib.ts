@@ -131,6 +131,18 @@ const getProposal = async (
     throw new Error("Proposal not found");
   }
 
+  if (proposal && proposalAddress === LATEST_FOUNDATION_PROPOSAL_ADDRESS) {
+    const description = (await import("./data/foundation/description"))
+      .LATEST_TF_PROPOSAL_DESCRIPTION;
+    proposal = {
+      ...proposal,
+      metadata: {
+        ...proposal?.metadata,
+        description,
+      },
+    } as Proposal;
+  }
+
   // check if server is up to date
   if (Number(proposal?.maxLt) < Number(maxLtAfterVote)) {
     Logger("Server is not up to date, return results from cache");
@@ -154,17 +166,6 @@ const getProposal = async (
     } as Proposal;
   }
   useVotePersistedStore.getState().resetValues(proposalAddress!);
-  if (proposal && proposalAddress === LATEST_FOUNDATION_PROPOSAL_ADDRESS) {
-    const description = (await import("./data/foundation/description"))
-      .LATEST_TF_PROPOSAL_DESCRIPTION;
-    proposal = {
-      ...proposal,
-      metadata: {
-        ...proposal?.metadata,
-        description,
-      },
-    } as Proposal;
-  }
 
   return proposal;
 };
