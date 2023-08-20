@@ -8,14 +8,16 @@ import { getGlobalStyles } from "styles";
 import { useRouter } from "router/router";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
+import { useWalletListener } from "analytics";
 
 const useInitApp = () => {
   useInitThemeMode();
 };
 
+
 function App() {
   useInitApp();
-
+  useWalletListener();
   useEffect(() => {
     const loader = document.querySelector(".app-loader");
     if (loader) {

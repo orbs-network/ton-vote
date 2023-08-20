@@ -1,7 +1,7 @@
 import axios from "axios";
 import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
-import { Logger, parseVotes } from "utils";
+import { delay, Logger, parseVotes } from "utils";
 import { IS_DEV, API_RETRIES } from "config";
 import axiosRetry from "axios-retry";
 import retry from "async-retry";
@@ -15,6 +15,15 @@ axiosRetry(axiosInstance, {
   retries: API_RETRIES,
   retryDelay: axiosRetry.exponentialDelay,
 });
+
+const getVerifiedDaosList = async (signal?: AbortSignal) => {
+  const res = await axios.get(
+    "https://raw.githubusercontent.com/denis-orbs/verified-daos/main/index.json",
+    { signal }
+  );
+
+  return res.data;
+};
 
 const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
   Logger("Fetching daos from server");
@@ -57,7 +66,7 @@ const getProposal = async (
 
       const proposal: Proposal = {
         ...result.data,
-        votes: parseVotes(result.data.votes, result.data.votingPower),
+        votes: parseVotes(result.data.metadata  , result.data.votes, result.data.votingPower),
         maxLt,
         rawVotes: result.data.votes,
       };
@@ -126,6 +135,7 @@ export const api = {
   getAllNftHolders,
   getUpdateTime,
   serverVersion,
+  getVerifiedDaosList,
 };
 
 export interface GetStateApiPayload {

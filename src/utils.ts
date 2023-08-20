@@ -3,7 +3,6 @@ import {
   BLACKLISTED_PROPOSALS,
   IS_DEV,
   TONSCAN_ADDRESS_URL,
-  VERIFIED_DAOS,
 } from "config";
 import _ from "lodash";
 import moment from "moment";
@@ -46,15 +45,20 @@ export const Logger = (...args: any) => {
 };
 
 export const parseVotes = (
+  metadata: ProposalMetadata,
   rawVotes: TonVoteSDK.Votes,
   votingPower: VotingPower
 ) => {
+  const choices = _.keyBy(metadata.votingSystem.choices, (c) =>
+    c.toLowerCase()
+  );
+
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
 
     return {
       address: key,
-      vote: v.vote,
+      vote: choices[v.vote.toLowerCase()] || v.vote,
       votingPower: _votingPower ? fromNano(_votingPower) : "0",
       timestamp: v.timestamp,
       hash: v.hash,
@@ -372,10 +376,6 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
   return votes;
 };
 
-export const getIsVerifiedDao = (address?: string) => {
-  return VERIFIED_DAOS.includes(address || "");
-};
-
 export const isNftProposal = (
   votingPowerStrategies?: VotingPowerStrategy[]
 ) => {
@@ -410,6 +410,7 @@ export const getProposalSymbol = (
   switch (type) {
     case VotingPowerStrategyType.TonBalance:
     case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
+    case VotingPowerStrategyType.TonBalanceWithValidators:
       return "TON";
     case VotingPowerStrategyType.JettonBalance:
     case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:

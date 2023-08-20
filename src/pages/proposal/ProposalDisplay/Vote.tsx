@@ -22,11 +22,12 @@ export function Vote() {
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
 
-  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+  const { data } = useProposalQuery(proposalAddress);
+
   const choices = data?.metadata?.votingSystem.choices;
 
-  const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
-  const currentVote = walletVote?.vote as string;
+  const walletVote = useWalletVote(proposalAddress);
+  const lastVote = walletVote?.vote as string;
   const show = useShowComponents().vote;
 
   useEffect(() => {
@@ -44,46 +45,55 @@ export function Vote() {
   };
 
   if (!show) return null;
-    return (
-      <StyledContainer title={translations.castVote}>
-        <StyledFlexColumn>
-          {choices?.map((option) => {
-            return (
-              <StyledOption
-                selected={option === vote}
-                key={option}
-                onClick={() => setVote(option)}
-              >
-                <Fade in={option === vote}>
-                  <StyledFlexRow className="icon">
-                    <FiCheck style={{ width: 20, height: 20 }} />
-                  </StyledFlexRow>
-                </Fade>
-                <Typography>{option}</Typography>
-              </StyledOption>
-            );
-          })}
-        </StyledFlexColumn>
-        <AppTooltip
-          text={currentVote === vote ? `You already voted ${vote}` : ""}
-        >
-          <VoteButton
-            isLoading={isLoading}
-            disabled={!vote || isLoading || currentVote === vote}
-            onSubmit={onSubmit}
-          />
-        </AppTooltip>
-        <VoteConfirmation
-          open={confirmation}
-          vote={vote}
-          onClose={() => setConfirmation(false)}
-          onSubmit={() => {
-            if (!vote) return;
-            mutate(vote);
-          }}
+  return (
+    <StyledContainer title={translations.castVote}>
+      <StyledFlexColumn>
+        {choices?.map((option) => {
+          return (
+            <StyledOption
+              selected={option?.toLowerCase() === vote?.toLowerCase()}
+              key={option}
+              onClick={() => setVote(option)}
+            >
+              <Fade in={option === vote}>
+                <StyledFlexRow className="icon">
+                  <FiCheck style={{ width: 20, height: 20 }} />
+                </StyledFlexRow>
+              </Fade>
+              <Typography>{option}</Typography>
+            </StyledOption>
+          );
+        })}
+      </StyledFlexColumn>
+      <AppTooltip
+        text={
+          !vote ? "Please select an option" :
+          lastVote?.toLowerCase() === vote?.toLowerCase()
+            ? `You already voted ${vote}`
+            : ""
+        }
+      >
+        <VoteButton
+          isLoading={isLoading}
+          disabled={
+            !vote ||
+            isLoading ||
+            lastVote?.toLowerCase() === vote?.toLowerCase()
+          }
+          onSubmit={onSubmit}
         />
-      </StyledContainer>
-    );
+      </AppTooltip>
+      <VoteConfirmation
+        open={confirmation}
+        vote={vote}
+        onClose={() => setConfirmation(false)}
+        onSubmit={() => {
+          if (!vote) return;
+          mutate(vote);
+        }}
+      />
+    </StyledContainer>
+  );
 }
 
 const VoteButton = ({

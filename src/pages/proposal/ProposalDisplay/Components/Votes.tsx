@@ -38,7 +38,7 @@ const ConnectedWalletVote = ({
   dataUpdatedAt: number;
 }) => {
   const { proposalAddress } = useAppParams();
-  const walletVote = useWalletVote(votes, dataUpdatedAt);
+  const walletVote = useWalletVote(proposalAddress);
   const symbol = useGetProposalSymbol(proposalAddress);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
 

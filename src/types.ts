@@ -65,6 +65,8 @@ interface ProposalMetadataLocal extends ProposalMetadata {
   jettonMetadata?: any;
 }
 
+export type ValidatorProposalRoundDetailsStatus = 'ongoing' | 'failed' | 'passed'
+
 export interface ValidatorProposalRoundDetails {
   vsetId: string;
   votersList: string[];
@@ -74,8 +76,11 @@ export interface ValidatorProposalRoundDetails {
   cycleEndTime: number;
   totalValidators: number;
   mainValidators: number;
-  result: string;
+  status: ValidatorProposalRoundDetailsStatus;
 }
+
+
+
 export interface Proposal {
   votingPower?: VotingPower;
   votes: Vote[];

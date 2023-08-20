@@ -325,8 +325,6 @@ export const useGetValidatorsProposalResult = (
             .toNumber()
         );
 
-        console.log(details.totalWeight, finished.toString(), percent);
-
         const assetAmount = nFormatter(fromNano(finished.toString()));
 
         return {
@@ -433,6 +431,7 @@ export const useProposalStrategyName = (proposalAddress: string) => {
 
     switch (type) {
       case VotingPowerStrategyType.TonBalance:
+      case VotingPowerStrategyType.TonBalanceWithValidators:
         return "TON Balance";
       case VotingPowerStrategyType.JettonBalance:
         return "Jetton Balance";

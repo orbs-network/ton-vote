@@ -13,14 +13,16 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { fromNano } from "ton-core";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { ValidatorProposalRoundDetails } from "types";
+import {
+  ValidatorProposalRoundDetails,
+  ValidatorProposalRoundDetailsStatus,
+} from "types";
 import moment from "moment";
 
 export function ValidatorsProposalVotes() {
   const { proposalAddress } = useAppParams();
 
-  const { data, isLoading } = useProposalQuery(proposalAddress);
-  console.log({ data });
+  const { isLoading } = useProposalQuery(proposalAddress);
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -96,7 +98,7 @@ const BasicTabs = () => {
           );
         })}
       </StyledTabs>
-      {roundsDetails?.map((it, index) => {
+      {roundsDetails?.map((it, index) => {        
         const votes = parseValidatorVotes(it.votersList);
         return (
           <CustomTabPanel key={index} value={value} index={index}>
@@ -131,14 +133,25 @@ export function Summary({
 }: {
   details: ValidatorProposalRoundDetails;
 }) {
+
+  const weightRemainingParsed = fromNano(details.weightRemaining);
+
+  const isLessThanZero = Number(weightRemainingParsed) < 0;
+
+
   return (
     <TitleContainer
       small={true}
       title="Summary"
-      headerComponent={<Status status={details.result} />}
+      headerComponent={<Status status={details.status} />}
     >
       <Section label="Total weight">
         <Typography>{nFormatter(fromNano(details.totalWeight))}</Typography>
+      </Section>
+      <Section label="Weight remaining">
+        <Typography>
+          {isLessThanZero ? 0 : nFormatter(weightRemainingParsed)}
+        </Typography>
       </Section>
       <Section label="Start time">
         <Typography>
@@ -175,13 +188,33 @@ const Section = ({
 
 const StyledSection = styled(StyledFlexRow)({
   justifyContent: "flex-start",
-  "*":{
-    fontSize: 14
-  }
+  "*": {
+    fontSize: 14,
+  },
 });
 
 const StyledSectionChildren = styled("div")({});
 
-const Status = ({ status }: { status?: string }) => {
-  return <Chip label={status} />;
+const Status = ({
+  status,
+}: {
+  status?: ValidatorProposalRoundDetailsStatus;
+}) => {
+  const _status = parseStatus(status);
+
+  return _status ? <Chip label={_status} /> : null;
+};
+
+const parseStatus = (status?: ValidatorProposalRoundDetailsStatus) => {
+
+  switch (status) {
+    case "failed":
+      return "Failed";
+    case "ongoing":
+      return "Ongoing";
+    case "passed":
+      return "Passed";
+    default:
+      return undefined;
+  }
 };
