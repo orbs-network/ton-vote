@@ -238,7 +238,7 @@ const getDao = async (daoAddress: string, signal?: AbortSignal) => {
     throw new Error("DAO not found");
   }
 
-  const addNewProposals = (daoAddress: string, proposals: string[]) => {
+  const addProposalFromLocalStorage = (daoAddress: string, proposals: string[]) => {
     const newDaoPoposals = useNewDataStore.getState().proposals[daoAddress];
 
     // if no new proposals reutrn current proposals
@@ -256,7 +256,7 @@ const getDao = async (daoAddress: string, signal?: AbortSignal) => {
     return _.uniq(proposals);
   };
 
-  const proposals = addNewProposals(daoAddress!, dao.daoProposals);
+  const proposals = addProposalFromLocalStorage(daoAddress!, dao.daoProposals);
   let daoProposals = IS_DEV
     ? _.concat(proposals, mock.proposalAddresses)
     : proposals;

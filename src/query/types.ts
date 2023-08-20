@@ -11,13 +11,14 @@ export interface CreateDaoArgs {
 
 
 export interface CreateMetadataArgs {
-  onSuccess: (address: string) => void;
+  onSuccess?: (address: string) => void;
   metadata: DaoMetadataForm;
 }
 
 
 export interface UpdateMetadataArgs {
-  metadata: DaoMetadataForm;
   daoAddress: string;
+  metadataAddress: string;
+  onSuccess?: (address: string) => void;
 }
 

@@ -35,15 +35,13 @@ export const Results = ({
   return (
     <StyledResults gap={10}>
       {results.map((result) => {
-
-
         return (
           <Result
             selected={isSelected(result.choice, walletVote)}
             key={result.choice}
             title={result.choice}
             percent={result.percent}
-            amount={result.amount}
+            amount={result.assetAmount}
           />
         );
       })}

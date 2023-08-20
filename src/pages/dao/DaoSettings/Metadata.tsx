@@ -7,10 +7,11 @@ import { useMetadataForm } from "./form";
 import { DaoMetadataForm } from "types";
 import { StyledFlexRow } from "styles";
 import { useDaoQuery } from "query/getters";
-import { useUpdateDaoMetadataQuery } from "query/setters";
 import { useAppParams } from "hooks/hooks";
 import { getInitialValues, prepareMetadata } from "./utils";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { UpdateWizard } from "./UpdateWizard";
+import { useState } from "react";
 
 export function MetadataForm() {
   const Schema = useDaoMetadataSchema();
@@ -18,7 +19,9 @@ export function MetadataForm() {
   const { daoAddress } = useAppParams();
 
   const data = useDaoQuery(daoAddress).data;
-  const { mutate: updateMetadata, isLoading } = useUpdateDaoMetadataQuery();
+
+  const [showWizard, setShowWizard] = useState(false);
+
 
   const formik = useFormik<DaoMetadataForm>({
     initialValues: getInitialValues(data?.daoMetadata.metadataArgs),
@@ -26,16 +29,22 @@ export function MetadataForm() {
     validateOnChange: false,
     validateOnBlur: true,
     onSubmit: (values) => {
-      updateMetadata({
-        metadata: prepareMetadata(values),
-        daoAddress,
-      });
+      setShowWizard(true);
+      // updateMetadata({
+      //   metadata: prepareMetadata(values),
+      //   daoAddress,
+      // });
     },
   });
 
   return (
     <FormikInputsForm<DaoMetadataForm> form={updateDaoForm} formik={formik}>
-      <SubmitButton isLoading={isLoading} formik={formik} />
+      <UpdateWizard
+        formData={formik.values}
+        open={showWizard}
+        onClose={() => setShowWizard(false)}
+      />
+      <SubmitButton isLoading={false} formik={formik} />
     </FormikInputsForm>
   );
 }

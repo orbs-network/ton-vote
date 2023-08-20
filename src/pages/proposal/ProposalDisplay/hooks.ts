@@ -132,16 +132,15 @@ const getCsvConfig = (isOneWalletOneVote: boolean) => {
   };
 };
 
-export const useCsvData = () => {
+export const useCsvData = (votes: Vote[], dataUpdatedAt: number) => {
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
-  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
 
   return useMemo(() => {
     const config = getCsvConfig(isOneWalletOneVote);
-    const values = _.map(data?.votes, (vote) => {
+    const values = _.map(votes, (vote) => {
       const value = config.keys.map((key) => {
         return vote[key as keyof Vote];
       });

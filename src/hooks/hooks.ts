@@ -11,13 +11,20 @@ import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
   beginCell,
+  fromNano,
   Sender,
   SenderArguments,
   storeStateInit,
 } from "ton-core";
 import { IS_DEV, STRATEGY_ARGUMENTS } from "config";
 import { showSuccessToast } from "toasts";
-import { AppQueryParams, Proposal, ProposalStatus, ThemeType } from "types";
+import {
+  AppQueryParams,
+  Proposal,
+  ProposalStatus,
+  Result,
+  ThemeType,
+} from "types";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
@@ -42,10 +49,12 @@ import {
   getTonScanContractUrl,
   getVoteStrategyType,
   isNftProposal,
+  nFormatter,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useNumericFormat } from "react-number-format";
+import BigNumber from "bignumber.js";
 
 export const useCurrentRoute = () => {
   const location = useLocation();
@@ -258,7 +267,7 @@ export const useAppSettings = () => {
   };
 };
 
-export const useProposalResults = (proposalAddress: string) => {
+export const useProposalResults = (proposalAddress: string): Result[] => {
   const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const symbol = useGetProposalSymbol(proposalAddress);
 
@@ -286,12 +295,46 @@ export const useProposalResults = (proposalAddress: string) => {
       );
 
       return {
-        votesCount: getProposalResultVotes(proposal, choice),
+        votesAmount: getProposalResultVotes(proposal, choice),
         choice,
         percent,
-        amount: isOneWalletOneVote ? undefined : `${amount} ${symbol}`,
+        assetAmount: isOneWalletOneVote ? undefined : `${amount} ${symbol}`,
       };
     });
+  }, [dataUpdatedAt]);
+};
+
+export const useGetValidatorsProposalResult = (
+  proposalAddress: string
+): Result[] => {
+  const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(() => {
+    if (!proposal) return [];
+
+    return _.map(
+      proposal.validatorsVotingData?.roundsDetails,
+      (details, index) => {
+        const finished = BigNumber(details.totalWeight).minus(
+          BigNumber(details.weightRemaining)
+        );
+        const percent = Math.floor(
+          BigNumber(finished)
+            .div(details.totalWeight)
+            .multipliedBy(100)
+            .toNumber()
+        );
+
+        const assetAmount = nFormatter(fromNano(finished.toString()));
+
+        return {
+          votesAmount: _.size(details.votersList),
+          choice: `Round ${index + 1}`,
+          percent,
+          assetAmount,
+        };
+      }
+    );
   }, [dataUpdatedAt]);
 };
 
@@ -365,6 +408,17 @@ export const useGetProposalSymbol = (proposalAddress: string) => {
 
   return useMemo(
     () => getProposalSymbol(data?.metadata?.votingPowerStrategies),
+    [dataUpdatedAt]
+  );
+};
+
+export const useIsValidatorsProposal = (proposalAddress?: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(
+    () =>
+      getVoteStrategyType(data?.metadata?.votingPowerStrategies) ===
+      VotingPowerStrategyType.ValidatorsVote,
     [dataUpdatedAt]
   );
 };

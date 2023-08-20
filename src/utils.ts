@@ -69,12 +69,13 @@ export const parseVotes = (
   return sortedVotes;
 };
 
-export function nFormatter(num: number, digits = 2) {
+export function nFormatter(_num: number | string, digits = 2) {
+  const num = Number(_num);
   const lookup = [
     { value: 1, symbol: "" },
     { value: 1e3, symbol: "K" },
     { value: 1e6, symbol: "M" },
-    { value: 1e9, symbol: "G" },
+    { value: 1e9, symbol: "B" },
     { value: 1e12, symbol: "T" },
     { value: 1e15, symbol: "P" },
     { value: 1e18, symbol: "E" },
@@ -419,7 +420,18 @@ export const getProposalSymbol = (
       return "NFT";
 
     default:
-      break;
+      return "";
   }
 };
 
+export const parseValidatorVotes = (votes: string[]): Vote[] => {
+  return votes.map((it) => {
+    return {
+      address: it,
+      vote: "yes",
+      votingPower: "",
+      timestamp: 0,
+      hash: "",
+    };
+  });
+};

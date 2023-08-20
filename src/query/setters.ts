@@ -154,7 +154,8 @@ export const useCreateMetadataQuery = () => {
       },
       onSuccess: (address, args) => {
         analytics.createSpaceMetadataSuccess(address);
-        args.onSuccess(address);
+        args.onSuccess?.(address);
+        showSuccessToast(`Space metadata created successfully`);
       },
     }
   );
@@ -297,7 +298,7 @@ export const useSetDaoPublisherQuery = () => {
   );
 };
 
-export const useUpdateDaoMetadataQuery = () => {
+export const useSetDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
   const refetchDaos = useDaosQuery().refetch;
@@ -309,21 +310,12 @@ export const useUpdateDaoMetadataQuery = () => {
 
   return useMutation(
     async (args: UpdateMetadataArgs) => {
-      const { metadata, daoAddress } = args;
+      const { daoAddress, metadataAddress } = args;
 
       const sender = getSender();
       const clientV2 = await getClientV2();
-      analytics.updateSpaceRequest(daoAddress, metadata);
-      const metadataAddress = await newMetdata(
-        sender,
-        clientV2,
-        TX_FEES.CREATE_METADATA.toString(),
-        metadata
-      );
+      analytics.updateSpaceRequest(daoAddress);
 
-      if (typeof metadataAddress !== "string") {
-        throw new Error("Failed to update metadata");
-      }
       const address = await setMetadata(
         sender,
         clientV2,
@@ -335,6 +327,8 @@ export const useUpdateDaoMetadataQuery = () => {
       if (typeof address !== "string") {
         throw new Error("Failed to update metadata");
       }
+      setDaoUpdateMillis(args.daoAddress);
+      await refetchUpdatedDao();
       return address;
     },
     {
@@ -342,12 +336,11 @@ export const useUpdateDaoMetadataQuery = () => {
         errorToast(error);
         analytics.updateProposalFailed(error.message);
       },
-      onSuccess: (_, args) => {
-        showSuccessToast("Metadata updated");
-        setDaoUpdateMillis(args.daoAddress);
+      onSuccess: (value, args) => {
+        showSuccessToast("Space Metadata updated");
         refetchDaos();
-        refetchUpdatedDao();
         analytics.updateSpaceSuccess(args.daoAddress);
+        args.onSuccess?.(value);
       },
     }
   );

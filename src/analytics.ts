@@ -73,11 +73,9 @@ class Analytics {
 
   updateSpaceRequest = (
     updateSpaceId: string,
-    updateSpaceMetadata: MetadataArgs
   ) => {
     this.sendLog("updateDaoMetadataRequest", {
       updateSpaceId,
-      updateSpaceMetadata,
     });
   };
 

@@ -1,16 +1,18 @@
-import { Box, styled, Typography } from "@mui/material";
+import { Box, Chip, styled, Typography } from "@mui/material";
 import {
   AddressDisplay,
   AppTooltip,
   List,
   LoadingContainer,
   LoadMore,
+  NumberDisplay,
+  TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { nFormatter } from "utils";
+import { nFormatter, parseLanguage } from "utils";
 import { PAGE_SIZE } from "config";
 import { Vote } from "types";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
@@ -21,34 +23,156 @@ import {
   useIsOneWalletOneVote,
   useWalletVote,
 } from "hooks/hooks";
+import { useProposalQuery } from "query/getters";
+import { useCsvData, useShowComponents } from "../hooks";
+import { GrDocumentCsv } from "react-icons/gr";
+import { CSVLink } from "react-csv";
+import { fromNano } from "ton-core";
 
-const ConnectedWalletVote = () => {
+const ConnectedWalletVote = ({
+  hideVotingPower,
+  votes,
+  dataUpdatedAt,
+}: {
+  hideVotingPower?: boolean;
+  votes: Vote[];
+  dataUpdatedAt: number;
+}) => {
   const { proposalAddress } = useAppParams();
   const walletVote = useWalletVote(proposalAddress);
   const symbol = useGetProposalSymbol(proposalAddress);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
-  
+
   return (
     <VoteComponent
-      hideVotingPower={!!isOneWalletOneVote}
+      hideVotingPower={!!isOneWalletOneVote || hideVotingPower}
       symbol={symbol}
       data={walletVote}
     />
   );
 };
 
+const ContainerHeader = ({
+  votes,
+  totalWeight = "0",
+  dataUpdatedAt,
+}: {
+  votes: Vote[];
+  totalWeight?: string;
+  dataUpdatedAt: number;
+}) => {
+  const { proposalAddress } = useAppParams();
+  const votesLength = _.size(votes);
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+  const tonAmount = useMemo(() => {
+    return nFormatter(Number(fromNano(totalWeight)));
+  }, [totalWeight]);
+
+  const symbol = useGetProposalSymbol(proposalAddress);
+  const show = useShowComponents().votes;
+  const hideSymbol = isOneWalletOneVote;
+
+  if (!show) return null;
+  return (
+    <StyledContainerHeader>
+      <StyledChip
+        label={
+          <>
+            <NumberDisplay value={votesLength} /> votes
+          </>
+        }
+      />
+      <StyledFlexRow style={{ width: "unset" }} gap={10}>
+        {!hideSymbol && (
+          <Typography className="total" style={{ fontWeight: 600 }}>
+            {tonAmount} {symbol}
+          </Typography>
+        )}
+        <DownloadCSV dataUpdatedAt={dataUpdatedAt} votes={votes} />
+      </StyledFlexRow>
+    </StyledContainerHeader>
+  );
+};
+
+const StyledChip = styled(Chip)({
+  height: 28,
+  "*": {
+    fontWeight: 600,
+    fontSize: 13,
+  },
+});
+
+const DownloadCSV = ({
+  votes,
+  dataUpdatedAt,
+}: {
+  votes: Vote[];
+  dataUpdatedAt: number;
+}) => {
+  const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
+  const csvData = useCsvData(votes, dataUpdatedAt);
+  const translations = useProposalPageTranslations();
+
+  return (
+    <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>
+      <AppTooltip text={translations.downloadCsv} placement="top">
+        <StyledIcon style={{ width: 18, height: 18 }} />
+      </AppTooltip>
+    </CSVLink>
+  );
+};
+
+const StyledIcon = styled(GrDocumentCsv)(({ theme }) => ({
+  "*": {
+    stroke: theme.palette.text.primary,
+  },
+}));
+
+const StyledNoVotes = styled(Box)({
+  padding: "20px",
+  p: {
+    textAlign: "center",
+    fontSize: 17,
+    fontWeight: 600,
+  },
+});
+
+const StyledContainerHeader = styled(StyledFlexRow)({
+  flex: 1,
+  justifyContent: "space-between",
+  ".total": {
+    fontSize: 14,
+  },
+  "@media (max-width: 600px)": {
+    ".total": {
+      fontSize: 13,
+    },
+  },
+});
+
 export function Votes({
   votes,
   isLoading,
+  hideVotingPower,
+  totalWeight,
+  dataUpdatedAt,
+  small,
 }: {
   votes: Vote[];
   isLoading: boolean;
+  hideVotingPower?: boolean;
+  totalWeight?: string;
+  dataUpdatedAt: number;
+  small?: boolean;
 }) {
   const connectedAddress = useTonAddress();
   const [votesShowAmount, setShowVotesAMount] = useState(PAGE_SIZE);
   const { proposalAddress } = useAppParams();
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
   const symbol = useGetProposalSymbol(proposalAddress);
+  const translations = useProposalPageTranslations();
+
   const showMoreVotes = () => {
     setShowVotesAMount((prev) => prev + PAGE_SIZE);
   };
@@ -58,20 +182,34 @@ export function Votes({
   }
 
   return (
-    <>
+    <StyledContainer
+      small={small}
+      title={translations.recentVotes}
+      headerComponent={
+        <ContainerHeader
+          dataUpdatedAt={dataUpdatedAt}
+          totalWeight={totalWeight}
+          votes={votes}
+        />
+      }
+    >
       <List
         isLoading={isLoading}
         isEmpty={!isLoading && !_.size(votes)}
         emptyComponent={<Empty />}
       >
         <StyledList gap={0}>
-          <ConnectedWalletVote />
+          <ConnectedWalletVote
+            dataUpdatedAt={dataUpdatedAt}
+            hideVotingPower={hideVotingPower}
+            votes={votes}
+          />
           {votes.map((vote, index) => {
             if (index >= votesShowAmount || vote.address === connectedAddress)
               return null;
             return (
               <VoteComponent
-                hideVotingPower={!!isOneWalletOneVote}
+                hideVotingPower={!!isOneWalletOneVote || hideVotingPower}
                 symbol={symbol}
                 data={vote}
                 key={vote.address}
@@ -87,9 +225,15 @@ export function Votes({
         showMore={showMoreVotes}
         limit={PAGE_SIZE}
       />
-    </>
+    </StyledContainer>
   );
 }
+
+const StyledContainer = styled(TitleContainer)({
+  ".title-container-children": {
+    padding: 0,
+  },
+});
 
 const StyledLoadMore = styled(LoadMore)({
   marginTop: 20,
@@ -115,7 +259,7 @@ const VoteComponent = ({
 }: {
   data?: Vote;
   symbol?: string;
-  hideVotingPower: boolean;
+  hideVotingPower?: boolean;
 }) => {
   const connectedAddress = useTonAddress();
   const translations = useProposalPageTranslations();
@@ -126,7 +270,9 @@ const VoteComponent = ({
 
   return (
     <StyledAppTooltip
-      text={`${moment.unix(timestamp).utc().fromNow()}`}
+      text={
+        !timestamp ? undefined : `${moment.unix(timestamp).utc().fromNow()}`
+      }
       placement="top"
     >
       <StyledVote justifyContent="flex-start">
@@ -157,15 +303,6 @@ const StyledAppTooltip = styled(AppTooltip)({
 const StyledAddressDisplay = styled(AddressDisplay)({
   justifyContent: "flex-start",
   width: 160,
-});
-
-const StyledNoVotes = styled(Box)({
-  padding: "20px",
-  p: {
-    textAlign: "center",
-    fontSize: 17,
-    fontWeight: 600,
-  },
 });
 
 const StyledVote = styled(StyledFlexRow)({
