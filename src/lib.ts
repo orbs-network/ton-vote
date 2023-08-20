@@ -115,11 +115,15 @@ const getProposal = async (
   let proposal;
 
   // try to fetch proposal from server
-  proposal = await api.getProposal(proposalAddress!, signal);
+  try {
+    proposal = await api.getProposal(proposalAddress!, signal);
+  } catch (error) {}
 
   // try to fetch proposal from contract
   if (!proposal) {
-    proposal = await getProposalFromContract();
+    try {
+      proposal = await getProposalFromContract();
+    } catch (error) {}
   }
 
   // failed to fetch proposal from server and contract, try to return current data from cache
@@ -215,11 +219,19 @@ const getDao = async (daoAddress: string, signal?: AbortSignal) => {
   }
 
   if (!dao) {
-    dao = await api.getDao(daoAddress!, signal);
+   try {
+     dao = await api.getDao(daoAddress!, signal);
+   } catch (error) {
+    
+   }
   }
 
   if (!dao) {
-    dao = await getDaoFromContract();
+   try {
+     dao = await getDaoFromContract();
+   } catch (error) {
+    
+   }
   }
 
   if (!dao) {
@@ -400,7 +412,10 @@ const getDaos = async (devFeatures?: boolean, signal?: AbortSignal) => {
   const foundationDao = _.first(allDaos.splice(daoIndex, 1));
 
   if (foundationDao) {
-    foundationDao.daoProposals = _.concat(foundationDao.daoProposals, FOUNDATION_PROPOSALS_ADDRESSES);
+    foundationDao.daoProposals = _.concat(
+      foundationDao.daoProposals,
+      FOUNDATION_PROPOSALS_ADDRESSES
+    );
     allDaos = [foundationDao, ...allDaos];
   }
   if (!devFeatures) {

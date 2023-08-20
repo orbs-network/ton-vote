@@ -1,30 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
 import { useTonAddress, useTonWallet } from "@tonconnect/ui-react";
 import { api } from "api";
 import axios from "axios";
 import { GOOGLE_ANALYTICS_KEY, IS_DEV } from "config";
 import _ from "lodash";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { isMobile } from "react-device-detect";
 import ReactGA from "react-ga4";
 import { MetadataArgs, ProposalMetadata } from "ton-vote-contracts-sdk";
-import { ProposalResults } from "types";
 //@ts-ignore
 import packageJson from "../package.json";
-
-const sendEvent = (label: string, action: string) => {
-  if (IS_DEV) return;
-
-  if (!ReactGA.isInitialized) {
-    console.error("GA is Not initialized");
-    return;
-  }
-  ReactGA.event({
-    label,
-    action,
-    category: "Main page",
-  });
-};
 
 if (!IS_DEV) {
   ReactGA.initialize(GOOGLE_ANALYTICS_KEY);
@@ -39,47 +23,6 @@ export const useWalletListener = () => {
   }, [walletAddress]);
 };
 
-interface State {
-  state: string;
-  time: number;
-}
-
-interface AnalyticsBody {
-  state?: State;
-  _id: string;
-  walletAddress?: string;
-  walletName?: string;
-  walletVersion?: string;
-  platform?: string;
-  device?: string;
-  serverVersion?: string;
-  sdkVerion?: string;
-  daoId?: string;
-  getDaoFailedError?: string;
-  voteProposalAddress?: string;
-  vote?: string;
-  voteError?: string;
-  voteSuccess?: boolean;
-  createSpaceMetadata?: MetadataArgs;
-  createSpaceMetadataError?: string;
-  createSpaceMetadataAddress?: string;
-  createSpaceOwnerAddress?: string;
-  createSpaceProposalPublisherAddress?: string;
-  createSpaceError?: string;
-  createProposalMetadata?: ProposalMetadata;
-  createdProposalAddress?: string;
-  createProposalError?: string;
-  updateSpaceId?: string;
-  updateSpaceMetadata?: MetadataArgs;
-  updateSpaceError?: string;
-  updateProposalAddress?: string;
-  updateProposalMetadata?: ProposalMetadata;
-  updateProposalError?: string;
-  verifyResultsProposalAddress?: string;
-  verifyResultsError?: string;
-  updatedSpaceMetadataAddress?: string;
-  setUpdatedSpaceMedatataError?: string;
-}
 class Analytics {
   body = {
     _id: crypto.randomUUID(),
@@ -95,13 +38,13 @@ class Analytics {
     wallet: ReturnType<typeof useTonWallet>
   ) => {
     if (walletAddress === this.body.walletAddress) return;
-      this.sendLog("walletChanged", {
-        walletAddress,
-        walletName: wallet?.device.appName,
-        walletVersion: wallet?.device.appVersion,
-        platform: wallet?.device.platform,
-        device: isMobile ? "mobile" : "desktop",
-      });
+    this.sendLog("walletChanged", {
+      walletAddress,
+      walletName: wallet?.device.appName,
+      walletVersion: wallet?.device.appVersion,
+      platform: wallet?.device.platform,
+      device: isMobile ? "mobile" : "desktop",
+    });
   };
 
   verifyResultsRequest = (verifyResultsProposalAddress: string) => {
@@ -124,8 +67,8 @@ class Analytics {
     this.sendLog("createSpaceMetadataFailed", { createSpaceMetadataError });
   };
 
-  createSpaceMetadataSucess = (createSpaceMetadataAddress: string) => {
-    this.sendLog("createSpaceMetadataSucess", { createSpaceMetadataAddress });
+  createSpaceMetadataSuccess = (createSpaceMetadataAddress: string) => {
+    this.sendLog("createSpaceMetadataSuccess", { createSpaceMetadataAddress });
   };
 
   updateSpaceRequest = (
@@ -229,3 +172,46 @@ class Analytics {
 }
 
 export const analytics = new Analytics();
+
+// types
+interface State {
+  state: string;
+  time: number;
+}
+
+interface AnalyticsBody {
+  state?: State;
+  _id: string;
+  walletAddress?: string;
+  walletName?: string;
+  walletVersion?: string;
+  platform?: string;
+  device?: string;
+  serverVersion?: string;
+  sdkVerion?: string;
+  daoId?: string;
+  getDaoFailedError?: string;
+  voteProposalAddress?: string;
+  vote?: string;
+  voteError?: string;
+  voteSuccess?: boolean;
+  createSpaceMetadata?: MetadataArgs;
+  createSpaceMetadataError?: string;
+  createSpaceMetadataAddress?: string;
+  createSpaceOwnerAddress?: string;
+  createSpaceProposalPublisherAddress?: string;
+  createSpaceError?: string;
+  createProposalMetadata?: ProposalMetadata;
+  createdProposalAddress?: string;
+  createProposalError?: string;
+  updateSpaceId?: string;
+  updateSpaceMetadata?: MetadataArgs;
+  updateSpaceError?: string;
+  updateProposalAddress?: string;
+  updateProposalMetadata?: ProposalMetadata;
+  updateProposalError?: string;
+  verifyResultsProposalAddress?: string;
+  verifyResultsError?: string;
+  updatedSpaceMetadataAddress?: string;
+  setUpdatedSpaceMedatataError?: string;
+}

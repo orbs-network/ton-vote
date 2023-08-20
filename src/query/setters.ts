@@ -153,7 +153,7 @@ export const useCreateMetadataQuery = () => {
         analytics.createSpaceMetadataFailed(error.message);
       },
       onSuccess: (address, args) => {
-        analytics.createSpaceMetadataSucess(address);
+        analytics.createSpaceMetadataSuccess(address);
         args.onSuccess(address);
       },
     }
