@@ -27,7 +27,7 @@ export function Vote() {
   const choices = data?.metadata?.votingSystem.choices;
 
   const walletVote = useWalletVote(proposalAddress);
-  const currentVote = walletVote?.vote as string;
+  const lastVote = walletVote?.vote as string;
   const show = useShowComponents().vote;
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function Vote() {
         {choices?.map((option) => {
           return (
             <StyledOption
-              selected={option.toLowerCase() === vote?.toLowerCase()}
+              selected={option?.toLowerCase() === vote?.toLowerCase()}
               key={option}
               onClick={() => setVote(option)}
             >
@@ -67,7 +67,8 @@ export function Vote() {
       </StyledFlexColumn>
       <AppTooltip
         text={
-          currentVote.toLowerCase() === vote?.toLowerCase()
+          !vote ? "Please select an option" :
+          lastVote?.toLowerCase() === vote?.toLowerCase()
             ? `You already voted ${vote}`
             : ""
         }
@@ -77,7 +78,7 @@ export function Vote() {
           disabled={
             !vote ||
             isLoading ||
-            currentVote.toLowerCase() === vote.toLowerCase()
+            lastVote?.toLowerCase() === vote?.toLowerCase()
           }
           onSubmit={onSubmit}
         />

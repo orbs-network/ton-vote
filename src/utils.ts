@@ -422,3 +422,4 @@ export const getProposalSymbol = (
       break;
   }
 };
+

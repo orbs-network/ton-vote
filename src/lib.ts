@@ -400,7 +400,7 @@ const getDaos = async (devFeatures?: boolean, signal?: AbortSignal) => {
   const foundationDao = _.first(allDaos.splice(daoIndex, 1));
 
   if (foundationDao) {
-    foundationDao.daoProposals = FOUNDATION_PROPOSALS_ADDRESSES;
+    foundationDao.daoProposals = _.concat(foundationDao.daoProposals, FOUNDATION_PROPOSALS_ADDRESSES);
     allDaos = [foundationDao, ...allDaos];
   }
   if (!devFeatures) {
