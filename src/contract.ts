@@ -74,7 +74,7 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
       return {
         votingPower,
         proposalResult: proposalResult as any,
-        votes: parseVotes(votes, votingPower),
+        votes: parseVotes(metadata, votes, votingPower),
         metadata,
         maxLt: newMaxLt,
         rawVotes: votes,
@@ -136,8 +136,12 @@ const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs
   votingPower[walletAddress] = singleVotingPower;
 
   return {
-    proposalResults: calcProposalResult(votes, votingPower, proposal.metadata?.votingSystem!),
-    vote: parseVotes(rawVotes, votingPower)[0],
+    proposalResults: calcProposalResult(
+      votes,
+      votingPower,
+      proposal.metadata?.votingSystem!
+    ),
+    vote: parseVotes(metadata, rawVotes, votingPower)[0],
     maxLt,
   };
 };

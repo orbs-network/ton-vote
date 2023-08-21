@@ -1,24 +1,23 @@
-import { Box, CircularProgress, styled, Typography } from "@mui/material";
+import { CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
 import { isTwaApp } from "consts";
-import { useAppParams, useGetProposalSymbol } from "hooks/hooks";
+import { useAppParams } from "hooks/hooks";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import {
-  useConnectedWalletVotingPowerQuery,
+  useWalletVotingPowerQuery,
   useProposalQuery,
 } from "query/getters";
-import React, { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { useVoteContext } from "./context";
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
-  vote?: string;
   onSubmit: () => void;
 }
 
-export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
+export function VoteConfirmation({ onSubmit }: Props) {
   const translations = useProposalPageTranslations();
+  const {confirmation, setConfirmation, vote} = useVoteContext()
 
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
@@ -26,16 +25,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const {
     data: votingData,
     isLoading: votingDataLoading,
-    refetch,
-  } = useConnectedWalletVotingPowerQuery(data, proposalAddress);
-
-  
-
-  useEffect(() => {
-    if (open) {
-      refetch();
-    }
-  }, [open]);
+  } = useWalletVotingPowerQuery(data, proposalAddress);
 
   const votingPower = votingData?.votingPower;
   
@@ -46,7 +36,11 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     : false;
 
   return (
-    <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
+    <StyledPopup
+      title={translations.castVote}
+      open={confirmation}
+      onClose={() => setConfirmation(false)}
+    >
       <StyledContainer gap={30}>
         <StyledFlexColumn>
           <StyledVote label={translations.choice} value={vote} />
@@ -62,27 +56,32 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             value={votingData?.votingPowerText}
           />
         </StyledFlexColumn>
-        {NoVotingPower && (
+        {!votingDataLoading && NoVotingPower && (
           <InfoMessage
             message={translations.notEnoughVotingPower(
               data?.metadata?.mcSnapshotBlock.toLocaleString() || ""
             )}
           />
         )}
-       {!isTwaApp &&  <StyledButtons>
-          <Button variant="transparent" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            disabled={NoVotingPower || votingDataLoading}
-            onClick={() => {
-              onSubmit();
-              onClose();
-            }}
-          >
-            {translations.confirm}
-          </Button>
-        </StyledButtons>}
+        {!isTwaApp && (
+          <StyledButtons>
+            <Button
+              variant="transparent"
+              onClick={() => setConfirmation(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={NoVotingPower || votingDataLoading}
+              onClick={() => {
+                onSubmit();
+                setConfirmation(false);
+              }}
+            >
+              {translations.confirm}
+            </Button>
+          </StyledButtons>
+        )}
       </StyledContainer>
     </StyledPopup>
   );

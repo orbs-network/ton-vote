@@ -24,6 +24,16 @@ const isMockDao = (address: string): Dao | null => {
   return result ? result : null;
 };
 
+
+const mockDaoState = {
+  registry: "",
+  owner: "EQDehfd8rzzlqsQlVNPf9_svoBcWJ3eRbz-eqgswjNEKRIwo",
+  proposalOwner: "EQDehfd8rzzlqsQlVNPf9_svoBcWJ3eRbz-eqgswjNEKRIwo",
+  metadata: "",
+  daoIndex: 2,
+  fwdMsgFee: 2,
+};
+
 export const mock = {
   proposals,
   getMockProposal,
@@ -31,4 +41,5 @@ export const mock = {
   isMockProposal,
   daos,
   isMockDao,
+  mockDaoState,
 };

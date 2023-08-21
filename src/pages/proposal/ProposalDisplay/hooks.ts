@@ -24,6 +24,7 @@ import { useTonAddress } from "@tonconnect/ui-react";
 import { useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
+import { analytics } from "analytics";
 
 const handleNulls = (result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -52,6 +53,7 @@ export const useVerifyProposalResults = () => {
     async (customEndpoints: Endpoints) => {
       setEndpoints(customEndpoints);
       const promiseFn = async () => {
+        analytics.verifyResultsRequest(proposalAddress);
         const clientV2 = await getClientV2(
           endpoints?.clientV2Endpoint,
           endpoints?.apiKey
@@ -102,17 +104,16 @@ export const useVerifyProposalResults = () => {
       return promise;
     },
     {
-      onError: (error: Error) => console.log(error.message),
+      onError: (error: Error) => {
+        analytics.verifyResultsError(error.message);
+      },
+      onSuccess: () => {
+        analytics.verifyResultsSuccess();
+      },
     }
   );
 };
 
-export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
-  const walletAddress = useTonAddress();
-  return useMemo(() => {
-    return _.find(votes, (it) => it.address === walletAddress);
-  }, [dataUpdatedAt, walletAddress]);
-};
 
 const getCsvConfig = (isOneWalletOneVote: boolean) => {
   let titles = [];
@@ -131,16 +132,15 @@ const getCsvConfig = (isOneWalletOneVote: boolean) => {
   };
 };
 
-export const useCsvData = () => {
+export const useCsvData = (votes: Vote[], dataUpdatedAt: number) => {
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
-  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
 
   return useMemo(() => {
     const config = getCsvConfig(isOneWalletOneVote);
-    const values = _.map(data?.votes, (vote) => {
+    const values = _.map(votes, (vote) => {
       const value = config.keys.map((key) => {
         return vote[key as keyof Vote];
       });

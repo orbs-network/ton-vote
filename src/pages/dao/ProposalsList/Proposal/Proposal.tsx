@@ -34,7 +34,7 @@ const useHideProposal = (proposalAddress: string) => {
   const { data: dao } = useDaoQuery(proposal?.daoAddress || "");
 
   const { proposalStatus } = useProposalStatus(proposalAddress);
-  const title = proposal?.metadata?.title.toLowerCase();
+  const title = proposal?.metadata?.title?.toLowerCase();
   const description = proposal?.metadata?.description.toLowerCase();
 
   const { isProposalPublisher, isOwner } = useRole(dao?.daoRoles);

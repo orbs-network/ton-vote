@@ -186,14 +186,6 @@ export function StrategySelect(props: Props<ProposalForm>) {
                 <StyledMenuItem key={key} value={key} bg={selected ? 1 : 0}>
                   <StyledFlexRow justifyContent="space-between" gap={30}>
                     <Typography>{value.name}</Typography>
-                    {/* {selected && (
-                      <BsFillTrash3Fill
-                        style={{
-                          width: 17,
-                          height: 17,
-                        }}
-                      />
-                    )} */}
                   </StyledFlexRow>
                 </StyledMenuItem>
               );

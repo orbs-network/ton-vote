@@ -47,7 +47,7 @@ import {
 import { delay, getTxFee, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useAnalytics } from "analytics";
+import { analytics } from "analytics";
 import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
@@ -60,18 +60,15 @@ export const useCreateDaoQuery = () => {
   const appNavigation = useAppNavigation();
   const { addDao } = useNewDataStore();
 
-  const analytics = useAnalytics();
-
   return useMutation(
     async (args: CreateDaoArgs) => {
       const sender = getSender();
       const clientV2 = await getClientV2();
 
       let getPromise = () => {
-        
         if (args.dev && !IS_DEV) {
           const txFee = createDaoProdFee + createDaoDevFee;
-
+          analytics.createSpaceRequest(args.ownerAddress, args.proposalOwner);
           return createNewDaoOnProdAndDev(
             sender,
             clientV2,
@@ -112,12 +109,12 @@ export const useCreateDaoQuery = () => {
     {
       onError: (error: Error, args) => {
         showErrorToast(error);
-        analytics.createSpaceFailed(args.metadataAddress, error.message);
+        analytics.createSpaceFailed(error.message);
       },
       onSuccess: (address, args) => {
         appNavigation.daoPage.root(address);
         addDao(address);
-        analytics.createSpaceSuccess(args.metadataAddress, address);
+        analytics.createSpaceSuccess();
         showSuccessToast(`Space created successfully`);
         args.onSuccess();
       },
@@ -128,14 +125,13 @@ export const useCreateDaoQuery = () => {
 export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
-  const analytics = useAnalytics();
 
   return useMutation(
     async (args: CreateMetadataArgs) => {
       const { metadata } = args;
       const sender = getSender();
       const clientV2 = await getClientV2();
-
+      analytics.createSpaceMetadataRequest(metadata);
       const address = await newMetdata(
         sender,
         clientV2,
@@ -154,11 +150,12 @@ export const useCreateMetadataQuery = () => {
     {
       onError: (error: Error, args) => {
         errorToast(error);
-        analytics.createSpaceMetadataFailed(error.message, args.metadata);
+        analytics.createSpaceMetadataFailed(error.message);
       },
       onSuccess: (address, args) => {
-        analytics.createSpaceMetadataSucess(address, args.metadata);
-        args.onSuccess(address);
+        analytics.createSpaceMetadataSuccess(address);
+        args.onSuccess?.(address);
+        showSuccessToast(`Space metadata created successfully`);
       },
     }
   );
@@ -177,7 +174,6 @@ export const useCreateProposalQuery = () => {
   const daoState = useDaoStateQuery(dao?.daoAddress).data;
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
-  const analytics = useAnalytics();
 
   return useMutation(
     async (args: CreateProposalArgs) => {
@@ -188,6 +184,7 @@ export const useCreateProposalQuery = () => {
       if (!allowed) {
         throw new Error("You are not allowed to create a proposal");
       }
+      analytics.createProposalRequest(metadata as ProposalMetadata);
       const address = await newProposal(
         sender,
         await getClientV2(),
@@ -207,16 +204,10 @@ export const useCreateProposalQuery = () => {
     {
       onError: (error: Error, args) => {
         showErrorToast(error);
-        analytics.createProposalFailed(
-          args.metadata as ProposalMetadata,
-          error.message
-        );
+        analytics.createProposalFailed(error.message);
       },
       onSuccess: (address, args) => {
-        analytics.createProposalSuccess(
-          args.metadata as ProposalMetadata,
-          address
-        );
+        analytics.createProposalSuccess(address);
         showSuccessToast("Proposal created successfully");
         args.onSuccess(address);
       },
@@ -307,7 +298,7 @@ export const useSetDaoPublisherQuery = () => {
   );
 };
 
-export const useUpdateDaoMetadataQuery = () => {
+export const useSetDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
   const refetchDaos = useDaosQuery().refetch;
@@ -316,25 +307,14 @@ export const useUpdateDaoMetadataQuery = () => {
   const refetchUpdatedDao = useDaoQuery(daoAddress).refetch;
 
   const errorToast = useErrorToast();
-  const analytics = useAnalytics();
 
   return useMutation(
     async (args: UpdateMetadataArgs) => {
-      const { metadata, daoAddress } = args;
+      const { daoAddress, metadataAddress } = args;
 
       const sender = getSender();
       const clientV2 = await getClientV2();
-
-      const metadataAddress = await newMetdata(
-        sender,
-        clientV2,
-        TX_FEES.CREATE_METADATA.toString(),
-        metadata
-      );
-
-      if (typeof metadataAddress !== "string") {
-        throw new Error("Failed to update metadata");
-      }
+      analytics.updateSpaceRequest(daoAddress);
 
       const address = await setMetadata(
         sender,
@@ -347,23 +327,20 @@ export const useUpdateDaoMetadataQuery = () => {
       if (typeof address !== "string") {
         throw new Error("Failed to update metadata");
       }
+      setDaoUpdateMillis(args.daoAddress);
+      await refetchUpdatedDao();
       return address;
     },
     {
       onError: (error: Error, args) => {
         errorToast(error);
-        analytics.updateDaoMetatdaFailed(
-          args.metadata,
-          args.daoAddress,
-          error.message
-        );
+        analytics.updateProposalFailed(error.message);
       },
-      onSuccess: (_, args) => {
-        showSuccessToast("Metadata updated");
-        setDaoUpdateMillis(args.daoAddress);
+      onSuccess: (value, args) => {
+        showSuccessToast("Space Metadata updated");
         refetchDaos();
-        refetchUpdatedDao();
-        analytics.updateDaoMetadataSuccess(args.metadata, args.daoAddress);
+        analytics.updateSpaceSuccess(args.daoAddress);
+        args.onSuccess?.(value);
       },
     }
   );
@@ -379,7 +356,6 @@ export const useVote = () => {
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
-  const analytics = useAnalytics();
 
   return useMutation(
     async (_vote: string) => {
@@ -389,7 +365,7 @@ export const useVote = () => {
       setIsVoting(true);
       const sender = getSender();
       const client = await getClientV2();
-
+      analytics.voteRequest(proposalAddress, _vote);
       await proposalSendMessage(
         sender,
         client,
@@ -403,7 +379,7 @@ export const useVote = () => {
     },
     {
       onSuccess: (values, _vote) => {
-        analytics.voteSuccess(proposalAddress, _vote);
+        analytics.voteSuccess();
         showSuccessToast(`Voted ${_vote} successfully`);
         if (!values) {
           throw new Error(
@@ -440,9 +416,9 @@ export const useVote = () => {
       onSettled: () => {
         setIsVoting(false);
       },
-      onError: (error: Error, vote) => {
+      onError: (error: Error) => {
         errorToast(error, 8_000);
-        analytics.voteError(proposalAddress, vote, error.message);
+        analytics.voteError(error.message);
       },
     }
   );
@@ -499,7 +475,6 @@ export const useUpdateProposalMutation = () => {
 
 export const useVoteSuccessCallback = (proposalAddress: string) => {
   const walletAddress = useTonAddress();
-  const analytics = useAnalytics();
 
   return async (proposal: Proposal) => {
     const promise = async (bail: any, attempt: number) => {
@@ -519,15 +494,8 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
 
         return result;
       } catch (error) {
-        if (attempt > 5) {
-          const message = error instanceof Error ? error.message : "";
-          analytics.getProposalFromContractAfterVotingFailed(
-            proposalAddress,
-            message
-          );
-        }
         Logger(error);
-        throw error;
+        throw new Error("Failed to get results");
       }
     };
 

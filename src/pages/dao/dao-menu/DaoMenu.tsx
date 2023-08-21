@@ -262,7 +262,7 @@ const useNavigationLinks = () => {
       path: appNavigation.daoPage.settings(daoAddress),
       selected: route === routes.spaceSettings,
       route: routes.spaceSettings,
-      hide: !showDev,
+      hide: !showDev || !isOwner,
     },
   ];
 };

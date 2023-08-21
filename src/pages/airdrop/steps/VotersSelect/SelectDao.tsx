@@ -18,7 +18,6 @@ import _ from "lodash";
 import { parseLanguage } from "utils";
 
 import { VirtualList } from "components";
-import { SubmitButtonContainer } from "../SubmitButton";
 import { Dao } from "types";
 import {
   StyledAirdropList,
@@ -26,12 +25,8 @@ import {
   StyledSelectedList,
   StyledSelectPopup,
 } from "../../styles";
-import { errorToast } from "toasts";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 
-interface DaoRowProps {
-  value: string;
-}
 function DaoRowContent(props: VirtualListRowProps) {
   const value = props.data.list[props.index];
   const { data: daos, dataUpdatedAt } = useDaosQuery();
@@ -73,7 +68,7 @@ function DaoRowContent(props: VirtualListRowProps) {
 }
 const StyledDisabledTooltip = styled(AppTooltip)({
   width: "100%",
-  height:'100%'
+  height: "100%",
 });
 
 export const SelectDao = () => {

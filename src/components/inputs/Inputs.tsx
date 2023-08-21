@@ -67,6 +67,7 @@ import { useMobile } from "hooks/hooks";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { VirtualList } from "components/VirtualList";
 import { Img } from "components/Img";
+import { Container } from "components/Container";
 
 interface TextInputProps {
   value?: string | number;
@@ -723,11 +724,12 @@ export function FormikInputsForm<T>({
             </TitleContainer>
           );
         }
-        return <Fragment key={index}>{content}</Fragment>;
+        return <Container style={{width:'100%'}} key={index}>{content}</Container>;
       })}
     </StyledFlexColumn>
   );
 }
+
 
 const StyledMarkdown = styled(Markdown)({
   marginTop: 20,

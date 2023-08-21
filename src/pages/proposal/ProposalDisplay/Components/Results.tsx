@@ -14,36 +14,40 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { nFormatter } from "utils";
 import _ from "lodash";
-import {  useShowComponents, useVerifyProposalResults } from "./hooks";
-import { EndpointPopup } from "./EndpointPopup";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
-import {  useAppParams, useProposalResults } from "hooks/hooks";
-import {  shouldHideVerify } from "data/foundation/data";
+import {
+  useAppParams,
+  useIsValidatorsProposal,
+  useProposalResults,
+} from "hooks/hooks";
+import { isFoundationProposal } from "data/foundation/data";
 import { useProposalQuery } from "query/getters";
+import { useShowComponents, useVerifyProposalResults } from "../hooks";
+import { EndpointPopup } from "./EndpointPopup";
+import { Result } from "types";
 const LIMIT = 5;
 
-export const Results = () => {
-    const { proposalAddress } = useAppParams();
+const useShowVerified = (proposalAddress?: string) => {
+  const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
 
+  return !isValidatorsProposal && !isFoundationProposal(proposalAddress);
+};
+
+export const Results = ({ results }: { results: Result[] }) => {
+  const { proposalAddress } = useAppParams();
+
+  const showVerify = useShowVerified(proposalAddress);
   const { isLoading } = useProposalQuery(proposalAddress);
-  
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
-
-  const hideVerify = shouldHideVerify(proposalAddress);
-  
-  const results = useProposalResults(proposalAddress);
   const show = useShowComponents().results;
 
-  
-
-
   if (!show) return null;
-    if (isLoading) {
-      return <LoadingContainer />;
-    }
+  if (isLoading) {
+    return <LoadingContainer />;
+  }
 
   return (
     <StyledResults title={translations.results}>
@@ -56,8 +60,8 @@ export const Results = () => {
               key={result.choice}
               name={result.choice}
               percent={result.percent}
-              amount={result.amount}
-              votes={result.votesCount}
+              amount={result.assetAmount}
+              votes={result.votesAmount}
             />
           );
         })}
@@ -69,7 +73,7 @@ export const Results = () => {
           />
         )}
       </StyledFlexColumn>
-      {!hideVerify && <VerifyResults />}
+      {showVerify && <VerifyResults />}
     </StyledResults>
   );
 };
@@ -109,7 +113,6 @@ const ResultRow = ({
   amount?: string;
   votes: number;
 }) => {
-
   const translations = useProposalPageTranslations();
   return (
     <StyledResultRow>
@@ -177,7 +180,7 @@ export function VerifyResults() {
     reset,
   } = useVerifyProposalResults();
   const translations = useProposalPageTranslations();
-  const {proposalAddress} = useAppParams();
+  const { proposalAddress } = useAppParams();
   useEffect(() => {
     if (isSuccess || error) {
       setTimeout(() => {

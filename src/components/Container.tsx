@@ -1,5 +1,5 @@
 import { Box, styled } from "@mui/material";
-import React, { ReactNode } from "react";
+import React, { CSSProperties, ReactNode } from "react";
 import { isMobile } from "react-device-detect";
 import {
   StyledContainer, StyledHoverContainer,
@@ -12,17 +12,20 @@ export const Container = React.forwardRef(
       className = "",
       onClick,
       hover = false,
+      style = {},
     }: {
       children?: ReactNode;
       className?: string;
       onClick?: () => void;
       hover?: boolean;
+      style?: CSSProperties;
     },
     ref: any
   ) => {
     return !isMobile && hover ? (
       <StyledHoverContainer
         onClick={onClick}
+        style={style}
         className={`${className} container`}
         ref={ref}
       >
@@ -30,6 +33,7 @@ export const Container = React.forwardRef(
       </StyledHoverContainer>
     ) : (
       <StyledContainer
+        style={style}
         onClick={onClick}
         className={`${className} container`}
         ref={ref}

@@ -60,12 +60,9 @@ const ProposalsSearch = () => {
 };
 
 export function ProposalsList() {
-  const [amount, setAmount] = useState(LIMIT);
   const translations = useDaoPageTranslations();
   const mobile = useMobile();
-  const showMore = () => {
-    setAmount((prev) => prev + LIMIT);
-  };
+
   const { daoAddress } = useAppParams();
 
   const { data, isLoading } = useDaoQuery(daoAddress);
@@ -81,7 +78,6 @@ export function ProposalsList() {
         <StyledFlexColumn gap={15} style={{ zIndex: 10, position: "relative" }}>
           <List isLoading={isLoading} loader={<ListLoader />}>
             {data?.daoProposals?.map((proposalAddress, index) => {
-              if (index >= amount) return null;
               return (
                 <Proposal
                   key={proposalAddress}
@@ -92,12 +88,6 @@ export function ProposalsList() {
           </List>
         </StyledFlexColumn>
       </Box>
-      <LoadMore
-        totalItems={_.size(data?.daoProposals)}
-        amountToShow={amount}
-        showMore={showMore}
-        limit={LIMIT}
-      />
     </StyledProposalsContainer>
   );
 }

@@ -7,10 +7,19 @@ import {
   Popup,
   TitleContainer,
 } from "components";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useShowComponents, useWalletVote } from "./hooks";
+import { useShowComponents } from "../hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -18,11 +27,12 @@ import { useVote } from "query/setters";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import _ from "lodash";
-import { useAppParams } from "hooks/hooks";
+import { useAppParams, useWalletVote } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { MainButton } from "@twa-dev/sdk/react";
 import { isTwaApp } from "consts";
 import { onConnect } from "utils";
+import { useVoteContext, VoteContext } from "./context";
 
 const useChoices = () => {
   const { proposalAddress } = useAppParams();
@@ -36,12 +46,11 @@ export function Vote() {
   const [confirmation, setConfirmation] = useState(false);
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
-  const [tgModal, setTgModal] = useState(false);
+  const { data } = useProposalQuery(proposalAddress);
+  const choices = data?.metadata?.votingSystem.choices;
 
-  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
-
-  const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
-  const currentVote = walletVote?.vote as string;
+  const walletVote = useWalletVote(proposalAddress);
+  const lastVote = walletVote?.vote as string;
   const show = useShowComponents().vote;
 
   useEffect(() => {
@@ -57,77 +66,56 @@ export function Vote() {
       setConfirmation(true);
     }
   };
-  const walletAddress = useTonAddress();
-
-  const onTwaClick = () => {
-    if (!walletAddress) {
-      onConnect();
-    } else if (tgModal && !vote) {
-      setTgModal(false);
-    } else if (vote) {
-      mutate(vote);
-    } else {
-      setTgModal(true);
-    }
-  };
-
-  const onOptionSelect = (_vote: string) => {
-    if (isTwaApp) {
-      setConfirmation(true);
-    }
-    setVote(_vote);
-  };
-
-  const onCloseConfirmation = () => {
-    setConfirmation(false);
-    if (isTwaApp) {
-      setVote(undefined);
-    }
-  };
 
   if (!show) return null;
   return (
-    <StyledContainer title={translations.castVote}>
-      <Options selected={vote} onSelect={onOptionSelect} />
-      <TelegramOptionsSelect open={tgModal} onClose={() => setTgModal(false)}>
-        <Options onSelect={onOptionSelect} />
-      </TelegramOptionsSelect>
-      <AppTooltip
-        text={currentVote === vote ? `You already voted ${vote}` : ""}
-      >
-        <VoteButton
-          isLoading={isLoading}
-          disabled={!vote || isLoading || currentVote === vote}
-          onSubmit={onSubmit}
-          onTwaClick={onTwaClick}
-        />
-      </AppTooltip>
-      <VoteConfirmation
-        open={confirmation}
-        vote={vote}
-        onClose={onCloseConfirmation}
-        onSubmit={() => {
-          if (!vote) return;
-          mutate(vote);
-        }}
-      />
-      {isTwaApp && (
-        <MainButton
-          // disabled={confirmation}
-          progress={isLoading}
-          onClick={onTwaClick}
+    <VoteContext.Provider
+      value={{
+        isLoading,
+        vote,
+        lastVote,
+        onSubmit,
+        confirmation,
+        setConfirmation,
+      }}
+    >
+      <StyledContainer title={translations.castVote}>
+        <StyledFlexColumn>
+          {choices?.map((option) => {
+            return (
+              <StyledOption
+                selected={option?.toLowerCase() === vote?.toLowerCase()}
+                key={option}
+                onClick={() => setVote(option)}
+              >
+                <Fade in={option === vote}>
+                  <StyledFlexRow className="icon">
+                    <FiCheck style={{ width: 20, height: 20 }} />
+                  </StyledFlexRow>
+                </Fade>
+                <Typography>{option}</Typography>
+              </StyledOption>
+            );
+          })}
+        </StyledFlexColumn>
+        <AppTooltip
           text={
-            !walletAddress
-              ? "Connect wallet"
-              : tgModal && !vote
-              ? "Close"
-              : confirmation
-              ? "Confirm vote"
-              : "Cast vote"
+            !vote
+              ? "Please select an option"
+              : lastVote?.toLowerCase() === vote?.toLowerCase()
+              ? `You already voted ${vote}`
+              : ""
           }
+        >
+          {isTwaApp ? <TgButton /> : <RegularButton />}
+        </AppTooltip>
+        <VoteConfirmation
+          onSubmit={() => {
+            mutate(vote!);
+          }}
         />
-      )}
-    </StyledContainer>
+      </StyledContainer>
+    </VoteContext.Provider>
   );
 }
 
@@ -162,36 +150,45 @@ const Options = ({
   );
 };
 
-const VoteButton = ({
-  onSubmit,
-  isLoading,
-  disabled,
-  onTwaClick,
-}: {
-  onSubmit: () => void;
-  isLoading: boolean;
-  disabled: boolean;
-  onTwaClick: () => void;
-}) => {
+const TgButton = () => {
   const walletAddress = useTonAddress();
+
+  const onClick = () => {
+    if (!walletAddress) {
+      onConnect();
+    }
+  };
+
+  const text = useMemo(() => {
+    if (!walletAddress) {
+      return "Connect";
+    }
+    return "Vote";
+  }, [walletAddress]);
+
+  return <MainButton text={text} onClick={onClick} />;
+};
+
+const RegularButton = () => {
+  const { isLoading, vote, lastVote, onSubmit } = useVoteContext();
+  const walletAddress = useTonAddress();
+
+  const disabled =
+    !vote || isLoading || lastVote?.toLowerCase() === vote?.toLowerCase();
 
   if (!walletAddress) {
     return <StyledConnectButton />;
   }
 
-  if (!isTwaApp) {
-    return (
-      <StyledVoteButton
-        onClick={onSubmit}
-        isLoading={isLoading}
-        disabled={disabled}
-      >
-        Vote
-      </StyledVoteButton>
-    );
-  }
-
-  return null;
+  return (
+    <StyledVoteButton
+      onClick={onSubmit}
+      isLoading={isLoading}
+      disabled={disabled}
+    >
+      Vote
+    </StyledVoteButton>
+  );
 };
 
 const TelegramOptionsSelect = ({

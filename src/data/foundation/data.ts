@@ -3,7 +3,8 @@ import { Proposal } from "types";
 import { TOKENOMICS_ABOUT, DORA_HACKS_ABOUT } from "./about";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import _ from "lodash";
-
+export const LATEST_FOUNDATION_PROPOSAL_ADDRESS =
+  "EQAiqphPtZ2jLyzqrcfVrhBZfarghWKpkt0fSfALsqRbofQ7";
 export const FOUNDATION_DAO_ADDRESS =
   "EQCb8dxevgHhBnsTodJKXaCrafplHzAHf1V2Adj0GVlhA5xI";
 
@@ -13,8 +14,10 @@ export const FOUNDATION_PROPOSALS_ADDRESSES = [
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS",
 ];
 
-export const shouldHideVerify = (address: string) => {
-  return FOUNDATION_PROPOSALS_ADDRESSES.includes(address);
+
+
+export const isFoundationProposal = (address?: string) => {
+  return FOUNDATION_PROPOSALS_ADDRESSES.includes(address || "");
 };
 
 const getRawVotes = (votes: any[]) => {
