@@ -61,13 +61,12 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
 
       const nftItemsHolders = await _getAllNftHolders(metadata, _clientV4);
 
-      let operatingValidatorsInfo = {}
+      let operatingValidatorsInfo = {};
 
       if (proposalType === VotingPowerStrategyType.TonBalanceWithValidators) {
         operatingValidatorsInfo = await api.geOperatingValidatorsInfo(
           proposalAddress
         );
-        
       }
 
       const votingPower = await TonVoteSDK.getVotingPower(
@@ -86,13 +85,13 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
         metadata
       );
 
-      console.log({ proposalResult });
-      
+      proposalResult.totalWeight = proposalResult.totalWeights;
+      const { totalWeights, ...rest } = proposalResult;
       const votes = TonVoteSDK.getAllVotes(transactions, metadata);
 
       return {
         votingPower,
-        proposalResult: proposalResult as any,
+        proposalResult: rest as any,
         votes: parseVotes(votes, votingPower),
         metadata,
         maxLt: newMaxLt,
