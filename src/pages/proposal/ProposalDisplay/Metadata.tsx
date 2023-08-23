@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { Link, styled, Typography, useTheme } from "@mui/material";
 import {
   AddressDisplay,
   LoadingContainer,
@@ -6,7 +6,7 @@ import {
   TitleContainer,
   Img,
 } from "components";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import moment from "moment";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
@@ -18,7 +18,10 @@ import {
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { ONE_WALLET_ONE_VOTE_URL } from "consts";
-import { getTonScanContractUrl } from "utils";
+import { getTonScanContractUrl, getVoteStrategyType } from "utils";
+import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
+import CheckImg from "assets/check.svg";
+import CheckImgGray from "assets/check-gray.svg";
 
 const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
   return `${moment.unix(time).utc().format(format)} UTC`;
@@ -26,11 +29,14 @@ const fromUnixToString = (time: number, format = "MMM DD, YYYY HH:mm") => {
 
 export const Metadata = () => {
   const { proposalAddress } = useAppParams();
-  const { isLoading, data } = useProposalQuery(proposalAddress);
+  const { isLoading, data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const translations = useProposalPageTranslations();
   const proposalMetadata = data?.metadata;
   const strategyName = useProposalStrategyName(proposalAddress);
-  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+
+  const type = useMemo(() => {
+    return getVoteStrategyType(proposalMetadata?.votingPowerStrategies);
+  }, [dataUpdatedAt]);
 
   if (isLoading) {
     return <LoadingContainer />;
@@ -39,45 +45,71 @@ export const Metadata = () => {
   return (
     <StyledInformation title={translations.information}>
       {proposalMetadata && (
-        <StyledFlexColumn gap={12}>
-          <InformationRow label={translations.startDate}>
-            <Typography>
-              {fromUnixToString(Number(proposalMetadata.proposalStartTime))}
-            </Typography>
-          </InformationRow>
-          <InformationRow label={translations.endDate}>
-            <Typography>
-              {fromUnixToString(Number(proposalMetadata.proposalEndTime))}
-            </Typography>
-          </InformationRow>
+        <>
+          <StyledPadding>
+            <InformationRow label={translations.startDate}>
+              <Typography>
+                {fromUnixToString(Number(proposalMetadata.proposalStartTime))}
+              </Typography>
+            </InformationRow>
+            <InformationRow label={translations.endDate}>
+              <Typography>
+                {fromUnixToString(Number(proposalMetadata.proposalEndTime))}
+              </Typography>
+            </InformationRow>
 
-          <InformationRow label={translations.snapshot}>
-            <Typography>
-              {fromUnixToString(Number(proposalMetadata.proposalSnapshotTime))}
-            </Typography>
-          </InformationRow>
-          <InformationRow label={translations.contract}>
-            <AddressDisplay address={proposalAddress} />
-          </InformationRow>
-          <InformationRow label={translations.votingStrategy}>
-            {isOneWalletOneVote ? (
-              <StyledLink href={ONE_WALLET_ONE_VOTE_URL} target="_blank">
-                <OverflowWithTooltip text={strategyName} />
-              </StyledLink>
-            ) : (
-              <OverflowWithTooltip text={strategyName} />
-            )}
-          </InformationRow>
-          <Jetton />
-          <NFT />
-        </StyledFlexColumn>
+            <InformationRow label={translations.snapshot}>
+              <Typography>
+                {fromUnixToString(
+                  Number(proposalMetadata.proposalSnapshotTime)
+                )}
+              </Typography>
+            </InformationRow>
+            <InformationRow label={translations.contract}>
+              <AddressDisplay address={proposalAddress} />
+            </InformationRow>
+            <InformationRow label={translations.votingStrategy}>
+              <HandleStrategyNameDisplay name={strategyName} type={type} />
+            </InformationRow>
+            <Jetton />
+            <NFT />
+          </StyledPadding>
+        </>
       )}
+      <ExtraInfo />
     </StyledInformation>
   );
 };
 
+const StyledPadding = styled(StyledFlexColumn)({
+  gap: 12,
+  padding: 20,
+  paddingBottom: 0,
+});
+
+const HandleStrategyNameDisplay = ({
+  name,
+  type,
+}: {
+  name?: string;
+  type: VotingPowerStrategyType;
+}) => {
+  const { proposalAddress } = useAppParams();
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+  if (isOneWalletOneVote) {
+    return (
+      <StyledLink href={ONE_WALLET_ONE_VOTE_URL} target="_blank">
+        <OverflowWithTooltip text={name} />
+      </StyledLink>
+    );
+  }
+
+  return <OverflowWithTooltip text={name} />;
+};
+
 const StyledLink = styled("a")(({ theme }) => ({
   textDecoration: "unset",
+  color: theme.palette.text.primary,
   "&:hover": {
     textDecoration: "underline",
     textDecorationColor: theme.palette.text.primary,
@@ -92,7 +124,7 @@ const InformationRow = ({
   children: ReactNode;
 }) => {
   return (
-    <StyledRow justifyContent="space-between" gap={50}>
+    <StyledRow justifyContent="space-between" gap={10}>
       <Typography className="row-label">{label}</Typography>
       <div className="row-children">{children}</div>
     </StyledRow>
@@ -116,6 +148,9 @@ const StyledRow = styled(StyledFlexRow)({
 
 const StyledInformation = styled(TitleContainer)({
   width: "100%",
+  ".title-container-children": {
+    padding: 0,
+  },
 });
 
 const NFT = () => {
@@ -135,7 +170,7 @@ const NFT = () => {
 const Jetton = () => {
   const { proposalAddress } = useAppParams();
   const data = useProposalQuery(proposalAddress).data;
-  
+
   const strategyArgs = useStrategyArguments(proposalAddress);
 
   return (
@@ -156,7 +191,6 @@ const Asset = ({
   metadata?: any;
   label: string;
 }) => {
-
   if (!address) {
     return null;
   }
@@ -168,7 +202,7 @@ const Asset = ({
       </InformationRow>
     );
   }
-  
+
   return (
     <InformationRow label={label}>
       <StyledAsset
@@ -198,3 +232,60 @@ const StyledAsset = styled("a")(({ theme }) => ({
     textDecorationColor: theme.palette.text.primary,
   },
 }));
+
+function ExtraInfo() {
+  const { proposalAddress } = useAppParams();
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+  const theme = useTheme();
+  const proposalStrategyType = useMemo(
+    () => getVoteStrategyType(data?.metadata?.votingPowerStrategies),
+    [dataUpdatedAt]
+  );
+
+  if (
+    proposalStrategyType === VotingPowerStrategyType.TonBalanceWithValidators
+  ) {
+    return (
+      <StyledExtraInfo>
+        <img
+          src={theme.palette.mode === "dark" ? CheckImg : CheckImgGray}
+          className="check"
+        />
+        <Typography>
+          Validators can participate in this proposal.{" "}
+          <Link
+            href="https://github.com/orbs-network/ton-vote#supported-strategies"
+            target="_blank"
+          >
+            Read more
+          </Link>
+        </Typography>
+      </StyledExtraInfo>
+    );
+  }
+  return <div style={{ marginTop: 20 }} />;
+}
+
+const StyledExtraInfo = styled(StyledFlexRow)({
+  width: "100%",
+  background: "rgba(0, 136, 204, 0.1)",
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "flex-start",
+  flexDirection: "row",
+  padding: "14px 20px",
+  gap: 12,
+  marginTop: 14,
+  ".check": {
+    width: 22,
+    height: 22,
+    "*": {
+      color: "yellow",
+    },
+  },
+  p: {
+    fontSize: 14,
+    fontWeight: 600,
+    width: "auto",
+  },
+});
