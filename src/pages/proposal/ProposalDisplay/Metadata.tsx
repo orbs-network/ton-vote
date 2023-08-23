@@ -252,7 +252,7 @@ function ExtraInfo() {
           className="check"
         />
         <Typography>
-          Validators can participate in this proposal.{" "}
+          Validators can participate in this vote.{" "}
           <Link
             href="https://github.com/orbs-network/ton-vote#supported-strategies"
             target="_blank"
