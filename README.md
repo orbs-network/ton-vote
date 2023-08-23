@@ -98,11 +98,22 @@ The platform is live and deployed to mainnet. The client is at https://ton.vote 
 There are ideas in the community on how to implement an on-chain DAO. Most proposals have to do with Jettons, not with TON coin itself. These proposals also generally prevent or limit tokens from being transferred during the vote so they would not be used twice. We believe that such limitations will decrease participation in the vote and prevent some voices from being heard. Even with democratic elections that happen once every 4 years, voter turn-out is always too low. The off-chain calculation method is as secure (nobody can create widespread result fraud) and by relying on a historic balance snapshot, there is no need to limit any of the voters in any way.
 
 ## Supported Strategies
-Currently, we offer support for two strategies, with plans to introduce additional options in the near future:
+We support the following strategies:
 
-1. Weighted Balance: In this strategy, we consider the voter's balance on the snapshot date (which can be found on the proposal page in the info section). The more coins a voter holds, the greater their voting power. While this approach is logical as it grants more influence to those with larger coin holdings, it can also lead to increased influence for large-scale investors, often referred to as whales. This strategy can be applied to TON coins, Jetton, or NFTs. For NFTs, we count the number of NFTs held by the voter, while for Jetton, we consider the Jetton balance.
+1. Weighted Balance: in this strategy, we consider the voter's balance on the snapshot date (which can be found on the proposal page in the info section). The more coins a voter holds, the greater their voting power. While this approach is logical as it grants more influence to those with larger coin holdings, it can also lead to increased influence for large-scale investors, often referred to as whales. This strategy can be applied to TON coins, Jetton, or NFTs. For NFTs, we count the number of NFTs held by the voter, while for Jetton, we consider the Jetton balance. 
+You also have the option of allowing validators to take part in this type of vote, see [Validators Vote](https://github.com/orbs-network/ton-vote/#validators-vote) section for more details.
 
 2. One Wallet, One Vote: This strategy grants equal voting power to all participants, regardless of the number of coins they hold. Each holder receives precisely one voting power. This strategy aims to address the bias introduced by the Weighted Balance strategy, ensuring more fairness and equal representation among voters.
+
+## Validators Vote
+In certain situations, you may consider allowing validators to be part of the proposal process.
+Validators are responisble for maintaing the network and usually stake a significant amount of TONs in the elector contract, this is a well known concept in POS blockchain where the validators stake some tokens and get rewards for maintaining the network or get punished for bad behaivour. 
+
+Validators typically have a substantial amount of tokens held in the elector contract, a dedicated contract. This could sometimes prevent them from participating in an active weighted balance vote. However, ton.vote enables validators to partake in ongoing proposals using their operational wallets in mytonctrl. Validators can leverage the operational wallet that oversees the staking wallet (like a single nominator, nominator pool or any basic wallet) and can cast their vote by sending a certain amount of coins accompanied by a comment.
+
+For instance, using mytonctrl, the command `mg validator_wallet_001 EQAiqphPtZ2jLyzqrcfVrhBZfarghWKpkt0fSfALsqRbofQ7 0.01 -C yes` will transmit 0.01 TON from `validator_wallet_001` to the contract at address `EQAiqphPtZ2jLyzqrcfVrhBZfarghWKpkt0fSfALsqRbofQ7` with the commentary as `yes`.
+
+The generic command structure would be: `mg wallet-name contract-address 0.01 -C your-vote`.
 
 ## License
 
