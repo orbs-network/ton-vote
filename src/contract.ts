@@ -12,11 +12,13 @@ import {
   getSingleVoterPower,
   getTransactions,
   ProposalMetadata,
+  VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { Dao, Proposal } from "types";
 import { getVoteStrategyType, isNftProposal, Logger, parseVotes } from "utils";
 import retry from "async-retry";
 import { CONTRACT_RETRIES } from "config";
+import { api } from "api";
 
 interface GetProposalArgs {
   clientV2?: TonClient;
@@ -28,6 +30,10 @@ interface GetProposalArgs {
 
 const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
   const { clientV2, clientV4, proposalAddress, maxLt } = args;
+
+  const proposalType = getVoteStrategyType(
+    args.metadata?.votingPowerStrategies
+  );
 
   const promise = async (bail: any, attempt: number) => {
     Logger(
@@ -55,13 +61,23 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
 
       const nftItemsHolders = await _getAllNftHolders(metadata, _clientV4);
 
+      let operatingValidatorsInfo = {}
+
+      if (proposalType === VotingPowerStrategyType.TonBalanceWithValidators) {
+        operatingValidatorsInfo = await api.geOperatingValidatorsInfo(
+          proposalAddress
+        );
+        
+      }
+
       const votingPower = await TonVoteSDK.getVotingPower(
         _clientV4,
         metadata,
         transactions,
         {},
         getVoteStrategyType(votingPowerStrategies),
-        nftItemsHolders
+        nftItemsHolders,
+        operatingValidatorsInfo
       );
 
       const proposalResult = TonVoteSDK.getCurrentResults(
@@ -69,6 +85,9 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
         votingPower,
         metadata
       );
+
+      console.log({ proposalResult });
+      
       const votes = TonVoteSDK.getAllVotes(transactions, metadata);
 
       return {
@@ -84,7 +103,7 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
       if (attempt === CONTRACT_RETRIES + 1) {
         Logger("Failed to fetch proposal from contract");
       }
-     throw new Error(error instanceof Error ? error.message : "");
+      throw new Error(error instanceof Error ? error.message : "");
     }
   };
 
@@ -97,7 +116,9 @@ interface GetProposalResultsAfterVoteArgs {
   proposal: Proposal;
 }
 
-const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs) => {
+const getProposalResultsAfterVote = async (
+  args: GetProposalResultsAfterVoteArgs
+) => {
   const { proposalAddress, walletAddress, proposal } = args;
   const metadata = proposal.metadata;
 
@@ -115,7 +136,7 @@ const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs
 
   if (!userTx || !metadata) return;
 
-  const nftItemsHolders = await getAllNftHolders(clientV4, metadata)
+  const nftItemsHolders = await getAllNftHolders(clientV4, metadata);
 
   const singleVotingPower = await getSingleVoterPower(
     clientV4,
@@ -136,7 +157,11 @@ const getProposalResultsAfterVote = async (args: GetProposalResultsAfterVoteArgs
   votingPower[walletAddress] = singleVotingPower;
 
   return {
-    proposalResults: calcProposalResult(votes, votingPower, proposal.metadata?.votingSystem!),
+    proposalResults: calcProposalResult(
+      votes,
+      votingPower,
+      proposal.metadata?.votingSystem!
+    ),
     vote: parseVotes(rawVotes, votingPower)[0],
     maxLt,
   };

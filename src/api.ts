@@ -113,6 +113,12 @@ const getDao = async (
   return retry(promise, { retries: API_RETRIES });
 };
 
+
+const geOperatingValidatorsInfo = async (address: string) => {
+  const res = await axiosInstance.get(`/operatingValidatorsInfo/${address}`);
+  return res.data;
+};
+
 const getUpdateTime = async (): Promise<number> => {
   const res = await axiosInstance.get("/updateTime");
   return res.data;
@@ -126,6 +132,7 @@ export const api = {
   getAllNftHolders,
   getUpdateTime,
   serverVersion,
+  geOperatingValidatorsInfo,
 };
 
 export interface GetStateApiPayload {

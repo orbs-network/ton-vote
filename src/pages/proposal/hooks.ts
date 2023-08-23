@@ -44,19 +44,20 @@ export const useVerifyProposalResults = () => {
   return useMutation(
     async (customEndpoints: Endpoints) => {
       setEndpoints(customEndpoints);
+      const _endpoints = customEndpoints || endpoints;
       const promiseFn = async () => {
         const clientV2 = await getClientV2(
-          endpoints?.clientV2Endpoint,
-          endpoints?.apiKey
+          _endpoints?.clientV2Endpoint,
+          _endpoints?.apiKey
         );
-        const clientV4 = await getClientV4(endpoints?.clientV4Endpoint);
+        const clientV4 = await getClientV4(_endpoints?.clientV4Endpoint);
 
         // if user voted, we need to get transactions after his vote
         const maxLtAfterVote =
           votePersistStore.getValues(proposalAddress).maxLtAfterVote;
 
         const maxLt = maxLtAfterVote || data?.maxLt || "";
-
+      
         const contractState = await contract.getProposal({
           clientV2,
           clientV4,

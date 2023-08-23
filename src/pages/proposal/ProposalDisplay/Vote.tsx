@@ -24,6 +24,7 @@ export function Vote() {
 
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const choices = data?.metadata?.votingSystem.choices;
+  const connectedWallet = useTonAddress();
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote as string;
@@ -63,7 +64,13 @@ export function Vote() {
         })}
       </StyledFlexColumn>
       <AppTooltip
-        text={currentVote === vote ? `You already voted ${vote}` : ""}
+        text={
+          !connectedWallet
+            ? ""
+            : currentVote === vote
+            ? `You already voted ${vote}`
+            : ""
+        }
       >
         <VoteButton
           isLoading={isLoading}
