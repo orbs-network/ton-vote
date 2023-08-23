@@ -14,7 +14,6 @@ import {
   useAppParams,
   useIsOneWalletOneVote,
   useProposalStrategyName,
-  useStrategyArguments,
   useStrategyAsset,
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
@@ -218,7 +217,10 @@ function ExtraInfo() {
         />
         <Typography>
           Validators can participate in this proposal.{" "}
-          <Link href="/" target="_blank">
+          <Link
+            href="https://github.com/orbs-network/ton-vote#supported-strategies"
+            target="_blank"
+          >
             Read more
           </Link>
         </Typography>
