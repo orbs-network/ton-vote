@@ -106,8 +106,7 @@ You also have the option of allowing validators to take part in this type of vot
 2. One Wallet, One Vote: This strategy grants equal voting power to all participants, regardless of the number of coins they hold. Each holder receives precisely one voting power. This strategy aims to address the bias introduced by the Weighted Balance strategy, ensuring more fairness and equal representation among voters.
 
 ## Validators Vote
-In certain situations, you may consider allowing validators to be part of the proposal process.
-Validators are responisble for maintaing the network and usually stake a significant amount of TONs in the elector contract, this is a well known concept in POS blockchain where the validators stake some tokens and get rewards for maintaining the network or get punished for bad behaivour. 
+In certain situations, you may consider allowing validators to be part of the proposal process. Validators are responsible for maintaining the network and usually stake a significant amount of TONs in the elector contract, this is a well known concept in POS blockchain where the validators stake some tokens and get rewards for maintaining the network or get punished for bad behavior.
 
 Validators typically have a substantial amount of tokens held in the elector contract, a dedicated contract. This could sometimes prevent them from participating in an active weighted balance vote. However, ton.vote enables validators to partake in ongoing proposals using their operational wallets in mytonctrl. Validators can leverage the operational wallet that oversees the staking wallet (like a single nominator, nominator pool or any basic wallet) and can cast their vote by sending a certain amount of coins accompanied by a comment.
 
