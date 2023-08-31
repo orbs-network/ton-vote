@@ -17,7 +17,9 @@ const getAllNFTHolders = async (
   }
   let nftItemsHolders;
 
-  nftItemsHolders = await api.getAllNftHolders(proposalAddress, signal);
+  try {
+    nftItemsHolders = await api.getAllNftHolders(proposalAddress, signal);
+  } catch (error) {}
 
   if (!_.isEmpty(nftItemsHolders)) {
     return nftItemsHolders;

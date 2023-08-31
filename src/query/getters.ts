@@ -279,16 +279,12 @@ export const useConnectedWalletVotingPowerQuery = (
         proposal?.metadata!,
         signal
       );
-
       Logger(`Fetching voting power for account: ${connectedWallet}`);
 
       const strategy = getVoteStrategyType(
         proposal?.metadata?.votingPowerStrategies
       );
 
-      if (!allNftHolders[connectedWallet]) {
-        allNftHolders[connectedWallet] = [];
-      }
       const result = await getSingleVoterPower(
         clients!.clientV4,
         connectedWallet!,
@@ -296,6 +292,7 @@ export const useConnectedWalletVotingPowerQuery = (
         strategy,
         allNftHolders
       );
+      
 
       const symbol = getProposalSymbol(
         proposal?.metadata?.votingPowerStrategies
