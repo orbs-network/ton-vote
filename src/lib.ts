@@ -392,7 +392,7 @@ export const handleNewDaoAddresses = async (daos: Dao[]) => {
   return daos;
 };
 
-const getDaos = async (devFeatures?: boolean, signal?: AbortSignal) => {
+const getDaos = async (signal?: AbortSignal) => {
   const payload = (await api.getDaos(signal)) || [];
   const prodDaos = await getIsDaosUpToDate(payload);
 
@@ -417,12 +417,6 @@ const getDaos = async (devFeatures?: boolean, signal?: AbortSignal) => {
       FOUNDATION_PROPOSALS_ADDRESSES
     );
     allDaos = [foundationDao, ...allDaos];
-  }
-  if (!devFeatures) {
-    allDaos = _.filter(
-      allDaos,
-      (it) => !PROD_TEST_DAOS.includes(it.daoAddress)
-    );
   }
   return allDaos;
 };

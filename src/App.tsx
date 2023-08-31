@@ -9,6 +9,7 @@ import { useRouter } from "router/router";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { useWalletListener } from "analytics";
+import { useGetTonVotingPower } from "query/getters";
 
 const useInitApp = () => {
   useInitThemeMode();
@@ -16,6 +17,9 @@ const useInitApp = () => {
 
 
 function App() {
+ const data =  useGetTonVotingPower().data;
+ console.log({ data });
+ 
   useInitApp();
   useWalletListener();
   useEffect(() => {

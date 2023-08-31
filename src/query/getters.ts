@@ -5,11 +5,9 @@ import _ from "lodash";
 import {
   getDaoState,
   getRegistryState,
+  VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import {
-  isDaoWhitelisted,
-  validateAddress,
-} from "utils";
+import { getVoteStrategyType, isDaoWhitelisted, validateAddress } from "utils";
 import { useCurrentRoute, useDevFeatures } from "hooks/hooks";
 import { fromNano } from "ton-core";
 import { mock } from "mock/mock";
@@ -73,7 +71,7 @@ export const useDaosQuery = () => {
 
   return useQuery(
     [QueryKeys.DAOS, devFeatures],
-    async ({ signal }) => lib.getDaos(devFeatures, signal),
+    async ({ signal }) => lib.getDaos(signal),
     {
       refetchInterval: config.refetchInterval,
       staleTime: Infinity,
@@ -330,4 +328,45 @@ export const useIsDaoVerified = (address?: string) => {
     if (!address) return false;
     return data?.includes(address);
   }, [dataUpdatedAt, address]);
+};
+
+export const useGetTonVotingPower = () => {
+  return useQuery(["useGetTonVotingPower"], async () => {
+    const daos = await lib.getDaos();
+    const proposals = (
+      await Promise.allSettled(
+        daos
+          .map((dao) => dao.daoProposals)
+          .flat()
+          .map((address) => lib.getProposal(address))
+      )
+    )
+      .map((proposal) => {
+        if (proposal.status === "fulfilled") {
+          return proposal.value;
+        }
+        return undefined;
+      })
+      .filter((proposal) => !!proposal) as Proposal[];
+
+    let amount = 0;
+
+    proposals.forEach((proposal) => {
+      const type = getVoteStrategyType(
+        proposal.metadata?.votingPowerStrategies
+      );
+      if (
+        type === VotingPowerStrategyType.TonBalance
+      ) {
+        const totalWeight =
+          proposal.proposalResult.totalWeight ||
+          proposal.proposalResult.totalWeights ||
+          "0";
+        const tonAmount = fromNano(totalWeight);
+
+        amount += Number(tonAmount);
+      }
+    });
+    return amount.toLocaleString();
+  });
 };
