@@ -66,7 +66,10 @@ const getProposal = async (
         getMaxLt(proposalAddress, signal),
       ]);
 
-      if (_.isEmpty(result.data?.metadata)) {
+      if (
+        _.isEmpty(result.data?.metadata) ||
+        _.isEmpty(result.data?.proposalResult)
+      ) {
         throw new Error("proposal not found in server");
       }
 
