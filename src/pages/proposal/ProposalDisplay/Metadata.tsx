@@ -18,7 +18,7 @@ import {
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { ONE_WALLET_ONE_VOTE_URL } from "consts";
-import { getVoteStrategyType } from "utils";
+import { getTonScanContractUrl, getVoteStrategyType } from "utils";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import CheckImg from "assets/check.svg";
 import CheckImgGray from "assets/check-gray.svg";
@@ -216,7 +216,7 @@ function ExtraInfo() {
           className="check"
         />
         <Typography>
-          Validators can participate in this proposal.{" "}
+          Validators can participate in this vote.{" "}
           <Link
             href="https://github.com/orbs-network/ton-vote#supported-strategies"
             target="_blank"

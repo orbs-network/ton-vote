@@ -435,3 +435,5 @@ export const parseValidatorVotes = (votes: string[]): Vote[] => {
     };
   });
 };
+
+

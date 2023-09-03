@@ -12,17 +12,15 @@ import {
   nFormatter,
 } from "utils";
 import retry from "async-retry";
-import { fromNano, TonClient, TonClient4 } from "ton";
+import { fromNano } from "ton";
 import _ from "lodash";
 import {
   getClientV2,
   getClientV4,
   getDaoMetadata,
   getSingleVoterPower,
-  ProposalMetadata,
-  VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import { Dao, Proposal } from "types";
+import { Dao, Endpoints, Proposal, ProposalResults } from "types";
 import { mock } from "mock/mock";
 import { useNewDataStore, useSyncStore, useVotePersistedStore } from "store";
 import { getIsServerUpToDate } from "query/hooks";
@@ -31,7 +29,7 @@ import {
   FOUNDATION_PROPOSALS_ADDRESSES,
   LATEST_FOUNDATION_PROPOSAL_ADDRESS,
 } from "./data/foundation/data";
-import { BLACKLISTED_PROPOSALS, IS_DEV, PROD_TEST_DAOS } from "config";
+import { BLACKLISTED_PROPOSALS, IS_DEV } from "config";
 
 const getAllNFTHolders = async (
   proposalAddress: string,
@@ -43,7 +41,9 @@ const getAllNFTHolders = async (
   }
   let nftItemsHolders;
 
-  nftItemsHolders = await api.getAllNftHolders(proposalAddress, signal);
+  try {
+    nftItemsHolders = await api.getAllNftHolders(proposalAddress, signal);
+  } catch (error) {}
 
   if (!_.isEmpty(nftItemsHolders)) {
     return nftItemsHolders;
@@ -219,26 +219,25 @@ const getDao = async (daoAddress: string, signal?: AbortSignal) => {
   }
 
   if (!dao) {
-   try {
-     dao = await api.getDao(daoAddress!, signal);
-   } catch (error) {
-    
-   }
+    try {
+      dao = await api.getDao(daoAddress!, signal);
+    } catch (error) {}
   }
 
   if (!dao) {
-   try {
-     dao = await getDaoFromContract();
-   } catch (error) {
-    
-   }
+    try {
+      dao = await getDaoFromContract();
+    } catch (error) {}
   }
 
   if (!dao) {
     throw new Error("DAO not found");
   }
 
-  const addProposalFromLocalStorage = (daoAddress: string, proposals: string[]) => {
+  const addProposalFromLocalStorage = (
+    daoAddress: string,
+    proposals: string[]
+  ) => {
     const newDaoPoposals = useNewDataStore.getState().proposals[daoAddress];
 
     // if no new proposals reutrn current proposals
@@ -443,10 +442,6 @@ const getWalletVotingPower = async ({
   const strategy = getVoteStrategyType(
     proposal?.metadata?.votingPowerStrategies
   );
-
-  if (!allNftHolders[connectedWallet]) {
-    allNftHolders[connectedWallet] = [];
-  }
   const result = await getSingleVoterPower(
     await getClientV4(),
     connectedWallet!,
@@ -470,6 +465,61 @@ const getWalletVotingPower = async ({
   };
 };
 
+const handleNulls = (result?: ProposalResults) => {
+  const getValue = (value: any) => {
+    if (_.isNull(value) || _.isNaN(value)) return 0;
+    if (_.isString(value)) return Number(value);
+    return value;
+  };
+
+  if (!result) return;
+  _.forEach(result, (value, key) => {
+    result[key] = getValue(value);
+  });
+
+  return result;
+};
+
+const compareProposalResults = async ({
+  proposalAddress,
+  endpoints,
+  proposal,
+}: {
+  proposalAddress: string;
+  endpoints: Endpoints;
+  proposal?: Proposal | null;
+}) => {
+  const clientV2 = await getClientV2(
+    endpoints?.clientV2Endpoint,
+    endpoints?.apiKey
+  );
+  const clientV4 = await getClientV4(endpoints?.clientV4Endpoint);
+
+  // if user voted, we need to get transactions after his vote
+  const maxLtAfterVote = useVotePersistedStore
+    .getState()
+    .getValues(proposalAddress).maxLtAfterVote;
+
+  const maxLt = maxLtAfterVote || proposal?.maxLt || "";
+
+  const contractState = await contract.getProposal({
+    clientV2,
+    clientV4,
+    proposalAddress,
+    metadata: proposal?.metadata,
+    maxLt,
+  });
+  const currentResults = handleNulls(proposal?.proposalResult);
+  const compareToResults = handleNulls(contractState?.proposalResult);
+
+  Logger({
+    currentResults,
+    compareToResults,
+  });
+
+  return _.isEqual(currentResults, compareToResults);
+};
+
 export const lib = {
   getAllNFTHolders,
   getClients,
@@ -481,4 +531,5 @@ export const lib = {
   getDao,
   getDaos,
   getWalletVotingPower,
+  compareProposalResults,
 };

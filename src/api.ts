@@ -34,13 +34,28 @@ const getAllNftHolders = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<{ [key: string]: string[] }> => {
-  const res = await axiosInstance.get(
-    `/proposalNftHolders/${proposalAddress}`,
-    {
-      signal,
+  const promise = async (bail: any, attempt: number) => {
+    try {
+      const res = await axiosInstance.get(
+        `/proposalNftHolders/${proposalAddress}`,
+        {
+          signal,
+        }
+      );
+
+      if (_.isEmpty(res.data)) {
+        throw new Error("getAllNftHolders not found in server");
+      }
+
+      return res.data;
+    } catch (error) {
+      if (attempt === API_RETRIES + 1) {
+        Logger("Failed to fetch getAllNftHolders from server");
+      }
+      throw new Error(error instanceof Error ? error.message : "");
     }
-  );
-  return res.data;
+  };
+  return retry(promise, { retries: API_RETRIES });
 };
 
 const getProposal = async (
@@ -122,6 +137,11 @@ const getDao = async (
   return retry(promise, { retries: API_RETRIES });
 };
 
+const getOperatingValidatorsInfo = async (address: string) => {
+  const res = await axiosInstance.get(`/operatingValidatorsInfo/${address}`);
+  return res.data;
+};
+
 const getUpdateTime = async (): Promise<number> => {
   const res = await axiosInstance.get("/updateTime");
   return res.data;
@@ -135,6 +155,7 @@ export const api = {
   getAllNftHolders,
   getUpdateTime,
   serverVersion,
+  getOperatingValidatorsInfo,
   getVerifiedDaosList,
 };
 

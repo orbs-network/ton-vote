@@ -25,6 +25,7 @@ export function Vote() {
   const { data } = useProposalQuery(proposalAddress);
 
   const choices = data?.metadata?.votingSystem.choices;
+  const connectedWallet = useTonAddress();
 
   const walletVote = useWalletVote(proposalAddress);
   const lastVote = walletVote?.vote as string;
