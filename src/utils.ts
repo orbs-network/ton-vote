@@ -151,7 +151,10 @@ export const calculateTonAmount = (
   total?: string
 ) => {
   if (!percent || !total) return;
-  const result = (Number(fromNano(total)) * percent) / 100;
+  const result = BigNumber(fromNano(total))
+    .multipliedBy(percent)
+    .div(100)
+    .toNumber();
 
   if (type === VotingPowerStrategyType.NftCcollection) {
     return nFormatter(Math.round(result), 2);
@@ -414,7 +417,7 @@ export const getProposalSymbol = (
     case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       return "Jetton";
     case VotingPowerStrategyType.NftCcollection:
-  case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
+    case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       return "NFT";
 
     default:

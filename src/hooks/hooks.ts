@@ -270,8 +270,7 @@ export const useProposalResults = (proposalAddress: string) => {
 
     return _.map(choices, (choice, key) => {
       const result = getproposalResult(proposal, choice);
-
-      const percent = result ? Number(result) : 0;
+      const percent = result || 0;
 
       const amount = getProposalResultTonAmount(
         proposal,
