@@ -11,7 +11,7 @@ import { Toolbar } from "./Toolbar";
 import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
-import { MOBILE_WIDTH } from "consts";
+import { isTwaApp, MOBILE_WIDTH } from "consts";
 import { useAppQueryParams, useAppSettings } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -69,7 +69,7 @@ const Wrapped = ({ children }: { children?: ReactNode }) => {
 };
 
 const StyledContent = styled(StyledGrid)({
-  paddingTop: 100,
+  paddingTop: isTwaApp ? 20 :  100,
   flex: 1,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     paddingTop: 80,

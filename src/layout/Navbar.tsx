@@ -12,7 +12,7 @@ import { useAppSettings, useDevFeatures } from "hooks/hooks";
 import { APP_NAME } from "config";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
-import { MOBILE_WIDTH } from "consts";
+import { isTwaApp, MOBILE_WIDTH } from "consts";
 import {
   TonConnectButton,
   useTonAddress,
@@ -23,6 +23,8 @@ import { FiMoon, FiSun } from "react-icons/fi";
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
+
+  if(isTwaApp) return null;
 
   return (
     <StyledContainer>

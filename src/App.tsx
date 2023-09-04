@@ -17,7 +17,7 @@ const useInitApp = () => {
 };
 
 
-function App() {
+function App() { 
   useInitApp();
   useWalletListener();
   useEffect(() => {

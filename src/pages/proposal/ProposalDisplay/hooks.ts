@@ -5,83 +5,36 @@ import {
   useProposalStatus,
 } from "hooks/hooks";
 import _ from "lodash";
-import { Logger } from "utils";
 import { useEnpointsStore } from "../store";
-import { getClientV2, getClientV4 } from "ton-vote-contracts-sdk";
-import {
-  Endpoints,
-  Proposal,
-  ProposalResults,
-  ProposalStatus,
-  Vote,
-} from "types";
-import { contract } from "contract";
+import { Endpoints, ProposalStatus, Vote } from "types";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { usePromiseToast } from "toasts";
 import { useProposalQuery } from "query/getters";
-import { useVotePersistedStore } from "store";
-import { useTonAddress } from "@tonconnect/ui-react";
 import { useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
 import { analytics } from "analytics";
-
-const handleNulls = (result?: ProposalResults) => {
-  const getValue = (value: any) => {
-    if (_.isNull(value) || _.isNaN(value)) return 0;
-    if (_.isString(value)) return Number(value);
-    return value;
-  };
-
-  if (!result) return;
-  _.forEach(result, (value, key) => {
-    result[key] = getValue(value);
-  });
-
-  return result;
-};
+import { lib } from "lib";
 
 export const useVerifyProposalResults = () => {
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations();
-  const votePersistStore = useVotePersistedStore();
   const promiseToast = usePromiseToast();
 
   return useMutation(
     async (customEndpoints: Endpoints) => {
       setEndpoints(customEndpoints);
+      const _endpoints = customEndpoints || endpoints;
       const promiseFn = async () => {
         analytics.verifyResultsRequest(proposalAddress);
-        const clientV2 = await getClientV2(
-          endpoints?.clientV2Endpoint,
-          endpoints?.apiKey
-        );
-        const clientV4 = await getClientV4(endpoints?.clientV4Endpoint);
 
-        // if user voted, we need to get transactions after his vote
-        const maxLtAfterVote =
-          votePersistStore.getValues(proposalAddress).maxLtAfterVote;
-
-        const maxLt = maxLtAfterVote || data?.maxLt || "";
-
-        const contractState = await contract.getProposal({
-          clientV2,
-          clientV4,
+        const isEqual = await lib.compareProposalResults({
           proposalAddress,
-          metadata: data?.metadata,
-          maxLt,
+          endpoints: _endpoints,
+          proposal: data,
         });
-        const currentResults = handleNulls(data?.proposalResult);
-        const compareToResults = handleNulls(contractState?.proposalResult);
-
-        Logger({
-          currentResults,
-          compareToResults,
-        });
-
-        const isEqual = _.isEqual(currentResults, compareToResults);
 
         if (!isEqual) {
           throw new Error("Not equal");
@@ -113,7 +66,6 @@ export const useVerifyProposalResults = () => {
     }
   );
 };
-
 
 const getCsvConfig = (isOneWalletOneVote: boolean) => {
   let titles = [];

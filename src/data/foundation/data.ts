@@ -14,12 +14,6 @@ export const FOUNDATION_PROPOSALS_ADDRESSES = [
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS",
 ];
 
-
-
-export const isFoundationProposal = (address?: string) => {
-  return FOUNDATION_PROPOSALS_ADDRESSES.includes(address || "");
-};
-
 const getRawVotes = (votes: any[]) => {
   let res: any = {};
 

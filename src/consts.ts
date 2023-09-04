@@ -31,8 +31,15 @@ export const corsProxyURL = "https://cors-anywhere.herokuapp.com";
 
 export const MOBILE_WIDTH = 768;
 
-export const isTwaApp = WebApp.initData;
+// export const isTwaApp = WebApp.initData;
+export const isTwaApp = true
+
 export const isTwaExpanded = () => WebApp.isExpanded;
 
 export const ONE_WALLET_ONE_VOTE_URL =
   "https://github.com/orbs-network/ton-vote/blob/main/README.md#supported-strategies";
+
+  export const ENV = {
+    DEV: import.meta.env.DEV,
+    VITE_STAGING: import.meta.env.VITE_STAGING,
+  };
