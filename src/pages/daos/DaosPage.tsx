@@ -1,5 +1,6 @@
 import { List, LoadMore } from "components";
 import {
+  StyleConnectdButton,
   StyledEmptyText,
   StyledFlexColumn,
   StyledFlexRow,
@@ -16,19 +17,20 @@ import {
   StyledSearch,
 } from "./styles";
 import { nFormatter } from "utils";
-import { Dao } from "types";
+import { Dao as DaoType } from "types";
 import { useMemo, useState } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { TELEGRAM_SUPPORT_GROUP } from "config";
 import { useAppQueryParams, useMobile } from "hooks/hooks";
-import { DaoListItem } from "./Dao";
+import { Dao } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { Page } from "wrappers";
 import { Typography } from "@mui/material";
+import { TWAMenu } from "./TWAMenu";
 
-const filterDaos = (daos: Dao[], searchValue: string) => {
+const filterDaos = (daos: DaoType[], searchValue: string) => {
   if (!searchValue) return daos;
   const nameFilter = _.filter(daos, (it) =>
     it.daoMetadata.metadataArgs.name
@@ -79,11 +81,14 @@ export function DaosPage() {
     <Page hideBack={true}>
       <StyledFlexColumn alignItems="flex-start" gap={mobile ? 15 : 24}>
         <StyledHeader>
-          <StyledSearch
-            initialValue={query.search || ""}
-            onChange={onSearchInputChange}
-            placeholder={translations.searchForDAO}
-          />
+          <StyledFlexRow>
+            <TWAMenu />
+            <StyledSearch
+              initialValue={query.search || ""}
+              onChange={onSearchInputChange}
+              placeholder={translations.searchForDAO}
+            />
+          </StyledFlexRow>
           <StyledDaosAmount>
             {nFormatter(_.size(data))} {translations.spaces}
           </StyledDaosAmount>
@@ -104,7 +109,7 @@ export function DaosPage() {
             <StyledDaosList>
               {filteredDaos.map((dao, index) => {
                 if (index > limit) return null;
-                return <DaoListItem key={dao.daoAddress} dao={dao} />;
+                return <Dao key={dao.daoAddress} dao={dao} />;
               })}
               <NewDao />
             </StyledDaosList>
@@ -157,3 +162,4 @@ const ListLoader = () => {
     </StyledDaosList>
   );
 };
+

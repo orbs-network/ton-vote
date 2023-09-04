@@ -1,31 +1,32 @@
-import { Typography, useTheme } from "@mui/material";
+import { styled, Typography, useTheme } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
-import {
-  AppTooltip,
-  Container,
-  Link,
-  OverflowWithTooltip,
-  VerifiedDao,
-} from "components";
+import { AppTooltip, Container, OverflowWithTooltip, VerifiedDao } from "components";
+import { useMobile } from "hooks/hooks";
 import _ from "lodash";
 import { mock } from "mock/mock";
 import { useIsDaoVerified } from "query/getters";
+import { createContext, useContext, useMemo } from "react";
 import { AiFillEyeInvisible } from "react-icons/ai";
-import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { Dao } from "types";
-import {
-  makeElipsisAddress,
-  parseLanguage,
-} from "utils";
+import { Dao as DaoType } from "types";
+import { makeElipsisAddress, parseLanguage } from "utils";
 import {
   StyledDao,
   StyledDaoAvatar,
   StyledDaoContent,
   StyledHiddenIcon,
 } from "./styles";
+
+interface ContextType {
+  dao: DaoType;
+  onDaoClick: () => void;
+}
+
+const Context = createContext({} as ContextType);
+
+const useDaoContext = () => useContext(Context);
 
 const parseWesbite = (website: string) => {
   let value = website.replace("https://", "").replace("www.", "");
@@ -37,56 +38,75 @@ const parseWesbite = (website: string) => {
   return value;
 };
 
-export const DaoListItem = ({ dao }: { dao: Dao }) => {
-  const [ref, { entry }] = useIntersectionObserver();
-  const isVisible = entry && entry.isIntersecting;
-  const { daoPage } = useAppNavigation();
-  const metadataArgs = dao.daoMetadata?.metadataArgs;
+const useHideDao = (dao: DaoType) => {
   const walletAddress = useTonAddress();
-  const theme = useTheme();
+  const hide = dao.daoMetadata?.metadataArgs.hide;
 
   const isOwner =
     dao.daoRoles.owner === walletAddress ||
     dao.daoRoles.proposalOwner === walletAddress;
 
-  if (metadataArgs.hide && !isOwner) return null;
+  return useMemo(() => {
+    if (hide && !isOwner) return true;
+    return false;
+  }, [isOwner, hide]);
+};
 
-  const mockPrefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
-
-  const name = parseLanguage(metadataArgs?.name) || "";
+export const DesktopDao = () => {
+  const { onDaoClick } = useDaoContext();
 
   return (
-    <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
+    <StyledDao onClick={onDaoClick}>
       <StyledDaoContent className="container" hover>
-        {metadataArgs.hide && (
-          <AppTooltip text="Dao is hidden, you can change it in the settings page">
-            <StyledHiddenIcon>
-              <AiFillEyeInvisible
-                style={{ width: 25, height: 25 }}
-                color={theme.palette.primary.main}
-              />
-            </StyledHiddenIcon>
-          </AppTooltip>
-        )}
-        {isVisible ? (
-          <StyledFlexColumn>
-            <StyledDaoAvatar src={metadataArgs?.avatar} />
-            <Typography className="title">
-              <TextOverflow text={`${name}${mockPrefix}`} />
-            </Typography>
-            <Address dao={dao} />
-          </StyledFlexColumn>
-        ) : null}
-        <Website dao={dao} />
+        <HiddenIndicator />
+        <StyledFlexColumn>
+          <Avatar />
+          <Name />
+          <Address />
+        </StyledFlexColumn>
+        <Website />
       </StyledDaoContent>
     </StyledDao>
   );
 };
 
-const Website = ({ dao }: { dao: Dao }) => {
+const Avatar = () => {
+  const { dao } = useDaoContext();
+  return <StyledDaoAvatar src={dao.daoMetadata.metadataArgs.avatar} />;
+};
+
+const HiddenIndicator = () => {
+  const { dao } = useDaoContext();
+  const theme = useTheme();
+
+  if (!dao.daoMetadata.metadataArgs.hide) return null;
+  return (
+    <AppTooltip text="Dao is hidden, you can change it in the settings page">
+      <StyledHiddenIcon>
+        <AiFillEyeInvisible
+          style={{ width: 25, height: 25 }}
+          color={theme.palette.primary.main}
+        />
+      </StyledHiddenIcon>
+    </AppTooltip>
+  );
+};
+
+const Name = () => {
+  const { dao } = useDaoContext();
+  const name = parseLanguage(dao.daoMetadata.metadataArgs?.name) || "";
+  const prefix =   mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
+  return (
+    <Typography className="title">
+      <TextOverflow text={`${name}${prefix}`} />
+    </Typography>
+  );
+};
+
+const Website = () => {
+  const { dao } = useDaoContext();
   const website = dao.daoMetadata.metadataArgs.website;
   const isVerified = useIsDaoVerified(dao.daoAddress);
-
 
   if (isVerified && website) {
     return (
@@ -104,7 +124,8 @@ const Website = ({ dao }: { dao: Dao }) => {
   return null;
 };
 
-const Address = ({ dao }: { dao: Dao }) => {
+const Address = () => {
+  const { dao } = useDaoContext();
   const metadataArgs = dao.daoMetadata?.metadataArgs;
   return (
     <StyledFlexRow className="address">
@@ -120,5 +141,41 @@ const Address = ({ dao }: { dao: Dao }) => {
       )}
       <VerifiedDao daoAddress={dao.daoAddress} />
     </StyledFlexRow>
+  );
+};
+
+const MobileDao = () => {
+  return (
+    <StyledMobileDao>
+      <StyledFlexRow>
+        <Avatar />
+        <StyledFlexColumn>
+          <Name />
+          <Address />
+          <Website />
+        </StyledFlexColumn>
+      </StyledFlexRow>
+    </StyledMobileDao>
+  );
+};
+
+const StyledMobileDao = styled(Container)({
+width:'100%',
+height: 60,
+padding:'0 10px',
+})
+
+export const Dao = ({ dao }: { dao: DaoType }) => {
+  const isMobile = useMobile();
+  const hideDao = useHideDao(dao);
+  const { daoPage } = useAppNavigation();
+
+  const onDaoClick = () => daoPage.root(dao.daoAddress);
+
+  if (hideDao) return null;
+  return (
+    <Context.Provider value={{ dao, onDaoClick }}>
+      {isMobile ? <MobileDao /> : <DesktopDao />}
+    </Context.Provider>
   );
 };

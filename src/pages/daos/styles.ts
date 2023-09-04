@@ -17,13 +17,6 @@ export const StyledJoinDao = styled(Button)({
   minWidth: "60%",
 });
 
-export const StyledDaoAvatar = styled(Img)({
-  width: 55,
-  height: 55,
-  borderRadius: "50%",
-  overflow: "hidden",
-  marginBottom: 20,
-});
 
 
 export const StyledDao = styled(Box)(({ theme }) => ({
@@ -80,11 +73,13 @@ export const StyledDao = styled(Box)(({ theme }) => ({
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     width: "calc(100% / 2 - 5px)",
-    height: 260,
+    height: 50,
     ".title": {
       fontSize: 16,
     },
-
+    ".container": {
+      padding:0,
+    },
     ".address-value": {
       fontSize: 14,
     },

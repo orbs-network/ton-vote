@@ -72,7 +72,7 @@ const StyledContent = styled(StyledGrid)({
   paddingTop: isTwaApp ? 20 :  100,
   flex: 1,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    paddingTop: 80,
+    paddingTop:isTwaApp ? 20 :  80 ,
   },
 });
 

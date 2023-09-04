@@ -1,4 +1,5 @@
 import { Skeleton, styled, Theme, Typography, Box } from "@mui/material";
+import { TonConnectButton } from "@tonconnect/ui-react";
 import { Img } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 
@@ -275,3 +276,19 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
 
 
 
+
+
+export const StyleConnectdButton = styled(TonConnectButton)(({ theme }) => ({
+  button: {
+    background: theme.palette.primary.main,
+    "*": {
+      color: "white",
+      stroke: "white",
+    },
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    "*": {
+      fontSize: 13,
+    },
+  },
+}));

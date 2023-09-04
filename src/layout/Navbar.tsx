@@ -6,7 +6,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { AppTooltip, Github } from "components";
-import { StyledFlexRow, StyledGrid } from "styles";
+import { StyleConnectdButton, StyledFlexRow, StyledGrid } from "styles";
 import { useAppNavigation } from "router/navigation";
 import { useAppSettings, useDevFeatures } from "hooks/hooks";
 import { APP_NAME } from "config";
@@ -35,7 +35,7 @@ export function Navbar() {
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
           <EnvModeIndication />
-          <ConnectButton />
+          <StyleConnectdButton />
           <ThemeToggle />
           {!mobile && <Github />}
         </StyledFlexRow>
@@ -135,30 +135,3 @@ const StyledNav = styled(StyledGrid)({
   justifyContent: "space-between",
   flexDirection: "row",
 });
-
-function ConnectButton() {
-  const address = useTonAddress();
-
-  return (
-    <>
-      <StyledButton connected={address ? 1 : 0} />
-    </>
-  );
-}
-
-const StyledButton = styled(TonConnectButton)<{ connected: number }>(
-  ({ theme }) => ({
-    button: {
-      background: theme.palette.primary.main,
-      "*": {
-        color: "white",
-        stroke: "white",
-      },
-    },
-    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-      "*": {
-        fontSize: 13,
-      },
-    },
-  })
-);
