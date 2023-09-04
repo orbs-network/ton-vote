@@ -5,7 +5,6 @@ import { ProposalResult } from "ton-vote-contracts-sdk";
 import { ThemeType, Vote } from "types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import twa from '@twa-dev/sdk'
 
 interface NewDataStore {
   daos: string[];

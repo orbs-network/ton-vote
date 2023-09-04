@@ -6,7 +6,7 @@ import {
   useRef,
   useMemo,
 } from "react";
-import { matchRoutes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { matchRoutes, useLocation, useParams } from "react-router-dom";
 import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
@@ -17,15 +17,13 @@ import {
 } from "ton-core";
 import { IS_DEV, STRATEGY_ARGUMENTS } from "config";
 import { showSuccessToast } from "toasts";
-import { AppQueryParams, Proposal, ProposalStatus, ThemeType } from "types";
+import { AppQueryParams, ProposalStatus, ThemeType } from "types";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
 import {
   DaoRoles,
-  getAllNftHolders,
   ProposalMetadata,
-  VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
@@ -46,7 +44,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useNumericFormat } from "react-number-format";
-import { routes } from "consts";
 
 export const useCurrentRoute = () => {
   const location = useLocation();

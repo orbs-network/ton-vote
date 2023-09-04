@@ -1,4 +1,4 @@
-import { Alert, GlobalStyles, ThemeProvider } from "@mui/material";
+import { GlobalStyles, ThemeProvider } from "@mui/material";
 import { APP_NAME } from "config";
 import { useAppSettings } from "hooks/hooks";
 import { Suspense, useEffect, useMemo } from "react";

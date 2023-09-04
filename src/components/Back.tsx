@@ -31,14 +31,12 @@ function Back({ to, func }: { to?: string; func?: () => void }) {
   }
 
   return (
-    <>
-      <StyledContainer onClick={onClick}>
-        <StyledFlexRow gap={5}>
-          <HiOutlineArrowLeft />
-          <Typography>{t.back}</Typography>
-        </StyledFlexRow>
-      </StyledContainer>
-    </>
+    <StyledContainer onClick={onClick}>
+      <StyledFlexRow gap={5}>
+        <HiOutlineArrowLeft />
+        <Typography>{t.back}</Typography>
+      </StyledFlexRow>
+    </StyledContainer>
   );
 }
 
