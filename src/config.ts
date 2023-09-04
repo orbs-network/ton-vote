@@ -4,7 +4,8 @@ import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 export const APP_NAME = "TON VOTE";
-
+import { ENV } from "consts";
+import { FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
 export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
@@ -46,9 +47,7 @@ export enum QueryKeys {
 
 export const LANGUAGES = { en: "English", ru: "Русский" };
 
-export const releaseMode = import.meta.env.VITE_STAGING
-  ? ReleaseMode.DEVELOPMENT
-  : ReleaseMode.PRODUCTION;
+export const releaseMode = ENV.VITE_STAGING ? ReleaseMode.DEVELOPMENT : ReleaseMode.PRODUCTION;
 
 export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
 
@@ -160,4 +159,11 @@ export const BLACKLISTED_DAOS = [
 ];
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
+];
+
+
+
+export const HIDE_VERIFY_PROPOSALS = [
+  "EQAiqphPtZ2jLyzqrcfVrhBZfarghWKpkt0fSfALsqRbofQ7",
+  ...FOUNDATION_PROPOSALS_ADDRESSES
 ];

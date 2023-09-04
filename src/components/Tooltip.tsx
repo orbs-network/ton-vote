@@ -1,7 +1,6 @@
 import * as React from "react";
 import Tooltip from "@mui/material/Tooltip";
 import { styled, Typography } from "@mui/material";
-import { Box } from "@mui/system";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { StyledFlexRow } from "styles";
 import { Markdown } from "./Markdown";

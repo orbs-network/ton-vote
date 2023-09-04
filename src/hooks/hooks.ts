@@ -17,7 +17,6 @@ import {
   storeStateInit,
 } from "ton-core";
 import { IS_DEV, STRATEGY_ARGUMENTS } from "config";
-import { showSuccessToast } from "toasts";
 import {
   AppQueryParams,
   ProposalStatus,
@@ -131,6 +130,9 @@ export function useCopyToClipboard(): [CopiedValue, CopyFn] {
     // Try to save to clipboard then save it in the state if worked
     try {
       await navigator.clipboard.writeText(text);
+      const showSuccessToast = await import("toasts").then(
+        (module) => module.showSuccessToast
+      );
       showSuccessToast("Copied to clipboard");
       return true;
     } catch (error) {
@@ -525,7 +527,6 @@ export const useFormatNumber = (value?: number, decimalScale = 2) => {
 
   return result.value?.toString();
 };
-
 
 export const useWalletVote = (proposalAddress: string) => {
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);

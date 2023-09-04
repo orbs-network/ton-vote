@@ -24,8 +24,7 @@ import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
 import { WHITELISTED_DAOS } from "whitelisted";
 import BigNumber from "bignumber.js";
-import { ZERO_ADDRESS } from "consts";
-import { errorToast } from "toasts";
+import { ENV, ZERO_ADDRESS } from "consts";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -39,7 +38,7 @@ export function delay(ms: number) {
 }
 
 export const Logger = (...args: any) => {
-  if (IS_DEV || import.meta.env.DEV) {
+  if (IS_DEV || ENV.DEV) {
     console.log(...args);
   }
 };
@@ -186,10 +185,11 @@ export const validateAddress = (value?: string) => {
 
 export async function validateFormik(formik: FormikProps<any>) {
   let value = "";
-  await formik.validateForm().then((errors) => {
+  await formik.validateForm().then(async (errors: any) => {
     if (!_.isEmpty(errors)) {
       const error = _.first(_.values(errors)) as string;
       value = error;
+      const errorToast = await import("./toasts").then((it) => it.errorToast);
       error && errorToast(error);
     }
   });
@@ -197,7 +197,7 @@ export async function validateFormik(formik: FormikProps<any>) {
   return value;
 }
 
-export function validateFormikSingleField<T>(
+export async function validateFormikSingleField<T>(
   formik: FormikProps<T>,
   name: string
 ) {
@@ -206,6 +206,8 @@ export function validateFormikSingleField<T>(
   const error = formik.errors[name as keyof T] as string;
 
   if (error) {
+    const errorToast = await import("./toasts").then((it) => it.errorToast);
+
     errorToast(error);
   }
 
@@ -435,5 +437,3 @@ export const parseValidatorVotes = (votes: string[]): Vote[] => {
     };
   });
 };
-
-

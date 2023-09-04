@@ -62,6 +62,8 @@ const getProposal = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<Proposal | undefined> => {
+  console.log(baseURL);
+  
   const promise = async (bail: any, attempt: number) => {
     try {
       Logger(

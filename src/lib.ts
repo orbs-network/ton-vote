@@ -486,7 +486,7 @@ const compareProposalResults = async ({
   proposal,
 }: {
   proposalAddress: string;
-  endpoints: Endpoints;
+  endpoints?: Endpoints;
   proposal?: Proposal | null;
 }) => {
   const clientV2 = await getClientV2(
@@ -512,12 +512,32 @@ const compareProposalResults = async ({
   const currentResults = handleNulls(proposal?.proposalResult);
   const compareToResults = handleNulls(contractState?.proposalResult);
 
+  if (!currentResults || !compareToResults) return false;
+
+  const { totalWeight, totalWeights, ...currentResultsRest } = currentResults;
+
+  const {
+    totalWeight: totalWeight2,
+    totalWeights: totalWeights2,
+    ...compareToResultsRest
+  } = compareToResults;
+
+  const _currentResults = {
+    ...currentResultsRest,
+    totalWeight: totalWeight || totalWeights,
+  };
+
+  const _compareToResults = {
+    ...compareToResultsRest,
+    totalWeight: totalWeight2 || totalWeights2,
+  };
+
   Logger({
-    currentResults,
-    compareToResults,
+    _currentResults,
+    _compareToResults,
   });
 
-  return _.isEqual(currentResults, compareToResults);
+  return _.isEqual(_currentResults, _compareToResults);
 };
 
 export const lib = {

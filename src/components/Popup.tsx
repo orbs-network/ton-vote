@@ -4,7 +4,6 @@ import { DialogContent, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton } from "@mui/material";
 import { TitleContainer } from "components";
-import { StyledFlexRow } from "styles";
 interface Props {
   children: ReactElement;
   onClose?: () => void;

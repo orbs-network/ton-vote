@@ -39,3 +39,8 @@ export const ONE_WALLET_ONE_VOTE_URL =
   "https://github.com/orbs-network/ton-vote/blob/main/README.md#supported-strategies";
 
 export const isTwa = twa.initData
+
+export const ENV = {
+  DEV: import.meta.env.DEV,
+  VITE_STAGING: import.meta.env.VITE_STAGING,
+};
