@@ -1,7 +1,7 @@
 import axios from "axios";
 import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
-import { Logger, parseVotes } from "utils";
+import { delay, Logger, parseVotes } from "utils";
 import { IS_DEV, API_RETRIES } from "config";
 import axiosRetry from "axios-retry";
 import retry from "async-retry";
@@ -16,6 +16,15 @@ axiosRetry(axiosInstance, {
   retryDelay: axiosRetry.exponentialDelay,
 });
 
+const getVerifiedDaosList = async (signal?: AbortSignal) => {
+  const res = await axios.get(
+    "https://raw.githubusercontent.com/denis-orbs/verified-daos/main/index.json",
+    { signal }
+  );
+
+  return res.data;
+};
+
 const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
   Logger("Fetching daos from server");
   return (await axiosInstance.get(`/daos`, { signal })).data;
@@ -25,13 +34,28 @@ const getAllNftHolders = async (
   proposalAddress: string,
   signal?: AbortSignal
 ): Promise<{ [key: string]: string[] }> => {
-  const res = await axiosInstance.get(
-    `/proposalNftHolders/${proposalAddress}`,
-    {
-      signal,
+  const promise = async (bail: any, attempt: number) => {
+    try {
+      const res = await axiosInstance.get(
+        `/proposalNftHolders/${proposalAddress}`,
+        {
+          signal,
+        }
+      );
+
+      if (_.isEmpty(res.data)) {
+        throw new Error("getAllNftHolders not found in server");
+      }
+
+      return res.data;
+    } catch (error) {
+      if (attempt === API_RETRIES + 1) {
+        Logger("Failed to fetch getAllNftHolders from server");
+      }
+      throw new Error(error instanceof Error ? error.message : "");
     }
-  );
-  return res.data;
+  };
+  return retry(promise, { retries: API_RETRIES });
 };
 
 const getProposal = async (
@@ -57,7 +81,7 @@ const getProposal = async (
 
       const proposal: Proposal = {
         ...result.data,
-        votes: parseVotes(result.data.votes, result.data.votingPower),
+        votes: parseVotes(result.data.metadata  , result.data.votes, result.data.votingPower),
         maxLt,
         rawVotes: result.data.votes,
       };
@@ -113,6 +137,11 @@ const getDao = async (
   return retry(promise, { retries: API_RETRIES });
 };
 
+const getOperatingValidatorsInfo = async (address: string) => {
+  const res = await axiosInstance.get(`/operatingValidatorsInfo/${address}`);
+  return res.data;
+};
+
 const getUpdateTime = async (): Promise<number> => {
   const res = await axiosInstance.get("/updateTime");
   return res.data;
@@ -126,6 +155,8 @@ export const api = {
   getAllNftHolders,
   getUpdateTime,
   serverVersion,
+  getOperatingValidatorsInfo,
+  getVerifiedDaosList,
 };
 
 export interface GetStateApiPayload {

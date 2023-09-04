@@ -11,14 +11,16 @@ import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import twa from '@twa-dev/sdk'
 import { isTwa } from "consts";
 
+import { useWalletListener } from "analytics";
 
 const useInitApp = () => {
   useInitThemeMode();
 };
 
-function App() {
-  useInitApp();
 
+function App() { 
+  useInitApp();
+  useWalletListener();
   useEffect(() => {
     const loader = document.querySelector(".app-loader");
     if (loader) {

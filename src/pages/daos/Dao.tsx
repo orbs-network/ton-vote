@@ -9,6 +9,7 @@ import {
 } from "components";
 import _ from "lodash";
 import { mock } from "mock/mock";
+import { useIsDaoVerified } from "query/getters";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
@@ -16,7 +17,6 @@ import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
 import {
-  getIsVerifiedDao,
   makeElipsisAddress,
   parseLanguage,
 } from "utils";
@@ -85,8 +85,10 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
 
 const Website = ({ dao }: { dao: Dao }) => {
   const website = dao.daoMetadata.metadataArgs.website;
+  const isVerified = useIsDaoVerified(dao.daoAddress);
 
-  if (getIsVerifiedDao(dao.daoAddress) && website) {
+
+  if (isVerified && website) {
     return (
       <button
         className="website"

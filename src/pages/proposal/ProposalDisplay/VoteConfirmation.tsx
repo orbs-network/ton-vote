@@ -1,6 +1,6 @@
 import { CircularProgress, styled, Typography } from "@mui/material";
 import { Button, InfoMessage, NumberDisplay, Popup } from "components";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useVoteConfirmation } from "./hooks";
 
@@ -13,13 +13,7 @@ interface Props {
 
 export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
 
-  const { noVotingPower, refetch, translations, votingData, votingDataLoading, proposal } = useVoteConfirmation()
-
-  useEffect(() => {
-    if (open) {
-      refetch();
-    }
-  }, [open]);
+  const { noVotingPower, translations, votingData, votingDataLoading, proposal } = useVoteConfirmation()
 
   return (
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
@@ -38,7 +32,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             value={votingData?.votingPowerText}
           />
         </StyledFlexColumn>
-        {noVotingPower && (
+        {!votingDataLoading && noVotingPower && (
           <InfoMessage
             message={translations.notEnoughVotingPower(
               proposal?.metadata?.mcSnapshotBlock.toLocaleString() || ""

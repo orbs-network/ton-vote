@@ -65,6 +65,22 @@ interface ProposalMetadataLocal extends ProposalMetadata {
   jettonMetadata?: any;
 }
 
+export type ValidatorProposalRoundDetailsStatus = 'ongoing' | 'failed' | 'passed'
+
+export interface ValidatorProposalRoundDetails {
+  vsetId: string;
+  votersList: string[];
+  totalWeight: string;
+  weightRemaining: string;
+  cycleStartTime: number;
+  cycleEndTime: number;
+  totalValidators: number;
+  mainValidators: number;
+  status: ValidatorProposalRoundDetailsStatus;
+}
+
+
+
 export interface Proposal {
   votingPower?: VotingPower;
   votes: Vote[];
@@ -78,6 +94,16 @@ export interface Proposal {
   url?: string;
   sumCoins?: { [key: string]: BigNumber | string };
   sumVotes?: { [key: string]: number };
+  validatorsVotingData?: {
+    roundsDetails: ValidatorProposalRoundDetails[];
+  };
+}
+
+export interface Result {
+  votesAmount: number;
+  choice: string;
+  percent: number;
+  assetAmount?: string;
 }
 
 export type InputType =
@@ -95,7 +121,7 @@ export type InputType =
   | "list"
   | "custom"
   | "number"
-  | "display-text"
+  | "display-text";
 
 export interface InputArgs<T> {
   label: string;
@@ -212,7 +238,6 @@ export interface StepsMenuStep {
   editable?: boolean;
   component: FC;
 }
-
 
 export enum AppQueryParams {
   PROPOSAL_STATE = "proposal-state",

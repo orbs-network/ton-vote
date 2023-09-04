@@ -14,7 +14,6 @@ import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
 import { useAppQueryParams, useAppSettings } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { LatestBlock } from "components";
 
 const useIsBeta = () => {
   const {
@@ -31,7 +30,6 @@ const useIsBeta = () => {
 
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
-  
 
   return (
     <>

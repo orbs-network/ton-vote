@@ -1,13 +1,14 @@
 import React from "react";
 import { AppTooltip } from "./Tooltip";
 import { VscVerifiedFilled } from "react-icons/vsc";
-import { VERIFIED_DAOS } from "config";
 import { Box, styled, Typography } from "@mui/material";
 import { StyledFlexRow } from "styles";
-import { getIsVerifiedDao } from "utils";
+import { useIsDaoVerified } from "query/getters";
 
 export function VerifiedDao({ daoAddress = "" }: { daoAddress?: string }) {
-  if (!getIsVerifiedDao(daoAddress)) {
+  const isVerified = useIsDaoVerified(daoAddress);
+
+  if (!isVerified) {
     return null;
   }
   return (
@@ -27,7 +28,7 @@ export function VerifiedDao({ daoAddress = "" }: { daoAddress?: string }) {
 
 const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
   svg: {
-    color: theme.palette.primary.main, 
+    color: theme.palette.primary.main,
     width: 22,
     height: 22,
   },

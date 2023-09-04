@@ -4,7 +4,7 @@ import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
 import { useCallback, useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
-import { useShowComponents, useWalletVote } from "./hooks";
+import { useShowComponents } from "./hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -12,7 +12,7 @@ import { useVote } from "query/setters";
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import _ from "lodash";
-import { useAppParams } from "hooks/hooks";
+import { useAppParams, useWalletVote } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { TwaConfirmVoteButton, TwaCastVoteButton } from "twa";
 import { isTwa } from "consts";
@@ -25,11 +25,12 @@ export function Vote() {
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
 
-  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
-  const choices = data?.metadata?.votingSystem.choices;
+  const { data } = useProposalQuery(proposalAddress);
 
-  const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
-  const currentVote = walletVote?.vote as string;
+  const choices = data?.metadata?.votingSystem.choices;
+  
+  const walletVote = useWalletVote(proposalAddress);
+  const lastVote = walletVote?.vote as string;
   const show = useShowComponents().vote;
 
   const submitVote = useCallback(() => {
@@ -64,37 +65,46 @@ export function Vote() {
             setVote={setVote}
             choices={choices}
           />
-          <TwaConfirmVoteButton vote={vote} confirmVote={confirmVote} isLoading={isLoading} currentVote={currentVote} />
+          <TwaConfirmVoteButton vote={vote} confirmVote={confirmVote} isLoading={isLoading} currentVote={lastVote} />
         </>
       ) : (
         <StyledContainer title={translations.castVote}>
-          <StyledFlexColumn>
-            {choices?.map((option) => {
-              return (
-                <StyledOption
-                  selected={option === vote}
-                  key={option}
-                  onClick={() => setVote(option)}
-                >
-                  <Fade in={option === vote}>
-                    <StyledFlexRow className="icon">
-                      <FiCheck style={{ width: 20, height: 20 }} />
-                    </StyledFlexRow>
-                  </Fade>
-                  <Typography>{option}</Typography>
-                </StyledOption>
-              );
-            })}
-          </StyledFlexColumn>
-          <AppTooltip
-            text={currentVote === vote ? `You already voted ${vote}` : ""}
-          >
-            <VoteButton
-              isLoading={isLoading}
-              disabled={!vote || isLoading || currentVote === vote}
-              onSubmit={confirmVote}
-            />
-          </AppTooltip>
+      <StyledFlexColumn>
+        {choices?.map((option) => {
+          return (
+            <StyledOption
+              selected={option?.toLowerCase() === vote?.toLowerCase()}
+              key={option}
+              onClick={() => setVote(option)}
+            >
+              <Fade in={option === vote}>
+                <StyledFlexRow className="icon">
+                  <FiCheck style={{ width: 20, height: 20 }} />
+                </StyledFlexRow>
+              </Fade>
+              <Typography>{option}</Typography>
+            </StyledOption>
+          );
+        })}
+      </StyledFlexColumn>
+      <AppTooltip
+        text={
+          !vote ? "Please select an option" :
+          lastVote?.toLowerCase() === vote?.toLowerCase()
+            ? `You already voted ${vote}`
+            : ""
+        }
+      >
+        <VoteButton
+          isLoading={isLoading}
+          disabled={
+            !vote ||
+            isLoading ||
+            lastVote?.toLowerCase() === vote?.toLowerCase()
+          }
+          onSubmit={submitVote}
+        />
+      </AppTooltip>
         </StyledContainer>
       )}
       <VoteConfirmation

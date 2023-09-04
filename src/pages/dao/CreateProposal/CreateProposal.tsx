@@ -23,7 +23,7 @@ export const CreateProposal = () => {
 
   const onSubmit = (formValues: ProposalFormType) => {
     const metadata = prepareMetadata(formValues);
-      
+          
     createProposal({
       metadata,
       onSuccess: (proposalAddress: string) => {
@@ -36,7 +36,6 @@ export const CreateProposal = () => {
 
   return (
     <LayoutSection title="Create proposal" isLoading={daoLoading}>
-      
       <ProposalForm
         submitText="Create"
         initialFormData={formData}
