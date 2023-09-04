@@ -20,19 +20,18 @@ import { errorToast } from "toasts";
 import {
   useAppParams,
   useIsValidatorsProposal,
-  useProposalResults,
 } from "hooks/hooks";
-import { isFoundationProposal } from "data/foundation/data";
 import { useProposalQuery } from "query/getters";
 import { useShowComponents, useVerifyProposalResults } from "../hooks";
 import { EndpointPopup } from "./EndpointPopup";
 import { Result } from "types";
+import { HIDE_VERIFY_PROPOSALS } from "config";
 const LIMIT = 5;
 
 const useShowVerified = (proposalAddress?: string) => {
   const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
 
-  return !isValidatorsProposal && !isFoundationProposal(proposalAddress);
+  return proposalAddress && !isValidatorsProposal && !HIDE_VERIFY_PROPOSALS.includes(proposalAddress);
 };
 
 export const Results = ({ results }: { results: Result[] }) => {

@@ -3,7 +3,6 @@ import _ from "lodash";
 import toast, { ToastPosition } from "react-hot-toast";
 import { StyledFlexRow } from "styles";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
-import { useTonWallet } from "@tonconnect/ui-react";
 import { Markdown } from "components";
 
 export function usePromiseToast<T>() {

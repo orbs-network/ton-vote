@@ -1,5 +1,4 @@
-import { CircularProgress, Fade, styled } from "@mui/material";
-import { Box } from "@mui/system";
+import { CircularProgress, Fade, styled, Box } from "@mui/material";
 import { MOBILE_WIDTH } from "consts";
 import { ReactNode } from "react";
 import { StyledFlexRow } from "styles";

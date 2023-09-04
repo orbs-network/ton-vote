@@ -1,5 +1,4 @@
-import { styled, Typography, useTheme } from "@mui/material";
-import { Box } from "@mui/system";
+import { styled, Typography, useTheme, Box } from "@mui/material";
 import { Button, SideMenu } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsCheckLg } from "react-icons/bs";
