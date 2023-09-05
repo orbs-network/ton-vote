@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import {
   useAppParams,
   useIsOneWalletOneVote,
+  useIsValidatorsProposal,
   useProposalStatus,
 } from "hooks/hooks";
 import _ from "lodash";
@@ -9,7 +10,7 @@ import { useEnpointsStore } from "../store";
 import { Endpoints, ProposalStatus, Vote } from "types";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { usePromiseToast } from "toasts";
-import { useProposalQuery } from "query/getters";
+import { useProposalQuery, useWalletVotingPowerQuery } from "query/getters";
 import { useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
@@ -113,6 +114,7 @@ export const useCsvData = (votes: Vote[], dataUpdatedAt: number) => {
 export const useShowComponents = () => {
   const { proposalAddress } = useAppParams();
   const isLoading = useProposalQuery(proposalAddress).isLoading;
+  const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
 
   const { proposalStatus } = useProposalStatus(proposalAddress);
 
@@ -125,6 +127,7 @@ export const useShowComponents = () => {
 
   const vote = useMemo(() => {
     if (
+      isValidatorsProposal || 
       !proposalStatus ||
       proposalStatus !== ProposalStatus.ACTIVE ||
       isLoading
@@ -132,7 +135,7 @@ export const useShowComponents = () => {
       return false;
     }
     return true;
-  }, [proposalStatus, isLoading]);
+  }, [proposalStatus, isLoading, isValidatorsProposal]);
 
   const deadline = useMemo(() => {
     if (!proposalStatus || proposalStatus === ProposalStatus.CLOSED) {
@@ -154,4 +157,10 @@ export const useShowComponents = () => {
     deadline,
     results,
   };
+};
+
+export const useConnectedWalletVotingPower = () => {
+  const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
+  return useWalletVotingPowerQuery(data, proposalAddress);
 };

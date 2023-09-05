@@ -456,12 +456,14 @@ const getWalletVotingPower = async ({
     return {
       votingPower: result,
       votingPowerText: `${nFormatter(Number(result))} ${symbol}`,
+      hasVotingPower: result && Number(result) > 0,
     };
   }
 
   return {
     votingPowerText: `${nFormatter(Number(fromNano(result)))} ${symbol}`,
     votingPower: result,
+    hasVotingPower: result && Number(result) > 0,
   };
 };
 

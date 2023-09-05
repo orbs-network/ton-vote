@@ -1,5 +1,13 @@
-import { ListItem, Menu as MuiMenu, PopoverOrigin, styled, useTheme } from "@mui/material";
+import {
+  Divider,
+  ListItem,
+  Menu as MuiMenu,
+  PopoverOrigin,
+  styled,
+  useTheme,
+} from "@mui/material";
 import { FC, ReactNode, useState } from "react";
+import { StyledFlexColumn } from "styles";
 export function Menu({
   Button,
   listItems,
@@ -13,7 +21,7 @@ export function Menu({
     horizontal: "center",
   },
 }: {
-  listItems: JSX.Element[];
+  listItems: JSX.Element[] | JSX.Element[][];
   Button: FC<{ onClick: (e: any) => void; open: boolean }>;
   className?: string;
   anchorOrigin?: PopoverOrigin;
@@ -21,7 +29,7 @@ export function Menu({
 }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {    
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -34,6 +42,9 @@ export function Menu({
     setAnchorEl(null);
   };
 
+  const isArrayOfArrays = Array.isArray(listItems[0]);
+
+  
   return (
     <>
       <Button onClick={handleClick} open={open} />
@@ -60,23 +71,48 @@ export function Menu({
         anchorOrigin={anchorOrigin}
         transformOrigin={transformOrigin}
       >
-        {listItems.map((it, index) => {
-          return (
-            <StyledMenuItem key={index} onClick={close}>
-              {it}
-            </StyledMenuItem>
-          );
-        })}
+        {isArrayOfArrays
+          ? (listItems as JSX.Element[][]).map((it, listIndex: number) => {
+            const isFirst = listIndex === 0
+            const showSeperator = !isFirst && it.length > 0;
+              return (
+                <StyledFlexColumn gap={0} key={listIndex}>
+                  {showSeperator && <StyledDivider />}
+                  {it.map((item, index) => {
+                    return (
+                      <StyledMenuItem key={index} onClick={close}>
+                        {item}
+                      </StyledMenuItem>
+                    );
+                  })}
+                </StyledFlexColumn>
+              );
+            })
+          : listItems.map((it, index) => {
+              return (
+                <StyledMenuItem key={index} onClick={close}>
+                  {it}
+                </StyledMenuItem>
+              );
+            })}
       </MuiMenu>
     </>
   );
 }
 
+const StyledDivider = styled("div")(({ theme }) => ({
+  width: "100%",
+  height: 2,
+  background: theme.palette.mode === "light" ? "#e0e0e0" : "#2d2d2d",
+  marginTop: 5,
+  marginBottom: 5,
+}));
+
 const StyledMenuItem = styled(ListItem)(({ theme }) => ({
- padding: 0,
+  padding: 0,
   height: 35,
   ".menu-item": {
-    padding: '0px 16px',
+    padding: "0px 16px",
   },
   "&:hover": {
     background:

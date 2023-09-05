@@ -4,8 +4,11 @@ import { StyledFlexColumn, StyledFlexRow } from 'styles'
 import OrbsLogo from 'assets/orbs.svg'
 import HearLogo from "assets/heart.svg";
 import { AppSocials, Github } from 'components';
+import { isTwaApp } from 'consts';
 
 export function Footer() {
+
+  if(isTwaApp) return null
   return (
     <StyledContainer>
       <StyledWithLove>

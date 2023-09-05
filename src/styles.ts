@@ -192,7 +192,7 @@ export const StyledTitle = styled(Typography)(({ theme }) => ({
   lineHeight: "28px",
   fontSize: 20,
   "@media (max-width: 600px)": {
-    fontSize: 18,
+    fontSize: 15,
     lineHeight: "25px",
   },
 }));

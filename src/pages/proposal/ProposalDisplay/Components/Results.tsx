@@ -229,6 +229,8 @@ export function VerifyResults() {
   );
 }
 
+
+
 const StyledVerifyContainer = styled(StyledFlexColumn)(({ theme }) => ({
   marginTop: 30,
   justifyContent: "center",

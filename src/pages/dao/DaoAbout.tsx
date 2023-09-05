@@ -1,5 +1,6 @@
 import { Chip, styled } from "@mui/material";
 import { AddressDisplay, TitleContainer } from "components";
+import { MOBILE_WIDTH } from "consts";
 import { useAppParams } from "hooks/hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoQuery } from "query/getters";
@@ -8,7 +9,7 @@ import { LayoutSection } from "./components";
 import { DaoDescription } from "./DaoDescription";
 
 export function DaoAbout() {
-    const { daoAddress } = useAppParams();
+  const { daoAddress } = useAppParams();
 
   const roles = useDaoQuery(daoAddress).data?.daoRoles;
   const translations = useCommonTranslations();
@@ -44,10 +45,13 @@ export function DaoAbout() {
 
 export default DaoAbout;
 
-
 const StyledAddressDisplay = styled(AddressDisplay)({
   P: {
     fontWeight: 600,
+    fontSize: 16,
+    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+      fontSize: 14,
+    },
   },
 });
 

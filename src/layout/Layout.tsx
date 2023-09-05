@@ -14,6 +14,18 @@ import { Navbar } from "./Navbar";
 import { isTwaApp, MOBILE_WIDTH } from "consts";
 import { useAppQueryParams, useAppSettings } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { MainButton } from "@twa-dev/sdk/react";
+import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+
+
+const TWAConnect = () => {
+  const [tonConneoct] = useTonConnectUI()
+  const tonAddress = useTonAddress();
+  if (tonAddress) return null;
+    return (
+      <MainButton text="Connect wallet" onClick={() => tonConneoct.connectWallet()} />
+    );
+}
 
 const useIsBeta = () => {
   const {
@@ -33,6 +45,7 @@ function Layout({ children }: { children?: ReactNode }) {
 
   return (
     <>
+    <TWAConnect />
       <Fade in={true} timeout={500}>
         <StyledContainer>
           <Toolbar />
@@ -48,8 +61,6 @@ function Layout({ children }: { children?: ReactNode }) {
           </ErrorBoundary>
         </StyledContainer>
       </Fade>
-      <ScrollTop />
-      {/* <LatestBlock /> */}
       <Toaster
         toastOptions={{
           className: "toast",

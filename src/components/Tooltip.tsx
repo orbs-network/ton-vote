@@ -20,6 +20,7 @@ export function AppTooltip({
   markdown?: string;
   placement?: TooltipPlacement;
 }) {
+  const [open, setOpen] = React.useState(false)
   if (!text && !markdown) {
     return <>{children}</>;
   }
@@ -27,6 +28,7 @@ export function AppTooltip({
     <StyledTooltip
       arrow={true}
       placement={placement}
+      onClick={() => setOpen(true)}
       title={
         markdown ? (
           <StyledMarkdown>{markdown}</StyledMarkdown>

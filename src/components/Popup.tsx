@@ -16,6 +16,7 @@ interface Props {
   title?: ReactNode;
   hideCloseButton?: boolean;
   transparent?: boolean;
+  fullHeight?: boolean;
 }
 
 export const Popup = ({
@@ -26,12 +27,15 @@ export const Popup = ({
   className = "",
   title,
   transparent,
+  fullHeight,
 }: Props) => {
   const content = (
-    <StyledDialogContent>
+    <StyledDialogContent style={{
+      height: fullHeight ? "calc(100vh - 60px)" : "auto",
+    }}>
       <StyledChildren
         title={title || ""}
-        className={`popup-children ${className}`}
+        className={`popup-children mobile-popup-children ${className}`}
         headerComponent={
           <CloseButton hideCloseButton={hideCloseButton} close={onClose} />
         }
@@ -70,9 +74,14 @@ export const Popup = ({
 const StyledDialogContent = styled(DialogContent)({
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "flex-start",
   padding: 0,
   outline: "unset",
+  ".mobile-popup-children": {
+    borderRadius: 0,
+    height: "100%",
+    maxHeight: "calc(100vh - 60px)",
+  },
 });
 
 const StyledChildren = styled(TitleContainer)(({ theme }) => ({

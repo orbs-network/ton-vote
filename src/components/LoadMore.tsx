@@ -49,5 +49,4 @@ const StyledButton = styled(Button)({
 });
 
 const StyledContainer = styled(StyledFlexRow)({
-  marginBottom: 50,
 });

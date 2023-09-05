@@ -1,4 +1,5 @@
 import { Box, Fade, styled, Typography } from "@mui/material";
+import { MOBILE_WIDTH } from "consts";
 import React, { ReactNode } from "react";
 import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
 
@@ -62,9 +63,12 @@ export const StyledSubtitle = styled(StyledFlexColumn)({
 
 const StyledTitle = styled(Typography)<{ small?: number }>(
   ({ theme, small }) => ({
-    fontSize:small ? 15 :  17,
+    fontSize: small ? 15 : 17,
     color: theme.palette.text.primary,
     fontWeight: 700,
+    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+      fontSize: small ? 14 : 16,
+    },
   })
 );
 

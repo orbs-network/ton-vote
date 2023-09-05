@@ -32,42 +32,42 @@ export function TWAMenu() {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
-
-  return (
-    <>
-      <StyledMenuButton onClick={handleClick}>
-        <Suspense>
-          <SettingsIcon />
-        </Suspense>
-      </StyledMenuButton>
-      <StyledPopover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
-        <StyledTWAMenu>
-          <StyledTop>
-            <StyledTitle>Connected wallet</StyledTitle>
-            <StyledAddress>{makeElipsisAddress(address)}</StyledAddress>
-          </StyledTop>
-          <StyledDivider />
-          <StyledBottom>
-            <StyledLogout>Logout</StyledLogout>
-            <StyledLogoutButton onClick={() => tonConnect.disconnect()}>
-              <Suspense>
-                <LogoutIcon />
-              </Suspense>
-            </StyledLogoutButton>
-          </StyledBottom>
-        </StyledTWAMenu>
-      </StyledPopover>
-    </>
-  );
+  if (!address) return null;
+    return (
+      <>
+        <StyledMenuButton onClick={handleClick}>
+          <Suspense>
+            <SettingsIcon />
+          </Suspense>
+        </StyledMenuButton>
+        <StyledPopover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+        >
+          <StyledTWAMenu>
+            <StyledTop>
+              <StyledTitle>Connected wallet</StyledTitle>
+              <StyledAddress>{makeElipsisAddress(address)}</StyledAddress>
+            </StyledTop>
+            <StyledDivider />
+            <StyledBottom>
+              <StyledLogout>Logout</StyledLogout>
+              <StyledLogoutButton onClick={() => tonConnect.disconnect()}>
+                <Suspense>
+                  <LogoutIcon />
+                </Suspense>
+              </StyledLogoutButton>
+            </StyledBottom>
+          </StyledTWAMenu>
+        </StyledPopover>
+      </>
+    );
 }
 
 const StyledTop = styled(StyledFlexColumn)({

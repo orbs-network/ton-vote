@@ -8,6 +8,7 @@ import { SelectOption } from "types";
 import _ from "lodash";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { Select } from "./inputs/Inputs";
+import { MOBILE_WIDTH } from "consts";
 
 export function Search({
   className = "",
@@ -89,6 +90,9 @@ const StyledContainer = styled(Container)({
   svg: {
     width: 25,
     height: 25,
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    height: 40,
   },
 });
 

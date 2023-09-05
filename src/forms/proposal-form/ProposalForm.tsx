@@ -1,6 +1,8 @@
 import { Box, Fade, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
+import { MainButton } from "@twa-dev/sdk/react";
 import { AppTooltip, Button, ConnectButton, FormikInputsForm } from "components";
+import { isTwaApp } from "consts";
 import { FormikProps, useFormik } from "formik";
 import { useDebouncedCallback } from "hooks/hooks";
 import _ from "lodash";
@@ -101,7 +103,7 @@ export function ProposalForm({
     : _.isEqual(formik.values, formik.initialValues);
 
   return (
-    <Fade in={true}>
+
       <StyledContainer alignItems="flex-start">
         <FormikInputsForm<ProposalFormType>
           formik={formik}
@@ -122,12 +124,12 @@ export function ProposalForm({
           onSubmit={onPopupSubmit}
         />
       </StyledContainer>
-    </Fade>
+
   );
 }
 
 const StyledContainer = styled(StyledFlexRow)({
-  flex: 1,
+  gap: 0,
   ".date-input": {
     ".MuiFormControl-root": {
       width: "100%",
@@ -147,8 +149,12 @@ function CreateProposalButton({
   disabled?: boolean;
 }) {
   const address = useTonAddress();
+
+  if(!isTwaApp){
   return (
-    <AppTooltip text={disabled ? 'You need to change at least 1 input to proceed.' : ''}>
+    <AppTooltip
+      text={disabled ? "You need to change at least 1 input to proceed." : ""}
+    >
       <StyledSubmit>
         {!address ? (
           <StyledConnect />
@@ -164,6 +170,23 @@ function CreateProposalButton({
       </StyledSubmit>
     </AppTooltip>
   );
+  }
+
+  if(!address) {
+    return null
+  }
+
+  return (
+    <MainButton
+      text={submitText}
+      progress={isLoading}
+      disabled={disabled}
+      onClick={onSubmit!}
+    />
+  );
+
+
+
 }
 
 const StyledSubmit = styled(Box)({

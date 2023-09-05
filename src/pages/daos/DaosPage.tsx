@@ -1,33 +1,26 @@
 import { List, LoadMore } from "components";
+import { StyledEmptyText, StyledFlexColumn, StyledFlexRow } from "styles";
 import {
-  StyleConnectdButton,
-  StyledEmptyText,
-  StyledFlexColumn,
-  StyledFlexRow,
-  StyledSkeletonLoader,
-} from "styles";
-import {
-  StyledDao,
-  StyledDaoContent,
   StyledDaosAmount,
   StyledDaosList,
+  StyledDesktopDao,
   StyledEmptyList,
   StyledHeader,
-  StyledNewDao,
+  StyledMobileDao,
   StyledSearch,
 } from "./styles";
 import { nFormatter } from "utils";
 import { Dao as DaoType } from "types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import _ from "lodash";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { TELEGRAM_SUPPORT_GROUP } from "config";
 import { useAppQueryParams, useMobile } from "hooks/hooks";
-import { Dao } from "./Dao";
+import { Dao, DaoLoader } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { Page } from "wrappers";
-import { Typography } from "@mui/material";
+import { styled, Theme, Typography } from "@mui/material";
 import { TWAMenu } from "./TWAMenu";
 
 const filterDaos = (daos: DaoType[], searchValue: string) => {
@@ -79,7 +72,7 @@ export function DaosPage() {
   const emptyList = !isLoading && !_.size(filteredDaos);
   return (
     <Page hideBack={true}>
-      <StyledFlexColumn alignItems="flex-start" gap={mobile ? 15 : 24}>
+      <StyledFlexColumn alignItems="flex-start" gap={mobile ? 10 : 24}>
         <StyledHeader>
           <StyledFlexRow>
             <TWAMenu />
@@ -129,37 +122,59 @@ export function DaosPage() {
 
 export default DaosPage;
 
-const NewDao = () => {
-  return (
-    <StyledNewDao onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_blank")}>
-      <StyledDaoContent hover className="container">
-        <StyledFlexColumn className="flex">
-          <Typography>Create a new space for your DAO</Typography>
-        </StyledFlexColumn>
-      </StyledDaoContent>
-    </StyledNewDao>
-  );
-};
 
 const ListLoader = () => {
   return (
     <StyledDaosList>
       {_.range(0, 1).map((it, i) => {
-        return (
-          <StyledDao key={i}>
-            <StyledDaoContent>
-              <StyledFlexColumn>
-                <StyledSkeletonLoader
-                  style={{ borderRadius: "50%", width: 70, height: 70 }}
-                />
-                <StyledSkeletonLoader style={{ width: "70%" }} />
-                <StyledSkeletonLoader />
-              </StyledFlexColumn>
-            </StyledDaoContent>
-          </StyledDao>
-        );
+        return <DaoLoader key={i} />;
       })}
     </StyledDaosList>
   );
 };
 
+const NewDao = () => {
+  const mobile = useMobile();
+
+  const onClick = () => window.open(TELEGRAM_SUPPORT_GROUP, "_blank");
+
+  return mobile ? (
+    <StyledNewDaoMobile onClick={onClick}>
+      <Typography>Create a new space for your DAO</Typography>
+    </StyledNewDaoMobile>
+  ) : (
+    <StyledNewDaoDestop onClick={onClick}>
+      <Typography>Create a new space for your DAO</Typography>
+    </StyledNewDaoDestop>
+  );
+};
+
+const newDaoStyles = (theme: Theme) => ({
+  background: "transparent",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  p: {
+    fontSize: 17,
+    textAlign: "center",
+  },
+  border:
+    theme.palette.mode === "light"
+      ? "1px dashed rgba(0,0,0 , 0.15)"
+      : "1px dashed rgba(255,255,255, 0.2)",
+  "&:hover": {
+    border: `1px dashed ${theme.palette.primary.main}`,
+  },
+});
+
+const StyledNewDaoMobile = styled(StyledMobileDao)(({ theme }) => ({
+  height: 80,
+  ...newDaoStyles(theme),
+  p: {
+    fontSize: 15,
+  },
+}));
+
+const StyledNewDaoDestop = styled(StyledDesktopDao)(({ theme }) => ({
+  ...newDaoStyles(theme),
+}));

@@ -4,20 +4,18 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
 import { ProposalResults } from "./ProposalResults";
-import { Vote } from "./Vote/Vote";
 import { ProposalVotes } from "./ProposalVotes";
 import { appNavigation } from "router/navigation";
-import { useAppParams, useHiddenProposal, useIsValidatorsProposal } from "hooks/hooks";
+import { useAppParams, useHiddenProposal } from "hooks/hooks";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
-import ProposalMenu from "../ProposalMenu";
+import Vote from "./Vote";
 
 const gap = 15;
 
 const Destop = () => {
   const { proposalAddress, daoAddress } = useAppParams();
-  const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
   return (
     <StyledWrapper>
       <StyledLeft>
@@ -25,7 +23,7 @@ const Destop = () => {
           proposalAddress={proposalAddress}
           daoAddress={daoAddress}
         />
-       {!isValidatorsProposal &&  <Vote />}
+        <Vote />
         <ProposalVotes />
       </StyledLeft>
       <StyledRight>
@@ -39,20 +37,23 @@ const Destop = () => {
 
 const Mobile = () => {
   const { proposalAddress, daoAddress } = useAppParams();
-  const isValidatorsProposal = useIsValidatorsProposal(proposalAddress);
 
   return (
-    <StyledWrapper>
-      <Deadline />
-      <ProposalAbout
-        proposalAddress={proposalAddress}
-        daoAddress={daoAddress}
-      />
-      {!isValidatorsProposal && <Vote />}
-      <ProposalResults />
-      <Metadata />
-      <ProposalVotes />
-    </StyledWrapper>
+    <StyledFlexColumn gap={7.5}>
+      <StyledWrapper>
+        <Deadline />
+        <ProposalAbout
+          proposalAddress={proposalAddress}
+          daoAddress={daoAddress}
+        />
+      </StyledWrapper>
+      <Vote />
+      <StyledWrapper>
+        <ProposalResults />
+        <Metadata />
+        <ProposalVotes />
+      </StyledWrapper>
+    </StyledFlexColumn>
   );
 };
 
@@ -73,7 +74,7 @@ export function ProposalDisplay() {
     <Page
       error={hideProposal || showError}
       errorText="Proposal not found"
-      headerComponent={<ProposalMenu />}
+      // headerComponent={<ProposalMenu />}
       back={appNavigation.daoPage.root(daoAddress)}
     >
       {mobile ? <Mobile /> : <Destop />}

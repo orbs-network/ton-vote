@@ -1,6 +1,12 @@
 import { styled, Typography, useTheme } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { AppTooltip, Container, OverflowWithTooltip, VerifiedDao } from "components";
+import {
+  AppTooltip,
+  Img,
+  OverflowWithTooltip,
+  VerifiedDao,
+} from "components";
+import { MOBILE_WIDTH } from "consts";
 import { useMobile } from "hooks/hooks";
 import _ from "lodash";
 import { mock } from "mock/mock";
@@ -9,15 +15,10 @@ import { createContext, useContext, useMemo } from "react";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
-import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { Dao as DaoType } from "types";
 import { makeElipsisAddress, parseLanguage } from "utils";
-import {
-  StyledDao,
-  StyledDaoAvatar,
-  StyledDaoContent,
-  StyledHiddenIcon,
-} from "./styles";
+import { StyledDesktopDao, StyledHiddenIcon, StyledMobileDao } from "./styles";
 
 interface ContextType {
   dao: DaoType;
@@ -56,8 +57,7 @@ export const DesktopDao = () => {
   const { onDaoClick } = useDaoContext();
 
   return (
-    <StyledDao onClick={onDaoClick}>
-      <StyledDaoContent className="container" hover>
+    <StyledDesktopDao onClick={onDaoClick} hover>
         <HiddenIndicator />
         <StyledFlexColumn>
           <Avatar />
@@ -65,15 +65,30 @@ export const DesktopDao = () => {
           <Address />
         </StyledFlexColumn>
         <Website />
-      </StyledDaoContent>
-    </StyledDao>
+    </StyledDesktopDao>
   );
 };
+
+
+
 
 const Avatar = () => {
   const { dao } = useDaoContext();
   return <StyledDaoAvatar src={dao.daoMetadata.metadataArgs.avatar} />;
 };
+
+const StyledDaoAvatar = styled(Img)({
+  width: 55,
+  height: 55,
+  borderRadius: "50%",
+  objectFit: "cover",
+  marginBottom: 20,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    width: 45,
+    height: 45,
+    marginBottom: 0,
+  },
+});
 
 const HiddenIndicator = () => {
   const { dao } = useDaoContext();
@@ -95,75 +110,124 @@ const HiddenIndicator = () => {
 const Name = () => {
   const { dao } = useDaoContext();
   const name = parseLanguage(dao.daoMetadata.metadataArgs?.name) || "";
-  const prefix =   mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
+  const prefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
   return (
-    <Typography className="title">
+    <StyledName>
       <TextOverflow text={`${name}${prefix}`} />
-    </Typography>
+    </StyledName>
   );
 };
+
+const StyledName = styled(Typography)(({ theme }) => ({
+  fontSize: 18,
+  fontWeight: 800,
+  width: "100%",
+  textAlign: "center",
+  color: theme.typography.h2.color,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 15,
+    textAlign: "left",
+    fontWeight: 600,
+  },
+}));
 
 const Website = () => {
   const { dao } = useDaoContext();
   const website = dao.daoMetadata.metadataArgs.website;
   const isVerified = useIsDaoVerified(dao.daoAddress);
 
-  if (isVerified && website) {
-    return (
-      <button
-        className="website"
-        onClick={(e) => {
-          e.stopPropagation();
-          window.open(website, "_blank");
-        }}
-      >
-        <OverflowWithTooltip text={parseWesbite(website)} />
-      </button>
-    );
-  }
-  return null;
+  const onClick = (e: any) => {
+    e.stopPropagation();
+    window.open(website, "_blank");
+  };
+
+  if (!isVerified || !website) return null;
+
+  return (
+    <StyledWebsite onClick={onClick}>
+      <OverflowWithTooltip text={parseWesbite(website)} />
+    </StyledWebsite>
+  );
 };
+
+const StyledWebsite = styled("button")(({ theme }) => ({
+  marginLeft: "auto",
+  marginRight: "auto",
+  width: "fit-content",
+  background: "transparent",
+  border: "none",
+  cursor: "pointer",
+  borderBottom: "1px solid transparent",
+  transition: "0.2s all",
+  padding: 0,
+  marginTop: "auto",
+  p: {
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: "normal",
+    color: theme.palette.primary.main,
+  },
+  "&:hover": {
+    borderBottom: `1px solid ${theme.palette.primary.main}`,
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    marginRight:'auto',
+    marginLeft:'unset',
+  }
+}));
 
 const Address = () => {
   const { dao } = useDaoContext();
   const metadataArgs = dao.daoMetadata?.metadataArgs;
   return (
-    <StyledFlexRow className="address">
+    <StyledAddress>
       {metadataArgs.dns ? (
-        <OverflowWithTooltip
-          className="address-value"
-          text={metadataArgs.dns}
-        />
+        <OverflowWithTooltip className="value" text={metadataArgs.dns} />
       ) : (
-        <Typography className="address-value">
+        <Typography className="value">
           {makeElipsisAddress(dao.daoAddress, 6)}
         </Typography>
       )}
       <VerifiedDao daoAddress={dao.daoAddress} />
-    </StyledFlexRow>
+    </StyledAddress>
   );
 };
 
+const StyledAddress = styled(StyledFlexRow)({
+  width: "auto",
+  ".value": {
+    textAlign: "center",
+    fontSize: 16,
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    ".value": {
+      fontSize: 13,
+      textAlign: "left",
+    },
+  },
+});
+
 const MobileDao = () => {
+  const { onDaoClick } = useDaoContext();
   return (
-    <StyledMobileDao>
-      <StyledFlexRow>
-        <Avatar />
-        <StyledFlexColumn>
-          <Name />
-          <Address />
-          <Website />
-        </StyledFlexColumn>
-      </StyledFlexRow>
+    <StyledMobileDao onClick={onDaoClick}>
+      <Avatar />
+      <StyledMobileDaoRight>
+        <Name />
+        <Address />
+        <Website />
+      </StyledMobileDaoRight>
     </StyledMobileDao>
   );
 };
 
-const StyledMobileDao = styled(Container)({
-width:'100%',
-height: 60,
-padding:'0 10px',
-})
+const StyledMobileDaoRight = styled(StyledFlexColumn)({
+  flex: 1,
+  alignItems: "flex-start",
+  gap: 2,
+});
+
+
 
 export const Dao = ({ dao }: { dao: DaoType }) => {
   const isMobile = useMobile();
@@ -179,3 +243,37 @@ export const Dao = ({ dao }: { dao: DaoType }) => {
     </Context.Provider>
   );
 };
+
+
+
+export const DaoLoader = () => {
+  const mobile = useMobile();
+
+  if(mobile) {
+    return (
+      <StyledMobileDao>
+        <StyledSkeletonLoader
+          style={{ borderRadius: "50%", width: 45, height: 45 }}
+        />
+        <StyledFlexColumn style={{ alignItems: "flex-start", flex: 1 }}>
+          <StyledSkeletonLoader style={{ width: "70%", height: 20 }} />
+          <StyledSkeletonLoader style={{ height: 20 }} />
+        </StyledFlexColumn>
+      </StyledMobileDao>
+    );
+  }
+
+  return (
+    <StyledDesktopDao>
+      <StyledSkeletonLoader
+        style={{ borderRadius: "50%", width: 70, height: 70 }}
+      />
+      <StyledSkeletonLoader style={{ width: "70%" }} />
+      <StyledSkeletonLoader />
+    </StyledDesktopDao>
+  );
+}
+
+
+
+

@@ -1,19 +1,14 @@
-import { styled, Typography } from "@mui/material";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
-import { isTwaApp } from "consts";
-import { MainButton } from "@twa-dev/sdk/react";
+import { Typography } from "@mui/material";
+import { useTonConnectUI } from "@tonconnect/ui-react";
 
-import React from "react";
 import { Button } from "./Button";
-import { onConnect } from "utils";
 
 export function ConnectButton({ className = "" }: { className?: string }) {
-
+  const [tonConnect] = useTonConnectUI();
 
   return (
-    <Button onClick={onConnect} className={className}>
+    <Button onClick={() => tonConnect.connectWallet} className={className}>
       <Typography>Connect Wallet</Typography>
     </Button>
   );
 }
-

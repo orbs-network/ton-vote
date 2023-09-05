@@ -1,5 +1,6 @@
 import { Fade, styled, Typography } from "@mui/material";
 import { Back, ErrorContainer } from "components";
+import { isTwaApp, MOBILE_WIDTH } from "consts";
 import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { PageProps } from "types";
@@ -13,7 +14,7 @@ function Page({
   backFunc,
   title,
   error,
-  errorText = 'Something went wrong',
+  errorText = "Something went wrong",
 }: PageProps) {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -42,6 +43,7 @@ function Page({
       )}
 
       {children}
+      {isTwaApp && <StyledTWAShadow />}
     </StyledContainer>
   );
 }
@@ -51,11 +53,11 @@ export { Page };
 const StyledTitle = styled(Typography)({
   fontWeight: 700,
   fontSize: 22,
-  paddingLeft:0
+  paddingLeft: 0,
 });
 
 const StyledTop = styled(StyledFlexRow)({
-  marginBottom: 15,
+  marginBottom: isTwaApp ? 0 :  15,
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
@@ -65,4 +67,21 @@ const StyledContainer = styled(StyledFlexColumn)({
   justifyContent: "flex-start",
   alignItems: "flex-start",
   gap: 0,
+  paddingBottom: 100,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    paddingBottom: 40,
+  },
 });
+
+const StyledTWAShadow = styled("div")(({ theme }) => ({
+  position: "fixed",
+  bottom: 0,
+  left: 0,
+  width: "100%",
+  height: 2,
+  zIndex: 10,
+  background:
+    theme.palette.mode === "dark"
+      ? "rgba(255,255,255, 0.2)"
+      : "#e0e0e0",
+}));
