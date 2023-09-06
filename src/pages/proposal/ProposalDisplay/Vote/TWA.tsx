@@ -93,6 +93,11 @@ export function TWAVote() {
     setShowConfirmation(false);
   };
 
+  const _onSubmitClick = () => {
+    onSubmitClick();
+    onModalClose();
+  }
+
   return (
     <>
       <StyledPopup
@@ -124,7 +129,7 @@ export function TWAVote() {
           progress={votingPowerLoading || submitVoteLoading}
           disabled={btnDisabled}
           text={btnText}
-          onClick={onSubmitClick}
+          onClick={_onSubmitClick}
         />
       )}
     </>
