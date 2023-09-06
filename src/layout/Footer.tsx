@@ -4,11 +4,11 @@ import { StyledFlexColumn, StyledFlexRow } from 'styles'
 import OrbsLogo from 'assets/orbs.svg'
 import HearLogo from "assets/heart.svg";
 import { AppSocials, Github } from 'components';
-import { isTwaApp } from 'consts';
+import { Webapp } from 'WebApp';
 
 export function Footer() {
 
-  if(isTwaApp) return null
+  if(Webapp.isEnabled) return null
   return (
     <StyledContainer>
       <StyledWithLove>
@@ -35,7 +35,6 @@ const StyledSocials = styled(AppSocials)(({ theme }) => ({
 
 
 const StyledContainer = styled(StyledFlexColumn)(({ theme }) => ({
-    marginTop:100,
     height: 100,
   a: {
     textDecoration: "unset",

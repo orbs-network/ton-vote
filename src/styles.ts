@@ -1,6 +1,5 @@
 import { Skeleton, styled, Theme, Typography, Box } from "@mui/material";
 import { TonConnectButton } from "@tonconnect/ui-react";
-import { Img } from "components";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 
 export const StyledEndAdornment = styled(Box)({
@@ -58,6 +57,12 @@ export const StyledFlexColumn = styled(Box)(
 
 export const getGlobalStyles = (theme: Theme) => {
   return {
+    "*":{
+      outline: "none!important",
+      "&:focus": {
+        outline: "none!important",
+      }
+    },
     ".MuiMenu-paper": {
       backgroundImage: "unset!important",
     },

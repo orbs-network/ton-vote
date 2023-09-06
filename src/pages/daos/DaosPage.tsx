@@ -74,7 +74,7 @@ export function DaosPage() {
     <Page hideBack={true}>
       <StyledFlexColumn alignItems="flex-start" gap={mobile ? 10 : 24}>
         <StyledHeader>
-          <StyledFlexRow>
+          <StyledFlexRow style={{flex:1, justifyContent:'flex-start'}}>
             <TWAMenu />
             <StyledSearch
               initialValue={query.search || ""}

@@ -83,6 +83,7 @@ const StyledDaoAvatar = styled(Img)({
   borderRadius: "50%",
   objectFit: "cover",
   marginBottom: 20,
+  overflow: "hidden",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     width: 45,
     height: 45,

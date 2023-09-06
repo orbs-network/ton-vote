@@ -2,7 +2,6 @@ import { Box, Fade, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { MainButton } from "@twa-dev/sdk/react";
 import { AppTooltip, Button, ConnectButton, FormikInputsForm } from "components";
-import { isTwaApp } from "consts";
 import { FormikProps, useFormik } from "formik";
 import { useDebouncedCallback } from "hooks/hooks";
 import _ from "lodash";
@@ -19,6 +18,7 @@ import {
   ProposalStatus,
 } from "types";
 import { validateFormik } from "utils";
+import { Webapp } from "WebApp";
 import { useCreateProposalForm } from "./inputs";
 import ProposalHidePopup from "./ProposalHidePopup";
 import { StrategySelect } from "./StrategySelect";
@@ -150,7 +150,7 @@ function CreateProposalButton({
 }) {
   const address = useTonAddress();
 
-  if(!isTwaApp){
+  if(!Webapp.isEnabled){
   return (
     <AppTooltip
       text={disabled ? "You need to change at least 1 input to proceed." : ""}

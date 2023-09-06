@@ -1,10 +1,8 @@
 import Modal from "@mui/material/Modal";
-import { ReactElement, ReactNode } from "react";
+import { CSSProperties, ReactElement, ReactNode } from "react";
 import { DialogContent, Drawer, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton } from "@mui/material";
-import * as React from "react";
-import { Global } from "@emotion/react";
 import { grey } from "@mui/material/colors";
 import { useMobile } from "../hooks/hooks";
 import { TitleContainer } from "./TitleContainer";
@@ -29,13 +27,17 @@ export const Popup = ({
   transparent,
   fullHeight,
 }: Props) => {
+  const isMobile = useMobile();
+
   const content = (
-    <StyledDialogContent style={{
-      height: fullHeight ? "calc(100vh - 60px)" : "auto",
-    }}>
+    <StyledDialogContent
+      style={{
+        height: fullHeight ? "calc(100vh - 60px)" : "auto",
+      }}
+    >
       <StyledChildren
         title={title || ""}
-        className={`popup-children mobile-popup-children ${className}`}
+        className={`popup-children ${className}`}
         headerComponent={
           <CloseButton hideCloseButton={hideCloseButton} close={onClose} />
         }
@@ -45,24 +47,22 @@ export const Popup = ({
     </StyledDialogContent>
   );
 
-  const isMobile = useMobile();
-
   if (isMobile) {
     return (
-      <SwipeableEdgeDrawer onClose={onClose} open={open}>
+      <StyledDrawer onClose={onClose} open={open}>
         {content}
-      </SwipeableEdgeDrawer>
+      </StyledDrawer>
     );
   }
+
+  const style: CSSProperties = transparent ? { opacity: 0 } : {};
   return (
     <StyledModal
       open={open}
       onClose={onClose}
       componentsProps={{
         backdrop: {
-          style: {
-            opacity: transparent ? 0 : 1,
-          },
+          style,
         },
       }}
     >
@@ -77,7 +77,10 @@ const StyledDialogContent = styled(DialogContent)({
   justifyContent: "flex-start",
   padding: 0,
   outline: "unset",
-  ".mobile-popup-children": {
+});
+
+const StyledDrawer = styled(SwipeableEdgeDrawer)({
+  ".popup-children": {
     borderRadius: 0,
     height: "100%",
     maxHeight: "calc(100vh - 60px)",
@@ -86,6 +89,8 @@ const StyledDialogContent = styled(DialogContent)({
 
 const StyledChildren = styled(TitleContainer)(({ theme }) => ({
   maxHeight: "calc(100vh - 100px)",
+  marginLeft:'auto',
+  marginRight:'auto',
   display: "flex",
   flexDirection: "column",
   ".container-header": {
@@ -150,8 +155,6 @@ const StyledClose = styled(IconButton)(({ theme }) => ({
     },
   },
 }));
-
-const drawerBleeding = 56;
 
 const Root = styled("div")(({ theme }) => ({
   height: "100%",

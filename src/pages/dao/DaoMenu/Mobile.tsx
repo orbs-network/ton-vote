@@ -2,9 +2,10 @@ import { styled, Typography } from "@mui/material";
 import { Button, Container, Menu } from "components";
 import React, { useMemo } from "react";
 import { BsCheck2 } from "react-icons/bs";
-import { HiOutlineExternalLink, HiOutlineMenu } from "react-icons/hi";
+import { HiOutlineExternalLink, HiOutlineDotsHorizontal } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
+import { Webapp } from "WebApp";
 import { Address, DNS, Logo, Title } from "./Components";
 import { useNavigationLinks, useSocials } from "./hooks";
 
@@ -76,9 +77,15 @@ const MobileNavigation = () => {
 };
 
 const MenuButton = ({ onClick }: { onClick: (e: any) => void }) => {
+
   return (
-    <StyledMenuButton onClick={onClick}>
-      <HiOutlineMenu />
+    <StyledMenuButton
+      onClick={(e) => {
+        onClick(e);
+        Webapp.hapticFeedback();
+      }}
+    >
+      <HiOutlineDotsHorizontal />
     </StyledMenuButton>
   );
 };

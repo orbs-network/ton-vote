@@ -119,7 +119,7 @@ const MenuButton = ({
   open: boolean;
 }) => {
   return (
-    <StyledShareButton onClick={onClick} variant="transparent">
+    <StyledShareButton onClick={onClick} variant="text">
       <StyledFlexRow gap={6}>
         <RxShare2 />
         <Typography>Share</Typography>
@@ -130,7 +130,6 @@ const MenuButton = ({
 
 const StyledShareButton = styled(Button)({
   height: "unset",
-  padding: "6px 15px",
   p: {
     fontSize: 14,
     fontWeight: 600,

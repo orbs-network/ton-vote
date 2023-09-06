@@ -1,6 +1,7 @@
 import { createTheme, Theme } from "@mui/material";
 import { useAppSettings } from "hooks/hooks";
 import { useEffect } from "react";
+import { Webapp } from "WebApp";
 
 
 export const lightTheme = createTheme({
@@ -104,7 +105,7 @@ export const useInitThemeMode = () => {
 
   useEffect(() => {
     if (themeMode) return;
-    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches || Webapp.isDarkMode;
     setThemeMode(isDark ? "dark" : "light");
   }, []);
 };

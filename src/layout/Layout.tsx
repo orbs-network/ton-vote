@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
-import ScrollTop from "components/ScrollTop";
 import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
@@ -11,19 +10,23 @@ import { Toolbar } from "./Toolbar";
 import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
-import { isTwaApp, MOBILE_WIDTH } from "consts";
+import { MOBILE_WIDTH } from "consts";
 import { useAppQueryParams, useAppSettings } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { MainButton } from "@twa-dev/sdk/react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { Webapp } from "WebApp";
 
 
 const TWAConnect = () => {
-  const [tonConneoct] = useTonConnectUI()
+  const [tonConnect] = useTonConnectUI()
   const tonAddress = useTonAddress();
   if (tonAddress) return null;
     return (
-      <MainButton text="Connect wallet" onClick={() => tonConneoct.connectWallet()} />
+      <MainButton
+        text="Connect wallet"
+        onClick={() => tonConnect.connectWallet()}
+      />
     );
 }
 
@@ -45,22 +48,18 @@ function Layout({ children }: { children?: ReactNode }) {
 
   return (
     <>
-    <TWAConnect />
-      <Fade in={true} timeout={500}>
-        <StyledContainer>
-          <Toolbar />
-          <Navbar />
-          <ErrorBoundary
-            fallbackRender={(props) => <ErrorFallback {...props} />}
-          >
-            <StyledContent>
-              {children}
-              <Outlet />
-            </StyledContent>
-            <Footer />
-          </ErrorBoundary>
-        </StyledContainer>
-      </Fade>
+      <TWAConnect />
+      <StyledContainer>
+        <Toolbar />
+        <Navbar />
+        <ErrorBoundary fallbackRender={(props) => <ErrorFallback {...props} />}>
+          <StyledContent>
+            {children}
+            <Outlet />
+          </StyledContent>
+          <Footer />
+        </ErrorBoundary>
+      </StyledContainer>
       <Toaster
         toastOptions={{
           className: "toast",
@@ -80,10 +79,10 @@ const Wrapped = ({ children }: { children?: ReactNode }) => {
 };
 
 const StyledContent = styled(StyledGrid)({
-  paddingTop: isTwaApp ? 20 :  100,
+  paddingTop: Webapp.isEnabled ? 20 : 90,
   flex: 1,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    paddingTop:isTwaApp ? 20 :  80 ,
+    paddingTop: Webapp.isEnabled ? 20 : 80,
   },
 });
 

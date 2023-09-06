@@ -1,5 +1,4 @@
 import { styled, useMediaQuery } from "@mui/material";
-import { ProposalAbout } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
@@ -11,18 +10,15 @@ import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
 import Vote from "./Vote";
+import { ProposalAbout } from "./ProposalAbout";
 
 const gap = 15;
 
 const Destop = () => {
-  const { proposalAddress, daoAddress } = useAppParams();
   return (
     <StyledWrapper>
       <StyledLeft>
-        <ProposalAbout
-          proposalAddress={proposalAddress}
-          daoAddress={daoAddress}
-        />
+        <ProposalAbout  />
         <Vote />
         <ProposalVotes />
       </StyledLeft>
@@ -36,16 +32,12 @@ const Destop = () => {
 };
 
 const Mobile = () => {
-  const { proposalAddress, daoAddress } = useAppParams();
 
   return (
     <StyledFlexColumn gap={7.5}>
       <StyledWrapper>
         <Deadline />
-        <ProposalAbout
-          proposalAddress={proposalAddress}
-          daoAddress={daoAddress}
-        />
+        <ProposalAbout />
       </StyledWrapper>
       <Vote />
       <StyledWrapper>

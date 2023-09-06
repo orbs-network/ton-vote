@@ -1,9 +1,12 @@
-import { Typography, IconButton, Popover, styled } from "@mui/material";
+import { Typography, Popover, styled } from "@mui/material";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { useAppSettings } from "hooks/hooks";
 import React, { lazy, Suspense, useState } from "react";
+import { FiMoon, FiSun } from "react-icons/fi";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getBorderColor } from "theme";
 import { makeElipsisAddress } from "utils";
+import { Webapp } from "WebApp";
 
 const SettingsIcon = lazy(() =>
   import("react-icons/io5").then(({ IoSettingsOutline }) => ({
@@ -20,8 +23,9 @@ const LogoutIcon = lazy(() =>
 export function TWAMenu() {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const address = useTonAddress();
-    const [tonConnect] = useTonConnectUI();
+  const [tonConnect] = useTonConnectUI();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    Webapp.hapticFeedback();
     setAnchorEl(event.currentTarget);
   };
 
@@ -32,55 +36,83 @@ export function TWAMenu() {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
-  if (!address) return null;
-    return (
-      <>
-        <StyledMenuButton onClick={handleClick}>
-          <Suspense>
-            <SettingsIcon />
-          </Suspense>
-        </StyledMenuButton>
-        <StyledPopover
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
-          }}
-        >
-          <StyledTWAMenu>
-            <StyledTop>
-              <StyledTitle>Connected wallet</StyledTitle>
-              <StyledAddress>{makeElipsisAddress(address)}</StyledAddress>
-            </StyledTop>
-            <StyledDivider />
-            <StyledBottom>
-              <StyledLogout>Logout</StyledLogout>
-              <StyledLogoutButton onClick={() => tonConnect.disconnect()}>
-                <Suspense>
-                  <LogoutIcon />
-                </Suspense>
-              </StyledLogoutButton>
-            </StyledBottom>
-          </StyledTWAMenu>
-        </StyledPopover>
-      </>
-    );
+  if (!Webapp.isEnabled) return null;
+  return (
+    <>
+      <StyledMenuButton onClick={handleClick}>
+        <Suspense>
+          <SettingsIcon />
+        </Suspense>
+      </StyledMenuButton>
+      <StyledPopover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <StyledMenuContent>
+          <ThemeToggle />
+          {address && (
+            <>
+              <StyledSection>
+                <StyledFlexColumn gap={5} alignItems="flex-start">
+                  <StyledTitle>Connected wallet</StyledTitle>
+                  <StyledAddress>{makeElipsisAddress(address)}</StyledAddress>
+                </StyledFlexColumn>
+              </StyledSection>
+              <StyledDivider />
+              <StyledSection>
+                <StyledLogout>Logout</StyledLogout>
+                <StyledLogoutButton onClick={() => tonConnect.disconnect()}>
+                  <Suspense>
+                    <LogoutIcon />
+                  </Suspense>
+                </StyledLogoutButton>
+              </StyledSection>
+            </>
+          )}
+        </StyledMenuContent>
+      </StyledPopover>
+    </>
+  );
 }
 
-const StyledTop = styled(StyledFlexColumn)({
-    padding:'0px 20px',
-    alignItems: "flex-start",
-})
 
-const StyledBottom = styled(StyledFlexRow)({
+const StyledSection = styled(StyledFlexRow)({
   justifyContent: "space-between",
   padding: "0px 20px",
+  p: {
+    fontSize: 14,
+  }
 });
 
-const StyledDivider = styled("div")(({theme}) => ({
+const ThemeToggle = () => {
+  const { toggleTheme, isDarkMode } = useAppSettings();
+
+  const onClick = () => {
+    toggleTheme();
+    Webapp.hapticFeedback();
+  }
+  return (
+    <StyledTheme>
+      <Typography>Theme</Typography>
+      <div onClick={onClick}>{isDarkMode ? <FiSun /> : <FiMoon />}</div>
+    </StyledTheme>
+  );
+};
+
+const StyledTheme = styled(StyledSection)({
+  svg:{
+    width: 20,
+    height: 20,
+  }
+});
+
+const StyledDivider = styled("div")(({ theme }) => ({
   width: "100%",
   height: 8,
   background: getBorderColor(theme.palette.mode),
@@ -88,7 +120,7 @@ const StyledDivider = styled("div")(({theme}) => ({
 
 const StyledTitle = styled(Typography)({ fontSize: 14, fontWeight: 700 });
 const StyledAddress = styled(Typography)({
-    fontSize: 14
+  fontSize: 14,
 });
 const StyledLogout = styled(Typography)({
   fontSize: 14,
@@ -104,13 +136,15 @@ const StyledLogoutButton = styled("div")({
     color: "#FF3233",
   },
 });
-const StyledTWAMenu = styled(StyledFlexColumn)({
-    minWidth: 230,
-    padding:'10px 0px',
+
+const StyledMenuContent = styled(StyledFlexColumn)({
+  minWidth: 230,
+  padding: "10px 0px",
   "*": {
     alignItems: "flex-start",
   },
 });
+
 
 const StyledPopover = styled(Popover)({
   ".MuiPaper-root": {
@@ -119,13 +153,12 @@ const StyledPopover = styled(Popover)({
 });
 
 const StyledMenuButton = styled("button")({
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
+  background: "transparent",
+  border: "none",
+  cursor: "pointer",
   padding: 0,
   svg: {
     width: 25,
     height: 25,
   },
-
 });

@@ -10,41 +10,28 @@ import { useConnectedWalletVotingPower } from "../hooks";
 
 export function NormalVote() {
   const translations = useProposalPageTranslations();
-  const { onShowConfirmation, submitVoteLoading } = useVoteContext();
 
   return (
-    <StyledContainer title={translations.castVote}>
+    <TitleContainer title={translations.castVote}>
       <VoteOptions />
-      <VoteButton
-        isLoading={submitVoteLoading}
-        disabled={submitVoteLoading}
-        onSubmit={onShowConfirmation}
-      />
+      <VoteButton />
       <ConfirmationModal />
-    </StyledContainer>
+    </TitleContainer>
   );
 }
 
-const VoteButton = ({
-  onSubmit,
-  isLoading,
-  disabled,
-}: {
-  onSubmit: () => void;
-  isLoading: boolean;
-  disabled: boolean;
-}) => {
+const VoteButton = () => {
   const walletAddress = useTonAddress();
-
+  const { submitVote, submitVoteLoading, vote } = useVoteContext();
   if (!walletAddress) {
     return <StyledConnectButton />;
   }
 
   return (
     <StyledVoteButton
-      onClick={onSubmit}
-      isLoading={isLoading}
-      disabled={disabled}
+      onClick={submitVote}
+      isLoading={submitVoteLoading}
+      disabled={!vote}
     >
       Vote
     </StyledVoteButton>
@@ -61,7 +48,6 @@ const StyledConnectButton = styled(ConnectButton)({
   width: "100%",
 });
 
-const StyledContainer = styled(TitleContainer)({});
 
 const ConfirmationModal = () => {
   const translations = useProposalPageTranslations();

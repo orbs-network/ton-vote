@@ -1,4 +1,4 @@
-import { isTwaApp } from "consts";
+import { Webapp } from "WebApp";
 import { useShowComponents } from "../hooks";
 import { VoteContextProvider } from "./context";
 import { NormalVote } from "./Normal";
@@ -11,7 +11,7 @@ function Vote() {
     
   return (
     <VoteContextProvider>
-      {isTwaApp ? <TWAVote /> : <NormalVote />}
+      {Webapp.isEnabled ? <TWAVote /> : <NormalVote />}
     </VoteContextProvider>
   );
 }

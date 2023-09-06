@@ -1,11 +1,10 @@
-import { IconButton, styled, useTheme, useThemeProps } from "@mui/material";
+import { styled, useTheme } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
-import { IS_DEV, TELEGRAM_SUPPORT_GROUP } from "config";
+import {  TELEGRAM_SUPPORT_GROUP } from "config";
 import { TOOLBAR_WIDTH } from "consts";
 import { useDevFeatures, useMobile, useRole } from "hooks/hooks";
-import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
@@ -15,6 +14,7 @@ import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
 import { IoHelpSharp } from "react-icons/io5";
 import { FaFly } from "react-icons/fa";
+
 export function Toolbar() {
   const navigation = useAppNavigation();
   const devFeatures = useDevFeatures();

@@ -54,6 +54,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useNumericFormat } from "react-number-format";
 import BigNumber from "bignumber.js";
+import { Webapp } from "WebApp";
 
 export const useCurrentRoute = () => {
   const location = useLocation();

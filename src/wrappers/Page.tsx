@@ -1,9 +1,10 @@
 import { Fade, styled, Typography } from "@mui/material";
 import { Back, ErrorContainer } from "components";
-import { isTwaApp, MOBILE_WIDTH } from "consts";
+import { MOBILE_WIDTH } from "consts";
 import { useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { PageProps } from "types";
+import { Webapp } from "WebApp";
 
 function Page({
   children,
@@ -43,7 +44,7 @@ function Page({
       )}
 
       {children}
-      {isTwaApp && <StyledTWAShadow />}
+      {Webapp.isEnabled && <StyledTWAShadow />}
     </StyledContainer>
   );
 }
@@ -57,7 +58,7 @@ const StyledTitle = styled(Typography)({
 });
 
 const StyledTop = styled(StyledFlexRow)({
-  marginBottom: isTwaApp ? 0 :  15,
+  marginBottom: Webapp.isEnabled ? 0 :  20,
 });
 
 const StyledContainer = styled(StyledFlexColumn)({

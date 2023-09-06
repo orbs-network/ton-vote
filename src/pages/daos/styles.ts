@@ -61,7 +61,7 @@ export const StyledDaosAmount = styled(Typography)({
 });
 
 export const StyledSearch = styled(Search)({
-  maxWidth: 400,
+  maxWidth: 450,
   width: "100%",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     maxWidth: "unset",

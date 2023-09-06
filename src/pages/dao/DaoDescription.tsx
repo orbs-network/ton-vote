@@ -21,5 +21,4 @@ export function DaoDescription() {
 
 const StyledDescription = styled(Container)({
   width: "100%",
-  padding: "30px",
 });
