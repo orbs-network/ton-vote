@@ -3,6 +3,7 @@ import WebApp from "@twa-dev/sdk";
 
 export const routes = {
   spaces: "/",
+  webappSpaces: "/webapp/spaces",
   createSpace: "/setup",
   proposal: "/:daoId/proposal/:proposalId",
   editProposal: "/:daoId/proposal/:proposalId/edit",

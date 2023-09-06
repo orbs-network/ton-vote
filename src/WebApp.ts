@@ -1,4 +1,5 @@
 import TWA from "@twa-dev/sdk";
+import { Dao } from "types";
 
 const hapticFeedback = (
   type?: "light" | "medium" | "heavy" | "rigid" | "soft"
@@ -14,7 +15,11 @@ const enableClosingConfirmation = () => TWA.enableClosingConfirmation();
 const init = () => {
   enableClosingConfirmation();
   expand();
-  TWA.ready()
+  TWA.ready();
+};
+
+const onDaoSelect = (dao: Dao) => {
+  TWA.sendData(JSON.stringify({ action:'select_dao', data: dao }));
 };
 
 export const Webapp = {
@@ -25,4 +30,5 @@ export const Webapp = {
   enableClosingConfirmation,
   isDarkMode: TWA.colorScheme === "dark",
   init,
+  onDaoSelect,
 };

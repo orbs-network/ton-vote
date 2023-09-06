@@ -18,11 +18,11 @@ import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { Dao as DaoType } from "types";
 import { makeElipsisAddress, parseLanguage } from "utils";
-import { StyledDesktopDao, StyledHiddenIcon, StyledMobileDao } from "./styles";
+import { StyledDesktopDao, StyledHiddenIcon, StyledMobileDao } from "../styles";
 
 interface ContextType {
   dao: DaoType;
-  onDaoClick: () => void;
+  onSelect: () => void;
 }
 
 const Context = createContext({} as ContextType);
@@ -54,23 +54,20 @@ const useHideDao = (dao: DaoType) => {
 };
 
 export const DesktopDao = () => {
-  const { onDaoClick } = useDaoContext();
+  const { onSelect } = useDaoContext();
 
   return (
-    <StyledDesktopDao onClick={onDaoClick} hover>
-        <HiddenIndicator />
-        <StyledFlexColumn>
-          <Avatar />
-          <Name />
-          <Address />
-        </StyledFlexColumn>
-        <Website />
+    <StyledDesktopDao onClick={onSelect} hover>
+      <HiddenIndicator />
+      <StyledFlexColumn>
+        <Avatar />
+        <Name />
+        <Address />
+      </StyledFlexColumn>
+      <Website />
     </StyledDesktopDao>
   );
 };
-
-
-
 
 const Avatar = () => {
   const { dao } = useDaoContext();
@@ -209,9 +206,9 @@ const StyledAddress = styled(StyledFlexRow)({
 });
 
 const MobileDao = () => {
-  const { onDaoClick } = useDaoContext();
+  const { onSelect } = useDaoContext();
   return (
-    <StyledMobileDao onClick={onDaoClick}>
+    <StyledMobileDao onClick={onSelect}>
       <Avatar />
       <StyledMobileDaoRight>
         <Name />
@@ -230,16 +227,20 @@ const StyledMobileDaoRight = styled(StyledFlexColumn)({
 
 
 
-export const Dao = ({ dao }: { dao: DaoType }) => {
+export const Dao = ({
+  dao,
+  onSelect,
+}: {
+  dao: DaoType;
+  onSelect: (dao: DaoType) => void;
+}) => {
   const isMobile = useMobile();
   const hideDao = useHideDao(dao);
-  const { daoPage } = useAppNavigation();
 
-  const onDaoClick = () => daoPage.root(dao.daoAddress);
 
   if (hideDao) return null;
   return (
-    <Context.Provider value={{ dao, onDaoClick }}>
+    <Context.Provider value={{ dao, onSelect: () => onSelect(dao) }}>
       {isMobile ? <MobileDao /> : <DesktopDao />}
     </Context.Provider>
   );
