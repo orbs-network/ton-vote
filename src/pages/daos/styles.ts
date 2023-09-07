@@ -85,13 +85,17 @@ export const StyledDesktopDao = styled(Container)({
   },
 });
 
-export const StyledMobileDao = styled(Container)({
-  position: "relative",
-  width: "100%",
-  height: "auto",
-  padding: "10px 10px",
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 15,
-});
+export const StyledMobileDao = styled(Container)<{ isSelected?: number }>(
+  ({ isSelected, theme }) => ({
+    position: "relative",
+    width: "100%",
+    height: "auto",
+    padding: "10px 10px",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 15,
+    border: isSelected ? `1px solid ${theme.palette.primary.main}` : "",
+
+  })
+);

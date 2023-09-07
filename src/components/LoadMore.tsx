@@ -12,12 +12,14 @@ function LoadMore({
   totalItems,
   amountToShow,
   className = "",
+  infiniteScroll = false,
 }: {
   limit: number;
   totalItems: number;
   showMore: () => void;
   amountToShow: number;
   className?: string;
+  infiniteScroll?: boolean;
 }) {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
@@ -32,7 +34,7 @@ function LoadMore({
     return null;
   }
 
-  if (amountToShow !== limit) {
+  if (infiniteScroll || amountToShow !== limit) {
     return <div ref={ref}></div>;
   }
   return (

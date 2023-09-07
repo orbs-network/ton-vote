@@ -67,7 +67,10 @@ export function TWAMenu() {
               <StyledDivider />
               <StyledSection>
                 <StyledLogout>Logout</StyledLogout>
-                <StyledLogoutButton onClick={() => tonConnect.disconnect()}>
+                <StyledLogoutButton onClick={() => {
+                  tonConnect.disconnect();
+                  handleClose();
+                }}>
                   <Suspense>
                     <LogoutIcon />
                   </Suspense>

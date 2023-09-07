@@ -53,10 +53,6 @@ export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
   ".description": {
     fontSize: 16,
   },
-
-  "&:hover": {
-    border: theme.palette.mode === 'light'  ?  `1px solid ${theme.palette.primary.main}` : '1px solid rgba(255,255,255, 0.7)',
-  },
 }));
 
 export const StyledTime = styled(Typography)({

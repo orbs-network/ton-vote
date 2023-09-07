@@ -20,7 +20,7 @@ export const VoteOptions = ({
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
   const choices = data?.metadata?.votingSystem.choices;
-  const { setVote, vote } = useVoteContext();
+  const { onSelectVote, vote } = useVoteContext();
 
   return (
     <StyledFlexColumn className={className}>
@@ -32,7 +32,7 @@ export const VoteOptions = ({
               !ignoreSelected && option?.toLowerCase() === vote?.toLowerCase()
             }
             key={option}
-            onClick={() => setVote(option)}
+            onClick={() => onSelectVote(option)}
           >
             <Fade in={!ignoreSelected && option === vote}>
               <StyledFlexRow className="icon">
@@ -47,32 +47,7 @@ export const VoteOptions = ({
   );
 };
 
-const StyledOption = styled(StyledFlexRow)<{
-  selected?: boolean;
-}>(({ theme, selected }) => ({
-  transition: "0.2s all",
-  width: "100%",
-  borderRadius: 30,
-  height: 40,
-  cursor: "pointer",
-  position: "relative",
-  ".icon": {
-    position: "absolute",
-    left: 20,
-    top: "50%",
-    transform: "translate(0, -50%)",
-    width: "fit-content",
-  },
-  border: selected
-    ? `1.5px solid ${theme.palette.primary.main}`
-    : "1.5px solid rgba(114, 138, 150, 0.24)",
-  color: theme.palette.mode === "light" ? theme.palette.primary.main : "white",
-  p: {
-    color: "inherit",
-    fontWeight: 600,
-    fontSize: 16,
-  },
-}));
+
 
 export function VotePreview() {
   const translations = useProposalPageTranslations();
@@ -134,6 +109,8 @@ const Row = ({
   );
 };
 
+
+// ---Styles---- //
 const StyledRow = styled(StyledFlexRow)({
   ".label": {
     fontWeight: 700,
@@ -156,3 +133,31 @@ const StyledVote = styled(Row)({
     textTransform: "capitalize",
   },
 });
+
+
+const StyledOption = styled(StyledFlexRow)<{
+  selected?: boolean;
+}>(({ theme, selected }) => ({
+  transition: "0.2s all",
+  width: "100%",
+  borderRadius: 30,
+  height: 40,
+  cursor: "pointer",
+  position: "relative",
+  ".icon": {
+    position: "absolute",
+    left: 20,
+    top: "50%",
+    transform: "translate(0, -50%)",
+    width: "fit-content",
+  },
+  border: selected
+    ? `1.5px solid ${theme.palette.primary.main}`
+    : "1.5px solid rgba(114, 138, 150, 0.24)",
+  color: theme.palette.mode === "light" ? theme.palette.primary.main : "white",
+  p: {
+    color: "inherit",
+    fontWeight: 600,
+    fontSize: 16,
+  },
+}));

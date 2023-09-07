@@ -1,8 +1,8 @@
 import { Webapp } from "WebApp";
 import { useShowComponents } from "../hooks";
 import { VoteContextProvider } from "./context";
-import { NormalVote } from "./Normal";
-import { TWAVote } from "./TWA";
+import { NormalVote } from "./NormalVote";
+import { WebappVote } from "./WebappVote";
 
 function Vote() {
   const show = useShowComponents().vote;
@@ -11,7 +11,7 @@ function Vote() {
     
   return (
     <VoteContextProvider>
-      {Webapp.isEnabled ? <TWAVote /> : <NormalVote />}
+      {Webapp.isEnabled ? <WebappVote /> : <NormalVote />}
     </VoteContextProvider>
   );
 }

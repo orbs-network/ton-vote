@@ -10,25 +10,14 @@ import { Toolbar } from "./Toolbar";
 import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
-import { MOBILE_WIDTH } from "consts";
-import { useAppQueryParams, useAppSettings } from "hooks/hooks";
+import { MOBILE_WIDTH, routes } from "consts";
+import { useAppQueryParams, useAppSettings, useCurrentRoute } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { MainButton } from "@twa-dev/sdk/react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { Webapp } from "WebApp";
+import { Webapp, WebappButton } from "WebApp";
 
 
-const TWAConnect = () => {
-  const [tonConnect] = useTonConnectUI()
-  const tonAddress = useTonAddress();
-  if (tonAddress) return null;
-    return (
-      <MainButton
-        text="Connect wallet"
-        onClick={() => tonConnect.connectWallet()}
-      />
-    );
-}
 
 const useIsBeta = () => {
   const {
@@ -48,8 +37,8 @@ function Layout({ children }: { children?: ReactNode }) {
 
   return (
     <>
-      <TWAConnect />
       <StyledContainer>
+        <WebappButton />
         <Toolbar />
         <Navbar />
         <ErrorBoundary fallbackRender={(props) => <ErrorFallback {...props} />}>

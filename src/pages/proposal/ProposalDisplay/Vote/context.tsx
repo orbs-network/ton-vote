@@ -3,6 +3,7 @@ import { mock } from "mock/mock";
 import { useVote } from "query/setters";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { errorToast } from "toasts";
+import { Webapp } from "WebApp";
 
 
 interface VoteContextType {
@@ -12,7 +13,7 @@ interface VoteContextType {
   setShowConfirmation: (showConfirmation: boolean) => void;
   submitVote: () => void;
   submitVoteLoading: boolean;
-  onShowConfirmation: () => void;
+  onSelectVote: (vote: string) => void;
 }
 
 export const VoteContext = createContext<VoteContextType>({} as VoteContextType);
@@ -28,8 +29,6 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
   const lastVote = walletVote?.vote as string;
 
   
-
-  
   useEffect(() => {
     if (!vote) {
       setVote(walletVote?.vote as string);
@@ -39,23 +38,20 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
 
   const submitVote = () => mutate(vote)
 
-  const onShowConfirmation = useCallback(() => {
-      console.log({ vote });
+  const onSelectVote = useCallback((_vote: string) => {
+    Webapp.hapticFeedback();
     if (mock.isMockProposal(proposalAddress)) {
       errorToast("You can't vote on mock proposals");
       return;
     }
-    if (!vote) {
-      errorToast("Please select an option");
+  
+    if (lastVote?.toLowerCase() === _vote?.toLowerCase()) {
+      errorToast(`You already voted ${_vote}`);
       return;
     }
-
-    if (lastVote?.toLowerCase() === vote?.toLowerCase()) {
-      errorToast(`You already voted ${vote}`);
-      return;
-    }
+    setVote(_vote);
     setShowConfirmation(true);
-  }, [proposalAddress, lastVote, vote]);
+  }, [proposalAddress, lastVote]);
 
   return (
     <VoteContext.Provider
@@ -66,7 +62,7 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
         showConfirmation,
         submitVote,
         submitVoteLoading,
-        onShowConfirmation,
+        onSelectVote,
       }}
     >
       {children}

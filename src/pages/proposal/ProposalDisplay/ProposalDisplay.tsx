@@ -11,6 +11,7 @@ import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
 import Vote from "./Vote";
 import { ProposalAbout } from "./ProposalAbout";
+import { useShowComponents } from "./hooks";
 
 const gap = 15;
 
@@ -18,7 +19,7 @@ const Destop = () => {
   return (
     <StyledWrapper>
       <StyledLeft>
-        <ProposalAbout  />
+        <ProposalAbout />
         <Vote />
         <ProposalVotes />
       </StyledLeft>
@@ -32,7 +33,6 @@ const Destop = () => {
 };
 
 const Mobile = () => {
-
   return (
     <StyledFlexColumn gap={7.5}>
       <StyledWrapper>
@@ -75,6 +75,7 @@ export function ProposalDisplay() {
 }
 
 export default ProposalDisplay;
+
 
 const StyledWrapper = styled(StyledFlexRow)({
   gap,

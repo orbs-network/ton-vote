@@ -1,8 +1,13 @@
 import { List, LoadMore } from "components";
 import _ from "lodash";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { StyledEmptyText, StyledFlexColumn, StyledFlexRow } from "styles";
-import { StyledDaosList, StyledDesktopDao, StyledEmptyList, StyledMobileDao } from "../styles";
+import {
+  StyledDaosList,
+  StyledDesktopDao,
+  StyledEmptyList,
+  StyledMobileDao,
+} from "../styles";
 import { Dao, DaoLoader } from "./Dao";
 import { Dao as DaoType } from "types";
 import { useDaosQuery } from "query/getters";
@@ -10,6 +15,10 @@ import { useAppQueryParams, useMobile } from "hooks/hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { styled, Theme, Typography } from "@mui/material";
 import { TELEGRAM_SUPPORT_GROUP } from "config";
+import { useWebappButtonStore, Webapp, WebappButton } from "WebApp";
+import { isMobile } from "react-device-detect";
+import { useAppNavigation } from "router/navigation";
+import { errorToast, useErrorToast } from "toasts";
 export const DAOS_LIMIT = 11;
 
 const filterDaos = (daos: DaoType[], searchValue: string) => {
@@ -39,19 +48,29 @@ const filterDaos = (daos: DaoType[], searchValue: string) => {
   );
 };
 
-export function DaosList({
-  showNewDao,
-  onSelect,
-}: {
-  showNewDao?: boolean;
-  onSelect: (dao: DaoType) => void;
-}) {
+export function DaosList({ isWebappSelect }: { isWebappSelect?: boolean }) {
   const [limit, setLimit] = useState(DAOS_LIMIT);
   const { data = [], isLoading, dataUpdatedAt } = useDaosQuery();
   const {
     query: { search: searchValue },
   } = useAppQueryParams();
   const translations = useDaosPageTranslations();
+  const { daoPage } = useAppNavigation();
+  const [selectedDao, setSelectedDao] = useState<DaoType>();
+  useWebbappButton(isWebappSelect, selectedDao);
+  
+  const onDaoSelect = (dao: DaoType,) => {
+    if (isWebappSelect) {
+      setSelectedDao((prev) => {
+        if (prev?.daoId === dao.daoId) {
+          return undefined;
+        }
+        return dao;
+      });
+    } else {
+      daoPage.root(dao.daoAddress);
+    }
+  };
 
   const filteredDaos = useMemo(
     () => filterDaos(data, searchValue || ""),
@@ -60,7 +79,6 @@ export function DaosList({
 
   const emptyList = !isLoading && !_.size(filteredDaos);
 
-  const showMore = () => setLimit((prev) => prev + DAOS_LIMIT);
   return (
     <StyledFlexColumn gap={25}>
       <List
@@ -78,20 +96,49 @@ export function DaosList({
         <StyledDaosList>
           {filteredDaos.map((dao, index) => {
             if (index > limit) return null;
-            return <Dao onSelect={onSelect} key={dao.daoAddress} dao={dao} />;
+            return (
+              <Dao
+                isSelected={selectedDao?.daoId === dao.daoId}
+                onSelect={onDaoSelect}
+                key={dao.daoAddress}
+                dao={dao}
+              />
+            );
           })}
-          {showNewDao && <NewDao />}
+          {!isWebappSelect && <NewDao />}
         </StyledDaosList>
       </List>
       <LoadMore
         totalItems={_.size(filteredDaos)}
         amountToShow={limit}
-        showMore={showMore}
+        showMore={() => setLimit((prev) => prev + DAOS_LIMIT)}
         limit={DAOS_LIMIT}
+        infiniteScroll={isMobile || Webapp.isEnabled}
       />
     </StyledFlexColumn>
   );
 }
+
+const useWebbappButton = (isWebappSelect?: boolean,   selectedDao?: DaoType) => {
+  const webappButton = useWebappButtonStore();
+  useEffect(() => {
+    if (!isWebappSelect) return;
+    webappButton.setValues({
+      text: "Select",
+      onClick: () => {
+        if (!selectedDao) {
+          errorToast("Please select a space");
+        } else {
+          Webapp.onDaoSelect(selectedDao);
+        }
+      },
+    });
+
+    return () => {
+      webappButton.reset();
+    };
+  }, [selectedDao?.daoAddress, isWebappSelect]);
+};
 
 const ListLoader = () => {
   return (
@@ -102,7 +149,6 @@ const ListLoader = () => {
     </StyledDaosList>
   );
 };
-
 
 const NewDao = () => {
   const mobile = useMobile();
@@ -119,7 +165,6 @@ const NewDao = () => {
     </StyledNewDaoDestop>
   );
 };
-
 
 const newDaoStyles = (theme: Theme) => ({
   background: "transparent",

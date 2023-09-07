@@ -81,9 +81,11 @@ const StyledDialogContent = styled(DialogContent)({
 
 const StyledDrawer = styled(SwipeableEdgeDrawer)({
   ".popup-children": {
-    borderRadius: 0,
     height: "100%",
     maxHeight: "calc(100vh - 60px)",
+  },
+  ".title-container-children": {
+    borderRadius: "0px",
   },
 });
 

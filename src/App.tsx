@@ -10,7 +10,8 @@ import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { useWalletListener } from "analytics";
 import { Webapp } from "WebApp";
-
+ Webapp.init();
+ 
 const useInitApp = () => {
   useInitThemeMode();
 };
@@ -20,7 +21,7 @@ function App() {
   useWalletListener();
   useEffect(() => {
     const loader = document.querySelector(".app-loader");
-    Webapp.init();
+   
 
     if (loader) {
       loader.classList.add("app-loader-hidden");

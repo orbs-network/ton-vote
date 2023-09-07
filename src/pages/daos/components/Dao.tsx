@@ -23,6 +23,7 @@ import { StyledDesktopDao, StyledHiddenIcon, StyledMobileDao } from "../styles";
 interface ContextType {
   dao: DaoType;
   onSelect: () => void;
+  isSelected?: boolean;
 }
 
 const Context = createContext({} as ContextType);
@@ -206,9 +207,9 @@ const StyledAddress = styled(StyledFlexRow)({
 });
 
 const MobileDao = () => {
-  const { onSelect } = useDaoContext();
+  const { onSelect , isSelected} = useDaoContext();
   return (
-    <StyledMobileDao onClick={onSelect}>
+    <StyledMobileDao onClick={onSelect} isSelected={isSelected ? 1 : 0}>
       <Avatar />
       <StyledMobileDaoRight>
         <Name />
@@ -230,17 +231,20 @@ const StyledMobileDaoRight = styled(StyledFlexColumn)({
 export const Dao = ({
   dao,
   onSelect,
+  isSelected,
 }: {
   dao: DaoType;
   onSelect: (dao: DaoType) => void;
+  isSelected?: boolean;
 }) => {
   const isMobile = useMobile();
   const hideDao = useHideDao(dao);
 
-
   if (hideDao) return null;
   return (
-    <Context.Provider value={{ dao, onSelect: () => onSelect(dao) }}>
+    <Context.Provider
+      value={{ dao, onSelect: () => onSelect(dao), isSelected }}
+    >
       {isMobile ? <MobileDao /> : <DesktopDao />}
     </Context.Provider>
   );

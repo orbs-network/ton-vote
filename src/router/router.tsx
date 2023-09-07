@@ -43,7 +43,7 @@ export const useRouter = () => {
               path: routes.webappSpaces,
               element: (
                 <Suspense fallback={<DaosPageFallback />}>
-                  <DaosPage />
+                  <DaosPage isWebappSelect={true} />
                 </Suspense>
               ),
             },
