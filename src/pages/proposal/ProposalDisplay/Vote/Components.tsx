@@ -20,21 +20,23 @@ export const VoteOptions = ({
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
   const choices = data?.metadata?.votingSystem.choices;
-  const { onSelectVote, vote } = useVoteContext();
+  const { onSelectVote, lastVote, vote } = useVoteContext();  
+
+  const _currentVote = vote || lastVote;
 
   return (
     <StyledFlexColumn className={className}>
       {choices?.map((option) => {
+        const isSelected =
+          option?.toLowerCase() === _currentVote?.toLowerCase();
         return (
           <StyledOption
             className="option"
-            selected={
-              !ignoreSelected && option?.toLowerCase() === vote?.toLowerCase()
-            }
+            selected={!ignoreSelected && isSelected}
             key={option}
             onClick={() => onSelectVote(option)}
           >
-            <Fade in={!ignoreSelected && option === vote}>
+            <Fade in={!ignoreSelected && isSelected}>
               <StyledFlexRow className="icon">
                 <FiCheck style={{ width: 20, height: 20 }} />
               </StyledFlexRow>
@@ -49,7 +51,7 @@ export const VoteOptions = ({
 
 
 
-export function VotePreview() {
+export function VotePreview({className = ""}: {className?: string}) {
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
@@ -58,31 +60,29 @@ export function VotePreview() {
     useConnectedWalletVotingPower();
 
   return (
-
+    <StyledFlexColumn className={className}>
       <StyledFlexColumn>
-        <StyledFlexColumn>
-          <StyledVote label={translations.choice} value={vote} />
-          {data?.metadata?.mcSnapshotBlock && (
-            <Row
-              label={translations.snapshot}
-              value={<NumberDisplay value={data?.metadata?.mcSnapshotBlock} />}
-            />
-          )}
+        <StyledVote label={translations.choice} value={vote} />
+        {data?.metadata?.mcSnapshotBlock && (
           <Row
-            isLoading={votingDataLoading}
-            label={translations.yourVotingPower}
-            value={votingData?.votingPowerText}
-          />
-        </StyledFlexColumn>
-        {!votingDataLoading && !votingData?.hasVotingPower && (
-          <InfoMessage
-            message={translations.notEnoughVotingPower(
-              data?.metadata?.mcSnapshotBlock.toLocaleString() || ""
-            )}
+            label={translations.snapshot}
+            value={<NumberDisplay value={data?.metadata?.mcSnapshotBlock} />}
           />
         )}
+        <Row
+          isLoading={votingDataLoading}
+          label={translations.yourVotingPower}
+          value={votingData?.votingPowerText}
+        />
       </StyledFlexColumn>
-
+      {!votingDataLoading && !votingData?.hasVotingPower && (
+        <InfoMessage
+          message={translations.notEnoughVotingPower(
+            data?.metadata?.mcSnapshotBlock.toLocaleString() || ""
+          )}
+        />
+      )}
+    </StyledFlexColumn>
   );
 }
 

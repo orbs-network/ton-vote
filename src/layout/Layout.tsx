@@ -15,7 +15,7 @@ import { useAppQueryParams, useAppSettings, useCurrentRoute } from "hooks/hooks"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { MainButton } from "@twa-dev/sdk/react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { Webapp, WebappButton } from "WebApp";
+import { Webapp, WebappButton, WebappConnectWalletButton } from "WebApp";
 
 
 
@@ -38,7 +38,7 @@ function Layout({ children }: { children?: ReactNode }) {
   return (
     <>
       <StyledContainer>
-        <WebappButton />
+        <WebappConnectWalletButton />
         <Toolbar />
         <Navbar />
         <ErrorBoundary fallbackRender={(props) => <ErrorFallback {...props} />}>

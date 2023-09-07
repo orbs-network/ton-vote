@@ -1,5 +1,11 @@
 import { styled } from "@mui/material";
-import { Button, ConnectButton, Popup, TitleContainer } from "components";
+import {
+  AppTooltip,
+  Button,
+  ConnectButton,
+  Popup,
+  TitleContainer,
+} from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -22,19 +28,31 @@ export function NormalVote() {
 
 const VoteButton = () => {
   const walletAddress = useTonAddress();
-  const { submitVote, submitVoteLoading, vote } = useVoteContext();
+  const {
+    onShowConfirmation,
+    submitVoteLoading,
+    vote,
+    lastVoteEqualsToCurrentVote,
+    lastVote,
+  } = useVoteContext();
   if (!walletAddress) {
     return <StyledConnectButton />;
   }
 
   return (
-    <StyledVoteButton
-      onClick={submitVote}
-      isLoading={submitVoteLoading}
-      disabled={!vote}
+    <AppTooltip
+      text={
+        lastVoteEqualsToCurrentVote && `You already voted ${vote || lastVote}`
+      }
     >
-      Vote
-    </StyledVoteButton>
+      <StyledVoteButton
+        onClick={() => onShowConfirmation()}
+        isLoading={submitVoteLoading}
+        disabled={!vote || lastVoteEqualsToCurrentVote}
+      >
+        Vote
+      </StyledVoteButton>
+    </AppTooltip>
   );
 };
 
@@ -47,7 +65,6 @@ const StyledConnectButton = styled(ConnectButton)({
   marginTop: 20,
   width: "100%",
 });
-
 
 const ConfirmationModal = () => {
   const translations = useProposalPageTranslations();

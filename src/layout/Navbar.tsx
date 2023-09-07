@@ -21,7 +21,9 @@ export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
 
-  if(Webapp.isEnabled) return null;
+  if(Webapp.isEnabled) {
+    return <StyleConnectdButtonHidden />
+  }
 
   return (
     <StyledContainer>
@@ -40,6 +42,13 @@ export function Navbar() {
     </StyledContainer>
   );
 }
+
+const StyleConnectdButtonHidden = styled(StyleConnectdButton)({
+  position:'fixed',
+  top: -30,
+  opacity: 0,
+  pointerEvents: 'none'
+});
 
 const EnvModeIndication = () => {
   const devFeatures = useDevFeatures();

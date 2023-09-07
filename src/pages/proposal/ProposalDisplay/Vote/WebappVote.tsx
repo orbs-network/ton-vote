@@ -8,13 +8,24 @@ import { useVoteContext } from "./context";
 import { useConnectedWalletVotingPower } from "../hooks";
 import { StyledFlexRow } from "styles";
 import { HiOutlineArrowLeft } from "react-icons/hi";
-import { useWebappButtonStore } from "WebApp";
+import { WebappButton } from "WebApp";
 
 export function WebappVote() {
   const translations = useProposalPageTranslations();
   const [showOptions, setShowOptions] = useState(false);
+  const { data: votingPowerData, isLoading: votingPowerLoading } =
+    useConnectedWalletVotingPower();
 
-  const { setVote, showConfirmation, setShowConfirmation } = useVoteContext();
+  const {
+    setVote,
+    showConfirmation,
+    setShowConfirmation,
+    submitVoteLoading,
+    lastVote,
+    vote,
+    submitVote,
+    onShowConfirmation,
+  } = useVoteContext();
 
   const onModalClose = useCallback(() => {
     setShowOptions(false);
@@ -24,12 +35,57 @@ export function WebappVote() {
     }, 500);
   }, [showConfirmation]);
 
-  useWebappButton(showOptions, onModalClose, () => setShowOptions(true));
-
   const onCloseConfirmation = () => {
     setVote("");
     setShowConfirmation(false);
   };
+
+  const text = useMemo(() => {
+    if (submitVoteLoading) {
+      return "Voting...";
+    } else if (!showOptions) {
+      return !!lastVote ? "Vote again" : "Vote";
+    } else if (!vote) {
+      return "Select an option";
+    }
+    else if(showConfirmation) {
+      return "Confirm vote";
+    }
+    else {
+      return `Select`;
+    }
+  }, [vote, showConfirmation, showOptions, submitVoteLoading, lastVote]);
+
+  const onWebappButtonClick = useCallback(() => {
+    if (!showOptions) {
+      setShowOptions(true);
+    } else if (!showConfirmation) {
+      onShowConfirmation();
+    } else {
+      submitVote();
+      onModalClose();
+    }
+  }, [
+    showConfirmation,
+    showOptions,
+    submitVote,
+    onModalClose,
+    onShowConfirmation,
+  ]);
+
+  const webappButtonProgress = useMemo(() => {
+    if (submitVoteLoading || votingPowerLoading) {
+      return true;
+    }
+    return false;
+  }, [submitVoteLoading, votingPowerLoading]);
+
+  const webappButtonDisabled = useMemo(() => {
+    if (showOptions && !vote) {
+      return true;
+    }
+    return false;
+  }, [showOptions, vote]);
 
   return (
     <>
@@ -51,87 +107,18 @@ export function WebappVote() {
       >
         <>{!showConfirmation ? <StyledVoteOptions /> : <VotePreview />}</>
       </StyledPopup>
+      <WebappButton
+        disabled={webappButtonDisabled}
+        progress={webappButtonProgress}
+        onClick={onWebappButtonClick}
+        text={text}
+      />
     </>
   );
 }
 
-const useWebappButton = (
-  showOptions: boolean,
-  onModalClose: () => void,
-  setShowOptions: () => void
-) => {
-  const webappButton = useWebappButtonStore();
-
-  const {
-    vote,
-    showConfirmation,
-    submitVote,
-    submitVoteLoading,
-    alreadyVoted,
-  } = useVoteContext();
-  const { data: votingPowerData, isLoading: votingPowerLoading } =
-    useConnectedWalletVotingPower();
-
-  useEffect(() => {
-    return () => {
-      webappButton.reset();
-    };
-  }, []);
-
-  // handle button onClick
-
-  useEffect(() => {
-    if (!showOptions) {
-      webappButton.setValues({ onClick: setShowOptions });
-    } else {
-      webappButton.setValues({
-        onClick: () => {
-          submitVote();
-          onModalClose();
-        },
-      });
-    }
-  }, [showConfirmation, showOptions, submitVote, onModalClose]);
-
-
-  useEffect(() => {
-    if (submitVoteLoading || votingPowerLoading) {
-      webappButton.setValues({ progress: true });
-    } else {
-      webappButton.setValues({ progress: false });
-    }
-  }, [submitVoteLoading, votingPowerLoading]);
-
-
-
-  // handle button disabled
-  useEffect(() => {
-    if (showOptions && !vote) {
-      webappButton.setValues({ disabled: true });
-    } else {
-      webappButton.setValues({ disabled: false });
-    }
-  }, [showOptions, vote, votingPowerLoading, votingPowerData?.hasVotingPower]);
-
-  // handle button text
-  useEffect(() => {
-    if (submitVoteLoading) {
-      webappButton.setValues({ text: "Voting..." });
-    } else if (!showOptions) {
-      webappButton.setValues({ text: alreadyVoted ? "Vote again" : "Vote" });
-    } else if (!vote) {
-      webappButton.setValues({ text: undefined });
-    } else {
-      webappButton.setValues({ text: `Vote ${vote}` });
-    }
-  }, [vote, showConfirmation, showOptions, submitVoteLoading, alreadyVoted]);
-};
-
-
-
 const StyledVoteOptions = styled(VoteOptions)(({ theme }) => ({
   ".option": {
-    border: `1.5px solid ${theme.palette.primary.main}`,
     height: 45,
   },
 }));
@@ -148,4 +135,6 @@ const StyledChangeVote = styled("button")({
   },
 });
 
-const StyledPopup = styled(Popup)({});
+const StyledPopup = styled(Popup)({
+  minHeight: "50vh",
+});

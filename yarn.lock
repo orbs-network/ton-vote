@@ -1603,12 +1603,26 @@
     "@tonconnect/isomorphic-fetch" "^0.0.2"
     "@tonconnect/protocol" "^2.2.5"
 
+"@tonconnect/sdk@https://gitpkg.now.sh/ton-connect/sdk/packages/sdk?feature_next-build":
+  version "3.2.0"
+  resolved "https://gitpkg.now.sh/ton-connect/sdk/packages/sdk?feature_next-build#f0db32a9f33a381efbf2cb14099eb6c166f96ecd"
+  dependencies:
+    "@tonconnect/isomorphic-eventsource" "^0.0.1"
+    "@tonconnect/isomorphic-fetch" "^0.0.2"
+    "@tonconnect/protocol" "^2.2.5"
+
 "@tonconnect/ui-react@^1.0.0-beta.6":
   version "1.0.0-beta.6"
   resolved "https://registry.npmjs.org/@tonconnect/ui-react/-/ui-react-1.0.0-beta.6.tgz"
   integrity sha512-j4ziq+5JHmAI74XXodjIomqvLKEwfomJ4mv1LulYWs7izNBDwlpzIW/Un0UzsGZq9fjnuJ/A2Xb9M30j9ucOEg==
   dependencies:
     "@tonconnect/ui" "^1.0.0-beta.5"
+
+"@tonconnect/ui-react@https://gitpkg.now.sh/ton-connect/sdk/packages/ui-react?feature_next-build":
+  version "2.0.1-beta.1"
+  resolved "https://gitpkg.now.sh/ton-connect/sdk/packages/ui-react?feature_next-build#845e78d464d9aaea7d7b9fc3d05a6869bcdb0a29"
+  dependencies:
+    "@tonconnect/ui" "https://gitpkg.now.sh/ton-connect/sdk/packages/ui?feature_next-build"
 
 "@tonconnect/ui@^1.0.0-beta.5":
   version "1.0.0-beta.5"
@@ -1618,6 +1632,15 @@
     "@tonconnect/sdk" "^2.1.3"
     classnames "^2.3.2"
     deepmerge "^4.2.2"
+
+"@tonconnect/ui@https://gitpkg.now.sh/ton-connect/sdk/packages/ui?feature_next-build":
+  version "2.0.0-beta.3"
+  resolved "https://gitpkg.now.sh/ton-connect/sdk/packages/ui?feature_next-build#d207032656c5133f74d5a13c92b1bcfc37735bae"
+  dependencies:
+    "@tonconnect/sdk" "https://gitpkg.now.sh/ton-connect/sdk/packages/sdk?feature_next-build"
+    classnames "^2.3.2"
+    deepmerge "^4.2.2"
+    ua-parser-js "^1.0.35"
 
 "@tootallnate/once@2":
   version "2.0.0"
@@ -5703,7 +5726,7 @@ ua-parser-js@^0.7.18:
   resolved "https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-0.7.35.tgz"
   integrity sha512-veRf7dawaj9xaWEu9HoTVn5Pggtc/qj+kqTOFvNiN1l0YdxwC1kvel57UCjThjGa3BHBihE8/UJAHI+uQHmd/g==
 
-ua-parser-js@^1.0.33:
+ua-parser-js@^1.0.33, ua-parser-js@^1.0.35:
   version "1.0.35"
   resolved "https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-1.0.35.tgz"
   integrity sha512-fKnGuqmTBnIE+/KXSzCn4db8RTigUzw1AN0DmdU6hJovUTbYJKyqj+8Mt1c4VfRDnOVJnENmfYkIPZ946UrSAA==

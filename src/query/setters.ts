@@ -52,6 +52,7 @@ import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
 import retry from "async-retry";
+import { Webapp } from "WebApp";
 
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
@@ -381,6 +382,7 @@ export const useVote = () => {
       onSuccess: (values, _vote) => {
         analytics.voteSuccess();
         showSuccessToast(`Voted ${_vote} successfully`);
+        Webapp.hapticFeedback()
         if (!values) {
           throw new Error(
             `You voted ${_vote} successfully, but we failed to update results, [support](${TELEGRAM_SUPPORT_GROUP})`

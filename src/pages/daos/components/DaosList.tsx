@@ -15,7 +15,7 @@ import { useAppQueryParams, useMobile } from "hooks/hooks";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { styled, Theme, Typography } from "@mui/material";
 import { TELEGRAM_SUPPORT_GROUP } from "config";
-import { useWebappButtonStore, Webapp, WebappButton } from "WebApp";
+import { Webapp, WebappButton } from "WebApp";
 import { isMobile } from "react-device-detect";
 import { useAppNavigation } from "router/navigation";
 import { errorToast, useErrorToast } from "toasts";
@@ -57,9 +57,8 @@ export function DaosList({ isWebappSelect }: { isWebappSelect?: boolean }) {
   const translations = useDaosPageTranslations();
   const { daoPage } = useAppNavigation();
   const [selectedDao, setSelectedDao] = useState<DaoType>();
-  useWebbappButton(isWebappSelect, selectedDao);
-  
-  const onDaoSelect = (dao: DaoType,) => {
+
+  const onDaoSelect = (dao: DaoType) => {
     if (isWebappSelect) {
       setSelectedDao((prev) => {
         if (prev?.daoId === dao.daoId) {
@@ -115,29 +114,31 @@ export function DaosList({ isWebappSelect }: { isWebappSelect?: boolean }) {
         limit={DAOS_LIMIT}
         infiniteScroll={isMobile || Webapp.isEnabled}
       />
+      <WebappSelectSpace
+        isWebappSelect={isWebappSelect}
+        selectedDao={selectedDao}
+      />
     </StyledFlexColumn>
   );
 }
 
-const useWebbappButton = (isWebappSelect?: boolean,   selectedDao?: DaoType) => {
-  const webappButton = useWebappButtonStore();
-  useEffect(() => {
-    if (!isWebappSelect) return;
-    webappButton.setValues({
-      text: "Select",
-      onClick: () => {
-        if (!selectedDao) {
-          errorToast("Please select a space");
-        } else {
-          Webapp.onDaoSelect(selectedDao);
-        }
-      },
-    });
+const WebappSelectSpace = ({
+  isWebappSelect,
+  selectedDao,
+}: {
+  isWebappSelect?: boolean;
+  selectedDao?: DaoType;
+}) => {
+  const onClick = () => {
+    if (!selectedDao) {
+      errorToast("Please select a space");
+    } else {
+      Webapp.onDaoSelect(selectedDao);
+    }
+  };
+  if (!isWebappSelect || !selectedDao) return null;
 
-    return () => {
-      webappButton.reset();
-    };
-  }, [selectedDao?.daoAddress, isWebappSelect]);
+  return <WebappButton text="Select Space" onClick={onClick} />;
 };
 
 const ListLoader = () => {

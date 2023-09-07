@@ -1,10 +1,16 @@
 import { useAppParams, useWalletVote } from "hooks/hooks";
 import { mock } from "mock/mock";
 import { useVote } from "query/setters";
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { errorToast } from "toasts";
 import { Webapp } from "WebApp";
-
 
 interface VoteContextType {
   vote: string;
@@ -14,10 +20,14 @@ interface VoteContextType {
   submitVote: () => void;
   submitVoteLoading: boolean;
   onSelectVote: (vote: string) => void;
-  alreadyVoted: boolean;
+  lastVote?: string;
+  lastVoteEqualsToCurrentVote: boolean;
+  onShowConfirmation: () => void;
 }
 
-export const VoteContext = createContext<VoteContextType>({} as VoteContextType);
+export const VoteContext = createContext<VoteContextType>(
+  {} as VoteContextType
+);
 export const useVoteContext = () => useContext(VoteContext);
 
 
@@ -29,7 +39,7 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
   const walletVote = useWalletVote(proposalAddress);
   const lastVote = walletVote?.vote as string;
 
-  
+
   useEffect(() => {
     if (!vote) {
       setVote(walletVote?.vote as string);
@@ -37,26 +47,34 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
   }, [walletVote?.vote]);
 
 
-  const submitVote = () => mutate(vote)
+  const submitVote = () => mutate(vote);
 
-  const onSelectVote = useCallback((_vote: string) => {
-    Webapp.hapticFeedback();
+  const onSelectVote = useCallback(
+    (_vote: string) => {
+      setVote(_vote);
+     Webapp.hapticFeedback();
+    },
+    [proposalAddress, lastVote]
+  );
+
+  const onShowConfirmation = () => {
     if (mock.isMockProposal(proposalAddress)) {
       errorToast("You can't vote on mock proposals");
-      return;
+      return false;
     }
-  
-    if (lastVote?.toLowerCase() === _vote?.toLowerCase()) {
-      errorToast(`You already voted ${_vote}`);
-      return;
+
+    if (lastVote?.toLowerCase() === vote?.toLowerCase()) {
+      errorToast(`You already voted ${vote}`);
+      return false;
     }
-    setVote(_vote);
+
     setShowConfirmation(true);
-  }, [proposalAddress, lastVote]);
+  };
 
   return (
     <VoteContext.Provider
       value={{
+        onShowConfirmation,
         vote,
         setVote,
         setShowConfirmation,
@@ -64,7 +82,8 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
         submitVote,
         submitVoteLoading,
         onSelectVote,
-        alreadyVoted: !!lastVote,
+        lastVote,
+        lastVoteEqualsToCurrentVote: lastVote?.toLowerCase() === vote?.toLowerCase(),
       }}
     >
       {children}
