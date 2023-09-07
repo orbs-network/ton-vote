@@ -8,11 +8,11 @@ import {
 import { AppTooltip, Github } from "components";
 import { StyleConnectdButton, StyledFlexRow, StyledGrid } from "styles";
 import { useAppNavigation } from "router/navigation";
-import { useAppSettings, useDevFeatures } from "hooks/hooks";
+import { useAppSettings, useCurrentRoute, useDevFeatures } from "hooks/hooks";
 import { APP_NAME } from "config";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
-import { MOBILE_WIDTH } from "consts";
+import { MOBILE_WIDTH, routes } from "consts";
 import { getBorderColor } from "theme";
 import { FiMoon, FiSun } from "react-icons/fi";
 import { Webapp } from "WebApp";
@@ -20,8 +20,9 @@ import { Webapp } from "WebApp";
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
+  const route = useCurrentRoute()
 
-  if(Webapp.isEnabled) return null;
+  if (Webapp.isEnabled || route === routes.webappSpaces) return null;
 
   return (
     <StyledContainer>
