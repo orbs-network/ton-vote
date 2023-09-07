@@ -49,13 +49,7 @@ export function WebappVote() {
           )
         }
       >
-        <>
-          {!showConfirmation ? (
-            <StyledVoteOptions ignoreSelected />
-          ) : (
-            <VotePreview />
-          )}
-        </>
+        <>{!showConfirmation ? <StyledVoteOptions /> : <VotePreview />}</>
       </StyledPopup>
     </>
   );
@@ -68,8 +62,13 @@ const useWebappButton = (
 ) => {
   const webappButton = useWebappButtonStore();
 
-  const { vote, showConfirmation, submitVote, submitVoteLoading } =
-    useVoteContext();
+  const {
+    vote,
+    showConfirmation,
+    submitVote,
+    submitVoteLoading,
+    alreadyVoted,
+  } = useVoteContext();
   const { data: votingPowerData, isLoading: votingPowerLoading } =
     useConnectedWalletVotingPower();
 
@@ -78,6 +77,8 @@ const useWebappButton = (
       webappButton.reset();
     };
   }, []);
+
+  // handle button onClick
 
   useEffect(() => {
     if (!showOptions) {
@@ -92,6 +93,18 @@ const useWebappButton = (
     }
   }, [showConfirmation, showOptions, submitVote, onModalClose]);
 
+
+  useEffect(() => {
+    if (submitVoteLoading || votingPowerLoading) {
+      webappButton.setValues({ progress: true });
+    } else {
+      webappButton.setValues({ progress: false });
+    }
+  }, [submitVoteLoading, votingPowerLoading]);
+
+
+
+  // handle button disabled
   useEffect(() => {
     if (showOptions && !vote) {
       webappButton.setValues({ disabled: true });
@@ -100,18 +113,21 @@ const useWebappButton = (
     }
   }, [showOptions, vote, votingPowerLoading, votingPowerData?.hasVotingPower]);
 
+  // handle button text
   useEffect(() => {
     if (submitVoteLoading) {
       webappButton.setValues({ text: "Voting..." });
     } else if (!showOptions) {
-      webappButton.setValues({ text: "Vote" });
+      webappButton.setValues({ text: alreadyVoted ? "Vote again" : "Vote" });
     } else if (!vote) {
-      webappButton.setValues({ text: "Select vote option" });
+      webappButton.setValues({ text: undefined });
     } else {
       webappButton.setValues({ text: `Vote ${vote}` });
     }
-  }, [vote, showConfirmation, showOptions, submitVoteLoading]);
+  }, [vote, showConfirmation, showOptions, submitVoteLoading, alreadyVoted]);
 };
+
+
 
 const StyledVoteOptions = styled(VoteOptions)(({ theme }) => ({
   ".option": {

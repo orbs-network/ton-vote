@@ -14,6 +14,7 @@ interface VoteContextType {
   submitVote: () => void;
   submitVoteLoading: boolean;
   onSelectVote: (vote: string) => void;
+  alreadyVoted: boolean;
 }
 
 export const VoteContext = createContext<VoteContextType>({} as VoteContextType);
@@ -63,6 +64,7 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
         submitVote,
         submitVoteLoading,
         onSelectVote,
+        alreadyVoted: !!lastVote,
       }}
     >
       {children}

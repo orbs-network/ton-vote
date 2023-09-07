@@ -9,7 +9,11 @@ import { Page } from "wrappers";
 import { TWAMenu } from "./TWAMenu";
 import { DaosList } from "./components/DaosList";
 
-export function DaosPage({ isWebappSelect }: { isWebappSelect?: boolean }) {
+const isWebappSelect = !!new URLSearchParams(window.location.search).get(
+  "subscribe"
+);
+
+export function DaosPage() {
   const { data = [] } = useDaosQuery();
   const mobile = useMobile();
   const { query, setSearch } = useAppQueryParams();

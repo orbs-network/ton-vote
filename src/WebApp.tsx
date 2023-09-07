@@ -11,7 +11,7 @@ const hapticFeedback = (
 
 const mainButton = TWA.MainButton;
 
-const isEnabled = !!TWA.initData;
+const isEnabled = !!TWA.initData || !!new URLSearchParams(window.location.search).get("webapp")
 
 const isExpanded = () => TWA.isExpanded;
 
@@ -39,6 +39,20 @@ export const Webapp = {
   onDaoSelect,
   mainButton,
 };
+
+
+const WebappConnectWalletButton = () => {
+  const address = useTonAddress();
+  const [tonConnect] = useTonConnectUI();
+
+  if (address) return null
+    return (
+      <MainButton
+        text={"Connect wallet"}
+        onClick={() => tonConnect.connectWallet()}
+      />
+    );
+}
 
 interface StoreValues {
   text?: string;
