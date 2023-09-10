@@ -10,14 +10,14 @@ import { Toolbar } from "./Toolbar";
 import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
-import { MOBILE_WIDTH, routes } from "consts";
-import { useAppQueryParams, useAppSettings, useCurrentRoute } from "hooks/hooks";
+import { MOBILE_WIDTH } from "consts";
+
+import {
+  useAppQueryParams,
+  useAppSettings,
+} from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { MainButton } from "@twa-dev/sdk/react";
-import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { Webapp, WebappButton, WebappConnectWalletButton } from "WebApp";
-
-
+import { Webapp, WebappConnectWalletButton } from "WebApp";
 
 const useIsBeta = () => {
   const {
@@ -34,7 +34,6 @@ const useIsBeta = () => {
 
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
-
   return (
     <>
       <StyledContainer>
@@ -76,9 +75,9 @@ const StyledContent = styled(StyledGrid)({
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
-  minHeight: "100vh",
   gap: 0,
   display: "flex",
+  flex:1
 });
 
 export default Wrapped;

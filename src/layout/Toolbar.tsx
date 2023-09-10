@@ -112,7 +112,7 @@ const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
 }));
 
 const UserDaos = () => {
-  const { data: daos } = useDaosQuery();
+  const { data } = useDaosQuery();
   const connectedWallet = useTonAddress();
 
   const { getRole } = useRole();
@@ -125,8 +125,8 @@ const UserDaos = () => {
 
   return (
     <StyledUserDaos>
-      {daos &&
-        daos?.map((dao) => {
+      {data &&
+        data?.map((dao) => {
           const { isOwner, isProposalPublisher } = getRole(dao.daoRoles);
 
           if (isOwner || isProposalPublisher) {

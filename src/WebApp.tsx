@@ -15,6 +15,7 @@ const hapticFeedback = (
   }
 };
 
+
 const mainButton = TWA.MainButton;
 
 const isExpanded = () => TWA.isExpanded;
@@ -48,6 +49,7 @@ export const Webapp = {
   init,
   onDaoSelect,
   mainButton,
+  viewPortHeight: TWA.viewportHeight,
 };
 
 export const WebappConnectWalletButton = () => {

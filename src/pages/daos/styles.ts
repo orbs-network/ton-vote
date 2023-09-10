@@ -10,13 +10,13 @@ export const StyledJoinDao = styled(Button)({
 
 
 
-export const StyledHeader = styled(StyledFlexRow)({
+export const StyledHeader = styled(StyledFlexRow)(({ theme }) => ({
   justifyContent: "space-between",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     flexDirection: "column",
     alignItems: "flex-start",
   },
-});
+}));
 
 export const StyledWebsiteChip = styled(Chip)(({ theme }) => ({
   cursor: "pointer",
@@ -96,6 +96,5 @@ export const StyledMobileDao = styled(Container)<{ isSelected?: number }>(
     alignItems: "center",
     gap: 15,
     border: isSelected ? `1px solid ${theme.palette.primary.main}` : "",
-
   })
 );

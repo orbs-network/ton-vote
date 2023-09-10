@@ -70,7 +70,7 @@ const StyledContainer = styled(StyledFlexColumn)({
   gap: 0,
   paddingBottom: 100,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
 });
 

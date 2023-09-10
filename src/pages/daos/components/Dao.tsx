@@ -1,11 +1,5 @@
 import { styled, Typography, useTheme } from "@mui/material";
-import { useTonAddress } from "@tonconnect/ui-react";
-import {
-  AppTooltip,
-  Img,
-  OverflowWithTooltip,
-  VerifiedDao,
-} from "components";
+import { AppTooltip, Img, OverflowWithTooltip, VerifiedDao } from "components";
 import { MOBILE_WIDTH } from "consts";
 import { useMobile } from "hooks/hooks";
 import _ from "lodash";
@@ -14,7 +8,6 @@ import { useIsDaoVerified } from "query/getters";
 import { createContext, useContext, useMemo } from "react";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import TextOverflow from "react-text-overflow";
-import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { Dao as DaoType } from "types";
 import { makeElipsisAddress, parseLanguage } from "utils";
@@ -38,20 +31,6 @@ const parseWesbite = (website: string) => {
   }
 
   return value;
-};
-
-const useHideDao = (dao: DaoType) => {
-  const walletAddress = useTonAddress();
-  const hide = dao.daoMetadata?.metadataArgs.hide;
-
-  const isOwner =
-    dao.daoRoles.owner === walletAddress ||
-    dao.daoRoles.proposalOwner === walletAddress;
-
-  return useMemo(() => {
-    if (hide && !isOwner) return true;
-    return false;
-  }, [isOwner, hide]);
 };
 
 export const DesktopDao = () => {
@@ -170,9 +149,9 @@ const StyledWebsite = styled("button")(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.primary.main}`,
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    marginRight:'auto',
-    marginLeft:'unset',
-  }
+    marginRight: "auto",
+    marginLeft: "unset",
+  },
 }));
 
 const Address = () => {
@@ -207,7 +186,7 @@ const StyledAddress = styled(StyledFlexRow)({
 });
 
 const MobileDao = () => {
-  const { onSelect , isSelected} = useDaoContext();
+  const { onSelect, isSelected } = useDaoContext();
   return (
     <StyledMobileDao onClick={onSelect} isSelected={isSelected ? 1 : 0}>
       <Avatar />
@@ -226,8 +205,6 @@ const StyledMobileDaoRight = styled(StyledFlexColumn)({
   gap: 2,
 });
 
-
-
 export const Dao = ({
   dao,
   onSelect,
@@ -238,9 +215,6 @@ export const Dao = ({
   isSelected?: boolean;
 }) => {
   const isMobile = useMobile();
-  const hideDao = useHideDao(dao);
-
-  if (hideDao) return null;
   return (
     <Context.Provider
       value={{ dao, onSelect: () => onSelect(dao), isSelected }}
@@ -250,12 +224,10 @@ export const Dao = ({
   );
 };
 
-
-
 export const DaoLoader = () => {
   const mobile = useMobile();
 
-  if(mobile) {
+  if (mobile) {
     return (
       <StyledMobileDao>
         <StyledSkeletonLoader
@@ -278,8 +250,4 @@ export const DaoLoader = () => {
       <StyledSkeletonLoader />
     </StyledDesktopDao>
   );
-}
-
-
-
-
+};

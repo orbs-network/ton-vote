@@ -19,6 +19,7 @@ import {
 import { IS_DEV, STRATEGY_ARGUMENTS } from "config";
 import {
   AppQueryParams,
+  Dao,
   Proposal,
   ProposalStatus,
   Result,
@@ -538,3 +539,41 @@ export const useWalletVote = (proposalAddress: string) => {
     return _.find(data?.votes, (it) => it.address === walletAddress);
   }, [dataUpdatedAt, walletAddress]);
 };
+
+export const useHideDao = () => {
+  const walletAddress = useTonAddress();
+
+  return useCallback(
+    (dao: Dao) => {
+      const hide = dao.daoMetadata?.metadataArgs.hide;
+
+      const isOwner =
+        dao.daoRoles.owner === walletAddress ||
+        dao.daoRoles.proposalOwner === walletAddress;
+      return hide && !isOwner ? true : false;
+    },
+    [walletAddress]
+  );
+};
+
+export default function useWindowSize() {
+  const [size, setSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const _setSizes = () => {
+      setSize({
+        width: window.innerWidth,
+        height: Webapp.isEnabled ? Webapp.viewPortHeight : window.innerHeight,
+      });
+    };
+    window.addEventListener("resize", _setSizes);
+    return () => {
+      window.removeEventListener("resize", _setSizes);
+    };
+  }, []);
+
+  return size;
+}

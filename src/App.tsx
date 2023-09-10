@@ -1,15 +1,16 @@
-import { GlobalStyles, ThemeProvider } from "@mui/material";
+import { GlobalStyles, styled, ThemeProvider } from "@mui/material";
 import { APP_NAME } from "config";
-import { useAppSettings } from "hooks/hooks";
-import { Suspense, useEffect, useMemo } from "react";
+import useWindowSize, { useAppSettings, useMobile } from "hooks/hooks";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { RouterProvider } from "react-router-dom";
-import { getGlobalStyles } from "styles";
+import { getGlobalStyles, StyledFlexColumn } from "styles";
 import { useRouter } from "router/router";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { useWalletListener } from "analytics";
 import { Webapp } from "WebApp";
+
  Webapp.init();
  
 const useInitApp = () => {
@@ -21,8 +22,6 @@ function App() {
   useWalletListener();
   useEffect(() => {
     const loader = document.querySelector(".app-loader");
-   
-
     if (loader) {
       loader.classList.add("app-loader-hidden");
       setTimeout(() => {
@@ -40,7 +39,11 @@ function App() {
   );
 
   return (
-    <>
+    <StyledApp
+      style={{
+        minHeight: "100dvh",
+      }}
+    >
       <Helmet>
         <title>{APP_NAME}</title>
       </Helmet>
@@ -50,8 +53,11 @@ function App() {
           <RouterProvider router={router} />
         </Suspense>
       </ThemeProvider>
-    </>
+    </StyledApp>
   );
 }
 
 export default App;
+
+const StyledApp = styled(StyledFlexColumn)({
+});

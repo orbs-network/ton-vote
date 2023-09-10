@@ -7,8 +7,8 @@ import {
   StyledDesktopDao,
   StyledEmptyList,
   StyledMobileDao,
-} from "../styles";
-import { Dao, DaoLoader } from "./Dao";
+} from "../../styles";
+import { Dao, DaoLoader } from "../Dao";
 import { Dao as DaoType } from "types";
 import { useDaosQuery } from "query/getters";
 import { useAppQueryParams, useMobile } from "hooks/hooks";
@@ -19,44 +19,19 @@ import { Webapp, WebappButton } from "WebApp";
 import { isMobile } from "react-device-detect";
 import { useAppNavigation } from "router/navigation";
 import { errorToast, useErrorToast } from "toasts";
+import { useFilteredDaos, useIsWebappSelect } from "../../hooks";
 export const DAOS_LIMIT = 11;
 
-const filterDaos = (daos: DaoType[], searchValue: string) => {
-  if (!searchValue) return daos;
-  const nameFilter = _.filter(daos, (it) =>
-    it.daoMetadata.metadataArgs.name
-      .toLowerCase()
-      .includes(searchValue.toLowerCase())
-  );
-  const addressFilter = _.filter(daos, (it) =>
-    it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
-  const proposalsFilter = _.filter(daos, (it) => {
-    let res = false;
-    _.forEach(it.daoProposals, (it) => {
-      if (it.toLowerCase().includes(searchValue.toLowerCase())) {
-        res = true;
-      }
-    });
-    return res;
-  });
-
-  return _.uniqBy(
-    [...nameFilter, ...addressFilter, ...proposalsFilter],
-    "daoAddress"
-  );
-};
-
-export function DaosList({ isWebappSelect }: { isWebappSelect?: boolean }) {
+export function DaosList() {
   const [limit, setLimit] = useState(DAOS_LIMIT);
-  const { data = [], isLoading, dataUpdatedAt } = useDaosQuery();
-  const {
-    query: { search: searchValue },
-  } = useAppQueryParams();
+  const { isLoading } = useDaosQuery();
+  const isWebappSelect = useIsWebappSelect();
+
   const translations = useDaosPageTranslations();
   const { daoPage } = useAppNavigation();
   const [selectedDao, setSelectedDao] = useState<DaoType>();
+
+  const filteredDaos = useFilteredDaos();
 
   const onDaoSelect = (dao: DaoType) => {
     if (isWebappSelect) {
@@ -70,11 +45,6 @@ export function DaosList({ isWebappSelect }: { isWebappSelect?: boolean }) {
       daoPage.root(dao.daoAddress);
     }
   };
-
-  const filteredDaos = useMemo(
-    () => filterDaos(data, searchValue || ""),
-    [searchValue, dataUpdatedAt]
-  );
 
   const emptyList = !isLoading && !_.size(filteredDaos);
 

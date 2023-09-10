@@ -8,7 +8,12 @@ import {
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { getVoteStrategyType, isDaoWhitelisted, validateAddress } from "utils";
-import { useCurrentRoute, useDevFeatures } from "hooks/hooks";
+import {
+  useCurrentRoute,
+  useDevFeatures,
+  useHideDao,
+  useRole,
+} from "hooks/hooks";
 import { fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
@@ -61,6 +66,7 @@ export const useDaoStateQuery = (daoAddress?: string) => {
 export const useDaosQuery = () => {
   const devFeatures = useDevFeatures();
   const route = useCurrentRoute();
+
   const config = useMemo(() => {
     return {
       staleTime: 10_000,
@@ -355,9 +361,7 @@ export const useGetTonVotingPower = () => {
       const type = getVoteStrategyType(
         proposal.metadata?.votingPowerStrategies
       );
-      if (
-        type === VotingPowerStrategyType.TonBalance
-      ) {
+      if (type === VotingPowerStrategyType.TonBalance) {
         const totalWeight =
           proposal.proposalResult.totalWeight ||
           proposal.proposalResult.totalWeights ||
