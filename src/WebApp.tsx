@@ -1,4 +1,9 @@
-import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import {
+  useIsConnectionRestored,
+  useTonAddress,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react";
 import TWA from "@twa-dev/sdk";
 import { MainButton } from "@twa-dev/sdk/react";
 import { Dao } from "types";
@@ -15,7 +20,6 @@ const hapticFeedback = (
   }
 };
 
-
 const mainButton = TWA.MainButton;
 
 const isExpanded = () => TWA.isExpanded;
@@ -24,7 +28,7 @@ const expand = () => TWA.expand();
 
 const enableClosingConfirmation = () => TWA.enableClosingConfirmation();
 const init = () => {
-  enableClosingConfirmation();
+  // enableClosingConfirmation();
   expand();
   TWA.ready();
 };
@@ -55,6 +59,7 @@ export const Webapp = {
 export const WebappConnectWalletButton = () => {
   const address = useTonAddress();
   const [tonConnect] = useTonConnectUI();
+  const values = useTonWallet();
 
   if (address) return null;
   return (
@@ -77,8 +82,9 @@ export function WebappButton({
   disabled?: boolean;
 }) {
   const address = useTonAddress();
+    const connectionRestored = useIsConnectionRestored();
 
-  if (!address) return null;
+  if (!address || !connectionRestored) return null;
 
   return (
     <MainButton

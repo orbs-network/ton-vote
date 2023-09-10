@@ -35,7 +35,7 @@ function LoadMore({
   }
 
   if (infiniteScroll || amountToShow !== limit) {
-    return <div ref={ref}></div>;
+    return <div ref={ref} style={{top: -200}}></div>;
   }
   return (
     <StyledContainer className={className}>

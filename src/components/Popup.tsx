@@ -1,6 +1,6 @@
 import Modal from "@mui/material/Modal";
 import { CSSProperties, ReactElement, ReactNode } from "react";
-import { DialogContent, Drawer, styled } from "@mui/material";
+import { Box, DialogContent, Drawer, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton } from "@mui/material";
 import { grey } from "@mui/material/colors";
@@ -49,9 +49,9 @@ export const Popup = ({
 
   if (isMobile) {
     return (
-      <StyledDrawer onClose={onClose} open={open}>
-        {content}
-      </StyledDrawer>
+      <SwipeableEdgeDrawer onClose={onClose} open={open}>
+        <StyledDrawerContent>{content}</StyledDrawerContent>
+      </SwipeableEdgeDrawer>
     );
   }
 
@@ -79,13 +79,12 @@ const StyledDialogContent = styled(DialogContent)({
   outline: "unset",
 });
 
-const StyledDrawer = styled(SwipeableEdgeDrawer)({
+const StyledDrawerContent = styled(Box)({
   ".popup-children": {
     height: "100%",
-    maxHeight: "calc(100vh - 60px)",
-  },
-  ".title-container-children": {
-    borderRadius: "0px",
+    maxHeight: "calc(100vh - 80px)",
+    border: "unset",
+    borderRadius: "unset",
   },
 });
 

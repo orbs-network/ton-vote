@@ -22,7 +22,7 @@ export function DaosPage() {
   const translations = useDaosPageTranslations();
 
   return (
-    <Page hideBack={true}>
+    <Page>
       <StyledContainer gap={mobile ? 10 : 24}>
         <StyledHeader>
           <StyledFlexRow style={{ flex: 1, justifyContent: "flex-start" }}>

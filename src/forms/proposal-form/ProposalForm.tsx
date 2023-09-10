@@ -23,7 +23,7 @@ import {
   ProposalStatus,
 } from "types";
 import { validateFormik } from "utils";
-import { Webapp } from "WebApp";
+import { Webapp, WebappButton } from "WebApp";
 import { useCreateProposalForm } from "./inputs";
 import ProposalHidePopup from "./ProposalHidePopup";
 import { StrategySelect } from "./StrategySelect";
@@ -152,7 +152,16 @@ function CreateProposalButton({
 }) {
   const address = useTonAddress();
 
-  if (Webapp.isEnabled) return null;
+  if (Webapp.isEnabled) {
+    return (
+      <WebappButton
+        text={submitText}
+        onClick={() => onSubmit?.()}
+        progress={isLoading}
+        disabled={disabled}
+      />
+    );
+  }
 
   return (
     <AppTooltip

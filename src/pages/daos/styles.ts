@@ -78,6 +78,8 @@ export const StyledDesktopDao = styled(Container)({
   borderRadius: 13,
   padding: 20,
   paddingTop: 30,
+  gap:10,
+  alignItems: "center",
 
   position: "relative",
   "@media (max-width: 1050px)": {

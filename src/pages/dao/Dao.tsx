@@ -1,11 +1,10 @@
-import { ErrorContainer } from "components";
 import { APP_NAME } from "config";
 import { useAppParams } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoQuery } from "query/getters";
 import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
-import { appNavigation } from "router/navigation";
+import { useAppNavigation } from "router/navigation";
 import { parseLanguage } from "utils";
 import { Page } from "wrappers";
 import { DaoLayout } from "./components";
@@ -15,6 +14,7 @@ export function Dao() {
   const {daoAddress} = useAppParams();
   const { data, isError } = useDaoQuery(daoAddress);
   const translations = useDaoPageTranslations();
+  const { daosPage } = useAppNavigation();
 
 
   return (
@@ -27,9 +27,10 @@ export function Dao() {
             : ""}
         </title>
       </Helmet>
-      <Page back={appNavigation.spaces}>
+      <Page>
+        <Page.Header hideBack back={daosPage.root} />
         {isError ? (
-          <ErrorContainer text={translations.spaceNotFound} />
+          <Page.Error text={translations.spaceNotFound} />
         ) : (
           <DaoLayout>
             <Outlet />

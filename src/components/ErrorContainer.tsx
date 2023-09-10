@@ -4,10 +4,10 @@ import { AddressDisplay, Button, Container } from "components";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 
-export function ErrorContainer({ text }: { text: string }) {
+export function ErrorContainer({ text, className = "" }: { text: string; className?: string }) {
   const navigate = useAppNavigation();
   return (
-    <StyledContainer>
+    <StyledContainer className={className}>
       <StyledFlexColumn gap={20}>
         <StyledContent>
           <Typography className="text">{text}</Typography>

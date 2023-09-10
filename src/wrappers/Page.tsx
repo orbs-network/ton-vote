@@ -1,53 +1,38 @@
 import { Fade, styled, Typography } from "@mui/material";
 import { Back, ErrorContainer } from "components";
 import { MOBILE_WIDTH } from "consts";
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { PageProps } from "types";
 import { Webapp } from "WebApp";
 
 function Page({
   children,
   className = "",
-  back,
-  headerComponent,
-  hideBack = false,
-  backFunc,
-  title,
-  error,
-  errorText = "Something went wrong",
-}: PageProps) {
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const hideTop = !title && !headerComponent && hideBack;
-
-  if (error) {
-    return (
-      <StyledContainer className={className}>
-        <ErrorContainer text={errorText} />
-      </StyledContainer>
-    );
-  }
-
   return (
     <StyledContainer className={className}>
-      {!hideTop && (
-        <StyledTop justifyContent="space-between">
-          <StyledFlexRow style={{ width: "auto" }}>
-            {!hideBack && <Back func={backFunc} to={back} />}
-            <StyledTitle>{title}</StyledTitle>
-          </StyledFlexRow>
-          {headerComponent}
-        </StyledTop>
-      )}
-
       {children}
       {Webapp.isEnabled && <StyledTWAShadow />}
     </StyledContainer>
   );
 }
+
+const PageError = ({
+  text = "Something went wrong",
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) => {
+  return <ErrorContainer text={text} className={className} />;
+};
 
 export { Page };
 
@@ -55,10 +40,49 @@ const StyledTitle = styled(Typography)({
   fontWeight: 700,
   fontSize: 22,
   paddingLeft: 0,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 18,
+  },
 });
 
-const StyledTop = styled(StyledFlexRow)({
-  marginBottom: Webapp.isEnabled ? 0 :  20,
+const PageHeader = ({
+  back,
+  title,
+  hideBack = false,
+  headerComponent,
+  className = "",
+}: {
+  back?: () => void;
+  title?: string;
+  hideBack?: boolean;
+  headerComponent?: React.ReactNode;
+  className?: string;
+}) => {
+  const content = (
+    <StyledHeader justifyContent="space-between" className={className}>
+      <StyledFlexRow style={{ width: "auto" }}>
+        {!Webapp.isEnabled && !hideBack && <Back back={back} />}
+        {title && <StyledTitle>{title}</StyledTitle>}
+      </StyledFlexRow>
+      {headerComponent}
+    </StyledHeader>
+  );
+
+  return Webapp.isEnabled ? (
+    <>
+      <Back back={back} />
+      {!title && !headerComponent ? null : content}
+    </>
+  ) : !title && !headerComponent && hideBack ? null : (
+    content
+  );
+};
+
+Page.Header = PageHeader;
+Page.Error = PageError;
+
+const StyledHeader = styled(StyledFlexRow)({
+  marginBottom: Webapp.isEnabled ? 10 : 20,
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
@@ -69,9 +93,7 @@ const StyledContainer = styled(StyledFlexColumn)({
   alignItems: "flex-start",
   gap: 0,
   paddingBottom: 100,
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    paddingBottom: 20,
-  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {},
 });
 
 const StyledTWAShadow = styled("div")(({ theme }) => ({
@@ -82,7 +104,5 @@ const StyledTWAShadow = styled("div")(({ theme }) => ({
   height: 2,
   zIndex: 10,
   background:
-    theme.palette.mode === "dark"
-      ? "rgba(255,255,255, 0.2)"
-      : "#e0e0e0",
+    theme.palette.mode === "dark" ? "rgba(255,255,255, 0.2)" : "#e0e0e0",
 }));

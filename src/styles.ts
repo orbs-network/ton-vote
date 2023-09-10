@@ -57,7 +57,9 @@ export const StyledFlexColumn = styled(Box)(
 
 export const getGlobalStyles = (theme: Theme) => {
   return {
-    "*":{
+   
+  
+        "*":{
       outline: "none!important",
       "&:focus": {
         outline: "none!important",

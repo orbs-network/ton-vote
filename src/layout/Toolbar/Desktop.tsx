@@ -2,45 +2,34 @@ import { styled, useTheme } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
-import {  TELEGRAM_SUPPORT_GROUP } from "config";
+import { TELEGRAM_SUPPORT_GROUP } from "config";
 import { TOOLBAR_WIDTH } from "consts";
-import { useDevFeatures, useMobile, useRole } from "hooks/hooks";
-import { useDaosQuery } from "query/getters";
-import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router/navigation";
 import { StyledFlexColumn } from "styles";
 import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
 import { IoHelpSharp } from "react-icons/io5";
-import { FaFly } from "react-icons/fa";
+import { useActions, useWalletDaos } from "./hooks";
 
-export function Toolbar() {
-  const navigation = useAppNavigation();
-  const devFeatures = useDevFeatures();
-  const mobile = useMobile();
+export function Desktop() {
   const theme = useTheme();
-  if (mobile) return null;
+  const actions = useActions();
 
   return (
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
-        <NavigationBtn
-          tooltip="Airdrop"
-          icon={<FaFly />}
-          onClick={navigation.airdrop}
-        />
-
-        <NavigationBtn
-          tooltip="Create a new space for your DAO"
-          icon={<AiOutlinePlus />}
-          onClick={
-            devFeatures
-              ? navigation.createSpace.root
-              : () => window.open(TELEGRAM_SUPPORT_GROUP, "_blank")
-          }
-        />
+        {actions.map((action, index) => {
+          return (
+            <NavigationBtn
+              key={index}
+              tooltip={action.title}
+              icon={<action.icon />}
+              onClick={action.onClick}
+            />
+          );
+        })}
       </StyledFlexColumn>
 
       <UserDaos />
@@ -112,11 +101,8 @@ const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
 }));
 
 const UserDaos = () => {
-  const { data } = useDaosQuery();
+  const daos = useWalletDaos();
   const connectedWallet = useTonAddress();
-
-  const { getRole } = useRole();
-
   const daoId = useParams().daoId;
 
   if (!connectedWallet) {
@@ -125,29 +111,23 @@ const UserDaos = () => {
 
   return (
     <StyledUserDaos>
-      {data &&
-        data?.map((dao) => {
-          const { isOwner, isProposalPublisher } = getRole(dao.daoRoles);
-
-          if (isOwner || isProposalPublisher) {
-            const selected = daoId === dao.daoAddress;
-            return (
-              <StyledLink
-                selected={selected ? 1 : 0}
-                to={appNavigation.daoPage.root(dao.daoAddress)}
-                key={dao.daoAddress}
-              >
-                <AppTooltip
-                  text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
-                  placement="right"
-                >
-                  <StyledDaoImg src={dao.daoMetadata.metadataArgs.avatar} />
-                </AppTooltip>
-              </StyledLink>
-            );
-          }
-          return null;
-        })}
+      {daos.map((dao) => {
+        const selected = daoId === dao.daoAddress;
+        return (
+          <StyledLink
+            selected={selected ? 1 : 0}
+            to={appNavigation.daoPage.root(dao.daoAddress)}
+            key={dao.daoAddress}
+          >
+            <AppTooltip
+              text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
+              placement="right"
+            >
+              <StyledDaoImg src={dao.daoMetadata.metadataArgs.avatar} />
+            </AppTooltip>
+          </StyledLink>
+        );
+      })}
     </StyledUserDaos>
   );
 };

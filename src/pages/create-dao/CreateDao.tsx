@@ -37,7 +37,8 @@ export function CreateDao() {
   const { step: currentStep, setStep, setEditMode } = useCreatDaoStore();
   const steps = useSteps();
   return (
-    <Page hideBack title='Create new dao'>
+    <Page>
+      <Page.Header title="Create new dao" hideBack />
       <StepsLayout
         steps={steps}
         currentStep={currentStep}

@@ -246,3 +246,9 @@ export enum AppQueryParams {
   MODE = "mode",
   AIRDROP_PROPOSAL = "airdrop_proposal",
 }
+
+
+export interface BasePopupProps{
+  open: boolean;
+  onClose: () => void;
+}

@@ -8,15 +8,13 @@ import { BackButton } from "@twa-dev/sdk/react";
 import { Button } from "./Button";
 import { Webapp } from "WebApp";
 
-function Back({ to, func }: { to?: string; func?: () => void }) {
+function Back({ back }: { back?: () => void }) {
   const navigate = useNavigate();
   const pathname = useLocation().pathname;
   const t = useCommonTranslations();
   const onClick = () => {
-    if (func) {
-      func();
-    } else if (to) {
-      navigate(to);
+    if (back) {
+      back();
     } else if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);
     } else {

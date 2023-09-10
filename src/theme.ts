@@ -9,7 +9,7 @@ export const lightTheme = createTheme({
     mode: "light",
     background: {
       default: "#F8F9FB",
-      paper: "white",
+      paper: "#ffffff",
     },
     error: {
       main: "#d32f2f",

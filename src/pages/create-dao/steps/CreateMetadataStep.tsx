@@ -14,8 +14,7 @@ import { useDaoMetadataForm } from "../form";
 import { DaoMetadataForm } from "types";
 import { useCreateMetadataQuery } from "query/setters";
 import { ZERO_ADDRESS } from "consts";
-
-
+import { Webapp, WebappButton } from "WebApp";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateMetadataQuery();
@@ -76,11 +75,19 @@ export function CreateMetadataStep() {
   const saveForm = useDebouncedCallback(() => {
     store.setDaoMetadataForm(formik.values);
   });
-  
 
   useEffect(() => {
     saveForm();
   }, [formik.values]);
+
+  const onSubmitClick = () => {
+    formik.submitForm();
+    validateFormik(formik);
+  };
+
+  const btnText = store.editMode
+    ? translations.editDetails
+    : translations.approveDetails;
 
   return (
     <FormikInputsForm<DaoMetadataForm>
@@ -89,17 +96,17 @@ export function CreateMetadataStep() {
       EndAdornment={EndAdornment}
     >
       <Submit>
-        <Button
-          isLoading={isLoading}
-          onClick={() => {
-            formik.submitForm();
-            validateFormik(formik);
-          }}
-        >
-          {store.editMode
-            ? translations.editDetails
-            : translations.approveDetails}
-        </Button>
+        {Webapp.isEnabled ? (
+          <WebappButton
+            text={btnText}
+            progress={isLoading}
+            onClick={onSubmitClick}
+          />
+        ) : (
+          <Button isLoading={isLoading} onClick={onSubmitClick}>
+            {btnText}
+          </Button>
+        )}
       </Submit>
     </FormikInputsForm>
   );

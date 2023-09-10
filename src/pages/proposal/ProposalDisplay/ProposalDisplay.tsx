@@ -4,14 +4,13 @@ import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
 import { ProposalResults } from "./ProposalResults";
 import { ProposalVotes } from "./ProposalVotes";
-import { appNavigation } from "router/navigation";
+import {  useAppNavigation } from "router/navigation";
 import { useAppParams, useHiddenProposal } from "hooks/hooks";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
 import Vote from "./Vote";
 import { ProposalAbout } from "./ProposalAbout";
-import { useShowComponents } from "./hooks";
 
 const gap = 15;
 
@@ -55,6 +54,7 @@ export function ProposalDisplay() {
   const { daoAddress, proposalAddress } = useAppParams();
   const error = useProposalQuery(proposalAddress).error;
   const hideProposal = useHiddenProposal(proposalAddress);
+  const { daoPage } = useAppNavigation();
 
   useEffect(() => {
     if (error) {
@@ -62,20 +62,22 @@ export function ProposalDisplay() {
     }
   }, [error]);
 
+  const _error = hideProposal || showError;
   return (
-    <Page
-      error={hideProposal || showError}
-      errorText="Proposal not found"
-      // headerComponent={<ProposalMenu />}
-      back={appNavigation.daoPage.root(daoAddress)}
-    >
-      {mobile ? <Mobile /> : <Destop />}
+    <Page>
+      <Page.Header back={() => daoPage.root(daoAddress)} />
+      {_error ? (
+        <Page.Error text="Proposal not found" />
+      ) : mobile ? (
+        <Mobile />
+      ) : (
+        <Destop />
+      )}
     </Page>
   );
 }
 
 export default ProposalDisplay;
-
 
 const StyledWrapper = styled(StyledFlexRow)({
   gap,
