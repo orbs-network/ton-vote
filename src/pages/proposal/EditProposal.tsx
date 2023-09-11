@@ -30,7 +30,7 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
   } as ProposalFormType;
 };
 
-export function EditProposal() {
+ function EditProposal() {
   const { daoAddress } = useAppParams();
   const { data: dao } = useDaoQuery(daoAddress);
   const { proposalAddress } = useAppParams();
@@ -79,7 +79,6 @@ export function EditProposal() {
     </Container>
   );
 }
-
 const StyledWarning = styled(StyledContainer)({
   width: "100%",
   p: {

@@ -45,7 +45,7 @@ const useSteps = (): StepsMenuStep[] => {
   ];
 };
 
-export function Airdrop() {
+ function Airdrop() {
   const { step, setStep } = useAirdropStore();
   const steps = useSteps();
   useHanldeProposalFromQueryParams();
@@ -75,6 +75,8 @@ export function Airdrop() {
     </StyledPage>
   );
 }
+
+export default Airdrop;
 
 const useHanldeProposalFromQueryParams = () => {
   const {

@@ -4,21 +4,27 @@ import { routes } from "consts";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense, useMemo } from "react";
 import { DaoPageFallback, DaosPageFallback, PageFallback } from "./fallbacks";
-import {
-  BadRoute,
-  CreateProposal,
-  Dao,
-  DaoAbout,
-  DaosPage,
-  EditProposal,
-  Proposal,
-  ProposalDisplay,
-  ProposalsList,
-  Airdrop,
-} from "pages";
+import { BadRoute } from "pages";
 
 const CreateDao = lazy(() => import("pages/create-dao/CreateDao"));
 const DaoSettings = lazy(() => import("pages/dao/DaoSettings/DaoSettings"));
+const DaoAbout = lazy(() => import("pages/dao/DaoAbout"));
+const Airdrop = lazy(() => import("pages/airdrop/Airdrop"));
+const DaosPage = lazy(() => import("pages/daos/DaosPage"));
+const Dao = lazy(() => import("pages/dao/Dao"));
+const ProposalsList = lazy(
+  () => import("pages/dao/ProposalsList/ProposalsList")
+);
+const ProposalDisplay = lazy(
+  () => import("pages/proposal/ProposalDisplay/ProposalDisplay")
+);
+const CreateProposal = lazy(
+  () => import("pages/dao/CreateProposal/CreateProposal")
+);
+
+const EditProposal = lazy(() => import("pages/proposal/EditProposal"));
+
+const Proposal = lazy(() => import("pages/proposal/Proposal"));
 
 export const router = createBrowserRouter([
   {
@@ -102,7 +108,6 @@ export const router = createBrowserRouter([
         children: [
           {
             path: routes.proposal,
-            errorElement: <Navigate to={routes.spaces} />,
             element: (
               <Suspense fallback={<PageFallback />}>
                 <ProposalDisplay />
@@ -111,7 +116,6 @@ export const router = createBrowserRouter([
           },
           {
             path: routes.editProposal,
-            errorElement: <Navigate to={routes.spaces} />,
             element: (
               <Suspense fallback={<PageFallback />}>
                 <EditProposal />
@@ -128,5 +132,3 @@ export const router = createBrowserRouter([
     ),
   },
 ]);
-
-
