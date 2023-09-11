@@ -1,10 +1,9 @@
 import Layout from "layout/Layout";
 import _ from "lodash";
 import { routes } from "consts";
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import { lazy, Suspense, useMemo } from "react";
+import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { DaoPageFallback, DaosPageFallback, PageFallback } from "./fallbacks";
-import { BadRoute } from "pages";
 
 const CreateDao = lazy(() => import("pages/create-dao/CreateDao"));
 const DaoSettings = lazy(() => import("pages/dao/DaoSettings/DaoSettings"));
@@ -25,6 +24,7 @@ const CreateProposal = lazy(
 const EditProposal = lazy(() => import("pages/proposal/EditProposal"));
 
 const Proposal = lazy(() => import("pages/proposal/Proposal"));
+const BadRoute = lazy(() => import("pages/BadRoute"));
 
 export const router = createBrowserRouter([
   {

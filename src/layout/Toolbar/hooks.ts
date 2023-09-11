@@ -2,7 +2,7 @@ import { TELEGRAM_SUPPORT_GROUP } from "config";
 import { useDevFeaturesMode, useMobile, useRole } from "hooks/hooks";
 import _ from "lodash";
 import { useDaosQuery } from "query/getters";
-import React, { CSSProperties, useMemo } from "react";
+import React, { useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaFly } from "react-icons/fa";
 import { useAppNavigation } from "router/navigation";
@@ -11,6 +11,7 @@ interface Action {
   title: string;
   icon: React.ComponentType;
   onClick: () => void;
+  devFeature?: boolean;
 }
 
 export const useActions = (custom?: Action[] | Action) => {
@@ -23,23 +24,27 @@ export const useActions = (custom?: Action[] | Action) => {
         title: "Airdrop",
         icon: FaFly,
         onClick: navigation.airdrop,
+        devFeature: true,
       },
       {
         title: "Create a new space for your DAO",
         icon: AiOutlinePlus,
+
         onClick: devFeatures
           ? navigation.createSpace.root
           : () => window.open(TELEGRAM_SUPPORT_GROUP, "_blank"),
       },
     ];
-    if (custom && !!custom) {
+    if (custom) {
       if (Array.isArray(custom)) {
         menu = [...menu, ...custom];
       } else {
         menu = [...menu, custom];
       }
     }
-    return menu;
+    return _.filter(menu, (action) => {
+      return !devFeatures && action.devFeature ? false : true;
+    });
   }, [devFeatures, navigation, isMobile, custom]);
 };
 
