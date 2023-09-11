@@ -10,7 +10,7 @@ import {
 import { getVoteStrategyType, isDaoWhitelisted, validateAddress } from "utils";
 import {
   useCurrentRoute,
-  useDevFeatures,
+  useDevFeaturesMode,
   useHideDao,
   useRole,
 } from "hooks/hooks";
@@ -64,7 +64,7 @@ export const useDaoStateQuery = (daoAddress?: string) => {
 };
 
 export const useDaosQuery = () => {
-  const devFeatures = useDevFeatures();
+  const devFeatures = useDevFeaturesMode();
   const route = useCurrentRoute();
 
   const config = useMemo(() => {

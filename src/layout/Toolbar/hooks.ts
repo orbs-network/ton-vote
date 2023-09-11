@@ -1,5 +1,5 @@
 import { TELEGRAM_SUPPORT_GROUP } from "config";
-import { useDevFeatures, useMobile, useRole } from "hooks/hooks";
+import { useDevFeaturesMode, useMobile, useRole } from "hooks/hooks";
 import _ from "lodash";
 import { useDaosQuery } from "query/getters";
 import React, { CSSProperties, useMemo } from "react";
@@ -15,7 +15,7 @@ interface Action {
 
 export const useActions = (custom?: Action[] | Action) => {
   const navigation = useAppNavigation();
-  const devFeatures = useDevFeatures();
+  const devFeatures = useDevFeaturesMode();
   const isMobile = useMobile();
   return useMemo(() => {
     let menu: Action[] = [

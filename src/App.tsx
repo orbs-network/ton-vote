@@ -1,24 +1,20 @@
 import { GlobalStyles, styled, ThemeProvider } from "@mui/material";
 import { APP_NAME } from "config";
-import useWindowSize, { useAppSettings, useMobile } from "hooks/hooks";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { useAppSettings } from "hooks/hooks";
+import { Suspense, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { RouterProvider } from "react-router-dom";
 import { getGlobalStyles, StyledFlexColumn } from "styles";
-import { useRouter } from "router/router";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { useWalletListener } from "analytics";
 import { Webapp } from "WebApp";
+import { router } from "router";
 
- Webapp.init();
- 
+Webapp.init();
+
 const useInitApp = () => {
   useInitThemeMode();
-};
-
-function App() {
-  useInitApp();
   useWalletListener();
   useEffect(() => {
     const loader = document.querySelector(".app-loader");
@@ -29,21 +25,19 @@ function App() {
       }, 300);
     }
   }, []);
+};
 
+const useTheme = () => {
   const { isDarkMode } = useAppSettings();
-  const router = useRouter();
+  return useMemo(() => (isDarkMode ? darkTheme : lightTheme), [isDarkMode]);
+};
 
-  const theme = useMemo(
-    () => (isDarkMode ? darkTheme : lightTheme),
-    [isDarkMode]
-  );
+function App() {
+  useInitApp();
+  const theme = useTheme();
 
   return (
-    <StyledApp
-      style={{
-        minHeight: "100dvh",
-      }}
-    >
+    <StyledApp>
       <Helmet>
         <title>{APP_NAME}</title>
       </Helmet>
@@ -60,4 +54,5 @@ function App() {
 export default App;
 
 const StyledApp = styled(StyledFlexColumn)({
+  minHeight: "100dvh",
 });

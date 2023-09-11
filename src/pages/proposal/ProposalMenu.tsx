@@ -1,6 +1,6 @@
 import { styled, Typography } from "@mui/material";
 import { Button, Menu } from "components";
-import { useAppParams, useDevFeatures, useRole } from "hooks/hooks";
+import { useAppParams, useDevFeaturesMode, useRole } from "hooks/hooks";
 import { useDaoQuery } from "query/getters";
 import { useMemo } from "react";
 import { RxDotsHorizontal } from "react-icons/rx";
@@ -32,7 +32,7 @@ const Option = ({ text, path }: { text: string; path: string }) => {
 const useListItems = () => {
   const { daoAddress } = useAppParams();
 
-  const devFeatures = useDevFeatures();
+  const devFeatures = useDevFeaturesMode();
   const { data: dao } = useDaoQuery(daoAddress);
 
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);

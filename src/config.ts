@@ -4,7 +4,7 @@ import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 export const APP_NAME = "TON VOTE";
-import { ENV } from "consts";
+import { ENV, routes } from "consts";
 import { FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
 export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
 
@@ -167,3 +167,5 @@ export const HIDE_VERIFY_PROPOSALS = [
   "EQAiqphPtZ2jLyzqrcfVrhBZfarghWKpkt0fSfALsqRbofQ7",
   ...FOUNDATION_PROPOSALS_ADDRESSES
 ];
+
+export const DEV_ROUTES = [routes.airdrop, routes.createSpace, routes.spaceSettings];

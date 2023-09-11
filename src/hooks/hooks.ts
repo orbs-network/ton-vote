@@ -6,7 +6,11 @@ import {
   useRef,
   useMemo,
 } from "react";
-import { matchRoutes, useLocation, useParams } from "react-router-dom";
+import {
+  matchRoutes,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
@@ -30,9 +34,7 @@ import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
 import {
   DaoRoles,
-  getAllNftHolders,
   ProposalMetadata,
-  VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
@@ -223,7 +225,7 @@ export const useMobile = () => {
   return macthes;
 };
 
-export const useDevFeatures = () => {
+export const useDevFeaturesMode = () => {
   const beta = useAppSettings().beta;
   return IS_DEV || beta;
 };

@@ -1,5 +1,5 @@
 import { routes } from "consts";
-import { useAppParams, useCurrentRoute, useDevFeatures, useRole } from "hooks/hooks";
+import { useAppParams, useCurrentRoute, useDevFeaturesMode, useRole } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import { useDaoQuery } from "query/getters";
 import { useMemo } from "react";
@@ -33,7 +33,7 @@ export const useSocials = () => {
 
 
 export const useNavigationLinks = () => {
-  const showDev = useDevFeatures();
+  const showDev = useDevFeaturesMode();
   const { daoAddress } = useAppParams();
   const translations = useDaoPageTranslations();
   const { data, isLoading } = useDaoQuery(daoAddress);

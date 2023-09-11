@@ -1,5 +1,5 @@
 import { Fade, styled } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
@@ -11,13 +11,15 @@ import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
-
 import {
   useAppQueryParams,
   useAppSettings,
+  useCurrentRoute,
+  useDevFeaturesMode,
 } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Webapp, WebappConnectWalletButton } from "WebApp";
+import { DEV_ROUTES } from "config";
 
 const useIsBeta = () => {
   const {
@@ -32,8 +34,21 @@ const useIsBeta = () => {
   }, [dev, setBeta]);
 };
 
+ const useHandleDevRoutes = () => {
+  const route = useCurrentRoute();
+  const navigate = useNavigate();
+  const devMode = useDevFeaturesMode();
+
+  useEffect(() => {
+    if (route && DEV_ROUTES.includes(route) && !devMode) {
+      navigate("/");
+    }
+  }, [route, devMode]);
+};
+
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
+  useHandleDevRoutes();
   return (
     <>
       <StyledContainer>
