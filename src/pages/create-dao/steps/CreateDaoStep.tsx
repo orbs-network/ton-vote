@@ -96,18 +96,11 @@ export function CreateDaoStep() {
           value={createOnDev}
           onChange={(value) => setCreateOnDev(value)}
         />
-        <Submit>
-          {Webapp.isEnabled ? (
-            <WebappButton
-              text={commonTranslations.create}
-              onClick={createDao}
-            />
-          ) : (
-            <Button isLoading={_isLoading} onClick={createDao}>
-              {commonTranslations.create}
-            </Button>
-          )}
-        </Submit>
+        <Submit
+          text={commonTranslations.create}
+          onClick={createDao}
+          isLoading={_isLoading}
+        />
       </StyledFlexColumn>
     </TitleContainer>
   );

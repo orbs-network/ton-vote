@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Button, CheckboxInput, FormikInputsForm } from "components";
+import { Button, FormikInputsForm } from "components";
 import { useFormik } from "formik";
 import { useCreatDaoStore } from "../store";
 import _ from "lodash";
@@ -14,7 +14,6 @@ import { useDaoMetadataForm } from "../form";
 import { DaoMetadataForm } from "types";
 import { useCreateMetadataQuery } from "query/setters";
 import { ZERO_ADDRESS } from "consts";
-import { Webapp, WebappButton } from "WebApp";
 
 export function CreateMetadataStep() {
   const { mutate: createMetadata, isLoading } = useCreateMetadataQuery();
@@ -95,19 +94,7 @@ export function CreateMetadataStep() {
       formik={formik}
       EndAdornment={EndAdornment}
     >
-      <Submit>
-        {Webapp.isEnabled ? (
-          <WebappButton
-            text={btnText}
-            progress={isLoading}
-            onClick={onSubmitClick}
-          />
-        ) : (
-          <Button isLoading={isLoading} onClick={onSubmitClick}>
-            {btnText}
-          </Button>
-        )}
-      </Submit>
+      <Submit isLoading={isLoading} onClick={onSubmitClick} text={btnText} />
     </FormikInputsForm>
   );
 }
