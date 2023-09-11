@@ -156,7 +156,10 @@ export const calculateTonAmount = (
   total?: string
 ) => {
   if (!percent || !total) return;
-  const result = (Number(fromNano(total)) * percent) / 100;
+  const result = BigNumber(fromNano(total))
+    .multipliedBy(percent)
+    .div(100)
+    .toNumber();
 
   if (type === VotingPowerStrategyType.NftCcollection) {
     return nFormatter(Math.round(result), 2);
