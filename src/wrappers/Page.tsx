@@ -1,4 +1,4 @@
-import { Fade, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { Back, ErrorContainer } from "components";
 import { MOBILE_WIDTH } from "consts";
 import { ReactNode, useEffect } from "react";
@@ -34,7 +34,33 @@ const PageError = ({
   return <ErrorContainer text={text} className={className} />;
 };
 
-export { Page };
+
+
+
+const PageHeader = ({
+  children,
+  className = "",
+}: {
+  children?: ReactNode;
+  className?: string;
+}) => {
+  return (
+    <StyledHeader justifyContent="flex-start" className={className}>
+      {children}
+    </StyledHeader>
+  );
+};
+
+const Title = ({ title }: { title: string }) => {
+  return <StyledTitle>{title}</StyledTitle>;
+};
+Page.Title = Title;
+Page.Header = PageHeader;
+Page.Error = PageError;
+
+const StyledHeader = styled(StyledFlexRow)({
+  marginBottom: Webapp.isEnabled ? 10 : 20,
+});
 
 const StyledTitle = styled(Typography)({
   fontWeight: 700,
@@ -43,46 +69,6 @@ const StyledTitle = styled(Typography)({
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 18,
   },
-});
-
-const PageHeader = ({
-  back,
-  title,
-  hideBack = false,
-  headerComponent,
-  className = "",
-}: {
-  back?: () => void;
-  title?: string;
-  hideBack?: boolean;
-  headerComponent?: React.ReactNode;
-  className?: string;
-}) => {
-  const content = (
-    <StyledHeader justifyContent="space-between" className={className}>
-      <StyledFlexRow style={{ width: "auto" }}>
-        {!Webapp.isEnabled && !hideBack && <Back back={back} />}
-        {title && <StyledTitle>{title}</StyledTitle>}
-      </StyledFlexRow>
-      {headerComponent}
-    </StyledHeader>
-  );
-
-  return Webapp.isEnabled ? (
-    <>
-      <Back back={back} />
-      {!title && !headerComponent ? null : content}
-    </>
-  ) : !title && !headerComponent && hideBack ? null : (
-    content
-  );
-};
-
-Page.Header = PageHeader;
-Page.Error = PageError;
-
-const StyledHeader = styled(StyledFlexRow)({
-  marginBottom: Webapp.isEnabled ? 10 : 20,
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
@@ -106,3 +92,6 @@ const StyledTWAShadow = styled("div")(({ theme }) => ({
   background:
     theme.palette.mode === "dark" ? "rgba(255,255,255, 0.2)" : "#e0e0e0",
 }));
+
+
+export { Page };

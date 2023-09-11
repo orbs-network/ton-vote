@@ -6,6 +6,8 @@ import {
 } from "@tonconnect/ui-react";
 import TWA from "@twa-dev/sdk";
 import { MainButton } from "@twa-dev/sdk/react";
+import { Back } from "components";
+import { useAppNavigation } from "router/navigation";
 import { Dao } from "types";
 import { parseLanguage } from "utils";
 
@@ -43,6 +45,15 @@ const onDaoSelect = (dao: Dao) => {
   );
 };
 
+
+
+const BackBtn = ({ onClick }: { onClick?: () => void}) => {
+  if (!Webapp.isEnabled) return null;
+
+  return <Back back={onClick}/>;
+};
+
+
 export const Webapp = {
   hapticFeedback,
   isExpanded,
@@ -54,6 +65,7 @@ export const Webapp = {
   onDaoSelect,
   mainButton,
   viewPortHeight: TWA.viewportHeight,
+  BackBtn,
 };
 
 export const WebappConnectWalletButton = () => {

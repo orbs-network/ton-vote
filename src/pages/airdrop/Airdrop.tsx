@@ -4,7 +4,7 @@ import { Page } from "wrappers";
 import { TypeSelect } from "./steps/TypeSelect/TypeSelect";
 import { TransferAssets } from "./steps/TransferAssets/TransferAssets";
 import { StepsMenuStep } from "types";
-import { Button, Popup, StepsLayout } from "components";
+import { Back, Button, Popup, StepsLayout } from "components";
 import { useAirdropStore } from "./store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useEffect, useState } from "react";
@@ -16,6 +16,8 @@ import { validateAddress } from "utils";
 import { VotersSelect } from "./steps/VotersSelect/VotersSelect";
 import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import { useAirdropStarted, useMakeAirdropStoreCopy } from "./hooks";
+import { Webapp } from "WebApp";
+import { useAppNavigation } from "router/navigation";
 
 const useSteps = (): StepsMenuStep[] => {
   const t = useAirdropTranslations();
@@ -47,6 +49,7 @@ export function Airdrop() {
   const { step, setStep } = useAirdropStore();
   const steps = useSteps();
   useHanldeProposalFromQueryParams();
+  const { daosPage } = useAppNavigation();
   const airdropStarted = useAirdropStarted();
   const makeCopy = useMakeAirdropStoreCopy();
   useEffect(() => {
@@ -57,7 +60,10 @@ export function Airdrop() {
 
   return (
     <StyledPage>
-      <Page.Header title="Airdrop Assistant" hideBack />
+      <Page.Header>
+        {Webapp.isEnabled && <Back back={daosPage.root} />}
+        <Page.Title title="Airdrop Assistant" />
+      </Page.Header>
       <StepsLayout
         disableBack
         setStep={setStep}

@@ -6,16 +6,16 @@ import { Helmet } from "react-helmet";
 import { Outlet } from "react-router-dom";
 import { useAppNavigation } from "router/navigation";
 import { parseLanguage } from "utils";
+import { Webapp } from "WebApp";
 import { Page } from "wrappers";
 import { DaoLayout } from "./components";
 
 
 export function Dao() {
-  const {daoAddress} = useAppParams();
+  const { daoAddress } = useAppParams();
   const { data, isError } = useDaoQuery(daoAddress);
   const translations = useDaoPageTranslations();
   const { daosPage } = useAppNavigation();
-
 
   return (
     <>
@@ -28,7 +28,7 @@ export function Dao() {
         </title>
       </Helmet>
       <Page>
-        <Page.Header hideBack back={daosPage.root} />
+        <Webapp.BackBtn onClick={daosPage.root} />
         {isError ? (
           <Page.Error text={translations.spaceNotFound} />
         ) : (

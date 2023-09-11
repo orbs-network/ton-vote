@@ -4,13 +4,15 @@ import { Deadline } from "./Deadline";
 import { Metadata } from "./Metadata";
 import { ProposalResults } from "./ProposalResults";
 import { ProposalVotes } from "./ProposalVotes";
-import {  useAppNavigation } from "router/navigation";
+import { useAppNavigation } from "router/navigation";
 import { useAppParams, useHiddenProposal } from "hooks/hooks";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { useProposalQuery } from "query/getters";
 import Vote from "./Vote";
 import { ProposalAbout } from "./ProposalAbout";
+import { Webapp } from "WebApp";
+import { Back } from "components";
 
 const gap = 15;
 
@@ -48,6 +50,12 @@ const Mobile = () => {
   );
 };
 
+const BackBtn = () => {
+  const { daoPage } = useAppNavigation();
+  const { daoAddress } = useAppParams();
+
+  return <Back back={() => daoPage.root(daoAddress)} />;
+};
 export function ProposalDisplay() {
   const mobile = useMediaQuery("(max-width:800px)");
   const [showError, setShowError] = useState(false);
@@ -65,7 +73,13 @@ export function ProposalDisplay() {
   const _error = hideProposal || showError;
   return (
     <Page>
-      <Page.Header back={() => daoPage.root(daoAddress)} />
+      {!Webapp.isEnabled ? (
+        <Page.Header>
+          <BackBtn />
+        </Page.Header>
+      ) : (
+        <BackBtn />
+      )}
       {_error ? (
         <Page.Error text="Proposal not found" />
       ) : mobile ? (

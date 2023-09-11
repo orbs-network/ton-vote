@@ -1,16 +1,16 @@
 import { styled, Typography } from "@mui/material";
-import { Header, LoadingContainer } from "components";
+import { Back, Header, LoadingContainer } from "components";
 import { ProposalForm } from "forms/proposal-form/ProposalForm";
 import { prepareMetadata } from "forms/proposal-form/utils";
 import { useAppParams, useProposalStatus } from "hooks/hooks";
-import moment from "moment";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { useUpdateProposalMutation } from "query/setters";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { useAppNavigation } from "router/navigation";
 import { StyledContainer, StyledFlexColumn } from "styles";
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
 import { ProposalForm as ProposalFormType, ProposalStatus } from "types";
+import { Webapp } from "WebApp";
 import { Page } from "wrappers";
 
 const parseMetadata = (metadata?: ProposalMetadata) => {
@@ -98,16 +98,22 @@ const StyledWarningFlex = styled(StyledFlexColumn)({
 const Container = ({ children }: { children: ReactNode }) => {
   const { daoAddress } = useAppParams();
   const { proposalAddress } = useAppParams();
-  const {proposalPage} = useAppNavigation()
+  const { proposalPage } = useAppNavigation();
 
   const back = () => {
-    if (!daoAddress) return
+    if (!daoAddress) return;
     return proposalPage.root(daoAddress, proposalAddress);
   };
 
   return (
-    <Page >
-      <Page.Header back={back} />
+    <Page>
+      {Webapp.isEnabled ? (
+        <Page.Header>
+          <Back back={back} />
+        </Page.Header>
+      ) : (
+        <Back back={back} />
+      )}
       <StyledContent>
         <StyledHeader title="Edit proposal" />
         {children}
