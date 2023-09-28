@@ -658,7 +658,7 @@ export function FormikInputsForm<T>({
   const mobile = useMobile();
 
   return (
-    <StyledFlexColumn gap={15}>
+    <StyledFlexColumn gap={mobile ? 10 : 15}>
       {_form.map((it, index) => {
         const isLast = _.size(_form) === index + 1;
 
@@ -724,7 +724,11 @@ export function FormikInputsForm<T>({
             </TitleContainer>
           );
         }
-        return <Container style={{width:'100%'}} key={index}>{content}</Container>;
+        return (
+          <Container style={{ width: "100%" }} key={index}>
+            {content}
+          </Container>
+        );
       })}
     </StyledFlexColumn>
   );

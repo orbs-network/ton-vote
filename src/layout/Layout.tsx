@@ -85,7 +85,7 @@ const StyledContent = styled(StyledGrid)({
   paddingTop: Webapp.isEnabled ? 20 : 90,
   flex: 1,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    paddingTop: Webapp.isEnabled ? 20 : 80,
+    paddingTop: Webapp.isEnabled ? 20 : 70,
   },
 });
 

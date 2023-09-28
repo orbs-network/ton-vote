@@ -75,7 +75,7 @@ export function ProposalsList() {
       {mobile && <ProposalsSearch />}
       <Box style={{ position: "relative", width: "100%" }}>
         {!isLoading && <EmptyList />}
-        <StyledFlexColumn gap={15} style={{ zIndex: 10, position: "relative" }}>
+        <StyledFlexColumn gap={mobile ? 10 : 15} style={{ zIndex: 10, position: "relative" }}>
           <List isLoading={isLoading} loader={<ListLoader />}>
             {data?.daoProposals?.map((proposalAddress, index) => {
               return (
