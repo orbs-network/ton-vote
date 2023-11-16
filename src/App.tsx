@@ -25,6 +25,10 @@ const useInitApp = () => {
       }, 300);
     }
   }, []);
+
+  if (Webapp.redirectUrl) {
+    window.location.href = Webapp.redirectUrl;
+  }
 };
 
 const useTheme = () => {

@@ -47,11 +47,40 @@ const onDaoSelect = (dao: Dao) => {
 
 
 
-const BackBtn = ({ onClick }: { onClick?: () => void}) => {
+const BackBtn = ({ onClick }: { onClick?: () => void }) => {
   if (!Webapp.isEnabled) return null;
 
-  return <Back back={onClick}/>;
+  return <Back back={onClick} />;
 };
+
+const getRedirectUrl = () => {
+  const paramKeys = {
+    dao: '_dao_',
+    proposal: '_proposal_',
+    separator: '-_-',
+  };
+  let daoAddress: string | null = null;
+  let proposalAddress: string | null = null;
+  const webAppParams = new URLSearchParams(window.location.search).get("tgWebAppStartParam")
+  webAppParams?.split(paramKeys.separator).forEach((param) => {
+    if (param.includes(paramKeys.dao)) {
+      daoAddress = param.split(paramKeys.dao)[1];
+    } else if (param.includes(paramKeys.proposal)) {
+      proposalAddress = param.split(paramKeys.proposal)[1];
+    }
+  });
+
+  let redirectUrl: string | null = null;
+
+  if (daoAddress) {
+    redirectUrl = `/dao/${daoAddress}`;
+    if (proposalAddress) {
+      redirectUrl += `/proposal/${proposalAddress}`;
+    }
+  }
+
+  return redirectUrl;
+}
 
 
 export const Webapp = {
@@ -66,6 +95,7 @@ export const Webapp = {
   mainButton,
   viewPortHeight: TWA.viewportHeight,
   BackBtn,
+  redirectUrl: getRedirectUrl()
 };
 
 export const WebappConnectWalletButton = () => {
@@ -94,7 +124,7 @@ export function WebappButton({
   disabled?: boolean;
 }) {
   const address = useTonAddress();
-    const connectionRestored = useIsConnectionRestored();
+  const connectionRestored = useIsConnectionRestored();
 
   if (!address || !connectionRestored) return null;
 
