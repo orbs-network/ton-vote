@@ -79,6 +79,8 @@ const getRedirectUrl = () => {
     }
   }
 
+  console.log('redirectUrl', redirectUrl)
+
   return redirectUrl;
 }
 
