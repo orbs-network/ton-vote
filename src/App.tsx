@@ -26,9 +26,11 @@ const useInitApp = () => {
     }
   }, []);
 
-  if (Webapp.redirectUrl) {
-    window.location.href = Webapp.redirectUrl;
-  }
+  useEffect(() => {
+    if (Webapp.redirectUrl) {
+      window.location.href = Webapp.redirectUrl;
+    }
+  }, []);
 };
 
 const useTheme = () => {
