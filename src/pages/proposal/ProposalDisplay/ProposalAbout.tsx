@@ -26,7 +26,7 @@ import { MOBILE_WIDTH } from "consts";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
 
-const MIN_DESCRIPTION_HEIGHT = 200;
+const MIN_DESCRIPTION_HEIGHT = 450;
 
 export const ProposalAbout = () => {
   const mobile = useMobile();
@@ -126,6 +126,7 @@ const Description = () => {
   const { proposalAddress } = useAppParams();
   const { data, isLoading } = useProposalQuery(proposalAddress);
   const [showMore, setShowMore] = useState(false);
+
 
   useLayoutEffect(() => {
     if (elRef.current) {
