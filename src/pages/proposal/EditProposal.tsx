@@ -18,9 +18,17 @@ const parseMetadata = (metadata?: ProposalMetadata) => {
     return {} as ProposalFormType;
   }
 
+  let description_en;
+
+  try {
+    description_en = JSON.parse(metadata.description).en;
+  } catch (error) {
+    description_en = metadata.description;
+  }
+
   return {
     title_en: JSON.parse(metadata.title).en,
-    description_en: JSON.parse(metadata.description).en,
+    description_en,
     proposalStartTime: metadata.proposalStartTime * 1000,
     proposalEndTime: metadata.proposalEndTime * 1000,
     proposalSnapshotTime: metadata.proposalSnapshotTime * 1000,
