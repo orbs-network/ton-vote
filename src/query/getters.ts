@@ -232,7 +232,7 @@ export const useDaoQuery = (daoAddress: string) => {
         (it) => !BLACKLISTED_PROPOSALS.includes(it)
       );
 
-      if (daoAddress === FOUNDATION_DAO_ADDRESS) {
+      if (daoAddress === FOUNDATION_DAO_ADDRESS) {        
         daoProposals = [...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES];
       }
       return {
