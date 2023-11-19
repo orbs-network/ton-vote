@@ -26,7 +26,6 @@ import { useCsvData, useWalletVote } from "../hooks";
 import {
   useAppParams,
   useGetProposalSymbol,
-  useIsNftProposal,
   useIsOneWalletOneVote,
 } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
@@ -34,7 +33,8 @@ import { useProposalQuery } from "query/getters";
 const ContainerHeader = () => {
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
-
+  console.log({ data });
+  
   const totalTonAmount =
     data?.proposalResult?.totalWeight ||
     data?.proposalResult?.totalWeights ||
@@ -78,6 +78,7 @@ const ConnectedWalletVote = () => {
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const symbol = useGetProposalSymbol(proposalAddress);
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+
   return (
     <VoteComponent
       hideVotingPower={!!isOneWalletOneVote}

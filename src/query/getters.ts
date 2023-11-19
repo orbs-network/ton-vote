@@ -28,7 +28,6 @@ import {
 import {
   FOUNDATION_DAO_ADDRESS,
   FOUNDATION_PROPOSALS_ADDRESSES,
-  LATEST_FOUNDATION_PROPOSAL_ADDRESS,
 } from "data/foundation/data";
 import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
 import { contract } from "contract";
@@ -43,11 +42,10 @@ import {
   useNewDaoAddresses,
 } from "./hooks";
 import { api } from "api";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { routes } from "consts";
 import { lib } from "lib";
 import { useAnalytics } from "analytics";
-import { LATEST_TF_PROPOSAL_DESCRIPTION } from "data/foundation/description";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
 
 export const useRegistryStateQuery = () => {

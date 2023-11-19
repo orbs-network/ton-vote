@@ -7,6 +7,8 @@ const hardocded = {
   [LATEST_FOUNDATION_PROPOSAL_ADDRESS]: LATEST_TF_PROPOSAL_DESCRIPTION,
 };
 
+
+
 export const getProposalDescription = (address: string, decription?: string) => {
   return hardocded[address as keyof typeof hardocded] || decription;
 };
