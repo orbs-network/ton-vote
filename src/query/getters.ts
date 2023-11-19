@@ -376,7 +376,8 @@ const useGetProposalWithFallback = (proposalAddress: string) => {
     if (!proposal) {
       proposal = queryClient.getQueryData<Proposal | undefined>(key);
     }
-
+    console.log(proposal);
+    
     proposal = {
       ...proposal,
       metadata: {
