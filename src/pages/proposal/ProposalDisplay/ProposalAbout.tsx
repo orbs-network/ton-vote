@@ -31,7 +31,6 @@ const MIN_DESCRIPTION_HEIGHT = 200;
 export const ProposalAbout = () => {
   const mobile = useMobile();
 
-
   return (
     <StyledContainer>
       {mobile ? <MobileAbout /> : <DesktopAbout />}
@@ -75,7 +74,7 @@ function MobileAbout() {
 
 const ProposalHeader = () => {
   const { proposalAddress } = useAppParams();
-  const {data, isLoading} = useProposalQuery(proposalAddress);
+  const { data, isLoading } = useProposalQuery(proposalAddress);
 
   const mockPrefix = mock.isMockProposal(proposalAddress) ? " (Mock)" : "";
 
@@ -84,20 +83,19 @@ const ProposalHeader = () => {
   if (isLoading) {
     return <StyledSkeletonLoader />;
   }
-    return (
-      <StyledFlexRow>
-        <StyledHeader title={`${title}${mockPrefix}`} />
-        {data && <StyledHiddenProposal proposal={data} />}
-      </StyledFlexRow>
-    );
+  return (
+    <StyledFlexRow>
+      <StyledHeader title={`${title}${mockPrefix}`} />
+      {data && <StyledHiddenProposal proposal={data} />}
+    </StyledFlexRow>
+  );
 };
 
 const StyledHiddenProposal = styled(HiddenProposal)({
-  position:'absolute',
+  position: "absolute",
   top: 7,
-  right: 7
+  right: 7,
 });
-
 
 const ShowMoreButton = ({
   onClick,
@@ -143,15 +141,14 @@ const Description = () => {
       ? MIN_DESCRIPTION_HEIGHT
       : descriptionHeight;
 
-
-      if (isLoading) {
-        return (
-          <StyledFlexColumn alignItems='flex-start'>
-            <StyledSkeletonLoader width='70%' />
-            <StyledSkeletonLoader />
-          </StyledFlexColumn>
-        );
-      }
+  if (isLoading) {
+    return (
+      <StyledFlexColumn alignItems="flex-start">
+        <StyledSkeletonLoader width="70%" />
+        <StyledSkeletonLoader />
+      </StyledFlexColumn>
+    );
+  }
 
   return (
     <StyledDescription>
@@ -170,6 +167,7 @@ const Description = () => {
 
 const StyledDescription = styled(Box)({
   position: "relative",
+  width: "100%",
 });
 
 const StyledPlaceholder = styled("span")({
@@ -197,7 +195,7 @@ const StyledHeader = styled(Header)({
 });
 
 const ProposalStatus = () => {
-  const {proposalAddress} = useAppParams()
+  const { proposalAddress } = useAppParams();
   const { proposalStatusText } = useProposalStatus(proposalAddress);
 
   return <Status status={proposalStatusText} />;

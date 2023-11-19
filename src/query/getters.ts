@@ -48,6 +48,7 @@ import { routes } from "consts";
 import { lib } from "lib";
 import { useAnalytics } from "analytics";
 import { LATEST_TF_PROPOSAL_DESCRIPTION } from "data/foundation/description";
+import { getProposalDescription } from "data/foundation/proposals-descriptions";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -292,7 +293,6 @@ export const useConnectedWalletVotingPowerQuery = (
         strategy,
         allNftHolders
       );
-      
 
       const symbol = getProposalSymbol(
         proposal?.metadata?.votingPowerStrategies
@@ -379,16 +379,16 @@ const useGetProposalWithFallback = (proposalAddress: string) => {
       proposal = queryClient.getQueryData<Proposal | undefined>(key);
     }
 
-    if (proposal && proposalAddress === LATEST_FOUNDATION_PROPOSAL_ADDRESS) {
-      proposal = {
-        ...proposal,
-        metadata: {
-          ...proposal?.metadata,
-          description: LATEST_TF_PROPOSAL_DESCRIPTION,
-        },
-      } as Proposal;
-    }
-
+    proposal = {
+      ...proposal,
+      metadata: {
+        ...proposal?.metadata,
+        description: getProposalDescription(
+          proposalAddress!,
+          proposal?.metadata?.description
+        ),
+      },
+    } as Proposal;
     return proposal;
   };
 };

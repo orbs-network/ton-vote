@@ -1977,6 +1977,11 @@ magic-string@^0.27.0:
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.4.13"
 
+marked@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-10.0.0.tgz#7fe1805bb908433d760e2de0fcc8841a2b2d745c"
+  integrity sha512-YiGcYcWj50YrwBgNzFoYhQ1hT6GmQbFG8SksnYJX1z4BXTHSOrz1GB5/Jm2yQvMg4nN1FHP4M6r03R10KrVUiA==
+
 mdast-util-definitions@^5.0.0:
   version "5.1.2"
   resolved "https://registry.npmjs.org/mdast-util-definitions/-/mdast-util-definitions-5.1.2.tgz"
@@ -2900,10 +2905,10 @@ ton-crypto@^3.2.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton-vote-contracts-sdk@^1.5.7:
-  version "1.5.7"
-  resolved "https://registry.yarnpkg.com/ton-vote-contracts-sdk/-/ton-vote-contracts-sdk-1.5.7.tgz#9fc919b1fe4eb2f26f822423bdc3944ccbd7b32b"
-  integrity sha512-Z+1dekdzThyCTUwqpEKIPmc4N+ljTJEZdW2An6DhvQGPNd0WNrWG3TBt2ZEBwEReYzSnakG1qaUO5uCxBvwVbQ==
+ton-vote-contracts-sdk@^1.5.21:
+  version "1.5.21"
+  resolved "https://registry.yarnpkg.com/ton-vote-contracts-sdk/-/ton-vote-contracts-sdk-1.5.21.tgz#0d923729802184a2b7128adae363c55c6643666a"
+  integrity sha512-TJphTj8UFg4aZHB+ixmprwCId3DBC2eKpkbdDwH0+T26Q/WTECByLK3ArUSORaoZgRDLK5HZ7IfTWFVZsSxyxA==
   dependencies:
     "@aws-crypto/sha256-js" "^4.0.0"
     "@orbs-network/ton-access" "^2.2.2"

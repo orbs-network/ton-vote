@@ -1,11 +1,10 @@
 import { Box, MenuItem, styled, Typography } from "@mui/material";
 import { useCopyToClipboard } from "hooks/hooks";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { BsReddit, BsTwitter } from "react-icons/bs";
 import { FaTelegramPlane } from "react-icons/fa";
 import { IoCopyOutline } from "react-icons/io5";
 import { RxShare2 } from "react-icons/rx";
-import { ReactNode } from "react-markdown/lib/react-markdown";
 
 import {
   RedditShareButton,

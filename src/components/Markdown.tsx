@@ -1,29 +1,32 @@
 import { Box, styled } from "@mui/material";
-import React, { forwardRef } from "react";
-import ReactMarkdown from "react-markdown";
+import {  useRef } from "react";
+import { marked } from "marked";
 
- export const Markdown = React.forwardRef(
-   (
-     { children = "", className }: { children?: string; className?: string },
-     ref: any
-   ) => (
-     <StyledMarkdown
-       className={className}
-       ref={ref}
-     >
-       <ReactMarkdown linkTarget="_blank">{children}</ReactMarkdown>
-     </StyledMarkdown>
-   )
- );
+export const Markdown = ({
+  children = "",
+  className,
+}: {
+  children?: string;
+  className?: string;
+}) => {
 
+  const ref = useRef<HTMLDivElement>();
 
-
+  return (
+    <StyledMarkdown
+      ref={ref}
+      className={className}
+      dangerouslySetInnerHTML={{ __html: marked.parse(children) }}
+    />
+  );
+};
 
 export const StyledMarkdown = styled(Box)(({ theme }) => ({
   img: {
     maxWidth: "100%",
     marginTop: 10,
   },
+
   "*": {
     wordBreak: "break-word",
     color: theme.palette.text.primary,
@@ -32,6 +35,18 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
     "&:last-child": {
       marginBottom: 0,
     },
+  },
+  iframe: {
+    width: "100%",
+    maxHeight: 350,
+    height: "30vw",
+    minHeight: 200,
+  },
+  video: {
+    width: "100%",
+    maxHeight: 350,
+    height: "30vw",
+    minHeight: 200,
   },
   p: {
     fontSize: 16,
@@ -54,3 +69,5 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
     color: theme.palette.primary.main,
   },
 }));
+
+

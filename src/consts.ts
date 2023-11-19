@@ -35,3 +35,4 @@ export const MOBILE_WIDTH = 768;
 
 export const ONE_WALLET_ONE_VOTE_URL =
   "https://github.com/orbs-network/ton-vote/blob/main/README.md#supported-strategies";
+
