@@ -6,7 +6,7 @@ Your browser does not support the video tag.
 
 The Open League is a community proposal to distribute TON-backed user incentives and acquire 5 million users in the next 12 months. This proposal is to gather support and feedback for the first season, an invite-only Pilot Season, to create a proof of concept for the ecosystem.
 
--   You can watch the full presentation from Gateway Here: https://www.youtube.com/watch?v=vsAyfdmt374&t=10085s
+-   You can watch the full presentation from Gateway Here: https://youtu.be/FCX5uGvPiq4
 
 -   You can download the full presentation here: https://drive.google.com/file/d/1gKuzQJjoC1sfsbY1GNTvNWeg1Eya5ua3/view?usp=sharing
 
