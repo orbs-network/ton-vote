@@ -73,7 +73,7 @@ const getRedirectUrl = () => {
   let redirectUrl: string | null = null;
 
   if (daoAddress) {
-    redirectUrl = `/dao/${daoAddress}`;
+    redirectUrl = `/${daoAddress}`;
     if (proposalAddress) {
       redirectUrl += `/proposal/${proposalAddress}`;
     }
