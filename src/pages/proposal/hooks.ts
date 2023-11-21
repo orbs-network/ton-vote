@@ -3,29 +3,28 @@ import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import _ from "lodash";
 import { Logger } from "utils";
 import { useEnpointsStore } from "./store";
-import {
-  getClientV2,
-  getClientV4,
-} from "ton-vote-contracts-sdk";
+import { getClientV2, getClientV4 } from "ton-vote-contracts-sdk";
 import { Endpoints, Proposal, ProposalResults, Vote } from "types";
 import { contract } from "contract";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { usePromiseToast } from "toasts";
+import { showSuccessToast, usePromiseToast } from "toasts";
 import { useProposalQuery } from "query/getters";
 import { useVotePersistedStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
 
-const handleNulls = (result?: ProposalResults) => {
+const handleNulls = (_result?: ProposalResults) => {
   const getValue = (value: any) => {
     if (_.isNull(value) || _.isNaN(value)) return 0;
     if (_.isString(value)) return Number(value);
     return value;
   };
 
-  if (!result) return;
+  if (!_result) return;
+
+  const { totalWeights, totalWeight, ...result } = _result;
   _.forEach(result, (value, key) => {
     result[key] = getValue(value);
   });
@@ -57,7 +56,7 @@ export const useVerifyProposalResults = () => {
           votePersistStore.getValues(proposalAddress).maxLtAfterVote;
 
         const maxLt = maxLtAfterVote || data?.maxLt || "";
-      
+
         const contractState = await contract.getProposal({
           clientV2,
           clientV4,
@@ -100,7 +99,6 @@ export const useVerifyProposalResults = () => {
     }
   );
 };
-
 
 export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
   const walletAddress = useTonAddress();

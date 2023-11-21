@@ -74,6 +74,8 @@ export const getGlobalStyles = (theme: Theme) => {
     },
     ".toast": {
       padding: "10px 13px",
+      display: "flex",
+      alignItems: "center",
       borderRadius: 15,
       boxShadow:
         theme.palette.mode === "light"
