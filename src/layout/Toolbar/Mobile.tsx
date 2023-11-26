@@ -5,7 +5,7 @@ import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { FaFileInvoice } from "react-icons/fa";
-import { IconButton, styled, Typography } from "@mui/material";
+import { ClickAwayListener, IconButton, styled, Typography } from "@mui/material";
 import { useActions, useWalletDaos } from "./hooks";
 import { BsFillCollectionFill } from "react-icons/bs";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
@@ -20,7 +20,7 @@ import { useAppSettings } from "hooks/hooks";
 import { FiMoon, FiSun } from "react-icons/fi";
 import { IoWallet } from "react-icons/io5";
 import { MdOutlineLogout } from "react-icons/md";
-import { MainButton } from "@twa-dev/sdk/react";
+
 const useMobileActions = () => {
   const { toggleTheme, isDarkMode } = useAppSettings();
   const tonAddress = useTonAddress();
@@ -70,6 +70,10 @@ export const Mobile = () => {
     setOpen(true);
     Webapp.hapticFeedback();
   };
+
+  const toggle = () => {
+    setOpen(prev => !prev);
+  }
   const handleClose = () => setOpen(false);
   const { daosOpen, setDaosOpen, actions, walletOpen, setwalletOpen } =
     useMobileActions();
@@ -77,33 +81,35 @@ export const Mobile = () => {
   return (
     <StyledContainer>
       <Backdrop open={open} />
-      <StyledSpeedDial
-        ariaLabel="SpeedDial tooltip example"
-        icon={<StyledMenuSvg />}
-        onClose={handleClose}
-        onOpen={handleOpen}
-        open={open}
-      >
-        {actions.map((action) => {
-          return (
-            <SpeedDialAction
-              key={action.title}
-              title={action.title}
-              icon={<action.icon />}
-              tooltipTitle={
-                <Typography style={{ whiteSpace: "nowrap", fontSize: 13 }}>
-                  {action.title}
-                </Typography>
-              }
-              tooltipOpen
-              onClick={() => {
-                action.onClick();
-                handleClose();
-              }}
-            />
-          );
-        })}
-      </StyledSpeedDial>
+      <ClickAwayListener onClickAway={handleClose}>
+        <StyledSpeedDial
+          ariaLabel="SpeedDial tooltip example"
+          icon={<StyledMenuSvg />}
+          open={open}
+          onClick={toggle}
+        >
+          {actions.map((action) => {
+            return (
+              <SpeedDialAction
+                key={action.title}
+                title={action.title}
+                icon={<action.icon />}
+                tooltipTitle={
+                  <Typography style={{ whiteSpace: "nowrap", fontSize: 13 }}>
+                    {action.title}
+                  </Typography>
+                }
+                tooltipOpen
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClose();
+                  action.onClick();
+                }}
+              />
+            );
+          })}
+        </StyledSpeedDial>
+      </ClickAwayListener>
       <DaosPopup open={daosOpen} onClose={() => setDaosOpen(false)} />
       <WalletPopup open={walletOpen} onClose={() => setwalletOpen(false)} />
     </StyledContainer>

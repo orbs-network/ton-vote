@@ -8,7 +8,7 @@ import {
 import { AppTooltip, Github } from "components";
 import { StyleConnectdButton, StyledFlexRow, StyledGrid } from "styles";
 import { useAppNavigation } from "router/navigation";
-import { useAppSettings, useCurrentRoute, useDevFeaturesMode } from "hooks/hooks";
+import { useAppSettings, useDevFeaturesMode } from "hooks/hooks";
 import { APP_NAME } from "config";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
