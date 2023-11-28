@@ -47,7 +47,44 @@ export enum QueryKeys {
 
 export const LANGUAGES = { en: "English", ru: "Русский" };
 
-export const releaseMode = ENV.VITE_STAGING ? ReleaseMode.DEVELOPMENT : ReleaseMode.PRODUCTION;
+export const VERIFIED_DAOS = [
+  "EQBcWmVMuby9kFuB0bAyLQpDvCeosTX3h4m7lct0c8GI8QOG",
+  "EQCxbXzrtDQ9ZHvFL91xnCm6YtFYO1Lks9tImMHJHVICKD9X",
+  "EQD4GRGo2Exp0yt3L9-2TW7KPM8GK5gzyhJ1tEweIVz4jIQY",
+  "EQCEnW_oq1RmMJ4ciTTsccLIzu2vy0VVLo_hfa84tZZfh_Qy",
+  "EQC5E53rXLTWHzsYAdudAG3p6n45c0MuvoKDCGDFnu4OmuMb",
+  "EQCVwkPuxX7sVe_ajaYIQgsrXTCmQJmEf1LemIbl_OWC3_wF",
+  "EQAPWMrbP0K4yVvqqYdynUoelX-I6rDvWRmWJNFDchB4cUPW",
+  "EQCBefq4_WZfIBnyVrBeAp2BNJMBqQSLpWN3q53GLgX5zU-C",
+  "EQC5uEjI6iCQcjmoFh2KcUIUsQ7hb17hnK29NoEwtqTjEdlO",
+  "EQDspA6XZrai7c5cuCUvGw1wfMuOdXvBSYuc8q8us94fs3Zw",
+  "EQC75Z49OlHwFvSfa21FMfSe6jMdY4SccRHsGljJR6229u2T",
+  "EQCb8dxevgHhBnsTodJKXaCrafplHzAHf1V2Adj0GVlhA5xI",
+  "EQBSnMyKtNlgmlcgRMrQlHH_asDSRV8jmtpbHZqM6sWp1YYp",
+  "EQCjkyH0rAibDNadPUoD5nyEdUc_QACmaLyOuuyro3vo8sRV",
+  "EQCrdt_vPS_0pJRXl-Y4aNHsq7TYLmXEOSe3PUD2u3g1klC9",
+  "EQC79CMqa1DsK43p9vv-6cuxX-hRCTKtdog-YlVjN-t03TNY",
+  "EQB3u9vIjt2Cd4hmb1LruFeU44SwaaMM0ox8uKv8iEs7trWH",
+  "EQD2lFs-kxU0VLyDDhNO0XyH7OrBpJHIbMayBqoUtJ4Xb4eq",
+  "EQAY-sgFKzGrXO6_0785Et6nMVPK78aJUqaMhR7jwzsEDssX",
+  "EQAYBkVlx1li1qg8d4S_6T0fvxFDFiiKzgxQouIGxQJck2C0",
+  "EQAY-sgFKzGrXO6_0785Et6nMVPK78aJUqaMhR7jwzsEDssX",
+  "EQAYBkVlx1li1qg8d4S_6T0fvxFDFiiKzgxQouIGxQJck2C0",
+  "EQDh8EdtTVVUuL50A2p-bzJk1Q9qAVK5fSIyCZ7RwktPwxAN",
+  "EQAvYNurOKXnv2ASweTgbdYavcaxnsbZeXXhdJkkvMicOLoZ",
+  "EQDI_7Nk7Fe43pilkdt8rh1Ryl8P8d6-8eieCGVs1p6MYkCF",
+  "EQCbE-S_Bl4l8CgvosBDEnLDwTgz0qmScodUFt3YeE5JziM5",
+  "EQBmv0LIG56PLOETKV_-Bz5apBMND3gA9BEaysGIluaoHv5i",
+  "EQAjz0zyH8esx1joXuDzJ8NTrA7Xmjn6DQVcqZmM1zHwpsLD",
+  "EQATOALRdF-1caUrqNRW3NKfoXHFqO_a_tcIIMBNYCqTI1fG",
+  "EQCsKT7341lTP1BEV9dFzcgjJv8wCdCqpvtoK2c18zO2e5GE",
+  "EQBM94_9VlmsBbKwbjd1FQgNl9zZLl0cUgBGochRANNZpUzf",
+  "EQBvInxcrQhZxeIqA28s6KLYHmS2GrBcTIrX1oMPNoZpOMaQ",
+];
+
+export const releaseMode = import.meta.env.VITE_STAGING
+  ? ReleaseMode.DEVELOPMENT
+  : ReleaseMode.PRODUCTION;
 
 export const IS_DEV = releaseMode === ReleaseMode.DEVELOPMENT;
 

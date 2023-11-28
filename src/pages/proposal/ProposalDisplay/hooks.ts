@@ -1,21 +1,38 @@
 import { useMutation } from "@tanstack/react-query";
-import {
-  useAppParams,
-  useIsOneWalletOneVote,
-  useIsValidatorsProposal,
-  useProposalStatus,
-} from "hooks/hooks";
-import _ from "lodash";
-import { useEnpointsStore } from "../store";
-import { Endpoints, ProposalStatus, Vote } from "types";
+import { useAppParams, useIsOneWalletOneVote, useIsValidatorsProposal, useProposalStatus } from "hooks/hooks";
+import _, { isEqual } from "lodash";
+import { Logger } from "utils";
+
+import { getClientV2, getClientV4 } from "ton-vote-contracts-sdk";
+import { Endpoints, Proposal, ProposalResults, ProposalStatus, Vote } from "types";
+import { contract } from "contract";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { usePromiseToast } from "toasts";
+import { showSuccessToast, usePromiseToast } from "toasts";
 import { useProposalQuery, useWalletVotingPowerQuery } from "query/getters";
-import { useMemo } from "react";
+import { useVotePersistedStore } from "store";
+import { useTonAddress } from "@tonconnect/ui-react";
+import { useEffect, useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
+import { useEnpointsStore } from "../store";
 import { analytics } from "analytics";
-import { lib } from "lib";
+
+const handleNulls = (_result?: ProposalResults) => {
+  const getValue = (value: any) => {
+    if (_.isNull(value) || _.isNaN(value)) return 0;
+    if (_.isString(value)) return Number(value);
+    return value;
+  };
+
+  if (!_result) return;
+
+  const { totalWeights, totalWeight, ...result } = _result;
+  _.forEach(result, (value, key) => {
+    result[key] = getValue(value);
+  });
+
+  return result;
+};
 
 export const useVerifyProposalResults = () => {
   const { proposalAddress } = useAppParams();
@@ -23,6 +40,7 @@ export const useVerifyProposalResults = () => {
   const { setEndpoints, endpoints } = useEnpointsStore();
   const translations = useProposalPageTranslations();
   const promiseToast = usePromiseToast();
+  const votePersistStore = useVotePersistedStore();
 
   return useMutation(
     async (customEndpoints: Endpoints) => {
@@ -31,10 +49,19 @@ export const useVerifyProposalResults = () => {
       const promiseFn = async () => {
         analytics.verifyResultsRequest(proposalAddress);
 
-        const isEqual = await lib.compareProposalResults({
+        // if user voted, we need to get transactions after his vote
+        const maxLtAfterVote =
+          votePersistStore.getValues(proposalAddress).maxLtAfterVote;
+
+        const maxLt = maxLtAfterVote || data?.maxLt || "";
+
+        const clientV2 = await getClientV2(_endpoints.clientV2Endpoint);
+        const clientV4 = await getClientV4(_endpoints.clientV4Endpoint);
+
+        const contractState = await contract.getProposal({
+          clientV2,
+          clientV4,
           proposalAddress,
-          endpoints: _endpoints,
-          proposal: data,
         });
 
         if (!isEqual) {
@@ -66,6 +93,13 @@ export const useVerifyProposalResults = () => {
       },
     }
   );
+};
+
+export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
+  const walletAddress = useTonAddress();
+  return useMemo(() => {
+    return _.find(votes, (it) => it.address === walletAddress);
+  }, [dataUpdatedAt, walletAddress]);
 };
 
 const getCsvConfig = (isOneWalletOneVote: boolean) => {

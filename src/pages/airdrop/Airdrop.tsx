@@ -18,6 +18,7 @@ import { useAirdropTranslations } from "i18n/hooks/useAirdropTranslations";
 import { useAirdropStarted, useMakeAirdropStoreCopy } from "./hooks";
 import { Webapp } from "WebApp";
 import { useAppNavigation } from "router/navigation";
+import { QueryKeys } from "config";
 
 const useSteps = (): StepsMenuStep[] => {
   const t = useAirdropTranslations();

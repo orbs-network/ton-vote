@@ -29,29 +29,6 @@ import { GrDocumentCsv } from "react-icons/gr";
 import { CSVLink } from "react-csv";
 import { fromNano } from "ton-core";
 
-const ConnectedWalletVote = ({
-  hideVotingPower,
-  votes,
-  dataUpdatedAt,
-}: {
-  hideVotingPower?: boolean;
-  votes: Vote[];
-  dataUpdatedAt: number;
-}) => {
-  const { proposalAddress } = useAppParams();
-  const walletVote = useWalletVote(proposalAddress);
-  const symbol = useGetProposalSymbol(proposalAddress);
-  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
-
-  return (
-    <VoteComponent
-      hideVotingPower={!!isOneWalletOneVote || hideVotingPower}
-      symbol={symbol}
-      data={walletVote}
-    />
-  );
-};
-
 const ContainerHeader = ({
   votes,
   totalWeight = "0",
@@ -67,6 +44,56 @@ const ContainerHeader = ({
   const tonAmount = useMemo(() => {
     return nFormatter(Number(fromNano(totalWeight)));
   }, [totalWeight]);
+
+  const symbol = useGetProposalSymbol(proposalAddress);
+  const show = useShowComponents().votes;
+  const hideSymbol = isOneWalletOneVote;
+
+  if (!show) return null;
+  return (
+    <StyledContainerHeader>
+      <StyledChip
+        label={
+          <>
+            <NumberDisplay value={votesLength} /> votes
+          </>
+        }
+      />
+      <StyledFlexRow style={{ width: "unset" }} gap={10}>
+        {!hideSymbol && (
+          <Typography className="total" style={{ fontWeight: 600 }}>
+            {tonAmount} {symbol}
+          </Typography>
+        )}
+        <DownloadCSV dataUpdatedAt={dataUpdatedAt} votes={votes} />
+      </StyledFlexRow>
+    </StyledContainerHeader>
+  );
+};
+
+const ConnectedWalletVote = ({
+  hideVotingPower,
+  votes,
+  dataUpdatedAt,
+}: {
+  hideVotingPower?: boolean;
+  votes: Vote[];
+  dataUpdatedAt: number;
+}) => {
+  const { proposalAddress } = useAppParams();
+  const { data } = useProposalQuery(proposalAddress);
+  console.log({ data });
+  
+  const totalTonAmount =
+    data?.proposalResult?.totalWeight ||
+    data?.proposalResult?.totalWeights ||
+    "0";
+  
+  const votesLength = _.size(data?.votes);
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
+  const tonAmount = useMemo(() => {
+    return nFormatter(Number(fromNano(totalTonAmount)));
+  }, [totalTonAmount]);
 
   const symbol = useGetProposalSymbol(proposalAddress);
   const show = useShowComponents().votes;
@@ -113,6 +140,10 @@ const DownloadCSV = ({
   const { data } = useProposalQuery(proposalAddress);
   const csvData = useCsvData(votes, dataUpdatedAt);
   const translations = useProposalPageTranslations();
+
+  const walletVote = useWalletVote(proposalAddress);
+  const symbol = useGetProposalSymbol(proposalAddress);
+  const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
 
   return (
     <CSVLink data={csvData} filename={parseLanguage(data?.metadata?.title)}>

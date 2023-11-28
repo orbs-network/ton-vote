@@ -1,19 +1,30 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { releaseMode, QueryKeys, REFETCH_INTERVALS } from "config";
+import { QueryKey, useQuery, useQueryClient } from "@tanstack/react-query";
+import { releaseMode, QueryKeys, REFETCH_INTERVALS, BLACKLISTED_PROPOSALS, IS_DEV } from "config";
 import { Dao, Proposal } from "types";
 import _ from "lodash";
 import {
+  getClientV4,
   getDaoState,
   getRegistryState,
+  getSingleVoterPower,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import { getVoteStrategyType, isDaoWhitelisted, validateAddress } from "utils";
 import {
-  useCurrentRoute,
-  useDevFeaturesMode,
-  useHideDao,
-  useRole,
-} from "hooks/hooks";
+  getIsOneWalletOneVote,
+  getProposalSymbol,
+  getVoteStrategyType,
+  isDaoWhitelisted,
+  Logger,
+  nFormatter,
+  validateAddress,
+} from "utils";
+import {
+  FOUNDATION_DAO_ADDRESS,
+  FOUNDATION_PROPOSALS_ADDRESSES,
+} from "data/foundation/data";
+import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
+import { contract, getDao } from "contract";
+import { useCurrentRoute, useDevFeaturesMode } from "hooks/hooks";
 import { fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
@@ -21,6 +32,9 @@ import { api } from "api";
 import { useMemo, useState } from "react";
 import { routes } from "consts";
 import { lib } from "lib";
+import { analytics } from "analytics";
+import { getProposalDescription } from "data/foundation/proposals-descriptions";
+import { getIsServerUpToDate } from "./hooks";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -88,6 +102,8 @@ export const useDaosQuery = () => {
 export const useDaoQuery = (daoAddress: string) => {
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const route = useCurrentRoute();
+  const queryClient = useQueryClient();
+  const syncStore = useSyncStore();
 
   const config = useMemo(() => {
     return {
@@ -129,13 +145,44 @@ export const useWalletVotingPowerQuery = (
   const connectedWallet = useTonAddress();
   return useQuery(
     [QueryKeys.SIGNLE_VOTING_POWER, connectedWallet, proposalAddress],
-    async ({ signal }) =>
-      lib.getWalletVotingPower({
-        connectedWallet,
-        proposal,
-        proposalAddress,
-        signal,
-      }),
+    async ({ signal }) => {
+      const allNftHolders = await lib.getAllNFTHolders(
+        proposalAddress!,
+        proposal?.metadata!,
+        signal
+      );
+      Logger(`Fetching voting power for account: ${connectedWallet}`);
+
+      const strategy = getVoteStrategyType(
+        proposal?.metadata?.votingPowerStrategies
+      );
+
+      const clientV4 = await getClientV4();
+
+      const result = await getSingleVoterPower(
+        clientV4,
+        connectedWallet!,
+        proposal?.metadata!,
+        strategy,
+        allNftHolders
+      );
+
+      const symbol = getProposalSymbol(
+        proposal?.metadata?.votingPowerStrategies
+      );
+
+      if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
+        return {
+          votingPower: result,
+          votingPowerText: `${nFormatter(Number(result))} ${symbol}`,
+        };
+      }
+
+      return {
+        votingPowerText: `${nFormatter(Number(fromNano(result)))} ${symbol}`,
+        votingPower: result,
+      };
+    },
     {
       enabled: !!connectedWallet && !!proposal && !!proposalAddress,
       staleTime: Infinity,
@@ -157,8 +204,8 @@ export const useEnsureProposalQuery = () => {
       const currentData = queryClient.getQueryData<Proposal | undefined>(key);
       return lib.getProposal(proposalAddress, currentData);
     });
-  };
-};
+  }
+}
 
 export const useProposalQuery = (
   proposalAddress?: string,
