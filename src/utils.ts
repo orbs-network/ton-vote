@@ -449,3 +449,9 @@ export const parseValidatorVotes = (votes: string[]): Vote[] => {
     };
   });
 };
+
+
+export const isEqualAddresses = (a?: string, b?: string) => {
+  if (!a || !b) return false;
+  return Address.parse(a).equals(Address.parse(b));
+};

@@ -32,7 +32,7 @@ import { MOBILE_WIDTH } from "consts";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
 
-const MIN_DESCRIPTION_HEIGHT = 200;
+const MIN_DESCRIPTION_HEIGHT = 450;
 
 export const ProposalAbout = ({ className }: { className?: string }) => {
   const mobile = useMobile();
@@ -79,7 +79,6 @@ function MobileAbout() {
 
 const ProposalHeader = () => {
   const { proposalAddress } = useAppParams();
-
   const { data, isLoading } = useProposalQuery(proposalAddress);
 
   const mockPrefix = mock.isMockProposal(proposalAddress) ? " (Mock)" : "";
@@ -134,6 +133,7 @@ const Description = () => {
   const { data, isLoading } = useProposalQuery(proposalAddress);
   const [showMore, setShowMore] = useState(false);
 
+
   useLayoutEffect(() => {
     if (elRef.current) {
       setDescriptionHeight(elRef.current.offsetHeight);
@@ -174,6 +174,7 @@ const Description = () => {
 
 const StyledDescription = styled(Box)({
   position: "relative",
+  width: "100%",
 });
 
 const StyledPlaceholder = styled("span")({
@@ -202,7 +203,6 @@ const StyledHeader = styled(Header)({
 
 const ProposalStatus = () => {
   const { proposalAddress } = useAppParams();
-
   const { proposalStatusText } = useProposalStatus(proposalAddress);
 
   return <Status status={proposalStatusText} />;
@@ -213,7 +213,7 @@ const StyledShareButton = styled(ShareButton)({
 });
 
 const DaoInfo = () => {
-  const { proposalAddress, daoAddress } = useAppParams();
+  const { daoAddress } = useAppParams();
 
   const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
 

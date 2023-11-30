@@ -50,6 +50,7 @@ import {
   getStrategyArgument,
   getTonScanContractUrl,
   getVoteStrategyType,
+  isEqualAddresses,
   isNftProposal,
   nFormatter,
 } from "utils";
@@ -235,8 +236,10 @@ export const useRole = (roles?: DaoRoles) => {
 
   const getRole = (_roles?: DaoRoles) => {
     return {
-      isOwner: !_roles ? false : address === _roles.owner,
-      isProposalPublisher: !_roles ? false : address === _roles.proposalOwner,
+      isOwner: !_roles ? false : isEqualAddresses(address, _roles.owner),
+      isProposalPublisher: !_roles
+        ? false
+        : isEqualAddresses(address, _roles.proposalOwner),
     };
   };
 

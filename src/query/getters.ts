@@ -7,13 +7,22 @@ import {
   getRegistryState,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import { getVoteStrategyType, isDaoWhitelisted, validateAddress } from "utils";
 import {
-  useCurrentRoute,
-  useDevFeaturesMode,
-  useHideDao,
-  useRole,
-} from "hooks/hooks";
+  getIsOneWalletOneVote,
+  getProposalSymbol,
+  getVoteStrategyType,
+  isDaoWhitelisted,
+  Logger,
+  nFormatter,
+  validateAddress,
+} from "utils";
+import {
+  FOUNDATION_DAO_ADDRESS,
+  FOUNDATION_PROPOSALS_ADDRESSES,
+} from "data/foundation/data";
+import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
+import { contract } from "contract";
+import { useCurrentRoute, useDevFeaturesMode } from "hooks/hooks";
 import { fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
@@ -21,6 +30,7 @@ import { api } from "api";
 import { useMemo, useState } from "react";
 import { routes } from "consts";
 import { lib } from "lib";
+import { getProposalDescription } from "data/foundation/proposals-descriptions";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;

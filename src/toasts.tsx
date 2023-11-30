@@ -78,7 +78,7 @@ export const errorToast = (message: string | Error, duration = 7000) => {
 
 export const showSuccessToast = (message: string) => {
   toast.success((t) => <ToastContent message={message} id={t.id} />, {
-    duration: 4000,
+    duration: 5_000,
   });
 };
 
@@ -114,6 +114,7 @@ export const clearAllToasts = () => toast.dismiss();
 
 const StyledContainer = styled(StyledFlexRow)({
   fontSize: 15,
+  alignItems: "center",
   p: {
     fontSize: '15px!important',
   },

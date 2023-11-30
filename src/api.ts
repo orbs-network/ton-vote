@@ -18,7 +18,7 @@ axiosRetry(axiosInstance, {
 
 const getVerifiedDaosList = async (signal?: AbortSignal) => {
   const res = await axios.get(
-    "https://raw.githubusercontent.com/denis-orbs/verified-daos/main/index.json",
+    "https://raw.githubusercontent.com/orbs-network/ton-vote-verified-spaces/main/index.json",
     { signal }
   );
 

@@ -7,7 +7,7 @@ export function ConnectButton({ className = "" }: { className?: string }) {
   const [tonConnect] = useTonConnectUI();
 
   return (
-    <Button onClick={() => tonConnect.connectWallet} className={className}>
+    <Button onClick={() => tonConnect.openModal()} className={className}>
       <Typography>Connect Wallet</Typography>
     </Button>
   );

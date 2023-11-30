@@ -6,8 +6,7 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { useIsAirdropStateChanged, useStartNewAirdropCallback } from "../hooks";
 
 import { useRevertAirdropChangesCallback } from "../hooks";
-import { useAirdropStore, useAirdropStoreCopy } from "../store";
-import { Steps } from "../types";
+
 
 export function SubmitButtonContainer({
   onClick,
