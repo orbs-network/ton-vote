@@ -1,10 +1,9 @@
-import { CircularProgress, Fade, styled } from "@mui/material";
-import { Box } from "@mui/system";
+import { CircularProgress, Fade, styled, Box } from "@mui/material";
 import { MOBILE_WIDTH } from "consts";
 import { ReactNode } from "react";
 import { StyledFlexRow } from "styles";
 
-type Variant = "transparent";
+type Variant = "transparent" | "text";
 interface Props {
   children: ReactNode;
   disabled?: boolean;
@@ -12,7 +11,7 @@ interface Props {
   className?: string;
   onClick?: (e: any) => void;
   variant?: Variant;
-  id?: string
+  id?: string;
 }
 
 function Button({
@@ -24,14 +23,8 @@ function Button({
   variant,
   id,
 }: Props) {
-  return (
-    <StyledContainer
-      id={id}
-      onClick={onClick}
-      disabled={disabled || !!isLoading}
-      className={`${className} button`}
-      variant={variant}
-    >
+  const content = (
+    <>
       <Fade in={isLoading}>
         <StyledLoader>
           <CircularProgress
@@ -43,8 +36,27 @@ function Button({
       <Fade in={!isLoading}>
         <StyledChildren className="children">{children}</StyledChildren>
       </Fade>
-    </StyledContainer>
+    </>
   );
+
+  const args = {
+    id,
+    onClick,
+    disabled: disabled || !!isLoading,
+    className: `${className} button`,
+  };
+
+  if (variant === "text") {
+    return <StyledTextButton {...args}>{content}</StyledTextButton>;
+  }
+
+  if (variant === "transparent") {
+    return (
+      <StyledTransparentButton {...args}>{content}</StyledTransparentButton>
+    );
+  }
+
+  return <StyledBtn {...args}>{content}</StyledBtn>;
 }
 
 export { Button };
@@ -60,48 +72,81 @@ const StyledChildren = styled(StyledFlexRow)({
   gap: 5,
 });
 
-const StyledContainer = styled("button")<{
+const StyledBaseButton = styled("button")<{
   disabled: boolean;
-  variant?: Variant;
-}>(({ theme, disabled, variant }) => {
-
-
+}>(({ theme, disabled }) => {
   return {
-    width: "fit-content",
-    height: 44,
-    borderRadius: 40,
+    padding: "0px 16px",
     opacity: disabled ? 0.7 : 1,
     pointerEvents: disabled ? "none" : "all",
-    background:
-      variant === "transparent" ? "transparent" : theme.palette.primary.main,
-    border:
-      variant === "transparent"
-        ? `1px solid ${theme.palette.primary.main}`
-        : "1px solid transparent",
     cursor: "pointer",
     position: "relative",
-    padding: "0px 16px",
     transition: "0.3s all",
+    fontSize: 15,
+    fontWeight: 700,
+    fontFamily: theme.typography.fontFamily,
     "*, p": {
-      color: variant === "transparent" && theme.palette.mode === 'light' ? theme.palette.primary.main : "white",
-      fontSize: 16,
-      fontWeight: 700,
-      fontFamily: theme.typography.fontFamily,
+      fontSize: "inherit",
+      fontWeight: "inherit",
+      fontFamily: "inherit",
+    },
+  };
+});
+
+const StyledTransparentButton = styled(StyledBaseButton)(({ theme }) => {
+  return {
+    height: 44,
+    borderRadius: 40,
+    background: "transparent",
+    border: `1px solid ${theme.palette.primary.main}`,
+    "*, p": {
+      color: theme.palette.primary.main,
     },
 
     [`@media (min-width: ${MOBILE_WIDTH}px)`]: {
       "&:hover": {
-        border:
-          variant === "transparent"
-            ? "1px solid transparent"
-            : `1px solid ${theme.palette.primary.main}`,
-        background:
-          variant === "transparent"
-            ? theme.palette.primary.main
-            : "transparent",
-        "*": {
-          color:
-            variant === "transparent" || theme.palette.mode === 'dark' ? "white" : theme.palette.primary.main,
+        background: "#00A6FF",
+        "*, p": {
+          color: "white",
+        },
+      },
+    },
+  };
+});
+
+const StyledTextButton = styled(StyledBaseButton)(({ theme }) => ({
+  background: "transparent",
+  border: "unset",
+  padding: 0,
+  borderBottom: "2px solid transparent",
+  position: "relative",
+  top:2,
+  "*, p": {
+    color: theme.palette.primary.main,
+  },
+  [`@media (min-width: ${MOBILE_WIDTH}px)`]: {
+    "&:hover": {
+      borderBottom: `2px solid ${theme.palette.primary.main}`,
+    },
+  },
+}));
+
+const StyledBtn = styled(StyledBaseButton)<{
+  variant?: Variant;
+}>(({ theme }) => {
+  return {
+    height: 44,
+    borderRadius: 40,
+    background: theme.palette.primary.main,
+    border: "1px solid transparent",
+    "*, p": {
+      color: "white",
+    },
+    [`@media (min-width: ${MOBILE_WIDTH}px)`]: {
+      "&:hover": {
+        background: "#00A6FF",
+        "*, p": {
+          color: "white",
         },
       },
     },

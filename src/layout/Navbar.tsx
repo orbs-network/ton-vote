@@ -1,32 +1,30 @@
 import {
   Chip,
   IconButton,
-  MenuItem,
   styled,
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { Box } from "@mui/system";
-import { AppTooltip, Button, Github, Menu } from "components";
-import { StyledFlexRow, StyledGrid } from "styles";
-import { useState } from "react";
+import { AppTooltip, Github } from "components";
+import { StyleConnectdButton, StyledFlexRow, StyledGrid } from "styles";
 import { useAppNavigation } from "router/navigation";
-import { useAppSettings, useDevFeatures } from "hooks/hooks";
-import { APP_NAME, LANGUAGES } from "config";
-import { useTranslation } from "react-i18next";
-import { BsGlobeAmericas } from "react-icons/bs";
+import { useAppSettings, useDevFeaturesMode } from "hooks/hooks";
+import { APP_NAME } from "config";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
-import { useSettingsStore } from "store";
 import { FiMoon, FiSun } from "react-icons/fi";
+import { Webapp } from "WebApp";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
-  const devFeatures = useDevFeatures();
+
+  if(Webapp.isEnabled) {
+    return <StyleConnectdButtonHidden />
+  }
+
   return (
     <StyledContainer>
       <StyledNav>
@@ -36,7 +34,7 @@ export function Navbar() {
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
           <EnvModeIndication />
-          <ConnectButton />
+          <StyleConnectdButton />
           <ThemeToggle />
           {!mobile && <Github />}
         </StyledFlexRow>
@@ -45,15 +43,22 @@ export function Navbar() {
   );
 }
 
+const StyleConnectdButtonHidden = styled(StyleConnectdButton)({
+  position:'fixed',
+  top: -30,
+  opacity: 0,
+  pointerEvents: 'none'
+});
+
 const EnvModeIndication = () => {
-  const devFeatures = useDevFeatures();
-  const {setBeta, beta} = useAppSettings()
+  const devFeatures = useDevFeaturesMode();
+  const { setBeta, beta } = useAppSettings();
 
   const onClick = () => {
-    if(beta) {
-      setBeta(false)
+    if (beta) {
+      setBeta(false);
     }
-  }
+  };
 
   if (devFeatures) {
     return <StyledDev label="Dev" onClick={onClick} />;
@@ -85,60 +90,6 @@ const StyledDev = styled(Chip)({
     ".MuiChip-label": {
       padding: "0px 8px",
     },
-  },
-});
-
-const LanuageSelect = () => {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { i18n } = useTranslation();
-
-  const currentLanguage =
-    LANGUAGES[i18n.language as keyof typeof LANGUAGES] || LANGUAGES.en;
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  return (
-    <>
-      <StyledLanguageSelectButton onClick={handleClick} variant="transparent">
-        <StyledFlexRow>
-          <BsGlobeAmericas />
-          <Typography>{currentLanguage}</Typography>
-        </StyledFlexRow>
-      </StyledLanguageSelectButton>
-      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <StyledLanguages>
-          {_.map(LANGUAGES, (value, key) => {
-            return (
-              <MenuItem
-                onClick={() => {
-                  i18n.changeLanguage(key);
-                  setAnchorEl(null);
-                }}
-                selected={currentLanguage === value}
-                key={key}
-              >
-                {value}
-              </MenuItem>
-            );
-          })}
-        </StyledLanguages>
-      </Menu>
-    </>
-  );
-};
-
-const StyledLanguages = styled(Box)({
-  width: "100%",
-});
-
-const StyledLanguageSelectButton = styled(Button)({
-  height: "unset",
-  padding: "10px 20px",
-  "*": { fontSize: 14 },
-  svg: {
-    width: 17,
-    height: 17,
   },
 });
 
@@ -190,65 +141,3 @@ const StyledNav = styled(StyledGrid)({
   justifyContent: "space-between",
   flexDirection: "row",
 });
-
-function ConnectButton() {
-  const address = useTonAddress();
-
-  return (
-    <>
-      <StyledButton connected={address ? 1 : 0} />
-    </>
-  );
-}
-
-const StyledButton = styled(TonConnectButton)<{ connected: number }>(
-  ({ theme }) => ({
-    button: {
-      background: theme.palette.primary.main,
-      "*": {
-        color: "white",
-        stroke: "white",
-      },
-    },
-    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-      "*": {
-        fontSize: 13,
-      },
-    },
-  })
-);
-
-const SettingsMenu = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const onClick = () => {};
-
-  return (
-    <div>
-      <button onClick={handleClick}>Dashboard</button>
-      <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <StyledLanguages>
-          {_.map(LANGUAGES, (value, key) => {
-            return (
-              <MenuItem
-                onClick={() => {
-                  setAnchorEl(null);
-                }}
-                key={key}
-              >
-                {value}
-              </MenuItem>
-            );
-          })}
-        </StyledLanguages>
-      </Menu>
-    </div>
-  );
-};

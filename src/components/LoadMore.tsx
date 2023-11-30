@@ -1,4 +1,4 @@
-import { CircularProgress, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import _ from "lodash";
 import React, { useEffect } from "react";
@@ -12,16 +12,18 @@ function LoadMore({
   totalItems,
   amountToShow,
   className = "",
+  infiniteScroll = false,
 }: {
   limit: number;
   totalItems: number;
   showMore: () => void;
   amountToShow: number;
   className?: string;
+  infiniteScroll?: boolean;
 }) {
   const [ref, { entry }] = useIntersectionObserver();
   const isVisible = entry && entry.isIntersecting;
-  const t = useCommonTranslations()
+  const t = useCommonTranslations();
   useEffect(() => {
     if (isVisible) {
       showMore();
@@ -32,26 +34,21 @@ function LoadMore({
     return null;
   }
 
-  if (amountToShow !== limit) {
-    return <div ref={ref}></div>;
+  if (infiniteScroll || amountToShow !== limit) {
+    return <div ref={ref} style={{top: -200}}></div>;
   }
   return (
     <StyledContainer className={className}>
-      <StyledButton variant="transparent" onClick={showMore}>
-       {t.loadMore}
-      </StyledButton>
+      <StyledButton onClick={showMore}>{t.loadMore}</StyledButton>
     </StyledContainer>
   );
 }
 
 export { LoadMore };
 
-const StyledButton = styled(Button)(({ theme }) => ({
+const StyledButton = styled(Button)({
   width: "100%",
-  background: theme.palette.background.paper,
-}));
-
-const StyledContainer = styled(StyledFlexRow)({
-  marginBottom: 50,
 });
 
+const StyledContainer = styled(StyledFlexRow)({
+});

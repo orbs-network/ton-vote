@@ -1,7 +1,6 @@
-import { Skeleton, styled, Theme, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Skeleton, styled, Theme, Typography, Box } from "@mui/material";
+import { TonConnectButton } from "@tonconnect/ui-react";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
-import { getBorderColor } from "theme";
 
 export const StyledEndAdornment = styled(Box)({
   button: {
@@ -58,6 +57,14 @@ export const StyledFlexColumn = styled(Box)(
 
 export const getGlobalStyles = (theme: Theme) => {
   return {
+   
+  
+        "*":{
+      outline: "none!important",
+      "&:focus": {
+        outline: "none!important",
+      }
+    },
     ".MuiMenu-paper": {
       backgroundImage: "unset!important",
     },
@@ -194,7 +201,7 @@ export const StyledTitle = styled(Typography)(({ theme }) => ({
   lineHeight: "28px",
   fontSize: 20,
   "@media (max-width: 600px)": {
-    fontSize: 18,
+    fontSize: 15,
     lineHeight: "25px",
   },
 }));
@@ -246,6 +253,7 @@ export const StyledCreateAbout = styled(Typography)({
 
 export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   position: "relative",
+
   ".MuiInputBase-root": {
     borderRadius: 30,
   },
@@ -255,7 +263,10 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
   ".MuiSelect-select": {
     minWidth: 200,
     padding: "8px 15px 8px 15px",
-    border: `1px solid ${getBorderColor(theme.palette.mode)}`,
+    border:
+      theme.palette.mode === "light"
+        ? "1px solid rgba(0, 0, 0, 0.23)"
+        : `1px solid rgba(255, 255, 255, 0.23)`,
     borderRadius: `30px!important`,
     transition: "0.2s all",
     "&:hover": {
@@ -269,5 +280,24 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
     width: 20,
     height: 20,
     marginTop: -2,
+  },
+}));
+
+
+
+
+
+export const StyleConnectdButton = styled(TonConnectButton)(({ theme }) => ({
+  button: {
+    background: theme.palette.primary.main,
+    "*": {
+      color: "white",
+      stroke: "white",
+    },
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    "*": {
+      fontSize: 13,
+    },
   },
 }));

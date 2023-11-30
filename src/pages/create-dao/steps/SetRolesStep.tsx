@@ -33,16 +33,13 @@ export function SetRolesStep() {
 
   return (
     <FormikInputsForm<DaoRolesForm> form={form} formik={formik}>
-      <Submit>
-        <Button
-          onClick={() => {
-            formik.submitForm();
-            validateFormik(formik);
-          }}
-        >
-          {translations.next}
-        </Button>
-      </Submit>
+      <Submit
+        text={translations.next}
+        onClick={() => {
+          formik.submitForm();
+          validateFormik(formik);
+        }}
+      />
     </FormikInputsForm>
   );
 }

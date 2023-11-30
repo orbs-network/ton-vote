@@ -6,7 +6,7 @@ import { useCreatDaoStore } from "../store";
 import { Submit } from "./Submit";
 
 export function GettingStartedStep() {
-  const translations = useCreateDaoTranslations()
+  const translations = useCreateDaoTranslations();
   const { nextStep } = useCreatDaoStore();
 
   return (
@@ -17,17 +17,14 @@ export function GettingStartedStep() {
             return <Markdown key={index}>{it}</Markdown>;
           }) || ""}
         </StyledFlexColumn>
-        <Submit>
-          <Button onClick={nextStep}>{translations.start}</Button>
-        </Submit>
+        <Submit onClick={nextStep} text={translations.start} />
       </StyledContainer>
     </TitleContainer>
   );
 }
 
-
 const StyledContainer = styled(Box)({
-  a:{
-    textDecoration:'unset'
-  }
+  a: {
+    textDecoration: "unset",
+  },
 });

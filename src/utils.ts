@@ -1,8 +1,8 @@
 import {
   BLACKLISTED_DAOS,
+  BLACKLISTED_PROPOSALS,
   IS_DEV,
   TONSCAN_ADDRESS_URL,
-  VERIFIED_DAOS,
 } from "config";
 import _ from "lodash";
 import moment from "moment";
@@ -22,10 +22,9 @@ import {
 } from "types";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
 import { FormikProps } from "formik";
-import { WHITELISTED_DAOS, WHITELISTED_PROPOSALS } from "whitelisted";
+import { WHITELISTED_DAOS } from "whitelisted";
 import BigNumber from "bignumber.js";
-import { ZERO_ADDRESS } from "consts";
-import { errorToast } from "toasts";
+import { ENV, ZERO_ADDRESS } from "consts";
 
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
@@ -39,21 +38,26 @@ export function delay(ms: number) {
 }
 
 export const Logger = (...args: any) => {
-  if (IS_DEV || import.meta.env.DEV) {
+  if (IS_DEV || ENV.DEV) {
     console.log(...args);
   }
 };
 
 export const parseVotes = (
+  metadata: ProposalMetadata,
   rawVotes: TonVoteSDK.Votes,
   votingPower: VotingPower
 ) => {
+  const choices = _.keyBy(metadata.votingSystem.choices, (c) =>
+    c.toLowerCase()
+  );
+
   let votes: Vote[] = _.map(rawVotes, (v: RawVote, key: string) => {
     const _votingPower = votingPower[key];
 
     return {
       address: key,
-      vote: v.vote,
+      vote: choices[v.vote.toLowerCase()] || v.vote,
       votingPower: _votingPower ? fromNano(_votingPower) : "0",
       timestamp: v.timestamp,
       hash: v.hash,
@@ -64,12 +68,13 @@ export const parseVotes = (
   return sortedVotes;
 };
 
-export function nFormatter(num: number, digits = 2) {
+export function nFormatter(_num: number | string, digits = 2) {
+  const num = Number(_num);
   const lookup = [
     { value: 1, symbol: "" },
     { value: 1e3, symbol: "K" },
     { value: 1e6, symbol: "M" },
-    { value: 1e9, symbol: "G" },
+    { value: 1e9, symbol: "B" },
     { value: 1e12, symbol: "T" },
     { value: 1e15, symbol: "P" },
     { value: 1e18, symbol: "E" },
@@ -183,10 +188,11 @@ export const validateAddress = (value?: string) => {
 
 export async function validateFormik(formik: FormikProps<any>) {
   let value = "";
-  await formik.validateForm().then((errors) => {
+  await formik.validateForm().then(async (errors: any) => {
     if (!_.isEmpty(errors)) {
       const error = _.first(_.values(errors)) as string;
       value = error;
+      const errorToast = await import("./toasts").then((it) => it.errorToast);
       error && errorToast(error);
     }
   });
@@ -194,7 +200,7 @@ export async function validateFormik(formik: FormikProps<any>) {
   return value;
 }
 
-export function validateFormikSingleField<T>(
+export async function validateFormikSingleField<T>(
   formik: FormikProps<T>,
   name: string
 ) {
@@ -203,6 +209,8 @@ export function validateFormikSingleField<T>(
   const error = formik.errors[name as keyof T] as string;
 
   if (error) {
+    const errorToast = await import("./toasts").then((it) => it.errorToast);
+
     errorToast(error);
   }
 
@@ -248,10 +256,9 @@ export const isDaoBlacklisted = (address?: string) => {
   return BLACKLISTED_DAOS.includes(address);
 };
 
-export const isProposalWhitelisted = (address?: string) => {
+export const isProposalBlacklisted = (address?: string) => {
   if (!address) return false;
-  if (!_.size(WHITELISTED_PROPOSALS)) return true;
-  return WHITELISTED_PROPOSALS.includes(address);
+  return BLACKLISTED_PROPOSALS.includes(address);
 };
 
 export const isZeroAddress = (value?: string) => {
@@ -335,6 +342,7 @@ export const getProposalResultTonAmount = (
   type: VotingPowerStrategyType
 ) => {
   let result = "0";
+
   if (proposal?.sumCoins) {
     const value =
       proposal.sumCoins[choice] || proposal.sumCoins[choice.toLowerCase()];
@@ -371,10 +379,6 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
       0;
   }
   return votes;
-};
-
-export const getIsVerifiedDao = (address?: string) => {
-  return VERIFIED_DAOS.includes(address || "");
 };
 
 export const isNftProposal = (
@@ -421,6 +425,27 @@ export const getProposalSymbol = (
       return "NFT";
 
     default:
-      break;
+      return "";
   }
+};
+
+export const onConnect = () => {
+  const container = document.getElementById("ton-connect-button");
+  const btn = container?.querySelector("button");
+
+  if (btn) {
+    btn.click();
+  }
+};
+
+export const parseValidatorVotes = (votes: string[]): Vote[] => {
+  return votes.map((it) => {
+    return {
+      address: it,
+      vote: "yes",
+      votingPower: "",
+      timestamp: 0,
+      hash: "",
+    };
+  });
 };

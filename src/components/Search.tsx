@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { StyledFlexRow } from "styles";
 import { HiMagnifyingGlass } from "react-icons/hi2";
 import { Container } from "./Container";
-import { Select } from "./Select";
 import { SelectOption } from "types";
 import _ from "lodash";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
+import { Select } from "./inputs/Inputs";
+import { MOBILE_WIDTH } from "consts";
 
 export function Search({
   className = "",
@@ -36,7 +37,7 @@ export function Search({
   }, [debouncedValue]);
 
   return (
-    <StyledContainer className={className} hover={true}>
+    <StyledContainer className={`${className} search-input`} hover={true}>
       <StyledFlexRow style={{ height: "100%", paddingLeft: 10, gap: 0 }}>
         <StyledLeft>
           <HiMagnifyingGlass />
@@ -89,6 +90,9 @@ const StyledContainer = styled(Container)({
   svg: {
     width: 25,
     height: 25,
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    height: 40,
   },
 });
 

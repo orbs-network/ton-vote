@@ -4,8 +4,15 @@ import {
   Checkbox,
   IconButton,
   TextField,
+  Select as MuiSelect,
+  useTheme,
+  SelectChangeEvent,
+  MenuItem,
+  Radio,
+  Box,
 } from "@mui/material";
 import React, {
+  Fragment,
   ReactElement,
   ReactNode,
   useCallback,
@@ -13,7 +20,12 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { StyledCreateAbout, StyledFlexColumn, StyledFlexRow } from "styles";
+import {
+  StyledCreateAbout,
+  StyledFlexColumn,
+  StyledFlexRow,
+  StyledSelectContainer,
+} from "styles";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
 import { BsFillTrash3Fill, BsUpload } from "react-icons/bs";
@@ -21,7 +33,7 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { FormArgs, InputArgs } from "types";
+import { FormArgs, InputArgs, SelectOption } from "types";
 import { FormikProps } from "formik";
 import { AppTooltip } from "../Tooltip";
 import _ from "lodash";
@@ -52,6 +64,10 @@ import { useCreateDaoTranslations } from "i18n/hooks/useCreateDaoTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import moment, { Moment, utc } from "moment";
 import { useMobile } from "hooks/hooks";
+import { MdKeyboardArrowDown } from "react-icons/md";
+import { VirtualList } from "components/VirtualList";
+import { Img } from "components/Img";
+import { Container } from "components/Container";
 
 interface TextInputProps {
   value?: string | number;
@@ -73,6 +89,7 @@ interface TextInputProps {
   disabled?: boolean;
   isMarkdown?: boolean;
   defaultValue?: any;
+  helperText?: string;
 }
 
 export function TextInput({
@@ -94,7 +111,7 @@ export function TextInput({
   startAdornment,
   disabled,
   isMarkdown,
-  defaultValue,
+  helperText,
 }: TextInputProps) {
   const translations = useCommonTranslations();
   const [preview, setPreview] = useState(false);
@@ -168,9 +185,18 @@ export function TextInput({
           <Typography>{error}</Typography>
         </StyledError>
       )}
+      {helperText && <StyledHelperText>{helperText}</StyledHelperText>}
     </StyledContainer>
   );
 }
+
+const StyledHelperText = styled(Typography)({
+  fontSize: 14,
+  textAlign: "left",
+  width:'100%',
+  marginTop: 5,
+  paddingLeft: 5
+})
 
 const PreviewInput = ({ md }: { md: string }) => {
   return (
@@ -259,9 +285,9 @@ const Title = ({
   className?: string;
 }) => {
   return (
-    <StyledTitle className={`input-title ${className}`}>
+    <StyledTitle className={`input-title ${className}`} gap={3}> 
       <Markdown className="md">{title}</Markdown>
-      <small className="input-title-required" style={{ fontSize: 14 }}>
+      <small className="input-title-required" style={{ fontSize: 13, position:'relative', top:1 }}>
         {required ? " (required)" : " (optional)"}
       </small>
     </StyledTitle>
@@ -340,7 +366,11 @@ export function MapInput<T>({
   error?: string;
   className?: string;
   onChange: (value: any) => void;
-  customInputHandler?: (value: InputArgs<T>) => ReactElement;
+  customInputHandler?: (
+    args: InputArgs<T>,
+    value: any,
+    onChange: (value: any) => void
+  ) => ReactElement;
   clearError?: () => void;
   formik: FormikProps<T>;
 }) {
@@ -424,6 +454,33 @@ export function MapInput<T>({
     );
   }
 
+  if(args.type === 'radio') {
+    return (
+      <RadioSelect
+        title={label}
+        onChange={onChange}
+        tooltip={args.tooltip}
+        required={args.required}
+        options={args.selectOptions || []}
+        value={value}
+      />
+    );
+  }
+
+  if (args.type === "select") {
+    return (
+      <Select
+        title={label}
+        options={args.selectOptions || []}
+        selected={value || ""}
+        onSelect={onChange}
+        tooltip={args.tooltip}
+        required={args.required}
+        error={error}
+      />
+    );
+  }
+
   if (
     args.type === "text" ||
     args.type === "textarea" ||
@@ -450,7 +507,7 @@ export function MapInput<T>({
     );
   }
   if (args.type === "custom" && customInputHandler) {
-    return customInputHandler(args);
+    return customInputHandler(args, value, onChange);
   }
   if (args.type === "display-text") {
     return <StyledDisplayText>{args.text}</StyledDisplayText>;
@@ -581,8 +638,13 @@ interface FormikInputsFormProps<T> {
   form: FormArgs<T>[] | FormArgs<T>;
   formik: FormikProps<T>;
   EndAdornment?: any;
-  customInputHandler?: (value: InputArgs<T>) => ReactElement;
+  customInputHandler?: (
+    args: InputArgs<T>,
+    value: any,
+    onChange: (value: any) => void
+  ) => ReactElement;
   children?: ReactNode;
+  className?: string;
 }
 
 export function FormikInputsForm<T>({
@@ -590,77 +652,88 @@ export function FormikInputsForm<T>({
   formik,
   customInputHandler,
   children,
+  className = "",
 }: FormikInputsFormProps<T>) {
   const _form = _.isArray(form) ? form : [form];
   const mobile = useMobile();
 
   return (
-    <StyledFlexColumn gap={15}>
+    <StyledFlexColumn gap={mobile ? 10 : 15}>
       {_form.map((it, index) => {
         const isLast = _.size(_form) === index + 1;
 
-        return (
-          <TitleContainer
-            className="formik-form"
-            key={index}
-            title={it.title}
-            headerComponent={
-              it.warning && (
-                <StyledWarning>
-                  <RiErrorWarningLine />
-                  {it.warning}
-                </StyledWarning>
-              )
-            }
-          >
-            <StyledFlexColumn gap={30}>
-              {it.subTitle && (
-                <StyledCreateAbout>{it.subTitle}</StyledCreateAbout>
-              )}
-              <StyledInputsContainer gap={20}>
-                {it.inputs.map((input) => {
-                  const clearError = () =>
-                    formik.setFieldError(input.name as string, undefined);
-                  return (
-                    <StyledFormInput
-                      key={input.name}
-                      className="form-input"
-                      style={{
-                        width:
-                          input.style?.width || mobile
-                            ? "100%"
-                            : it.inputsInRow
-                            ? `calc(${100 / it.inputsInRow}% - ${
-                                it.inputsInRow * 7
-                              }px)`
-                            : "100%",
+        const content = (
+          <>
+            <StyledInputsContainer gap={20}>
+              {it.inputs.map((input) => {
+                const clearError = () =>
+                  formik.setFieldError(input.name as string, undefined);
+                return (
+                  <StyledFormInput
+                    key={input.name}
+                    className="form-input"
+                    style={{
+                      width:
+                        input.style?.width || mobile
+                          ? "100%"
+                          : it.inputsInRow
+                          ? `calc(${100 / it.inputsInRow}% - ${
+                              it.inputsInRow * 7
+                            }px)`
+                          : "100%",
+                    }}
+                  >
+                    <MapInput<T>
+                      customInputHandler={customInputHandler}
+                      args={input}
+                      value={formik.values[input.name as keyof T]}
+                      error={formik.errors[input.name as keyof T] as string}
+                      clearError={clearError}
+                      onChange={(value: any) => {
+                        formik.setFieldValue(input.name as string, value);
+                        clearError();
                       }}
-                    >
-                      <MapInput<T>
-                        customInputHandler={customInputHandler}
-                        args={input}
-                        value={formik.values[input.name as keyof T]}
-                        error={formik.errors[input.name as keyof T] as string}
-                        clearError={clearError}
-                        onChange={(value: any) => {
-                          formik.setFieldValue(input.name as string, value);
-                          clearError();
-                        }}
-                        formik={formik}
-                      />
-                    </StyledFormInput>
-                  );
-                })}
-              </StyledInputsContainer>
-            </StyledFlexColumn>
+                      formik={formik}
+                    />
+                  </StyledFormInput>
+                );
+              })}
+            </StyledInputsContainer>
             {it.bottomText && <StyledMarkdown>{it.bottomText}</StyledMarkdown>}
             {isLast && children}
-          </TitleContainer>
+          </>
+        );
+
+        if (it.title) {
+          return (
+            <TitleContainer
+              className={`${className} formik-form`}
+              key={index}
+              title={it.title}
+              subtitle={it.subTitle}
+              headerComponent={
+                it.warning && (
+                  <StyledWarning>
+                    <RiErrorWarningLine />
+                    {it.warning}
+                  </StyledWarning>
+                )
+              }
+            >
+              {content}
+            </TitleContainer>
+          );
+        }
+        return (
+          <Container style={{ width: "100%" }} key={index}>
+            {content}
+          </Container>
         );
       })}
     </StyledFlexColumn>
   );
 }
+
 
 const StyledMarkdown = styled(Markdown)({
   marginTop: 20,
@@ -698,6 +771,8 @@ interface NumberInputProps {
   endAdornment?: React.ReactNode;
   error?: string;
   onFocus?: () => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 export const NumberInput = ({
@@ -712,11 +787,14 @@ export const NumberInput = ({
   endAdornment,
   error,
   onFocus,
+  className,
+  disabled,
 }: NumberInputProps) => {
   return (
-    <StyledInputContainer>
+    <StyledInputContainer className={className}>
       <InputHeader title={title} required={required} tooltip={tooltip} />
       <NumericFormat
+        disabled={disabled}
         prefix={prefix}
         suffix={suffix}
         value={value}
@@ -727,6 +805,7 @@ export const NumberInput = ({
         onValueChange={(value) => {
           onChange(value.floatValue);
         }}
+        error={!!error}
         InputProps={{ endAdornment }}
       />
       {error && (
@@ -738,3 +817,139 @@ export const NumberInput = ({
     </StyledInputContainer>
   );
 };
+
+interface SelectProps {
+  options: SelectOption[];
+  selected: string;
+  onSelect: (value: string) => void;
+  className?: string;
+  title?: string;
+  required?: boolean;
+  tooltip?: string;
+  error?: string;
+  renderItem?: (option: SelectOption) => ReactNode;
+}
+
+export function Select({
+  options,
+  selected,
+  onSelect,
+  className = "",
+  title,
+  required,
+  tooltip,
+  error,
+  renderItem,
+}: SelectProps) {
+  const handleChange = (event: SelectChangeEvent) => {
+    onSelect(event.target.value);
+  };
+
+  const theme = useTheme();
+
+  return (
+    <StyledSelectContainer className={`select-box ${className}`}>
+      <InputHeader title={title} required={required} tooltip={tooltip} />
+      <MuiSelect
+        MenuProps={{
+          disableAutoFocusItem: true,
+          PaperProps: {
+            style: {
+              maxHeight: 300,
+              borderRadius: 10,
+              border:
+                theme.palette.mode === "light"
+                  ? "1px solid #e0e0e0"
+                  : "1px solid #424242",
+              boxShadow:
+                theme.palette.mode === "light"
+                  ? "rgb(114 138 150 / 8%) 0px 2px 16px"
+                  : "unset",
+            },
+          },
+        }}
+        defaultValue=""
+        IconComponent={MdKeyboardArrowDown}
+        value={selected}
+        onChange={handleChange}
+      >
+        {options.map((option, index) => {
+          return (
+            <MenuItem key={index} value={option.value}>
+              {renderItem ? renderItem(option) : option.text}
+            </MenuItem>
+          );
+        })}
+      </MuiSelect>
+      {error && (
+        <StyledError>
+          <RiErrorWarningLine />
+          <Typography>{error}</Typography>
+        </StyledError>
+      )}
+    </StyledSelectContainer>
+  );
+}
+
+interface RadioSelectProps {
+  options: SelectOption[];
+  title: string;
+  value: string;
+  tooltip?: string;
+  required?: boolean
+  onChange: (value: string) => void;
+}
+
+const RadioSelect = ({
+  options,
+  title,
+  value,
+  required,
+  tooltip,
+  onChange,
+}: RadioSelectProps) => {
+  return (
+    <StyledContainer>
+      <InputHeader tooltip={tooltip} title={title} required={required} />
+      <StyledRadioFlex>
+        {options.map((option) => {
+          return (
+            <StyledFlexRow gap={2} key={option.value} style={{width:'auto'}}>
+              <Radio
+                onChange={() => onChange(option.value as string)}
+                value={option.value}
+                checked={value === option.value}
+              />
+              <Typography>{option.text}</Typography>
+            </StyledFlexRow>
+          );
+        })}
+      </StyledRadioFlex>
+    </StyledContainer>
+  );
+};
+
+
+const StyledRadioFlex = styled(StyledFlexRow)(({ theme }) => ({
+  marginTop: -6,
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
+  ".MuiRadio-root": {
+    "*": {
+      color: theme.palette.primary.main,
+    },
+  },
+}));
+
+
+
+
+
+
+
+
+export const StyledInputImage = styled(Img)({
+  width: 32,
+  height: 32,
+  borderRadius: "50%",
+});

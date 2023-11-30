@@ -5,9 +5,15 @@ import { useAppParams, useMobile, useProposalStatus } from "hooks/hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
-  LoadingContainer,
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import {
   Markdown,
   Header,
   AddressDisplay,
@@ -28,11 +34,10 @@ import { mock } from "mock/mock";
 
 const MIN_DESCRIPTION_HEIGHT = 450;
 
-export const ProposalAbout = () => {
+export const ProposalAbout = ({ className }: { className?: string }) => {
   const mobile = useMobile();
-
   return (
-    <StyledContainer>
+    <StyledContainer className={className}>
       {mobile ? <MobileAbout /> : <DesktopAbout />}
     </StyledContainer>
   );
@@ -121,9 +126,10 @@ const ShowMoreButton = ({
 };
 
 const Description = () => {
+  const { proposalAddress } = useAppParams();
+
   const [descriptionHeight, setDescriptionHeight] = useState(0);
   const elRef = useRef<any>();
-  const { proposalAddress } = useAppParams();
   const { data, isLoading } = useProposalQuery(proposalAddress);
   const [showMore, setShowMore] = useState(false);
 
@@ -207,7 +213,7 @@ const StyledShareButton = styled(ShareButton)({
 });
 
 const DaoInfo = () => {
-  const { daoAddress } = useAppParams();
+  const { proposalAddress, daoAddress } = useAppParams();
 
   const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
 
@@ -227,7 +233,7 @@ const DaoInfo = () => {
 };
 
 const ByProposalOwner = () => {
-  const { daoAddress } = useAppParams();
+  const { proposalAddress, daoAddress } = useAppParams();
 
   const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
   if (!daoRoles?.proposalOwner) {
@@ -302,8 +308,7 @@ const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
 
 const StyledContainer = styled(Container)({
   width: "100%",
-  padding: 30,
-  paddingTop: 40,
+  padding: 25,
   position: "relative",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     padding: 20,

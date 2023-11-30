@@ -6,26 +6,35 @@ import {
   useRef,
   useMemo,
 } from "react";
-import { matchRoutes, useLocation, useParams } from "react-router-dom";
+import {
+  matchRoutes,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { flatRoutes, MOBILE_WIDTH } from "consts";
 import {
   Address,
   beginCell,
+  fromNano,
   Sender,
   SenderArguments,
   storeStateInit,
 } from "ton-core";
 import { IS_DEV, STRATEGY_ARGUMENTS } from "config";
-import { showSuccessToast } from "toasts";
-import { Proposal, ProposalStatus, ThemeType } from "types";
+import {
+  AppQueryParams,
+  Dao,
+  Proposal,
+  ProposalStatus,
+  Result,
+  ThemeType,
+} from "types";
 import { StringParam, useQueryParams } from "use-query-params";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useMediaQuery } from "@mui/material";
 import {
   DaoRoles,
-  getAllNftHolders,
   ProposalMetadata,
-  VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
@@ -39,11 +48,16 @@ import {
   getProposalStatus,
   getProposalSymbol,
   getStrategyArgument,
+  getTonScanContractUrl,
   getVoteStrategyType,
   isNftProposal,
+  nFormatter,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
+import { useNumericFormat } from "react-number-format";
+import BigNumber from "bignumber.js";
+import { Webapp } from "WebApp";
 
 export const useCurrentRoute = () => {
   const location = useLocation();
@@ -123,6 +137,9 @@ export function useCopyToClipboard(): [CopiedValue, CopyFn] {
     // Try to save to clipboard then save it in the state if worked
     try {
       await navigator.clipboard.writeText(text);
+      const showSuccessToast = await import("toasts").then(
+        (module) => module.showSuccessToast
+      );
       showSuccessToast("Copied to clipboard");
       return true;
     } catch (error) {
@@ -168,36 +185,37 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
   );
 };
 
-enum Params {
-  PROPOSAL_STATE = "proposal-state",
-  SEARCH = "search",
-  DEV = "dev",
-  MODE = "mode",
-}
-
 export const useAppQueryParams = () => {
   const [query, setQuery] = useQueryParams({
-    [Params.PROPOSAL_STATE]: StringParam,
-    [Params.SEARCH]: StringParam,
-    [Params.DEV]: StringParam,
-    [Params.MODE]: StringParam,
+    [AppQueryParams.PROPOSAL_STATE]: StringParam,
+    [AppQueryParams.SEARCH]: StringParam,
+    [AppQueryParams.DEV]: StringParam,
+    [AppQueryParams.MODE]: StringParam,
+    [AppQueryParams.AIRDROP_PROPOSAL]: StringParam,
   });
 
   return {
     query: {
-      proposalState: query[Params.PROPOSAL_STATE] as string | undefined,
+      proposalState: query[AppQueryParams.PROPOSAL_STATE] as string | undefined,
       search: query.search as string | undefined,
       dev: query.dev as string | undefined,
       mode: query.mode as string | undefined,
+      airdropProposal: query.airdrop_proposal as string | undefined,
     },
     setProposalState: (state: string | undefined) => {
-      setQuery({ [Params.PROPOSAL_STATE]: state }, "pushIn");
+      setQuery({ [AppQueryParams.PROPOSAL_STATE]: state }, "pushIn");
     },
     setDev: (state: string | undefined) => {
-      setQuery({ [Params.DEV]: state }, "pushIn");
+      setQuery({ [AppQueryParams.DEV]: state }, "pushIn");
     },
     setSearch: (search: string | undefined) => {
-      setQuery({ [Params.SEARCH]: search || undefined }, "pushIn");
+      setQuery({ [AppQueryParams.SEARCH]: search || undefined }, "pushIn");
+    },
+    setAirdropProposal: (value: string | undefined) => {
+      setQuery(
+        { [AppQueryParams.AIRDROP_PROPOSAL]: value || undefined },
+        "pushIn"
+      );
     },
   };
 };
@@ -207,7 +225,7 @@ export const useMobile = () => {
   return macthes;
 };
 
-export const useDevFeatures = () => {
+export const useDevFeaturesMode = () => {
   const beta = useAppSettings().beta;
   return IS_DEV || beta;
 };
@@ -255,14 +273,14 @@ export const useAppSettings = () => {
   };
 };
 
-export const useProposalResults = (proposalAddress: string) => {
+export const useProposalResults = (proposalAddress: string): Result[] => {
   const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
+  const symbol = useGetProposalSymbol(proposalAddress);
 
   return useMemo(() => {
     if (!proposal) return [];
 
     const choices = proposal?.metadata?.votingSystem.choices;
-    const symbol = getProposalSymbol(proposal.metadata?.votingPowerStrategies);
     const type = getVoteStrategyType(proposal.metadata?.votingPowerStrategies);
     const isOneWalletOneVote = getIsOneWalletOneVote(
       proposal.metadata?.votingPowerStrategies
@@ -282,12 +300,46 @@ export const useProposalResults = (proposalAddress: string) => {
       );
 
       return {
-        votesCount: getProposalResultVotes(proposal, choice),
+        votesAmount: getProposalResultVotes(proposal, choice),
         choice,
         percent,
-        amount: isOneWalletOneVote ? undefined : `${amount} ${symbol}`,
+        assetAmount: isOneWalletOneVote ? undefined : `${amount} ${symbol}`,
       };
     });
+  }, [dataUpdatedAt]);
+};
+
+export const useGetValidatorsProposalResult = (
+  proposalAddress: string
+): Result[] => {
+  const { data: proposal, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(() => {
+    if (!proposal) return [];
+
+    return _.map(
+      proposal.validatorsVotingData?.roundsDetails,
+      (details, index) => {
+        const finished = BigNumber(details.totalWeight).minus(
+          BigNumber(details.weightRemaining)
+        );
+        const percent = Math.floor(
+          BigNumber(finished)
+            .div(details.totalWeight)
+            .multipliedBy(100)
+            .toNumber()
+        );
+
+        const assetAmount = nFormatter(fromNano(finished.toString()));
+
+        return {
+          votesAmount: _.size(details.votersList),
+          choice: `Round ${index + 1}`,
+          percent,
+          assetAmount,
+        };
+      }
+    );
   }, [dataUpdatedAt]);
 };
 
@@ -365,6 +417,17 @@ export const useGetProposalSymbol = (proposalAddress: string) => {
   );
 };
 
+export const useIsValidatorsProposal = (proposalAddress?: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+
+  return useMemo(
+    () =>
+      getVoteStrategyType(data?.metadata?.votingPowerStrategies) ===
+      VotingPowerStrategyType.ValidatorsVote,
+    [dataUpdatedAt]
+  );
+};
+
 export const useProposalStrategyName = (proposalAddress: string) => {
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
 
@@ -379,6 +442,8 @@ export const useProposalStrategyName = (proposalAddress: string) => {
         return "Jetton Balance";
       case VotingPowerStrategyType.NftCcollection:
         return "NFT Collection";
+      case VotingPowerStrategyType.ValidatorsVote:
+        return "Validators Vote";
       case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
@@ -388,6 +453,39 @@ export const useProposalStrategyName = (proposalAddress: string) => {
         break;
     }
   }, [dataUpdatedAt]);
+};
+
+export const useStrategyAsset = (
+  proposalAddress: string
+): {
+  address: string | undefined;
+  type: string;
+  image?: string;
+  name: string;
+  url: string;
+  onlyAddress: boolean;
+} => {
+  const strategyArgs = useStrategyArguments(proposalAddress);
+
+  const metadata = useProposalQuery(proposalAddress)?.data?.metadata;
+
+  const jetton = strategyArgs?.jetton;
+  const nft = strategyArgs?.nft;
+
+  const aseetMetadata =
+    metadata?.jettonMetadata?.metadata || metadata?.nftMetadata?.metadata;
+
+  const defaultName = jetton ? "Jetton" : nft ? "NFT" : "TON";
+  const address = jetton || nft;
+
+  return {
+    address,
+    type: jetton ? "jetton" : nft ? "nft" : "ton",
+    image: aseetMetadata?.image,
+    name: aseetMetadata?.name || defaultName,
+    url: aseetMetadata?.external_url || getTonScanContractUrl(address),
+    onlyAddress: !aseetMetadata,
+  };
 };
 
 export const useIsOneWalletOneVote = (proposalAddress: string) => {
@@ -422,3 +520,61 @@ export const useIsNftProposal = (proposalAddress: string) => {
     [dataUpdatedAt]
   );
 };
+
+export const useFormatNumber = (value?: number, decimalScale = 2) => {
+  const result = useNumericFormat({
+    allowLeadingZeros: true,
+    thousandSeparator: ",",
+    displayType: "text",
+    value: value || "",
+    decimalScale,
+  });
+
+  return result.value?.toString();
+};
+
+export const useWalletVote = (proposalAddress: string) => {
+  const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
+  const walletAddress = useTonAddress();
+  return useMemo(() => {
+    return _.find(data?.votes, (it) => it.address === walletAddress);
+  }, [dataUpdatedAt, walletAddress]);
+};
+
+export const useHideDao = () => {
+  const walletAddress = useTonAddress();
+
+  return useCallback(
+    (dao: Dao) => {
+      const hide = dao.daoMetadata?.metadataArgs.hide;
+
+      const isOwner =
+        dao.daoRoles.owner === walletAddress ||
+        dao.daoRoles.proposalOwner === walletAddress;
+      return hide && !isOwner ? true : false;
+    },
+    [walletAddress]
+  );
+};
+
+export default function useWindowSize() {
+  const [size, setSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const _setSizes = () => {
+      setSize({
+        width: window.innerWidth,
+        height: Webapp.isEnabled ? Webapp.viewPortHeight : window.innerHeight,
+      });
+    };
+    window.addEventListener("resize", _setSizes);
+    return () => {
+      window.removeEventListener("resize", _setSizes);
+    };
+  }, []);
+
+  return size;
+}

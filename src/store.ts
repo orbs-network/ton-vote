@@ -230,8 +230,6 @@ export const useVoteStore = create<VoteStore>((set, get) => ({
   setIsVoting: (isVoting) => set({ isVoting }),
 }));
 
-
-
 interface ErrorStore {
   proposalError: boolean;
   setProposalError: (proposalError: boolean) => void;
@@ -241,3 +239,4 @@ export const useErrorStore = create<ErrorStore>((set, get) => ({
   proposalError: false,
   setProposalError: (proposalError) => set({ proposalError }),
 }));
+

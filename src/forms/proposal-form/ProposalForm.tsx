@@ -1,6 +1,12 @@
 import { Box, Fade, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { AppTooltip, Button, ConnectButton, FormikInputsForm } from "components";
+import { MainButton } from "@twa-dev/sdk/react";
+import {
+  AppTooltip,
+  Button,
+  ConnectButton,
+  FormikInputsForm,
+} from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDebouncedCallback } from "hooks/hooks";
 import _ from "lodash";
@@ -17,6 +23,7 @@ import {
   ProposalStatus,
 } from "types";
 import { validateFormik } from "utils";
+import { Webapp, WebappButton } from "WebApp";
 import { useCreateProposalForm } from "./inputs";
 import ProposalHidePopup from "./ProposalHidePopup";
 import { StrategySelect } from "./StrategySelect";
@@ -53,6 +60,7 @@ export function ProposalForm({
     validateOnChange: false,
     validateOnBlur: true,
   });
+
   const customInputHandler = useCustomInputHandler(formik);
   const [variant, setVariant] = useState<ProposalHidePopupVariant>();
   const saveForm = useDebouncedCallback(() => {
@@ -94,39 +102,36 @@ export function ProposalForm({
     formik.submitForm();
   };
 
-  
   const disableButton = !editMode
     ? false
     : _.isEqual(formik.values, formik.initialValues);
 
   return (
-    <Fade in={true}>
-      <StyledContainer alignItems="flex-start">
-        <FormikInputsForm<ProposalFormType>
-          formik={formik}
-          form={form}
-          customInputHandler={customInputHandler}
-        >
-          <CreateProposalButton
-            submitText={submitText}
-            isLoading={isLoading || daoState?.fwdMsgFee === undefined}
-            onSubmit={onSubmitClick}
-            disabled={disableButton}
-          />
-        </FormikInputsForm>
-        <ProposalHidePopup
-          variant={variant}
-          onClose={() => setVariant(undefined)}
-          open={!!variant}
-          onSubmit={onPopupSubmit}
+    <StyledContainer alignItems="flex-start">
+      <FormikInputsForm<ProposalFormType>
+        formik={formik}
+        form={form}
+        customInputHandler={customInputHandler}
+      >
+        <CreateProposalButton
+          submitText={submitText}
+          isLoading={isLoading || daoState?.fwdMsgFee === undefined}
+          onSubmit={onSubmitClick}
+          disabled={disableButton}
         />
-      </StyledContainer>
-    </Fade>
+      </FormikInputsForm>
+      <ProposalHidePopup
+        variant={variant}
+        onClose={() => setVariant(undefined)}
+        open={!!variant}
+        onSubmit={onPopupSubmit}
+      />
+    </StyledContainer>
   );
 }
 
 const StyledContainer = styled(StyledFlexRow)({
-  flex: 1,
+  gap: 0,
   ".date-input": {
     ".MuiFormControl-root": {
       width: "100%",
@@ -138,7 +143,7 @@ function CreateProposalButton({
   onSubmit,
   isLoading,
   submitText,
-  disabled
+  disabled,
 }: {
   onSubmit?: () => void;
   isLoading: boolean;
@@ -146,8 +151,22 @@ function CreateProposalButton({
   disabled?: boolean;
 }) {
   const address = useTonAddress();
+
+  if (Webapp.isEnabled) {
+    return (
+      <WebappButton
+        text={submitText}
+        onClick={() => onSubmit?.()}
+        progress={isLoading}
+        disabled={disabled}
+      />
+    );
+  }
+
   return (
-    <AppTooltip text={disabled ? 'You need to change at least 1 input to proceed.' : ''}>
+    <AppTooltip
+      text={disabled ? "You need to change at least 1 input to proceed." : ""}
+    >
       <StyledSubmit>
         {!address ? (
           <StyledConnect />

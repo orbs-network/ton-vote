@@ -1,11 +1,24 @@
 import { Box, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { ConnectButton } from "components";
+import { Button, ConnectButton } from "components";
 import React from "react";
 import { StyledFlexRow } from "styles";
+import { Webapp, WebappButton } from "WebApp";
 
-export function Submit({ children }: { children: React.ReactNode }) {
+export function Submit({
+  text,
+  isLoading,
+  onClick,
+}: {
+  text: string;
+  isLoading?: boolean;
+  onClick: () => void;
+}) {
   const address = useTonAddress();
+
+  if (Webapp.isEnabled) {
+    return <WebappButton text={text} progress={isLoading} onClick={onClick} />;
+  }
 
   if (!address) {
     return (
@@ -14,7 +27,9 @@ export function Submit({ children }: { children: React.ReactNode }) {
       </StyledContainer>
     );
   }
-  return <StyledContainer>{children}</StyledContainer>;
+  return <StyledContainer>
+    <Button onClick={onClick} isLoading={isLoading}>{text}</Button>
+  </StyledContainer>;
 }
 
 export const StyledContainer = styled(StyledFlexRow)({

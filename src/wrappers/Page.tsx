@@ -1,39 +1,74 @@
-import { Fade, styled } from "@mui/material";
-import { Back } from "components";
-import { useEffect } from "react";
+import { styled, Typography } from "@mui/material";
+import { Back, ErrorContainer } from "components";
+import { MOBILE_WIDTH } from "consts";
+import { ReactNode, useEffect } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { PageProps } from "types";
+import { Webapp } from "WebApp";
 
 function Page({
   children,
   className = "",
-  back,
-  headerComponent,
-  hideBack = false,
-  backFunc,
-}: PageProps) {
-
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   useEffect(() => {
-    window.scrollTo(0,0)
-  }, [])
-  
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <StyledContainer className={className}>
-      {!hideBack && (
-        <StyledTop justifyContent="space-between">
-          <Back func={backFunc} to={back} />
-          {headerComponent}
-        </StyledTop>
-      )}
       {children}
+      {Webapp.isEnabled && <StyledTWAShadow />}
     </StyledContainer>
   );
 }
 
-export { Page };
+const PageError = ({
+  text = "Something went wrong",
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) => {
+  return <ErrorContainer text={text} className={className} />;
+};
 
-const StyledTop = styled(StyledFlexRow)({
-  marginBottom: 15,
+
+
+
+const PageHeader = ({
+  children,
+  className = "",
+}: {
+  children?: ReactNode;
+  className?: string;
+}) => {
+  return (
+    <StyledHeader justifyContent="flex-start" className={className}>
+      {children}
+    </StyledHeader>
+  );
+};
+
+const Title = ({ title }: { title: string }) => {
+  return <StyledTitle>{title}</StyledTitle>;
+};
+Page.Title = Title;
+Page.Header = PageHeader;
+Page.Error = PageError;
+
+const StyledHeader = styled(StyledFlexRow)({
+  marginBottom: Webapp.isEnabled ? 10 : 20,
+});
+
+const StyledTitle = styled(Typography)({
+  fontWeight: 700,
+  fontSize: 22,
+  paddingLeft: 0,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 18,
+  },
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
@@ -43,4 +78,20 @@ const StyledContainer = styled(StyledFlexColumn)({
   justifyContent: "flex-start",
   alignItems: "flex-start",
   gap: 0,
+  paddingBottom: 100,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {},
 });
+
+const StyledTWAShadow = styled("div")(({ theme }) => ({
+  position: "fixed",
+  bottom: 0,
+  left: 0,
+  width: "100%",
+  height: 2,
+  zIndex: 10,
+  background:
+    theme.palette.mode === "dark" ? "rgba(255,255,255, 0.2)" : "#e0e0e0",
+}));
+
+
+export { Page };

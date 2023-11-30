@@ -1,7 +1,6 @@
 import * as React from "react";
 import Tooltip from "@mui/material/Tooltip";
 import { styled, Typography } from "@mui/material";
-import { Box } from "@mui/system";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { StyledFlexRow } from "styles";
 import { Markdown } from "./Markdown";
@@ -21,6 +20,7 @@ export function AppTooltip({
   markdown?: string;
   placement?: TooltipPlacement;
 }) {
+  const [open, setOpen] = React.useState(false)
   if (!text && !markdown) {
     return <>{children}</>;
   }
@@ -28,6 +28,7 @@ export function AppTooltip({
     <StyledTooltip
       arrow={true}
       placement={placement}
+      onClick={() => setOpen(true)}
       title={
         markdown ? (
           <StyledMarkdown>{markdown}</StyledMarkdown>

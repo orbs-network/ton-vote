@@ -1,21 +1,21 @@
-import { GlobalStyles, ThemeProvider } from "@mui/material";
+import { GlobalStyles, styled, ThemeProvider } from "@mui/material";
 import { APP_NAME } from "config";
 import { useAppSettings } from "hooks/hooks";
 import { Suspense, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { RouterProvider } from "react-router-dom";
-import { getGlobalStyles } from "styles";
-import { useRouter } from "router/router";
+import { getGlobalStyles, StyledFlexColumn } from "styles";
 import "styles";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
+import { useWalletListener } from "analytics";
+import { Webapp } from "WebApp";
+import { router } from "router";
+
+Webapp.init();
 
 const useInitApp = () => {
   useInitThemeMode();
-};
-
-function App() {
-  useInitApp();
-
+  useWalletListener();
   useEffect(() => {
     const loader = document.querySelector(".app-loader");
     if (loader) {
@@ -26,16 +26,24 @@ function App() {
     }
   }, []);
 
-  const { isDarkMode } = useAppSettings();
-  const router = useRouter();
+  useEffect(() => {
+    if (Webapp.redirectUrl) {
+      window.location.href = Webapp.redirectUrl;
+    }
+  }, []);
+};
 
-  const theme = useMemo(
-    () => (isDarkMode ? darkTheme : lightTheme),
-    [isDarkMode]
-  );
+const useTheme = () => {
+  const { isDarkMode } = useAppSettings();
+  return useMemo(() => (isDarkMode ? darkTheme : lightTheme), [isDarkMode]);
+};
+
+function App() {
+  useInitApp();
+  const theme = useTheme();
 
   return (
-    <>
+    <StyledApp>
       <Helmet>
         <title>{APP_NAME}</title>
       </Helmet>
@@ -45,8 +53,12 @@ function App() {
           <RouterProvider router={router} />
         </Suspense>
       </ThemeProvider>
-    </>
+    </StyledApp>
   );
 }
 
 export default App;
+
+const StyledApp = styled(StyledFlexColumn)({
+  minHeight: "100dvh",
+});

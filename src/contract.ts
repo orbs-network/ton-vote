@@ -64,7 +64,7 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
       let operatingValidatorsInfo = {};
 
       if (proposalType === VotingPowerStrategyType.TonBalanceWithValidators) {
-        operatingValidatorsInfo = await api.geOperatingValidatorsInfo(
+        operatingValidatorsInfo = await api.getOperatingValidatorsInfo(
           proposalAddress
         );
       }
@@ -85,14 +85,12 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
         metadata
       );
 
-      proposalResult.totalWeight = proposalResult.totalWeights;
-      const { totalWeights, ...rest } = proposalResult;
       const votes = TonVoteSDK.getAllVotes(transactions, metadata);
 
       return {
         votingPower,
-        proposalResult: rest as any,
-        votes: parseVotes(votes, votingPower),
+        proposalResult: proposalResult as any,
+        votes: parseVotes(metadata, votes, votingPower),
         metadata,
         maxLt: newMaxLt,
         rawVotes: votes,
@@ -161,7 +159,7 @@ const getProposalResultsAfterVote = async (
       votingPower,
       proposal.metadata?.votingSystem!
     ),
-    vote: parseVotes(rawVotes, votingPower)[0],
+    vote: parseVotes(metadata, rawVotes, votingPower)[0],
     maxLt,
   };
 };

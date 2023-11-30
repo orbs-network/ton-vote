@@ -21,6 +21,7 @@ import { useRegistryStateQuery } from "query/getters";
 import { isZeroAddress } from "utils";
 import { getBorderColor } from "theme";
 import { CheckboxInput } from "components";
+import { Webapp, WebappButton } from "WebApp";
 
 const useCreateDao = () => {
   const { rolesForm, metadataAddress, reset, createOnDev } = useCreatDaoStore();
@@ -53,6 +54,9 @@ export function CreateDaoStep() {
 
   const metadata = useDaoMetadataForm();
   const roles = useDaoRolesForm();
+
+  const _isLoading =
+    isLoading || registryState?.deployAndInitDaoFee === undefined;
 
   return (
     <TitleContainer title={translations.createSpace}>
@@ -92,16 +96,11 @@ export function CreateDaoStep() {
           value={createOnDev}
           onChange={(value) => setCreateOnDev(value)}
         />
-        <Submit>
-          <Button
-            isLoading={
-              isLoading || registryState?.deployAndInitDaoFee === undefined
-            }
-            onClick={createDao}
-          >
-            {commonTranslations.create}
-          </Button>
-        </Submit>
+        <Submit
+          text={commonTranslations.create}
+          onClick={createDao}
+          isLoading={_isLoading}
+        />
       </StyledFlexColumn>
     </TitleContainer>
   );

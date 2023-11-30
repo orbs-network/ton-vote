@@ -10,11 +10,17 @@ export function AddressDisplay({
   address,
   className = "",
   padding = 5,
+  full,
+  customUrl,
+  hideTooltip,
 }: {
   displayText?: string;
   address?: string;
   className?: string;
   padding?: number;
+  full?: boolean;
+  customUrl?: string;
+  hideTooltip?: boolean;
 }) {
   const [_, copy] = useCopyToClipboard();
   const theme = useTheme();
@@ -26,19 +32,28 @@ export function AddressDisplay({
 
   const onLinkClick = (e: any) => {
     e.stopPropagation();
-    window.open(getTonScanContractUrl(address || ""), "_blank");
+    window.open(customUrl || getTonScanContractUrl(address || ""), "_blank");
   };
+
+
+  const text = full
+    ? address
+    : displayText || makeElipsisAddress(address, padding);
 
   return (
     <StyledContainer className={className} justifyContent="flex-start">
       <StyledButton onClick={onLinkClick} className="address-display-btn">
         <OverflowWithTooltip
-          text={displayText || makeElipsisAddress(address, padding)}
+          hideTooltip={hideTooltip}
+          tooltipText={address}
+          text={text || '-'}
         />
       </StyledButton>
-      <StyledButton onClick={onCopy}>
-        <IoCopyOutline style={{ color: theme.palette.text.primary }} />
-      </StyledButton>
+      {address && (
+        <StyledButton onClick={onCopy}>
+          <IoCopyOutline style={{ color: theme.palette.text.primary }} />
+        </StyledButton>
+      )}
     </StyledContainer>
   );
 }

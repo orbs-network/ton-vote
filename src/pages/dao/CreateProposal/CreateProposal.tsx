@@ -15,6 +15,7 @@ export const CreateProposal = () => {
   const { daoAddress } = useAppParams();
 
   const { data: dao, isLoading: daoLoading } = useDaoQuery(daoAddress);
+  
   const { setFormData, formData } = useCreateProposalStore();
   const appNavigation = useAppNavigation();
   const { mutate: createProposal, isLoading } = useCreateProposalQuery();
@@ -22,8 +23,7 @@ export const CreateProposal = () => {
 
   const onSubmit = (formValues: ProposalFormType) => {
     const metadata = prepareMetadata(formValues);
-    console.log(metadata);
-    
+          
     createProposal({
       metadata,
       onSuccess: (proposalAddress: string) => {
@@ -36,7 +36,6 @@ export const CreateProposal = () => {
 
   return (
     <LayoutSection title="Create proposal" isLoading={daoLoading}>
-      
       <ProposalForm
         submitText="Create"
         initialFormData={formData}

@@ -1,20 +1,21 @@
 import { createTheme, Theme } from "@mui/material";
 import { useAppSettings } from "hooks/hooks";
 import { useEffect } from "react";
-import { useSettingsStore } from "store";
+import { Webapp } from "WebApp";
+
 
 export const lightTheme = createTheme({
   palette: {
     mode: "light",
     background: {
       default: "#F8F9FB",
-      paper: "white",
+      paper: "#ffffff",
     },
     error: {
       main: "#d32f2f",
     },
     primary: {
-      main: "#0088CC",
+      main: "#0098ea",
     },
     text: {
       primary: "rgb(114, 138, 150)",
@@ -57,7 +58,10 @@ export const darkTheme = createTheme({
       main: "#d32f2f",
     },
     primary: {
-      main: "#0088CC",
+      main: "#0098ea",
+    },
+    secondary: {
+      main: "#2B303B",
     },
     text: {
       primary: "rgba(255,255,255,0.8)",
@@ -101,7 +105,7 @@ export const useInitThemeMode = () => {
 
   useEffect(() => {
     if (themeMode) return;
-    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches || Webapp.isDarkMode;
     setThemeMode(isDark ? "dark" : "light");
   }, []);
 };

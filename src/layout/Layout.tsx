@@ -1,9 +1,8 @@
 import { Fade, styled } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
-import ScrollTop from "components/ScrollTop";
 import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
@@ -12,9 +11,15 @@ import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
-import { useAppQueryParams, useAppSettings } from "hooks/hooks";
+import {
+  useAppQueryParams,
+  useAppSettings,
+  useCurrentRoute,
+  useDevFeaturesMode,
+} from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { LatestBlock } from "components";
+import { Webapp, WebappConnectWalletButton } from "WebApp";
+import { DEV_ROUTES } from "config";
 
 const useIsBeta = () => {
   const {
@@ -29,29 +34,35 @@ const useIsBeta = () => {
   }, [dev, setBeta]);
 };
 
+ const useHandleDevRoutes = () => {
+  const route = useCurrentRoute();
+  const navigate = useNavigate();
+  const devMode = useDevFeaturesMode();
+
+  useEffect(() => {
+    if (route && DEV_ROUTES.includes(route) && !devMode) {
+      navigate("/");
+    }
+  }, [route, devMode]);
+};
+
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
-  
-
+  useHandleDevRoutes();
   return (
     <>
-      <Fade in={true} timeout={500}>
-        <StyledContainer>
-          <Toolbar />
-          <Navbar />
-          <ErrorBoundary
-            fallbackRender={(props) => <ErrorFallback {...props} />}
-          >
-            <StyledContent>
-              {children}
-              <Outlet />
-            </StyledContent>
-            <Footer />
-          </ErrorBoundary>
-        </StyledContainer>
-      </Fade>
-      <ScrollTop />
-      {/* <LatestBlock /> */}
+      <StyledContainer>
+        <WebappConnectWalletButton />
+        <Toolbar />
+        <Navbar />
+        <ErrorBoundary fallbackRender={(props) => <ErrorFallback {...props} />}>
+          <StyledContent>
+            {children}
+            <Outlet />
+          </StyledContent>
+          <Footer />
+        </ErrorBoundary>
+      </StyledContainer>
       <Toaster
         toastOptions={{
           className: "toast",
@@ -71,17 +82,17 @@ const Wrapped = ({ children }: { children?: ReactNode }) => {
 };
 
 const StyledContent = styled(StyledGrid)({
-  paddingTop: 100,
+  paddingTop: Webapp.isEnabled ? 20 : 90,
   flex: 1,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    paddingTop: 80,
+    paddingTop: Webapp.isEnabled ? 20 : 70,
   },
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
-  minHeight: "100vh",
   gap: 0,
   display: "flex",
+  flex:1
 });
 
 export default Wrapped;

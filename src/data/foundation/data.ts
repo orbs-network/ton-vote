@@ -7,23 +7,29 @@ export const LATEST_FOUNDATION_PROPOSAL_ADDRESS =
   "EQAiqphPtZ2jLyzqrcfVrhBZfarghWKpkt0fSfALsqRbofQ7";
 export const FOUNDATION_DAO_ADDRESS =
   "EQCb8dxevgHhBnsTodJKXaCrafplHzAHf1V2Adj0GVlhA5xI";
+
 export const FOUNDATION_PROPOSALS_ADDRESSES = [
   "EQAx5JjTHpQ_5EeWBAErl4_AWhh_JFBh2UvuTWAeqdbpC0C1",
   "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr",
   "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS",
 ];
 
-export const shouldHideVerify = (address: string) => {
-  return FOUNDATION_PROPOSALS_ADDRESSES.includes(address);
+const getRawVotes = (votes: any[]) => {
+  let res: any = {};
+
+  votes.forEach((it) => {
+    res[it.address] = it;
+  });
+
+  return res;
 };
 
 export const getFoundationProposals = async (): Promise<{
   [key: string]: Proposal;
 }> => {
-
-  const dora = await import('./dora.json')
-  const tokenomics = await import('./tokenomics.json')
-  const realTimeBurn = await import('./real-time-burn.json')
+  const dora = await import("./dora.json");
+  const tokenomics = await import("./tokenomics.json");
+  const realTimeBurn = await import("./real-time-burn.json");
 
   return {
     "EQD0b665oQ8R3OpEjKToOrqQ9a9B52UnlY-VDKk73pCccvLr": {
@@ -63,7 +69,7 @@ export const getFoundationProposals = async (): Promise<{
       url: "https://ton.vote",
       sumCoins: dora.proposalResult.sumCoins,
       sumVotes: dora.proposalResult.sumVotes,
-      rawVotes: {},
+      rawVotes: getRawVotes(dora.votes),
     },
     "EQCVy5bEWLQZrh5PYb1uP3FSO7xt4Kobyn4T9pGy2c5-i-GS": {
       daoAddress: FOUNDATION_DAO_ADDRESS,
@@ -86,7 +92,7 @@ export const getFoundationProposals = async (): Promise<{
         title: "Proposal of TON Tokenomics Optimization",
         description: TOKENOMICS_ABOUT,
       },
-      rawVotes: {},
+      rawVotes: getRawVotes(tokenomics.votes),
       votingPower: tokenomics.votingPower,
       votes: tokenomics.votes,
       proposalResult: tokenomics.proposalResults,
@@ -94,7 +100,7 @@ export const getFoundationProposals = async (): Promise<{
     },
     EQAx5JjTHpQ_5EeWBAErl4_AWhh_JFBh2UvuTWAeqdbpC0C1: {
       ...realTimeBurn,
-      rawVotes: {},
+      rawVotes: getRawVotes(realTimeBurn.votes),
     },
   };
 };

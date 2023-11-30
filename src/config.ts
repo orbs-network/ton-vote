@@ -4,7 +4,8 @@ import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
 export const APP_NAME = "TON VOTE";
-
+import { ENV, routes } from "consts";
+import { FOUNDATION_PROPOSALS_ADDRESSES } from "data/foundation/data";
 export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
@@ -38,6 +39,10 @@ export enum QueryKeys {
   CLIENTS = "CLIENTS",
   DAO_STATE = "DAO_STATE",
   REGISTRY_STATE = "REGISTRY_STATE",
+  READ_JETTON_WALLET_METADATA = "READ_JETTON_WALLET_METADATA",
+  READ_NFT_ITEM_METADATA = "READ_NFT_ITEM_METADATA",
+  WALLET_NFT_COLLECTION_ITEMS = "WALLET_NFT_COLLECTION_ITEMS",
+  GET_VERIFIED_DAOS_LIST = "GET_VERIFIED_DAOS_LIST",
 }
 
 export const LANGUAGES = { en: "English", ru: "Русский" };
@@ -152,11 +157,24 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
       },
     ],
   },
+  [VotingPowerStrategyType.ValidatorsVote]: {
+    name: "Validators",
+    args: [
+      {
+        type: "text",
+        label: "Hash",
+        tooltip: "",
+        required: true,
+        name: "validators-proposal-hash",
+      },
+    ],
+  },
 };
 
 export const STRATEGY_ARGUMENTS = [
   { name: "jetton", key: "jetton-address" },
   { name: "nft", key: "nft-address" },
+  { name: "validators-proposal-hash", key: "validators-proposal-hash" },
 ];
 
 export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
@@ -179,3 +197,12 @@ export const BLACKLISTED_DAOS = [
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
 ];
+
+
+
+export const HIDE_VERIFY_PROPOSALS = [
+  "EQAiqphPtZ2jLyzqrcfVrhBZfarghWKpkt0fSfALsqRbofQ7",
+  ...FOUNDATION_PROPOSALS_ADDRESSES
+];
+
+export const DEV_ROUTES = [routes.airdrop, routes.createSpace, routes.spaceSettings];

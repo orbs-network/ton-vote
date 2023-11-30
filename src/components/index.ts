@@ -14,7 +14,6 @@ export * from "./LoadMore";
 export * from "./FadeElement";
 export * from './Loader'
 export * from "./Img";
-export * from "./Select";
 export * from './SideMenu'
 export * from "./List";
 export * from "./Popup";
@@ -36,3 +35,7 @@ export * from "./OverflowWithTooltip";
 export * from "./VerifiedDao";
 export * from "./HiddenProposal";
 export * from "./LatestBlock";
+export * from "./StepsLayout";
+export * from "./Tabs";
+export * from "./VirtualList";
+export * from "./SelectedChip";
