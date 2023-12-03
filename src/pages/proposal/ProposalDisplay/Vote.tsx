@@ -14,6 +14,7 @@ import { errorToast } from "toasts";
 import _ from "lodash";
 import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
+import { MOBILE_WIDTH } from "consts";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
@@ -134,9 +135,10 @@ const StyledOption = styled(StyledFlexRow)<{
   width: "100%",
   borderRadius: 30,
   minHeight: 40,
-  padding:'10px 43px 10px 43px',
+  padding: "10px 43px 10px 43px",
   cursor: "pointer",
   position: "relative",
+
   ".icon": {
     position: "absolute",
     left: 15,
@@ -152,6 +154,18 @@ const StyledOption = styled(StyledFlexRow)<{
     color: "inherit",
     fontWeight: 600,
     fontSize: 16,
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    background: selected ? theme.palette.primary.main : "unset",
+    padding: '16px',
+    color: selected
+      ? "white"
+      : theme.palette.mode === "light"
+      ? theme.palette.primary.main
+      : "white",
+      svg: {
+        display:'none'
+      }
   },
 }));
 
