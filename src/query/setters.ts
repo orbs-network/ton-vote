@@ -489,6 +489,7 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
           walletAddress,
           proposal,
         });
+        
 
         if (!result || _.isEmpty(result)) {
           throw new Error("Empty results");

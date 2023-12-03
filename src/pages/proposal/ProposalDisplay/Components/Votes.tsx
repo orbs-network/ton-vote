@@ -9,7 +9,7 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { nFormatter, parseLanguage } from "utils";
+import { isEqualAddresses, nFormatter, parseLanguage } from "utils";
 import { PAGE_SIZE } from "config";
 import { Vote } from "types";
 import { useMemo, useState } from "react";
@@ -266,7 +266,10 @@ const VoteComponent = ({
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
-  const isYou = connectedAddress === address;
+  const isYou = useMemo(
+    () => isEqualAddresses(connectedAddress, address),
+    [connectedAddress, address]
+  );
 
   return (
     <StyledAppTooltip
