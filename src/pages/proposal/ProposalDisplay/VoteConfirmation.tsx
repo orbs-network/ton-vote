@@ -22,10 +22,8 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
 
-  const {
-    data: votingData,
-    isLoading: votingDataLoading,
-  } = useConnectedWalletVotingPowerQuery(data, proposalAddress);
+  const { data: votingData, isLoading: votingDataLoading } =
+    useConnectedWalletVotingPowerQuery(data, proposalAddress, !open);
 
   const votingPower = votingData?.votingPower;
   
@@ -113,6 +111,7 @@ const Row = ({
 };
 
 const StyledRow = styled(StyledFlexRow)({
+  alignItems:'flex-start',
   ".label": {
     fontWeight: 700,
   },

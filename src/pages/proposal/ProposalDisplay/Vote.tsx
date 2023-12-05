@@ -154,6 +154,7 @@ const StyledOption = styled(StyledFlexRow)<{
     color: "inherit",
     fontWeight: 600,
     fontSize: 16,
+    textAlign: "center",
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     background: selected ? theme.palette.primary.main : "unset",

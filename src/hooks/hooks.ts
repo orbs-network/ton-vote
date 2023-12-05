@@ -268,8 +268,8 @@ export const useProposalResults = (proposalAddress: string) => {
       proposal.metadata?.votingPowerStrategies
     );
 
-    return _.map(choices, (choice, key) => {
-      const result = getproposalResult(proposal, choice);
+    return _.map(choices, (choice, index) => {
+      const result = getproposalResult(proposal, choice.substring(0, 127));      
       const percent = result || 0;
 
       const amount = getProposalResultTonAmount(
@@ -282,7 +282,7 @@ export const useProposalResults = (proposalAddress: string) => {
       );
 
       return {
-        votesCount: getProposalResultVotes(proposal, choice),
+        votesCount: getProposalResultVotes(proposal, choice.substring(0, 127)),
         choice,
         percent,
         amount: isOneWalletOneVote ? undefined : `${amount} ${symbol}`,

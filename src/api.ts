@@ -27,12 +27,9 @@ const getAllNftHolders = async (
 ): Promise<{ [key: string]: string[] }> => {
   const promise = async (bail: any, attempt: number) => {
     try {
-      const res = await axiosInstance.get(
-        `/proposalNftHolders/${proposalAddress}`,
-        {
-          signal,
-        }
-      );
+      const res = await axiosInstance.get(`/nftHolders/${proposalAddress}`, {
+        signal,
+      });
 
       if (_.isEmpty(res.data)) {
         throw new Error("getAllNftHolders not found in server");

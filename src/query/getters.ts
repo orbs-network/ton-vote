@@ -266,7 +266,8 @@ export const useGetClients = () => {
 
 export const useConnectedWalletVotingPowerQuery = (
   proposal?: Proposal | null,
-  proposalAddress?: string
+  proposalAddress?: string,
+  disabled?: boolean
 ) => {
   const connectedWallet = useTonAddress();
   const clients = useGetClients().data;
@@ -309,7 +310,8 @@ export const useConnectedWalletVotingPowerQuery = (
       };
     },
     {
-      enabled: !!connectedWallet && !!proposal && !!proposalAddress,
+      enabled:
+        !!connectedWallet && !!proposal && !!proposalAddress && !disabled,
       staleTime: Infinity,
     }
   );
