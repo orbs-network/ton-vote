@@ -73,6 +73,7 @@ interface TextInputProps {
   disabled?: boolean;
   isMarkdown?: boolean;
   defaultValue?: any;
+  hideRequired?: boolean;
 }
 
 export function TextInput({
@@ -95,6 +96,7 @@ export function TextInput({
   disabled,
   isMarkdown,
   defaultValue,
+  hideRequired,
 }: TextInputProps) {
   const translations = useCommonTranslations();
   const [preview, setPreview] = useState(false);
@@ -102,7 +104,7 @@ export function TextInput({
   const _onChange = (_value: string) => {
     if (!limit) {
       onChange(_value);
-    } else if (_.size(value.toString()) <= limit) {
+    } else if (_.size(value.toString()) < limit) {
       onChange(_value);
     } else if (_.size(_value) < _.size(value.toString())) {
       onChange(_value);
@@ -115,6 +117,7 @@ export function TextInput({
         value={value.toString()}
         limit={limit}
         title={title}
+        hideRequired={hideRequired}
         required={required}
         tooltip={tooltip}
       />
@@ -186,12 +189,14 @@ export const InputHeader = ({
   limit,
   required,
   value,
+  hideRequired,
 }: {
   title?: string;
   tooltip?: string;
   limit?: number;
   required?: boolean;
   value?: string;
+  hideRequired?: boolean;
 }) => {
   const charsAmount = _.size(value || "");
 
@@ -199,7 +204,7 @@ export const InputHeader = ({
   return (
     <StyledInputHeader>
       <StyledFlexRow justifyContent="flex-start" width="auto">
-        <Title title={title} required={required} />
+        <Title hideRequired={hideRequired} title={title} required={required} />
         {tooltip && <AppTooltip placement="right" info markdown={tooltip} />}
       </StyledFlexRow>
 
@@ -253,17 +258,21 @@ const Title = ({
   title,
   required,
   className,
+  hideRequired,
 }: {
   title: string;
   required?: boolean;
   className?: string;
+  hideRequired?: boolean;
 }) => {
   return (
     <StyledTitle className={`input-title ${className}`}>
       <Markdown className="md">{title}</Markdown>
-      <small className="input-title-required" style={{ fontSize: 14 }}>
-        {required ? " (required)" : " (optional)"}
-      </small>
+      {!hideRequired && (
+        <small className="input-title-required" style={{ fontSize: 14 }}>
+          {required ? " (required)" : " (optional)"}
+        </small>
+      )}
     </StyledTitle>
   );
 };
@@ -413,6 +422,7 @@ export function MapInput<T>({
   if (args.type === "list") {
     return (
       <ListInputs
+        limit={args.limit}
         title={label}
         onChange={onChange}
         values={(value as string[]) || [""]}
@@ -498,6 +508,7 @@ interface ListProps {
   tooltip?: string;
   placeholder?: string;
   max?: number;
+  limit?: number;
 }
 
 export const ListInputs = ({
@@ -509,6 +520,7 @@ export const ListInputs = ({
   tooltip,
   placeholder = "",
   max = 7,
+  limit,
 }: ListProps) => {
   const onInputChange = (index: number, _value: string) => {
     const newValue = values.map((it, _index) => {
@@ -541,6 +553,9 @@ export const ListInputs = ({
               <StyledFlexRow justifyContent="flex-start" key={index}>
                 <StyledListTextInput disabled={disabled ? 1 : 0}>
                   <TextInput
+                  hideRequired={true}
+                    title={`option ${index + 1}`}
+                    limit={limit}
                     placeholder={placeholder}
                     endAdornment={
                       !disabled &&

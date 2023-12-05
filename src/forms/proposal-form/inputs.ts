@@ -62,6 +62,7 @@ export const useCreateProposalForm = (
           name: "votingChoices",
           required: true,
           tooltip: translations.tooltips.votingChoices,
+          limit: 64
         },
       ],
     };
