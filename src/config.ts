@@ -175,6 +175,7 @@ export const RETRY_DELAY = 1000;
 
 export const BLACKLISTED_DAOS = [
   "EQAQiTI1QkaCpIYAqdEO4mRTIzACq7WNlhNzt2voUnE4qxKy",
+  "EQBndiSBQjwz3Jx69iz3wopRobVWMTHsex4EW2RFqn-XiBbL",
 ];
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
