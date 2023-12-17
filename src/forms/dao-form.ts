@@ -129,7 +129,7 @@ export const useDaoMetadataSchema = () => {
         return value.startsWith("https://");
       })
       .test("", createDaoTranslations.errors.logoURL2, (value) => {
-        return IS_DEV ? true :  value.endsWith(".png");
+        return IS_DEV ? true : value.endsWith(".png") || value.endsWith(".jpg");
       }),
 
     dns: Yup.string()

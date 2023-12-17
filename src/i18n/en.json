@@ -99,7 +99,7 @@
     },
     "errors": {
       "logoURL1": "Logo URL must be https",
-      "logoURL2": "Logo URL must be png format",
+      "logoURL2": "Logo URL must be png or jpg format",
       "tonDNS": "TON DNS must end with .ton",
       "github": "Invalid Github URL",
       "telegram": "Telegram group should start with https://t.me",
