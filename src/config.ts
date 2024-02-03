@@ -78,6 +78,7 @@ export const VERIFIED_DAOS = [
   "EQCWwLjY-EvuyLY-b8IzeLQdSsY6pOBczwNAK1DBZ8oUStOn",
   "EQBRYj_HUAQ_ALMxqEcJ3cNsfp1fdtxjixOlANSVm6l5_3K8",
   "EQAdSeBuh5M3W5fg4-Yh6TX9p4CELLRpFHp43vUQYajPXQg_",
+  "EQBEC1-B3e-CqFqBWrkPM-sIT9tsN1rarIPpg3E-LPecB5SC",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING
@@ -179,6 +180,7 @@ export const RETRY_DELAY = 1000;
 export const BLACKLISTED_DAOS = [
   "EQAQiTI1QkaCpIYAqdEO4mRTIzACq7WNlhNzt2voUnE4qxKy",
   "EQBndiSBQjwz3Jx69iz3wopRobVWMTHsex4EW2RFqn-XiBbL",
+  "EQBA4-38O2z4KYhh0H2543cn7VnomsdVq2h7KBnhQvwqRf9R",
 ];
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
