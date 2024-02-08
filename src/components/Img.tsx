@@ -24,6 +24,7 @@ export function Img({
         <>
           <Fade in={!isLoading}>
             <StyledImg
+            referrerPolicy='no-referrer'
               onError={() => setError(true)}
               src={src}
               onLoad={() => setIsLoading(false)}
