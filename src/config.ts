@@ -182,6 +182,7 @@ export const BLACKLISTED_DAOS = [
   "EQAQiTI1QkaCpIYAqdEO4mRTIzACq7WNlhNzt2voUnE4qxKy",
   "EQBndiSBQjwz3Jx69iz3wopRobVWMTHsex4EW2RFqn-XiBbL",
   "EQBA4-38O2z4KYhh0H2543cn7VnomsdVq2h7KBnhQvwqRf9R",
+  "EQArg7OZrwgcjIcEbIBZeX_P_Dh2hVTZwaDumvK615_HG--r"
 ];
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
