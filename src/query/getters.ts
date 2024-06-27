@@ -233,7 +233,7 @@ export const useDaoQuery = (daoAddress: string) => {
       );
 
       if (daoAddress === FOUNDATION_DAO_ADDRESS) {        
-        daoProposals = [...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES];
+        daoProposals = _.uniq([...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES]);
       }
       return {
         ...dao,
