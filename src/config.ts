@@ -86,7 +86,8 @@ export const VERIFIED_DAOS = [
   "EQAk1OALwQY5zG7ugmio1gLJWvuyVCAIPJ-hztv2XOEmbdic",
   "EQC1CPNQ9rTQ8S7hHMIgMYLYWFha_PgKeeueRf6NuCqWaXpS",
   "EQB7PgREXjf7OX9snt5a2ZBbCAPV-7jZoLmmEw4GZ38J8Qbs",
-  "EQBjc5x7yY4XaB4br1n2fOfw3XwrNN5IckvkQHb4vTH8YgTv"
+  "EQBjc5x7yY4XaB4br1n2fOfw3XwrNN5IckvkQHb4vTH8YgTv",
+  "EQAjfm4fGAL1dTQjdSPcIEe3IeI_3UCUeVanUmrqlW6kGktj"
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING

@@ -32,6 +32,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     : votingPower && Number(votingPower) === 0
     ? true
     : false;
+console.log(data?.metadata);
 
   return (
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
