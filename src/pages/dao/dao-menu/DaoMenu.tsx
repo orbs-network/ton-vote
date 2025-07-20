@@ -257,13 +257,7 @@ const useNavigationLinks = () => {
       hide: !isOwner && !isProposalPublisher,
       route: routes.createProposal,
     },
-    {
-      title: translations.settings,
-      path: appNavigation.daoPage.settings(daoAddress),
-      selected: route === routes.spaceSettings,
-      route: routes.spaceSettings,
-      hide: !showDev,
-    },
+  
   ];
 };
 

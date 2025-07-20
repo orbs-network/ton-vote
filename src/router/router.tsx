@@ -75,17 +75,7 @@ export const useRouter = () => {
                     </Suspense>
                   ),
                 },
-                {
-                  path: routes.spaceSettings,
-                  errorElement: <Navigate to={routes.spaces} />,
-                  element: devFeatures ? (
-                    <Suspense fallback={<PageFallback />}>
-                      <DaoSettings />
-                    </Suspense>
-                  ) : (
-                    <Navigate to={routes.space} />
-                  ),
-                },
+
                 {
                   path: routes.spaceAbout,
                   errorElement: <Navigate to={routes.spaces} />,
@@ -113,17 +103,6 @@ export const useRouter = () => {
                     <Suspense fallback={<PageFallback />}>
                       <ProposalDisplay />
                     </Suspense>
-                  ),
-                },
-                {
-                  path: routes.editProposal,
-                  errorElement: <Navigate to={routes.spaces} />,
-                  element: devFeatures ? (
-                    <Suspense fallback={<PageFallback />}>
-                      <EditProposal />
-                    </Suspense>
-                  ) : (
-                    <Navigate to={routes.proposal} />
                   ),
                 },
               ],

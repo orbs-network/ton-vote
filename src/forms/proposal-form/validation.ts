@@ -73,7 +73,7 @@ export const useFormSchema = () => {
       .required(translations.errors.isRequired(translations.startTime))
       .test("", translations.errors.startTime1, (value = 0) => {   
              
-        return moment().isBefore(utcMoment(value));
+        return moment().add(1, "hours").isBefore(utcMoment(value));
       })
       .test("", translations.errors.startTime2, (value = 0) => {
         return moment(value).isBefore(moment().add("10", "days"));

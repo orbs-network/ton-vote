@@ -82,6 +82,7 @@ export const useCreateProposalForm = (
           name: "proposalStartTime",
           required: true,
           tooltip: translations.tooltips.startTime,
+          min: moment().add(1, "hours").valueOf(),
         },
         {
           label: translations.endTime,

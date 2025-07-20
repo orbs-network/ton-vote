@@ -172,7 +172,7 @@
       "aboutLength": "About must be less than or equal to {{value}} characters",
       "invalidJettonAddress": "Invalid jetton address",
       "invalidNFTAddress": "Invalid NFT address",
-      "startTime1": "Proposal start time must be greater than current time",
+      "startTime1": "Proposal start time must be at least 1 hour from now",
       "startTime2": "Proposal start time can be up to 10 days in the future",
       "endTime1": "Proposal end time must be greater than proposal start time",
       "endTime2": "Proposal end time must be at least 1 day after proposal start time",

@@ -111,7 +111,6 @@ export function ProposalDisplay() {
   return (
     <Page
       back={appNavigation.daoPage.root(daoAddress)}
-      headerComponent={!isMock && <EditButton />}
     >
       {errorContainer ? (
         <ErrorContainer text="Proposal not found" />
