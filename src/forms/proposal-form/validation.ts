@@ -71,8 +71,7 @@ export const useFormSchema = () => {
       ),
     proposalStartTime: Yup.number()
       .required(translations.errors.isRequired(translations.startTime))
-      .test("", translations.errors.startTime1, (value = 0) => {   
-             
+      .test("", translations.errors.startTime1, (value = 0) => {
         return moment().add(1, "hours").isBefore(utcMoment(value));
       })
       .test("", translations.errors.startTime2, (value = 0) => {
@@ -102,8 +101,10 @@ export const useFormSchema = () => {
 
     proposalSnapshotTime: Yup.number()
 
-      .test("", translations.errors.snapshotTime1, (value = 0) => {
-        return utcMoment().isAfter(moment(value));
+      .test("", translations.errors.snapshotTime1, (value = 0, all) => {
+        console.log(moment().format("YYYY-MM-DD HH:mm:ss"), moment(value).format("YYYY-MM-DD HH:mm:ss"));
+        
+        return utcMoment().isAfter(utcMoment(value));
       })
       .required(translations.errors.isRequired(translations.snaphotTime)),
   });
