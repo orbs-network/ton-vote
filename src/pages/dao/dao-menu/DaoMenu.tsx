@@ -266,6 +266,14 @@ const options = [
   { name: "telegram", title: "Telegram group" },
   { name: "github", title: "GitHub" },
 ];
+
+
+const modifier = (name: string, daoAddress: string) => {
+  if(name === 'telegram' && daoAddress === 'EQA2WkAM02R7skB85kNnmT8nD1NX_a7eypbbXNsehmJCnaaC') {
+    return 'https://t.me/stickstrategy'
+  }
+};
+
 const useDaoSocials = () => {
   const { daoAddress } = useAppParams();
 
@@ -276,7 +284,7 @@ const useDaoSocials = () => {
       .map((option) => {
         const metadata = data?.daoMetadata?.metadataArgs as any;
         if (!metadata) return null;
-        const value = metadata[option.name];
+        const value = modifier(option.name, daoAddress) || metadata[option.name];
         if (!value) return null;
         return {
           title: option.title,
