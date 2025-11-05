@@ -284,14 +284,24 @@ export const useConnectedWalletVotingPowerQuery = (
       const strategy = getVoteStrategyType(
         proposal?.metadata?.votingPowerStrategies
       );
-
-      const result = await getSingleVoterPower(
+      let result = '0';
+      result = await getSingleVoterPower(
         clients!.clientV4,
         connectedWallet!,
         proposal?.metadata!,
         strategy,
         allNftHolders
       );
+
+      if(result === '0' || !result) {
+        result = await getSingleVoterPower(
+          await getClientV4('https://mainnet-v4.tonhubapi.com'),
+          connectedWallet!,
+          proposal?.metadata!,
+          strategy,
+          allNftHolders
+        );
+      }
 
       const symbol = getProposalSymbol(
         proposal?.metadata?.votingPowerStrategies
