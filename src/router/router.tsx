@@ -47,7 +47,6 @@ export const useRouter = () => {
                 </Suspense>
               ),
             },
-
             {
               path: routes.space,
               errorElement: <Navigate to={routes.spaces} />,
