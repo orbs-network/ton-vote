@@ -10,7 +10,7 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { nFormatter, parseLanguage } from "utils";
+import { isSameAddress, nFormatter, parseLanguage } from "utils";
 import { PAGE_SIZE } from "config";
 import { Vote } from "types";
 import { fromNano } from "ton";
@@ -133,7 +133,10 @@ export function Votes() {
         <StyledList gap={0}>
           <ConnectedWalletVote />
           {data?.votes?.map((vote, index) => {
-            if (index >= votesShowAmount || vote.address === connectedAddress)
+            if (
+              index >= votesShowAmount ||
+              isSameAddress(vote.address, connectedAddress)
+            )
               return null;
             return (
               <VoteComponent
@@ -209,7 +212,7 @@ const VoteComponent = ({
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
-  const isYou = connectedAddress === address;
+  const isYou = isSameAddress(connectedAddress, address);
 
   return (
     <StyledAppTooltip

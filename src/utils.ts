@@ -181,6 +181,26 @@ export const validateAddress = (value?: string) => {
   }
 };
 
+export const normalizeTonAddress = (address?: string | null) => {
+  if (!address) return "";
+
+  try {
+    return Address.parse(address).toRawString();
+  } catch (error) {
+    return address.trim();
+  }
+};
+
+export const isSameAddress = (
+  addressA?: string | null,
+  addressB?: string | null
+) => {
+  const normalizedA = normalizeTonAddress(addressA);
+  const normalizedB = normalizeTonAddress(addressB);
+
+  return !!normalizedA && !!normalizedB && normalizedA === normalizedB;
+};
+
 export async function validateFormik(formik: FormikProps<any>) {
   let value = "";
   await formik.validateForm().then((errors) => {

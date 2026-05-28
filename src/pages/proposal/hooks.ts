@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import _ from "lodash";
-import { Logger } from "utils";
+import { isSameAddress, Logger } from "utils";
 import { useEnpointsStore } from "./store";
 import { getClientV2, getClientV4 } from "ton-vote-contracts-sdk";
 import { Endpoints, Proposal, ProposalResults, Vote } from "types";
@@ -103,7 +103,7 @@ export const useVerifyProposalResults = () => {
 export const useWalletVote = (votes?: Vote[], dataUpdatedAt?: number) => {
   const walletAddress = useTonAddress();
   return useMemo(() => {
-    return _.find(votes, (it) => it.address === walletAddress);
+    return _.find(votes, (it) => isSameAddress(it.address, walletAddress));
   }, [dataUpdatedAt, walletAddress]);
 };
 

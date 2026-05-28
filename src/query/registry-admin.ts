@@ -13,7 +13,7 @@ import {
   setNewDaoFwdMsgFee,
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
-import { validateAddress } from "utils";
+import { isSameAddress, validateAddress } from "utils";
 import { useRegistryStateQuery } from "./getters";
 
 const useRegistryAdminPromise = () => {
@@ -22,7 +22,7 @@ const useRegistryAdminPromise = () => {
 
   return async <T>(method: () => T) => {
     const state = data || (await refetch()).data;
-    if (state?.admin !== address) {
+    if (!isSameAddress(state?.admin, address)) {
       throw new Error("You are not the registry admin");
     }
     return method();

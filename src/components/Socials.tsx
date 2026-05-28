@@ -39,11 +39,11 @@ export function Socials({
         url={whitepaper}
         icon={<IoNewspaperOutline size={20} />}
       />
-      <Social
+      {/* <Social
         tooltip="About"
         url={about}
         icon={<BsInfoCircleFill size={20} />}
-      />
+      /> */}
     </StyledContainer>
   );
 }

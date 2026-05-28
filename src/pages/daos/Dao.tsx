@@ -17,6 +17,7 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
 import {
   getIsVerifiedDao,
+  isSameAddress,
   makeElipsisAddress,
   parseLanguage,
 } from "utils";
@@ -46,8 +47,8 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const theme = useTheme();
 
   const isOwner =
-    dao.daoRoles.owner === walletAddress ||
-    dao.daoRoles.proposalOwner === walletAddress;
+    isSameAddress(dao.daoRoles.owner, walletAddress) ||
+    isSameAddress(dao.daoRoles.proposalOwner, walletAddress);
 
   if (metadataArgs.hide && !isOwner) return null;
 

@@ -15,7 +15,13 @@ import {
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { Dao, Proposal } from "types";
-import { getVoteStrategyType, isNftProposal, Logger, parseVotes } from "utils";
+import {
+  getVoteStrategyType,
+  isNftProposal,
+  isSameAddress,
+  Logger,
+  parseVotes,
+} from "utils";
 import retry from "async-retry";
 import { CONTRACT_RETRIES } from "config";
 import { api } from "api";
@@ -130,7 +136,7 @@ const getProposalResultsAfterVote = async (
   );
 
   const userTx = _.find(allTxns, (tx) => {
-    return tx.inMessage?.info.src?.toString() === walletAddress;
+    return isSameAddress(tx.inMessage?.info.src?.toString(), walletAddress);
   });
 
   if (!userTx || !metadata) return;
