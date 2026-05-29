@@ -201,6 +201,27 @@ export const isSameAddress = (
   return !!normalizedA && !!normalizedB && normalizedA === normalizedB;
 };
 
+export const normalizeVoteChoice = (vote?: string | string[]) => {
+  if (_.isArray(vote)) {
+    return vote
+      .map((it) => it.trim().toLowerCase())
+      .sort()
+      .join("|");
+  }
+
+  return vote?.trim().toLowerCase() || "";
+};
+
+export const isSameVoteChoice = (
+  voteA?: string | string[],
+  voteB?: string | string[]
+) => {
+  const normalizedA = normalizeVoteChoice(voteA);
+  const normalizedB = normalizeVoteChoice(voteB);
+
+  return !!normalizedA && normalizedA === normalizedB;
+};
+
 export async function validateFormik(formik: FormikProps<any>) {
   let value = "";
   await formik.validateForm().then((errors) => {

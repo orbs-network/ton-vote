@@ -33,7 +33,6 @@ import { useProposalQuery } from "query/getters";
 const ContainerHeader = () => {
   const { proposalAddress } = useAppParams();
   const { data } = useProposalQuery(proposalAddress);
-  console.log({ data });
   
   const totalTonAmount =
     data?.proposalResult?.totalWeight ||

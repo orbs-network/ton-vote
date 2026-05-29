@@ -32,7 +32,6 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
     : votingPower && Number(votingPower) === 0
     ? true
     : false;
-console.log(data?.metadata);
 
   return (
     <StyledPopup title={translations.castVote} open={open} onClose={onClose}>
@@ -42,7 +41,7 @@ console.log(data?.metadata);
           {data?.metadata?.mcSnapshotBlock && (
             <Row
               label={translations.snapshot}
-              value={<NumberDisplay value={data?.metadata?.mcSnapshotBlock} />}
+              value={data?.metadata?.mcSnapshotBlock}
             />
           )}
           <Row
@@ -54,7 +53,7 @@ console.log(data?.metadata);
         {!votingDataLoading && NoVotingPower && (
           <InfoMessage
             message={translations.notEnoughVotingPower(
-              data?.metadata?.mcSnapshotBlock.toLocaleString() || ""
+              data?.metadata?.mcSnapshotBlock?.toString() || ""
             )}
           />
         )}

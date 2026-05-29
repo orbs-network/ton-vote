@@ -5,7 +5,6 @@ import { useGetSender } from "hooks/hooks";
 import _ from "lodash";
 import { showSuccessToast, useErrorToast } from "toasts";
 import {
-  getClientV2,
   newRegistry,
   ReleaseMode,
   setDeployAndInitDaoFee,
@@ -15,6 +14,7 @@ import {
 } from "ton-vote-contracts-sdk";
 import { isSameAddress, validateAddress } from "utils";
 import { useRegistryStateQuery } from "./getters";
+import { getConfiguredClientV2 } from "rpc";
 
 const useRegistryAdminPromise = () => {
   const { refetch, data } = useRegistryStateQuery();
@@ -52,7 +52,7 @@ const useSetDaoFwdMsgFee = () => {
         if (amount < 0) {
           throw new Error("Forward Message Fee must be at least 0");
         }
-        const client = await getClientV2();
+        const client = await getConfiguredClientV2();
         return setFwdMsgFee(
           getSender(),
           client,
@@ -84,7 +84,7 @@ const useSetFwdFeeForNewDaos = () => {
     async (fee: string) => {
       const promise = async () => {
         const sender = getSender();
-        const clientV2 = await getClientV2();
+        const clientV2 = await getConfiguredClientV2();
 
         return setNewDaoFwdMsgFee(
           sender,
@@ -127,7 +127,7 @@ const useSetRegistryAdmin = () => {
         if (!newRegistryAdmin || !validateAddress(newRegistryAdmin)) {
           throw new Error("Invalid register admin address");
         }
-        const client = await getClientV2();
+        const client = await getConfiguredClientV2();
 
         return setRegistryAdmin(
           getSender(),
@@ -162,7 +162,7 @@ const useSetCreateDaoFee = () => {
         if (!_.isNumber(value) || value < 0) {
           throw new Error("Fee must be zero or positive");
         }
-        const client = await getClientV2();
+        const client = await getConfiguredClientV2();
         return setDeployAndInitDaoFee(
           getSender(),
           client,
@@ -199,7 +199,7 @@ const useCreateNewRegistry = () => {
           throw new Error("Invalid release mode");
         }
 
-        const clientV2 = await getClientV2();
+        const clientV2 = await getConfiguredClientV2();
         const sender = getSender();
         return newRegistry(
           sender,

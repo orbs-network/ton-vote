@@ -190,6 +190,60 @@ export const useVotePersistedStore = create(
   )
 );
 
+type VotingPowerByWallet = { [walletAddress: string]: string | undefined };
+type VotingPowerByProposal = {
+  [proposalAddress: string]: VotingPowerByWallet | undefined;
+};
+
+interface VotingPowerPersistedStore {
+  votingPower: VotingPowerByProposal;
+  getVotingPower: (
+    proposalAddress: string,
+    walletAddress: string
+  ) => string | undefined;
+  setVotingPower: (
+    proposalAddress: string,
+    walletAddress: string,
+    votingPower: string
+  ) => void;
+  resetProposalVotingPower: (proposalAddress: string) => void;
+}
+
+export const useVotingPowerPersistedStore = create(
+  persist<VotingPowerPersistedStore>(
+    (set, get) => ({
+      votingPower: {},
+      getVotingPower: (proposalAddress, walletAddress) => {
+        return get().votingPower[proposalAddress]?.[walletAddress];
+      },
+      setVotingPower: (proposalAddress, walletAddress, votingPower) => {
+        const proposalVotingPower = get().votingPower[proposalAddress] || {};
+
+        set({
+          votingPower: {
+            ...get().votingPower,
+            [proposalAddress]: {
+              ...proposalVotingPower,
+              [walletAddress]: votingPower,
+            },
+          },
+        });
+      },
+      resetProposalVotingPower: (proposalAddress) => {
+        set({
+          votingPower: _.omitBy(
+            { ...get().votingPower, [proposalAddress]: undefined },
+            _.isUndefined
+          ),
+        });
+      },
+    }),
+    {
+      name: "voting_power_store",
+    }
+  )
+);
+
 interface SettingsStore {
   themeMode?: ThemeType;
   setThemeMode: (theme: ThemeType) => void;

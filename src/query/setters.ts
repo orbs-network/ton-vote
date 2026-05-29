@@ -10,10 +10,10 @@ import {
 } from "config";
 import _ from "lodash";
 import {
+  calcProposalResult,
   createNewDaoOnProdAndDev,
   daoSetOwner,
   daoSetProposalOwner,
-  getClientV2,
   metdataExists,
   newDao,
   newMetdata,
@@ -43,15 +43,23 @@ import {
   useSyncStore,
   useVotePersistedStore,
   useVoteStore,
+  useVotingPowerPersistedStore,
 } from "store";
-import { delay, getTxFee, Logger, validateAddress } from "utils";
+import {
+  getTxFee,
+  isSameAddress,
+  isSameVoteChoice,
+  Logger,
+  normalizeTonAddress,
+  parseVotes,
+  validateAddress,
+} from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useAnalytics } from "analytics";
-import { Proposal, ProposalStatus } from "types";
+import { Proposal, ProposalStatus, RawVotes, VotingPower } from "types";
 import { useAppNavigation } from "router/navigation";
-import { contract } from "contract";
-import retry from "async-retry";
+import { getConfiguredClientV2 } from "rpc";
 
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
@@ -65,7 +73,7 @@ export const useCreateDaoQuery = () => {
   return useMutation(
     async (args: CreateDaoArgs) => {
       const sender = getSender();
-      const clientV2 = await getClientV2();
+      const clientV2 = await getConfiguredClientV2();
 
       let getPromise = () => {
         
@@ -134,7 +142,7 @@ export const useCreateMetadataQuery = () => {
     async (args: CreateMetadataArgs) => {
       const { metadata } = args;
       const sender = getSender();
-      const clientV2 = await getClientV2();
+      const clientV2 = await getConfiguredClientV2();
 
       const address = await newMetdata(
         sender,
@@ -190,7 +198,7 @@ export const useCreateProposalQuery = () => {
       }
       const address = await newProposal(
         sender,
-        await getClientV2(),
+        await getConfiguredClientV2(),
         getTxFee(Number(daoState?.fwdMsgFee), TX_FEES.FORWARD_MSG),
         dao?.daoAddress!,
         metadata as ProposalMetadata
@@ -245,7 +253,7 @@ export const useSetDaoOwnerQuery = () => {
       if (!validateAddress(newOwner)) {
         throw new Error("Invalid owner address");
       }
-      const clientV2 = await getClientV2();
+      const clientV2 = await getConfiguredClientV2();
       await daoSetOwner(
         getSender(),
         clientV2,
@@ -287,7 +295,7 @@ export const useSetDaoPublisherQuery = () => {
         throw new Error("Invalid proposal owner address");
       }
 
-      const clientV2 = await getClientV2();
+      const clientV2 = await getConfiguredClientV2();
       await daoSetProposalOwner(
         getSender(),
         clientV2,
@@ -323,7 +331,7 @@ export const useUpdateDaoMetadataQuery = () => {
       const { metadata, daoAddress } = args;
 
       const sender = getSender();
-      const clientV2 = await getClientV2();
+      const clientV2 = await getConfiguredClientV2();
 
       const metadataAddress = await newMetdata(
         sender,
@@ -373,9 +381,10 @@ export const useVote = () => {
   const getSender = useGetSender();
   const { proposalAddress } = useAppParams();
   const store = useVotePersistedStore();
+  const votingPowerStore = useVotingPowerPersistedStore();
   const { data: proposal } = useProposalQuery(proposalAddress);
   const queryClient = useQueryClient();
-  const successCallback = useVoteSuccessCallback(proposalAddress);
+  const walletAddress = useTonAddress();
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
@@ -386,9 +395,18 @@ export const useVote = () => {
       if (!proposal) {
         throw new Error("Proposal not found");
       }
+      if (!walletAddress) {
+        throw new Error("Wallet not connected");
+      }
+      const currentWalletVote = _.find(proposal.votes, (vote) =>
+        isSameAddress(vote.address, walletAddress)
+      );
+      if (isSameVoteChoice(currentWalletVote?.vote, _vote)) {
+        throw new Error(`You already voted ${_vote}`);
+      }
       setIsVoting(true);
       const sender = getSender();
-      const client = await getClientV2();
+      const client = await getConfiguredClientV2();
 
       await proposalSendMessage(
         sender,
@@ -398,8 +416,16 @@ export const useVote = () => {
         _vote
       );
 
-      await delay(2000);
-      return successCallback(proposal);
+      return getManualVoteSuccessValues({
+        proposal,
+        proposalAddress,
+        walletAddress,
+        vote: _vote,
+        cachedVotingPower: votingPowerStore.getVotingPower(
+          proposalAddress,
+          normalizeTonAddress(walletAddress)
+        ),
+      });
     },
     {
       onSuccess: (values, _vote) => {
@@ -411,19 +437,21 @@ export const useVote = () => {
           );
         }
 
-        const { proposalResults, vote, maxLt } = values;
+        const { proposalResults, vote, maxLt, rawVotes, votingPower } = values;
 
         queryClient.setQueryData(
           [QueryKeys.PROPOSAL, proposalAddress],
           (prev?: any) => {
             const votes = _.filter(
               prev?.votes,
-              (v) => v.address !== vote.address
+              (v) => !isSameAddress(v.address, vote.address)
             );
             return {
               ...prev,
               proposalResult: proposalResults,
               votes: [vote, ...votes],
+              rawVotes,
+              votingPower,
             };
           }
         );
@@ -446,6 +474,89 @@ export const useVote = () => {
       },
     }
   );
+};
+
+const getNextMaxLt = (maxLt?: string) => {
+  try {
+    return (BigInt(maxLt || "0") + 1n).toString();
+  } catch (error) {
+    return maxLt || "1";
+  }
+};
+
+const omitAddress = <T,>(values: { [key: string]: T } = {}, address: string) =>
+  _.omitBy(values, (_value, key) => isSameAddress(key, address));
+
+const getVotingPowerForWallet = (
+  proposal: Proposal,
+  walletAddress: string,
+  cachedVotingPower?: string
+) => {
+  if (cachedVotingPower) return cachedVotingPower;
+
+  return _.find(
+    proposal.votingPower,
+    (_votingPower, address) => isSameAddress(address, walletAddress)
+  );
+};
+
+const getManualVoteSuccessValues = ({
+  proposal,
+  proposalAddress,
+  walletAddress,
+  vote,
+  cachedVotingPower,
+}: {
+  proposal: Proposal;
+  proposalAddress: string;
+  walletAddress: string;
+  vote: string;
+  cachedVotingPower?: string;
+}) => {
+  if (!proposal.metadata || !walletAddress) {
+    throw new Error("Failed to update vote locally");
+  }
+
+  const votingPower = getVotingPowerForWallet(
+    proposal,
+    walletAddress,
+    cachedVotingPower
+  );
+
+  if (!votingPower) {
+    throw new Error("Voting power not found");
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const rawVote = {
+    vote: vote.toLowerCase(),
+    timestamp,
+    hash: "",
+  };
+  const rawVotes: RawVotes = {
+    ...omitAddress(proposal.rawVotes || {}, walletAddress),
+    [walletAddress]: rawVote,
+  };
+  const votingPowerMap: VotingPower = {
+    ...omitAddress(proposal.votingPower || {}, walletAddress),
+    [walletAddress]: votingPower,
+  };
+  const proposalResults = calcProposalResult(
+    rawVotes,
+    votingPowerMap,
+    proposal.metadata.votingSystem
+  );
+  const parsedVote = parseVotes({ [walletAddress]: rawVote }, votingPowerMap);
+
+  Logger(`vote success locally updated proposal ${proposalAddress}`);
+
+  return {
+    proposalResults,
+    maxLt: getNextMaxLt(proposal.maxLt),
+    rawVotes,
+    votingPower: votingPowerMap,
+    vote: parsedVote[0],
+  };
 };
 
 export const useUpdateProposalMutation = () => {
@@ -473,7 +584,7 @@ export const useUpdateProposalMutation = () => {
       }
 
       const sender = getSender();
-      const client = await getClientV2();
+      const client = await getConfiguredClientV2();
 
       await updateProposal(
         sender,
@@ -495,42 +606,4 @@ export const useUpdateProposalMutation = () => {
       },
     }
   );
-};
-
-export const useVoteSuccessCallback = (proposalAddress: string) => {
-  const walletAddress = useTonAddress();
-  const analytics = useAnalytics();
-
-  return async (proposal: Proposal) => {
-    const promise = async (bail: any, attempt: number) => {
-      Logger(`getting proposal results after vote, attempt ${attempt} `);
-      if (!proposal.metadata || !walletAddress) return;
-
-      try {
-        const result = await contract.getProposalResultsAfterVote({
-          proposalAddress,
-          walletAddress,
-          proposal,
-        });
-
-        if (!result || _.isEmpty(result)) {
-          throw new Error("Empty results");
-        }
-
-        return result;
-      } catch (error) {
-        if (attempt > 5) {
-          const message = error instanceof Error ? error.message : "";
-          analytics.getProposalFromContractAfterVotingFailed(
-            proposalAddress,
-            message
-          );
-        }
-        Logger(error);
-        throw error;
-      }
-    };
-
-    return retry(promise, { retries: 5, minTimeout: 2000 });
-  };
 };

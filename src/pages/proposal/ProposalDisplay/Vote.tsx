@@ -15,6 +15,7 @@ import _ from "lodash";
 import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { MOBILE_WIDTH } from "consts";
+import { isSameVoteChoice } from "utils";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
@@ -28,7 +29,8 @@ export function Vote() {
   const connectedWallet = useTonAddress();
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
-  const currentVote = walletVote?.vote as string;
+  const currentVote = walletVote?.vote;
+  const isCurrentVote = isSameVoteChoice(currentVote, vote);
 
   useEffect(() => {
     if (!vote) {
@@ -68,14 +70,14 @@ export function Vote() {
         text={
           !connectedWallet
             ? ""
-            : currentVote === vote
+            : isCurrentVote
             ? `You already voted ${vote}`
             : ""
         }
       >
         <VoteButton
           isLoading={isLoading}
-          disabled={!vote || isLoading || currentVote === vote}
+          disabled={!vote || isLoading || isCurrentVote}
           onSubmit={onSubmit}
         />
       </AppTooltip>

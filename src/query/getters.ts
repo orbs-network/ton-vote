@@ -24,12 +24,18 @@ import {
   isProposalWhitelisted,
   Logger,
   nFormatter,
+  normalizeTonAddress,
 } from "utils";
 import {
   FOUNDATION_DAO_ADDRESS,
   FOUNDATION_PROPOSALS_ADDRESSES,
 } from "data/foundation/data";
-import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
+import {
+  useSyncStore,
+  useVotePersistedStore,
+  useVoteStore,
+  useVotingPowerPersistedStore,
+} from "store";
 import { contract } from "contract";
 import { useCurrentRoute, useDevFeatures } from "hooks/hooks";
 import { fromNano } from "ton-core";
@@ -47,6 +53,7 @@ import { routes } from "consts";
 import { lib } from "lib";
 import { useAnalytics } from "analytics";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
+import { getResultWithClientV4Fallback } from "rpc";
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -264,16 +271,45 @@ export const useGetClients = () => {
   );
 };
 
+const getConnectedWalletVotingPowerResult = (
+  proposal: Proposal | null | undefined,
+  votingPower: string
+) => {
+  const symbol = getProposalSymbol(proposal?.metadata?.votingPowerStrategies);
+
+  if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
+    return {
+      votingPower,
+      votingPowerText: `${nFormatter(Number(votingPower))} ${symbol}`,
+    };
+  }
+
+  return {
+    votingPowerText: `${nFormatter(Number(fromNano(votingPower)))} ${symbol}`,
+    votingPower,
+  };
+};
+
 export const useConnectedWalletVotingPowerQuery = (
   proposal?: Proposal | null,
   proposalAddress?: string,
   disabled?: boolean
 ) => {
   const connectedWallet = useTonAddress();
-  const clients = useGetClients().data;
+  const votingPowerStore = useVotingPowerPersistedStore();
   return useQuery(
     [QueryKeys.SIGNLE_VOTING_POWER, connectedWallet, proposalAddress],
     async ({ signal }) => {
+      const walletAddress = normalizeTonAddress(connectedWallet);
+      const cachedVotingPower = votingPowerStore.getVotingPower(
+        proposalAddress!,
+        walletAddress
+      );
+
+      if (cachedVotingPower !== undefined) {
+        return getConnectedWalletVotingPowerResult(proposal, cachedVotingPower);
+      }
+
       const allNftHolders = await lib.getAllNFTHolders(
         proposalAddress!,
         proposal?.metadata!,
@@ -284,40 +320,28 @@ export const useConnectedWalletVotingPowerQuery = (
       const strategy = getVoteStrategyType(
         proposal?.metadata?.votingPowerStrategies
       );
-      let result = '0';
-      result = await getSingleVoterPower(
-        clients!.clientV4,
-        connectedWallet!,
-        proposal?.metadata!,
-        strategy,
-        allNftHolders
-      );
+      const result = await getResultWithClientV4Fallback({
+        request: (clientV4) =>
+          getSingleVoterPower(
+            clientV4,
+            connectedWallet!,
+            proposal?.metadata!,
+            strategy,
+            allNftHolders
+          ),
+        shouldFallback: (votingPower) => votingPower === "0" || !votingPower,
+        logPrefix: `Fetching voting power for account ${connectedWallet}`,
+      });
 
-      if(result === '0' || !result) {
-        result = await getSingleVoterPower(
-          await getClientV4('https://mainnet-v4.tonhubapi.com'),
-          connectedWallet!,
-          proposal?.metadata!,
-          strategy,
-          allNftHolders
+      if (result) {
+        votingPowerStore.setVotingPower(
+          proposalAddress!,
+          walletAddress,
+          result
         );
       }
 
-      const symbol = getProposalSymbol(
-        proposal?.metadata?.votingPowerStrategies
-      );
-
-      if (getIsOneWalletOneVote(proposal?.metadata?.votingPowerStrategies)) {
-        return {
-          votingPower: result,
-          votingPowerText: `${nFormatter(Number(result))} ${symbol}`,
-        };
-      }
-
-      return {
-        votingPowerText: `${nFormatter(Number(fromNano(result)))} ${symbol}`,
-        votingPower: result,
-      };
+      return getConnectedWalletVotingPowerResult(proposal, result);
     },
     {
       enabled:
