@@ -79,7 +79,7 @@ export const errorToast = (message: string | Error, duration = 7000) => {
 
 export const showSuccessToast = (message: string) => {
   toast.success((t) => <ToastContent message={message} id={t.id} />, {
-    duration: 40_000,
+    duration: 5_000,
   });
 };
 

@@ -1,6 +1,6 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
-import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
+import { Button, ConnectButton, TitleContainer } from "components";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
@@ -19,6 +19,9 @@ import { isSameVoteChoice } from "utils";
 
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
+  const [userSelectedVote, setUserSelectedVote] = useState(false);
+  const [skipWalletVoteAutoSelect, setSkipWalletVoteAutoSelect] =
+    useState(false);
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
   const translations = useProposalPageTranslations();
@@ -26,17 +29,17 @@ export function Vote() {
 
   const { data, dataUpdatedAt } = useProposalQuery(proposalAddress);
   const choices = data?.metadata?.votingSystem.choices;
-  const connectedWallet = useTonAddress();
 
   const walletVote = useWalletVote(data?.votes, dataUpdatedAt);
   const currentVote = walletVote?.vote;
   const isCurrentVote = isSameVoteChoice(currentVote, vote);
+  const showAlreadyVotedText = userSelectedVote && isCurrentVote;
 
   useEffect(() => {
-    if (!vote) {
+    if (!vote && !skipWalletVoteAutoSelect) {
       setVote(walletVote?.vote as string);
     }
-  }, [walletVote?.vote]);
+  }, [skipWalletVoteAutoSelect, vote, walletVote?.vote]);
 
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
@@ -54,7 +57,11 @@ export function Vote() {
             <StyledOption
               selected={option === vote}
               key={option}
-              onClick={() => setVote(option)}
+              onClick={() => {
+                setSkipWalletVoteAutoSelect(false);
+                setUserSelectedVote(true);
+                setVote(option);
+              }}
             >
               <Fade in={option === vote}>
                 <StyledFlexRow className="icon">
@@ -66,28 +73,26 @@ export function Vote() {
           );
         })}
       </StyledFlexColumn>
-      <AppTooltip
-        text={
-          !connectedWallet
-            ? ""
-            : isCurrentVote
-            ? `You already voted ${vote}`
-            : ""
-        }
-      >
-        <VoteButton
-          isLoading={isLoading}
-          disabled={!vote || isLoading || isCurrentVote}
-          onSubmit={onSubmit}
-        />
-      </AppTooltip>
+      <VoteButton
+        showAlreadyVotedText={showAlreadyVotedText}
+        isLoading={isLoading}
+        selectedVote={vote}
+        disabled={!vote || isLoading || isCurrentVote}
+        onSubmit={onSubmit}
+      />
       <VoteConfirmation
         open={confirmation}
         vote={vote}
         onClose={() => setConfirmation(false)}
         onSubmit={() => {
           if (!vote) return;
-          mutate(vote);
+          mutate(vote, {
+            onSuccess: () => {
+              setSkipWalletVoteAutoSelect(true);
+              setUserSelectedVote(false);
+              setVote(undefined);
+            },
+          });
         }}
       />
     </StyledContainer>
@@ -98,10 +103,14 @@ const VoteButton = ({
   onSubmit,
   isLoading,
   disabled,
+  showAlreadyVotedText,
+  selectedVote,
 }: {
   onSubmit: () => void;
   isLoading: boolean;
   disabled: boolean;
+  showAlreadyVotedText: boolean;
+  selectedVote?: string;
 }) => {
   const walletAddress = useTonAddress();
 
@@ -115,7 +124,7 @@ const VoteButton = ({
       isLoading={isLoading}
       disabled={disabled}
     >
-      Vote
+      {showAlreadyVotedText ? `Already voted ${selectedVote}` : "Vote"}
     </StyledVoteButton>
   );
 };

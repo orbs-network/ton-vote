@@ -244,6 +244,84 @@ export const useVotingPowerPersistedStore = create(
   )
 );
 
+interface HiddenDaosPersistedStore {
+  daoAddresses: string[];
+  addDao: (daoAddress: string) => void;
+}
+
+export const useHiddenDaosPersistedStore = create(
+  persist<HiddenDaosPersistedStore>(
+    (set, get) => ({
+      daoAddresses: [],
+      addDao: (daoAddress) => {
+        set({
+          daoAddresses: _.uniq([...get().daoAddresses, daoAddress]),
+        });
+      },
+    }),
+    {
+      name: "hidden_daos_store",
+    }
+  )
+);
+
+type DaoRoleDisplay = {
+  owner?: string;
+  proposalOwner?: string;
+};
+
+interface DaoRolesDisplayPersistedStore {
+  roles: { [daoAddress: string]: DaoRoleDisplay | undefined };
+  setRoles: (daoAddress: string, roles: DaoRoleDisplay) => void;
+  setOwner: (daoAddress: string, owner: string) => void;
+  setProposalOwner: (daoAddress: string, proposalOwner: string) => void;
+}
+
+export const useDaoRolesDisplayPersistedStore = create(
+  persist<DaoRolesDisplayPersistedStore>(
+    (set, get) => ({
+      roles: {},
+      setRoles: (daoAddress, roles) => {
+        set({
+          roles: {
+            ...get().roles,
+            [daoAddress]: roles,
+          },
+        });
+      },
+      setOwner: (daoAddress, owner) => {
+        const currentRoles = get().roles[daoAddress] || {};
+
+        set({
+          roles: {
+            ...get().roles,
+            [daoAddress]: {
+              ...currentRoles,
+              owner,
+            },
+          },
+        });
+      },
+      setProposalOwner: (daoAddress, proposalOwner) => {
+        const currentRoles = get().roles[daoAddress] || {};
+
+        set({
+          roles: {
+            ...get().roles,
+            [daoAddress]: {
+              ...currentRoles,
+              proposalOwner,
+            },
+          },
+        });
+      },
+    }),
+    {
+      name: "dao_roles_display_store",
+    }
+  )
+);
+
 interface SettingsStore {
   themeMode?: ThemeType;
   setThemeMode: (theme: ThemeType) => void;

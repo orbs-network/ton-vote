@@ -29,7 +29,7 @@ import {
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
 import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { useSettingsStore } from "store";
+import { useHiddenDaosPersistedStore, useSettingsStore } from "store";
 import _ from "lodash";
 import {
   getIsOneWalletOneVote,
@@ -42,6 +42,8 @@ import {
   getVoteStrategyType,
   isSameAddress,
   isNftProposal,
+  isDaoHidden,
+  validateAddress,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
 import { useDaoQuery, useProposalQuery } from "query/getters";
@@ -174,6 +176,7 @@ enum Params {
   SEARCH = "search",
   DEV = "dev",
   MODE = "mode",
+  SHOW_HIDDEN_DAO = "showHiddenDao",
 }
 
 export const useAppQueryParams = () => {
@@ -182,14 +185,25 @@ export const useAppQueryParams = () => {
     [Params.SEARCH]: StringParam,
     [Params.DEV]: StringParam,
     [Params.MODE]: StringParam,
+    [Params.SHOW_HIDDEN_DAO]: StringParam,
   });
+  const proposalState = query[Params.PROPOSAL_STATE] as
+    | ProposalStatus
+    | undefined;
+  const validProposalState = _.includes(
+    Object.values(ProposalStatus),
+    proposalState
+  )
+    ? proposalState
+    : undefined;
 
   return {
     query: {
-      proposalState: query[Params.PROPOSAL_STATE] as string | undefined,
+      proposalState: validProposalState,
       search: query.search as string | undefined,
       dev: query.dev as string | undefined,
       mode: query.mode as string | undefined,
+      showHiddenDao: query[Params.SHOW_HIDDEN_DAO] as string | undefined,
     },
     setProposalState: (state: string | undefined) => {
       setQuery({ [Params.PROPOSAL_STATE]: state }, "pushIn");
@@ -201,6 +215,23 @@ export const useAppQueryParams = () => {
       setQuery({ [Params.SEARCH]: search || undefined }, "pushIn");
     },
   };
+};
+
+export const useInitHiddenDaoAccess = () => {
+  const {
+    query: { showHiddenDao },
+  } = useAppQueryParams();
+  const addHiddenDao = useHiddenDaosPersistedStore((state) => state.addDao);
+
+  useEffect(() => {
+    if (
+      showHiddenDao &&
+      validateAddress(showHiddenDao) &&
+      isDaoHidden(showHiddenDao)
+    ) {
+      addHiddenDao(showHiddenDao);
+    }
+  }, [addHiddenDao, showHiddenDao]);
 };
 
 export const useMobile = () => {

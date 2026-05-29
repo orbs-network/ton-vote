@@ -35,6 +35,10 @@ export function Search({
     onChange(debouncedValue);
   }, [debouncedValue]);
 
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
   return (
     <StyledContainer className={className} hover={true}>
       <StyledFlexRow style={{ height: "100%", paddingLeft: 10, gap: 0 }}>
@@ -60,8 +64,8 @@ export function Search({
 
 const StyledSelect = styled(Select)({
   "*": {
-    border: "unset!imporatnt",
-    outline: "unset!imporatnt",
+    border: "unset!important",
+    outline: "unset!important",
   },
   ".MuiSelect-select": {
     minWidth: 'unset',

@@ -22,7 +22,7 @@ import {
 } from "../styles";
 import { useDaoQuery, useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import { ProposalTimeline } from "./ProposalTimeline";
 import { Results } from "./Results";
@@ -68,7 +68,13 @@ const useHideProposal = (proposalAddress: string) => {
   return false;
 };
 
-export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
+export const Proposal = ({
+  proposalAddress,
+  onVisibilityChange,
+}: {
+  proposalAddress: string;
+  onVisibilityChange?: (proposalAddress: string, visible: boolean) => void;
+}) => {
   const { proposalPage } = useAppNavigation();
   const { daoAddress } = useAppParams();
   const [ref, { entry }] = useIntersectionObserver();
@@ -78,11 +84,31 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
     disabled: !isVisible,
   });
 
-  const { data: proposal, isLoading, error } = proposalQuery;
+  const { data: proposal, isFetched, isLoading, error } = proposalQuery;
 
   const { proposalStatus, proposalStatusText } =
     useProposalStatus(proposalAddress);
   const hideProposal = useHideProposal(proposalAddress);
+
+  useEffect(() => {
+    if (!onVisibilityChange) return;
+
+    if (error || hideProposal) {
+      onVisibilityChange(proposalAddress, false);
+      return;
+    }
+
+    if (!isFetched) return;
+
+    onVisibilityChange(proposalAddress, !!proposal);
+  }, [
+    error,
+    hideProposal,
+    isFetched,
+    onVisibilityChange,
+    proposal,
+    proposalAddress,
+  ]);
   
   const description = useMemo(
     () => parseLanguage(proposal?.metadata?.description, "en"),

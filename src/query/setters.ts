@@ -44,6 +44,7 @@ import {
   useVotePersistedStore,
   useVoteStore,
   useVotingPowerPersistedStore,
+  useDaoRolesDisplayPersistedStore,
 } from "store";
 import {
   getTxFee,
@@ -67,6 +68,9 @@ export const useCreateDaoQuery = () => {
   const showErrorToast = useErrorToast();
   const appNavigation = useAppNavigation();
   const { addDao } = useNewDataStore();
+  const setDisplayRoles = useDaoRolesDisplayPersistedStore(
+    (state) => state.setRoles
+  );
 
   const analytics = useAnalytics();
 
@@ -123,6 +127,10 @@ export const useCreateDaoQuery = () => {
         analytics.createSpaceFailed(args.metadataAddress, error.message);
       },
       onSuccess: (address, args) => {
+        setDisplayRoles(address, {
+          owner: args.ownerAddress,
+          proposalOwner: args.proposalOwner,
+        });
         appNavigation.daoPage.root(address);
         addDao(address);
         analytics.createSpaceSuccess(args.metadataAddress, address);
@@ -236,6 +244,9 @@ export const useSetDaoOwnerQuery = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
   const { setDaoUpdateMillis } = useSyncStore();
+  const setDisplayOwner = useDaoRolesDisplayPersistedStore(
+    (state) => state.setOwner
+  );
   const { daoAddress } = useAppParams();
 
   const refetch = useDaoQuery(daoAddress).refetch;
@@ -261,6 +272,7 @@ export const useSetDaoOwnerQuery = () => {
         TX_FEES.BASE.toString(),
         newOwner
       );
+      setDisplayOwner(daoAddress, newOwner);
       setDaoUpdateMillis(daoAddress);
       return refetch();
     },
@@ -276,6 +288,9 @@ export const useSetDaoOwnerQuery = () => {
 export const useSetDaoPublisherQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
+  const setDisplayProposalOwner = useDaoRolesDisplayPersistedStore(
+    (state) => state.setProposalOwner
+  );
   const { daoAddress } = useAppParams();
   const { refetch: refetchDao } = useDaoQuery(daoAddress);
 
@@ -303,6 +318,7 @@ export const useSetDaoPublisherQuery = () => {
         daoAddress,
         newOwner
       );
+      setDisplayProposalOwner(daoAddress, newOwner);
       setDaoUpdateMillis(daoAddress);
       return refetchDao();
     },

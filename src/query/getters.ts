@@ -20,8 +20,10 @@ import {
   getIsOneWalletOneVote,
   getProposalSymbol,
   getVoteStrategyType,
+  isDaoHidden,
   isDaoWhitelisted,
   isProposalWhitelisted,
+  isSameAddress,
   Logger,
   nFormatter,
   normalizeTonAddress,
@@ -35,10 +37,12 @@ import {
   useVotePersistedStore,
   useVoteStore,
   useVotingPowerPersistedStore,
+  useHiddenDaosPersistedStore,
+  useDaoRolesDisplayPersistedStore,
 } from "store";
 import { contract } from "contract";
 import { useCurrentRoute, useDevFeatures } from "hooks/hooks";
-import { fromNano } from "ton-core";
+import { Address, fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import {
@@ -54,6 +58,20 @@ import { lib } from "lib";
 import { useAnalytics } from "analytics";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
 import { getResultWithClientV4Fallback } from "rpc";
+
+const toNonBounceableAddress = (address: string) => {
+  try {
+    return Address.parse(address).toString({ bounceable: false });
+  } catch (error) {
+    return address;
+  }
+};
+
+const getDisplayedDaoRoleAddress = (storedAddress: string | undefined, address: string) => {
+  return storedAddress && isSameAddress(storedAddress, address)
+    ? storedAddress
+    : toNonBounceableAddress(address);
+};
 
 export const useRegistryStateQuery = () => {
   const clients = useGetClients().data;
@@ -158,6 +176,17 @@ export const useDaosQuery = () => {
 export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
+  const isHiddenDao = isDaoHidden(daoAddress);
+  const walletAddress = useTonAddress();
+  const hiddenDaoAddresses = useHiddenDaosPersistedStore(
+    (state) => state.daoAddresses
+  );
+  const storedDaoRoles = useDaoRolesDisplayPersistedStore(
+    (state) => state.roles[daoAddress]
+  );
+  const hasHiddenDaoAccess = hiddenDaoAddresses.some((address) =>
+    isSameAddress(address, daoAddress)
+  );
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
   const analytics = useAnalytics();
   const route = useCurrentRoute();
@@ -171,7 +200,9 @@ export const useDaoQuery = (daoAddress: string) => {
   }, [route]);
 
   const queryClient = useQueryClient();
-  const key = [QueryKeys.DAO, daoAddress];
+  const key = isHiddenDao
+    ? [QueryKeys.DAO, daoAddress, walletAddress, hasHiddenDaoAccess]
+    : [QueryKeys.DAO, daoAddress];
   return useQuery<Dao | null>(
     key,
     async ({ signal }) => {
@@ -229,6 +260,15 @@ export const useDaoQuery = (daoAddress: string) => {
         throw new Error("DAO not found");
       }
 
+      const canViewHiddenDao =
+        hasHiddenDaoAccess ||
+        isSameAddress(dao.daoRoles.owner, walletAddress) ||
+        isSameAddress(dao.daoRoles.proposalOwner, walletAddress);
+
+      if (isHiddenDao && !canViewHiddenDao) {
+        throw new Error("DAO not found");
+      }
+
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
       let daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
@@ -242,8 +282,20 @@ export const useDaoQuery = (daoAddress: string) => {
       if (daoAddress === FOUNDATION_DAO_ADDRESS) {        
         daoProposals = _.uniq([...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES]);
       }
+      const daoRoles = {
+        owner: getDisplayedDaoRoleAddress(
+          storedDaoRoles?.owner,
+          dao.daoRoles.owner
+        ),
+        proposalOwner: getDisplayedDaoRoleAddress(
+          storedDaoRoles?.proposalOwner,
+          dao.daoRoles.proposalOwner
+        ),
+      };
+
       return {
         ...dao,
+        daoRoles,
         daoProposals,
       };
     },
@@ -521,7 +573,7 @@ export const useProposalQuery = (
 
       const filteredVotes = _.filter(
         proposal.votes,
-        (it) => it.address !== persistedVote.address
+        (it) => !isSameAddress(it.address, persistedVote.address)
       );
 
       return {

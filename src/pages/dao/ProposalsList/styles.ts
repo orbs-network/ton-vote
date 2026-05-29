@@ -115,9 +115,7 @@ export const StyledSearch = styled(Search)(({ theme }) => ({
 }));
 
 export const StyledEmptyList = styled(Container)({
-  position: "absolute",
   width: "100%",
-  top: 0,
 });
 
 export const StyledAddressDisplay = styled(AddressDisplay)({

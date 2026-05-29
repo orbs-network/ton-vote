@@ -12,7 +12,11 @@ import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MOBILE_WIDTH } from "consts";
-import { useAppQueryParams, useAppSettings } from "hooks/hooks";
+import {
+  useAppQueryParams,
+  useAppSettings,
+  useInitHiddenDaoAccess,
+} from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { LatestBlock } from "components";
 
@@ -31,6 +35,7 @@ const useIsBeta = () => {
 
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
+  useInitHiddenDaoAccess();
   
 
   return (

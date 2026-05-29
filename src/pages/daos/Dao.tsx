@@ -13,9 +13,11 @@ import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
 import TextOverflow from "react-text-overflow";
 import { useAppNavigation } from "router/navigation";
+import { useHiddenDaosPersistedStore } from "store";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
 import {
+  isDaoHidden,
   getIsVerifiedDao,
   isSameAddress,
   makeElipsisAddress,
@@ -44,13 +46,25 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const { daoPage } = useAppNavigation();
   const metadataArgs = dao.daoMetadata?.metadataArgs;
   const walletAddress = useTonAddress();
+  const hiddenDaoAddresses = useHiddenDaosPersistedStore(
+    (state) => state.daoAddresses
+  );
   const theme = useTheme();
 
-  const isOwner =
-    isSameAddress(dao.daoRoles.owner, walletAddress) ||
-    isSameAddress(dao.daoRoles.proposalOwner, walletAddress);
+  const isOwner = isSameAddress(dao.daoRoles.owner, walletAddress);
+  const isProposalPublisher = isSameAddress(
+    dao.daoRoles.proposalOwner,
+    walletAddress
+  );
+  const isHiddenDao = isDaoHidden(dao.daoAddress);
+  const hasHiddenDaoAccess = hiddenDaoAddresses.some((address) =>
+    isSameAddress(address, dao.daoAddress)
+  );
+  const canViewHiddenDao = isOwner || isProposalPublisher || hasHiddenDaoAccess;
+  const canViewHiddenMetadataDao = isOwner || isProposalPublisher;
 
-  if (metadataArgs.hide && !isOwner) return null;
+  if (isHiddenDao && !canViewHiddenDao) return null;
+  if (metadataArgs.hide && !canViewHiddenMetadataDao) return null;
 
   const mockPrefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
 
@@ -59,7 +73,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
       <StyledDaoContent className="container" hover>
-        {metadataArgs.hide && (
+        {(metadataArgs.hide || isHiddenDao) && (
           <AppTooltip text="Dao is hidden, you can change it in the settings page">
             <StyledHiddenIcon>
               <AiFillEyeInvisible
