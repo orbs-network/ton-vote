@@ -47,14 +47,12 @@ const getProposalWithClients = async (
   clientV4: TonClient4
 ): Promise<Proposal> => {
   const { proposalAddress, maxLt } = args;
-  const proposalType = getVoteStrategyType(
-    args.metadata?.votingPowerStrategies
-  );
   let newMaxLt = undefined;
 
   const metadata =
     args.metadata ||
     (await getProposalMetadata(clientV2, clientV4, proposalAddress));
+  const proposalType = getVoteStrategyType(metadata.votingPowerStrategies);
   let transactions: Transaction[];
   const result = await getTransactions(clientV2, proposalAddress);
   newMaxLt = result.maxLt;

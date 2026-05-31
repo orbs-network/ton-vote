@@ -175,6 +175,26 @@ export const getResultWithClientV2Fallback = async <TResult>({
   });
 };
 
+const isActionFailureResult = (result: unknown) => {
+  return result === false || (Array.isArray(result) && result.includes(false));
+};
+
+export const getActionResultWithClientV2Fallback = async <TResult>({
+  errorMessage,
+  ...args
+}: ClientFallbackArgs<TonClient, TResult> & { errorMessage: string }) => {
+  const result = await getResultWithClientV2Fallback({
+    ...args,
+    shouldFallback: () => false,
+  });
+
+  if (isActionFailureResult(result)) {
+    throw new Error(errorMessage);
+  }
+
+  return result;
+};
+
 export const getResultWithClientV4Fallback = async <TResult>({
   endpoints = CLIENT_V4_RPC_ENDPOINTS,
   ...args

@@ -14,7 +14,7 @@ import {
 } from "ton-vote-contracts-sdk";
 import { isSameAddress, validateAddress } from "utils";
 import { useRegistryStateQuery } from "./getters";
-import { getResultWithClientV2Fallback } from "rpc";
+import { getActionResultWithClientV2Fallback } from "rpc";
 
 const useRegistryAdminPromise = () => {
   const { refetch, data } = useRegistryStateQuery();
@@ -52,7 +52,7 @@ const useSetDaoFwdMsgFee = () => {
         if (amount < 0) {
           throw new Error("Forward Message Fee must be at least 0");
         }
-        return getResultWithClientV2Fallback({
+        return getActionResultWithClientV2Fallback({
           request: (clientV2) =>
             setFwdMsgFee(
               getSender(),
@@ -63,6 +63,7 @@ const useSetDaoFwdMsgFee = () => {
               amount.toString()
             ),
           logPrefix: "Setting DAO forward message fee",
+          errorMessage: "Failed to set DAO forward message fee",
         });
       };
 
@@ -88,7 +89,7 @@ const useSetFwdFeeForNewDaos = () => {
       const promise = async () => {
         const sender = getSender();
 
-        return getResultWithClientV2Fallback({
+        return getActionResultWithClientV2Fallback({
           request: (clientV2) =>
             setNewDaoFwdMsgFee(
               sender,
@@ -98,6 +99,7 @@ const useSetFwdFeeForNewDaos = () => {
               fee
             ),
           logPrefix: "Setting new DAO forward message fee",
+          errorMessage: "Failed to set new DAO forward message fee",
         });
       };
       return registryAdminPromise(promise);
@@ -134,7 +136,7 @@ const useSetRegistryAdmin = () => {
           throw new Error("Invalid register admin address");
         }
 
-        return getResultWithClientV2Fallback({
+        return getActionResultWithClientV2Fallback({
           request: (clientV2) =>
             setRegistryAdmin(
               getSender(),
@@ -144,6 +146,7 @@ const useSetRegistryAdmin = () => {
               newRegistryAdmin
             ),
           logPrefix: "Setting registry admin",
+          errorMessage: "Failed to set registry admin",
         });
       };
       return registryAdminPromise(promise);
@@ -171,7 +174,7 @@ const useSetCreateDaoFee = () => {
         if (!_.isNumber(value) || value < 0) {
           throw new Error("Fee must be zero or positive");
         }
-        return getResultWithClientV2Fallback({
+        return getActionResultWithClientV2Fallback({
           request: (clientV2) =>
             setDeployAndInitDaoFee(
               getSender(),
@@ -181,6 +184,7 @@ const useSetCreateDaoFee = () => {
               value.toString()
             ),
           logPrefix: "Setting create DAO fee",
+          errorMessage: "Failed to set create DAO fee",
         });
       };
 
@@ -212,7 +216,7 @@ const useCreateNewRegistry = () => {
         }
 
         const sender = getSender();
-        return getResultWithClientV2Fallback({
+        return getActionResultWithClientV2Fallback({
           request: (clientV2) =>
             newRegistry(
               sender,
@@ -222,6 +226,7 @@ const useCreateNewRegistry = () => {
               address!
             ),
           logPrefix: "Creating registry",
+          errorMessage: "Failed to create registry",
         });
       };
 

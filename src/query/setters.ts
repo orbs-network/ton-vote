@@ -58,7 +58,7 @@ import { useTonAddress } from "@tonconnect/ui-react";
 import { useAnalytics } from "analytics";
 import { ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
-import { getResultWithClientV2Fallback } from "rpc";
+import { getActionResultWithClientV2Fallback } from "rpc";
 import { getManualVoteSuccessValues } from "./manualVoteSuccessValues";
 
 export const useCreateDaoQuery = () => {
@@ -77,7 +77,7 @@ export const useCreateDaoQuery = () => {
     async (args: CreateDaoArgs) => {
       const sender = getSender();
 
-      const address = await getResultWithClientV2Fallback({
+      const address = await getActionResultWithClientV2Fallback({
         request: (clientV2) => {
           if (args.dev && !IS_DEV) {
             const txFee = createDaoProdFee + createDaoDevFee;
@@ -109,6 +109,7 @@ export const useCreateDaoQuery = () => {
           );
         },
         logPrefix: "Creating DAO",
+        errorMessage: "Failed to create dao",
       });
 
       if (typeof address !== "string") {
@@ -149,7 +150,7 @@ export const useCreateMetadataQuery = () => {
       const { metadata } = args;
       const sender = getSender();
 
-      const address = await getResultWithClientV2Fallback({
+      const address = await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           newMetdata(
             sender,
@@ -158,6 +159,7 @@ export const useCreateMetadataQuery = () => {
             metadata
           ),
         logPrefix: "Creating metadata",
+        errorMessage: "Failed to create space metadata",
       });
 
       if (typeof address !== "string") {
@@ -205,7 +207,7 @@ export const useCreateProposalQuery = () => {
       if (!allowed) {
         throw new Error("You are not allowed to create a proposal");
       }
-      const address = await getResultWithClientV2Fallback({
+      const address = await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           newProposal(
             sender,
@@ -215,6 +217,7 @@ export const useCreateProposalQuery = () => {
             metadata as ProposalMetadata
           ),
         logPrefix: "Creating proposal",
+        errorMessage: "Failed to create proposal",
       });
 
       if (typeof address !== "string") {
@@ -269,7 +272,7 @@ export const useSetDaoOwnerQuery = () => {
       if (!validateAddress(newOwner)) {
         throw new Error("Invalid owner address");
       }
-      await getResultWithClientV2Fallback({
+      await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           daoSetOwner(
             getSender(),
@@ -279,6 +282,7 @@ export const useSetDaoOwnerQuery = () => {
             newOwner
           ),
         logPrefix: "Setting DAO owner",
+        errorMessage: "Failed to set new owner",
       });
       setDisplayOwner(daoAddress, newOwner);
       setDaoUpdateMillis(daoAddress);
@@ -318,7 +322,7 @@ export const useSetDaoPublisherQuery = () => {
         throw new Error("Invalid proposal owner address");
       }
 
-      await getResultWithClientV2Fallback({
+      await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           daoSetProposalOwner(
             getSender(),
@@ -328,6 +332,7 @@ export const useSetDaoPublisherQuery = () => {
             newOwner
           ),
         logPrefix: "Setting DAO proposal owner",
+        errorMessage: "Failed to set proposal owner",
       });
       setDisplayProposalOwner(daoAddress, newOwner);
       setDaoUpdateMillis(daoAddress);
@@ -359,7 +364,7 @@ export const useUpdateDaoMetadataQuery = () => {
 
       const sender = getSender();
 
-      const metadataAddress = await getResultWithClientV2Fallback({
+      const metadataAddress = await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           newMetdata(
             sender,
@@ -368,13 +373,14 @@ export const useUpdateDaoMetadataQuery = () => {
             metadata
           ),
         logPrefix: "Creating updated DAO metadata",
+        errorMessage: "Failed to create updated metadata",
       });
 
       if (typeof metadataAddress !== "string") {
         throw new Error("Failed to update metadata");
       }
 
-      const address = await getResultWithClientV2Fallback({
+      const address = await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           setMetadata(
             sender,
@@ -384,6 +390,7 @@ export const useUpdateDaoMetadataQuery = () => {
             metadataAddress
           ),
         logPrefix: "Setting DAO metadata",
+        errorMessage: "Failed to update metadata",
       });
 
       if (typeof address !== "string") {
@@ -441,7 +448,7 @@ export const useVote = () => {
       setIsVoting(true);
       const sender = getSender();
 
-      await getResultWithClientV2Fallback({
+      await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           proposalSendMessage(
             sender,
@@ -451,6 +458,7 @@ export const useVote = () => {
             _vote
           ),
         logPrefix: `Voting on proposal ${proposalAddress}`,
+        errorMessage: "Failed to vote",
       });
 
       return getManualVoteSuccessValues({
@@ -539,7 +547,7 @@ export const useUpdateProposalMutation = (args?: { onSuccess?: () => void }) => 
 
       const sender = getSender();
 
-      await getResultWithClientV2Fallback({
+      await getActionResultWithClientV2Fallback({
         request: (clientV2) =>
           updateProposal(
             sender,
@@ -550,6 +558,7 @@ export const useUpdateProposalMutation = (args?: { onSuccess?: () => void }) => 
             metadata
           ),
         logPrefix: `Updating proposal ${proposalAddress}`,
+        errorMessage: "Failed to update proposal",
       });
     },
     {

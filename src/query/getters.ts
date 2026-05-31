@@ -96,7 +96,7 @@ export const useRegistryStateQuery = () => {
 
 export const useDaoStateQuery = (daoAddress?: string) => {
   return useQuery(
-    [QueryKeys.DAO_STATE],
+    [QueryKeys.DAO_STATE, daoAddress],
     async () => {
       if (mock.isMockDao(daoAddress!))
         return {
@@ -157,7 +157,7 @@ export const useDaosQuery = () => {
         daoAddress: FOUNDATION_DAO_ADDRESS,
       });
 
-      const foundationDao = result.splice(daoIndex, 1);
+      const foundationDao = daoIndex >= 0 ? result.splice(daoIndex, 1) : [];
 
       let allDaos = [...foundationDao, ...result];
 
@@ -207,19 +207,29 @@ export const useDaoQuery = (daoAddress: string) => {
     ? [QueryKeys.DAO, daoAddress, walletAddress, hasHiddenDaoAccess]
     : [QueryKeys.DAO, daoAddress];
   const cachedDao = queryClient.getQueryData<Dao>(key);
-  const canViewHiddenDao =
+  const hasKnownHiddenDaoAccess =
     !isHiddenDao ||
     hasHiddenDaoAccess ||
     isSameAddress(cachedDao?.daoRoles.owner, walletAddress) ||
     isSameAddress(cachedDao?.daoRoles.proposalOwner, walletAddress) ||
     isSameAddress(storedDaoRoles?.owner, walletAddress) ||
     isSameAddress(storedDaoRoles?.proposalOwner, walletAddress);
+  const canCheckHiddenDaoAccess =
+    !isHiddenDao || hasKnownHiddenDaoAccess || !!walletAddress;
 
   return useQuery<Dao | null>(
     key,
     async ({ signal }) => {
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
+      }
+
+      const mockDao = mock.isMockDao(daoAddress!);
+      if (mockDao) {
+        return {
+          ...mockDao,
+          daoProposals: mock.proposalAddresses,
+        };
       }
       
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
@@ -265,6 +275,16 @@ export const useDaoQuery = (daoAddress: string) => {
         throw new Error("DAO not found");
       }
 
+      const canViewFetchedHiddenDao =
+        !isHiddenDao ||
+        hasHiddenDaoAccess ||
+        isSameAddress(dao.daoRoles.owner, walletAddress) ||
+        isSameAddress(dao.daoRoles.proposalOwner, walletAddress);
+
+      if (!canViewFetchedHiddenDao) {
+        throw new Error("DAO not found");
+      }
+
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
       let daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
@@ -275,8 +295,11 @@ export const useDaoQuery = (daoAddress: string) => {
         (it) => !BLACKLISTED_PROPOSALS.includes(it)
       );
 
-      if (daoAddress === FOUNDATION_DAO_ADDRESS) {        
-        daoProposals = _.uniq([...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES]);
+      if (daoAddress === FOUNDATION_DAO_ADDRESS) {
+        daoProposals = _.uniq([
+          ...daoProposals,
+          ...FOUNDATION_PROPOSALS_ADDRESSES,
+        ]);
       }
       const daoRoles = {
         owner: getDisplayedDaoRoleAddress(
@@ -298,8 +321,10 @@ export const useDaoQuery = (daoAddress: string) => {
     {
       staleTime: config.staleTime,
       refetchInterval:
-        isWhitelisted && canViewHiddenDao ? config.refetchInterval : undefined,
-      enabled: !!daoAddress && canViewHiddenDao,
+        isWhitelisted && hasKnownHiddenDaoAccess
+          ? config.refetchInterval
+          : undefined,
+      enabled: !!daoAddress && canCheckHiddenDaoAccess,
       retry: false,
     }
   );
@@ -401,6 +426,38 @@ const getMatchingServerVote = (
     (vote) =>
       isSameAddress(vote.address, persistedVote.address) &&
       isSameVoteChoice(vote.vote, persistedVote.vote)
+  );
+};
+
+const normalizeProposalResultForCompare = (result?: Proposal["proposalResult"]) => {
+  if (!result) return;
+
+  const { totalWeight, totalWeights, ...choices } = result;
+  const normalized = _.mapValues(choices, (value) => {
+    if (_.isNil(value) || _.isNaN(value)) return "0";
+
+    const numericValue = Number(value);
+    return Number.isNaN(numericValue) ? String(value) : String(numericValue);
+  });
+  const total = totalWeights ?? totalWeight;
+
+  if (total !== undefined) {
+    const numericTotal = Number(total);
+    normalized.totalWeights = Number.isNaN(numericTotal)
+      ? String(total)
+      : String(numericTotal);
+  }
+
+  return normalized;
+};
+
+const areProposalResultsEqual = (
+  resultA?: Proposal["proposalResult"],
+  resultB?: Proposal["proposalResult"]
+) => {
+  return _.isEqual(
+    normalizeProposalResultForCompare(resultA),
+    normalizeProposalResultForCompare(resultB)
   );
 };
 
@@ -548,17 +605,23 @@ export const useProposalQuery = (
       const persistedResult = votePersistValues.results;
       const persistedVote = votePersistValues.vote;
       const serverVote = getMatchingServerVote(proposal, persistedVote);
+      const serverResultsMatchPersisted = areProposalResultsEqual(
+        proposal.proposalResult,
+        persistedResult
+      );
+      const serverHasPersistedVoteAndResults =
+        !!serverVote && serverResultsMatchPersisted;
 
       if (
         !maxLtAfterVote ||
         serverMaxLtUpToDate ||
-        serverVote ||
+        serverHasPersistedVoteAndResults ||
         !persistedResult ||
         !persistedVote
       ) {
-        if (serverVote && !serverMaxLtUpToDate) {
+        if (serverHasPersistedVoteAndResults && !serverMaxLtUpToDate) {
           Logger(
-            `server proposal already includes persisted vote, clearing local storage fallback, proposal maxLt: ${proposal?.maxLt}, latestMaxLtAfterTx: ${maxLtAfterVote}`
+            `server proposal already includes persisted vote and results, clearing local storage fallback, proposal maxLt: ${proposal?.maxLt}, latestMaxLtAfterTx: ${maxLtAfterVote}`
           );
         }
         votePersistStore.resetValues(proposalAddress!);
