@@ -35,6 +35,7 @@ export const Results = () => {
   const hideVerify = shouldHideVerify(proposalAddress);
   
   const results = useProposalResults(proposalAddress);
+  const totalVotes = _.sumBy(results, "votesCount");
 
 
   if (isLoading) {
@@ -65,7 +66,7 @@ export const Results = () => {
           />
         )}
       </StyledFlexColumn>
-      {!hideVerify && <VerifyResults />}
+      {!hideVerify && totalVotes > 0 && <VerifyResults />}
     </StyledResults>
   );
 };

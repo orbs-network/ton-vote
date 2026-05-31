@@ -48,7 +48,7 @@
     "emptyProposals": "No proposals found",
     "endedAndDidntPassedQuorum": "Proposal ended and did not pass the minimum required quorum",
     "proposalEnded": "Ended {{value}} ago",
-    "spaceNotFound" : "Space not found",
+    "spaceNotFound" : "DAO not found",
     "settings": "Settings"
   },
   "daosPage": {

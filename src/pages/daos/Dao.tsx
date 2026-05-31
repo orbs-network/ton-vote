@@ -18,6 +18,7 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
 import {
   isDaoHidden,
+  isDaoStrictHidden,
   getIsVerifiedDao,
   isSameAddress,
   makeElipsisAddress,
@@ -57,10 +58,14 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
     walletAddress
   );
   const isHiddenDao = isDaoHidden(dao.daoAddress);
+  const isStrictHiddenDao = isDaoStrictHidden(dao.daoAddress);
   const hasHiddenDaoAccess = hiddenDaoAddresses.some((address) =>
     isSameAddress(address, dao.daoAddress)
   );
-  const canViewHiddenDao = isOwner || isProposalPublisher || hasHiddenDaoAccess;
+  const canViewHiddenDao =
+    isOwner ||
+    isProposalPublisher ||
+    (!isStrictHiddenDao && hasHiddenDaoAccess);
   const canViewHiddenMetadataDao = isOwner || isProposalPublisher;
 
   if (isHiddenDao && !canViewHiddenDao) return null;

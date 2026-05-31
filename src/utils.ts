@@ -2,6 +2,7 @@ import {
   BLACKLISTED_DAOS,
   HIDDEN_DAOS,
   IS_DEV,
+  STRICT_HIDDEN_DAOS,
   TONSCAN_ADDRESS_URL,
   VERIFIED_DAOS,
 } from "config";
@@ -294,7 +295,16 @@ export const isDaoBlacklisted = (address?: string) => {
 
 export const isDaoHidden = (address?: string) => {
   if (!address) return false;
-  return HIDDEN_DAOS.some((hiddenDao) => isSameAddress(hiddenDao, address));
+  return [...HIDDEN_DAOS, ...STRICT_HIDDEN_DAOS].some((hiddenDao) =>
+    isSameAddress(hiddenDao, address)
+  );
+};
+
+export const isDaoStrictHidden = (address?: string) => {
+  if (!address) return false;
+  return STRICT_HIDDEN_DAOS.some((hiddenDao) =>
+    isSameAddress(hiddenDao, address)
+  );
 };
 
 export const isProposalWhitelisted = (address?: string) => {

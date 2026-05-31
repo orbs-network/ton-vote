@@ -1,4 +1,4 @@
-import { ErrorContainer } from "components";
+import { ErrorContainer, PageLoader } from "components";
 import { APP_NAME } from "config";
 import { useAppParams } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
@@ -12,10 +12,12 @@ import { DaoLayout } from "./components";
 
 
 export function Dao() {
-  const {daoAddress} = useAppParams();
-  const { data, isError } = useDaoQuery(daoAddress);
+  const { daoAddress } = useAppParams();
+  const { data, isError, isFetching, isInitialLoading } =
+    useDaoQuery(daoAddress);
   const translations = useDaoPageTranslations();
-  
+  const isDaoLoading = isInitialLoading || (isFetching && !data);
+  const isDaoNotFound = isError || (!isDaoLoading && !data);
 
   return (
     <>
@@ -28,7 +30,9 @@ export function Dao() {
         </title>
       </Helmet>
       <Page hideBack={true}>
-        {isError ? (
+        {isDaoLoading ? (
+          <PageLoader />
+        ) : isDaoNotFound ? (
           <ErrorContainer text={translations.spaceNotFound} />
         ) : (
           <DaoLayout>

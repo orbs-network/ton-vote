@@ -19,6 +19,7 @@ import {
   getProposalSymbol,
   getVoteStrategyType,
   isDaoHidden,
+  isDaoStrictHidden,
   isDaoWhitelisted,
   isProposalWhitelisted,
   isSameAddress,
@@ -56,6 +57,7 @@ import { routes } from "consts";
 import { lib } from "lib";
 import { useAnalytics } from "analytics";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
+import { applyLocalProposalMetadata } from "data/proposals-metadata";
 import {
   getResultWithClientV2Fallback,
   getResultWithClientV4Fallback,
@@ -180,6 +182,7 @@ export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const isHiddenDao = isDaoHidden(daoAddress);
+  const isStrictHiddenDao = isDaoStrictHidden(daoAddress);
   const walletAddress = useTonAddress();
   const hiddenDaoAddresses = useHiddenDaosPersistedStore(
     (state) => state.daoAddresses
@@ -209,7 +212,7 @@ export const useDaoQuery = (daoAddress: string) => {
   const cachedDao = queryClient.getQueryData<Dao>(key);
   const hasKnownHiddenDaoAccess =
     !isHiddenDao ||
-    hasHiddenDaoAccess ||
+    (!isStrictHiddenDao && hasHiddenDaoAccess) ||
     isSameAddress(cachedDao?.daoRoles.owner, walletAddress) ||
     isSameAddress(cachedDao?.daoRoles.proposalOwner, walletAddress) ||
     isSameAddress(storedDaoRoles?.owner, walletAddress) ||
@@ -277,7 +280,7 @@ export const useDaoQuery = (daoAddress: string) => {
 
       const canViewFetchedHiddenDao =
         !isHiddenDao ||
-        hasHiddenDaoAccess ||
+        (!isStrictHiddenDao && hasHiddenDaoAccess) ||
         isSameAddress(dao.daoRoles.owner, walletAddress) ||
         isSameAddress(dao.daoRoles.proposalOwner, walletAddress);
 
@@ -517,16 +520,24 @@ const useGetProposalWithFallback = (proposalAddress: string) => {
     if (!proposal) {
       proposal = queryClient.getQueryData<Proposal | undefined>(key);
     }
+
+    if (!proposal) {
+      return proposal;
+    }
     
+    const metadata = proposal?.metadata
+      ? ({
+          ...proposal.metadata,
+          description: getProposalDescription(
+            proposalAddress!,
+            proposal.metadata.description
+          ),
+        } as Proposal["metadata"])
+      : undefined;
+
     proposal = {
       ...proposal,
-      metadata: {
-        ...proposal?.metadata,
-        description: getProposalDescription(
-          proposalAddress!,
-          proposal?.metadata?.description
-        ),
-      },
+      metadata: applyLocalProposalMetadata(proposalAddress!, metadata),
     } as Proposal;
     return proposal;
   };
@@ -569,12 +580,15 @@ export const useProposalQuery = (
       if (mockProposal) {
         return mockProposal;
       }
-      const foundationProposals = await (
-        await import("../data/foundation/data")
-      ).getFoundationProposals();
-      const foundationProposal = foundationProposals[proposalAddress!];
-      if (foundationProposal) {
-        return foundationProposal;
+
+      if (FOUNDATION_PROPOSALS_ADDRESSES.includes(proposalAddress!)) {
+        const foundationProposals = await (
+          await import("../data/foundation/data")
+        ).getFoundationProposals();
+        const foundationProposal = foundationProposals[proposalAddress!];
+        if (foundationProposal) {
+          return foundationProposal;
+        }
       }
 
       if (isVoting) {
@@ -651,11 +665,14 @@ export const useProposalQuery = (
       onError: (error: Error) => {
         setError(true);
       },
+      onSuccess: () => {
+        setError(false);
+      },
       refetchOnReconnect: false,
       enabled: !!proposalAddress && !args?.disabled,
       staleTime: Infinity,
       refetchInterval: error
-        ? 0
+        ? false
         : isWhitelisted
         ? config.refetchInterval
         : undefined,

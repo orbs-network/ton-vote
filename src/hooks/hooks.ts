@@ -43,6 +43,7 @@ import {
   isSameAddress,
   isNftProposal,
   isDaoHidden,
+  isDaoStrictHidden,
   validateAddress,
 } from "utils";
 import { useQuery } from "@tanstack/react-query";
@@ -227,7 +228,8 @@ export const useInitHiddenDaoAccess = () => {
     if (
       showHiddenDao &&
       validateAddress(showHiddenDao) &&
-      isDaoHidden(showHiddenDao)
+      isDaoHidden(showHiddenDao) &&
+      !isDaoStrictHidden(showHiddenDao)
     ) {
       addHiddenDao(showHiddenDao);
     }
