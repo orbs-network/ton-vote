@@ -32,7 +32,7 @@
     "httpsv2Endpoint": "HTTP v2 endpoint",
     "httpsv2ApiKey": "HTTP v2 API key",
     "httpv4Endpoint": "HTTP v4 endpoint",
-    "tonAccessEnpoint": "Default endpoint [(Orbs Ton Access)](https://www.orbs.com/ton-access/)",
+    "tonAccessEnpoint": "Default endpoint (Toncenter + Tonhub)",
     "customEndpoint": "Custom endpoint",
     "verify": "Verify",
     "verifyResults": "Verify results",

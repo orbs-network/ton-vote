@@ -1,18 +1,16 @@
-import { Fade, Radio, styled, Typography } from "@mui/material";
+import { Radio, styled, Typography } from "@mui/material";
 import {
   CLIENT_V2_API_KEY,
   DEFAULT_CLIENT_V2_ENDPOINT,
   DEFAULT_CLIENT_V4_ENDPOINT,
 } from "config";
-import _ from "lodash";
 import { useEffect, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import AnimateHeight from "react-animate-height";
 import { Endpoints, FormArgs } from "types";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { Button, FormikInputsForm, Markdown, Popup } from "components";
-import { useEnpointsStore } from "../store";
+import { Button, FormikInputsForm, Popup } from "components";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 
@@ -69,18 +67,15 @@ export function EndpointPopup({
   onClose: () => void;
   onSubmit: ({ clientV2Endpoint, clientV4Endpoint, apiKey }: Endpoints) => void;
 }) {
-  const { endpoints } = useEnpointsStore();
   const [customSelected, setCustomSelected] = useState(false);
   const validationSchema = useFormSchema();
   const translations = useProposalPageTranslations();
   const form = useForm()
   const formik = useFormik<EndpointForm>({
     initialValues: {
-      apiKey: endpoints?.apiKey || CLIENT_V2_API_KEY,
-      clientV2Endpoint:
-        endpoints?.clientV2Endpoint || DEFAULT_CLIENT_V2_ENDPOINT,
-      clientV4Endpoint:
-        endpoints?.clientV4Endpoint || DEFAULT_CLIENT_V4_ENDPOINT,
+      apiKey: "",
+      clientV2Endpoint: "",
+      clientV4Endpoint: "",
     },
     validationSchema,
     validateOnChange: false,
@@ -98,20 +93,29 @@ export function EndpointPopup({
   const _onSubmit = () => {
     if (customSelected) {
       formik.submitForm();
-    } else {
-      onSubmit({});
-       onClose();
+      return;
     }
-   
+
+    onSubmit({
+      clientV2Endpoint: DEFAULT_CLIENT_V2_ENDPOINT,
+      clientV4Endpoint: DEFAULT_CLIENT_V4_ENDPOINT,
+      apiKey: CLIENT_V2_API_KEY,
+    });
+    onClose();
   };
 
-  
-
   useEffect(() => {
-    setCustomSelected(
-      !!endpoints?.clientV2Endpoint && !!endpoints.clientV4Endpoint
-    );
-  }, [endpoints?.clientV2Endpoint, endpoints?.clientV4Endpoint, open]);
+    if (!open) return;
+
+    setCustomSelected(false);
+    formik.resetForm({
+      values: {
+        apiKey: "",
+        clientV2Endpoint: "",
+        clientV4Endpoint: "",
+      },
+    });
+  }, [open]);
 
   return (
     <StyledPopup
@@ -121,14 +125,14 @@ export function EndpointPopup({
     >
       <StyledFlexColumn gap={0}>
         <StyledFlexColumn gap={5}>
-          <StyledRadio>
+          <StyledRadio onClick={() => setCustomSelected(false)}>
             <Radio
               checked={!customSelected}
               onChange={() => setCustomSelected(false)}
             />
-            <Markdown>{translations.tonAccessEnpoint}</Markdown>
+            <Typography>{translations.tonAccessEnpoint}</Typography>
           </StyledRadio>
-          <StyledRadio>
+          <StyledRadio onClick={() => setCustomSelected(true)}>
             <Radio
               checked={customSelected}
               onChange={() => setCustomSelected(true)}
@@ -153,12 +157,8 @@ export function EndpointPopup({
 }
 
 const StyledRadio = styled(StyledFlexRow)({
-  a: {
-    textDecoration: "unset",
-    fontWeight: 500,
-    fontSize: 17,
-  },
   justifyContent: "flex-start",
+  cursor: "pointer",
   p: {
     fontWeight: 500,
     fontSize: 17,

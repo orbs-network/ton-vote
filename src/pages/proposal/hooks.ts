@@ -3,7 +3,6 @@ import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import _ from "lodash";
 import { isSameAddress, Logger } from "utils";
 import { useEnpointsStore } from "./store";
-import { getClientV2, getClientV4 } from "ton-vote-contracts-sdk";
 import { Endpoints, Proposal, ProposalResults, Vote } from "types";
 import { contract } from "contract";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
@@ -14,6 +13,10 @@ import { useTonAddress } from "@tonconnect/ui-react";
 import { useEffect, useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
+import {
+  getClientV2FallbackEndpoints,
+  getClientV4FallbackEndpoints,
+} from "rpc";
 
 const handleNulls = (_result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -45,12 +48,6 @@ export const useVerifyProposalResults = () => {
       setEndpoints(customEndpoints);
       const _endpoints = customEndpoints || endpoints;
       const promiseFn = async () => {
-        const clientV2 = await getClientV2(
-          _endpoints?.clientV2Endpoint,
-          _endpoints?.apiKey
-        );
-        const clientV4 = await getClientV4(_endpoints?.clientV4Endpoint);
-
         // if user voted, we need to get transactions after his vote
         const maxLtAfterVote =
           votePersistStore.getValues(proposalAddress).maxLtAfterVote;
@@ -58,8 +55,13 @@ export const useVerifyProposalResults = () => {
         const maxLt = maxLtAfterVote || data?.maxLt || "";
 
         const contractState = await contract.getProposal({
-          clientV2,
-          clientV4,
+          clientV2Endpoints: getClientV2FallbackEndpoints(
+            _endpoints?.clientV2Endpoint,
+            _endpoints?.apiKey
+          ),
+          clientV4Endpoints: getClientV4FallbackEndpoints(
+            _endpoints?.clientV4Endpoint
+          ),
           proposalAddress,
           metadata: data?.metadata,
           maxLt,

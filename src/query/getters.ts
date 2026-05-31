@@ -7,11 +7,9 @@ import {
   REFETCH_INTERVALS,
   BLACKLISTED_PROPOSALS,
 } from "config";
-import { Dao, Proposal } from "types";
+import { Dao, Proposal, Vote } from "types";
 import _ from "lodash";
 import {
-  getClientV2,
-  getClientV4,
   getSingleVoterPower,
   getDaoState,
   getRegistryState,
@@ -24,6 +22,7 @@ import {
   isDaoWhitelisted,
   isProposalWhitelisted,
   isSameAddress,
+  isSameVoteChoice,
   Logger,
   nFormatter,
   normalizeTonAddress,
@@ -57,7 +56,10 @@ import { routes } from "consts";
 import { lib } from "lib";
 import { useAnalytics } from "analytics";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
-import { getResultWithClientV4Fallback } from "rpc";
+import {
+  getResultWithClientV2Fallback,
+  getResultWithClientV4Fallback,
+} from "rpc";
 
 const toNonBounceableAddress = (address: string) => {
   try {
@@ -74,11 +76,13 @@ const getDisplayedDaoRoleAddress = (storedAddress: string | undefined, address: 
 };
 
 export const useRegistryStateQuery = () => {
-  const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.REGISTRY_STATE],
     async () => {
-      const result = await getRegistryState(clients!.clientV2, releaseMode);
+      const result = await getResultWithClientV2Fallback({
+        request: (clientV2) => getRegistryState(clientV2, releaseMode),
+        logPrefix: "Fetching registry state",
+      });
 
       return {
         ...result,
@@ -86,15 +90,11 @@ export const useRegistryStateQuery = () => {
           ? fromNano(result!.deployAndInitDaoFee)
           : "",
       };
-    },
-    {
-      enabled: !!clients?.clientV2,
     }
   );
 };
 
 export const useDaoStateQuery = (daoAddress?: string) => {
-  const clients = useGetClients().data;
   return useQuery(
     [QueryKeys.DAO_STATE],
     async () => {
@@ -107,14 +107,17 @@ export const useDaoStateQuery = (daoAddress?: string) => {
           daoIndex: 2,
           fwdMsgFee: 2,
         };
-      const result = await getDaoState(clients!.clientV2, daoAddress!);
+      const result = await getResultWithClientV2Fallback({
+        request: (clientV2) => getDaoState(clientV2, daoAddress!),
+        logPrefix: `Fetching DAO state ${daoAddress}`,
+      });
       return {
         ...result,
         fwdMsgFee: fromNano(result!.fwdMsgFee),
       };
     },
     {
-      enabled: !!clients?.clientV2 && !!daoAddress,
+      enabled: !!daoAddress,
     }
   );
 };
@@ -203,21 +206,22 @@ export const useDaoQuery = (daoAddress: string) => {
   const key = isHiddenDao
     ? [QueryKeys.DAO, daoAddress, walletAddress, hasHiddenDaoAccess]
     : [QueryKeys.DAO, daoAddress];
+  const cachedDao = queryClient.getQueryData<Dao>(key);
+  const canViewHiddenDao =
+    !isHiddenDao ||
+    hasHiddenDaoAccess ||
+    isSameAddress(cachedDao?.daoRoles.owner, walletAddress) ||
+    isSameAddress(cachedDao?.daoRoles.proposalOwner, walletAddress) ||
+    isSameAddress(storedDaoRoles?.owner, walletAddress) ||
+    isSameAddress(storedDaoRoles?.proposalOwner, walletAddress);
+
   return useQuery<Dao | null>(
     key,
     async ({ signal }) => {
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
       }
-
-      const mockDao = mock.isMockDao(daoAddress!);
-      if (mockDao) {
-        return {
-          ...mockDao,
-          daoProposals: mock.proposalAddresses,
-        };
-      }
-
+      
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
 
       const isMetadataUpToDate = await getIsServerUpToDate(metadataLastUpdate);
@@ -242,8 +246,9 @@ export const useDaoQuery = (daoAddress: string) => {
           analytics.getDaoFromServerFailed(daoAddress!, error);
         }
       }
-
+      
       if (!dao) {
+        
         try {
           dao = await getDaoFromContract();
         } catch (error) {
@@ -257,15 +262,6 @@ export const useDaoQuery = (daoAddress: string) => {
       }
 
       if (!dao) {
-        throw new Error("DAO not found");
-      }
-
-      const canViewHiddenDao =
-        hasHiddenDaoAccess ||
-        isSameAddress(dao.daoRoles.owner, walletAddress) ||
-        isSameAddress(dao.daoRoles.proposalOwner, walletAddress);
-
-      if (isHiddenDao && !canViewHiddenDao) {
         throw new Error("DAO not found");
       }
 
@@ -301,24 +297,10 @@ export const useDaoQuery = (daoAddress: string) => {
     },
     {
       staleTime: config.staleTime,
-      refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
-      enabled: !!daoAddress,
+      refetchInterval:
+        isWhitelisted && canViewHiddenDao ? config.refetchInterval : undefined,
+      enabled: !!daoAddress && canViewHiddenDao,
       retry: false,
-    }
-  );
-};
-
-export const useGetClients = () => {
-  return useQuery(
-    [QueryKeys.CLIENTS],
-    async () => {
-      return {
-        clientV2: await getClientV2(),
-        clientV4: await getClientV4(),
-      };
-    },
-    {
-      staleTime: Infinity,
     }
   );
 };
@@ -408,6 +390,20 @@ interface ProposalQueryArgs {
   isCustomEndpoint?: boolean;
 }
 
+const getMatchingServerVote = (
+  proposal: Proposal,
+  persistedVote?: Vote
+) => {
+  if (!persistedVote) return;
+
+  return _.find(
+    proposal.votes,
+    (vote) =>
+      isSameAddress(vote.address, persistedVote.address) &&
+      isSameVoteChoice(vote.vote, persistedVote.vote)
+  );
+};
+
 const useGetProposalWithFallback = (proposalAddress: string) => {
   const analytics = useAnalytics();
   const queryClient = useQueryClient();
@@ -483,7 +479,6 @@ export const useProposalQuery = (
   proposalAddress: string,
   args?: ProposalQueryArgs
 ) => {
-  const clients = useGetClients().data;
   const votePersistStore = useVotePersistedStore();
   const { getProposalUpdateMillis, removeProposalUpdateMillis } =
     useSyncStore();
@@ -552,13 +547,20 @@ export const useProposalQuery = (
         Number(proposal?.maxLt) >= Number(maxLtAfterVote);
       const persistedResult = votePersistValues.results;
       const persistedVote = votePersistValues.vote;
+      const serverVote = getMatchingServerVote(proposal, persistedVote);
 
       if (
         !maxLtAfterVote ||
         serverMaxLtUpToDate ||
+        serverVote ||
         !persistedResult ||
         !persistedVote
       ) {
+        if (serverVote && !serverMaxLtUpToDate) {
+          Logger(
+            `server proposal already includes persisted vote, clearing local storage fallback, proposal maxLt: ${proposal?.maxLt}, latestMaxLtAfterTx: ${maxLtAfterVote}`
+          );
+        }
         votePersistStore.resetValues(proposalAddress!);
 
         return proposal;
@@ -587,11 +589,7 @@ export const useProposalQuery = (
         setError(true);
       },
       refetchOnReconnect: false,
-      enabled:
-        !!proposalAddress &&
-        !!clients?.clientV2 &&
-        !!clients.clientV4 &&
-        !args?.disabled,
+      enabled: !!proposalAddress && !args?.disabled,
       staleTime: Infinity,
       refetchInterval: error
         ? 0

@@ -77,6 +77,29 @@ export const getClientV4RpcEndpoints = (clientV4?: TonClient4) => {
   ];
 };
 
+export const getClientV2FallbackEndpoints = (
+  endpoint?: string,
+  apiKey?: string
+): RpcEndpoint<TonClient>[] => {
+  if (!endpoint) return CLIENT_V2_RPC_ENDPOINTS;
+
+  return [
+    { label: "selected-v2-client", endpoint, apiKey },
+    ...CLIENT_V2_RPC_ENDPOINTS.filter((rpc) => rpc.endpoint !== endpoint),
+  ];
+};
+
+export const getClientV4FallbackEndpoints = (
+  endpoint?: string
+): RpcEndpoint<TonClient4>[] => {
+  if (!endpoint) return CLIENT_V4_RPC_ENDPOINTS;
+
+  return [
+    { label: "selected-v4-client", endpoint },
+    ...CLIENT_V4_RPC_ENDPOINTS.filter((rpc) => rpc.endpoint !== endpoint),
+  ];
+};
+
 const getRpcLabel = <TClient,>(rpc: RpcEndpoint<TClient>) => {
   return rpc.label || rpc.endpoint || "default";
 };
@@ -151,9 +174,6 @@ export const getResultWithClientV2Fallback = async <TResult>({
     getClient: ({ endpoint, apiKey }) => getClientV2(endpoint, apiKey),
   });
 };
-
-export const getConfiguredClientV2 = () =>
-  getClientV2(DEFAULT_CLIENT_V2_ENDPOINT, CLIENT_V2_API_KEY);
 
 export const getResultWithClientV4Fallback = async <TResult>({
   endpoints = CLIENT_V4_RPC_ENDPOINTS,

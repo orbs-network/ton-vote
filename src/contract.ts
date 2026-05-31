@@ -6,8 +6,6 @@ import {
   filterTxByTimestamp,
   getAllNftHolders,
   getAllVotes,
-  getClientV2,
-  getClientV4,
   getProposalMetadata,
   getSingleVoterPower,
   getTransactions,
@@ -25,84 +23,109 @@ import {
 import retry from "async-retry";
 import { CONTRACT_RETRIES } from "config";
 import { api } from "api";
+import {
+  getClientV2RpcEndpoints,
+  getClientV4RpcEndpoints,
+  getResultWithClientV2Fallback,
+  getResultWithClientV4Fallback,
+  RpcEndpoint,
+} from "rpc";
 
 interface GetProposalArgs {
   clientV2?: TonClient;
   clientV4?: TonClient4;
+  clientV2Endpoints?: RpcEndpoint<TonClient>[];
+  clientV4Endpoints?: RpcEndpoint<TonClient4>[];
   proposalAddress: string;
   metadata?: ProposalMetadata;
   maxLt?: string;
 }
 
-const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
-  const { clientV2, clientV4, proposalAddress, maxLt } = args;
-
+const getProposalWithClients = async (
+  args: GetProposalArgs,
+  clientV2: TonClient,
+  clientV4: TonClient4
+): Promise<Proposal> => {
+  const { proposalAddress, maxLt } = args;
   const proposalType = getVoteStrategyType(
     args.metadata?.votingPowerStrategies
   );
+  let newMaxLt = undefined;
+
+  const metadata =
+    args.metadata ||
+    (await getProposalMetadata(clientV2, clientV4, proposalAddress));
+  let transactions: Transaction[];
+  const result = await getTransactions(clientV2, proposalAddress);
+  newMaxLt = result.maxLt;
+  if (maxLt) {
+    transactions = filterTxByTimestamp(result.allTxns, maxLt);
+  } else {
+    transactions = result.allTxns;
+  }
+
+  const { votingPowerStrategies } = metadata;
+
+  const nftItemsHolders = await _getAllNftHolders(metadata, clientV4);
+
+  let operatingValidatorsInfo = {};
+
+  if (proposalType === VotingPowerStrategyType.TonBalanceWithValidators) {
+    operatingValidatorsInfo = await api.geOperatingValidatorsInfo(
+      proposalAddress
+    );
+  }
+
+  const votingPower = await TonVoteSDK.getVotingPower(
+    clientV4,
+    metadata,
+    transactions,
+    {},
+    getVoteStrategyType(votingPowerStrategies),
+    nftItemsHolders,
+    operatingValidatorsInfo
+  );
+
+  const proposalResult = TonVoteSDK.getCurrentResults(
+    transactions,
+    votingPower,
+    metadata
+  );
+
+  proposalResult.totalWeight = proposalResult.totalWeights;
+  const { totalWeights, ...rest } = proposalResult;
+  const votes = TonVoteSDK.getAllVotes(transactions, metadata);
+
+  return {
+    votingPower,
+    proposalResult: rest as any,
+    votes: parseVotes(votes, votingPower),
+    metadata,
+    maxLt: newMaxLt,
+    rawVotes: votes,
+  };
+};
+
+const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
+  const { clientV2, clientV4, proposalAddress } = args;
 
   const promise = async (bail: any, attempt: number) => {
     Logger(
       `Fetching proposal from contract, address: ${proposalAddress}, attempt: ${attempt}`
     );
     try {
-      let newMaxLt = undefined;
-
-      const _clientV2 = clientV2 || (await getClientV2());
-      const _clientV4 = clientV4 || (await getClientV4());
-
-      const metadata =
-        args.metadata ||
-        (await getProposalMetadata(_clientV2, _clientV4, proposalAddress));
-      let transactions: Transaction[];
-      const result = await getTransactions(_clientV2, proposalAddress);
-      newMaxLt = result.maxLt;
-      if (maxLt) {
-        transactions = filterTxByTimestamp(result.allTxns, maxLt);
-      } else {
-        transactions = result.allTxns;
-      }
-
-      const { votingPowerStrategies } = metadata;
-
-      const nftItemsHolders = await _getAllNftHolders(metadata, _clientV4);
-
-      let operatingValidatorsInfo = {};
-
-      if (proposalType === VotingPowerStrategyType.TonBalanceWithValidators) {
-        operatingValidatorsInfo = await api.geOperatingValidatorsInfo(
-          proposalAddress
-        );
-      }
-
-      const votingPower = await TonVoteSDK.getVotingPower(
-        _clientV4,
-        metadata,
-        transactions,
-        {},
-        getVoteStrategyType(votingPowerStrategies),
-        nftItemsHolders,
-        operatingValidatorsInfo
-      );
-
-      const proposalResult = TonVoteSDK.getCurrentResults(
-        transactions,
-        votingPower,
-        metadata
-      );
-
-      proposalResult.totalWeight = proposalResult.totalWeights;
-      const { totalWeights, ...rest } = proposalResult;
-      const votes = TonVoteSDK.getAllVotes(transactions, metadata);
-
-      return {
-        votingPower,
-        proposalResult: rest as any,
-        votes: parseVotes(votes, votingPower),
-        metadata,
-        maxLt: newMaxLt,
-        rawVotes: votes,
-      };
+      return getResultWithClientV2Fallback({
+        endpoints: args.clientV2Endpoints || getClientV2RpcEndpoints(clientV2),
+        request: (clientV2) =>
+          getResultWithClientV4Fallback({
+            endpoints:
+              args.clientV4Endpoints || getClientV4RpcEndpoints(clientV4),
+            request: (clientV4) =>
+              getProposalWithClients(args, clientV2, clientV4),
+            logPrefix: `Fetching proposal ${proposalAddress} V4`,
+          }),
+        logPrefix: `Fetching proposal ${proposalAddress} V2`,
+      });
     } catch (error) {
       Logger(error);
       if (attempt === CONTRACT_RETRIES + 1) {
@@ -127,13 +150,11 @@ const getProposalResultsAfterVote = async (
   const { proposalAddress, walletAddress, proposal } = args;
   const metadata = proposal.metadata;
 
-  const clientV2 = await getClientV2();
-  const clientV4 = await getClientV4();
-  const { allTxns, maxLt } = await getTransactions(
-    clientV2,
-    proposalAddress,
-    proposal.maxLt
-  );
+  const { allTxns, maxLt } = await getResultWithClientV2Fallback({
+    request: (clientV2) =>
+      getTransactions(clientV2, proposalAddress, proposal.maxLt),
+    logPrefix: `Fetching transactions after vote ${proposalAddress}`,
+  });
 
   const userTx = _.find(allTxns, (tx) => {
     return isSameAddress(tx.inMessage?.info.src?.toString(), walletAddress);
@@ -141,15 +162,21 @@ const getProposalResultsAfterVote = async (
 
   if (!userTx || !metadata) return;
 
-  const nftItemsHolders = await getAllNftHolders(clientV4, metadata);
-
-  const singleVotingPower = await getSingleVoterPower(
-    clientV4,
-    walletAddress,
-    metadata,
-    getVoteStrategyType(metadata.votingPowerStrategies),
-    nftItemsHolders
-  );
+  const { singleVotingPower } = await getResultWithClientV4Fallback({
+    request: async (clientV4) => {
+      const nftItemsHolders = await getAllNftHolders(clientV4, metadata);
+      return {
+        singleVotingPower: await getSingleVoterPower(
+          clientV4,
+          walletAddress,
+          metadata,
+          getVoteStrategyType(metadata.votingPowerStrategies),
+          nftItemsHolders
+        ),
+      };
+    },
+    logPrefix: `Fetching voting power after vote ${proposalAddress}`,
+  });
 
   const rawVotes = getAllVotes([userTx], metadata);
   const votingPower = proposal.votingPower || {};
@@ -177,31 +204,35 @@ export const getDao = async (daoAddress: string, clientV2?: TonClient) => {
     Logger(
       `Fetching dao from contract, address ${daoAddress}, attempt: ${attempt}`
     );
-    const client = clientV2 || (await getClientV2());
+    return getResultWithClientV2Fallback({
+      endpoints: getClientV2RpcEndpoints(clientV2),
+      request: async (client) => {
+        const daoState = await TonVoteSDK.getDaoState(client, daoAddress);
 
-    const daoState = await TonVoteSDK.getDaoState(client, daoAddress);
+        const metadataArgs = await TonVoteSDK.getDaoMetadata(
+          client,
+          daoState.metadata
+        );
 
-    const metadataArgs = await TonVoteSDK.getDaoMetadata(
-      client,
-      daoState.metadata
-    );
-
-    const daoFromContract: Dao = {
-      daoAddress: daoAddress,
-      daoRoles: {
-        owner: daoState.owner,
-        proposalOwner: daoState.proposalOwner,
+        const daoFromContract: Dao = {
+          daoAddress: daoAddress,
+          daoRoles: {
+            owner: daoState.owner,
+            proposalOwner: daoState.proposalOwner,
+          },
+          daoMetadata: {
+            metadataAddress: "",
+            metadataArgs,
+          },
+          daoId: daoState.daoIndex,
+          daoProposals:
+            (await TonVoteSDK.getDaoProposals(client, daoAddress))
+              .proposalAddresses || [],
+        };
+        return daoFromContract;
       },
-      daoMetadata: {
-        metadataAddress: "",
-        metadataArgs,
-      },
-      daoId: daoState.daoIndex,
-      daoProposals:
-        (await TonVoteSDK.getDaoProposals(client, daoAddress))
-          .proposalAddresses || [],
-    };
-    return daoFromContract;
+      logPrefix: `Fetching DAO ${daoAddress}`,
+    });
   };
 
   return retry(promise, { retries: CONTRACT_RETRIES });
@@ -216,8 +247,11 @@ const _getAllNftHolders = (
   }
   const promise = async (bail: any, attempt: number) => {
     Logger(`Fetching all nft holders, attempt: ${attempt}`);
-    const _clientV4 = clientV4 || (await getClientV4());
-    return getAllNftHolders(_clientV4, metadata);
+    return getResultWithClientV4Fallback({
+      endpoints: getClientV4RpcEndpoints(clientV4),
+      request: (clientV4) => getAllNftHolders(clientV4, metadata),
+      logPrefix: "Fetching all NFT holders",
+    });
   };
   return retry(promise, { retries: CONTRACT_RETRIES });
 };

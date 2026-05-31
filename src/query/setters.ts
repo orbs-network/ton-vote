@@ -10,7 +10,6 @@ import {
 } from "config";
 import _ from "lodash";
 import {
-  calcProposalResult,
   createNewDaoOnProdAndDev,
   daoSetOwner,
   daoSetProposalOwner,
@@ -52,15 +51,15 @@ import {
   isSameVoteChoice,
   Logger,
   normalizeTonAddress,
-  parseVotes,
   validateAddress,
 } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useAnalytics } from "analytics";
-import { Proposal, ProposalStatus, RawVotes, VotingPower } from "types";
+import { ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
-import { getConfiguredClientV2 } from "rpc";
+import { getResultWithClientV2Fallback } from "rpc";
+import { getManualVoteSuccessValues } from "./manualVoteSuccessValues";
 
 export const useCreateDaoQuery = () => {
   const getSender = useGetSender();
@@ -77,41 +76,40 @@ export const useCreateDaoQuery = () => {
   return useMutation(
     async (args: CreateDaoArgs) => {
       const sender = getSender();
-      const clientV2 = await getConfiguredClientV2();
 
-      let getPromise = () => {
-        
-        if (args.dev && !IS_DEV) {
-          const txFee = createDaoProdFee + createDaoDevFee;
+      const address = await getResultWithClientV2Fallback({
+        request: (clientV2) => {
+          if (args.dev && !IS_DEV) {
+            const txFee = createDaoProdFee + createDaoDevFee;
 
-          return createNewDaoOnProdAndDev(
+            return createNewDaoOnProdAndDev(
+              sender,
+              clientV2,
+              txFee.toString(),
+              args.metadataAddress,
+              args.ownerAddress,
+              args.proposalOwner,
+              createDaoProdFee.toString(),
+              createDaoDevFee.toString(),
+              ReleaseMode.PRODUCTION,
+              ReleaseMode.DEVELOPMENT
+            );
+          }
+          return newDao(
             sender,
             clientV2,
-            txFee.toString(),
+            releaseMode,
+            getTxFee(
+              Number(registryState?.deployAndInitDaoFee),
+              TX_FEES.CREATE_DAO
+            ),
             args.metadataAddress,
             args.ownerAddress,
-            args.proposalOwner,
-            createDaoProdFee.toString(),
-            createDaoDevFee.toString(),
-            ReleaseMode.PRODUCTION,
-            ReleaseMode.DEVELOPMENT
+            args.proposalOwner
           );
-        }
-        return newDao(
-          sender,
-          clientV2,
-          releaseMode,
-          getTxFee(
-            Number(registryState?.deployAndInitDaoFee),
-            TX_FEES.CREATE_DAO
-          ),
-          args.metadataAddress,
-          args.ownerAddress,
-          args.proposalOwner
-        );
-      };
-
-      const address = await getPromise();
+        },
+        logPrefix: "Creating DAO",
+      });
 
       if (typeof address !== "string") {
         throw new Error(
@@ -150,14 +148,17 @@ export const useCreateMetadataQuery = () => {
     async (args: CreateMetadataArgs) => {
       const { metadata } = args;
       const sender = getSender();
-      const clientV2 = await getConfiguredClientV2();
 
-      const address = await newMetdata(
-        sender,
-        clientV2,
-        TX_FEES.CREATE_METADATA.toString(),
-        metadata
-      );
+      const address = await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          newMetdata(
+            sender,
+            clientV2,
+            TX_FEES.CREATE_METADATA.toString(),
+            metadata
+          ),
+        logPrefix: "Creating metadata",
+      });
 
       if (typeof address !== "string") {
         throw new Error(
@@ -204,13 +205,17 @@ export const useCreateProposalQuery = () => {
       if (!allowed) {
         throw new Error("You are not allowed to create a proposal");
       }
-      const address = await newProposal(
-        sender,
-        await getConfiguredClientV2(),
-        getTxFee(Number(daoState?.fwdMsgFee), TX_FEES.FORWARD_MSG),
-        dao?.daoAddress!,
-        metadata as ProposalMetadata
-      );
+      const address = await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          newProposal(
+            sender,
+            clientV2,
+            getTxFee(Number(daoState?.fwdMsgFee), TX_FEES.FORWARD_MSG),
+            dao?.daoAddress!,
+            metadata as ProposalMetadata
+          ),
+        logPrefix: "Creating proposal",
+      });
 
       if (typeof address !== "string") {
         throw new Error(
@@ -264,14 +269,17 @@ export const useSetDaoOwnerQuery = () => {
       if (!validateAddress(newOwner)) {
         throw new Error("Invalid owner address");
       }
-      const clientV2 = await getConfiguredClientV2();
-      await daoSetOwner(
-        getSender(),
-        clientV2,
-        daoAddress,
-        TX_FEES.BASE.toString(),
-        newOwner
-      );
+      await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          daoSetOwner(
+            getSender(),
+            clientV2,
+            daoAddress,
+            TX_FEES.BASE.toString(),
+            newOwner
+          ),
+        logPrefix: "Setting DAO owner",
+      });
       setDisplayOwner(daoAddress, newOwner);
       setDaoUpdateMillis(daoAddress);
       return refetch();
@@ -310,14 +318,17 @@ export const useSetDaoPublisherQuery = () => {
         throw new Error("Invalid proposal owner address");
       }
 
-      const clientV2 = await getConfiguredClientV2();
-      await daoSetProposalOwner(
-        getSender(),
-        clientV2,
-        TX_FEES.BASE.toString(),
-        daoAddress,
-        newOwner
-      );
+      await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          daoSetProposalOwner(
+            getSender(),
+            clientV2,
+            TX_FEES.BASE.toString(),
+            daoAddress,
+            newOwner
+          ),
+        logPrefix: "Setting DAO proposal owner",
+      });
       setDisplayProposalOwner(daoAddress, newOwner);
       setDaoUpdateMillis(daoAddress);
       return refetchDao();
@@ -347,26 +358,33 @@ export const useUpdateDaoMetadataQuery = () => {
       const { metadata, daoAddress } = args;
 
       const sender = getSender();
-      const clientV2 = await getConfiguredClientV2();
 
-      const metadataAddress = await newMetdata(
-        sender,
-        clientV2,
-        TX_FEES.CREATE_METADATA.toString(),
-        metadata
-      );
+      const metadataAddress = await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          newMetdata(
+            sender,
+            clientV2,
+            TX_FEES.CREATE_METADATA.toString(),
+            metadata
+          ),
+        logPrefix: "Creating updated DAO metadata",
+      });
 
       if (typeof metadataAddress !== "string") {
         throw new Error("Failed to update metadata");
       }
 
-      const address = await setMetadata(
-        sender,
-        clientV2,
-        TX_FEES.SET_METADATA.toString(),
-        daoAddress,
-        metadataAddress
-      );
+      const address = await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          setMetadata(
+            sender,
+            clientV2,
+            TX_FEES.SET_METADATA.toString(),
+            daoAddress,
+            metadataAddress
+          ),
+        logPrefix: "Setting DAO metadata",
+      });
 
       if (typeof address !== "string") {
         throw new Error("Failed to update metadata");
@@ -422,15 +440,18 @@ export const useVote = () => {
       }
       setIsVoting(true);
       const sender = getSender();
-      const client = await getConfiguredClientV2();
 
-      await proposalSendMessage(
-        sender,
-        client,
-        TX_FEES.VOTE_FEE.toString(),
-        proposalAddress,
-        _vote
-      );
+      await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          proposalSendMessage(
+            sender,
+            clientV2,
+            TX_FEES.VOTE_FEE.toString(),
+            proposalAddress,
+            _vote
+          ),
+        logPrefix: `Voting on proposal ${proposalAddress}`,
+      });
 
       return getManualVoteSuccessValues({
         proposal,
@@ -492,90 +513,7 @@ export const useVote = () => {
   );
 };
 
-const getNextMaxLt = (maxLt?: string) => {
-  try {
-    return (BigInt(maxLt || "0") + 1n).toString();
-  } catch (error) {
-    return maxLt || "1";
-  }
-};
-
-const omitAddress = <T,>(values: { [key: string]: T } = {}, address: string) =>
-  _.omitBy(values, (_value, key) => isSameAddress(key, address));
-
-const getVotingPowerForWallet = (
-  proposal: Proposal,
-  walletAddress: string,
-  cachedVotingPower?: string
-) => {
-  if (cachedVotingPower) return cachedVotingPower;
-
-  return _.find(
-    proposal.votingPower,
-    (_votingPower, address) => isSameAddress(address, walletAddress)
-  );
-};
-
-const getManualVoteSuccessValues = ({
-  proposal,
-  proposalAddress,
-  walletAddress,
-  vote,
-  cachedVotingPower,
-}: {
-  proposal: Proposal;
-  proposalAddress: string;
-  walletAddress: string;
-  vote: string;
-  cachedVotingPower?: string;
-}) => {
-  if (!proposal.metadata || !walletAddress) {
-    throw new Error("Failed to update vote locally");
-  }
-
-  const votingPower = getVotingPowerForWallet(
-    proposal,
-    walletAddress,
-    cachedVotingPower
-  );
-
-  if (!votingPower) {
-    throw new Error("Voting power not found");
-  }
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const rawVote = {
-    vote: vote.toLowerCase(),
-    timestamp,
-    hash: "",
-  };
-  const rawVotes: RawVotes = {
-    ...omitAddress(proposal.rawVotes || {}, walletAddress),
-    [walletAddress]: rawVote,
-  };
-  const votingPowerMap: VotingPower = {
-    ...omitAddress(proposal.votingPower || {}, walletAddress),
-    [walletAddress]: votingPower,
-  };
-  const proposalResults = calcProposalResult(
-    rawVotes,
-    votingPowerMap,
-    proposal.metadata.votingSystem
-  );
-  const parsedVote = parseVotes({ [walletAddress]: rawVote }, votingPowerMap);
-
-  Logger(`vote success locally updated proposal ${proposalAddress}`);
-
-  return {
-    proposalResults,
-    maxLt: getNextMaxLt(proposal.maxLt),
-    rawVotes,
-    votingPower: votingPowerMap,
-    vote: parsedVote[0],
-  };
-};
-
-export const useUpdateProposalMutation = () => {
+export const useUpdateProposalMutation = (args?: { onSuccess?: () => void }) => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
   const { setProposalUpdateMillis } = useSyncStore();
@@ -600,21 +538,25 @@ export const useUpdateProposalMutation = () => {
       }
 
       const sender = getSender();
-      const client = await getConfiguredClientV2();
 
-      await updateProposal(
-        sender,
-        client,
-        TX_FEES.FORWARD_MSG.toString(),
-        daoAddress,
-        proposalAddress,
-        metadata
-      );
+      await getResultWithClientV2Fallback({
+        request: (clientV2) =>
+          updateProposal(
+            sender,
+            clientV2,
+            TX_FEES.FORWARD_MSG.toString(),
+            daoAddress,
+            proposalAddress,
+            metadata
+          ),
+        logPrefix: `Updating proposal ${proposalAddress}`,
+      });
     },
     {
       onSuccess: () => {
         showSuccessToast("Proposal updated");
         setProposalUpdateMillis(proposalAddress);
+        args?.onSuccess?.();
         proposalPage.root(daoAddress, proposalAddress);
       },
       onError: (error: Error) => {

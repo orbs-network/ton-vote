@@ -14,7 +14,7 @@ import {
 } from "ton-vote-contracts-sdk";
 import { isSameAddress, validateAddress } from "utils";
 import { useRegistryStateQuery } from "./getters";
-import { getConfiguredClientV2 } from "rpc";
+import { getResultWithClientV2Fallback } from "rpc";
 
 const useRegistryAdminPromise = () => {
   const { refetch, data } = useRegistryStateQuery();
@@ -52,15 +52,18 @@ const useSetDaoFwdMsgFee = () => {
         if (amount < 0) {
           throw new Error("Forward Message Fee must be at least 0");
         }
-        const client = await getConfiguredClientV2();
-        return setFwdMsgFee(
-          getSender(),
-          client,
-          releaseMode,
-          TX_FEES.BASE.toString(),
-          daoIds.map((it) => it.toString()),
-          amount.toString()
-        );
+        return getResultWithClientV2Fallback({
+          request: (clientV2) =>
+            setFwdMsgFee(
+              getSender(),
+              clientV2,
+              releaseMode,
+              TX_FEES.BASE.toString(),
+              daoIds.map((it) => it.toString()),
+              amount.toString()
+            ),
+          logPrefix: "Setting DAO forward message fee",
+        });
       };
 
       return registryAdminPromise(promise);
@@ -84,15 +87,18 @@ const useSetFwdFeeForNewDaos = () => {
     async (fee: string) => {
       const promise = async () => {
         const sender = getSender();
-        const clientV2 = await getConfiguredClientV2();
 
-        return setNewDaoFwdMsgFee(
-          sender,
-          clientV2,
-          releaseMode,
-          TX_FEES.BASE.toString(),
-          fee
-        );
+        return getResultWithClientV2Fallback({
+          request: (clientV2) =>
+            setNewDaoFwdMsgFee(
+              sender,
+              clientV2,
+              releaseMode,
+              TX_FEES.BASE.toString(),
+              fee
+            ),
+          logPrefix: "Setting new DAO forward message fee",
+        });
       };
       return registryAdminPromise(promise);
     },
@@ -127,15 +133,18 @@ const useSetRegistryAdmin = () => {
         if (!newRegistryAdmin || !validateAddress(newRegistryAdmin)) {
           throw new Error("Invalid register admin address");
         }
-        const client = await getConfiguredClientV2();
 
-        return setRegistryAdmin(
-          getSender(),
-          client,
-          releaseMode,
-          TX_FEES.BASE.toString(),
-          newRegistryAdmin
-        );
+        return getResultWithClientV2Fallback({
+          request: (clientV2) =>
+            setRegistryAdmin(
+              getSender(),
+              clientV2,
+              releaseMode,
+              TX_FEES.BASE.toString(),
+              newRegistryAdmin
+            ),
+          logPrefix: "Setting registry admin",
+        });
       };
       return registryAdminPromise(promise);
     },
@@ -162,14 +171,17 @@ const useSetCreateDaoFee = () => {
         if (!_.isNumber(value) || value < 0) {
           throw new Error("Fee must be zero or positive");
         }
-        const client = await getConfiguredClientV2();
-        return setDeployAndInitDaoFee(
-          getSender(),
-          client,
-          releaseMode,
-          TX_FEES.BASE.toString(),
-          value.toString()
-        );
+        return getResultWithClientV2Fallback({
+          request: (clientV2) =>
+            setDeployAndInitDaoFee(
+              getSender(),
+              clientV2,
+              releaseMode,
+              TX_FEES.BASE.toString(),
+              value.toString()
+            ),
+          logPrefix: "Setting create DAO fee",
+        });
       };
 
       return registryAdminPromise(promise);
@@ -199,15 +211,18 @@ const useCreateNewRegistry = () => {
           throw new Error("Invalid release mode");
         }
 
-        const clientV2 = await getConfiguredClientV2();
         const sender = getSender();
-        return newRegistry(
-          sender,
-          clientV2,
-          releaseMode,
-          TX_FEES.BASE.toString(),
-          address!
-        );
+        return getResultWithClientV2Fallback({
+          request: (clientV2) =>
+            newRegistry(
+              sender,
+              clientV2,
+              releaseMode,
+              TX_FEES.BASE.toString(),
+              address!
+            ),
+          logPrefix: "Creating registry",
+        });
       };
 
       return registryAdminPromise(promise);

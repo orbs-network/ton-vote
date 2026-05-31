@@ -116,7 +116,17 @@ export const clearAllToasts = () => toast.dismiss();
 const StyledContainer = styled(StyledFlexRow)({
   fontSize: 15,
   alignItems: "center",
+  width: "auto",
+  ".MuiBox-root": {
+    display: "flex",
+    alignItems: "center",
+  },
   p: {
-    fontSize: '15px!important',
+    fontSize: "15px!important",
+    lineHeight: "20px",
+    margin: 0,
+  },
+  a: {
+    lineHeight: "20px",
   },
 });

@@ -1,4 +1,4 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { IconButton, styled, useMediaQuery } from "@mui/material";
 import { AppTooltip, ErrorContainer } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Deadline } from "./Deadline";
@@ -6,21 +6,21 @@ import { Metadata } from "./Metadata";
 import { Results } from "./Results";
 import { Vote } from "./Vote";
 import { Votes } from "./Votes";
-import { appNavigation, useAppNavigation } from "router/navigation";
+import { appNavigation } from "router/navigation";
 import {
   useAppParams,
-  useDevFeatures,
-  useHiddenProposal,
+  useAppQueryParams,
   useProposalStatus,
   useRole,
 } from "hooks/hooks";
-import { ProposalStatus } from "types";
+import { Dao, ProposalStatus } from "types";
 import { ProposalAbout } from "./ProposalAbout";
 import { useEffect, useState } from "react";
 import { Page } from "wrappers";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import { useDaoQuery, useProposalQuery } from "query/getters";
-import { mock } from "mock/mock";
+import { EditProposalModal } from "../EditProposalModal";
+import { getProposalStatus } from "utils";
 
 const gap = 15;
 
@@ -54,14 +54,14 @@ const useComponents = () => {
   };
 };
 
-const Destop = () => {
+const Destop = ({ dao }: { dao?: Dao }) => {
   const {  votes, vote, deadline, results } =
     useComponents();
 
   return (
     <StyledWrapper>
       <StyledLeft>
-        <ProposalAbout />
+        <ProposalAbout dao={dao} />
         {vote}
         {votes}
       </StyledLeft>
@@ -74,14 +74,14 @@ const Destop = () => {
   );
 };
 
-const Mobile = () => {
+const Mobile = ({ dao }: { dao?: Dao }) => {
   const { votes, vote, deadline, results } =
     useComponents();
 
   return (
     <StyledWrapper>
       {deadline}
-      <ProposalAbout />
+      <ProposalAbout dao={dao} />
       {vote}
       {results}
       <Metadata />
@@ -93,7 +93,10 @@ const Mobile = () => {
 export function ProposalDisplay() {
   const mobile = useMediaQuery("(max-width:800px)");
   const [showError, setShowError] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const { daoAddress, proposalAddress } = useAppParams();
+  const { data: daoData } = useDaoQuery(daoAddress);
+  const dao = daoData || undefined;
 
   const error = useProposalQuery(proposalAddress).error;
   
@@ -106,45 +109,55 @@ export function ProposalDisplay() {
 
   const errorContainer =  showError;
 
-  const isMock = mock.isMockProposal(proposalAddress);
-
   return (
     <Page
       back={appNavigation.daoPage.root(daoAddress)}
+      headerComponent={
+        <EditButton dao={dao} onClick={() => setEditOpen(true)} />
+      }
     >
       {errorContainer ? (
         <ErrorContainer text="Proposal not found" />
       ) : mobile ? (
-        <Mobile />
+        <Mobile dao={dao} />
       ) : (
-        <Destop />
+        <Destop dao={dao} />
       )}
+      <EditProposalModal
+        dao={dao}
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+      />
     </Page>
   );
 }
 
 export default ProposalDisplay;
 
-const EditButton = () => {
-  const { proposalPage } = useAppNavigation();
-  const { daoAddress, proposalAddress } = useAppParams();
+const EditButton = ({ dao, onClick }: { dao?: Dao; onClick: () => void }) => {
+  const { proposalAddress } = useAppParams();
 
-  const { data: dao } = useDaoQuery(daoAddress);
-
-  const devFeatures = useDevFeatures();
-  const {isLoading} = useProposalQuery(proposalAddress)
+  const {
+    query: { dev },
+  } = useAppQueryParams();
+  const { data: proposal, isLoading } = useProposalQuery(proposalAddress);
+  const { proposalStatus: tickingProposalStatus } =
+    useProposalStatus(proposalAddress);
+  const proposalStatus = proposal?.metadata
+    ? getProposalStatus(proposal.metadata)
+    : tickingProposalStatus;
 
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
 
   if (isLoading) return null;
-  if (!devFeatures) return null;
+  if (dev !== "true") return null;
   if (!isOwner && !isProposalPublisher) return null;
+  if (!proposalStatus) return null;
+  if (proposalStatus !== ProposalStatus.NOT_STARTED) return null;
 
   return (
     <AppTooltip text="Edit">
-      <StyledEditButton
-        onClick={() => proposalPage.edit(daoAddress, proposalAddress)}
-      >
+      <StyledEditButton onClick={onClick}>
         <MdOutlineModeEditOutline
           style={{ width: 20, height: 20, color: "white" }}
         />
@@ -153,7 +166,7 @@ const EditButton = () => {
   );
 };
 
-const StyledEditButton = styled(StyledFlexRow)({
+const StyledEditButton = styled(IconButton)({
   padding: 0,
   width: 35,
   height: 35,

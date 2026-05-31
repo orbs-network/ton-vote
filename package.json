@@ -9,6 +9,7 @@
     "force-dev": "VITE_STAGING=1 vite --force",
     "force-prod": "vite --force",
     "build": "tsc && vite build && cp dist/index.html dist/404.html",
+    "test:manual-vote-server": "node scripts/test-manual-vote-success-values.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
 import Modal from "@mui/material/Modal";
-import { ReactElement } from "react";
+import { MouseEvent, ReactElement } from "react";
 import { DialogContent, styled } from "@mui/material";
 import { GrClose } from "react-icons/gr";
 import { IconButton } from "@mui/material";
@@ -23,6 +23,12 @@ export const Popup = ({
   title,
   transparent,
 }: Props) => {
+  const closeOnOutsideClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose?.();
+    }
+  };
+
   return (
     <StyledModal open={open} onClose={onClose} componentsProps={{
       backdrop: {
@@ -31,10 +37,11 @@ export const Popup = ({
         }
       }
     }}>
-      <StyledDialogContent>
+      <StyledDialogContent onClick={closeOnOutsideClick}>
         <StyledChildren
           title={title || ""}
           className={`popup-children ${className}`}
+          onClick={(event) => event.stopPropagation()}
           headerComponent={
             !title ? null : onClose && !hideCloseButton && <CloseButton close={onClose} />
           }
@@ -50,6 +57,8 @@ const StyledDialogContent = styled(DialogContent)({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  width: "100%",
+  height: "100%",
   padding: 0,
   outline: "unset",
 });

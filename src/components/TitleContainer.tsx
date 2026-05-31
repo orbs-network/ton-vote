@@ -7,6 +7,7 @@ interface Props {
   title: string;
   children: React.ReactNode;
   className?: string;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export function TitleContainer({
@@ -14,12 +15,13 @@ export function TitleContainer({
   title,
   children,
   className = '',
+  onClick,
 }: Props) {
 
     const hideHeader = !title && !headerComponent;
   return (
     <Fade in={true}>
-      <StyledTitleContainer className={className}>
+      <StyledTitleContainer className={className} onClick={onClick}>
         {!hideHeader && (
           <StyledHeader
             justifyContent="space-between"

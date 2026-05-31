@@ -23,29 +23,30 @@ import {
 import { makeElipsisAddress, parseLanguage } from "utils";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { MOBILE_WIDTH } from "consts";
-import { useDaoQuery, useProposalQuery } from "query/getters";
+import { useProposalQuery } from "query/getters";
 import { mock } from "mock/mock";
+import { Dao } from "types";
 
 const MIN_DESCRIPTION_HEIGHT = 450;
 
-export const ProposalAbout = () => {
+export const ProposalAbout = ({ dao }: { dao?: Dao }) => {
   const mobile = useMobile();
 
   return (
     <StyledContainer>
-      {mobile ? <MobileAbout /> : <DesktopAbout />}
+      {mobile ? <MobileAbout dao={dao} /> : <DesktopAbout dao={dao} />}
     </StyledContainer>
   );
 };
 
-function DesktopAbout() {
+function DesktopAbout({ dao }: { dao?: Dao }) {
   return (
     <StyledFlexColumn alignItems="flex-start" gap={20}>
       <ProposalHeader />
       <StyledProposalOwner justifyContent="flex-start">
         <ProposalStatus />
-        <DaoInfo />
-        <ByProposalOwner />
+        <DaoInfo dao={dao} />
+        <ByProposalOwner dao={dao} />
         <StyledShareButton url={window.location.href} />
       </StyledProposalOwner>
       <Description />
@@ -53,17 +54,17 @@ function DesktopAbout() {
   );
 }
 
-function MobileAbout() {
+function MobileAbout({ dao }: { dao?: Dao }) {
   return (
     <StyledFlexColumn alignItems="flex-start" gap={20}>
       <ProposalHeader />
       <StyledProposalOwner justifyContent="flex-start">
         <StyledFlexRow justifyContent="flex-start">
           <ProposalStatus />
-          <DaoInfo />
+          <DaoInfo dao={dao} />
         </StyledFlexRow>
         <StyledFlexRow>
-          <ByProposalOwner />
+          <ByProposalOwner dao={dao} />
           <StyledShareButton url={window.location.href} />
         </StyledFlexRow>
       </StyledProposalOwner>
@@ -206,10 +207,10 @@ const StyledShareButton = styled(ShareButton)({
   marginLeft: "auto",
 });
 
-const DaoInfo = () => {
+const DaoInfo = ({ dao }: { dao?: Dao }) => {
   const { daoAddress } = useAppParams();
 
-  const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
+  const daoMetadata = dao?.daoMetadata;
 
   return (
     <StyledFlexRow style={{ width: "auto" }}>
@@ -226,10 +227,8 @@ const DaoInfo = () => {
   );
 };
 
-const ByProposalOwner = () => {
-  const { daoAddress } = useAppParams();
-
-  const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
+const ByProposalOwner = ({ dao }: { dao?: Dao }) => {
+  const daoRoles = dao?.daoRoles;
   if (!daoRoles?.proposalOwner) {
     return null;
   }

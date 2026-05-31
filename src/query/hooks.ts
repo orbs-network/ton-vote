@@ -3,7 +3,6 @@ import { contract } from "contract";
 import _ from "lodash";
 import { useNewDataStore, useSyncStore } from "store";
 import {
-  getClientV2,
   getDaoMetadata,
 } from "ton-vote-contracts-sdk";
 import { Dao } from "types";
@@ -11,6 +10,7 @@ import {
   Logger,
   validateServerUpdateTime,
 } from "utils";
+import { getResultWithClientV2Fallback } from "rpc";
 
 export const useNewDaoAddresses = () => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -18,7 +18,6 @@ export const useNewDaoAddresses = () => {
   return async (daos: Dao[]) => {    
     if (_.size(newDaosAddresses)) {
       const addresses = _.map(daos, (it) => it.daoAddress);
-      const client = await getClientV2();
 
       let promise = Promise.allSettled(
         _.map(newDaosAddresses, async (newDaoAddress) => {
@@ -27,7 +26,7 @@ export const useNewDaoAddresses = () => {
           } else {
             Logger(`New DAO: ${newDaoAddress}`);
 
-            return contract.getDao(newDaoAddress, client);
+            return contract.getDao(newDaoAddress);
           }
         })
       );
@@ -60,10 +59,11 @@ export const useIsDaosUpToDate = () => {
         const isServerUpToDate = await getIsServerUpToDate(metadataLastUpdate);
 
         if (!isServerUpToDate) {
-          metadataArgs = await getDaoMetadata(
-            await getClientV2(),
-            dao.daoMetadata.metadataAddress
-          );
+          metadataArgs = await getResultWithClientV2Fallback({
+            request: (clientV2) =>
+              getDaoMetadata(clientV2, dao.daoMetadata.metadataAddress),
+            logPrefix: `Fetching DAO metadata ${dao.daoAddress}`,
+          });
         }
 
         return {
@@ -124,4 +124,3 @@ export const useDaoNewProposals = () => {
     return _.uniq(proposals);
   };
 };
-
