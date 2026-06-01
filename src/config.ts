@@ -210,5 +210,6 @@ export const STRICT_HIDDEN_DAOS: string[] = [
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
   "EQCHZNmiqQvgbToCjuqwGJuiw7OEbQYuY6T5Wv4dNnYeZ8XW",
-  "EQDmtv2YqG2uzO76OcPbEfIG_npBbKYMve5lRThkG6Ct33iY"
+  "EQDmtv2YqG2uzO76OcPbEfIG_npBbKYMve5lRThkG6Ct33iY",
+  "EQBbKs4Ufw6R2AfyrhTWW5Wt9GidxTp2llQHkI9V_-lfhu_D"
 ];

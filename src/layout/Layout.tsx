@@ -1,5 +1,5 @@
 import { Fade, styled } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
@@ -36,6 +36,8 @@ const useIsBeta = () => {
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
   useInitHiddenDaoAccess();
+  const { pathname } = useLocation();
+  const compactFooter = pathname.includes("/proposal/");
   
 
   return (
@@ -51,7 +53,7 @@ function Layout({ children }: { children?: ReactNode }) {
               {children}
               <Outlet />
             </StyledContent>
-            <Footer />
+            <Footer compact={compactFooter} />
           </ErrorBoundary>
         </StyledContainer>
       </Fade>

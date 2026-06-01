@@ -5,7 +5,7 @@ import { useAppParams, useMobile, useProposalStatus } from "hooks/hooks";
 import { Link } from "react-router-dom";
 import { appNavigation } from "router/navigation";
 import AnimateHeight from "react-animate-height";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   LoadingContainer,
   Markdown,
@@ -123,18 +123,32 @@ const ShowMoreButton = ({
 
 const Description = () => {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
-  const elRef = useRef<any>();
+  const elRef = useRef<HTMLDivElement | null>(null);
   const { proposalAddress } = useAppParams();
   const { data, isLoading } = useProposalQuery(proposalAddress);
   const [showMore, setShowMore] = useState(false);
+  const description = parseLanguage(data?.metadata?.description);
 
 
   useLayoutEffect(() => {
-    if (elRef.current) {
-      setDescriptionHeight(elRef.current.offsetHeight);
+    const element = elRef.current;
+    if (!element) return;
+
+    const updateDescriptionHeight = () => {
+      setDescriptionHeight(element.scrollHeight);
+    };
+
+    updateDescriptionHeight();
+
+    if (typeof ResizeObserver === "undefined") {
+      return;
     }
-  }, [data?.metadata?.description]);
-  const description = parseLanguage(data?.metadata?.description);
+
+    const resizeObserver = new ResizeObserver(updateDescriptionHeight);
+    resizeObserver.observe(element);
+
+    return () => resizeObserver.disconnect();
+  }, [description]);
 
   const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
 
@@ -154,11 +168,10 @@ const Description = () => {
 
   return (
     <StyledDescription>
-      <StyledPlaceholder ref={elRef}>
-        <StyledMarkdown open={0}>{description}</StyledMarkdown>
-      </StyledPlaceholder>
       <AnimateHeight height={showMore ? "auto" : HEIGHT} duration={0}>
-        <StyledMarkdown open={showMore ? 1 : 0}>{description}</StyledMarkdown>
+        <div ref={elRef}>
+          <StyledMarkdown open={showMore ? 1 : 0}>{description}</StyledMarkdown>
+        </div>
       </AnimateHeight>
       {showMoreButton && (
         <ShowMoreButton showMore={showMore} onClick={setShowMore} />
@@ -170,13 +183,7 @@ const Description = () => {
 const StyledDescription = styled(Box)({
   position: "relative",
   width: "100%",
-});
-
-const StyledPlaceholder = styled("span")({
-  position: "absolute",
-  visibility: "hidden",
-  pointerEvents: "none",
-  height: "auto",
+  overflow: "hidden",
 });
 
 const StyledMarkdown = styled(Markdown)<{ open: number }>(({ open }) => ({
