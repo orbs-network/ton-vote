@@ -44,52 +44,65 @@ export const Markdown = ({
   );
 };
 
-export const StyledMarkdown = styled(Box)(({ theme }) => ({
-  img: {
-    maxWidth: "100%",
-    marginTop: 10,
-  },
+export const StyledMarkdown = styled(Box)(({ theme }) => {
+  const textColor =
+    theme.palette.mode === "light" ? "black" : theme.palette.text.primary;
 
-  "*": {
-    wordBreak: "break-word",
-    color: theme.palette.text.primary,
-    margin: 0,
-    marginBottom: 15,
-    "&:last-child": {
-      marginBottom: 0,
+  return {
+    color: textColor,
+    img: {
+      maxWidth: "100%",
+      marginTop: 10,
     },
-  },
-  iframe: {
-    width: "100%",
-    maxHeight: 350,
-    height: "30vw",
-    minHeight: 200,
-  },
-  video: {
-    width: "100%",
-    maxHeight: 350,
-    height: "30vw",
-    minHeight: 200,
-  },
-  p: {
-    fontSize: 16,
-  },
-  h1: {
-    fontSize: 20,
-    lineHeight: "24px",
-  },
-  h2: {
-    fontSize: 18,
-    lineHeight: "22px",
-  },
-  h3: {
-    fontSize: 16,
-  },
-  h4: {
-    fontSize: 16,
-  },
-  a: {
-    color: theme.palette.primary.main,
-  },
-}));
 
+    "*": {
+      wordBreak: "break-word",
+      color: textColor,
+      margin: 0,
+      marginBottom: 15,
+      "&:last-child": {
+        marginBottom: 0,
+      },
+    },
+    iframe: {
+      width: "100%",
+      maxHeight: 350,
+      height: "30vw",
+      minHeight: 200,
+    },
+    video: {
+      width: "100%",
+      maxHeight: 350,
+      height: "30vw",
+      minHeight: 200,
+    },
+    "p, li": {
+      fontSize: 16,
+      color: textColor,
+    },
+    "strong, em": {
+      color: textColor,
+    },
+    h1: {
+      color: textColor,
+      fontSize: 20,
+      lineHeight: "24px",
+    },
+    h2: {
+      color: textColor,
+      fontSize: 18,
+      lineHeight: "22px",
+    },
+    h3: {
+      color: textColor,
+      fontSize: 16,
+    },
+    h4: {
+      color: textColor,
+      fontSize: 16,
+    },
+    a: {
+      color: theme.palette.primary.main,
+    },
+  };
+});
