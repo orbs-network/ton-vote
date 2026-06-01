@@ -57,6 +57,7 @@ import { lib } from "lib";
 import { useAnalytics } from "analytics";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
 import { applyLocalProposalMetadata } from "data/proposals-metadata";
+import { useLocation } from "react-router-dom";
 import {
   getResultWithClientV2Fallback,
   getResultWithClientV4Fallback,
@@ -542,6 +543,8 @@ export const useProposalQuery = (
   const isWhitelisted = isProposalWhitelisted(proposalAddress);
   const [error, setError] = useState(false);
   const route = useCurrentRoute();
+  const { pathname } = useLocation();
+  const isDirectProposalPage = pathname.includes("/proposal/");
 
   const getProposalWithFallback = useGetProposalWithFallback(proposalAddress);
 
@@ -560,7 +563,10 @@ export const useProposalQuery = (
         throw new Error("Proposal not whitelisted");
       }
 
-      if (BLACKLISTED_PROPOSALS.includes(proposalAddress)) {
+      if (
+        BLACKLISTED_PROPOSALS.includes(proposalAddress) &&
+        !isDirectProposalPage
+      ) {
         throw new Error("Proposal not found");
       }
       const mockProposal = mock.getMockProposal(proposalAddress!);
