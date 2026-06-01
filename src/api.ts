@@ -16,6 +16,14 @@ axiosRetry(axiosInstance, {
   retryDelay: axiosRetry.exponentialDelay,
 });
 
+const getErrorMessage = (error: unknown) => {
+  return error instanceof Error ? error.message : String(error || "");
+};
+
+const isRequestCanceled = (error: unknown, signal?: AbortSignal) => {
+  return signal?.aborted || axios.isCancel(error);
+};
+
 const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
   Logger("Fetching daos from server");
   return (await axiosInstance.get(`/daos`, { signal })).data;
@@ -109,16 +117,25 @@ const getDao = async (
       const data = (await axiosInstance.get(`/dao/${daoAddress}`, { signal }))
         .data;
 
-      if (_.isEmpty(data)) {
+      if (_.isEmpty(data) || !data.daoMetadata || !data.daoRoles) {
         throw new Error("dao not found in server");
       }
       return data;
     } catch (error) {
-      if (attempt === API_RETRIES + 1) {
-        Logger("dao not found is server");
+      if (isRequestCanceled(error, signal)) {
+        bail(new Error(getErrorMessage(error) || "dao request canceled"));
+        return;
       }
 
-      throw new Error(error instanceof Error ? error.message : "");
+      if (attempt === API_RETRIES + 1) {
+        Logger(
+          `Failed to fetch dao from server, address ${daoAddress}: ${getErrorMessage(
+            error
+          )}`
+        );
+      }
+
+      throw new Error(getErrorMessage(error));
     }
   };
 

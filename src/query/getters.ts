@@ -18,7 +18,6 @@ import {
   getIsOneWalletOneVote,
   getProposalSymbol,
   getVoteStrategyType,
-  isDaoHidden,
   isDaoWhitelisted,
   isProposalWhitelisted,
   isSameAddress,
@@ -36,7 +35,6 @@ import {
   useVotePersistedStore,
   useVoteStore,
   useVotingPowerPersistedStore,
-  useHiddenDaosPersistedStore,
   useDaoRolesDisplayPersistedStore,
 } from "store";
 import { contract } from "contract";
@@ -190,16 +188,8 @@ export const useDaosQuery = () => {
 export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
-  const isHiddenDao = isDaoHidden(daoAddress);
-  const walletAddress = useTonAddress();
-  const hiddenDaoAddresses = useHiddenDaosPersistedStore(
-    (state) => state.daoAddresses
-  );
   const storedDaoRoles = useDaoRolesDisplayPersistedStore(
     (state) => state.roles[daoAddress]
-  );
-  const hasHiddenDaoAccess = hiddenDaoAddresses.some((address) =>
-    isSameAddress(address, daoAddress)
   );
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
   const analytics = useAnalytics();
@@ -214,16 +204,22 @@ export const useDaoQuery = (daoAddress: string) => {
   }, [route]);
 
   const queryClient = useQueryClient();
-  const key = isHiddenDao
-    ? [QueryKeys.DAO, daoAddress, walletAddress, hasHiddenDaoAccess]
-    : [QueryKeys.DAO, daoAddress];
+  const key = [QueryKeys.DAO, daoAddress];
 
   return useQuery<Dao | null>(
     key,
     async ({ signal }) => {
+      const throwIfAborted = () => {
+        if (signal?.aborted) {
+          throw new Error("DAO request canceled");
+        }
+      };
+
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
       }
+
+      throwIfAborted();
 
       const mockDao = mock.isMockDao(daoAddress!);
       if (mockDao) {
@@ -242,18 +238,22 @@ export const useDaoQuery = (daoAddress: string) => {
       let dao;
       try {
         if (!isMetadataUpToDate) {
+          throwIfAborted();
           dao = await getDaoFromContract();
         } else {
           removeDaoUpdateMillis(daoAddress!);
         }
       } catch (error) {
+        throwIfAborted();
         analytics.getDaoFromContractFailed(daoAddress!, error);
       }
 
       if (!dao) {
         try {
+          throwIfAborted();
           dao = await api.getDao(daoAddress!, signal);
         } catch (error) {
+          throwIfAborted();
           analytics.getDaoFromServerFailed(daoAddress!, error);
         }
       }
@@ -261,8 +261,10 @@ export const useDaoQuery = (daoAddress: string) => {
       if (!dao) {
         
         try {
+          throwIfAborted();
           dao = await getDaoFromContract();
         } catch (error) {
+          throwIfAborted();
           analytics.getDaoFromContractFailed(daoAddress!, error);
         }
       }
