@@ -14,6 +14,8 @@ const LOCAL_PROPOSAL_METADATA: Record<string, LocalProposalMetadata> = {
   "EQBbKs4Ufw6R2AfyrhTWW5Wt9GidxTp2llQHkI9V_-lfhu_D": telegramProposalMetadata,
 };
 
+
+
 const toMetadataText = (value?: LocalizedText) => {
   if (!value || typeof value === "string") return value;
 
