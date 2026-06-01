@@ -6,6 +6,7 @@ import {
   PROD_TEST_DAOS,
   REFETCH_INTERVALS,
   BLACKLISTED_PROPOSALS,
+  STRICT_HIDDEN_PROPOSALS,
 } from "config";
 import { Dao, Proposal, Vote } from "types";
 import _ from "lodash";
@@ -61,10 +62,11 @@ import {
   getResultWithClientV4Fallback,
 } from "rpc";
 
-const PINNED_DAO_ADDRESSES = [
+const HIDDEN_FROM_DAO_LIST_ADDRESSES = [
   "EQDQvywF226NXojPky_9gwbCz0FPoygqY11bGl03SONNBs5V",
-  FOUNDATION_DAO_ADDRESS,
 ];
+
+const PINNED_DAO_ADDRESSES = [FOUNDATION_DAO_ADDRESS];
 
 const toNonBounceableAddress = (address: string) => {
   try {
@@ -157,6 +159,14 @@ export const useDaosQuery = () => {
 
       // filter daos by whitelist
       let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
+
+      result = _.filter(
+        result,
+        (it) =>
+          !HIDDEN_FROM_DAO_LIST_ADDRESSES.some((daoAddress) =>
+            isSameAddress(it.daoAddress, daoAddress)
+          )
+      );
 
       const pinnedDaos = _.compact(
         PINNED_DAO_ADDRESSES.map((daoAddress) => {
@@ -563,6 +573,10 @@ export const useProposalQuery = (
     async ({ signal }) => {
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
+      }
+
+      if (STRICT_HIDDEN_PROPOSALS.includes(proposalAddress)) {
+        throw new Error("Proposal not found");
       }
 
       if (

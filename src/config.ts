@@ -199,7 +199,8 @@ export const BLACKLISTED_DAOS = [
   "EQBDk9Pg0UZsDTMSX0Q7vZkaPn6tdM44f2DUi6-HnnY4Pfre",
   "EQDVAAlbnYXpS7yNHfK27lhZa5RWS9_ZjIwBF-hqOYZm_qAK",
   "EQDa7grs62NSFvekgwSa3Zf4Chk3SiCydmxlNJBVzW7A8xXp",
-  "EQDcg0G4jn1erit4b1Is33ybn9yO6Ggj37ULXZiH_ZZ7uie1"
+  "EQDcg0G4jn1erit4b1Is33ybn9yO6Ggj37ULXZiH_ZZ7uie1",
+  TELEGRAM_DAO
 ];
 export const HIDDEN_DAOS = [
   "EQAtq0oA0kjTbELbZeAM-U0gohILXDzK6ahrTIX5EsheSFgI"
@@ -207,9 +208,13 @@ export const HIDDEN_DAOS = [
 export const STRICT_HIDDEN_DAOS: string[] = [
   TELEGRAM_DAO
 ];
+export const STRICT_HIDDEN_PROPOSALS = [
+  "EQDmtv2YqG2uzO76OcPbEfIG_npBbKYMve5lRThkG6Ct33iY",
+  "EQBbKs4Ufw6R2AfyrhTWW5Wt9GidxTp2llQHkI9V_-lfhu_D",
+  "EQALWRyOG5lnkQjqZ3I0XOEhshGVzo8BvzsdSYPYEsepN--x"
+];
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
   "EQCHZNmiqQvgbToCjuqwGJuiw7OEbQYuY6T5Wv4dNnYeZ8XW",
-  "EQDmtv2YqG2uzO76OcPbEfIG_npBbKYMve5lRThkG6Ct33iY",
-  "EQBbKs4Ufw6R2AfyrhTWW5Wt9GidxTp2llQHkI9V_-lfhu_D"
+  ...STRICT_HIDDEN_PROPOSALS
 ];
