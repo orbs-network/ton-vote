@@ -1,3 +1,4 @@
+import { TELEGRAM_DAO } from "consts";
 import _ from "lodash";
 import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "types";
@@ -203,7 +204,7 @@ export const HIDDEN_DAOS = [
   "EQAtq0oA0kjTbELbZeAM-U0gohILXDzK6ahrTIX5EsheSFgI"
 ];
 export const STRICT_HIDDEN_DAOS: string[] = [
-  "EQDQvywF226NXojPky_9gwbCz0FPoygqY11bGl03SONNBs5V"
+  TELEGRAM_DAO
 ];
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",

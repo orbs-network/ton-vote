@@ -1,5 +1,6 @@
 import { ProposalMetadata } from "ton-vote-contracts-sdk";
-import testProposalMetadata from "./test.json";
+import telegramProposalMetadata from "./telegram-proposal.json";
+import { TELEGRAM_DAO } from "consts";
 
 type LocalizedText = string | Record<string, string>;
 type LocalProposalMetadata = Partial<
@@ -10,7 +11,7 @@ type LocalProposalMetadata = Partial<
 };
 
 const LOCAL_PROPOSAL_METADATA: Record<string, LocalProposalMetadata> = {
-  EQA95DKrJPP7YryEAcMX6PXVlfdm69kVBNuCnFzPN_V0uFzH: testProposalMetadata,
+  "EQDmtv2YqG2uzO76OcPbEfIG_npBbKYMve5lRThkG6Ct33iY": telegramProposalMetadata,
 };
 
 const toMetadataText = (value?: LocalizedText) => {

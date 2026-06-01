@@ -1,8 +1,0 @@
-{
-  "title": {
-    "en": "Local metadata test proposal"
-  },
-  "description": {
-    "en": "# Local proposal metadata\n\nThis markdown text is loaded from a local JSON file instead of the proposal metadata returned by the server.\n\n- Supports markdown lists\n- Keeps live votes and results from the server or contract\n- Can be replaced with real proposal copy later"
-  }
-}

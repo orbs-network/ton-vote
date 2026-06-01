@@ -17,13 +17,16 @@ export const StyledJoinDao = styled(Button)({
   minWidth: "60%",
 });
 
-export const StyledDaoAvatar = styled(Img)({
+export const StyledDaoAvatar = styled(Img)(({ $isTelegramDao }: { $isTelegramDao: boolean }) => ({
   width: 55,
   height: 55,
   borderRadius: "50%",
   overflow: "hidden",
   marginBottom: 20,
-});
+  ...($isTelegramDao ? {
+    transform: 'scale(1.35)',
+  } : {}),
+}));
 
 
 export const StyledDao = styled(Box)(({ theme }) => ({

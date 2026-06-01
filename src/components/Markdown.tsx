@@ -1,6 +1,18 @@
 import { Box, styled } from "@mui/material";
-import {  useRef } from "react";
+import { useEffect, useRef } from "react";
 import { marked } from "marked";
+
+const linkTarget = "_blank";
+const linkRel = "noopener noreferrer";
+
+const markdownRenderer = new marked.Renderer();
+const defaultRenderer = new marked.Renderer();
+
+markdownRenderer.link = (href, title, text) => {
+  return defaultRenderer
+    .link(href, title, text)
+    .replace("<a ", `<a target="${linkTarget}" rel="${linkRel}" `);
+};
 
 export const Markdown = ({
   children = "",
@@ -10,13 +22,24 @@ export const Markdown = ({
   className?: string;
 }) => {
 
-  const ref = useRef<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const links = ref.current?.querySelectorAll("a[href]");
+
+    links?.forEach((link) => {
+      link.setAttribute("target", linkTarget);
+      link.setAttribute("rel", linkRel);
+    });
+  }, [children]);
 
   return (
     <StyledMarkdown
       ref={ref}
       className={className}
-      dangerouslySetInnerHTML={{ __html: marked.parse(children) }}
+      dangerouslySetInnerHTML={{
+        __html: marked.parse(children, { renderer: markdownRenderer }),
+      }}
     />
   );
 };
@@ -69,5 +92,4 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
     color: theme.palette.primary.main,
   },
 }));
-
 

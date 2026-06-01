@@ -30,6 +30,7 @@ import {
   StyledDaoContent,
   StyledHiddenIcon,
 } from "./styles";
+import { TELEGRAM_DAO } from "consts";
 
 const parseWesbite = (website: string) => {
   let value = website.replace("https://", "").replace("www.", "");
@@ -75,6 +76,10 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
 
   const name = parseLanguage(metadataArgs?.name) || "";
 
+  const isTelegramDao = isSameAddress(dao.daoAddress, TELEGRAM_DAO);
+
+  
+
   return (
     <StyledDao ref={ref} onClick={() => daoPage.root(dao.daoAddress)}>
       <StyledDaoContent className="container" hover>
@@ -90,7 +95,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
         )}
         {isVisible ? (
           <StyledFlexColumn>
-            <StyledDaoAvatar src={metadataArgs?.avatar} />
+            <StyledDaoAvatar src={metadataArgs?.avatar} $isTelegramDao={isTelegramDao} />
             <Typography className="title">
               <TextOverflow text={`${name}${mockPrefix}`} />
             </Typography>

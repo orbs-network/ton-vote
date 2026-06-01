@@ -26,7 +26,7 @@ export const ABOUT_CHARS_LIMIT = 2350;
 export const TITLE_LIMIT =   180;
 
 
-
+export const TELEGRAM_DAO = 'EQDQvywF226NXojPky_9gwbCz0FPoygqY11bGl03SONNBs5V'
 
 export const MOBILE_WIDTH = 768;
 

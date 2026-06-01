@@ -63,6 +63,11 @@ import {
   getResultWithClientV4Fallback,
 } from "rpc";
 
+const PINNED_DAO_ADDRESSES = [
+  "EQDQvywF226NXojPky_9gwbCz0FPoygqY11bGl03SONNBs5V",
+  FOUNDATION_DAO_ADDRESS,
+];
+
 const toNonBounceableAddress = (address: string) => {
   try {
     return Address.parse(address).toString({ bounceable: false });
@@ -155,13 +160,17 @@ export const useDaosQuery = () => {
       // filter daos by whitelist
       let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
 
-      const daoIndex = _.findIndex(result, {
-        daoAddress: FOUNDATION_DAO_ADDRESS,
-      });
+      const pinnedDaos = _.compact(
+        PINNED_DAO_ADDRESSES.map((daoAddress) => {
+          const daoIndex = _.findIndex(result, (dao) =>
+            isSameAddress(dao.daoAddress, daoAddress)
+          );
 
-      const foundationDao = daoIndex >= 0 ? result.splice(daoIndex, 1) : [];
+          return daoIndex >= 0 ? result.splice(daoIndex, 1)[0] : undefined;
+        })
+      );
 
-      let allDaos = [...foundationDao, ...result];
+      let allDaos = [...pinnedDaos, ...result];
 
       if (!devFeatures) {
         allDaos = _.filter(
