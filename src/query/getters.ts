@@ -19,7 +19,6 @@ import {
   getProposalSymbol,
   getVoteStrategyType,
   isDaoHidden,
-  isDaoStrictHidden,
   isDaoWhitelisted,
   isProposalWhitelisted,
   isSameAddress,
@@ -191,7 +190,6 @@ export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
   const isWhitelisted = isDaoWhitelisted(daoAddress);
   const isHiddenDao = isDaoHidden(daoAddress);
-  const isStrictHiddenDao = isDaoStrictHidden(daoAddress);
   const walletAddress = useTonAddress();
   const hiddenDaoAddresses = useHiddenDaosPersistedStore(
     (state) => state.daoAddresses
@@ -218,16 +216,6 @@ export const useDaoQuery = (daoAddress: string) => {
   const key = isHiddenDao
     ? [QueryKeys.DAO, daoAddress, walletAddress, hasHiddenDaoAccess]
     : [QueryKeys.DAO, daoAddress];
-  const cachedDao = queryClient.getQueryData<Dao>(key);
-  const hasKnownHiddenDaoAccess =
-    !isHiddenDao ||
-    (!isStrictHiddenDao && hasHiddenDaoAccess) ||
-    isSameAddress(cachedDao?.daoRoles.owner, walletAddress) ||
-    isSameAddress(cachedDao?.daoRoles.proposalOwner, walletAddress) ||
-    isSameAddress(storedDaoRoles?.owner, walletAddress) ||
-    isSameAddress(storedDaoRoles?.proposalOwner, walletAddress);
-  const canCheckHiddenDaoAccess =
-    !isHiddenDao || hasKnownHiddenDaoAccess || !!walletAddress;
 
   return useQuery<Dao | null>(
     key,
@@ -287,16 +275,6 @@ export const useDaoQuery = (daoAddress: string) => {
         throw new Error("DAO not found");
       }
 
-      const canViewFetchedHiddenDao =
-        !isHiddenDao ||
-        (!isStrictHiddenDao && hasHiddenDaoAccess) ||
-        isSameAddress(dao.daoRoles.owner, walletAddress) ||
-        isSameAddress(dao.daoRoles.proposalOwner, walletAddress);
-
-      if (!canViewFetchedHiddenDao) {
-        throw new Error("DAO not found");
-      }
-
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
       let daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
@@ -333,10 +311,10 @@ export const useDaoQuery = (daoAddress: string) => {
     {
       staleTime: config.staleTime,
       refetchInterval:
-        isWhitelisted && hasKnownHiddenDaoAccess
+        isWhitelisted
           ? config.refetchInterval
           : undefined,
-      enabled: !!daoAddress && canCheckHiddenDaoAccess,
+      enabled: !!daoAddress,
       retry: false,
     }
   );
