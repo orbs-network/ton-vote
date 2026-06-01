@@ -51,7 +51,7 @@ import {
 } from "./hooks";
 import { api } from "api";
 import { useMemo, useState } from "react";
-import { routes } from "consts";
+import { routes, TELEGRAM_DAO } from "consts";
 import { lib } from "lib";
 import { useAnalytics } from "analytics";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
@@ -62,11 +62,7 @@ import {
   getResultWithClientV4Fallback,
 } from "rpc";
 
-const HIDDEN_FROM_DAO_LIST_ADDRESSES = [
-  "EQDQvywF226NXojPky_9gwbCz0FPoygqY11bGl03SONNBs5V",
-];
-
-const PINNED_DAO_ADDRESSES = [FOUNDATION_DAO_ADDRESS];
+const PINNED_DAO_ADDRESSES = [TELEGRAM_DAO, FOUNDATION_DAO_ADDRESS];
 
 const toNonBounceableAddress = (address: string) => {
   try {
@@ -159,14 +155,6 @@ export const useDaosQuery = () => {
 
       // filter daos by whitelist
       let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
-
-      result = _.filter(
-        result,
-        (it) =>
-          !HIDDEN_FROM_DAO_LIST_ADDRESSES.some((daoAddress) =>
-            isSameAddress(it.daoAddress, daoAddress)
-          )
-      );
 
       const pinnedDaos = _.compact(
         PINNED_DAO_ADDRESSES.map((daoAddress) => {

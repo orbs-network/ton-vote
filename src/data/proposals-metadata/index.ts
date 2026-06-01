@@ -11,7 +11,7 @@ type LocalProposalMetadata = Partial<
 };
 
 const LOCAL_PROPOSAL_METADATA: Record<string, LocalProposalMetadata> = {
-  "EQALWRyOG5lnkQjqZ3I0XOEhshGVzo8BvzsdSYPYEsepN--x": telegramProposalMetadata,
+  "EQAv-VS2OM80SYLB0ouRWRcpFg4J0L-egUf1-utF-OJ6h0rK": telegramProposalMetadata,
 };
 
 
