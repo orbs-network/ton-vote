@@ -6,17 +6,19 @@ import { useEnpointsStore } from "./store";
 import { Endpoints, Proposal, ProposalResults, Vote } from "types";
 import { contract } from "contract";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
-import { showSuccessToast, usePromiseToast } from "toasts";
+import { usePromiseToast } from "toasts";
 import { useProposalQuery } from "query/getters";
 import { useVotePersistedStore } from "store";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import moment from "moment";
 import { TFunction } from "i18next";
 import {
   getClientV2FallbackEndpoints,
   getClientV4FallbackEndpoints,
 } from "rpc";
+import { calcProposalResult } from "ton-vote-contracts-sdk";
+import { shouldVerifyWithCachedVotingPower } from "data/proposals-metadata";
 
 const handleNulls = (_result?: ProposalResults) => {
   const getValue = (value: any) => {
@@ -33,6 +35,21 @@ const handleNulls = (_result?: ProposalResults) => {
   });
 
   return result;
+};
+
+const getResultWithCachedVotingPower = (
+  proposal?: Proposal | null,
+  votingPower?: Proposal["votingPower"]
+) => {
+  if (!proposal?.metadata || !proposal?.rawVotes || _.isEmpty(votingPower)) {
+    return;
+  }
+
+  return calcProposalResult(
+    proposal.rawVotes,
+    votingPower,
+    proposal.metadata.votingSystem
+  ) as ProposalResults;
 };
 
 export const useVerifyProposalResults = () => {
@@ -77,9 +94,27 @@ export const useVerifyProposalResults = () => {
         const isEqual = _.isEqual(currentResults, compareToResults);
 
         if (!isEqual) {
-          throw new Error("Not equal");
+          const cachedVotingPowerResults =
+            shouldVerifyWithCachedVotingPower(proposalAddress)
+              ? handleNulls(
+                  getResultWithCachedVotingPower(contractState, data?.votingPower)
+                )
+              : undefined;
+          const isEqualWithCachedVotingPower = _.isEqual(
+            currentResults,
+            cachedVotingPowerResults
+          );
+
+          Logger({
+            cachedVotingPowerResults,
+            isEqualWithCachedVotingPower,
+          });
+
+          if (!isEqualWithCachedVotingPower) {
+            throw new Error("Not equal");
+          }
         }
-        return isEqual;
+        return true;
       };
 
       const promise = promiseFn();

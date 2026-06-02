@@ -14,6 +14,16 @@ const LOCAL_PROPOSAL_METADATA: Record<string, LocalProposalMetadata> = {
   "EQAv-VS2OM80SYLB0ouRWRcpFg4J0L-egUf1-utF-OJ6h0rK": telegramProposalMetadata,
 };
 
+// This proposal was cached with validator staking included, while its on-chain
+// metadata still declares the plain TON balance strategy.
+const PROPOSALS_WITH_CACHED_VALIDATOR_STAKING = [
+  "EQAv-VS2OM80SYLB0ouRWRcpFg4J0L-egUf1-utF-OJ6h0rK",
+];
+
+export const shouldVerifyWithCachedVotingPower = (proposalAddress: string) => {
+  return PROPOSALS_WITH_CACHED_VALIDATOR_STAKING.includes(proposalAddress);
+};
+
 
 
 const toMetadataText = (value?: LocalizedText) => {
