@@ -351,14 +351,6 @@ export const useConnectedWalletVotingPowerQuery = (
     [QueryKeys.SIGNLE_VOTING_POWER, connectedWallet, proposalAddress],
     async ({ signal }) => {
       const walletAddress = normalizeTonAddress(connectedWallet);
-      const cachedVotingPower = votingPowerStore.getVotingPower(
-        proposalAddress!,
-        walletAddress
-      );
-
-      if (cachedVotingPower !== undefined) {
-        return getConnectedWalletVotingPowerResult(proposal, cachedVotingPower);
-      }
 
       const allNftHolders = await lib.getAllNFTHolders(
         proposalAddress!,
