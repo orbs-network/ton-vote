@@ -49,7 +49,7 @@ We took great care to make sure the voting process and calculation is decentrali
 
 1. Votes are sent as on-chain transactions to a smart contract on mainnet. The smart contract address can be obtained from the proposal page on the information section.
 
-2. You can open the proposal contract in an explorer and see all transactions sent to it with their votes as comments. You can also use ton verifier to see the contract code since it is verified, just go to https://verifier.ton.org and enter the propoal address. The source includes parameters of the proposal like start and end dates, snapshot date, voting strategy and more.
+2. You can open the proposal contract in an explorer and see all transactions sent to it with their votes as comments. You can also use ton verifier to see the contract code since it is verified, just go to https://verifier.ton.org and enter the proposal address. The source includes parameters of the proposal like start and end dates, snapshot date, voting strategy and more.
 
 3. The browser app that displays the results is open source and served from GitHub Pages on [this repo](https://github.com/orbs-network/ton-vote). It uses a cache server only for better user experience but it can also work without the cache server and read all data from the chain in order to calculate the results. 
 
@@ -63,7 +63,7 @@ We took great care to make sure the voting process and calculation is decentrali
 
 * Every DAO needs to open a DAO space before it can submit new proposals. The DAO as well as the prposals are contracts on the TON blockchain. you can see the contracts implementations [here](https://github.com/orbs-network/ton-vote-contracts).
 
-* The proposal contract is a very simple Tact contract to be a destination for votes. Voters vote with a comment so they can vote even without a special client. Contract holds parameters of the proposal such as start, end and snapshot timestamps, voting system and strategy, title ansd description and more. 
+* The proposal contract is a very simple Tact contract to be a destination for votes. Voters vote with a comment so they can vote even without a special client. Contract holds parameters of the proposal such as start, end and snapshot timestamps, voting system and strategy, title and description and more. 
 
 * The proposal owners can update the proposal only until the start timestamp, after this time it is immutable and can not be changed. We use this mechanism to avoid influencing the proposal results but still allowing owners to make some changes to the proposal before it starts.
 
@@ -84,7 +84,7 @@ To verify your DAO space on ton.vote, please follow these steps:
 You can find your Dao address on the Dao page after creating the DAO. By completing these steps, your DAO will be marked as verified by ton.vote.
 
 ## How to make test proposals?
-We have built a dedicated platform for testing proposals and its available [here](https://dev.ton.vote). 
+We have built a dedicated platform for testing proposals and it's available [here](https://dev.ton.vote). 
 It is advisable to refrain from spamming your DAO with testing proposals. If you wish to create a test proposal, you can utilize dev.ton.vote. Just create a new DAO and create as many testing proposals as needed.
 
 We have created a dedicated platform at [dev.ton.vote](https://dev.ton.vote) specifically for testing proposals. To maintain the integrity of your DAO, we kindly request that you refrain from spamming it with testing proposals. Instead, you can leverage the dev.ton.vote platform to create a new DAO and generate as many testing proposals as you require.
